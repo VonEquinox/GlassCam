@@ -44,4 +44,4 @@ Git 复用研究分支已经存在的 ZIP blob；没有再上传一份不同内�
 
 ## 未验证
 
-Apple 编译、实际照片审美、ProRAW、HEIF bitstream、微信兼容、手机性能/内存/热稳定仍未执行。黄金测试验证恢复的研究算法，不验证真实 Fujifilm 相机等价性。当前仍是最长边 2048px 的导入效果原型；实时相机是下一实施阶段。
+Apple 编译、实际照片审美、ProRAW、HEIF bitstream、微信兼容、手机性能/内存/热稳定仍未执行。黄金测试验证恢复的研究算法，不验证真实 Fujifilm 相机等价性。导入效果预览默认最长边 2048px；全源导出与原生相机源码已在后续阶段加入，见 [全源导出](FULL_RESOLUTION_EXPORT.md) 和 [相机能力](camera-capture.md)，仍须 Apple 环境验证。

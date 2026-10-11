@@ -38,7 +38,7 @@ linear sRGB(D65) → XYZ → Bradford 白点适配 → inverse(interpolated came
 5. 新增显式 fast 显示编码路径：65,536 项线性采样表，仅最终 8 位 sRGB 编码允许最多 1 码误差；原 HNCS 核不近似。精确路径保留。CPU 连续块并行最多 4 线程，已做同输入对比测量。
 6. 未在手机上测量之前，不声称“极限优化完成”、实时 48MP、功耗或热稳定性目标达标。
 
-8 位 fast 路径只服务屏幕预览。用户导出走独立 Float display-linear RGBA → extendedLinearSRGB CIImage → writeHEIF10Representation(sRGB) 路径，保留原 HNCS 的 16 位阶段，避免 8 位瓶颈。HEIF-only 不意味着无损，也不代表 HDR/gain map；当前为 SDR，最长边仍为 2048。实际编码位深与微信兼容需真机核验。
+8 位 fast 路径只服务屏幕预览。用户导出走独立 Float display-linear RGBA → extendedLinearSRGB CIImage → writeHEIF10Representation(sRGB) 路径，保留原 HNCS 的 16 位阶段，避免 8 位瓶颈。HEIF-only 不意味着无损，也不代表 HDR/gain map；当前为 SDR；2048px 仅是默认导入预览上限，导出已改为完整源或所选输出尺寸。实际编码位深与微信兼容需真机核验。
 
 ## FFCS independent backend
 
