@@ -1,0 +1,3 @@
+# Test/diagnostic dependencies only; the C++ backend has no third-party runtime dependency.
+numpy>=2.0,<3
+Pillow>=11,<13

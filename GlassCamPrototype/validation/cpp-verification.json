@@ -1,0 +1,323 @@
+{
+  "status": "passed",
+  "original_golden_groups": 52,
+  "original_golden_pixels": 6656,
+  "original_max_code_difference": 0,
+  "additional_random_boundary_channel_comparisons": 892080,
+  "additional_native_max_code_difference": 0,
+  "display_adapter_max_uint8_difference": 0,
+  "display_tolerance_uint8": 1,
+  "tile_equivalence": "bit-exact",
+  "nonfinite_null_and_invalid_mode": "passed",
+  "golden_checks": [
+    {
+      "key": "legacy_standard_1000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_2000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_2400_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_3050_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_4000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_5550_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_7000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_7523_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_7625_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_8543_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_9100_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_10000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_standard_11000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_1000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_2000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_2400_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_3050_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_4000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_5550_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_7000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_7523_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_7625_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_8543_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_9100_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_10000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "legacy_reproduction_11000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_1000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_2000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_2400_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_3050_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_4000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_5550_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_7000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_7523_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_7625_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_8543_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_9100_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_10000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_standard_11000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_1000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_2000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_2400_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_3050_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_4000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_5550_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_7000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_7523_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_7625_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_8543_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_9100_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_10000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    },
+    {
+      "key": "lstar_reproduction_11000_source",
+      "pixels": 128,
+      "max_code_difference": 0
+    }
+  ],
+  "benchmark": {
+    "scope": "single-thread fused CPU kernel including experimental source bridge and sRGB encoding; decode, resize, Swift copies, PNG encoding and UI excluded",
+    "not_an_iphone_measurement": true,
+    "context_setup_median_ms": 1.609275000191701,
+    "rows": [
+      {
+        "width": 1024,
+        "height": 1024,
+        "pixels": 1048576,
+        "samples": 5,
+        "median_ms": 435.4757310002242,
+        "p95_ms": 474.0867704000266,
+        "megapixels_per_second": 2.4078861928575765,
+        "input_output_bytes": 16777216,
+        "output_sha256": "34aad626a7e33a5f3584c231f66cc51463dbc202f024b9f7eb171d3504a62080"
+      },
+      {
+        "width": 2048,
+        "height": 1536,
+        "pixels": 3145728,
+        "samples": 5,
+        "median_ms": 1284.4344790000832,
+        "p95_ms": 1327.501581800061,
+        "megapixels_per_second": 2.4491151953884884,
+        "input_output_bytes": 50331648,
+        "output_sha256": "212817b17c92c72762645dfe4c4a6044318bb826599be7c95cb69854d286585c"
+      },
+      {
+        "width": 4000,
+        "height": 3000,
+        "pixels": 12000000,
+        "samples": 5,
+        "median_ms": 5590.930302999368,
+        "p95_ms": 6449.894689399662,
+        "megapixels_per_second": 2.1463333201564607,
+        "input_output_bytes": 192000000,
+        "output_sha256": "e855f3dc6d31ec690fad3b614c7901766c46d7b776435b9de23c8b2d22627881"
+      }
+    ]
+  },
+  "environment": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+    "build_command": "g++ -std=c++17 -O3 -ffp-contract=off -fno-fast-math -shared -fPIC core/hncs.cpp -o build/libhncs.so",
+    "cpu": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz"
+  }
+}

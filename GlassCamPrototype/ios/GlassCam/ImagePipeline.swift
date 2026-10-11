@@ -1,0 +1,137 @@
+import Foundation
+import CoreImage
+import UIKit
+import ImageIO
+
+struct ImportedImage: @unchecked Sendable {
+    let linearRGB: [Float]
+    let width: Int
+    let height: Int
+    let original: UIImage
+    let sourceDescription: String
+}
+
+struct ProcessedImage: @unchecked Sendable {
+    let image: UIImage
+    let png: Data
+}
+
+enum PipelineError: LocalizedError {
+    case invalidImage, rendering, encoding
+    var errorDescription: String? {
+        switch self {
+        case .invalidImage: return "This image could not be decoded. Try a JPEG, PNG, HEIC, or supported DNG."
+        case .rendering: return "The image renderer could not create an output."
+        case .encoding: return "The processed image could not be encoded as PNG."
+        }
+    }
+}
+
+/// Experimental source adaptation. This is not a calibrated camera-native RGB profile.
+/// Core Image honors embedded profiles and converts to extended linear sRGB.
+/// Processing and export are deliberately capped at 2048 pixels on the long edge.
+enum ImagePipeline {
+    static let maximumEdge: CGFloat = 2048
+    // A cancelled detached task may finish its current decoder call. Serialize the
+    // complete decode/render stage so superseded RAW decodes never overlap.
+    private static let decodeQueue = DispatchQueue(label: "dev.glasscam.decode", qos: .userInitiated)
+
+    static func load(data: Data, fileExtension: String?) throws -> ImportedImage {
+        try decodeQueue.sync {
+            try autoreleasepool { try decode(data: data, fileExtension: fileExtension) }
+        }
+    }
+
+    private static func decode(data: Data, fileExtension: String?) throws -> ImportedImage {
+        let isRAW = ["dng", "raw"].contains(fileExtension?.lowercased() ?? "")
+        var source: CIImage?
+        if isRAW {
+            if let raw = CIRAWFilter(imageData: data, identifierHint: "com.adobe.raw-image") {
+                // Set the decoder orientation explicitly from source metadata. Do not
+                // apply a second CIImage orientation transform to the decoder output.
+                if let imageSource = CGImageSourceCreateWithData(data as CFData, nil),
+                   let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [String: Any],
+                   let exif = properties[kCGImagePropertyOrientation as String] as? NSNumber,
+                   let orientation = CGImagePropertyOrientation(rawValue: exif.uint32Value) {
+                    raw.orientation = orientation
+                }
+                let native = raw.nativeSize
+                let longEdge = max(native.width, native.height)
+                guard longEdge.isFinite, longEdge > 0 else { throw PipelineError.invalidImage }
+                // Ask the RAW decoder for reduced output before evaluating outputImage.
+                // This reduces requested output size; Apple may still use full-size
+                // intermediate buffers internally, so it is not a peak-memory guarantee.
+                raw.scaleFactor = Float(min(1, maximumEdge / longEdge))
+                source = raw.outputImage
+            }
+        } else {
+            let sourceOptions = [kCGImageSourceShouldCache as String: false] as CFDictionary
+            guard let imageSource = CGImageSourceCreateWithData(data as CFData, sourceOptions) else {
+                throw PipelineError.invalidImage
+            }
+            let thumbnailOptions: [String: Any] = [
+                kCGImageSourceCreateThumbnailFromImageAlways as String: true,
+                kCGImageSourceThumbnailMaxPixelSize as String: Int(maximumEdge),
+                kCGImageSourceCreateThumbnailWithTransform as String: true,
+                kCGImageSourceShouldCacheImmediately as String: true,
+                kCGImageSourceShouldAllowFloat as String: true
+            ]
+            guard let thumbnail = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, thumbnailOptions as CFDictionary) else {
+                throw PipelineError.invalidImage
+            }
+            // CIImage takes the thumbnail CGImage's embedded color space. Do not
+            // force sRGB here: Core Image performs the later linear-sRGB conversion.
+            // ImageIO has already applied EXIF orientation during thumbnail creation.
+            source = CIImage(cgImage: thumbnail)
+        }
+        guard var image = source, !image.extent.isEmpty, !image.extent.isInfinite else {
+            throw PipelineError.invalidImage
+        }
+        image = image.transformed(by: CGAffineTransform(translationX: -image.extent.minX,
+                                                       y: -image.extent.minY))
+        let scale = min(1, maximumEdge / max(image.extent.width, image.extent.height))
+        if scale < 1 { image = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale)) }
+        let width = max(1, Int(image.extent.width.rounded(.down)))
+        let height = max(1, Int(image.extent.height.rounded(.down)))
+        let bounds = CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+        guard let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB),
+              let sRGB = CGColorSpace(name: CGColorSpace.sRGB) else { throw PipelineError.rendering }
+        let context = CIContext(options: [.workingColorSpace: linear])
+        // Transparent inputs are intentionally flattened onto black before color conversion.
+        image = image.composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
+            .cropped(to: bounds)
+        var pixels = [Float](repeating: 0, count: width * height * 4)
+        pixels.withUnsafeMutableBytes { bytes in
+            context.render(image, toBitmap: bytes.baseAddress!, rowBytes: width * 16,
+                           bounds: bounds, format: .RGBAf, colorSpace: linear)
+        }
+        guard let originalCG = context.createCGImage(image, from: bounds, format: .RGBA8, colorSpace: sRGB)
+        else { throw PipelineError.rendering }
+        var rgb = [Float]()
+        rgb.reserveCapacity(width * height * 3)
+        for i in stride(from: 0, to: pixels.count, by: 4) {
+            rgb.append(contentsOf: pixels[i..<(i + 3)])
+        }
+        return ImportedImage(linearRGB: rgb, width: width, height: height,
+                             original: UIImage(cgImage: originalCG),
+                             sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter" : "Rendered image • embedded profile → linear sRGB")
+    }
+
+    static func process(_ input: ImportedImage, exposureEV: Double, kelvin: Double) throws -> ProcessedImage {
+        let rgba = try HNCSEngine.process(linearSRGB: input.linearRGB, width: input.width,
+                                          height: input.height, exposureEV: exposureEV,
+                                          illuminantKelvin: kelvin)
+        guard rgba.count == input.width * input.height * 4,
+              let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
+              let provider = CGDataProvider(data: Data(rgba) as CFData),
+              let cg = CGImage(width: input.width, height: input.height,
+                               bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: input.width * 4,
+                               space: colorSpace,
+                               bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue),
+                               provider: provider, decode: nil, shouldInterpolate: true,
+                               intent: .defaultIntent) else { throw PipelineError.rendering }
+        let image = UIImage(cgImage: cg)
+        guard let png = image.pngData() else { throw PipelineError.encoding }
+        return ProcessedImage(image: image, png: png)
+    }
+}

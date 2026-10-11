@@ -1,0 +1,128 @@
+{
+  "status": "passed",
+  "native_core": {
+    "status": "passed",
+    "original_golden_groups": 52,
+    "original_golden_pixels": 6656,
+    "original_max_code_difference": 0,
+    "additional_random_boundary_channel_comparisons": 892080,
+    "additional_native_max_code_difference": 0,
+    "display_adapter_max_uint8_difference": 0,
+    "display_tolerance_uint8": 1,
+    "tile_equivalence": "bit-exact",
+    "nonfinite_null_and_invalid_mode": "passed"
+  },
+  "fast_display_max_byte_difference": 1,
+  "fast_display_changed_channels": 2283,
+  "fast_display_total_compared_channels": 2700027,
+  "parallel_vs_fast_single": "bit-exact for 1/2/3/4 workers",
+  "transfer_boundary_samples": 2196606,
+  "transfer_boundary_max_byte_difference": 1,
+  "bound": "Only final linear-sRGB to 8-bit sRGB encoding is approximated; nearest 16-bit linear sample error <=0.5/65535, continuous encoded byte error <=255*12.92*0.5/65535 (~0.0252), rounded byte difference <=1. Original HNCS UInt16 core unchanged.",
+  "scope": "warm single invocation C++ CPU stage; decoding, resize, Swift buffers, PNG export, context setup and UI excluded. 3 repetitions provide illustrative timings, not stable hardware characterization.",
+  "not_an_iphone_measurement": true,
+  "cases": [
+    {
+      "width": 1024,
+      "height": 1024,
+      "pixels": 1048576,
+      "timings": {
+        "exact": {
+          "median_ms": 466.7906139993647,
+          "p95_ms": 467.62774449935023,
+          "samples": 3,
+          "output_sha256": "b57e5ab5580b54a648d264ec50c4cf57db3e530cfa176132158951ebfe452fa7"
+        },
+        "fast_1": {
+          "median_ms": 305.85391000022355,
+          "p95_ms": 332.43559630000163,
+          "samples": 3,
+          "output_sha256": "919334de5c7f519d75b128f11c8a07e8e0b1edb83d003a1b821d2e758acc6134",
+          "speedup_vs_exact": 1.5261881530271217
+        },
+        "fast_2": {
+          "median_ms": 219.99502700055018,
+          "p95_ms": 256.83353900021757,
+          "samples": 3,
+          "output_sha256": "919334de5c7f519d75b128f11c8a07e8e0b1edb83d003a1b821d2e758acc6134",
+          "speedup_vs_exact": 2.121823481028948
+        },
+        "fast_4": {
+          "median_ms": 145.7872609998958,
+          "p95_ms": 184.15854860031686,
+          "samples": 3,
+          "output_sha256": "919334de5c7f519d75b128f11c8a07e8e0b1edb83d003a1b821d2e758acc6134",
+          "speedup_vs_exact": 3.2018614712824487
+        }
+      }
+    },
+    {
+      "width": 2048,
+      "height": 1536,
+      "pixels": 3145728,
+      "timings": {
+        "exact": {
+          "median_ms": 1308.8479749994804,
+          "p95_ms": 1354.2547390002255,
+          "samples": 3,
+          "output_sha256": "08564c2e09c9c9c67e0f422a1d5da9b70cd20f04acc32818ae9a4c1590abeac7"
+        },
+        "fast_1": {
+          "median_ms": 968.111676999797,
+          "p95_ms": 1086.3385057000414,
+          "samples": 3,
+          "output_sha256": "c2efdd303ddd11762203c2610f632e862c9e838d4246e372f0c9c3b0efac3418",
+          "speedup_vs_exact": 1.3519597026818577
+        },
+        "fast_2": {
+          "median_ms": 750.2028730004895,
+          "p95_ms": 756.4747236994663,
+          "samples": 3,
+          "output_sha256": "c2efdd303ddd11762203c2610f632e862c9e838d4246e372f0c9c3b0efac3418",
+          "speedup_vs_exact": 1.744658707803464
+        },
+        "fast_4": {
+          "median_ms": 400.423174000025,
+          "p95_ms": 405.5975395000132,
+          "samples": 3,
+          "output_sha256": "c2efdd303ddd11762203c2610f632e862c9e838d4246e372f0c9c3b0efac3418",
+          "speedup_vs_exact": 3.268661905665326
+        }
+      }
+    },
+    {
+      "width": 4000,
+      "height": 3000,
+      "pixels": 12000000,
+      "timings": {
+        "exact": {
+          "median_ms": 5151.697457999944,
+          "p95_ms": 5743.658666399551,
+          "samples": 3,
+          "output_sha256": "0ce27afa3407ae0243c5557075711bf8fd27a2d4eefdc98e9a994906d85515c7"
+        },
+        "fast_1": {
+          "median_ms": 4105.599907000396,
+          "p95_ms": 4362.784679200195,
+          "samples": 3,
+          "output_sha256": "b42b11f7de9d73ccd37a398ee57144a4d699f0409abe44082978c08cec8cd6d9",
+          "speedup_vs_exact": 1.2547977335092644
+        },
+        "fast_2": {
+          "median_ms": 2042.3529339996094,
+          "p95_ms": 2115.7875808001336,
+          "samples": 3,
+          "output_sha256": "b42b11f7de9d73ccd37a398ee57144a4d699f0409abe44082978c08cec8cd6d9",
+          "speedup_vs_exact": 2.522432519981353
+        },
+        "fast_4": {
+          "median_ms": 1138.9820700005657,
+          "p95_ms": 1163.9262783001868,
+          "samples": 3,
+          "output_sha256": "b42b11f7de9d73ccd37a398ee57144a4d699f0409abe44082978c08cec8cd6d9",
+          "speedup_vs_exact": 4.523071603749992
+        }
+      }
+    }
+  ]
+}

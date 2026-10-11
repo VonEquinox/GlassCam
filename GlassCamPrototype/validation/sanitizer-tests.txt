@@ -1,0 +1,3 @@
+C ABI smoke checks passed (4 modes, 1..4 workers, invalid settings/buffers).
+
+LeakSanitizer disabled: container reports ptrace incompatibility. ASan and UBSan enabled.

@@ -1,0 +1,9 @@
+test_adapter_controls_and_nonfinite (test_reference.ReferenceTests.test_adapter_controls_and_nonfinite) ... ok
+test_all_original_native_golden_vectors (test_reference.ReferenceTests.test_all_original_native_golden_vectors) ... ok
+test_effect_returns_finite_display_rgb (test_reference.ReferenceTests.test_effect_returns_finite_display_rgb) ... ok
+test_original_bounds_and_tile_invariance (test_reference.ReferenceTests.test_original_bounds_and_tile_invariance) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.228s
+
+OK
