@@ -42,6 +42,13 @@ class FullResolutionExportContracts(unittest.TestCase):
         self.assertIn('kCGImagePropertyDepth', self.export)
         self.assertIn('== 10', self.export)
 
+    def test_hncs_context_is_reused_across_strips(self):
+        bridge = (ROOT / 'ios/GlassCam/HNCSEngine.swift').read_text()
+        self.assertIn('private static let contextCache = ContextCache()', bridge)
+        self.assertIn('cached.exposure == exposure, cached.kelvin == kelvin', bridge)
+        self.assertIn('defer { withExtendedLifetime(owner) {} }', bridge)
+        self.assertIn('deinit { hncs_destroy(pointer) }', bridge)
+
     def test_preview_resolution_is_independent(self):
         self.assertIn('previewMaximumEdge: Int = 2048', self.pipeline)
         self.assertIn('(256...4096).contains(previewMaximumEdge)', self.pipeline)

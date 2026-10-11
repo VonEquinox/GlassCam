@@ -44,9 +44,13 @@ final class EditorModel: ObservableObject {
         }
     }
 
+    func selectCapture(_ data: Data, settings: ExportSettings) {
+        beginImport(exportSettings: settings) { (data, "dng") }
+    }
+
     /// The token guards every suspension point: an older provider transfer or decode
     /// may finish after cancellation, but can never replace the latest selection.
-    private func beginImport(_ fetch: @escaping @MainActor () async throws -> (Data, String?)) {
+    private func beginImport(exportSettings: ExportSettings = .native, _ fetch: @escaping @MainActor () async throws -> (Data, String?)) {
         importTask?.cancel()
         let id = UUID()
         operationID = id
@@ -61,7 +65,7 @@ final class EditorModel: ObservableObject {
                 let (data, ext) = try await fetch()
                 guard operationID == id, !Task.isCancelled else { return }
                 let input = try await Task.detached(priority: .userInitiated) {
-                    try ImagePipeline.load(data: data, fileExtension: ext)
+                    try ImagePipeline.load(data: data, fileExtension: ext, exportSettings: exportSettings)
                 }.value
                 guard operationID == id, !Task.isCancelled else { return }
                 let output = try await Task.detached(priority: .userInitiated) {
@@ -133,6 +137,7 @@ struct ContentView: View {
     @StateObject private var model = EditorModel()
     @State private var photo: PhotosPickerItem?
     @State private var filesPresented = false
+    @State private var cameraPresented = false
     @State private var comparison = 0.5
 
     var body: some View {
@@ -144,6 +149,12 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 22) {
                     header
                     imageArea
+                    Button {
+                        cameraPresented = true
+                    } label: {
+                        Label("Open ProRAW camera", systemImage: "camera.fill")
+                            .frame(maxWidth: .infinity).padding(14)
+                    }.glassSurface().disabled(model.busy)
                     importButtons
                     controls
                     Text("EXPERIMENTAL SOURCE ADAPTER")
@@ -152,7 +163,7 @@ struct ContentView: View {
                          ? "Imported images are adapted from linear sRGB into the target camera color space. This is an effect preview, not a calibrated camera match. Factory CCT selects the profile’s illuminant interpolation; it does not recover scene white balance."
                          : "FFCS uses the supplied XH2S reference LUTs and research rendering pipeline with fixed grain seed 0. Imported images enter as linear sRGB. This is an experimental effect, not a calibrated Fujifilm camera match.")
                         .font(.footnote).foregroundStyle(.secondary)
-                    Text("Preview: up to 2048 px / 8-bit • export: full original source / 10-bit SDR HEIF • source metadata omitted")
+                    Text("Preview: up to 2048 px / 8-bit • export: full source or selected lens output / 10-bit SDR HEIF • source metadata omitted")
                         .font(.caption).foregroundStyle(.secondary)
                     Text("Sharing sends the original HEIF. WeChat and other app compatibility still need device testing.")
                         .font(.caption).foregroundStyle(.secondary)
@@ -171,10 +182,17 @@ struct ContentView: View {
             model.selectPhoto(selected)
         }
         .onChange(of: model.colorMode) { _, _ in
-            Task { await model.render() }
+            if !cameraPresented { Task { await model.render() } }
         }
         .onChange(of: model.simulationIndex) { _, _ in
-            Task { await model.render() }
+            if !cameraPresented { Task { await model.render() } }
+        }
+        .fullScreenCover(isPresented: $cameraPresented) {
+            CameraView(colorMode: $model.colorMode, simulationIndex: $model.simulationIndex,
+                       onCapture: { data, settings in
+                           cameraPresented = false
+                           model.selectCapture(data, settings: settings)
+                       }, onClose: { cameraPresented = false })
         }
         .sheet(item: $model.export) { export in ShareSheet(file: export.file) }
         .alert("Couldn’t finish", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {

@@ -43,3 +43,8 @@ linear sRGB(D65) → XYZ → Bradford 白点适配 → inverse(interpolated came
 ## FFCS independent backend
 
 FFCS 与 HNCS 独立选择；显式 linear-sRGB 输入，不串接两个相机模型。19 个真实 XH2S 参考模式、逐阶段数值规则、三行缓冲与资源准备见 [FFCS](FFCS.md)。导出共用 Float → HEIF10 SDR 路径。模式/输入/曝光/种子绑定显示快照；FFCS 不使用 HNCS 色温矩阵。
+
+
+## 全源导出与原生相机阶段
+
+最新实现替代早期预览/导出共用 2048px 的限制：源文件由不可变所有者保留，预览按需缩小；导出从完整源重新解码，HNCS 按像素块、FFCS 按全图坐标和一行 halo 处理，写磁盘 RGBAf，再缩小/HEIF10 编码。详见 [全源导出](FULL_RESOLUTION_EXPORT.md)。新相机按真实 physical ID 保存输出选择，实际会话能力决定模式，详见 [相机](camera-capture.md)。

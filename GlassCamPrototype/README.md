@@ -11,15 +11,17 @@
 - [硬件与加速路线](docs/HARDWARE_PERFORMANCE.md)
 - [iOS 项目与构建步骤](ios/README.md)
 - [C++ 数值核心](core/README.md)
+- [相机能力与取景](docs/camera-capture.md)
+- [全分辨率导出](docs/FULL_RESOLUTION_EXPORT.md)
 - [数据来源及分发边界](NOTICE.md)
 
 ## Current implementation
 
-Photos/Files 导入 → Apple Core Image 解码 → experimental linear-sRGB source adapter → 独立选择 HNCS / FFCS → before/after → 10-bit SDR sRGB HEIF 分享。预览与导出最长边限制为 2048 px。
+Photos/Files 导入 → Apple Core Image 解码 → experimental linear-sRGB source adapter → 独立选择 HNCS / FFCS → before/after → 10-bit SDR sRGB HEIF 分享。导入效果预览最长边默认 2048 px；导出保留完整原始输入，按源尺寸或拍摄时选定的镜头输出尺寸重新处理。
 
 颜色核心保留 double、原始 2D chroma LUT、曲线和量化边界。标准 C++ 可独立编译，不需 Apple SDK。Swift 只负责界面、Apple 图像入口与缓冲区桥接。
 
-完整 iOS Xcode 项目已包含。当前环境没有 Xcode/Apple SDK，**没有声称 iOS 已编译或真机跑通**。DNG/ProRAW 解码、图像方向、前后图一致性与分享需要 Apple 环境测试。当前不是实时拍摄 App，尚无完整 RAW 原图/配方保存功能。FFCS 已移植 19 款真实 XH2S 参考模式，详见 [FFCS 来源、资源准备与测试](docs/FFCS.md)。
+完整 iOS Xcode 项目已包含。当前环境没有 Xcode/Apple SDK，**没有声称 iOS 已编译或真机跑通**。DNG/ProRAW 解码、图像方向、前后图一致性与分享需要 Apple 环境测试。新增原生 ProRAW 拍摄源码、真实单/双物理镜头取景和玻璃外围布局。组合能力、光学边界及 Apple 编译仍须真机验证；当前不宣称可安装验收。原始输入仅在本次编辑期间保留临时文件，尚无长期 RAW/配方资料库。FFCS 已移植 19 款真实 XH2S 参考模式，详见 [FFCS 来源、资源准备与测试](docs/FFCS.md)。
 
 ## Portable validation
 
@@ -52,8 +54,3 @@ python core/generate_assets.py   # Rebuild lossless numeric include from origina
 ## HEIF-only export
 
 用户导出只提供 HEIF（.heic），没有 JPEG 或 PNG 模式。8 位 fast 数据仅用于屏幕预览；HEIF 从独立 Float display-linear 路径计算，再调用 Apple 专用 HEIF10 writer。当前没有 Apple SDK，因此实际 HEIF 文件位深、颜色标签和微信发送/接收仍未验证。分享目前提供原始 HEIC，不保证接收应用支持或自动转码。离线 Python 诊断脚本仍可输出 PNG 以便在云端检视，这不属于 App 导出选项。
-
-
-## Full-resolution export update
-
-The former shared 2048px export cap is removed. Preview remains separate; export reopens the retained original source, applies exact color in bounded row strips, then performs any permitted Lanczos reduction and HEIF10 SDR encoding. FFCS global coordinates/halo match full-frame processing. See [full-source design](docs/FULL_RESOLUTION_EXPORT.md). Apple compile, Core Image row order, actual HEIF bitstream and total peak RSS remain unverified. The source is retained temporarily for the editing session, not a permanent RAW library.

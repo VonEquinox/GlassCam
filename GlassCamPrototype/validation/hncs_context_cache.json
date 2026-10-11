@@ -1,0 +1,14 @@
+{
+  "scope": "C++ context creation only; no Swift or pixel processing benchmark",
+  "iterations_per_sample": 96,
+  "seconds": [
+    0.5965379469998879,
+    0.5853863989996171,
+    0.5303102929992747,
+    0.5376243080008862,
+    0.49648695799987763
+  ],
+  "median_seconds": 0.5376243080008862,
+  "optimization": "Swift one-entry immutable cache creates once per recipe rather than per export strip",
+  "correctness": "same immutable context and numerical core; Apple integration not compiled"
+}

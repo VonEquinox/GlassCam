@@ -17,6 +17,31 @@ enum HNCSEngine {
         }
     }
 
+    /// Immutable C++ contexts are reused across full-resolution export strips.
+    /// A one-entry cache bounds memory; in-flight calls retain their own owner.
+    private final class ContextOwner: @unchecked Sendable {
+        let pointer: OpaquePointer
+        let exposure: Double
+        let kelvin: Double
+        init(exposure: Double, kelvin: Double) throws {
+            guard let pointer = hncs_create(exposure, kelvin) else { throw Error.invalidSettings }
+            self.pointer = pointer; self.exposure = exposure; self.kelvin = kelvin
+        }
+        deinit { hncs_destroy(pointer) }
+    }
+    private final class ContextCache: @unchecked Sendable {
+        private let lock = NSLock()
+        private var cached: ContextOwner?
+        func context(exposure: Double, kelvin: Double) throws -> ContextOwner {
+            lock.lock(); defer { lock.unlock() }
+            if let cached, cached.exposure == exposure, cached.kelvin == kelvin { return cached }
+            let owner = try ContextOwner(exposure: exposure, kelvin: kelvin)
+            cached = owner
+            return owner
+        }
+    }
+    private static let contextCache = ContextCache()
+
     static func process(linearSRGB: [Float], width: Int, height: Int,
                         exposureEV: Double, illuminantKelvin: Double,
                         quality: Quality = .fastPreview) throws -> [UInt8] {
@@ -27,10 +52,9 @@ enum HNCSEngine {
         guard count <= Int.max / 4, linearSRGB.count == count * 3 else {
             throw Error.invalidDimensions
         }
-        guard let context = hncs_create(exposureEV, illuminantKelvin) else {
-            throw Error.invalidSettings
-        }
-        defer { hncs_destroy(context) }
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin)
+        let context = owner.pointer
+        defer { withExtendedLifetime(owner) {} }
         var rgba = [UInt8](repeating: 0, count: count * 4)
         let status = linearSRGB.withUnsafeBufferPointer { source in
             rgba.withUnsafeMutableBufferPointer { destination in
@@ -72,10 +96,9 @@ enum HNCSEngine {
               linearSRGB.count == count * 3 else {
             throw Error.invalidDimensions
         }
-        guard let context = hncs_create(exposureEV, illuminantKelvin) else {
-            throw Error.invalidSettings
-        }
-        defer { hncs_destroy(context) }
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin)
+        let context = owner.pointer
+        defer { withExtendedLifetime(owner) {} }
         var rgba = [Float](repeating: 0, count: count * 4)
         let status = linearSRGB.withUnsafeBufferPointer { source in
             rgba.withUnsafeMutableBufferPointer { destination in

@@ -73,6 +73,10 @@
 最终合并源码测试：13 项 unittest 全部通过。此云环境未安装 CMake，CMake configure/build/ctest 未执行；g++ 数值/回归构建已执行。
 
 
-## Full-resolution export update
+## 原生拍摄 / 全源导出追加实现
 
-The former shared 2048px export cap is removed. Preview remains separate; export reopens the retained original source, applies exact color in bounded row strips, then performs any permitted Lanczos reduction and HEIF10 SDR encoding. FFCS global coordinates/halo match full-frame processing. See [full-source design](FULL_RESOLUTION_EXPORT.md). Apple compile, Core Image row order, actual HEIF bitstream and total peak RSS remain unverified. The source is retained temporarily for the editing session, not a permanent RAW library.
+32 项合并 Python/source-contract 测试通过（其中 Apple 代码仅静态契约，非编译）。新增 FFCS strip 数值回归：399 全图、6,326 分块、653,904 像素与完整路线逐值一致；21 个非法调用无输出修改。项目新 Swift 文件引用/标识符检查通过。完整原始源临时保留、64 行输出块、FFCS halo/global grain、磁盘 RGBAf、颜色后 Lanczos 与十位写入已实现源码。
+
+这些新增源码未在 Apple 平台编译运行；相机硬件、48MP/双路共存、实际条带行方向、HEIF 位流、磁盘/RSS/热状态、微信仍须设备测试。旧段落中 2048px 全导出限制属于前一阶段，已由本次全源路线替代。性能表仍是旧 HNCS 预览基准，不适用于完整新拍摄/导出链。
+
+FFCS strip ASan+UBSan：19模式/760调用通过，见 `validation/ffcs_strip_sanitizer.txt`；LSan关闭。新增 `tests/apple_ci_strip_roundtrip.swift` 为未执行的 Apple 行方向诊断。
