@@ -84,10 +84,21 @@ def storage_precision_report():
         return np.where(x <= 0.0031308, 12.92 * x, 1.055 * x ** (1 / 2.4) - 0.055)
     swatches = np.array([[0, 0, 0, 1], [1, 1, 1, 1], [1, 0, 0, 1],
                          [0, 1, 0, 1], [0, 0, 1, 1], [0.5, 0.25, 0.125, 0.5]], dtype=np.float64)
+    # Every positive binary16 level in [0,1], including subnormals. For
+    # round-to-nearest, the limiting error for each monotone half-bin occurs
+    # at its midpoint; evaluate both neighboring storage outcomes there.
+    levels = np.arange(0, 0x3c01, dtype=np.uint16).view(np.float16).astype(np.float64)
+    midpoints = (levels[:-1] + levels[1:]) / 2
+    bin_linear = np.max((levels[1:] - levels[:-1]) / 2)
+    bin_encoded = np.max(np.maximum(encode_srgb(midpoints) - encode_srgb(levels[:-1]),
+                                   encode_srgb(levels[1:]) - encode_srgb(midpoints)))
     ten_bit_step = 1 / 1023
     return {
         "scope": "Software float16 final-display-storage quantization only; not an Apple SDK, GPU, compositor, source-depth, orientation, or physical-panel test",
         "input_sample_count": len(linear),
+        "all_binary16_bins_checked": len(midpoints),
+        "all_bin_linear_limit": float(bin_linear),
+        "all_bin_srgb_limit": float(bin_encoded),
         "distinct_float16_linear_levels": int(np.unique(stored).size),
         "linear_max_absolute_error": float(np.max(np.abs(linear - stored))),
         "srgb_encoded_max_absolute_error": float(np.max(np.abs(encode_srgb(linear) - encode_srgb(stored)))),
@@ -106,6 +117,12 @@ class PrecisionPreviewNumericContracts(unittest.TestCase):
         self.assertLessEqual(result['linear_max_absolute_error'], result['error_budget'])
         self.assertLessEqual(result['srgb_encoded_max_absolute_error'], result['error_budget'])
         self.assertTrue(result['range_is_sdr'])
+
+    def test_all_binary16_storage_bins_meet_budget(self):
+        result = storage_precision_report()
+        self.assertEqual(result['all_binary16_bins_checked'], 15360)
+        self.assertLessEqual(result['all_bin_linear_limit'], result['error_budget'])
+        self.assertLessEqual(result['all_bin_srgb_limit'], result['error_budget'])
 
     def test_primary_and_alpha_values_survive_display_storage(self):
         result = storage_precision_report()

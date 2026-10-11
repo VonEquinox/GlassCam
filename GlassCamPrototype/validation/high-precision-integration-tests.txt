@@ -27,6 +27,7 @@ test_c_float_route_bypasses_both_byte_encoders (test_heif_source.HEIFSourceContr
 test_dedicated_ten_bit_writer_has_float_input (test_heif_source.HEIFSourceContracts.test_dedicated_ten_bit_writer_has_float_input) ... ok
 test_snapshot_not_live_controls_drives_export (test_heif_source.HEIFSourceContracts.test_snapshot_not_live_controls_drives_export) ... ok
 test_user_export_has_no_byte_image_fallback (test_heif_source.HEIFSourceContracts.test_user_export_has_no_byte_image_fallback) ... ok
+test_all_binary16_storage_bins_meet_budget (test_precision_preview_source.PrecisionPreviewNumericContracts.test_all_binary16_storage_bins_meet_budget) ... ok
 test_half_storage_exceeds_eight_bit_and_meets_quantization_budget (test_precision_preview_source.PrecisionPreviewNumericContracts.test_half_storage_exceeds_eight_bit_and_meets_quantization_budget) ... ok
 test_primary_and_alpha_values_survive_display_storage (test_precision_preview_source.PrecisionPreviewNumericContracts.test_primary_and_alpha_values_survive_display_storage) ... ok
 test_both_engines_use_float_preview_output (test_precision_preview_source.PrecisionPreviewSourceContracts.test_both_engines_use_float_preview_output) ... ok
@@ -51,6 +52,6 @@ test_provider_and_callbacks_retain_files (test_share_delivery.ShareDeliveryContr
 test_work_serialized_and_cancellation_is_cooperative (test_share_delivery.ShareDeliveryContracts.test_work_serialized_and_cancellation_is_cooperative) ... ok
 
 ----------------------------------------------------------------------
-Ran 51 tests in 20.302s
+Ran 52 tests in 20.372s
 
 OK

@@ -25,7 +25,9 @@
 - 最大线性误差0.000244081；换算到sRGB编码域最大误差0.000107317；本样本均低于半个归一化10bit步长0.000488759。
 - 原色/灰阶/alpha样本保留，opaque alpha精确为1。
 
-这是软件存储量化检查，不是GPU实测、连续域证明、屏幕位深检测或对所有解码器的保证。结果见 `validation/precision-preview-storage.json`。既有 CPU 参考数值回归继续适用；历史8bit fast benchmark仅保留为对照，不代表当前App效果预览路线。
+另检查0…1范围全部15,360个binary16相邻量化区间的中点两侧极限：线性域最大0.000244141，sRGB域最大0.000160776，也低于同一预算。此处仅建立round-to-nearest软件存储模型的区间界，不证明Apple显示链。
+
+这些都是软件存储量化检查，不是GPU实测、完整颜色管线误差证明、屏幕位深检测或对所有解码器的保证。结果见 `validation/precision-preview-storage.json`。既有 CPU 参考数值回归继续适用；历史8bit fast benchmark仅保留为对照，不代表当前App效果预览路线。
 
 ## 实时效果由用户明确后置
 

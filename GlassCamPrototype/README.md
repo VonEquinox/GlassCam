@@ -25,6 +25,7 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 - [精确 Float 并行优化](docs/EXACT_FLOAT_PARALLEL.md) / [Apple 精度与加速约束](docs/apple_precision_acceleration.md)
 - [当前颜色核心分段性能](docs/COLOR_PERFORMANCE.md) / [硬件与加速路线](docs/HARDWARE_PERFORMANCE.md)
 - [高精度 SDR 预览](docs/HIGH_PRECISION_PREVIEW.md)
+- [未来低分辨率实时色彩成本估计](docs/LOWRES_COLOR_PERFORMANCE.md)（实时色彩按用户要求后置）
 - [保存、分享与失败恢复](docs/DELIVERY_AND_RECOVERY.md)
 - [来源及分发边界](NOTICE.md)
 

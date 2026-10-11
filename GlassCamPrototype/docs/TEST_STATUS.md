@@ -39,7 +39,7 @@
 2. 原始 ICC 解码表按全部 65,536 个输入码精确预计算。
 3. 精确输出路径保留。另加显式 fast API，只把最终 linear-sRGB→8bit OETF 的三个逐像素 pow 换成 65,536 项查表；该单项优化实测约 1.25–1.53×。
 4. 加入最多 4 线程的连续块并行，原核不改，线程创建失败时安全串行补齐。
-5. Swift 默认使用 fast 路径并按低电量/系统热状态将工作线程降至 2 或 1；该 Apple 策略尚未真机测量，不能声称节电效果。
+5. 当时 Swift 预览使用 fast 路径并按低电量/系统热状态将工作线程降至 2 或 1；当前 App 预览与导出已切至精确 Float 路径，继续采用有界工作线程策略；该 Apple 策略尚未真机测量，不能声称节电效果。
 
 显示近似的边界：最近 16 位 linear 采样误差 ≤0.5/65535；sRGB 最大斜率约 12.92，连续字节尺度误差约 ≤0.0252，因此量化输出最多差 1 码。原始 HNCS UInt16 核仍需 bit-exact。精确 API 与 Swift `exactReference` 选项保留，便于比较或重新导出。该有界近似仅保留在旧8位诊断/预览API；当前App已改用精确Float高精度效果显示。HEIF 导出走独立 Float display-linear 路径，不通过 fast 字节编码；实际 HEIF10 编码器仍未在此环境执行，不能把已通过的 Float 测试称为已验证的 HEIF bitstream。当前 HNCS Float 导出已新增 1–4 线程精确并行，336 组对串行 oracle 逐位一致；真实8064×64条带及12MP计时见 [精确 Float 并行](EXACT_FLOAT_PARALLEL.md)。前表的旧8位预览速度仍不适用于端到端 HEIF 导出。
 
@@ -77,7 +77,7 @@
 
 ## 当前原生拍摄 / 全源导出证据
 
-[最后已记录运行](../validation/final-source-tests.txt)：43 项合并 Python/source-contract 测试通过（其中 Apple 代码仅静态契约，非编译）。新增 FFCS strip 数值回归：399 全图、6,326 分块、653,904 像素与完整路线逐值一致；21 个非法调用无输出修改。项目新 Swift 文件引用/标识符检查通过。完整原始源临时保留、64 行输出块、FFCS halo/global grain、磁盘 RGBAf、颜色后 Lanczos 与十位写入已实现源码。
+[拍摄/导出阶段记录](../validation/final-source-tests.txt)：43 项合并 Python/source-contract 测试通过（其中 Apple 代码仅静态契约，非编译）。新增 FFCS strip 数值回归：399 全图、6,326 分块、653,904 像素与完整路线逐值一致；21 个非法调用无输出修改。项目新 Swift 文件引用/标识符检查通过。完整原始源临时保留、64 行输出块、FFCS halo/global grain、磁盘 RGBAf、颜色后 Lanczos 与十位写入已实现源码。
 
 这些新增源码未在 Apple 平台编译运行；相机硬件、48MP/双路共存、实际条带行方向、HEIF 位流、磁盘/RSS/热状态、微信仍须设备测试。2048px 只限制默认导入预览，不限制全源输出。性能表仍是旧 HNCS 预览基准，不适用于完整新拍摄/导出链。
 
@@ -102,4 +102,8 @@ FFCS strip ASan+UBSan：19模式/760调用通过，见 `validation/ffcs_strip_sa
 
 Float32原图/效果图→CoreImage/Metal RGBA16Float SDR源码已加入；软件binary16灰阶4096样本保留3073级，线性及sRGB编码域误差低于声明样本预算。此检查不等于Apple编译、GPU或面板实测；详见 [高精度预览](HIGH_PRECISION_PREVIEW.md)。
 
-高精度预览合并 [51项测试通过，20.302s](../validation/high-precision-integration-tests.txt)。其中八项新增为源码/软件存储检查，Apple显示未执行；实时HNCS/FFCS视频处理未接入，用户已明确后置，不属于本轮待实施功能。
+高精度预览合并 [52项测试通过，20.372s](../validation/high-precision-integration-tests.txt)。其中九项新增为源码/软件存储检查，Apple显示未执行；实时HNCS/FFCS视频处理未接入，用户已明确后置，不属于本轮待实施功能。
+
+## 未来低分辨率色彩成本诊断
+
+实时处理已由用户后置，本轮只估计成本。45 配置、225 计时样本与45预热输出全部与串行 oracle 的 hash 一致；覆盖 HNCS、完整 PROVIA / ACROS、128×72 至1080p及1/2/4 workers。记录墙钟与进程 CPU 时间，不能将多线程墙钟直接换算成低功耗。具体样本、画质代价和限制见 [低分辨率报告](LOWRES_COLOR_PERFORMANCE.md)。这些是共享云 CPU 数据，不是 iPhone 帧率或整机占用。

@@ -21,7 +21,7 @@
 - 12MP 只测完整 C API；分阶段使用 1,048,576 像素，避免大量全图 double 中间缓冲。没有创建 48MP 测试图。
 - 已分配输入输出和上下文不计入完整 C API；FFCS 基线在函数内部的 scratch 分配仍计入。
 
-## HNCS 当前完整 CPU API：12MP
+## 本次基线的 HNCS 完整 CPU API：12MP
 
 | API | 墙钟中位数 | 墙钟范围（五次） | CPU 时间中位数 |
 |---|---:|---:|---:|
@@ -33,7 +33,7 @@
 
 这组数字验证旧“数秒”量级能在同类云 CPU 的全算法上出现，但不证明稳定速度上限。1MP 的另一组短测里 fast 单线程甚至比 exact 慢，表明跨时间块的主机波动足以掩盖优化收益；不能只挑最好一次、声称固定加速倍数，或把五次样本当稳定 p95。
 
-当前 HEIF 导出的 HNCS 路径使用 **display-linear Float 输出、单线程核**，绕开最后的 8 位 OETF/量化。四线程 fast 是预览路径，其耗时不能替代 Float 导出核，更不能替代 HEIF 导出总时长。上表 Float 也只到浮点像素，不含 Apple 编码器。
+该基线采样时的 HEIF 导出 HNCS 路径使用 **display-linear Float 输出、单线程核**，绕开最后的 8 位 OETF/量化。四线程 fast 是当时的8位预览路径，其耗时不能替代 Float 导出核，更不能替代 HEIF 导出总时长。上表 Float 也只到浮点像素，不含 Apple 编码器。
 
 ## 为什么不是一次小矩阵的耗时
 
@@ -54,7 +54,7 @@
 
 **这些独立阶段不可相加为融合 API 耗时，不可直接换算为占比。** 内存流量、缓存、编译器内联/向量化和测量时段不同；输入桥比纯矩阵对照快也提醒了这一限制。能支持的结论是：精确显示传递函数和整数边界处理是值得优化的实际工作，单次 3×3 不是整个 pipeline。它不是“12MP × 一个3×3却用了5秒”。
 
-正确性：分阶段重组的 exact/fast 字节输出与生产 C API 一致；1MP/12MP fast 相对 exact 最大差均为 1 个 8 位码，2/4 线程与 fast 单线程摘要一致。原核 UInt16 没有被近似 RGB 3D LUT 替换。此次只增加诊断程序，没有修改生产算法。
+正确性：分阶段重组的 exact/fast 字节输出与生产 C API 一致；1MP/12MP fast 相对 exact 最大差均为 1 个 8 位码，2/4 线程与 fast 单线程摘要一致。原核 UInt16 没有被近似 RGB 3D LUT 替换。此基线阶段只增加诊断程序；随后精确Float并行生产改进见上方链接，不能混同两次测量。
 
 ## FFCS 不能与 HNCS 混为一谈
 
@@ -82,3 +82,5 @@ FFCS PROVIA，1,048,576 像素，原 reference-order 阶段的五次中位数：
 - `validation/current-color-performance.json`：编译命令、源码 SHA-256、环境、汇总和测量边界。
 
 旧证据未覆盖写入。新实验不替代既有 golden/reference、sanitizer、Apple验收。
+
+当前App拍后/导入效果显示也改为 [高精度SDR预览](HIGH_PRECISION_PREVIEW.md)，不再调用旧8bit fast字节入口。其Apple显示成本尚未测量。
