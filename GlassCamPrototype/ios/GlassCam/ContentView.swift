@@ -152,7 +152,7 @@ struct ContentView: View {
                          ? "Imported images are adapted from linear sRGB into the target camera color space. This is an effect preview, not a calibrated camera match. Factory CCT selects the profile’s illuminant interpolation; it does not recover scene white balance."
                          : "FFCS uses the supplied XH2S reference LUTs and research rendering pipeline with fixed grain seed 0. Imported images enter as linear sRGB. This is an experimental effect, not a calibrated Fujifilm camera match.")
                         .font(.footnote).foregroundStyle(.secondary)
-                    Text("Preview: 8-bit • export: 10-bit SDR HEIF / sRGB • up to 2048 px • transparency flattened to black • source metadata omitted")
+                    Text("Preview: up to 2048 px / 8-bit • export: full original source / 10-bit SDR HEIF • source metadata omitted")
                         .font(.caption).foregroundStyle(.secondary)
                     Text("Sharing sends the original HEIF. WeChat and other app compatibility still need device testing.")
                         .font(.caption).foregroundStyle(.secondary)

@@ -241,4 +241,81 @@ int ffcs_process_linear_rgb_optimized(const FFCSContext *c,const float *in,size_
   for(unsigned t=0;t<actual;++t) if(failures[t]) std::rethrow_exception(failures[t]);
  }
  errorText(err,en,"");return 1;}catch(const std::exception &e){errorText(err,en,e.what());return 0;}catch(...){errorText(err,en,"Unknown FFCS rendering failure");return 0;}}
+int ffcs_process_linear_rgb_strip(const FFCSContext *c, const float *in,
+ size_t input_count, size_t w, size_t h, size_t input_y, size_t input_rows,
+ size_t output_y, size_t output_rows, float ev, uint32_t seed,
+ float *out, size_t output_count, unsigned workers, char *err, size_t en) {
+ try {
+  // Validate dimensions and row ranges before any subtraction or addition.
+  count(w,h);
+  if(!c || !in || !out || input_y>=h || output_y>=h ||
+     !input_rows || input_rows>h-input_y || !output_rows || output_rows>h-output_y ||
+     workers<1 || workers>4 || !std::isfinite(ev) || ev < -32 || ev > 32)
+   throw std::runtime_error("Invalid FFCS strip arguments");
+  const size_t first_needed=output_y ? output_y-1 : 0;
+  const size_t last_needed=std::min(h,output_y+output_rows+1);
+  if(input_y>first_needed || input_y+input_rows<last_needed)
+   throw std::runtime_error("FFCS strip is missing the required sharpening halo");
+  const size_t input_n=count(w,input_rows), output_n=count(w,output_rows);
+  if(input_count<input_n || output_count<output_n)
+   throw std::runtime_error("FFCS strip buffer is too small");
+  if(overlaps(in,input_n*sizeof(float),out,output_n*sizeof(float)))
+   throw std::runtime_error("FFCS strip buffers must not overlap");
+ double gain=std::exp2(double(ev));
+ for(size_t i=0;i<input_n;++i) {
+  if(!std::isfinite(in[i])) throw std::runtime_error("Nonfinite FFCS input");
+ }
+ auto tile=[&](size_t first,size_t last) {
+ std::array<std::vector<RGB>,3> rows;
+ for(auto &row:rows) row.resize(w);
+ auto fill=[&](size_t y) {
+  auto &row=rows[y%3];
+  for(size_t x=0;x<w;++x) row[x]=mobilePixel(*c,in+((y-input_y)*w+x)*3,x,y,w,gain,seed);
+ };
+ if(first>0) fill(first-1);
+ fill(first); if(first+1<h) fill(first+1);
+ double strength=std::max(0.,std::min(3.,c->look.sharp))*.35;
+ for(size_t y=first;y<last;++y) {
+  if(y+1<h && y>first) fill(y+1);
+  for(size_t x=0;x<w;++x) {
+   RGB v=rows[y%3][x];
+   if(c->look.sharp>0) {
+    RGB sum{};size_t neighbors=0;
+    for(size_t yy=(y?y-1:0);yy<std::min(h,y+2);++yy) {
+     for(size_t xx=(x?x-1:0);xx<std::min(w,x+2);++xx) {
+      ++neighbors;
+      for(int ch=0;ch<3;++ch) sum[ch]+=rows[yy%3][xx][ch];
+     }
+    }
+    for(int ch=0;ch<3;++ch) v[ch]=clip(v[ch]+strength*(v[ch]-sum[ch]/neighbors));
+   }
+   size_t pixel=(y-output_y)*w+x;
+   for(int ch=0;ch<3;++ch) {
+    out[pixel*3+ch]=float(decode(v[ch]));
+   }
+  }
+ }
+ };
+ unsigned actual=unsigned(std::min(size_t(workers),output_rows));
+ if(actual==1) tile(output_y,output_y+output_rows);
+ else {
+  std::array<std::thread,4> threads;
+  std::array<std::exception_ptr,4> failures{};
+  unsigned launched=0;
+  try {
+   for(unsigned t=0;t<actual;++t) {
+    threads[t]=std::thread([&,t] {
+     try { tile(output_y+output_rows*t/actual,output_y+output_rows*(t+1)/actual); }
+     catch(...) { failures[t]=std::current_exception(); }
+    });
+    ++launched;
+   }
+  } catch(...) {
+   for(unsigned t=0;t<launched;++t) threads[t].join();
+   throw;
+  }
+  for(unsigned t=0;t<launched;++t) threads[t].join();
+  for(unsigned t=0;t<actual;++t) if(failures[t]) std::rethrow_exception(failures[t]);
+ }
+ errorText(err,en,"");return 1;}catch(const std::exception &e){errorText(err,en,e.what());return 0;}catch(...){errorText(err,en,"Unknown FFCS rendering failure");return 0;}}
 }

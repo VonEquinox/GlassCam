@@ -36,8 +36,9 @@ class HEIFSourceContracts(unittest.TestCase):
     def test_snapshot_not_live_controls_drives_export(self):
         export=self.pipeline.split('static func writeHEIF(',1)[1]
         self.assertIn('processed.source',export)
-        self.assertIn('exposureEV: processed.exposureEV',export)
-        self.assertIn('illuminantKelvin: processed.illuminantKelvin',export)
+        self.assertIn('let recipe = processed.recipe',export)
+        self.assertIn('exposureEV: recipe.exposureEV',export)
+        self.assertIn('illuminantKelvin: recipe.illuminantKelvin',export)
         self.assertIn('let source: ImportedImage',self.pipeline)
         self.assertIn('TemporaryHEIFFile',self.view)
         self.assertIn('[file] completion',self.view)

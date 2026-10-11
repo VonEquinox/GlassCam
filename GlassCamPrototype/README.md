@@ -52,3 +52,8 @@ python core/generate_assets.py   # Rebuild lossless numeric include from origina
 ## HEIF-only export
 
 用户导出只提供 HEIF（.heic），没有 JPEG 或 PNG 模式。8 位 fast 数据仅用于屏幕预览；HEIF 从独立 Float display-linear 路径计算，再调用 Apple 专用 HEIF10 writer。当前没有 Apple SDK，因此实际 HEIF 文件位深、颜色标签和微信发送/接收仍未验证。分享目前提供原始 HEIC，不保证接收应用支持或自动转码。离线 Python 诊断脚本仍可输出 PNG 以便在云端检视，这不属于 App 导出选项。
+
+
+## Full-resolution export update
+
+The former shared 2048px export cap is removed. Preview remains separate; export reopens the retained original source, applies exact color in bounded row strips, then performs any permitted Lanczos reduction and HEIF10 SDR encoding. FFCS global coordinates/halo match full-frame processing. See [full-source design](docs/FULL_RESOLUTION_EXPORT.md). Apple compile, Core Image row order, actual HEIF bitstream and total peak RSS remain unverified. The source is retained temporarily for the editing session, not a permanent RAW library.

@@ -1,0 +1,6 @@
+ASan+UBSan strip test; LSan disabled (container compatibility)
+Strip sanitizer smoke passed: 19 looks, 760 calls, 1/4 workers, bit-exact halos/borders, invalid counts/overlap.
+Exit status: 0
+
+Separate Apple-side raster diagnostic provided: tests/apple_ci_strip_roundtrip.swift.
+Not executed here: CoreImage/Apple SDK unavailable. It specifically checks 64/64/3 strip row ordering and RGBAf reconstruction against one full-frame render; no claim that raster orientation has been verified on Apple hardware.

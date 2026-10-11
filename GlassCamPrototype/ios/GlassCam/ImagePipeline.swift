@@ -4,6 +4,8 @@ import UIKit
 import ImageIO
 
 struct ImportedImage: @unchecked Sendable {
+    let sourceFile: SourceImageFile
+    let exportSettings: ExportSettings
     let linearRGB: [Float]
     let width: Int
     let height: Int
@@ -49,11 +51,12 @@ struct ProcessedImage: @unchecked Sendable {
 }
 
 enum PipelineError: LocalizedError {
-    case invalidImage, rendering, encoding
+    case invalidImage, rendering, encoding, unsupportedOutput
     var errorDescription: String? {
         switch self {
         case .invalidImage: return "This image could not be decoded. Try a JPEG, PNG, HEIC, or supported DNG."
         case .rendering: return "The image renderer could not create an output."
+        case .unsupportedOutput: return "The selected output dimensions exceed the genuine source or change its aspect ratio. Capture at a supported resolution; upsampling is disabled."
         case .encoding: return "The processed image could not be encoded as 10-bit SDR HEIF. No lower-bit-depth fallback was saved."
         }
     }
@@ -61,20 +64,25 @@ enum PipelineError: LocalizedError {
 
 /// Experimental source adaptation. This is not a calibrated camera-native RGB profile.
 /// Core Image honors embedded profiles and converts to extended linear sRGB.
-/// Processing and export are deliberately capped at 2048 pixels on the long edge.
+/// Only the display preview is reduced. Export always reloads the immutable source.
 enum ImagePipeline {
     static let maximumEdge: CGFloat = 2048
     // A cancelled detached task may finish its current decoder call. Serialize the
     // complete decode/render stage so superseded RAW decodes never overlap.
     private static let decodeQueue = DispatchQueue(label: "dev.glasscam.decode", qos: .userInitiated)
 
-    static func load(data: Data, fileExtension: String?) throws -> ImportedImage {
+    static func load(data: Data, fileExtension: String?, previewMaximumEdge: Int = 2048,
+                     exportSettings: ExportSettings = .native) throws -> ImportedImage {
         try decodeQueue.sync {
-            try autoreleasepool { try decode(data: data, fileExtension: fileExtension) }
+            try autoreleasepool {
+                guard (256...4096).contains(previewMaximumEdge) else { throw PipelineError.invalidImage }
+                let retained = try SourceImageFile(data: data, fileExtension: fileExtension)
+                return try decode(data: data, fileExtension: fileExtension, sourceFile: retained, maximumEdge: CGFloat(previewMaximumEdge), exportSettings: exportSettings)
+            }
         }
     }
 
-    private static func decode(data: Data, fileExtension: String?) throws -> ImportedImage {
+    private static func decode(data: Data, fileExtension: String?, sourceFile: SourceImageFile, maximumEdge: CGFloat, exportSettings: ExportSettings) throws -> ImportedImage {
         let isRAW = ["dng", "raw"].contains(fileExtension?.lowercased() ?? "")
         var source: CIImage?
         if isRAW {
@@ -144,7 +152,7 @@ enum ImagePipeline {
         for i in stride(from: 0, to: pixels.count, by: 4) {
             rgb.append(contentsOf: pixels[i..<(i + 3)])
         }
-        return ImportedImage(linearRGB: rgb, width: width, height: height,
+        return ImportedImage(sourceFile: sourceFile, exportSettings: exportSettings, linearRGB: rgb, width: width, height: height,
                              original: UIImage(cgImage: originalCG),
                              sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter" : "Rendered image • embedded profile → linear sRGB")
     }
@@ -174,50 +182,143 @@ enum ImagePipeline {
         return ProcessedImage(image: image, source: input, recipe: recipe)
     }
 
-    /// Export independently from the UInt8 display preview. The numerical core returns
-    /// display-linear sRGB floats in [0, 1] after each backend’s output inverse. Core Image
-    /// applies the sRGB transfer function exactly once when encoding the HEIF.
-    static func writeHEIF(_ processed: ProcessedImage, to url: URL) throws {
-        try autoreleasepool {
-            let source = processed.source
-            let rgba: [Float]
-            switch processed.recipe.mode {
-            case .hncs:
-                rgba = try HNCSEngine.exportLinearRGBA(
-                    linearSRGB: source.linearRGB, width: source.width, height: source.height,
-                    exposureEV: processed.exposureEV, illuminantKelvin: processed.illuminantKelvin)
-            case .ffcs:
-                rgba = try FFCSEngine.exportLinearRGBA(
-                    linearSRGB: source.linearRGB, width: source.width, height: source.height,
-                    exposureEV: processed.exposureEV, simulationIndex: processed.recipe.simulationIndex,
-                    seed: processed.recipe.seed)
-            }
-            guard rgba.count == source.width * source.height * 4,
-                  rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }),
-                  let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB),
-                  let sRGB = CGColorSpace(name: CGColorSpace.sRGB) else {
-                throw PipelineError.rendering
-            }
-            let data = rgba.withUnsafeBytes { Data($0) }
-            let image = CIImage(bitmapData: data, bytesPerRow: source.width * 16,
-                                size: CGSize(width: CGFloat(source.width), height: CGFloat(source.height)),
-                                format: .RGBAf, colorSpace: linear)
-            let context = CIContext(options: [.workingColorSpace: linear,
-                                              .workingFormat: CIFormat.RGBAf.rawValue])
-            // Standard-gamut, SDR sRGB. No PQ/HLG, extended-range values, HDR
-            // expansion, gain-map image, or source properties enter this new image.
-            // This dedicated encoder requests 10 bits; do not substitute the generic
-            // writeHEIFRepresentation API or pass the 8-bit UIImage here.
-            do {
-                try context.writeHEIF10Representation(of: image, to: url,
-                                                       colorSpace: sRGB, options: [:])
-                let values = try url.resourceValues(forKeys: [.fileSizeKey])
-                guard (values.fileSize ?? 0) > 0 else { throw PipelineError.encoding }
-            } catch {
-                try? FileManager.default.removeItem(at: url)
-                throw error
+    /// Export from the retained full-resolution capture, with its immutable recipe.
+    /// Exact color processing precedes any reduction to the requested output size.
+    /// App-owned scratch is O(width * stripRows); Apple RAW/ImageIO/CI/HEIF may
+    /// allocate full-size internal surfaces. Device peak-RSS validation is required.
+    static func writeHEIF(_ processed: ProcessedImage, to url: URL,
+                          settings: ExportSettings? = nil) throws {
+        try decodeQueue.sync {
+            try autoreleasepool {
+                try exportFullSource(processed, to: url, settings: settings ?? processed.source.exportSettings)
             }
         }
     }
 
+    private static func fullSourceImage(_ source: SourceImageFile) throws -> CIImage {
+        let isRAW = ["dng", "raw"].contains(source.fileExtension?.lowercased() ?? "")
+        var decoded: CIImage?
+        if isRAW {
+            if let raw = CIRAWFilter(imageURL: source.url) {
+                if let container = CGImageSourceCreateWithURL(source.url as CFURL, nil),
+                   let properties = CGImageSourceCopyPropertiesAtIndex(container, 0, nil) as? [String: Any],
+                   let exif = properties[kCGImagePropertyOrientation as String] as? NSNumber,
+                   let orientation = CGImagePropertyOrientation(rawValue: exif.uint32Value) {
+                    raw.orientation = orientation
+                }
+                raw.scaleFactor = 1 // Genuine decoder output, never the preview scale.
+                decoded = raw.outputImage
+            }
+        } else {
+            decoded = CIImage(contentsOf: source.url, options: [.applyOrientationProperty: true])
+        }
+        guard let image = decoded, !image.extent.isEmpty, !image.extent.isInfinite,
+              image.extent.width.isFinite, image.extent.height.isFinite else {
+            throw PipelineError.invalidImage
+        }
+        return image.transformed(by: CGAffineTransform(translationX: -image.extent.minX,
+                                                        y: -image.extent.minY))
+    }
+
+    private static func exportFullSource(_ processed: ProcessedImage, to url: URL,
+                                          settings: ExportSettings) throws {
+        let decoded = try fullSourceImage(processed.source.sourceFile)
+        // Protect all byte-count arithmetic before allocating or creating a file.
+        guard decoded.extent.width < CGFloat(Int.max / 16),
+              decoded.extent.height < CGFloat(Int.max / 16) else { throw PipelineError.invalidImage }
+        let width = Int(decoded.extent.width.rounded(.down))
+        let height = Int(decoded.extent.height.rounded(.down))
+        guard width > 0, height > 0, width <= Int.max / 16 / height else { throw PipelineError.invalidImage }
+        let output = try settings.dimensions(sourceWidth: width, sourceHeight: height)
+        let rasterBytes = width * height * 16
+        let capacity = try FileManager.default.temporaryDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+        // Allow the uncompressed raster plus a conservative encoded-output margin.
+        if let available = capacity.volumeAvailableCapacityForImportantUsage,
+           Double(available) < Double(rasterBytes) * 1.5 + 64 * 1024 * 1024 {
+            throw CocoaError(.fileWriteOutOfSpace)
+        }
+        guard let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB),
+              let sRGB = CGColorSpace(name: CGColorSpace.sRGB) else { throw PipelineError.rendering }
+        let context = CIContext(options: [.workingColorSpace: linear,
+                                          .workingFormat: CIFormat.RGBAf.rawValue,
+                                          .cacheIntermediates: false])
+        let bounds = CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+        let source = decoded.composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
+            .cropped(to: bounds)
+        let raster = try ExportRasterFile()
+        let recipe = processed.recipe
+        let stripRows = 64
+        for start in stride(from: 0, to: height, by: stripRows) {
+            try Task.checkCancellation()
+            try autoreleasepool {
+                let rows = min(stripRows, height - start)
+                let halo = recipe.mode == .ffcs ? 1 : 0
+                let inputStart = max(0, start - halo)
+                let inputEnd = min(height, start + rows + halo)
+                let inputRows = inputEnd - inputStart
+                var decodedRGBA = [Float](repeating: 0, count: width * inputRows * 4)
+                decodedRGBA.withUnsafeMutableBytes { buffer in
+                    context.render(source, toBitmap: buffer.baseAddress!, rowBytes: width * 16,
+                                   bounds: CGRect(x: 0, y: CGFloat(inputStart), width: CGFloat(width), height: CGFloat(inputRows)),
+                                   format: .RGBAf, colorSpace: linear)
+                }
+                var rgb = [Float](repeating: 0, count: width * inputRows * 3)
+                for pixel in 0..<(width * inputRows) {
+                    for channel in 0..<3 { rgb[pixel * 3 + channel] = decodedRGBA[pixel * 4 + channel] }
+                }
+                let rgba: [Float]
+                switch recipe.mode {
+                case .hncs:
+                    rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: rgb, width: width, height: rows,
+                                                           exposureEV: recipe.exposureEV,
+                                                           illuminantKelvin: recipe.illuminantKelvin)
+                case .ffcs:
+                    let rendered = try FFCSEngine.exportLinearRGBStrip(
+                        linearSRGB: rgb, fullWidth: width, fullHeight: height,
+                        inputOriginY: inputStart, inputRows: inputRows,
+                        outputOriginY: start, outputRows: rows,
+                        exposureEV: recipe.exposureEV, simulationIndex: recipe.simulationIndex, seed: recipe.seed)
+                    var expanded = [Float](repeating: 1, count: width * rows * 4)
+                    for pixel in 0..<(width * rows) {
+                        for channel in 0..<3 { expanded[pixel * 4 + channel] = rendered[pixel * 3 + channel] }
+                    }
+                    rgba = expanded
+                }
+                guard rgba.count == width * rows * 4,
+                      rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
+                try raster.append(rgba)
+            }
+        }
+        let data = try raster.mappedData(expectedBytes: rasterBytes)
+        var image = CIImage(bitmapData: data, bytesPerRow: width * 16,
+                            size: CGSize(width: CGFloat(width), height: CGFloat(height)), format: .RGBAf, colorSpace: linear)
+        if output.width != width || output.height != height {
+            // Color and spatial FFCS effects have already run at source resolution.
+            // Lanczos executes in linear light, with no fake higher-resolution path.
+            let scale = Double(output.height) / Double(height)
+            image = image.applyingFilter("CILanczosScaleTransform", parameters: [kCIInputScaleKey: scale,
+                                                                                 kCIInputAspectRatioKey: 1.0])
+                .cropped(to: CGRect(x: 0, y: 0, width: CGFloat(output.width), height: CGFloat(output.height)))
+            // Lanczos ringing can leave [0,1]; SDR encoder input must stay bounded.
+            image = image.applyingFilter("CIColorClamp", parameters: ["inputMinComponents": CIVector(x: 0, y: 0, z: 0, w: 1),
+                                                                     "inputMaxComponents": CIVector(x: 1, y: 1, z: 1, w: 1)])
+        }
+        do {
+            // Fresh untagged raster: no source gain map, HDR metadata, PQ or HLG.
+            // Keep mapped storage and file alive until synchronous encoding returns.
+            try withExtendedLifetime((data, raster)) {
+                try context.writeHEIF10Representation(of: image, to: url, colorSpace: sRGB, options: [:])
+            }
+            guard let result = CGImageSourceCreateWithURL(url as CFURL, nil),
+                  let properties = CGImageSourceCopyPropertiesAtIndex(result, 0, nil) as? [String: Any],
+                  (properties[kCGImagePropertyPixelWidth as String] as? NSNumber)?.intValue == output.width,
+                  (properties[kCGImagePropertyPixelHeight as String] as? NSNumber)?.intValue == output.height,
+                  (properties[kCGImagePropertyDepth as String] as? NSNumber)?.intValue == 10 else {
+                throw PipelineError.encoding
+            }
+        } catch {
+            try? FileManager.default.removeItem(at: url)
+            throw error
+        }
+    }
 }

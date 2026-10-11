@@ -75,3 +75,8 @@ C++ files are referenced from `../core`; keep the project in the supplied folder
 - [Core Image working format](https://developer.apple.com/documentation/coreimage/cicontextoption/workingformat)
 - [NSItemProvider file representations](https://developer.apple.com/documentation/foundation/nsitemprovider/registerfilerepresentation(fortypeidentifier:fileoptions:visibility:loadhandler:))
 - [Activity item-provider configuration](https://developer.apple.com/documentation/uikit/uiactivityitemsconfiguration/init(itemproviders:))
+
+
+## Full-resolution export update
+
+The former shared 2048px export cap is removed. Preview remains separate; export reopens the retained original source, applies exact color in bounded row strips, then performs any permitted Lanczos reduction and HEIF10 SDR encoding. FFCS global coordinates/halo match full-frame processing. See [full-source design](../docs/FULL_RESOLUTION_EXPORT.md). Apple compile, Core Image row order, actual HEIF bitstream and total peak RSS remain unverified. The source is retained temporarily for the editing session, not a permanent RAW library.

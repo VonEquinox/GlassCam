@@ -95,6 +95,56 @@ enum FFCSEngine {
         return rgba
     }
 
+    /// Process only requested full-image rows, including one input halo row
+    /// above/below except at image edges. Row order must match the full-image
+    /// bitmap supplied to the ordinary renderer; no implicit orientation flip.
+    static func exportLinearRGBStrip(linearSRGB: [Float], fullWidth: Int, fullHeight: Int,
+                                      inputOriginY: Int, inputRows: Int,
+                                      outputOriginY: Int, outputRows: Int,
+                                      exposureEV: Double, simulationIndex: Int,
+                                      seed: UInt32) throws -> [Float] {
+        guard fullWidth > 0, fullHeight > 0, fullWidth <= 100_000, fullHeight <= 100_000,
+              fullWidth <= Int.max / fullHeight,
+              inputOriginY >= 0, inputOriginY < fullHeight,
+              outputOriginY >= 0, outputOriginY < fullHeight,
+              inputRows > 0, inputRows <= fullHeight - inputOriginY,
+              outputRows > 0, outputRows <= fullHeight - outputOriginY,
+              exposureEV.isFinite, (-32...32).contains(exposureEV),
+              simulationIndex >= 0, simulationIndex < Int(ffcs_simulation_count()) else {
+            throw Error.invalidInput
+        }
+        let pixels = fullWidth * fullHeight
+        guard pixels <= Int.max / MemoryLayout<Float>.stride / 3,
+              linearSRGB.count == fullWidth * inputRows * 3,
+              inputOriginY <= max(0, outputOriginY - 1),
+              inputOriginY + inputRows >= min(fullHeight, outputOriginY + outputRows + 1) else {
+            throw Error.invalidInput
+        }
+        guard let resources = Bundle.main.resourceURL else { throw Error.missingResources }
+        let directory = resources.appendingPathComponent("FFCS", isDirectory: true)
+            .appendingPathComponent("xh2s", isDirectory: true)
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory),
+              isDirectory.boolValue else { throw Error.missingResources }
+        let context = try contextCache.context(directory: directory, simulationIndex: simulationIndex)
+        var output = [Float](repeating: 0, count: fullWidth * outputRows * 3)
+        var message = [CChar](repeating: 0, count: 1024)
+        let status = withExtendedLifetime(context) {
+            linearSRGB.withUnsafeBufferPointer { input in
+                output.withUnsafeMutableBufferPointer { linear in
+                    message.withUnsafeMutableBufferPointer { error in
+                        ffcs_process_linear_rgb_strip(context.pointer, input.baseAddress, input.count,
+                            fullWidth, fullHeight, inputOriginY, inputRows, outputOriginY, outputRows,
+                            Float(exposureEV), seed, linear.baseAddress, linear.count, workerCount,
+                            error.baseAddress, error.count)
+                    }
+                }
+            }
+        }
+        guard status == 1 else { throw Error.backend(String(cString: message)) }
+        return output
+    }
+
     private static func render(linearSRGB: [Float], width: Int, height: Int,
                                exposureEV: Double, simulationIndex: Int, seed: UInt32,
                                includePreview: Bool) throws -> (linearRGB: [Float], preview: [UInt8]) {

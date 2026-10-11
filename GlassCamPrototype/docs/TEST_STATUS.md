@@ -71,3 +71,8 @@
 详见 [FFCS 实现和性能边界](FFCS.md)：原始 9 测试、14 案例/153 阶段；19 种移植模式/513 阶段图最大误差 2.51e-14；1,368 个分块组合逐值一致。三行缓冲明显降低暂存内存，但云端线程计时不稳定，不承诺加速。App 暂用单线程，保留 1–4 核心接口。
 
 最终合并源码测试：13 项 unittest 全部通过。此云环境未安装 CMake，CMake configure/build/ctest 未执行；g++ 数值/回归构建已执行。
+
+
+## Full-resolution export update
+
+The former shared 2048px export cap is removed. Preview remains separate; export reopens the retained original source, applies exact color in bounded row strips, then performs any permitted Lanczos reduction and HEIF10 SDR encoding. FFCS global coordinates/halo match full-frame processing. See [full-source design](FULL_RESOLUTION_EXPORT.md). Apple compile, Core Image row order, actual HEIF bitstream and total peak RSS remain unverified. The source is retained temporarily for the editing session, not a permanent RAW library.
