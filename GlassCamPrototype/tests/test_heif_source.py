@@ -50,6 +50,7 @@ class HEIFSourceContracts(unittest.TestCase):
         self.assertNotIn('srgb_encode[',export)
         self.assertNotIn('uint8_t(',export)
         self.assertIn('sizeof(float)/4',export)
-        self.assertIn('hncs_process_linear_rgba(',self.bridge)
+        self.assertIn('hncs_process_linear_rgba_parallel(',self.bridge)
+        self.assertIn('workerCount()',self.bridge)
 
 if __name__=='__main__':unittest.main(verbosity=2)

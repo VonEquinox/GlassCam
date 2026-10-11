@@ -244,3 +244,29 @@ extern "C" int hncs_process_srgb_fast_parallel(const hncs_context *c,const float
     for(unsigned i=0;i<launched;++i)if(threads[i].joinable())threads[i].join();
     return status.load(std::memory_order_relaxed);
 }
+
+// Exact Float export parallelism: identical per-pixel math, disjoint output.
+extern "C" int hncs_process_linear_rgba_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4||workers<1||workers>4)return -1;
+    // Avoid launch overhead for small buffers. Context is immutable and each
+    // worker writes a disjoint contiguous pixel range with constant scratch.
+    if(workers==1||count<65536)return hncs_process_linear_rgba(c,input,output,count);
+    std::atomic<int> status{0};
+    const size_t base=count/workers,remainder=count%workers;
+    auto run=[&](unsigned index) {
+        size_t start=base*index+std::min(size_t(index),remainder);
+        size_t length=base+(index<remainder?1:0);
+        if(hncs_process_linear_rgba(c,input+start*3,output+start*4,length)!=0)
+            status.store(-1,std::memory_order_relaxed);
+    };
+    // Fixed-size thread storage needs no allocation. If thread creation fails,
+    // already-started ranges continue and the unlaunched ranges run here.
+    std::array<std::thread,3> threads;
+    unsigned launched=0;
+    try {
+        for(;launched+1<workers;++launched)threads[launched]=std::thread(run,launched);
+    } catch(...) { /* Bounded, safe sequential fallback for remaining tiles. */ }
+    for(unsigned i=launched;i<workers;++i)run(i);
+    for(unsigned i=0;i<launched;++i)if(threads[i].joinable())threads[i].join();
+    return status.load(std::memory_order_relaxed);
+}

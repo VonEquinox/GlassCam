@@ -42,6 +42,20 @@ enum HNCSEngine {
     }
     private static let contextCache = ContextCache()
 
+    /// Bounded CPU concurrency shared by preview and exact Float export.
+    /// A device performance/energy claim still requires hardware measurement.
+    private static func workerCount() -> UInt32 {
+        let info = ProcessInfo.processInfo
+        var workers = min(4, max(1, info.activeProcessorCount))
+        if info.isLowPowerModeEnabled { workers = min(workers, 2) }
+        switch info.thermalState {
+        case .fair: workers = min(workers, 2)
+        case .serious, .critical: workers = 1
+        default: break
+        }
+        return UInt32(workers)
+    }
+
     static func process(linearSRGB: [Float], width: Int, height: Int,
                         exposureEV: Double, illuminantKelvin: Double,
                         quality: Quality = .fastPreview) throws -> [UInt8] {
@@ -64,16 +78,8 @@ enum HNCSEngine {
                 case .fastPreview:
                     // HNCS UInt16 core stays exact. Only final 8-bit display OETF
                     // uses a validated table (maximum error one byte level).
-                    let info = ProcessInfo.processInfo
-                    var workers = min(4, max(1, info.activeProcessorCount))
-                    if info.isLowPowerModeEnabled { workers = min(workers, 2) }
-                    switch info.thermalState {
-                    case .fair: workers = min(workers, 2)
-                    case .serious, .critical: workers = 1
-                    default: break
-                    }
                     return hncs_process_srgb_fast_parallel(context, source.baseAddress,
-                                                          destination.baseAddress, count, UInt32(workers))
+                                                          destination.baseAddress, count, workerCount())
                 }
             }
         }
@@ -102,7 +108,7 @@ enum HNCSEngine {
         var rgba = [Float](repeating: 0, count: count * 4)
         let status = linearSRGB.withUnsafeBufferPointer { source in
             rgba.withUnsafeMutableBufferPointer { destination in
-                hncs_process_linear_rgba(context, source.baseAddress, destination.baseAddress, count)
+                hncs_process_linear_rgba_parallel(context, source.baseAddress, destination.baseAddress, count, workerCount())
             }
         }
         guard status == 0 else { throw Error.invalidPixels }

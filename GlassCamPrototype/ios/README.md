@@ -45,7 +45,7 @@ Import transfer/decode/effect/export run away from the UI thread. Settings lock 
 
 The actual worker and an explicit locked cancellation token carry cancellation across the serial decode queue. Cancellation is checked between strips and before/after codecs. Synchronous Apple calls cannot be interrupted mid-call; busy stays set until they return, and canceled work must not publish an image or start saving. Photos writes cannot be canceled after their transaction is submitted. Files picker cancellation and share-provider Progress cancellation are separate delivery boundaries.
 
-HNCS preview supports up to four bounded workers, reduced under low-power/thermal policy. Float export and FFCS app processing currently use a single worker. These are implementation choices, not measured iPhone energy/performance guarantees.
+HNCS preview supports up to four bounded workers, reduced under low-power/thermal policy. HNCS Float export now uses the same bounded worker policy with bit-exact per-pixel math and a serial oracle; FFCS app processing currently uses one worker. These are implementation choices, not measured iPhone energy/performance guarantees.
 
 ## Native camera and per-lens settings
 

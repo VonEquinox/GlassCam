@@ -22,6 +22,7 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 - [FFCS 数值移植与资产准备](docs/FFCS.md)
 - [iOS 构建与设备验收](ios/README.md) / [C++ 核](core/README.md)
 - [相机能力与取景](docs/camera-capture.md) / [全源导出](docs/FULL_RESOLUTION_EXPORT.md)
+- [精确 Float 并行优化](docs/EXACT_FLOAT_PARALLEL.md) / [Apple 精度与加速约束](docs/apple_precision_acceleration.md)
 - [当前颜色核心分段性能](docs/COLOR_PERFORMANCE.md) / [硬件与加速路线](docs/HARDWARE_PERFORMANCE.md)
 - [保存、分享与失败恢复](docs/DELIVERY_AND_RECOVERY.md)
 - [来源及分发边界](NOTICE.md)

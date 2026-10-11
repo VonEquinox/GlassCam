@@ -64,7 +64,7 @@ Current separated core timing is recorded in [COLOR_PERFORMANCE](../docs/COLOR_P
 
 ## High-bit-depth export boundary
 
-`hncs_process_linear_rgba` emits packed Float32 display-linear sRGB RGBA (alpha 1) after the unchanged UInt16 HNCS core and display matrices, before either 8-bit OETF encoder. It guards RGBA float byte-size overflow and rejects nonfinite source data. This is the dedicated input to Apple's HEIF10 writer, not a conversion from the byte preview. `python tools/verify_linear_export.py` compares it against the original double-precision display reference. The portable backend does not itself encode HEIF or establish the emitted Apple bitstream's bit depth.
+`hncs_process_linear_rgba` emits packed Float32 display-linear sRGB RGBA (alpha 1) after the unchanged UInt16 HNCS core and display matrices, before either 8-bit OETF encoder. It guards RGBA float byte-size overflow and rejects nonfinite source data. The new `hncs_process_linear_rgba_parallel` retains this serial API as oracle and distributes identical per-pixel work across1–4 workers. It is used by the Swift Float export bridge; small buffers remain serial. This is the dedicated input to Apple's HEIF10 writer, not a conversion from the byte preview. `python tools/verify_linear_export.py` compares it against the original double-precision display reference. The portable backend does not itself encode HEIF or establish the emitted Apple bitstream's bit depth.
 
 
 ## FFCS exact stages and strip processing
@@ -78,3 +78,5 @@ The reference full-frame route remains an oracle. The exact optimized route uses
 ## Delivery boundary
 
 Portable kernels emit preview bytes or display-linear floats, never HEIF/JPEG files. Photos/Files save the Apple-encoded original HEIF. The separate share provider may lazily decode that finalized HEIF into a same-size compatibility JPEG; it does not call an approximate color kernel or rerender preview data. No JPEG export setting exists.
+
+Exact Float parallel benchmark, regression and failure contracts: [EXACT_FLOAT_PARALLEL](../docs/EXACT_FLOAT_PARALLEL.md). Apple acceleration constraints: [precision research](../docs/apple_precision_acceleration.md).

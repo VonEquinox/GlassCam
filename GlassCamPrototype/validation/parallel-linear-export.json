@@ -1,0 +1,158 @@
+{
+  "status": "passed",
+  "compile_command": [
+    "g++",
+    "-std=c++17",
+    "-O3",
+    "-ffp-contract=off",
+    "-fno-fast-math",
+    "-pthread",
+    "-shared",
+    "-fPIC",
+    "/workspace/shared/glasscam-prototype/core/hncs.cpp",
+    "-o",
+    "/workspace/shared/glasscam-prototype/build/libhncs_parallel_profile.so"
+  ],
+  "bit_exact_cases": 336,
+  "modes": "legacy/Lstar x standard/reproduction x EV,CCT(-2,2000),(0,5500),(2,10000)",
+  "workers_tested": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "edge_checks": "zero/null, thread counts, nonfinite in late tile, oversized count",
+  "launch_failure": "fallback/join code inspected; launch failure not fault-injected",
+  "benchmark": [
+    {
+      "width": 8064,
+      "height": 64,
+      "pixels": 516096,
+      "output_sha256": "4250b21fe5b87e489cb4220438ba741c64278e0dffe72b65b25209a0796aa3cc",
+      "timings": {
+        "1": {
+          "wall_ms": [
+            92.06976299901726,
+            104.9006349985575,
+            103.96611700161884,
+            155.51251700162538,
+            155.27015499901609
+          ],
+          "cpu_ms": [
+            91.89905300000056,
+            100.8359239999983,
+            103.9399019999987,
+            155.19538499999896,
+            155.2599430000008
+          ],
+          "wall_median_ms": 104.9006349985575,
+          "cpu_median_ms": 103.9399019999987
+        },
+        "2": {
+          "wall_ms": [
+            75.72506200085627,
+            97.52180599934945,
+            98.93420600019454,
+            58.249547000741586,
+            79.70835599917336
+          ],
+          "cpu_ms": [
+            114.20715500000078,
+            150.18979299999913,
+            152.25783999999896,
+            97.02305200000083,
+            150.00475999999986
+          ],
+          "wall_median_ms": 79.70835599917336,
+          "cpu_median_ms": 150.00475999999986
+        },
+        "4": {
+          "wall_ms": [
+            65.52675800048746,
+            50.56303600031242,
+            54.314467999574845,
+            33.01585699955467,
+            137.99445100084995
+          ],
+          "cpu_ms": [
+            142.5126359999993,
+            132.48882599999945,
+            125.08241099999928,
+            106.40990400000128,
+            313.0649499999993
+          ],
+          "wall_median_ms": 54.314467999574845,
+          "cpu_median_ms": 132.48882599999945
+        }
+      }
+    },
+    {
+      "width": 4000,
+      "height": 3000,
+      "pixels": 12000000,
+      "output_sha256": "d9118453f066ecdb4d7afe9691198ba6e0922fbc0609d90604ea695e2bcc0112",
+      "timings": {
+        "1": {
+          "wall_ms": [
+            2554.809547000332,
+            2637.8011149990925,
+            2731.4004360014223,
+            2815.9630749996722,
+            7972.117925999555
+          ],
+          "cpu_ms": [
+            2546.9020230000015,
+            2634.479128999999,
+            2730.257476999995,
+            2814.8727069999923,
+            7912.676198
+          ],
+          "wall_median_ms": 2731.4004360014223,
+          "cpu_median_ms": 2730.257476999995
+        },
+        "2": {
+          "wall_ms": [
+            1792.8807970001799,
+            1699.272319998272,
+            1950.7533910000348,
+            2209.6275620006054,
+            1979.4648589995631
+          ],
+          "cpu_ms": [
+            3543.4931650000008,
+            3067.0824540000012,
+            3790.269224999996,
+            3973.0030669999933,
+            3591.1285239999984
+          ],
+          "wall_median_ms": 1950.7533910000348,
+          "cpu_median_ms": 3591.1285239999984
+        },
+        "4": {
+          "wall_ms": [
+            1063.1721539994032,
+            1067.1066039994912,
+            785.8791110011225,
+            884.7880569992412,
+            1707.5598159990477
+          ],
+          "cpu_ms": [
+            3962.5199999999977,
+            4026.323224000002,
+            2568.133668999998,
+            2907.6366630000052,
+            5118.910802000002
+          ],
+          "wall_median_ms": 1063.1721539994032,
+          "cpu_median_ms": 3962.5199999999977
+        }
+      }
+    }
+  ],
+  "scope": "Cloud CPU C API only; input/output/context creation excluded, actual thread startup/join included on every invocation. Five rotated-order samples after warm-up. No HEIF encoding, iPhone, Apple compile or48MP measurement.",
+  "source_sha256": {
+    "core/hncs.cpp": "cd43b8ac69fd614cd1fa9f927a44e2cd87f8c264ca3fb16a2d777e8fffbd25b6",
+    "core/hncs_c.h": "3973c177bbcef670f37057225d8d9250bd77b6e6dfbaeeb764eaf12dda9d0853",
+    "ios/GlassCam/HNCSEngine.swift": "30fb8874702faaf94e8b356448114f024b997da8200c1b3872e2a85b3aaaa464"
+  }
+}

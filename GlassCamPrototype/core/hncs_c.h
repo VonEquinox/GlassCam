@@ -31,6 +31,12 @@ int hncs_process_srgb(const hncs_context *context, const float *input_rgb,
  * input and output byte sizes. */
 int hncs_process_linear_rgba(const hncs_context *context, const float *input_rgb,
                              float *output_rgba, size_t pixel_count);
+/* Exact Float export in bounded contiguous tiles; no approximation or changed
+ * arithmetic. workers=1..4; count<65536 uses the serial oracle. Thread launch
+ * failure falls back safely after joining all started workers. Same buffer,
+ * error and byte-size contracts as hncs_process_linear_rgba. */
+int hncs_process_linear_rgba_parallel(const hncs_context *context,
+    const float *input_rgb, float *output_rgba, size_t pixel_count, unsigned workers);
 /* Optimized display path: same native core and display matrices, but the final
  * sRGB OETF uses a 65536-entry table at the nearest linear sample. The maximum
  * continuous 8-bit-code perturbation is <= 0.026; quantized output differs by
