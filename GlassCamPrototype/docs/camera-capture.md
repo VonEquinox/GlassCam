@@ -67,3 +67,8 @@ The wider source is now positioned using a first-order pinhole FOV ratio, tan(wi
 ## 实时视频像素格式
 
 当前选择8bit NV12（420f/420v），每路首帧除尺寸还验证CVPixelBuffer实际OSType，界面显示该格式。独立高精度Float效果预览不能反推实时视频也有10bit源精度。后续10bit视频选择须同时验证activeFormat、输出类型、SDR颜色空间和显示链。
+
+
+## Experimental center color preview
+
+A default-off switch adds a color-only GPU proxy over the unchanged system center layer. The wider peripheral layer stays unprocessed. Only measured EV0 recipes are admitted (HNCS5500/6500K, FFCS PROVIA/ACROS); unsupported settings retain system preview with a reason. One GPU job plus one replaceable latest source frame bounds retention. Session/recipe changes, stale input, off-window state and GPU failure hide the overlay. This does not alter capture configuration or final-photo processing. See [implementation and untested device gates](LIVE_COLOR_PROXY.md).

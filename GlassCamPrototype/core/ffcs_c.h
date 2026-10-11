@@ -14,6 +14,24 @@ const char *ffcs_simulation_asset(size_t index);
 FFCSContext *ffcs_create(const char *asset_directory, size_t simulation_index,
                         char *error, size_t error_size);
 void ffcs_destroy(FFCSContext *context);
+/* Experimental preview / runtime LUT baking only. This is the genuine FFCS
+ * pointwise color transform, retaining the original matrix, LUT, Lab/OKLab,
+ * tone curve and clipping, while omitting spatial grain and sharpening.
+ * It does not replace any full-photo API below. No blur stage is present.
+ * Input: dense interleaved RGB Float32, finite linear-sRGB in [0,1].
+ * Output: dense DISPLAY-LINEAR sRGB RGBA Float32, alpha exactly 1.
+ * Exposure is not applied here; the caller applies it before cube lookup.
+ * pixel_count must be nonzero; counts are float elements, not bytes.
+ * Caller owns nonoverlapping buffers. Context is immutable/thread-safe.
+ * Returns 1 on success, 0 with error on failure; no exceptions cross the ABI.
+ * Invalid arguments/input are rejected before writing any output.
+ * For an sRGB-shaped N^3 cube, evaluate RGB = sRGB_EOTF(node/(N-1)).
+ * Sampling coordinates must use sRGB_OETF(clamp(linear_RGB,0,1)); a shaped
+ * cube must NOT be sampled with plain linear RGB coordinates. Node ordering
+ * is caller-controlled; this API preserves input order exactly. */
+int ffcs_process_linear_rgb_color_only(const FFCSContext *context,
+    const float *input, size_t input_float_count, size_t pixel_count,
+    float *output_rgba, size_t output_float_count, char *error, size_t error_size);
 /* Dense interleaved RGB float input in linear-sRGB primaries. EV applied in
  * linear light before original FFCS stages. Output is DISPLAY-LINEAR sRGB,
  * suitable for tagged extended-linear-sRGB Core Image / 10-bit HEIF encoding.

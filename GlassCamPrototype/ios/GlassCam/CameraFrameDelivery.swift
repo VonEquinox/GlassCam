@@ -6,6 +6,7 @@ import CoreVideo
 /// Capture delegates run on their own serial queues. Layer access is main-only.
 final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     let layer: AVSampleBufferDisplayLayer
+    let liveSource = LiveCameraFrameSource()
     let callbackQueue = DispatchQueue(label: "dev.glasscam.preview.\(UUID().uuidString)", qos: .userInteractive)
     private let lock = NSLock()
     private var pending = false
@@ -30,13 +31,16 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
         lock.lock()
         expectedWidth = width; expectedHeight = height; expectedPixelFormat = pixelFormat; generation &+= 1
         firstFrame = onFirstValidFrame
+        let ticket = generation
         lock.unlock()
+        liveSource.reset(generation: ticket)
         DispatchQueue.main.async { [weak self] in
             self?.layer.sampleBufferRenderer.flush(removingDisplayedImage: true, completionHandler: nil)
         }
     }
     func invalidate() {
         lock.lock(); active = false; generation &+= 1; lock.unlock()
+        liveSource.invalidate()
         DispatchQueue.main.async { [weak self] in
             self?.layer.sampleBufferRenderer.flush(removingDisplayedImage: true, completionHandler: nil)
         }
@@ -49,6 +53,9 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
               CVPixelBufferGetWidth(image) == expectedWidth,
               CVPixelBufferGetHeight(image) == expectedHeight else { lock.unlock(); return }
         let first = firstFrame; firstFrame = nil
+        // The GPU mailbox replaces stale pending frames even while the raw
+        // fallback has a main closure queued. No CPU color work on this queue.
+        liveSource.offer(sampleBuffer, generation: generation)
         guard !pending else { lock.unlock(); first?(); return }
         pending = true
         let ticket = generation

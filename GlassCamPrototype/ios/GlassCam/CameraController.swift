@@ -34,6 +34,7 @@ final class CameraController: ObservableObject {
     @Published private(set) var status = "Camera stopped"
     @Published private(set) var isReady = false
     @Published private(set) var isCapturing = false
+    @Published private(set) var centerLiveSource: LiveCameraFrameSource?
     @Published private(set) var centerPreviewLayer: AVSampleBufferDisplayLayer?
     @Published private(set) var peripheralPreviewLayer: AVSampleBufferDisplayLayer?
     @Published private(set) var geometry: CameraGeometry?
@@ -56,6 +57,7 @@ final class CameraController: ObservableObject {
         let token = UUID(); generation = token
         isConfiguring = true; isReady = false; status = "Checking camera access…"
         centerPreviewLayer = nil; peripheralPreviewLayer = nil; geometry = nil
+        centerLiveSource?.setEnabled(false); centerLiveSource = nil
         supportedOutputOptions = []; sourceCaptureDimensions = nil; physicalCameraID = nil
         centerPreviewDimensions = nil; peripheralPreviewDimensions = nil
         centerPreviewEncoding = nil; peripheralPreviewEncoding = nil
@@ -88,6 +90,7 @@ final class CameraController: ObservableObject {
                     guard let self, self.generation == token else { return }
                     self.isConfiguring = false
                     self.centerPreviewLayer = bundle.center
+                    self.centerLiveSource = bundle.liveSource
                     self.peripheralPreviewLayer = bundle.periphery
                     self.geometry = bundle.geometry
                     self.supportedOutputOptions = bundle.outputOptions
@@ -116,6 +119,9 @@ final class CameraController: ObservableObject {
         orientation = value
         guard !isConfiguring, centerPreviewLayer != nil else { return }
         isReady = false
+        // Revoke the proxy synchronously, before SwiftUI redraw/session rotation.
+        // An already-finished old GPU frame must not revive the previous view.
+        centerLiveSource?.setEnabled(false)
         orientationRevision &+= 1
         let revision = orientationRevision
         let token = generation
@@ -141,6 +147,7 @@ final class CameraController: ObservableObject {
         dispatchPrecondition(condition: .onQueue(.main))
         generation = UUID(); isConfiguring = false; isReady = false; isCapturing = false
         centerPreviewLayer = nil; peripheralPreviewLayer = nil; geometry = nil
+        centerLiveSource?.setEnabled(false); centerLiveSource = nil
         supportedOutputOptions = []; sourceCaptureDimensions = nil; physicalCameraID = nil
         centerPreviewDimensions = nil; peripheralPreviewDimensions = nil
         centerPreviewEncoding = nil; peripheralPreviewEncoding = nil
@@ -181,6 +188,7 @@ private struct CameraFailure: LocalizedError {
 private final class CameraBackend {
     struct Bundle {
         let center: AVSampleBufferDisplayLayer
+        let liveSource: LiveCameraFrameSource
         let periphery: AVSampleBufferDisplayLayer?
         let geometry: CameraController.CameraGeometry
         let outputOptions: [CameraController.OutputOption]
@@ -333,7 +341,7 @@ private final class CameraBackend {
         guard center.activeFormat === finalCenterFormat else {
             throw CameraFailure("The photo preset changed the active format after configuration; this combination requires device validation.")
         }
-        return Bundle(center: frameDeliveries[0].layer, periphery: frameDeliveries.count > 1 ? frameDeliveries[1].layer : nil, geometry: geometry,
+        return Bundle(center: frameDeliveries[0].layer, liveSource: frameDeliveries[0].liveSource, periphery: frameDeliveries.count > 1 ? frameDeliveries[1].layer : nil, geometry: geometry,
                       outputOptions: Self.outputOptions(source: dimensions), physicalCameraID: center.uniqueID,
                       centerPreviewDimensions: Self.size(previewSizes[0]),
                       peripheralPreviewDimensions: previewSizes.count > 1 ? Self.size(previewSizes[1]) : nil,
@@ -515,6 +523,7 @@ private final class CameraBackend {
     private func failSession(_ message: String, stopRunning: Bool = false) {
         dispatchPrecondition(condition: .onQueue(queue))
         failed = true
+        frameDeliveries.forEach { $0.liveSource.invalidate() }
         captureDelegate?.cancel(reason: message)
         if stopRunning { session?.stopRunning() }
         failureHandler?(message)

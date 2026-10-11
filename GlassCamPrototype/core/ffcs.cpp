@@ -103,6 +103,24 @@ RGB mapLUT(const FFCSContext &c,RGB v) {
  if(!c.rgbChannels) { std::swap(o[0],o[2]); }
  return o;
 }
+// Separate preview entry point intentionally leaves the established full-photo
+// render/mobilePixel implementations untouched. Keep this exact pointwise stage
+// extraction covered against render's tone_curve snapshot and a spatial-zero
+// private context. No image-sized scratch or one-pixel spatial rendering.
+RGB colorOnlyPixel(const FFCSContext &ctx,const float *in) {
+ RGB v={double(in[0]),double(in[1]),double(in[2])};
+ v=mul(v,ctx.matrix);
+ for(auto &q:v) q=encode(clip(q));
+ v=ucs(lab(mapLUT(ctx,v),ctx.look));
+ const auto &s=ctx.look;
+ for(auto &q:v) {
+  double t=.5+(clip(q)-.5)*std::max(.05,s.contrast);
+  if(s.toe) t+=s.toe*(1-t)*(.18-.18*t);
+  if(s.shoulder) t-=s.shoulder*t*t*.22;
+  q=clip(t);
+ }
+ return v;
+}
 void render(const FFCSContext &ctx,std::vector<double> &p,size_t w,size_t h,uint32_t seed,bool linear,FFCSStageCallback cb,void *user){
  auto put=[&](const char *n){if(cb)cb(n,p.data(),w,h,user);};
  auto transform=[&](auto fn){for(size_t i=0;i<p.size();i+=3){RGB v={p[i],p[i+1],p[i+2]};v=fn(v);for(int j=0;j<3;++j)p[i+j]=v[j];}};
@@ -156,6 +174,29 @@ FFCSContext *ffcs_create(const char *dir,size_t index,char *err,size_t en){
  FFCSContext ctx{looks[index],size,scale,{},v2&&(b[52]&1),{}};for(int i=0;i<9;++i){ctx.matrix[i]=f32(b.data()+16+4*i);if(!std::isfinite(ctx.matrix[i]))throw std::runtime_error("Nonfinite FFCS matrix");}ctx.lut.resize(expected/2);for(size_t i=0;i<ctx.lut.size();++i)ctx.lut[i]=u16(raw.data()+i*2);errorText(err,en,"");return new FFCSContext(std::move(ctx));
  }catch(const std::exception &e){errorText(err,en,e.what());return nullptr;}catch(...){errorText(err,en,"Unknown FFCS initialization failure");return nullptr;}}
 void ffcs_destroy(FFCSContext *c){delete c;}
+int ffcs_process_linear_rgb_color_only(const FFCSContext *c,const float *in,
+ size_t ni,size_t pixels,float *out,size_t no,char *err,size_t en) {
+ try {
+  if(!c || !in || !out || !pixels ||
+     pixels>std::numeric_limits<size_t>::max()/(4*sizeof(float)))
+   throw std::runtime_error("Invalid FFCS color-only arguments");
+  const size_t input_n=pixels*3,output_n=pixels*4;
+  if(ni<input_n || no<output_n)
+   throw std::runtime_error("FFCS color-only buffer is too small");
+  if(overlaps(in,input_n*sizeof(float),out,output_n*sizeof(float)))
+   throw std::runtime_error("FFCS color-only buffers must not overlap");
+  for(size_t i=0;i<input_n;++i)
+   if(!std::isfinite(in[i]) || in[i]<0.f || in[i]>1.f)
+    throw std::runtime_error("FFCS color-only input must be finite linear-sRGB in [0,1]");
+  for(size_t i=0;i<pixels;++i) {
+   RGB v=colorOnlyPixel(*c,in+i*3);
+   for(int ch=0;ch<3;++ch) out[i*4+ch]=float(decode(v[ch]));
+   out[i*4+3]=1.f;
+  }
+  errorText(err,en,"");return 1;
+ } catch(const std::exception &e) { errorText(err,en,e.what());return 0; }
+ catch(...) { errorText(err,en,"Unknown FFCS color-only failure");return 0; }
+}
 int ffcs_process_encoded_double(const FFCSContext *c,const double *in,size_t ni,size_t w,size_t h,uint32_t seed,double *out,size_t no,FFCSStageCallback cb,void *user,char *err,size_t en){try{size_t n=count(w,h);if(!c||!in||!out||ni<n||no<n)throw std::runtime_error("Invalid FFCS double buffers");for(size_t i=0;i<n;++i)if(!std::isfinite(in[i]))throw std::runtime_error("Nonfinite FFCS input");std::vector<double> p(in,in+n);render(*c,p,w,h,seed,false,cb,user);std::copy(p.begin(),p.end(),out);errorText(err,en,"");return 1;}catch(const std::exception &e){errorText(err,en,e.what());return 0;}catch(...){errorText(err,en,"Unknown FFCS rendering failure");return 0;}}
 int ffcs_process_linear_rgb(const FFCSContext *c,const float *in,size_t ni,size_t w,size_t h,float ev,uint32_t seed,float *out,size_t no,uint8_t *rgba,size_t nb,char *err,size_t en) {
  try {

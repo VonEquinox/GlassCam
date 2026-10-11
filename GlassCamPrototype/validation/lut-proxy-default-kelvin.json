@@ -1,0 +1,2516 @@
+{
+  "status": "passed",
+  "purpose": "Additive default-6500-K accuracy evidence; no app/core changes or production acceptance claim",
+  "domain": "finite linear-sRGB Float32 RGB [0,1]^3; HNCS EV=0, CCT=6500 K, legacy/standard",
+  "output": "display-linear sRGB Float32; encoded metrics use Float32 sRGB OETF with no integer quantization",
+  "method": {
+    "seed": 20261011,
+    "probes": {
+      "random": 100000,
+      "gray": 8193,
+      "dark": 20000,
+      "saturated": 20000,
+      "boundary": 20000
+    },
+    "sample_count": 168193,
+    "generated_input_sha256": "a2d1e7e41165eb0119f439c276c14baac88b2fa2b6c769eda587c757df1aefe6",
+    "probe_order": [
+      "random",
+      "gray",
+      "dark",
+      "saturated",
+      "boundary"
+    ],
+    "probe_generation": "Exact frozen-study RNG call order; 5500 K control independently reproduced against saved metrics",
+    "interpolation": "Existing CPU float32 trilinear oracle; internal R-major/B-fast; exported RGBA R-fast/G-next/B-slowest",
+    "node_evaluation": "Both frozen-study Float32 inverse sRGB and app-style Double inverse sRGB followed by Float32 cast",
+    "storage": "Float32 main result; optional binary16 node rounding promoted to Float32 before CPU interpolation",
+    "metrics": "Max/mean absolute RGB channel; mean and p95/p99 of per-pixel maximum absolute RGB channel; per-channel RMSE. DeltaE76 is CIELAB D65, not DeltaE2000.",
+    "limitations": "Synthetic holdouts, not a formal worst-case bound, photo/camera validation, GPU arithmetic verification, or perceptual acceptance threshold. No Apple execution or device performance claim."
+  },
+  "verification": {
+    "frozen_files_unchanged": true,
+    "frozen_files_sha256": {
+      "tools/lut_proxy_study.py": "bd6540fe277574f7293d497df41b393a92decca30c39e41da8a20a4984a3819d",
+      "validation/lut-proxy-study.json": "b298bbac7978c2c99a731ca7ffbc2094c6a852cfa7137be9970ee1baa9fc86c4"
+    },
+    "frozen_hncs_oracle_dependencies_match": true,
+    "core_sources_unchanged": true,
+    "control_5500_saved_metrics_match": true,
+    "control_5500_comparisons": [
+      {
+        "metric": "display_linear.max_channel",
+        "saved": 0.007926344871520996,
+        "observed": 0.007926344871520996,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "display_linear.p95_pixel_max",
+        "saved": 0.000553131103515625,
+        "observed": 0.000553131103515625,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "display_linear.p99_pixel_max",
+        "saved": 0.0018426108360290443,
+        "observed": 0.0018426108360290443,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "display_linear.rmse_channel",
+        "saved": 0.00022818194703178921,
+        "observed": 0.00022818194703178921,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "encoded_srgb_float.max_channel",
+        "saved": 0.039463456720113754,
+        "observed": 0.039463456720113754,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "encoded_srgb_float.p95_pixel_max",
+        "saved": 0.0005379274487495422,
+        "observed": 0.0005379274487495422,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "encoded_srgb_float.p99_pixel_max",
+        "saved": 0.0014264130592346169,
+        "observed": 0.0014264130592346169,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "encoded_srgb_float.rmse_channel",
+        "saved": 0.00042433153868057905,
+        "observed": 0.00042433153868057905,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "delta_e76_d65.max",
+        "saved": 0.7861749137118448,
+        "observed": 0.7861749137118448,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "delta_e76_d65.p95",
+        "saved": 0.0642474425381598,
+        "observed": 0.0642474425381598,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "delta_e76_d65.p99",
+        "saved": 0.13698964014638865,
+        "observed": 0.13698964014638865,
+        "absolute_difference": 0.0
+      },
+      {
+        "metric": "delta_e76_d65.mean",
+        "saved": 0.018321123529217623,
+        "observed": 0.018321123529217623,
+        "absolute_difference": 0.0
+      }
+    ],
+    "control_5500_worst_encoded_input_matches": true,
+    "identity_lookup_max_abs": 1.1920928955078125e-07,
+    "lab_black_white_sanity": true,
+    "grid_input_max_abs_between_node_evaluations": 1.7881393432617188e-07,
+    "baked_node_max_abs_between_node_evaluations": 0.00012254714965820312
+  },
+  "environment": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+    "command": [
+      "g++",
+      "-std=c++17",
+      "-O3",
+      "-ffp-contract=off",
+      "-fno-fast-math",
+      "-pthread",
+      "-shared",
+      "-fPIC",
+      "tools/lut_proxy_oracle.cpp",
+      "core/hncs.cpp",
+      "-lz",
+      "-o",
+      "build/lut_proxy_default_kelvin.so"
+    ]
+  },
+  "source_sha256": {
+    "core/hncs.cpp": "cd43b8ac69fd614cd1fa9f927a44e2cd87f8c264ca3fb16a2d777e8fffbd25b6",
+    "core/hncs_c.h": "3973c177bbcef670f37057225d8d9250bd77b6e6dfbaeeb764eaf12dda9d0853",
+    "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+    "core/ffcs.cpp": "f26e824093bd31a680d87c7cbb4c5fb1f47b62d939bc5276b3758a1b65bd26cd",
+    "core/ffcs_c.h": "4011c8f9b6ecc7dbfbce9a9b75c1dcb759e6adf641fb58c53847388110c22943",
+    "tools/lut_proxy_oracle.cpp": "4581f7f8c558c43c9611a85b39b35de6f78c02413b63bb91546b424bb0be8900",
+    "tools/lut_proxy_study.py": "bd6540fe277574f7293d497df41b393a92decca30c39e41da8a20a4984a3819d",
+    "tools/lut_proxy_default_kelvin.py": "f270c464c01281d486c7a2d3185d7862fe812bb6e48d6da8ecb62d61dfa4e59c"
+  },
+  "results": [
+    {
+      "look": "HNCS",
+      "fixed_parameters": {
+        "ev": 0,
+        "hncs_kelvin": 6500,
+        "hncs_mode": "legacy/standard"
+      },
+      "shaper": "srgb",
+      "nodes": 65,
+      "node_evaluation": "frozen_study_float32",
+      "storage": "float32",
+      "interpolation": "trilinear",
+      "node_storage_max_abs": 0.0,
+      "rgba_texture_bytes": 4394000,
+      "metrics": {
+        "all": {
+          "display_linear": {
+            "max_channel": 0.007912099361419678,
+            "p95_pixel_max": 0.0005442589521408065,
+            "p99_pixel_max": 0.0019098567962646477,
+            "rmse_channel": 0.00023782653424397662,
+            "mean_abs_channel": 7.751151783796764e-05,
+            "mean_pixel_max": 0.0001654085810937147
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.03785959631204605,
+            "p95_pixel_max": 0.0005506753921508782,
+            "p99_pixel_max": 0.0014977550506591782,
+            "rmse_channel": 0.00044527055563626145,
+            "mean_abs_channel": 8.267559007711317e-05,
+            "mean_pixel_max": 0.0001882202021278254
+          },
+          "delta_e76_d65": {
+            "max": 0.7977709140522689,
+            "mean": 0.01844873620082805,
+            "p95": 0.06470026270394685,
+            "p99": 0.13800880758749628
+          },
+          "worst_encoded_vector": {
+            "sample_index": 161513,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.5839410424232483,
+              0.14659667015075684
+            ],
+            "oracle_linear": [
+              0.0,
+              0.8424345850944519,
+              0.22786495089530945
+            ],
+            "proxy_linear": [
+              0.002930309157818556,
+              0.8423298597335815,
+              0.22799502313137054
+            ],
+            "oracle_encoded_srgb": [
+              0.0,
+              0.9272586107254028,
+              0.5146631002426147
+            ],
+            "proxy_encoded_srgb": [
+              0.03785959631204605,
+              0.9272077679634094,
+              0.5147985219955444
+            ],
+            "encoded_abs_channel_error": [
+              0.03785959631204605,
+              5.08427619934082e-05,
+              0.0001354217529296875
+            ],
+            "encoded_pixel_max_error": 0.03785959631204605,
+            "delta_e76_d65": 0.28826177886421117
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 155906,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.023373007774353027,
+              0.38921505212783813
+            ],
+            "oracle_linear": [
+              0.0129960086196661,
+              0.02589491754770279,
+              0.49182671308517456
+            ],
+            "proxy_linear": [
+              0.01277855969965458,
+              0.02662980742752552,
+              0.48788556456565857
+            ],
+            "oracle_encoded_srgb": [
+              0.11771894246339798,
+              0.17519286274909973,
+              0.7299478650093079
+            ],
+            "proxy_encoded_srgb": [
+              0.11650887876749039,
+              0.17789265513420105,
+              0.7273209095001221
+            ],
+            "encoded_abs_channel_error": [
+              0.0012100636959075928,
+              0.0026997923851013184,
+              0.002626955509185791
+            ],
+            "encoded_pixel_max_error": 0.0026997923851013184,
+            "delta_e76_d65": 0.7977709140522689
+          }
+        },
+        "random": {
+          "display_linear": {
+            "max_channel": 0.007550954818725586,
+            "p95_pixel_max": 0.0008141556638292932,
+            "p99_pixel_max": 0.002124617099761958,
+            "rmse_channel": 0.00026989429293545873,
+            "mean_abs_channel": 0.00010032448325760446,
+            "mean_pixel_max": 0.00020984615448892783
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.036406882805749774,
+            "p95_pixel_max": 0.000571259856224058,
+            "p99_pixel_max": 0.0013214373588562,
+            "rmse_channel": 0.00044419896824056534,
+            "mean_abs_channel": 8.283186739023487e-05,
+            "mean_pixel_max": 0.00018825083265755892
+          },
+          "delta_e76_d65": {
+            "max": 0.6778465910389158,
+            "mean": 0.019182142629671203,
+            "p95": 0.0631637276610906,
+            "p99": 0.12939588626454265
+          },
+          "worst_encoded_vector": {
+            "sample_index": 38610,
+            "input_linear": [
+              0.04202830791473389,
+              0.26079368591308594,
+              0.23885995149612427
+            ],
+            "oracle_linear": [
+              0.0001547275169286877,
+              0.44678425788879395,
+              0.3816639482975006
+            ],
+            "proxy_linear": [
+              0.002972597721964121,
+              0.4467642903327942,
+              0.3817087411880493
+            ],
+            "oracle_encoded_srgb": [
+              0.001999079482629895,
+              0.69915372133255,
+              0.6512410044670105
+            ],
+            "proxy_encoded_srgb": [
+              0.03840596228837967,
+              0.6991396546363831,
+              0.6512755155563354
+            ],
+            "encoded_abs_channel_error": [
+              0.036406882805749774,
+              1.4066696166992188e-05,
+              3.451108932495117e-05
+            ],
+            "encoded_pixel_max_error": 0.036406882805749774,
+            "delta_e76_d65": 0.3381679286741707
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 42796,
+            "input_linear": [
+              0.012149274349212646,
+              0.05397963523864746,
+              0.971382200717926
+            ],
+            "oracle_linear": [
+              0.10331906378269196,
+              0.09444835782051086,
+              0.970786452293396
+            ],
+            "proxy_linear": [
+              0.10249338299036026,
+              0.09617318958044052,
+              0.9682797193527222
+            ],
+            "oracle_encoded_srgb": [
+              0.35472673177719116,
+              0.33968454599380493,
+              0.987047016620636
+            ],
+            "proxy_encoded_srgb": [
+              0.3533592224121094,
+              0.3426719605922699,
+              0.985925018787384
+            ],
+            "encoded_abs_channel_error": [
+              0.0013675093650817871,
+              0.002987414598464966,
+              0.0011219978332519531
+            ],
+            "encoded_pixel_max_error": 0.002987414598464966,
+            "delta_e76_d65": 0.6778465910389158
+          }
+        },
+        "gray": {
+          "display_linear": {
+            "max_channel": 0.0011039972305297852,
+            "p95_pixel_max": 0.000160449743270874,
+            "p99_pixel_max": 0.0008400440216064452,
+            "rmse_channel": 9.816202947255283e-05,
+            "mean_abs_channel": 5.80168926285889e-05,
+            "mean_pixel_max": 0.00010492549743096595
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.0005188733339309692,
+            "p95_pixel_max": 0.00030013918876647933,
+            "p99_pixel_max": 0.0004455116391181945,
+            "rmse_channel": 7.92765900238662e-05,
+            "mean_abs_channel": 4.5578908079981554e-05,
+            "mean_pixel_max": 7.845387562127718e-05
+          },
+          "delta_e76_d65": {
+            "max": 0.08801837321507887,
+            "mean": 0.010077714336167165,
+            "p95": 0.039795641430612476,
+            "p99": 0.06159402684839668
+          },
+          "worst_encoded_vector": {
+            "sample_index": 100129,
+            "input_linear": [
+              0.0157470703125,
+              0.0157470703125,
+              0.0157470703125
+            ],
+            "oracle_linear": [
+              0.009455230087041855,
+              0.009475020691752434,
+              0.009547784924507141
+            ],
+            "proxy_linear": [
+              0.009485793299973011,
+              0.009553135372698307,
+              0.009583916515111923
+            ],
+            "oracle_encoded_srgb": [
+              0.09628034383058548,
+              0.09641218930482864,
+              0.09689559787511826
+            ],
+            "proxy_encoded_srgb": [
+              0.09648389369249344,
+              0.09693106263875961,
+              0.09713483601808548
+            ],
+            "encoded_abs_channel_error": [
+              0.00020354986190795898,
+              0.0005188733339309692,
+              0.00023923814296722412
+            ],
+            "encoded_pixel_max_error": 0.0005188733339309692,
+            "delta_e76_d65": 0.08801837321507887
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 100129,
+            "input_linear": [
+              0.0157470703125,
+              0.0157470703125,
+              0.0157470703125
+            ],
+            "oracle_linear": [
+              0.009455230087041855,
+              0.009475020691752434,
+              0.009547784924507141
+            ],
+            "proxy_linear": [
+              0.009485793299973011,
+              0.009553135372698307,
+              0.009583916515111923
+            ],
+            "oracle_encoded_srgb": [
+              0.09628034383058548,
+              0.09641218930482864,
+              0.09689559787511826
+            ],
+            "proxy_encoded_srgb": [
+              0.09648389369249344,
+              0.09693106263875961,
+              0.09713483601808548
+            ],
+            "encoded_abs_channel_error": [
+              0.00020354986190795898,
+              0.0005188733339309692,
+              0.00023923814296722412
+            ],
+            "encoded_pixel_max_error": 0.0005188733339309692,
+            "delta_e76_d65": 0.08801837321507887
+          }
+        },
+        "dark": {
+          "display_linear": {
+            "max_channel": 0.00030072499066591263,
+            "p95_pixel_max": 6.921928143128752e-05,
+            "p99_pixel_max": 0.00013277764897793513,
+            "rmse_channel": 2.021617328867567e-05,
+            "mean_abs_channel": 9.478033929608627e-06,
+            "mean_pixel_max": 1.9695063721525896e-05
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.003753937780857086,
+            "p95_pixel_max": 0.0007205369533039628,
+            "p99_pixel_max": 0.0016807637596502874,
+            "rmse_channel": 0.00023521702686351344,
+            "mean_abs_channel": 0.00011192440319064361,
+            "mean_pixel_max": 0.00022666735083637946
+          },
+          "delta_e76_d65": {
+            "max": 0.4863143997682153,
+            "mean": 0.029616096903949323,
+            "p95": 0.10839092006380482,
+            "p99": 0.22621915602541767
+          },
+          "worst_encoded_vector": {
+            "sample_index": 121259,
+            "input_linear": [
+              1.0432490427092489e-07,
+              0.0005302238860167563,
+              0.008940087631344795
+            ],
+            "oracle_linear": [
+              0.00020481672254391015,
+              0.0002726638631429523,
+              0.0028092002030462027
+            ],
+            "proxy_linear": [
+              0.00016044762742239982,
+              0.00032619136618450284,
+              0.0025186475832015276
+            ],
+            "oracle_encoded_srgb": [
+              0.002646232023835182,
+              0.0035228170454502106,
+              0.03629486635327339
+            ],
+            "proxy_encoded_srgb": [
+              0.0020729834213852882,
+              0.004214392509311438,
+              0.032540928572416306
+            ],
+            "encoded_abs_channel_error": [
+              0.000573248602449894,
+              0.000691575463861227,
+              0.003753937780857086
+            ],
+            "encoded_pixel_max_error": 0.003753937780857086,
+            "delta_e76_d65": 0.4669534412941733
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 123805,
+            "input_linear": [
+              0.00034784985473379493,
+              0.0005974063533358276,
+              0.012319030240178108
+            ],
+            "oracle_linear": [
+              0.00036901794373989105,
+              0.00033528206404298544,
+              0.00417482852935791
+            ],
+            "proxy_linear": [
+              0.00033136640558950603,
+              0.000400467892177403,
+              0.0038819480687379837
+            ],
+            "oracle_encoded_srgb": [
+              0.004767711739987135,
+              0.0043318443931639194,
+              0.052609823644161224
+            ],
+            "proxy_encoded_srgb": [
+              0.004281254019588232,
+              0.005174044985324144,
+              0.049397438764572144
+            ],
+            "encoded_abs_channel_error": [
+              0.0004864577203989029,
+              0.0008422005921602249,
+              0.003212384879589081
+            ],
+            "encoded_pixel_max_error": 0.003212384879589081,
+            "delta_e76_d65": 0.4863143997682153
+          }
+        },
+        "saturated": {
+          "display_linear": {
+            "max_channel": 0.005475342273712158,
+            "p95_pixel_max": 0.00023871138691902147,
+            "p99_pixel_max": 0.0013587707281112538,
+            "rmse_channel": 0.00020337121417571963,
+            "mean_abs_channel": 4.403098239414855e-05,
+            "mean_pixel_max": 0.00011112182954220771
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.008816258981823921,
+            "p95_pixel_max": 0.000394614040851593,
+            "p99_pixel_max": 0.0014471312996465655,
+            "rmse_channel": 0.00023740774336498835,
+            "mean_abs_channel": 5.581975323827161e-05,
+            "mean_pixel_max": 0.00014169710122223479
+          },
+          "delta_e76_d65": {
+            "max": 0.22176289716883368,
+            "mean": 0.009796821579307136,
+            "p95": 0.021716149662378996,
+            "p99": 0.1086036718361995
+          },
+          "worst_encoded_vector": {
+            "sample_index": 143282,
+            "input_linear": [
+              1.0,
+              0.010756373405456543,
+              0.0
+            ],
+            "oracle_linear": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "proxy_linear": [
+              1.0,
+              0.0006823729490861297,
+              0.0
+            ],
+            "oracle_encoded_srgb": [
+              0.9999999403953552,
+              0.0,
+              0.0
+            ],
+            "proxy_encoded_srgb": [
+              0.9999999403953552,
+              0.008816258981823921,
+              0.0
+            ],
+            "encoded_abs_channel_error": [
+              0.0,
+              0.008816258981823921,
+              0.0
+            ],
+            "encoded_pixel_max_error": 0.008816258981823921,
+            "delta_e76_d65": 0.16335264663604934
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 134344,
+            "input_linear": [
+              0.6597713828086853,
+              0.0,
+              1.0
+            ],
+            "oracle_linear": [
+              1.0,
+              0.005719946697354317,
+              1.0
+            ],
+            "proxy_linear": [
+              0.9945246577262878,
+              0.005729907192289829,
+              1.0
+            ],
+            "oracle_encoded_srgb": [
+              0.9999999403953552,
+              0.06769657880067825,
+              0.9999999403953552
+            ],
+            "proxy_encoded_srgb": [
+              0.9975891709327698,
+              0.06778556108474731,
+              0.9999999403953552
+            ],
+            "encoded_abs_channel_error": [
+              0.0024107694625854492,
+              8.898228406906128e-05,
+              0.0
+            ],
+            "encoded_pixel_max_error": 0.0024107694625854492,
+            "delta_e76_d65": 0.22176289716883368
+          }
+        },
+        "boundary": {
+          "display_linear": {
+            "max_channel": 0.007912099361419678,
+            "p95_pixel_max": 0.0005581557750701893,
+            "p99_pixel_max": 0.0018646281957626222,
+            "rmse_channel": 0.00025638173732077824,
+            "mean_abs_channel": 7.294668330898363e-05,
+            "mean_pixel_max": 0.00016799787826379
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.03785959631204605,
+            "p95_pixel_max": 0.000614655017852783,
+            "p99_pixel_max": 0.0028772639995440132,
+            "rmse_channel": 0.000752674492713587,
+            "mean_abs_channel": 9.469788301694069e-05,
+            "mean_pixel_max": 0.00024110877732960186
+          },
+          "delta_e76_d65": {
+            "max": 0.7977709140522689,
+            "mean": 0.01569544708187026,
+            "p95": 0.05358685902563074,
+            "p99": 0.13279936531084816
+          },
+          "worst_encoded_vector": {
+            "sample_index": 161513,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.5839410424232483,
+              0.14659667015075684
+            ],
+            "oracle_linear": [
+              0.0,
+              0.8424345850944519,
+              0.22786495089530945
+            ],
+            "proxy_linear": [
+              0.002930309157818556,
+              0.8423298597335815,
+              0.22799502313137054
+            ],
+            "oracle_encoded_srgb": [
+              0.0,
+              0.9272586107254028,
+              0.5146631002426147
+            ],
+            "proxy_encoded_srgb": [
+              0.03785959631204605,
+              0.9272077679634094,
+              0.5147985219955444
+            ],
+            "encoded_abs_channel_error": [
+              0.03785959631204605,
+              5.08427619934082e-05,
+              0.0001354217529296875
+            ],
+            "encoded_pixel_max_error": 0.03785959631204605,
+            "delta_e76_d65": 0.28826177886421117
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 155906,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.023373007774353027,
+              0.38921505212783813
+            ],
+            "oracle_linear": [
+              0.0129960086196661,
+              0.02589491754770279,
+              0.49182671308517456
+            ],
+            "proxy_linear": [
+              0.01277855969965458,
+              0.02662980742752552,
+              0.48788556456565857
+            ],
+            "oracle_encoded_srgb": [
+              0.11771894246339798,
+              0.17519286274909973,
+              0.7299478650093079
+            ],
+            "proxy_encoded_srgb": [
+              0.11650887876749039,
+              0.17789265513420105,
+              0.7273209095001221
+            ],
+            "encoded_abs_channel_error": [
+              0.0012100636959075928,
+              0.0026997923851013184,
+              0.002626955509185791
+            ],
+            "encoded_pixel_max_error": 0.0026997923851013184,
+            "delta_e76_d65": 0.7977709140522689
+          }
+        }
+      },
+      "verification": {
+        "all_stored_nodes_exact": true,
+        "checked_node_count": 274625,
+        "exact_oracle_alpha_one": true,
+        "all_nodes_finite_in_unit_interval": true,
+        "rgba_rfast_all_nodes_match_independent_oracle": true,
+        "rgba_rfast_alpha_one": true,
+        "rgba32f_bytes": 4394000,
+        "rgba32f_sha256": "dbb8881110505cf0da8cae70959c87bc37d5da693afef7c1cf7c2273070a8351"
+      }
+    },
+    {
+      "look": "HNCS",
+      "fixed_parameters": {
+        "ev": 0,
+        "hncs_kelvin": 6500,
+        "hncs_mode": "legacy/standard"
+      },
+      "shaper": "srgb",
+      "nodes": 65,
+      "node_evaluation": "frozen_study_float32",
+      "storage": "float16",
+      "interpolation": "trilinear",
+      "node_storage_max_abs": 0.000244140625,
+      "rgba_texture_bytes": 2197000,
+      "metrics": {
+        "all": {
+          "display_linear": {
+            "max_channel": 0.007978320121765137,
+            "p95_pixel_max": 0.0005480140447616559,
+            "p99_pixel_max": 0.001913502216339109,
+            "rmse_channel": 0.0002448024111471657,
+            "mean_abs_channel": 9.249957309337748e-05,
+            "mean_pixel_max": 0.00019119978923567635
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.037870295345783234,
+            "p95_pixel_max": 0.000552095472812652,
+            "p99_pixel_max": 0.001494674161076536,
+            "rmse_channel": 0.0004464476298203271,
+            "mean_abs_channel": 9.07744548591789e-05,
+            "mean_pixel_max": 0.00019987715440336417
+          },
+          "delta_e76_d65": {
+            "max": 0.7913230411377233,
+            "mean": 0.020494492196442934,
+            "p95": 0.06511081940456741,
+            "p99": 0.13812336298298172
+          },
+          "worst_encoded_vector": {
+            "sample_index": 161513,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.5839410424232483,
+              0.14659667015075684
+            ],
+            "oracle_linear": [
+              0.0,
+              0.8424345850944519,
+              0.22786495089530945
+            ],
+            "proxy_linear": [
+              0.0029311373364180326,
+              0.8423779010772705,
+              0.22796449065208435
+            ],
+            "oracle_encoded_srgb": [
+              0.0,
+              0.9272586107254028,
+              0.5146631002426147
+            ],
+            "proxy_encoded_srgb": [
+              0.037870295345783234,
+              0.9272310733795166,
+              0.5147666931152344
+            ],
+            "encoded_abs_channel_error": [
+              0.037870295345783234,
+              2.753734588623047e-05,
+              0.0001035928726196289
+            ],
+            "encoded_pixel_max_error": 0.037870295345783234,
+            "delta_e76_d65": 0.2858869244088419
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 155906,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.023373007774353027,
+              0.38921505212783813
+            ],
+            "oracle_linear": [
+              0.0129960086196661,
+              0.02589491754770279,
+              0.49182671308517456
+            ],
+            "proxy_linear": [
+              0.012779723852872849,
+              0.02662472054362297,
+              0.48792341351509094
+            ],
+            "oracle_encoded_srgb": [
+              0.11771894246339798,
+              0.17519286274909973,
+              0.7299478650093079
+            ],
+            "proxy_encoded_srgb": [
+              0.1165153756737709,
+              0.1778741180896759,
+              0.7273461818695068
+            ],
+            "encoded_abs_channel_error": [
+              0.0012035667896270752,
+              0.002681255340576172,
+              0.0026016831398010254
+            ],
+            "encoded_pixel_max_error": 0.002681255340576172,
+            "delta_e76_d65": 0.7913230411377233
+          }
+        },
+        "random": {
+          "display_linear": {
+            "max_channel": 0.007609963417053223,
+            "p95_pixel_max": 0.0008138843171764066,
+            "p99_pixel_max": 0.002124025225639336,
+            "rmse_channel": 0.0002771955435804177,
+            "mean_abs_channel": 0.00011743996572328433,
+            "mean_pixel_max": 0.00023656130206044964
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.03640943462960422,
+            "p95_pixel_max": 0.0005727723240852352,
+            "p99_pixel_max": 0.001319283675402403,
+            "rmse_channel": 0.00044550875220991583,
+            "mean_abs_channel": 9.19368662355032e-05,
+            "mean_pixel_max": 0.00020014161505441734
+          },
+          "delta_e76_d65": {
+            "max": 0.6864165589572809,
+            "mean": 0.02126850293186879,
+            "p95": 0.06392891127232704,
+            "p99": 0.12899020338645859
+          },
+          "worst_encoded_vector": {
+            "sample_index": 38610,
+            "input_linear": [
+              0.04202830791473389,
+              0.26079368591308594,
+              0.23885995149612427
+            ],
+            "oracle_linear": [
+              0.0001547275169286877,
+              0.44678425788879395,
+              0.3816639482975006
+            ],
+            "proxy_linear": [
+              0.0029727951623499393,
+              0.446833074092865,
+              0.38170087337493896
+            ],
+            "oracle_encoded_srgb": [
+              0.001999079482629895,
+              0.69915372133255,
+              0.6512410044670105
+            ],
+            "proxy_encoded_srgb": [
+              0.038408514112234116,
+              0.6991880536079407,
+              0.6512694358825684
+            ],
+            "encoded_abs_channel_error": [
+              0.03640943462960422,
+              3.4332275390625e-05,
+              2.8431415557861328e-05
+            ],
+            "encoded_pixel_max_error": 0.03640943462960422,
+            "delta_e76_d65": 0.33438971649142263
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 42796,
+            "input_linear": [
+              0.012149274349212646,
+              0.05397963523864746,
+              0.971382200717926
+            ],
+            "oracle_linear": [
+              0.10331906378269196,
+              0.09444835782051086,
+              0.970786452293396
+            ],
+            "proxy_linear": [
+              0.10248435288667679,
+              0.09618838131427765,
+              0.968209445476532
+            ],
+            "oracle_encoded_srgb": [
+              0.35472673177719116,
+              0.33968454599380493,
+              0.987047016620636
+            ],
+            "proxy_encoded_srgb": [
+              0.35334423184394836,
+              0.3426981270313263,
+              0.9858935475349426
+            ],
+            "encoded_abs_channel_error": [
+              0.0013824999332427979,
+              0.0030135810375213623,
+              0.0011534690856933594
+            ],
+            "encoded_pixel_max_error": 0.0030135810375213623,
+            "delta_e76_d65": 0.6864165589572809
+          }
+        },
+        "gray": {
+          "display_linear": {
+            "max_channel": 0.0010854601860046387,
+            "p95_pixel_max": 0.0002573728561401367,
+            "p99_pixel_max": 0.0007996702194213863,
+            "rmse_channel": 0.00012282715861207312,
+            "mean_abs_channel": 8.638811513512467e-05,
+            "mean_pixel_max": 0.00015224441749669398
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.0005188733339309692,
+            "p95_pixel_max": 0.00030298233032226556,
+            "p99_pixel_max": 0.00044487431645393364,
+            "rmse_channel": 8.950517752282045e-05,
+            "mean_abs_channel": 6.11117037964218e-05,
+            "mean_pixel_max": 0.00010432440414393872
+          },
+          "delta_e76_d65": {
+            "max": 0.08881066694225354,
+            "mean": 0.015717500952963995,
+            "p95": 0.040687366348062755,
+            "p99": 0.06311098383201735
+          },
+          "worst_encoded_vector": {
+            "sample_index": 100129,
+            "input_linear": [
+              0.0157470703125,
+              0.0157470703125,
+              0.0157470703125
+            ],
+            "oracle_linear": [
+              0.009455230087041855,
+              0.009475020691752434,
+              0.009547784924507141
+            ],
+            "proxy_linear": [
+              0.009487508796155453,
+              0.009553135372698307,
+              0.009583540260791779
+            ],
+            "oracle_encoded_srgb": [
+              0.09628034383058548,
+              0.09641218930482864,
+              0.09689559787511826
+            ],
+            "proxy_encoded_srgb": [
+              0.09649530798196793,
+              0.09693106263875961,
+              0.0971323624253273
+            ],
+            "encoded_abs_channel_error": [
+              0.0002149641513824463,
+              0.0005188733339309692,
+              0.0002367645502090454
+            ],
+            "encoded_pixel_max_error": 0.0005188733339309692,
+            "delta_e76_d65": 0.08779465918559035
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 100188,
+            "input_linear": [
+              0.02294921875,
+              0.02294921875,
+              0.02294921875
+            ],
+            "oracle_linear": [
+              0.016295354813337326,
+              0.016346564516425133,
+              0.01648728735744953
+            ],
+            "proxy_linear": [
+              0.016345404088497162,
+              0.016451139003038406,
+              0.016520481556653976
+            ],
+            "oracle_encoded_srgb": [
+              0.1347925066947937,
+              0.1350407898426056,
+              0.13572075963020325
+            ],
+            "proxy_encoded_srgb": [
+              0.13503515720367432,
+              0.13554641604423523,
+              0.13588064908981323
+            ],
+            "encoded_abs_channel_error": [
+              0.00024265050888061523,
+              0.0005056262016296387,
+              0.00015988945960998535
+            ],
+            "encoded_pixel_max_error": 0.0005056262016296387,
+            "delta_e76_d65": 0.08881066694225354
+          }
+        },
+        "dark": {
+          "display_linear": {
+            "max_channel": 0.0003000437282025814,
+            "p95_pixel_max": 6.923016189830375e-05,
+            "p99_pixel_max": 0.00013288987043779326,
+            "rmse_channel": 2.0235227621206462e-05,
+            "mean_abs_channel": 9.489604178573826e-06,
+            "mean_pixel_max": 1.971950376857925e-05
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.0037610679864883423,
+            "p95_pixel_max": 0.0007210962823592121,
+            "p99_pixel_max": 0.0016833423590287562,
+            "rmse_channel": 0.00023545298599971884,
+            "mean_abs_channel": 0.00011205437080258592,
+            "mean_pixel_max": 0.00022693757850354644
+          },
+          "delta_e76_d65": {
+            "max": 0.48576470725320997,
+            "mean": 0.029651838070177836,
+            "p95": 0.10822479603247878,
+            "p99": 0.22651401511918817
+          },
+          "worst_encoded_vector": {
+            "sample_index": 121259,
+            "input_linear": [
+              1.0432490427092489e-07,
+              0.0005302238860167563,
+              0.008940087631344795
+            ],
+            "oracle_linear": [
+              0.00020481672254391015,
+              0.0002726638631429523,
+              0.0028092002030462027
+            ],
+            "proxy_linear": [
+              0.0001604521385161206,
+              0.00032614401425234973,
+              0.002518095774576068
+            ],
+            "oracle_encoded_srgb": [
+              0.002646232023835182,
+              0.0035228170454502106,
+              0.03629486635327339
+            ],
+            "proxy_encoded_srgb": [
+              0.0020730416290462017,
+              0.004213780630379915,
+              0.03253379836678505
+            ],
+            "encoded_abs_channel_error": [
+              0.0005731903947889805,
+              0.0006909635849297047,
+              0.0037610679864883423
+            ],
+            "encoded_pixel_max_error": 0.0037610679864883423,
+            "delta_e76_d65": 0.4676004094147492
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 123805,
+            "input_linear": [
+              0.00034784985473379493,
+              0.0005974063533358276,
+              0.012319030240178108
+            ],
+            "oracle_linear": [
+              0.00036901794373989105,
+              0.00033528206404298544,
+              0.00417482852935791
+            ],
+            "proxy_linear": [
+              0.00033135549165308475,
+              0.0004005047376267612,
+              0.0038824151270091534
+            ],
+            "oracle_encoded_srgb": [
+              0.004767711739987135,
+              0.0043318443931639194,
+              0.052609823644161224
+            ],
+            "proxy_encoded_srgb": [
+              0.004281112924218178,
+              0.00517452135682106,
+              0.04940267652273178
+            ],
+            "encoded_abs_channel_error": [
+              0.00048659881576895714,
+              0.0008426769636571407,
+              0.0032071471214294434
+            ],
+            "encoded_pixel_max_error": 0.0032071471214294434,
+            "delta_e76_d65": 0.48576470725320997
+          }
+        },
+        "saturated": {
+          "display_linear": {
+            "max_channel": 0.005434989929199219,
+            "p95_pixel_max": 0.00026530027389526367,
+            "p99_pixel_max": 0.0013657259941100971,
+            "rmse_channel": 0.00020907652157589233,
+            "mean_abs_channel": 5.605983045235613e-05,
+            "mean_pixel_max": 0.00014074229348389053
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.008819499053061008,
+            "p95_pixel_max": 0.0003945536911487579,
+            "p99_pixel_max": 0.0014414138591382565,
+            "rmse_channel": 0.00023936905471059184,
+            "mean_abs_channel": 6.282622412181808e-05,
+            "mean_pixel_max": 0.00015408166227935
+          },
+          "delta_e76_d65": {
+            "max": 0.22012935666637384,
+            "mean": 0.011776800640948762,
+            "p95": 0.024113985965313348,
+            "p99": 0.10688974317374562
+          },
+          "worst_encoded_vector": {
+            "sample_index": 143282,
+            "input_linear": [
+              1.0,
+              0.010756373405456543,
+              0.0
+            ],
+            "oracle_linear": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "proxy_linear": [
+              1.0,
+              0.0006826237658970058,
+              0.0
+            ],
+            "oracle_encoded_srgb": [
+              0.9999999403953552,
+              0.0,
+              0.0
+            ],
+            "proxy_encoded_srgb": [
+              0.9999999403953552,
+              0.008819499053061008,
+              0.0
+            ],
+            "encoded_abs_channel_error": [
+              0.0,
+              0.008819499053061008,
+              0.0
+            ],
+            "encoded_pixel_max_error": 0.008819499053061008,
+            "delta_e76_d65": 0.16341263087984226
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 134344,
+            "input_linear": [
+              0.6597713828086853,
+              0.0,
+              1.0
+            ],
+            "oracle_linear": [
+              1.0,
+              0.005719946697354317,
+              1.0
+            ],
+            "proxy_linear": [
+              0.9945650100708008,
+              0.005729708820581436,
+              1.0
+            ],
+            "oracle_encoded_srgb": [
+              0.9999999403953552,
+              0.06769657880067825,
+              0.9999999403953552
+            ],
+            "proxy_encoded_srgb": [
+              0.9976070523262024,
+              0.06778378784656525,
+              0.9999999403953552
+            ],
+            "encoded_abs_channel_error": [
+              0.002392888069152832,
+              8.720904588699341e-05,
+              0.0
+            ],
+            "encoded_pixel_max_error": 0.002392888069152832,
+            "delta_e76_d65": 0.22012935666637384
+          }
+        },
+        "boundary": {
+          "display_linear": {
+            "max_channel": 0.007978320121765137,
+            "p95_pixel_max": 0.0005603015422821042,
+            "p99_pixel_max": 0.0018637752532958893,
+            "rmse_channel": 0.00026360172069696134,
+            "mean_abs_channel": 8.975088025226652e-05,
+            "mean_pixel_max": 0.00020228807436356702
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.037870295345783234,
+            "p95_pixel_max": 0.0006161421537399291,
+            "p99_pixel_max": 0.0028921496868133142,
+            "rmse_channel": 0.0007535023591622147,
+            "mean_abs_channel": 0.00010378205874436953,
+            "mean_pixel_max": 0.00025643310331570406
+          },
+          "delta_e76_d65": {
+            "max": 0.7913230411377233,
+            "mean": 0.018141678663964104,
+            "p95": 0.054566753190697585,
+            "p99": 0.13410298976532115
+          },
+          "worst_encoded_vector": {
+            "sample_index": 161513,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.5839410424232483,
+              0.14659667015075684
+            ],
+            "oracle_linear": [
+              0.0,
+              0.8424345850944519,
+              0.22786495089530945
+            ],
+            "proxy_linear": [
+              0.0029311373364180326,
+              0.8423779010772705,
+              0.22796449065208435
+            ],
+            "oracle_encoded_srgb": [
+              0.0,
+              0.9272586107254028,
+              0.5146631002426147
+            ],
+            "proxy_encoded_srgb": [
+              0.037870295345783234,
+              0.9272310733795166,
+              0.5147666931152344
+            ],
+            "encoded_abs_channel_error": [
+              0.037870295345783234,
+              2.753734588623047e-05,
+              0.0001035928726196289
+            ],
+            "encoded_pixel_max_error": 0.037870295345783234,
+            "delta_e76_d65": 0.2858869244088419
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 155906,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.023373007774353027,
+              0.38921505212783813
+            ],
+            "oracle_linear": [
+              0.0129960086196661,
+              0.02589491754770279,
+              0.49182671308517456
+            ],
+            "proxy_linear": [
+              0.012779723852872849,
+              0.02662472054362297,
+              0.48792341351509094
+            ],
+            "oracle_encoded_srgb": [
+              0.11771894246339798,
+              0.17519286274909973,
+              0.7299478650093079
+            ],
+            "proxy_encoded_srgb": [
+              0.1165153756737709,
+              0.1778741180896759,
+              0.7273461818695068
+            ],
+            "encoded_abs_channel_error": [
+              0.0012035667896270752,
+              0.002681255340576172,
+              0.0026016831398010254
+            ],
+            "encoded_pixel_max_error": 0.002681255340576172,
+            "delta_e76_d65": 0.7913230411377233
+          }
+        }
+      },
+      "verification": {
+        "all_stored_nodes_exact": true,
+        "checked_node_count": 274625,
+        "exact_oracle_alpha_one": true,
+        "all_nodes_finite_in_unit_interval": true,
+        "rgba_rfast_all_nodes_match_independent_oracle": true,
+        "rgba_rfast_alpha_one": true,
+        "rgba32f_bytes": 4394000,
+        "rgba32f_sha256": "dbb8881110505cf0da8cae70959c87bc37d5da693afef7c1cf7c2273070a8351"
+      }
+    },
+    {
+      "look": "HNCS",
+      "fixed_parameters": {
+        "ev": 0,
+        "hncs_kelvin": 6500,
+        "hncs_mode": "legacy/standard"
+      },
+      "shaper": "srgb",
+      "nodes": 65,
+      "node_evaluation": "app_double_then_float32",
+      "storage": "float32",
+      "interpolation": "trilinear",
+      "node_storage_max_abs": 0.0,
+      "rgba_texture_bytes": 4394000,
+      "metrics": {
+        "all": {
+          "display_linear": {
+            "max_channel": 0.007912099361419678,
+            "p95_pixel_max": 0.0005442589521408065,
+            "p99_pixel_max": 0.0019098567962646477,
+            "rmse_channel": 0.0002378298645678993,
+            "mean_abs_channel": 7.751336841599726e-05,
+            "mean_pixel_max": 0.00016541337656428472
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.03785959631204605,
+            "p95_pixel_max": 0.0005505323410034176,
+            "p99_pixel_max": 0.0014977550506591782,
+            "rmse_channel": 0.00044529301421187547,
+            "mean_abs_channel": 8.267506337317914e-05,
+            "mean_pixel_max": 0.00018821862724610118
+          },
+          "delta_e76_d65": {
+            "max": 0.7977709140522689,
+            "mean": 0.018448523384445897,
+            "p95": 0.06470181012989777,
+            "p99": 0.13800880758749628
+          },
+          "worst_encoded_vector": {
+            "sample_index": 161513,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.5839410424232483,
+              0.14659667015075684
+            ],
+            "oracle_linear": [
+              0.0,
+              0.8424345850944519,
+              0.22786495089530945
+            ],
+            "proxy_linear": [
+              0.002930309157818556,
+              0.8423298597335815,
+              0.22799502313137054
+            ],
+            "oracle_encoded_srgb": [
+              0.0,
+              0.9272586107254028,
+              0.5146631002426147
+            ],
+            "proxy_encoded_srgb": [
+              0.03785959631204605,
+              0.9272077679634094,
+              0.5147985219955444
+            ],
+            "encoded_abs_channel_error": [
+              0.03785959631204605,
+              5.08427619934082e-05,
+              0.0001354217529296875
+            ],
+            "encoded_pixel_max_error": 0.03785959631204605,
+            "delta_e76_d65": 0.28826177886421117
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 155906,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.023373007774353027,
+              0.38921505212783813
+            ],
+            "oracle_linear": [
+              0.0129960086196661,
+              0.02589491754770279,
+              0.49182671308517456
+            ],
+            "proxy_linear": [
+              0.01277855969965458,
+              0.02662980742752552,
+              0.48788556456565857
+            ],
+            "oracle_encoded_srgb": [
+              0.11771894246339798,
+              0.17519286274909973,
+              0.7299478650093079
+            ],
+            "proxy_encoded_srgb": [
+              0.11650887876749039,
+              0.17789265513420105,
+              0.7273209095001221
+            ],
+            "encoded_abs_channel_error": [
+              0.0012100636959075928,
+              0.0026997923851013184,
+              0.002626955509185791
+            ],
+            "encoded_pixel_max_error": 0.0026997923851013184,
+            "delta_e76_d65": 0.7977709140522689
+          }
+        },
+        "random": {
+          "display_linear": {
+            "max_channel": 0.007550954818725586,
+            "p95_pixel_max": 0.0008141556638292932,
+            "p99_pixel_max": 0.002124617099761958,
+            "rmse_channel": 0.00026989734629642655,
+            "mean_abs_channel": 0.0001003274158349402,
+            "mean_pixel_max": 0.00020985008470977392
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.036406882805749774,
+            "p95_pixel_max": 0.0005707800388336168,
+            "p99_pixel_max": 0.0013214373588562,
+            "rmse_channel": 0.00044418395333150647,
+            "mean_abs_channel": 8.282712806893225e-05,
+            "mean_pixel_max": 0.00018823256707260953
+          },
+          "delta_e76_d65": {
+            "max": 0.6778465910389158,
+            "mean": 0.01918133764763237,
+            "p95": 0.06317577163516143,
+            "p99": 0.12939588626454265
+          },
+          "worst_encoded_vector": {
+            "sample_index": 38610,
+            "input_linear": [
+              0.04202830791473389,
+              0.26079368591308594,
+              0.23885995149612427
+            ],
+            "oracle_linear": [
+              0.0001547275169286877,
+              0.44678425788879395,
+              0.3816639482975006
+            ],
+            "proxy_linear": [
+              0.002972597721964121,
+              0.4467642903327942,
+              0.3817087411880493
+            ],
+            "oracle_encoded_srgb": [
+              0.001999079482629895,
+              0.69915372133255,
+              0.6512410044670105
+            ],
+            "proxy_encoded_srgb": [
+              0.03840596228837967,
+              0.6991396546363831,
+              0.6512755155563354
+            ],
+            "encoded_abs_channel_error": [
+              0.036406882805749774,
+              1.4066696166992188e-05,
+              3.451108932495117e-05
+            ],
+            "encoded_pixel_max_error": 0.036406882805749774,
+            "delta_e76_d65": 0.3381679286741707
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 42796,
+            "input_linear": [
+              0.012149274349212646,
+              0.05397963523864746,
+              0.971382200717926
+            ],
+            "oracle_linear": [
+              0.10331906378269196,
+              0.09444835782051086,
+              0.970786452293396
+            ],
+            "proxy_linear": [
+              0.10249338299036026,
+              0.09617318958044052,
+              0.9682797193527222
+            ],
+            "oracle_encoded_srgb": [
+              0.35472673177719116,
+              0.33968454599380493,
+              0.987047016620636
+            ],
+            "proxy_encoded_srgb": [
+              0.3533592224121094,
+              0.3426719605922699,
+              0.985925018787384
+            ],
+            "encoded_abs_channel_error": [
+              0.0013675093650817871,
+              0.002987414598464966,
+              0.0011219978332519531
+            ],
+            "encoded_pixel_max_error": 0.002987414598464966,
+            "delta_e76_d65": 0.6778465910389158
+          }
+        },
+        "gray": {
+          "display_linear": {
+            "max_channel": 0.0011039972305297852,
+            "p95_pixel_max": 0.000160449743270874,
+            "p99_pixel_max": 0.0008400440216064452,
+            "rmse_channel": 9.814357776301942e-05,
+            "mean_abs_channel": 5.798373892416452e-05,
+            "mean_pixel_max": 0.00010491894623084143
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.0005188733339309692,
+            "p95_pixel_max": 0.00030013918876647933,
+            "p99_pixel_max": 0.0004455116391181945,
+            "rmse_channel": 7.926087625220506e-05,
+            "mean_abs_channel": 4.555181814602225e-05,
+            "mean_pixel_max": 7.844937235322934e-05
+          },
+          "delta_e76_d65": {
+            "max": 0.08801837321507887,
+            "mean": 0.010079280380923043,
+            "p95": 0.039795641430612476,
+            "p99": 0.06159402684839668
+          },
+          "worst_encoded_vector": {
+            "sample_index": 100129,
+            "input_linear": [
+              0.0157470703125,
+              0.0157470703125,
+              0.0157470703125
+            ],
+            "oracle_linear": [
+              0.009455230087041855,
+              0.009475020691752434,
+              0.009547784924507141
+            ],
+            "proxy_linear": [
+              0.009485793299973011,
+              0.009553135372698307,
+              0.009583916515111923
+            ],
+            "oracle_encoded_srgb": [
+              0.09628034383058548,
+              0.09641218930482864,
+              0.09689559787511826
+            ],
+            "proxy_encoded_srgb": [
+              0.09648389369249344,
+              0.09693106263875961,
+              0.09713483601808548
+            ],
+            "encoded_abs_channel_error": [
+              0.00020354986190795898,
+              0.0005188733339309692,
+              0.00023923814296722412
+            ],
+            "encoded_pixel_max_error": 0.0005188733339309692,
+            "delta_e76_d65": 0.08801837321507887
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 100129,
+            "input_linear": [
+              0.0157470703125,
+              0.0157470703125,
+              0.0157470703125
+            ],
+            "oracle_linear": [
+              0.009455230087041855,
+              0.009475020691752434,
+              0.009547784924507141
+            ],
+            "proxy_linear": [
+              0.009485793299973011,
+              0.009553135372698307,
+              0.009583916515111923
+            ],
+            "oracle_encoded_srgb": [
+              0.09628034383058548,
+              0.09641218930482864,
+              0.09689559787511826
+            ],
+            "proxy_encoded_srgb": [
+              0.09648389369249344,
+              0.09693106263875961,
+              0.09713483601808548
+            ],
+            "encoded_abs_channel_error": [
+              0.00020354986190795898,
+              0.0005188733339309692,
+              0.00023923814296722412
+            ],
+            "encoded_pixel_max_error": 0.0005188733339309692,
+            "delta_e76_d65": 0.08801837321507887
+          }
+        },
+        "dark": {
+          "display_linear": {
+            "max_channel": 0.00030072499066591263,
+            "p95_pixel_max": 6.921928143128752e-05,
+            "p99_pixel_max": 0.00013277764897793513,
+            "rmse_channel": 2.021617328867567e-05,
+            "mean_abs_channel": 9.478033929608627e-06,
+            "mean_pixel_max": 1.9695063721525896e-05
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.003753937780857086,
+            "p95_pixel_max": 0.0007205369533039628,
+            "p99_pixel_max": 0.0016807637596502874,
+            "rmse_channel": 0.00023521702686351344,
+            "mean_abs_channel": 0.00011192440319064361,
+            "mean_pixel_max": 0.00022666735083637946
+          },
+          "delta_e76_d65": {
+            "max": 0.4863143997682153,
+            "mean": 0.029616096903949323,
+            "p95": 0.10839092006380482,
+            "p99": 0.22621915602541767
+          },
+          "worst_encoded_vector": {
+            "sample_index": 121259,
+            "input_linear": [
+              1.0432490427092489e-07,
+              0.0005302238860167563,
+              0.008940087631344795
+            ],
+            "oracle_linear": [
+              0.00020481672254391015,
+              0.0002726638631429523,
+              0.0028092002030462027
+            ],
+            "proxy_linear": [
+              0.00016044762742239982,
+              0.00032619136618450284,
+              0.0025186475832015276
+            ],
+            "oracle_encoded_srgb": [
+              0.002646232023835182,
+              0.0035228170454502106,
+              0.03629486635327339
+            ],
+            "proxy_encoded_srgb": [
+              0.0020729834213852882,
+              0.004214392509311438,
+              0.032540928572416306
+            ],
+            "encoded_abs_channel_error": [
+              0.000573248602449894,
+              0.000691575463861227,
+              0.003753937780857086
+            ],
+            "encoded_pixel_max_error": 0.003753937780857086,
+            "delta_e76_d65": 0.4669534412941733
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 123805,
+            "input_linear": [
+              0.00034784985473379493,
+              0.0005974063533358276,
+              0.012319030240178108
+            ],
+            "oracle_linear": [
+              0.00036901794373989105,
+              0.00033528206404298544,
+              0.00417482852935791
+            ],
+            "proxy_linear": [
+              0.00033136640558950603,
+              0.000400467892177403,
+              0.0038819480687379837
+            ],
+            "oracle_encoded_srgb": [
+              0.004767711739987135,
+              0.0043318443931639194,
+              0.052609823644161224
+            ],
+            "proxy_encoded_srgb": [
+              0.004281254019588232,
+              0.005174044985324144,
+              0.049397438764572144
+            ],
+            "encoded_abs_channel_error": [
+              0.0004864577203989029,
+              0.0008422005921602249,
+              0.003212384879589081
+            ],
+            "encoded_pixel_max_error": 0.003212384879589081,
+            "delta_e76_d65": 0.4863143997682153
+          }
+        },
+        "saturated": {
+          "display_linear": {
+            "max_channel": 0.005475342273712158,
+            "p95_pixel_max": 0.00023871138691902147,
+            "p99_pixel_max": 0.0013587707281112538,
+            "rmse_channel": 0.00020337121419179667,
+            "mean_abs_channel": 4.403098264250123e-05,
+            "mean_pixel_max": 0.00011112182954220771
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.008816258981823921,
+            "p95_pixel_max": 0.000394614040851593,
+            "p99_pixel_max": 0.0014471312996465655,
+            "rmse_channel": 0.00023740774336498835,
+            "mean_abs_channel": 5.581975323827161e-05,
+            "mean_pixel_max": 0.00014169710122223479
+          },
+          "delta_e76_d65": {
+            "max": 0.22176289716883368,
+            "mean": 0.009796821527983298,
+            "p95": 0.021716149662378996,
+            "p99": 0.1086036718361995
+          },
+          "worst_encoded_vector": {
+            "sample_index": 143282,
+            "input_linear": [
+              1.0,
+              0.010756373405456543,
+              0.0
+            ],
+            "oracle_linear": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "proxy_linear": [
+              1.0,
+              0.0006823729490861297,
+              0.0
+            ],
+            "oracle_encoded_srgb": [
+              0.9999999403953552,
+              0.0,
+              0.0
+            ],
+            "proxy_encoded_srgb": [
+              0.9999999403953552,
+              0.008816258981823921,
+              0.0
+            ],
+            "encoded_abs_channel_error": [
+              0.0,
+              0.008816258981823921,
+              0.0
+            ],
+            "encoded_pixel_max_error": 0.008816258981823921,
+            "delta_e76_d65": 0.16335264663604934
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 134344,
+            "input_linear": [
+              0.6597713828086853,
+              0.0,
+              1.0
+            ],
+            "oracle_linear": [
+              1.0,
+              0.005719946697354317,
+              1.0
+            ],
+            "proxy_linear": [
+              0.9945246577262878,
+              0.005729907192289829,
+              1.0
+            ],
+            "oracle_encoded_srgb": [
+              0.9999999403953552,
+              0.06769657880067825,
+              0.9999999403953552
+            ],
+            "proxy_encoded_srgb": [
+              0.9975891709327698,
+              0.06778556108474731,
+              0.9999999403953552
+            ],
+            "encoded_abs_channel_error": [
+              0.0024107694625854492,
+              8.898228406906128e-05,
+              0.0
+            ],
+            "encoded_pixel_max_error": 0.0024107694625854492,
+            "delta_e76_d65": 0.22176289716883368
+          }
+        },
+        "boundary": {
+          "display_linear": {
+            "max_channel": 0.007912099361419678,
+            "p95_pixel_max": 0.0005581557750701893,
+            "p99_pixel_max": 0.0018646281957626222,
+            "rmse_channel": 0.0002563945393267205,
+            "mean_abs_channel": 7.296116430249648e-05,
+            "mean_pixel_max": 0.0001680212390877696
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.03785959631204605,
+            "p95_pixel_max": 0.000614655017852783,
+            "p99_pixel_max": 0.0028772639995440132,
+            "rmse_channel": 0.0007528311942872395,
+            "mean_abs_channel": 9.47282476191615e-05,
+            "mean_pixel_max": 0.00024118870581401247
+          },
+          "delta_e76_d65": {
+            "max": 0.7977709140522689,
+            "mean": 0.015697040801865857,
+            "p95": 0.053622796078763184,
+            "p99": 0.13279936531084816
+          },
+          "worst_encoded_vector": {
+            "sample_index": 161513,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.5839410424232483,
+              0.14659667015075684
+            ],
+            "oracle_linear": [
+              0.0,
+              0.8424345850944519,
+              0.22786495089530945
+            ],
+            "proxy_linear": [
+              0.002930309157818556,
+              0.8423298597335815,
+              0.22799502313137054
+            ],
+            "oracle_encoded_srgb": [
+              0.0,
+              0.9272586107254028,
+              0.5146631002426147
+            ],
+            "proxy_encoded_srgb": [
+              0.03785959631204605,
+              0.9272077679634094,
+              0.5147985219955444
+            ],
+            "encoded_abs_channel_error": [
+              0.03785959631204605,
+              5.08427619934082e-05,
+              0.0001354217529296875
+            ],
+            "encoded_pixel_max_error": 0.03785959631204605,
+            "delta_e76_d65": 0.28826177886421117
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 155906,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.023373007774353027,
+              0.38921505212783813
+            ],
+            "oracle_linear": [
+              0.0129960086196661,
+              0.02589491754770279,
+              0.49182671308517456
+            ],
+            "proxy_linear": [
+              0.01277855969965458,
+              0.02662980742752552,
+              0.48788556456565857
+            ],
+            "oracle_encoded_srgb": [
+              0.11771894246339798,
+              0.17519286274909973,
+              0.7299478650093079
+            ],
+            "proxy_encoded_srgb": [
+              0.11650887876749039,
+              0.17789265513420105,
+              0.7273209095001221
+            ],
+            "encoded_abs_channel_error": [
+              0.0012100636959075928,
+              0.0026997923851013184,
+              0.002626955509185791
+            ],
+            "encoded_pixel_max_error": 0.0026997923851013184,
+            "delta_e76_d65": 0.7977709140522689
+          }
+        }
+      },
+      "verification": {
+        "all_stored_nodes_exact": true,
+        "checked_node_count": 274625,
+        "exact_oracle_alpha_one": true,
+        "all_nodes_finite_in_unit_interval": true,
+        "rgba_rfast_all_nodes_match_independent_oracle": true,
+        "rgba_rfast_alpha_one": true,
+        "rgba32f_bytes": 4394000,
+        "rgba32f_sha256": "a265e5e34e22ea26dcb0ec65d7130f9dfc919694fe6651d6b21f224a28651e66"
+      }
+    },
+    {
+      "look": "HNCS",
+      "fixed_parameters": {
+        "ev": 0,
+        "hncs_kelvin": 6500,
+        "hncs_mode": "legacy/standard"
+      },
+      "shaper": "srgb",
+      "nodes": 65,
+      "node_evaluation": "app_double_then_float32",
+      "storage": "float16",
+      "interpolation": "trilinear",
+      "node_storage_max_abs": 0.000244140625,
+      "rgba_texture_bytes": 2197000,
+      "metrics": {
+        "all": {
+          "display_linear": {
+            "max_channel": 0.007978320121765137,
+            "p95_pixel_max": 0.0005482092499732971,
+            "p99_pixel_max": 0.001913502216339109,
+            "rmse_channel": 0.0002448243446181081,
+            "mean_abs_channel": 9.25048988892061e-05,
+            "mean_pixel_max": 0.0001912118534223808
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.037870295345783234,
+            "p95_pixel_max": 0.0005520403385162352,
+            "p99_pixel_max": 0.001494674161076536,
+            "rmse_channel": 0.0004464722078299451,
+            "mean_abs_channel": 9.07770048218237e-05,
+            "mean_pixel_max": 0.0001998784275147323
+          },
+          "delta_e76_d65": {
+            "max": 0.7913230411377233,
+            "mean": 0.020494786224690163,
+            "p95": 0.06510393551318579,
+            "p99": 0.13812336298298172
+          },
+          "worst_encoded_vector": {
+            "sample_index": 161513,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.5839410424232483,
+              0.14659667015075684
+            ],
+            "oracle_linear": [
+              0.0,
+              0.8424345850944519,
+              0.22786495089530945
+            ],
+            "proxy_linear": [
+              0.0029311373364180326,
+              0.8423779010772705,
+              0.22796449065208435
+            ],
+            "oracle_encoded_srgb": [
+              0.0,
+              0.9272586107254028,
+              0.5146631002426147
+            ],
+            "proxy_encoded_srgb": [
+              0.037870295345783234,
+              0.9272310733795166,
+              0.5147666931152344
+            ],
+            "encoded_abs_channel_error": [
+              0.037870295345783234,
+              2.753734588623047e-05,
+              0.0001035928726196289
+            ],
+            "encoded_pixel_max_error": 0.037870295345783234,
+            "delta_e76_d65": 0.2858869244088419
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 155906,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.023373007774353027,
+              0.38921505212783813
+            ],
+            "oracle_linear": [
+              0.0129960086196661,
+              0.02589491754770279,
+              0.49182671308517456
+            ],
+            "proxy_linear": [
+              0.012779723852872849,
+              0.02662472054362297,
+              0.48792341351509094
+            ],
+            "oracle_encoded_srgb": [
+              0.11771894246339798,
+              0.17519286274909973,
+              0.7299478650093079
+            ],
+            "proxy_encoded_srgb": [
+              0.1165153756737709,
+              0.1778741180896759,
+              0.7273461818695068
+            ],
+            "encoded_abs_channel_error": [
+              0.0012035667896270752,
+              0.002681255340576172,
+              0.0026016831398010254
+            ],
+            "encoded_pixel_max_error": 0.002681255340576172,
+            "delta_e76_d65": 0.7913230411377233
+          }
+        },
+        "random": {
+          "display_linear": {
+            "max_channel": 0.007609963417053223,
+            "p95_pixel_max": 0.0008138843171764066,
+            "p99_pixel_max": 0.002124025225639336,
+            "rmse_channel": 0.0002772102518595009,
+            "mean_abs_channel": 0.0001174445696226691,
+            "mean_pixel_max": 0.00023657353352465635
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.03640943462960422,
+            "p95_pixel_max": 0.0005723595619201646,
+            "p99_pixel_max": 0.001319283675402403,
+            "rmse_channel": 0.0004454943610352533,
+            "mean_abs_channel": 9.193444894429907e-05,
+            "mean_pixel_max": 0.00020012776846702765
+          },
+          "delta_e76_d65": {
+            "max": 0.6864165589572809,
+            "mean": 0.02126782953769667,
+            "p95": 0.06392604606223416,
+            "p99": 0.12899020338645859
+          },
+          "worst_encoded_vector": {
+            "sample_index": 38610,
+            "input_linear": [
+              0.04202830791473389,
+              0.26079368591308594,
+              0.23885995149612427
+            ],
+            "oracle_linear": [
+              0.0001547275169286877,
+              0.44678425788879395,
+              0.3816639482975006
+            ],
+            "proxy_linear": [
+              0.0029727951623499393,
+              0.446833074092865,
+              0.38170087337493896
+            ],
+            "oracle_encoded_srgb": [
+              0.001999079482629895,
+              0.69915372133255,
+              0.6512410044670105
+            ],
+            "proxy_encoded_srgb": [
+              0.038408514112234116,
+              0.6991880536079407,
+              0.6512694358825684
+            ],
+            "encoded_abs_channel_error": [
+              0.03640943462960422,
+              3.4332275390625e-05,
+              2.8431415557861328e-05
+            ],
+            "encoded_pixel_max_error": 0.03640943462960422,
+            "delta_e76_d65": 0.33438971649142263
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 42796,
+            "input_linear": [
+              0.012149274349212646,
+              0.05397963523864746,
+              0.971382200717926
+            ],
+            "oracle_linear": [
+              0.10331906378269196,
+              0.09444835782051086,
+              0.970786452293396
+            ],
+            "proxy_linear": [
+              0.10248435288667679,
+              0.09618838131427765,
+              0.968209445476532
+            ],
+            "oracle_encoded_srgb": [
+              0.35472673177719116,
+              0.33968454599380493,
+              0.987047016620636
+            ],
+            "proxy_encoded_srgb": [
+              0.35334423184394836,
+              0.3426981270313263,
+              0.9858935475349426
+            ],
+            "encoded_abs_channel_error": [
+              0.0013824999332427979,
+              0.0030135810375213623,
+              0.0011534690856933594
+            ],
+            "encoded_pixel_max_error": 0.0030135810375213623,
+            "delta_e76_d65": 0.6864165589572809
+          }
+        },
+        "gray": {
+          "display_linear": {
+            "max_channel": 0.0010854601860046387,
+            "p95_pixel_max": 0.0002573728561401367,
+            "p99_pixel_max": 0.0007996702194213863,
+            "rmse_channel": 0.00012282715861207312,
+            "mean_abs_channel": 8.638811513512467e-05,
+            "mean_pixel_max": 0.00015224441749669398
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.0005188733339309692,
+            "p95_pixel_max": 0.00030298233032226556,
+            "p99_pixel_max": 0.00044487431645393364,
+            "rmse_channel": 8.950517752282045e-05,
+            "mean_abs_channel": 6.11117037964218e-05,
+            "mean_pixel_max": 0.00010432440414393872
+          },
+          "delta_e76_d65": {
+            "max": 0.08881066694225354,
+            "mean": 0.015717500952963995,
+            "p95": 0.040687366348062755,
+            "p99": 0.06311098383201735
+          },
+          "worst_encoded_vector": {
+            "sample_index": 100129,
+            "input_linear": [
+              0.0157470703125,
+              0.0157470703125,
+              0.0157470703125
+            ],
+            "oracle_linear": [
+              0.009455230087041855,
+              0.009475020691752434,
+              0.009547784924507141
+            ],
+            "proxy_linear": [
+              0.009487508796155453,
+              0.009553135372698307,
+              0.009583540260791779
+            ],
+            "oracle_encoded_srgb": [
+              0.09628034383058548,
+              0.09641218930482864,
+              0.09689559787511826
+            ],
+            "proxy_encoded_srgb": [
+              0.09649530798196793,
+              0.09693106263875961,
+              0.0971323624253273
+            ],
+            "encoded_abs_channel_error": [
+              0.0002149641513824463,
+              0.0005188733339309692,
+              0.0002367645502090454
+            ],
+            "encoded_pixel_max_error": 0.0005188733339309692,
+            "delta_e76_d65": 0.08779465918559035
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 100188,
+            "input_linear": [
+              0.02294921875,
+              0.02294921875,
+              0.02294921875
+            ],
+            "oracle_linear": [
+              0.016295354813337326,
+              0.016346564516425133,
+              0.01648728735744953
+            ],
+            "proxy_linear": [
+              0.016345404088497162,
+              0.016451139003038406,
+              0.016520481556653976
+            ],
+            "oracle_encoded_srgb": [
+              0.1347925066947937,
+              0.1350407898426056,
+              0.13572075963020325
+            ],
+            "proxy_encoded_srgb": [
+              0.13503515720367432,
+              0.13554641604423523,
+              0.13588064908981323
+            ],
+            "encoded_abs_channel_error": [
+              0.00024265050888061523,
+              0.0005056262016296387,
+              0.00015988945960998535
+            ],
+            "encoded_pixel_max_error": 0.0005056262016296387,
+            "delta_e76_d65": 0.08881066694225354
+          }
+        },
+        "dark": {
+          "display_linear": {
+            "max_channel": 0.0003000437282025814,
+            "p95_pixel_max": 6.923016189830375e-05,
+            "p99_pixel_max": 0.00013288987043779326,
+            "rmse_channel": 2.0235227621206462e-05,
+            "mean_abs_channel": 9.489604178573826e-06,
+            "mean_pixel_max": 1.971950376857925e-05
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.0037610679864883423,
+            "p95_pixel_max": 0.0007210962823592121,
+            "p99_pixel_max": 0.0016833423590287562,
+            "rmse_channel": 0.00023545298599971884,
+            "mean_abs_channel": 0.00011205437080258592,
+            "mean_pixel_max": 0.00022693757850354644
+          },
+          "delta_e76_d65": {
+            "max": 0.48576470725320997,
+            "mean": 0.029651838070177836,
+            "p95": 0.10822479603247878,
+            "p99": 0.22651401511918817
+          },
+          "worst_encoded_vector": {
+            "sample_index": 121259,
+            "input_linear": [
+              1.0432490427092489e-07,
+              0.0005302238860167563,
+              0.008940087631344795
+            ],
+            "oracle_linear": [
+              0.00020481672254391015,
+              0.0002726638631429523,
+              0.0028092002030462027
+            ],
+            "proxy_linear": [
+              0.0001604521385161206,
+              0.00032614401425234973,
+              0.002518095774576068
+            ],
+            "oracle_encoded_srgb": [
+              0.002646232023835182,
+              0.0035228170454502106,
+              0.03629486635327339
+            ],
+            "proxy_encoded_srgb": [
+              0.0020730416290462017,
+              0.004213780630379915,
+              0.03253379836678505
+            ],
+            "encoded_abs_channel_error": [
+              0.0005731903947889805,
+              0.0006909635849297047,
+              0.0037610679864883423
+            ],
+            "encoded_pixel_max_error": 0.0037610679864883423,
+            "delta_e76_d65": 0.4676004094147492
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 123805,
+            "input_linear": [
+              0.00034784985473379493,
+              0.0005974063533358276,
+              0.012319030240178108
+            ],
+            "oracle_linear": [
+              0.00036901794373989105,
+              0.00033528206404298544,
+              0.00417482852935791
+            ],
+            "proxy_linear": [
+              0.00033135549165308475,
+              0.0004005047376267612,
+              0.0038824151270091534
+            ],
+            "oracle_encoded_srgb": [
+              0.004767711739987135,
+              0.0043318443931639194,
+              0.052609823644161224
+            ],
+            "proxy_encoded_srgb": [
+              0.004281112924218178,
+              0.00517452135682106,
+              0.04940267652273178
+            ],
+            "encoded_abs_channel_error": [
+              0.00048659881576895714,
+              0.0008426769636571407,
+              0.0032071471214294434
+            ],
+            "encoded_pixel_max_error": 0.0032071471214294434,
+            "delta_e76_d65": 0.48576470725320997
+          }
+        },
+        "saturated": {
+          "display_linear": {
+            "max_channel": 0.005434989929199219,
+            "p95_pixel_max": 0.00026530027389526367,
+            "p99_pixel_max": 0.0013657259941100971,
+            "rmse_channel": 0.00020907652157589233,
+            "mean_abs_channel": 5.605983045235613e-05,
+            "mean_pixel_max": 0.00014074229348389053
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.008819499053061008,
+            "p95_pixel_max": 0.0003945536911487579,
+            "p99_pixel_max": 0.0014414138591382565,
+            "rmse_channel": 0.00023936905471059184,
+            "mean_abs_channel": 6.282622412181808e-05,
+            "mean_pixel_max": 0.00015408166227935
+          },
+          "delta_e76_d65": {
+            "max": 0.22012935666637384,
+            "mean": 0.011776800640948762,
+            "p95": 0.024113985965313348,
+            "p99": 0.10688974317374562
+          },
+          "worst_encoded_vector": {
+            "sample_index": 143282,
+            "input_linear": [
+              1.0,
+              0.010756373405456543,
+              0.0
+            ],
+            "oracle_linear": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "proxy_linear": [
+              1.0,
+              0.0006826237658970058,
+              0.0
+            ],
+            "oracle_encoded_srgb": [
+              0.9999999403953552,
+              0.0,
+              0.0
+            ],
+            "proxy_encoded_srgb": [
+              0.9999999403953552,
+              0.008819499053061008,
+              0.0
+            ],
+            "encoded_abs_channel_error": [
+              0.0,
+              0.008819499053061008,
+              0.0
+            ],
+            "encoded_pixel_max_error": 0.008819499053061008,
+            "delta_e76_d65": 0.16341263087984226
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 134344,
+            "input_linear": [
+              0.6597713828086853,
+              0.0,
+              1.0
+            ],
+            "oracle_linear": [
+              1.0,
+              0.005719946697354317,
+              1.0
+            ],
+            "proxy_linear": [
+              0.9945650100708008,
+              0.005729708820581436,
+              1.0
+            ],
+            "oracle_encoded_srgb": [
+              0.9999999403953552,
+              0.06769657880067825,
+              0.9999999403953552
+            ],
+            "proxy_encoded_srgb": [
+              0.9976070523262024,
+              0.06778378784656525,
+              0.9999999403953552
+            ],
+            "encoded_abs_channel_error": [
+              0.002392888069152832,
+              8.720904588699341e-05,
+              0.0
+            ],
+            "encoded_pixel_max_error": 0.002392888069152832,
+            "delta_e76_d65": 0.22012935666637384
+          }
+        },
+        "boundary": {
+          "display_linear": {
+            "max_channel": 0.007978320121765137,
+            "p95_pixel_max": 0.0005606621503829953,
+            "p99_pixel_max": 0.0018637752532958893,
+            "rmse_channel": 0.0002636956738580337,
+            "mean_abs_channel": 8.977264883423286e-05,
+            "mean_pixel_max": 0.00020232837263025257
+          },
+          "encoded_srgb_float": {
+            "max_channel": 0.037870295345783234,
+            "p95_pixel_max": 0.0006161421537399291,
+            "p99_pixel_max": 0.0028921496868133142,
+            "rmse_channel": 0.0007536673523290786,
+            "mean_abs_channel": 0.00010381558949374612,
+            "mean_pixel_max": 0.00025651304267366955
+          },
+          "delta_e76_d65": {
+            "max": 0.7913230411377233,
+            "mean": 0.018147518309474003,
+            "p95": 0.05465383750238713,
+            "p99": 0.13410298976532115
+          },
+          "worst_encoded_vector": {
+            "sample_index": 161513,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.5839410424232483,
+              0.14659667015075684
+            ],
+            "oracle_linear": [
+              0.0,
+              0.8424345850944519,
+              0.22786495089530945
+            ],
+            "proxy_linear": [
+              0.0029311373364180326,
+              0.8423779010772705,
+              0.22796449065208435
+            ],
+            "oracle_encoded_srgb": [
+              0.0,
+              0.9272586107254028,
+              0.5146631002426147
+            ],
+            "proxy_encoded_srgb": [
+              0.037870295345783234,
+              0.9272310733795166,
+              0.5147666931152344
+            ],
+            "encoded_abs_channel_error": [
+              0.037870295345783234,
+              2.753734588623047e-05,
+              0.0001035928726196289
+            ],
+            "encoded_pixel_max_error": 0.037870295345783234,
+            "delta_e76_d65": 0.2858869244088419
+          },
+          "worst_delta_e76_vector": {
+            "sample_index": 155906,
+            "input_linear": [
+              1.0000000116860974e-07,
+              0.023373007774353027,
+              0.38921505212783813
+            ],
+            "oracle_linear": [
+              0.0129960086196661,
+              0.02589491754770279,
+              0.49182671308517456
+            ],
+            "proxy_linear": [
+              0.012779723852872849,
+              0.02662472054362297,
+              0.48792341351509094
+            ],
+            "oracle_encoded_srgb": [
+              0.11771894246339798,
+              0.17519286274909973,
+              0.7299478650093079
+            ],
+            "proxy_encoded_srgb": [
+              0.1165153756737709,
+              0.1778741180896759,
+              0.7273461818695068
+            ],
+            "encoded_abs_channel_error": [
+              0.0012035667896270752,
+              0.002681255340576172,
+              0.0026016831398010254
+            ],
+            "encoded_pixel_max_error": 0.002681255340576172,
+            "delta_e76_d65": 0.7913230411377233
+          }
+        }
+      },
+      "verification": {
+        "all_stored_nodes_exact": true,
+        "checked_node_count": 274625,
+        "exact_oracle_alpha_one": true,
+        "all_nodes_finite_in_unit_interval": true,
+        "rgba_rfast_all_nodes_match_independent_oracle": true,
+        "rgba_rfast_alpha_one": true,
+        "rgba32f_bytes": 4394000,
+        "rgba32f_sha256": "a265e5e34e22ea26dcb0ec65d7130f9dfc919694fe6651d6b21f224a28651e66"
+      }
+    }
+  ]
+}

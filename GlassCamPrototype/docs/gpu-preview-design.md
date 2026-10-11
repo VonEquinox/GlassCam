@@ -1,6 +1,6 @@
 # Color-only GPU live preview design
 
-Research-only design, 2026-10-11. No production source changes or publication. Targets the project's iOS 17 minimum. Apple-device build, camera capture, color validation, and timing remain required.
+Research design recorded on 2026-10-11. The subsequent opt-in implementation is described in [LIVE_COLOR_PROXY.md](LIVE_COLOR_PROXY.md); this document records the design and validation rationale. Targets the project's iOS 17 minimum. Apple-device build, camera capture, color validation, and timing remain required.
 
 ## Recommendation
 

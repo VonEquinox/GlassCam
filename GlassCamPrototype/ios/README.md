@@ -77,3 +77,7 @@ Live video is the system preview, not live HNCS/FFCS; captured ProRAW runs throu
 - [Liquid Glass](https://developer.apple.com/documentation/swiftui/applying-liquid-glass-to-custom-views)
 - [Item-provider file representations](https://developer.apple.com/documentation/foundation/nsitemprovider/registerfilerepresentation(fortypeidentifier:fileoptions:visibility:loadhandler:))
 - [Activity item-provider configuration](https://developer.apple.com/documentation/uikit/uiactivityitemsconfiguration/init(itemproviders:))
+
+## Experimental color-only live preview
+
+Default off. Center-only 65³ shaped GPU cube; full-photo C++ processing and 10-bit HEIF remain independent. Currently admitted: EV 0, HNCS 5500/6500 K or FFCS PROVIA/ACROS. Other recipes use the unchanged system layer with an explicit status; peripheral video remains system color. Source is still 8-bit NV12, processing/display is Float/RGBA16Float SDR. See [scope and measured approximation](../docs/LIVE_COLOR_PROXY.md). Device acceptance must cover source-age timeout, unavailable drawable, off-window/background, orientation, rapid look/lens changes, cancellation and GPU failure. No device FPS/energy result has been measured.

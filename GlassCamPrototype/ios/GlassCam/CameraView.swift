@@ -2,17 +2,23 @@ import SwiftUI
 import AVFoundation
 import UIKit
 
-/// Full-window live camera. The color recipe is applied only after DNG capture.
+/// Full-window live camera. Exact photo effects run only after DNG capture.
+/// An opt-in approximate GPU color proxy affects the central viewfinder only.
 /// No SwiftUI view, glass overlay, peripheral image, or screenshot enters that DNG.
 struct CameraView: View {
     @Binding var colorMode: ColorMode
     @Binding var simulationIndex: Int
+    let exposureEV: Double
+    let illuminantKelvin: Double
     let onCapture: (Data, ExportSettings) -> Void
     let onClose: () -> Void
     @StateObject private var camera = CameraController()
     @StateObject private var settings = CameraSettingsStore()
     @State private var selectedLens: CameraController.Mode = .main
     @State private var captureError: String?
+    @State private var experimentalLiveColor = false
+    @State private var liveProxyStatus = LiveColorProxyStatus.off
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         GeometryReader { proxy in
@@ -52,6 +58,17 @@ struct CameraView: View {
                         .position(x: framing.photo.midX, y: framing.photo.midY)
                         .accessibilityLabel("Unprocessed system camera preview inside the photograph frame")
                 }
+                if let source = camera.centerLiveSource, camera.geometry != nil {
+                    LiveColorProxy(source: source, recipe: liveRecipe,
+                                   enabled: experimentalLiveColor && scenePhase == .active,
+                                   cameraReady: camera.isReady && coverageAvailable(framing)) { status in
+                        liveProxyStatus = status
+                    }
+                    .frame(width: framing.photo.width, height: framing.photo.height)
+                    .clipped()
+                    .position(x: framing.photo.midX, y: framing.photo.midY)
+                    .allowsHitTesting(false)
+                }
                 if !camera.isReady || !coverageAvailable(framing) {
                     VStack(spacing: 12) {
                         Image(systemName: "camera.fill").font(.largeTitle)
@@ -80,6 +97,10 @@ struct CameraView: View {
         .preferredColorScheme(.dark)
         .onAppear { restartCamera() }
         .onDisappear { camera.stop() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .background { camera.stop() }
+            else if phase == .active { restartCamera() }
+        }
         .onChange(of: selectedLens) { _, _ in restartCamera() }
         .onChange(of: settings.centerPreviewLongEdge) { _, _ in restartCamera() }
         .onChange(of: settings.peripheralPreviewLongEdge) { _, _ in restartCamera() }
@@ -140,9 +161,15 @@ struct CameraView: View {
         }
     }
 
+    private var liveRecipe: LiveColorRecipe {
+        LiveColorRecipe(mode: colorMode, simulationIndex: colorMode == .ffcs ? simulationIndex : 0,
+                        exposureEV: exposureEV, illuminantKelvin: colorMode == .hncs ? illuminantKelvin : 5500)
+    }
+
     private var previewLabel: some View {
-        Text(selectedLens == .ultraWide ? "SYSTEM PREVIEW · 8-BIT VIDEO · ProRAW PHOTO"
-             : "8-BIT VIDEO · APPROX. ALIGNMENT / PARALLAX")
+        Text(experimentalLiveColor ? (liveRecipe.unsupportedReason ?? liveProxyStatus.text)
+             : selectedLens == .ultraWide ? "SYSTEM PREVIEW · 8-BIT VIDEO · ProRAW PHOTO"
+             : "8-BIT VIDEO · RAW PERIPHERY · APPROX. ALIGNMENT / PARALLAX")
             .font(.system(size: 10, weight: .semibold)).tracking(1)
             .multilineTextAlignment(.center)
             .foregroundStyle(.white.opacity(0.8))
@@ -221,6 +248,13 @@ struct CameraView: View {
 
     private var settingsMenu: some View {
         Menu {
+            Toggle("Experimental live color (approx.)", isOn: $experimentalLiveColor)
+            Text("Central color only. Periphery stays unprocessed. No grain, blur or spatial effects.")
+            Text("Experimental 65³ proxy; visible color errors possible. 8-bit input, half-float SDR display.")
+            Text("Domain: linear RGB [0,1]; out-of-range colors clamp. Apple GPU validation pending.")
+            if let reason = liveRecipe.unsupportedReason { Text(reason) }
+            if experimentalLiveColor { Text(liveProxyStatus.text) }
+            Divider()
             if camera.supportedOutputOptions.isEmpty {
                 Text("Output unavailable for this camera configuration")
             } else {

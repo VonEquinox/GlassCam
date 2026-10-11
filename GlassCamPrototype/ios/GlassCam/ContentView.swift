@@ -307,6 +307,7 @@ struct ContentView: View {
             Task { await model.renderIfNeeded() }
         }) {
             CameraView(colorMode: $model.colorMode, simulationIndex: $model.simulationIndex,
+                       exposureEV: model.exposure, illuminantKelvin: model.kelvin,
                        onCapture: { data, settings in
                            cameraPresented = false
                            model.selectCapture(data, settings: settings)

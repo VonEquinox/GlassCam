@@ -102,8 +102,16 @@ FFCS strip ASan+UBSan：19模式/760调用通过，见 `validation/ffcs_strip_sa
 
 Float32原图/效果图→CoreImage/Metal RGBA16Float SDR源码已加入；软件binary16灰阶4096样本保留3073级，线性及sRGB编码域误差低于声明样本预算。此检查不等于Apple编译、GPU或面板实测；详见 [高精度预览](HIGH_PRECISION_PREVIEW.md)。
 
-高精度预览合并 [52项测试通过，20.372s](../validation/high-precision-integration-tests.txt)。其中九项新增为源码/软件存储检查，Apple显示未执行；实时HNCS/FFCS视频处理未接入，用户已明确后置，不属于本轮待实施功能。
+高精度预览合并 [52项测试通过，20.372s](../validation/high-precision-integration-tests.txt)。其中九项新增为源码/软件存储检查，Apple显示未执行；当时完整实时HNCS/FFCS已后置；随后新增的仅色彩GPU实验路径见下节，不执行完整空间处理。
 
 ## 未来低分辨率色彩成本诊断
 
-实时处理已由用户后置，本轮只估计成本。45 配置、225 计时样本与45预热输出全部与串行 oracle 的 hash 一致；覆盖 HNCS、完整 PROVIA / ACROS、128×72 至1080p及1/2/4 workers。记录墙钟与进程 CPU 时间，不能将多线程墙钟直接换算成低功耗。具体样本、画质代价和限制见 [低分辨率报告](LOWRES_COLOR_PERFORMANCE.md)。这些是共享云 CPU 数据，不是 iPhone 帧率或整机占用。
+完整实时CPU处理已由用户后置，此项仅估计成本。45 配置、225 计时样本与45预热输出全部与串行 oracle 的 hash 一致；覆盖 HNCS、完整 PROVIA / ACROS、128×72 至1080p及1/2/4 workers。记录墙钟与进程 CPU 时间，不能将多线程墙钟直接换算成低功耗。具体样本、画质代价和限制见 [低分辨率报告](LOWRES_COLOR_PERFORMANCE.md)。这些是共享云 CPU 数据，不是 iPhone 帧率或整机占用。
+
+## 实验性仅色彩GPU取景
+
+默认关闭的65³整形cube接入源码与原始取景回退已实现。新增FFCS逐点API在19模式×13,229输入上对三种oracle逐位一致，304非法调用不写输出，原完整/分块回归继续通过（`validation/ffcs-color-only.json`）。HNCS默认6500K单独补测168,193holdout，ΔE76 max0.79777/p99 0.13801。仅放行EV0的HNCS5500/6500与FFCS PROVIA/ACROS；其他配方显示系统取景。
+
+这不是Apple GPU执行结果。CIshaper/插值、实际位深/颜色附件、源新鲜度、窗口切换、GPU失败回退、帧率和功耗均需设备验收；见 [实现边界](LIVE_COLOR_PROXY.md)。
+
+[最终合并运行](../validation/live-proxy-integration-tests.txt)：71项通过，其中18项新增实验取景源码契约；Apple运行时与编译仍未执行。源码审查同时修复了源帧过期、离窗调度、不可用drawable及旋转后旧GPU完成回调的回退问题。

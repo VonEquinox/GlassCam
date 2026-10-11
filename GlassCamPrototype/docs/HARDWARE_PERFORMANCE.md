@@ -56,4 +56,4 @@ Swift 负责 UI、生命周期、相机与系统框架；C ABI 负责稳定边�
 
 FFCS 精确64行分块保留全图 grain 坐标与 sharpen halo；HNCS/FFCS 都复用不可变上下文。导出先全源处理后缩小，磁盘 RGBAf 暂存不等于总 RSS 被限制；48MP 单个 RGBAf 文件约768MB，需空间及真机峰值评估。中心/外围视频输出分别请求较低像素数，照片原始尺寸独立；摄像头硬件读出成本仍需设备测量。
 
-当前App效果预览已使用Float32→RGBA16Float SDR显示，旧fast8bit API仅保留作诊断；详见 [高精度预览](HIGH_PRECISION_PREVIEW.md)。实时取景色彩处理由用户明确后置；不将拍后效果显示写成实时HNCS/FFCS已完成。
+当前App效果预览已使用Float32→RGBA16Float SDR显示，旧fast8bit API仅保留作诊断；详见 [高精度预览](HIGH_PRECISION_PREVIEW.md)。完整实时CPU流水线后置；随后新增的默认关闭 [仅色彩GPU代理](LIVE_COLOR_PROXY.md) 是有界近似，尚无Apple帧率/功耗验收，不应套用旧CPU数字。
