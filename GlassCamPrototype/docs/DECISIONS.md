@@ -34,3 +34,19 @@
 实现独立 display-linear Float RGBA 导出入口，位于既有 UInt16 HNCS 核与显示矩阵之后、8 位 OETF 之前。导出从与预览一致的源图/参数快照重新计算，绝不把 8 位 UIImage/PNG 扩成浮点伪装为 10 位。Swift 将 RGBAf 标为 extendedLinearSRGB，调用 Apple 的 writeHEIF10Representation 以 sRGB 编码 SDR HEIF。
 
 分享提供原始 HEIC 表示，不附带低位深 UIImage/JPEG 隐式替身；未声称 UIActivityViewController 自动保证微信转码。微信、实际 HEIF bitstream 位深和系统编码器行为仍需 Apple 环境/真机检验。若编码失败，明确报错，不悄悄退回 8 位。
+
+
+## 2026-10-11 / D008：全屏真实外围取景与原生玻璃
+
+用户要求全屏相机视野、中心成片框不受玻璃影响、外围实时场景延伸到控件下面。优先使用主视频流中真实存在的额外像素，否则评估更广物理镜头。不能通过镜像边缘、静态填充、黑条或隐式 aspectFill 裁切冒充真实扩展。
+
+按实际 bounds 和旋转后照片比例计算 cleanRect，safe area 只约束按钮。外围已确认 preview-only，不入照片。超广没有更广镜头时允许黑边；这不是主摄/长焦的通用豁免。当前导入原型没有 AVCapture 会话。AVCapture MultiCam 支持不代表最终 PhotoOutput+双 VideoDataOutput 配置支持 ProRAW；必须配置后检查和真机测量，失败时不能默换格式。实现与设备验收分阶段进行，不把此功能描述为已完成。
+
+
+## 2026-10-11 / D009：接入实际 FFCS 技术交付
+
+重新检查确认 ZIP 已改为普通 Git 文件，旧 LFS 阻塞结论不再适用。完整 82,996,719-byte 归档下载并验证后，保留原 Python 源码、研究文档和数值基准。新移动端是独立 FFCS 后端，不串联在 HNCS 后面；Core Image 的 linear-sRGB 输入显式对应原 FFCS input_is_linear=True。
+
+C++ 保留原始参考 LUT 容器/通道/轴约定、矩阵、Lab/OKLab、tone、坐标种子颗粒、浮点锐化等阶段。只开放 19 个实际 XH2S 表支持的外观；不把无表的 REALA ACE 偷换成拟合外观。相机标签描述参考表来源，不声称 iPhone 传感器标定或富士机内 JPEG 一致。
+
+HEIF 导出使用与预览一致的引擎/外观/曝光/种子快照，从 Float display-linear 输出编码，仍是 10-bit SDR HEIF-only。原始精确参考路径保留；低内存融合/行缓冲路径逐项比较后才用于界面。速度与内存收益分别报告，不因为多线程存在就宣称提速。

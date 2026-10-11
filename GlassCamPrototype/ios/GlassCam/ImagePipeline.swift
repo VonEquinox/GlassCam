@@ -11,13 +11,41 @@ struct ImportedImage: @unchecked Sendable {
     let sourceDescription: String
 }
 
+/// Only implemented, audited backends belong in this list. Adding a mode must
+/// implement both preview and float export dispatch before exposing it in the UI.
+enum ColorMode: String, CaseIterable, Identifiable, Sendable {
+    case hncs, ffcs
+    var id: Self { self }
+    var title: String {
+        switch self {
+        case .hncs: return "HNCS"
+        case .ffcs: return "FFCS"
+        }
+    }
+}
+
+/// Immutable settings captured before background work starts. Export must use
+/// the rendered recipe, including its engine, rather than current editor controls.
+struct ProcessingRecipe: Equatable, Sendable {
+    let mode: ColorMode
+    let exposureEV: Double
+    let illuminantKelvin: Double
+    let simulationIndex: Int
+    let seed: UInt32
+
+    var displayName: String {
+        mode == .ffcs ? "FFCS · \(FFCSEngine.simulationName(at: simulationIndex))" : mode.title
+    }
+}
+
 struct ProcessedImage: @unchecked Sendable {
     let image: UIImage
     // Snapshot belongs to this rendered preview, not the current slider positions.
     // Copy-on-write source storage avoids a persistent additional RGBAf buffer.
     let source: ImportedImage
-    let exposureEV: Double
-    let illuminantKelvin: Double
+    let recipe: ProcessingRecipe
+    var exposureEV: Double { recipe.exposureEV }
+    var illuminantKelvin: Double { recipe.illuminantKelvin }
 }
 
 enum PipelineError: LocalizedError {
@@ -121,10 +149,18 @@ enum ImagePipeline {
                              sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter" : "Rendered image • embedded profile → linear sRGB")
     }
 
-    static func process(_ input: ImportedImage, exposureEV: Double, kelvin: Double) throws -> ProcessedImage {
-        let rgba = try HNCSEngine.process(linearSRGB: input.linearRGB, width: input.width,
-                                          height: input.height, exposureEV: exposureEV,
-                                          illuminantKelvin: kelvin)
+    static func process(_ input: ImportedImage, recipe: ProcessingRecipe) throws -> ProcessedImage {
+        let rgba: [UInt8]
+        switch recipe.mode {
+        case .hncs:
+            rgba = try HNCSEngine.process(linearSRGB: input.linearRGB, width: input.width,
+                                          height: input.height, exposureEV: recipe.exposureEV,
+                                          illuminantKelvin: recipe.illuminantKelvin)
+        case .ffcs:
+            rgba = try FFCSEngine.process(linearSRGB: input.linearRGB, width: input.width,
+                                          height: input.height, exposureEV: recipe.exposureEV,
+                                          simulationIndex: recipe.simulationIndex, seed: recipe.seed)
+        }
         guard rgba.count == input.width * input.height * 4,
               let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
               let provider = CGDataProvider(data: Data(rgba) as CFData),
@@ -135,19 +171,27 @@ enum ImagePipeline {
                                provider: provider, decode: nil, shouldInterpolate: true,
                                intent: .defaultIntent) else { throw PipelineError.rendering }
         let image = UIImage(cgImage: cg)
-        return ProcessedImage(image: image, source: input,
-                              exposureEV: exposureEV, illuminantKelvin: kelvin)
+        return ProcessedImage(image: image, source: input, recipe: recipe)
     }
 
     /// Export independently from the UInt8 display preview. The numerical core returns
-    /// display-linear sRGB floats in [0, 1] after its legacy-gamma inverse. Core Image
+    /// display-linear sRGB floats in [0, 1] after each backend’s output inverse. Core Image
     /// applies the sRGB transfer function exactly once when encoding the HEIF.
     static func writeHEIF(_ processed: ProcessedImage, to url: URL) throws {
         try autoreleasepool {
             let source = processed.source
-            let rgba = try HNCSEngine.exportLinearRGBA(
-                linearSRGB: source.linearRGB, width: source.width, height: source.height,
-                exposureEV: processed.exposureEV, illuminantKelvin: processed.illuminantKelvin)
+            let rgba: [Float]
+            switch processed.recipe.mode {
+            case .hncs:
+                rgba = try HNCSEngine.exportLinearRGBA(
+                    linearSRGB: source.linearRGB, width: source.width, height: source.height,
+                    exposureEV: processed.exposureEV, illuminantKelvin: processed.illuminantKelvin)
+            case .ffcs:
+                rgba = try FFCSEngine.exportLinearRGBA(
+                    linearSRGB: source.linearRGB, width: source.width, height: source.height,
+                    exposureEV: processed.exposureEV, simulationIndex: processed.recipe.simulationIndex,
+                    seed: processed.recipe.seed)
+            }
             guard rgba.count == source.width * source.height * 4,
                   rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }),
                   let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB),

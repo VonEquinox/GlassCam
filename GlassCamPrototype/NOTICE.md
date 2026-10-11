@@ -9,3 +9,7 @@ The new portable C++ implementation is derived from these sources and uses a los
 The supplied provenance identifies recovered Phocus 4.2.2 data. No blanket license or proof of commercial redistribution rights for these factory data was supplied. Permission to work in the private repository is not a finding that App Store distribution is cleared. Do not publish the factory data in a public repository or commercial application without rights review. No licensing statement in this prototype grants rights to Hasselblad/Phocus materials. The unrelated license elsewhere in the technical delivery must not be treated as licensing these tables.
 
 Only user-authorized private repository development is performed here. This prototype is not affiliated with or endorsed by Hasselblad or Apple.
+
+## FFCS
+
+FFCS derives from the user-supplied private technical delivery, source commit `3c0a85eeb3893764ae92fc0fe52ebb62fd9f6ac5`. Exact archive provenance and preserved materials are documented in [reference_ffcs/ORIGIN.md](reference_ffcs/ORIGIN.md). Original code, documents, validation and recovered LUT/ICC bytes are retained. Factory SilkyPix/Fujifilm data do not acquire public redistribution rights through this port. No proof of commercial redistribution clearance has been established. Private development authorization does not authorize public release of these assets. This prototype is not endorsed by Fujifilm or SilkyPix.

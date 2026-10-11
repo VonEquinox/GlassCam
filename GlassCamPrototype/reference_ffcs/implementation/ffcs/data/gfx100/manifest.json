@@ -1,0 +1,97 @@
+{
+  "format": "FFCSLUT2",
+  "camera_asset": "GFX100",
+  "source": "SilkyPix ISL_3DMAP_V2 80^3 tables from supplied installer",
+  "tables": [
+    {
+      "file": "acros.lutz",
+      "sha256": "51335969caa840ecca737ac6fa0d6407c4229f16bea972cf714cb078f1955634",
+      "size": 1046567
+    },
+    {
+      "file": "acros_g_filter.lutz",
+      "sha256": "ca623105541998c0bd48a0a6987eb2053309334ae70856d0dbe7835c045b8ccb",
+      "size": 1057790
+    },
+    {
+      "file": "acros_r_filter.lutz",
+      "sha256": "c1e29f244e3f564aa5186e8e6ba3ed9c4af5b2be5170dd8bc831784d140604fe",
+      "size": 831063
+    },
+    {
+      "file": "acros_ye_filter.lutz",
+      "sha256": "ac6c87fbedb8d12b96d074ca7e0c623a256c92a4dd5384ec6f8f0d211aec0419",
+      "size": 934117
+    },
+    {
+      "file": "astia.lutz",
+      "sha256": "c8c5332a77c7ce3405ef29c0929116a76bcc6ba25d94131fb48025dbee7d1fd7",
+      "size": 2417426
+    },
+    {
+      "file": "bleach_bypass.lutz",
+      "sha256": "68174f4913ece5cf91ab52e136640b5abbc4de928e3233678c842fa084d03ad5",
+      "size": 2805231
+    },
+    {
+      "file": "bw.lutz",
+      "sha256": "f747f00c7e99e5c23573d67755b0dacf2fe4d790f83fcbc9877ec815fa2550f5",
+      "size": 1049740
+    },
+    {
+      "file": "classic_chrome.lutz",
+      "sha256": "aa454a12b556fc31260aa6c4ca9fe7773b8ba1d1926cb975ff72540c4207e236",
+      "size": 2592451
+    },
+    {
+      "file": "classic_neg.lutz",
+      "sha256": "c126b12802ee52e4f1d1df0634f016f1e065db35e02dc821d76ad5efd3c04aa2",
+      "size": 2708700
+    },
+    {
+      "file": "eterna.lutz",
+      "sha256": "2a436969dc03d58527c9e68b8be346d65309926d4e01abd60ea694de6480d9ec",
+      "size": 2638612
+    },
+    {
+      "file": "mono_g_filter.lutz",
+      "sha256": "a7da4b1599b28b1b7d60735f3dfe4d62127433fdd936919029e6381231da2887",
+      "size": 1054704
+    },
+    {
+      "file": "mono_r_filter.lutz",
+      "sha256": "d1428a0e955fde927067d376abb564868c387bbb3fef4cf5ad799bfbe9e36aec",
+      "size": 877547
+    },
+    {
+      "file": "mono_ye_filter.lutz",
+      "sha256": "661821c1beea7454207ad41454e6a09fc561e9abe673a7c4282995fcf392c5d3",
+      "size": 952748
+    },
+    {
+      "file": "pro_neg_hi.lutz",
+      "sha256": "a02c62b6ff8c0db8aa6ae38d3ee380d92be16a5d0efe957789690a71644bfe9e",
+      "size": 2468713
+    },
+    {
+      "file": "pro_neg_std.lutz",
+      "sha256": "5ede0757d6076dfe4cd739584d4b68a965c7ae8a796310a81d7ecd8caa368f94",
+      "size": 2518186
+    },
+    {
+      "file": "provia.lutz",
+      "sha256": "fd7b0f76f80beeedeb0a4f45d16e98a5d0c20b10e011f9feef20f65804740f28",
+      "size": 2443436
+    },
+    {
+      "file": "sepia.lutz",
+      "sha256": "090ed67519961a41b62979f0cb5e7bc7958efd0b6ff6b8ada5100851d59272b5",
+      "size": 2713249
+    },
+    {
+      "file": "velvia.lutz",
+      "sha256": "c7c2fd4ff4bf7ec911278994fb376c10e5c445b57748c10c80fb3263fa06f812",
+      "size": 2333319
+    }
+  ]
+}

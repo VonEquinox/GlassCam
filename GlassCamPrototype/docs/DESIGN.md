@@ -39,3 +39,7 @@ linear sRGB(D65) → XYZ → Bradford 白点适配 → inverse(interpolated came
 6. 未在手机上测量之前，不声称“极限优化完成”、实时 48MP、功耗或热稳定性目标达标。
 
 8 位 fast 路径只服务屏幕预览。用户导出走独立 Float display-linear RGBA → extendedLinearSRGB CIImage → writeHEIF10Representation(sRGB) 路径，保留原 HNCS 的 16 位阶段，避免 8 位瓶颈。HEIF-only 不意味着无损，也不代表 HDR/gain map；当前为 SDR，最长边仍为 2048。实际编码位深与微信兼容需真机核验。
+
+## FFCS independent backend
+
+FFCS 与 HNCS 独立选择；显式 linear-sRGB 输入，不串接两个相机模型。19 个真实 XH2S 参考模式、逐阶段数值规则、三行缓冲与资源准备见 [FFCS](FFCS.md)。导出共用 Float → HEIF10 SDR 路径。模式/输入/曝光/种子绑定显示快照；FFCS 不使用 HNCS 色温矩阵。

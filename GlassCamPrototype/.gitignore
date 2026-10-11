@@ -6,3 +6,9 @@ DerivedData/
 xcuserdata/
 *.xcuserstate
 validation/preview/*.png
+# Original FFCS binary assets are materialized from the pinned source archive.
+ios/GlassCam/Resources/FFCS/xh2s/
+reference_ffcs/implementation/ffcs/data/**/*.lutz
+reference_ffcs/implementation/ffcs/data/**/*.icc
+reference_ffcs/examples/generated/
+reference_ffcs/.pytest_cache/

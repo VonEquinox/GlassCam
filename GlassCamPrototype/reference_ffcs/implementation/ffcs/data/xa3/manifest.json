@@ -1,0 +1,62 @@
+{
+  "format": "FFCSLUT2",
+  "camera_asset": "XA3",
+  "source": "SilkyPix ISL_3DMAP legacy 64^3 tables from supplied installer",
+  "tables": [
+    {
+      "file": "astia.lutz",
+      "sha256": "e4b898c51ef9b351a28c1b0490301b217837921a78fcd98aeab3f84c01e4a790",
+      "size": 1370590
+    },
+    {
+      "file": "bw.lutz",
+      "sha256": "0803ab6202424698de535b9153e7f1e15660014e0492e5a937f5580f71110f82",
+      "size": 544401
+    },
+    {
+      "file": "classic_chrome.lutz",
+      "sha256": "b22a0ee37ad0641cbf97dd2612d4bab6b398fcd32bb4804e4b19870f4aadec4b",
+      "size": 1354382
+    },
+    {
+      "file": "mono_g_filter.lutz",
+      "sha256": "61e326cd81dba34d0500b4e5777ac8ce41dbbfa96b5f5f9b4efda9a9c88ca698",
+      "size": 538091
+    },
+    {
+      "file": "mono_r_filter.lutz",
+      "sha256": "3138aed66dd074e2807f126eb13f7656bbff69dcecd0b0b1237afa8e85a75643",
+      "size": 503323
+    },
+    {
+      "file": "mono_ye_filter.lutz",
+      "sha256": "a74209e6ab1b6aefc3230832d637622c57e367cdceeb8a0a520cc2da00e76cd5",
+      "size": 518046
+    },
+    {
+      "file": "pro_neg_hi.lutz",
+      "sha256": "09472f90a4f93b296f5eee06c67ef458b9ddbe4e22dfeb92a3399ff5abce1efc",
+      "size": 1361092
+    },
+    {
+      "file": "pro_neg_std.lutz",
+      "sha256": "2fcfa97d660cdf451bec5c2df02406746190be49f31259d335d2b26a8f206c0a",
+      "size": 1366190
+    },
+    {
+      "file": "provia.lutz",
+      "sha256": "f69247d6aac6f988869463a7ca5fafaea97112b3ad6ba733b30a6d09325d2b0e",
+      "size": 1361185
+    },
+    {
+      "file": "sepia.lutz",
+      "sha256": "439412e3e88244d94d203c014f76960e127d61ffe58eef6794f6fe62bb44076d",
+      "size": 1321645
+    },
+    {
+      "file": "velvia.lutz",
+      "sha256": "e84efeb18434d900f3639d6f265527e1561ba89b84b94fa17b11a0960fd75641",
+      "size": 1354838
+    }
+  ]
+}

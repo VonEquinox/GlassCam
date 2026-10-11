@@ -1,6 +1,6 @@
-# GlassCam — first HNCS effect prototype
+# GlassCam — HNCS + FFCS effect prototype
 
-原生 SwiftUI 界面 + 标准 C++17 图像/颜色后端。现有 HNCS 资产，不新增色卡拟合。先验证导入、现有效果、前后比较、导出这条闭环。
+原生 SwiftUI 界面 + 标准 C++17 图像/颜色后端。现有 HNCS / FFCS 资产，不新增色卡拟合。先验证导入、现有效果、前后比较、导出这条闭环。
 
 ## Start here
 
@@ -15,17 +15,18 @@
 
 ## Current implementation
 
-Photos/Files 导入 → Apple Core Image 解码 → experimental linear-sRGB source adapter → 既有 HNCS → before/after → 10-bit SDR sRGB HEIF 分享。预览与导出最长边限制为 2048 px。
+Photos/Files 导入 → Apple Core Image 解码 → experimental linear-sRGB source adapter → 独立选择 HNCS / FFCS → before/after → 10-bit SDR sRGB HEIF 分享。预览与导出最长边限制为 2048 px。
 
 颜色核心保留 double、原始 2D chroma LUT、曲线和量化边界。标准 C++ 可独立编译，不需 Apple SDK。Swift 只负责界面、Apple 图像入口与缓冲区桥接。
 
-完整 iOS Xcode 项目已包含。当前环境没有 Xcode/Apple SDK，**没有声称 iOS 已编译或真机跑通**。DNG/ProRAW 解码、图像方向、前后图一致性与分享需要 Apple 环境测试。当前不是实时拍摄 App，也没有 FFCS 或完整 RAW 原图/配方保存功能。
+完整 iOS Xcode 项目已包含。当前环境没有 Xcode/Apple SDK，**没有声称 iOS 已编译或真机跑通**。DNG/ProRAW 解码、图像方向、前后图一致性与分享需要 Apple 环境测试。当前不是实时拍摄 App，尚无完整 RAW 原图/配方保存功能。FFCS 已移植 19 款真实 XH2S 参考模式，详见 [FFCS 来源、资源准备与测试](docs/FFCS.md)。
 
 ## Portable validation
 
 在本目录运行（位于仓库 `GlassCamPrototype/`，与原始 `HNCS技术交付/` 同级）：
 
 ```sh
+python tools/materialize_ffcs_reference.py
 python -m unittest discover -s tests -v
 python tools/verify_cpp.py
 python tools/benchmark_optimized.py

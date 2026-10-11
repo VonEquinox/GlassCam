@@ -1,0 +1,149 @@
+regression {'status': 'pass', 'presets': 19, 'both_output_bit_exact_cases': 456, 'single_output_bit_exact_cases': 912, 'workers': [1, 2, 3, 4], 'dimensions_height_width': [(1, 1), (13, 1), (1, 13), (3, 7), (9, 131), (17, 29)], 'invalid_worker_missing_output_ev_nonfinite': 'pass'}
+random 0.0 0 0
+{
+  "status": "pass",
+  "candidate_source_sha256": "7d333a2e0f32d418322857fc34cea6ed85462074a24aa80fdeb66cea70925d1d",
+  "regression": {
+    "status": "pass",
+    "presets": 19,
+    "both_output_bit_exact_cases": 456,
+    "single_output_bit_exact_cases": 912,
+    "workers": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "dimensions_height_width": [
+      [
+        1,
+        1
+      ],
+      [
+        13,
+        1
+      ],
+      [
+        1,
+        13
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        9,
+        131
+      ],
+      [
+        17,
+        29
+      ]
+    ],
+    "invalid_worker_missing_output_ev_nonfinite": "pass"
+  },
+  "additional_rich_cases": 57,
+  "additional_rich_pixels": 242079,
+  "maximum_float_error": 0.0,
+  "maximum_preview_byte_error": 0,
+  "nonidentical_float_channels": 0,
+  "additional_tolerance": 1e-07,
+  "benchmark_256x256": {
+    "baseline": {
+      "median_cpu_seconds": 0.10754346050000008,
+      "median_wall_seconds": 0.10755608199997369,
+      "samples": [
+        {
+          "cpu_seconds": 0.08902718399999987,
+          "wall_seconds": 0.08904298900051799
+        },
+        {
+          "cpu_seconds": 0.09915620599999997,
+          "wall_seconds": 0.09916377799891052
+        },
+        {
+          "cpu_seconds": 0.09713935699999965,
+          "wall_seconds": 0.09714705500118725
+        },
+        {
+          "cpu_seconds": 0.11593071500000018,
+          "wall_seconds": 0.11594838600103685
+        },
+        {
+          "cpu_seconds": 0.16717124299999941,
+          "wall_seconds": 0.1671815970003081
+        },
+        {
+          "cpu_seconds": 0.33395715400000014,
+          "wall_seconds": 0.33418755200000305
+        }
+      ]
+    },
+    "fused1": {
+      "median_cpu_seconds": 0.11925076400000023,
+      "median_wall_seconds": 0.11926247249994049,
+      "samples": [
+        {
+          "cpu_seconds": 0.10734892599999935,
+          "wall_seconds": 0.1073569279997173
+        },
+        {
+          "cpu_seconds": 0.09927499900000036,
+          "wall_seconds": 0.09928422099983436
+        },
+        {
+          "cpu_seconds": 0.1118163550000002,
+          "wall_seconds": 0.11182428299980529
+        },
+        {
+          "cpu_seconds": 0.12668517300000026,
+          "wall_seconds": 0.12670066200007568
+        },
+        {
+          "cpu_seconds": 0.2274100299999997,
+          "wall_seconds": 0.22741789599967888
+        },
+        {
+          "cpu_seconds": 0.43026762999999946,
+          "wall_seconds": 0.4303617759996996
+        }
+      ]
+    },
+    "cube1": {
+      "median_cpu_seconds": 0.12851359750000002,
+      "median_wall_seconds": 0.12856573750013922,
+      "samples": [
+        {
+          "cpu_seconds": 0.08383905499999944,
+          "wall_seconds": 0.08384977800051274
+        },
+        {
+          "cpu_seconds": 0.0858775439999997,
+          "wall_seconds": 0.08588633900035347
+        },
+        {
+          "cpu_seconds": 0.09037810700000026,
+          "wall_seconds": 0.09038502200019138
+        },
+        {
+          "cpu_seconds": 0.22554052599999963,
+          "wall_seconds": 0.22653050299959432
+        },
+        {
+          "cpu_seconds": 0.16664908799999978,
+          "wall_seconds": 0.16674645300008706
+        },
+        {
+          "cpu_seconds": 0.18694990200000028,
+          "wall_seconds": 0.18860838600085117
+        }
+      ]
+    }
+  },
+  "output_hashes": {
+    "baseline": "b80a48f87c3aab6c355935adf1a03e168f15bdd1c3160151d2a8e481a58ed9d1",
+    "fused1": "b80a48f87c3aab6c355935adf1a03e168f15bdd1c3160151d2a8e481a58ed9d1",
+    "cube1": "b80a48f87c3aab6c355935adf1a03e168f15bdd1c3160151d2a8e481a58ed9d1"
+  },
+  "limitation": "Candidate changes optimized-only cubic pow operations to multiplication; exact on tested float/preview cases is not a proof of universal bit identity or any iPhone timing."
+}

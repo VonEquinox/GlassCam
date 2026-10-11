@@ -1,0 +1,8 @@
+FFCS address/undefined sanitizer smoke
+Compiler:
+g++ (Debian 14.2.0-19) 14.2.0
+Command: g++ -std=c++17 -O1 -g -fno-fast-math -ffp-contract=off -fno-omit-frame-pointer -fsanitize=address,undefined -pthread core/ffcs.cpp core/ffcs_smoke.cpp -lz -o build/ffcs_smoke_sanitized
+FFCS smoke passed: 19 looks, 190 shape/worker pairs, both + single outputs, bit-exact float/preview, invalid arguments.
+Exit status: 0
+LeakSanitizer disabled (detect_leaks=0) for container compatibility; no leak-check claim.
+CMake/CTest registration added; cmake executable unavailable in this environment, so executable compiled and tested directly.

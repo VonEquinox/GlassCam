@@ -1,0 +1,10 @@
+test_all_nine_original_test_functions (test_ffcs_source.FFCSReferenceTests.test_all_nine_original_test_functions) ... ok
+test_cpp_all_presets_stages_and_linear_mobile_contract (test_ffcs_source.FFCSReferenceTests.test_cpp_all_presets_stages_and_linear_mobile_contract) ... ok
+test_golden_assets_and_complete_stage_maps (test_ffcs_source.FFCSReferenceTests.test_golden_assets_and_complete_stage_maps) ... ok
+test_optimized_matches_baseline_at_borders_and_output_modes (test_ffcs_source.FFCSReferenceTests.test_optimized_matches_baseline_at_borders_and_output_modes) ... ok
+test_original_reproduction_keeps_baseline (test_ffcs_source.FFCSReferenceTests.test_original_reproduction_keeps_baseline) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 32.678s
+
+OK

@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-11",
+  "timezone": "Asia/Shanghai",
+  "python": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+  "environment_packages": [
+    "iniconfig==2.3.1",
+    "packaging==26.3",
+    "pillow==12.2.0",
+    "pluggy==1.6.0",
+    "Pygments==2.21.0",
+    "pytest==9.1.1",
+    "setuptools==84.0.0",
+    "wheel==0.48.0"
+  ],
+  "installed_package": {
+    "module": "/private/tmp/ffcs-delivery-check/lib/python3.14/site-packages/ffcs/__init__.py",
+    "luts": 48
+  },
+  "wheel_build_and_install": "pass",
+  "source_and_lut_icc_identity_to_original": "pass",
+  "original_tests": {
+    "status": "pass",
+    "count": 9,
+    "output": "pytest_output.txt"
+  },
+  "reproduction": {
+    "status": "pass",
+    "cases": 14,
+    "stage_maps": 153,
+    "maximum_absolute_stage_error": 0.0,
+    "stage_tolerance": 1e-12,
+    "tiff16_roundtrip": "pass",
+    "synthetic_sensor_is_real_raf_test": false
+  },
+  "historical_reference_measurement_reexecuted": false,
+  "real_sensor_raf_decoder_verified": false,
+  "independent_colorchecker_reference_verified": false,
+  "note": "This verifies the packaged FFCS implementation, not equivalence to all camera or third-party outputs.",
+  "all_luts_parsed_and_original_asset_hashes_verified": {
+    "status": "pass",
+    "count": 48
+  },
+  "delivery_hash_check": {
+    "status": "pass",
+    "files_checked": 92
+  },
+  "documentation_links": {
+    "status": "pass",
+    "broken_links": 0
+  },
+  "upload_content_policy": {
+    "installers_included": false,
+    "images_included": false,
+    "generated_fixtures_included": false,
+    "required_lut_and_icc_included": true
+  }
+}

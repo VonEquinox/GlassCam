@@ -7,11 +7,18 @@ import UIKit
 final class EditorModel: ObservableObject {
     @Published var imported: ImportedImage?
     @Published var processed: ProcessedImage?
+    @Published var colorMode: ColorMode = .hncs
+    @Published var simulationIndex = 0
     @Published var exposure = 0.0
     @Published var kelvin = 6500.0
     @Published var busy = false
     @Published var error: String?
     @Published var export: ExportFile?
+
+    private var recipe: ProcessingRecipe {
+        ProcessingRecipe(mode: colorMode, exposureEV: exposure, illuminantKelvin: kelvin,
+                         simulationIndex: simulationIndex, seed: 0)
+    }
 
     private var importTask: Task<Void, Never>?
     private var operationID = UUID()
@@ -45,7 +52,7 @@ final class EditorModel: ObservableObject {
         operationID = id
         busy = true
         error = nil
-        let ev = exposure, cct = kelvin
+        let settings = recipe
         importTask = Task { @MainActor in
             defer {
                 if operationID == id { busy = false; importTask = nil }
@@ -58,7 +65,7 @@ final class EditorModel: ObservableObject {
                 }.value
                 guard operationID == id, !Task.isCancelled else { return }
                 let output = try await Task.detached(priority: .userInitiated) {
-                    try ImagePipeline.process(input, exposureEV: ev, kelvin: cct)
+                    try ImagePipeline.process(input, recipe: settings)
                 }.value
                 guard operationID == id, !Task.isCancelled else { return }
                 imported = input
@@ -76,10 +83,10 @@ final class EditorModel: ObservableObject {
         operationID = id
         busy = true
         defer { if operationID == id { busy = false } }
-        let ev = exposure, cct = kelvin
+        let settings = recipe
         do {
             let output = try await Task.detached(priority: .userInitiated) {
-                try ImagePipeline.process(input, exposureEV: ev, kelvin: cct)
+                try ImagePipeline.process(input, recipe: settings)
             }.value
             guard operationID == id else { return }
             processed = output
@@ -141,7 +148,9 @@ struct ContentView: View {
                     controls
                     Text("EXPERIMENTAL SOURCE ADAPTER")
                         .font(.caption2.weight(.semibold)).tracking(1.8).foregroundStyle(.orange)
-                    Text("Imported images are adapted from linear sRGB into the target camera color space. This is an effect preview, not a calibrated camera match. Factory CCT selects the profile’s illuminant interpolation; it does not recover scene white balance.")
+                    Text(model.colorMode == .hncs
+                         ? "Imported images are adapted from linear sRGB into the target camera color space. This is an effect preview, not a calibrated camera match. Factory CCT selects the profile’s illuminant interpolation; it does not recover scene white balance."
+                         : "FFCS uses the supplied XH2S reference LUTs and research rendering pipeline with fixed grain seed 0. Imported images enter as linear sRGB. This is an experimental effect, not a calibrated Fujifilm camera match.")
                         .font(.footnote).foregroundStyle(.secondary)
                     Text("Preview: 8-bit • export: 10-bit SDR HEIF / sRGB • up to 2048 px • transparency flattened to black • source metadata omitted")
                         .font(.caption).foregroundStyle(.secondary)
@@ -161,6 +170,12 @@ struct ContentView: View {
             guard let selected else { return }
             model.selectPhoto(selected)
         }
+        .onChange(of: model.colorMode) { _, _ in
+            Task { await model.render() }
+        }
+        .onChange(of: model.simulationIndex) { _, _ in
+            Task { await model.render() }
+        }
         .sheet(item: $model.export) { export in ShareSheet(file: export.file) }
         .alert("Couldn’t finish", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
             Button("OK", role: .cancel) { model.error = nil }
@@ -171,7 +186,7 @@ struct ContentView: View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 5) {
                 Text("GlassCam").font(.largeTitle.weight(.semibold)).tracking(-1.2)
-                Text("HNCS  /  COLOR STUDY 01").font(.caption2.weight(.medium)).tracking(2).foregroundStyle(.secondary)
+                Text("\(model.colorMode.title)  /  COLOR STUDY 01").font(.caption2.weight(.medium)).tracking(2).foregroundStyle(.secondary)
             }
             Spacer()
             Button(action: model.share) {
@@ -198,7 +213,7 @@ struct ContentView: View {
                     VStack(spacing: 14) {
                         Image(systemName: "camera.aperture").font(.system(size: 56, weight: .ultraLight))
                         Text("A different kind of color.").font(.title3.weight(.medium))
-                        Text("Import a photograph to explore the HNCS transform.")
+                        Text("Import a photograph to explore the \(model.colorMode.title) transform.")
                             .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
                     }.frame(maxWidth: .infinity).frame(height: 310).padding(.horizontal)
                 }
@@ -209,7 +224,7 @@ struct ContentView: View {
                 .overlay(RoundedRectangle(cornerRadius: 24).stroke(.white.opacity(0.12)))
             if let input = model.imported {
                 HStack {
-                    Text("HNCS").foregroundStyle(.white)
+                    Text(model.processed?.recipe.displayName ?? model.colorMode.title).foregroundStyle(.white)
                     Spacer()
                     Text("ORIGINAL").foregroundStyle(.secondary)
                 }.font(.caption2.weight(.semibold)).tracking(1.5)
@@ -233,17 +248,34 @@ struct ContentView: View {
 
     private var controls: some View {
         VStack(alignment: .leading, spacing: 18) {
-            HStack { Text("Develop").font(.headline); Spacer(); Text("FACTORY PROFILE").font(.caption2).tracking(1).foregroundStyle(.secondary) }
+            HStack { Text("Develop").font(.headline); Spacer(); Text(model.colorMode == .hncs ? "FACTORY PROFILE" : "XH2S REFERENCE LUT").font(.caption2).tracking(1).foregroundStyle(.secondary) }
+            if ColorMode.allCases.count > 1 {
+                Picker("Color engine", selection: $model.colorMode) {
+                    ForEach(ColorMode.allCases) { mode in
+                        Text(mode.title).tag(mode)
+                    }
+                }.pickerStyle(.segmented)
+            }
+            if model.colorMode == .ffcs {
+                Picker("Simulation", selection: $model.simulationIndex) {
+                    ForEach(FFCSEngine.simulations) { simulation in
+                        Text(simulation.name).tag(simulation.id)
+                    }
+                }.pickerStyle(.menu)
+            }
             HStack { Text("Exposure"); Spacer(); Text(String(format: "%+.2f EV", model.exposure)).monospacedDigit().foregroundStyle(.secondary) }.font(.subheadline)
             Slider(value: $model.exposure, in: -2...2, step: 0.05) { editing in
                 if !editing { Task { await model.render() } }
             }.accessibilityLabel("Exposure compensation")
-            HStack { Text("Factory CCT"); Spacer(); Text("\(Int(model.kelvin)) K").monospacedDigit().foregroundStyle(.secondary) }.font(.subheadline)
-            Slider(value: $model.kelvin, in: 2000...10000, step: 50) { editing in
-                if !editing { Task { await model.render() } }
-            }.accessibilityLabel("Factory correlated color temperature")
-            Button("Reset to 0 EV / 6500 K") {
-                model.exposure = 0; model.kelvin = 6500
+            if model.colorMode == .hncs {
+                HStack { Text("Factory CCT"); Spacer(); Text("\(Int(model.kelvin)) K").monospacedDigit().foregroundStyle(.secondary) }.font(.subheadline)
+                Slider(value: $model.kelvin, in: 2000...10000, step: 50) { editing in
+                    if !editing { Task { await model.render() } }
+                }.accessibilityLabel("Factory correlated color temperature")
+            }
+            Button(model.colorMode == .hncs ? "Reset to 0 EV / 6500 K" : "Reset exposure to 0 EV") {
+                model.exposure = 0
+                if model.colorMode == .hncs { model.kelvin = 6500 }
                 Task { await model.render() }
             }.font(.caption).foregroundStyle(.secondary)
         }.padding(20).glassSurface().disabled(model.busy)

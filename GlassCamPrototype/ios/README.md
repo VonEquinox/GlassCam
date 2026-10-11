@@ -1,6 +1,6 @@
 # GlassCam native iOS effect prototype
 
-Native SwiftUI interface, Core Image import adaptation, and a C++17 HNCS numerical backend via a thin Swift/C bridge. No package-manager dependency or generated-project tool is required.
+Native SwiftUI interface, Core Image import adaptation, and independent C++17 HNCS and FFCS numerical backends via a thin Swift/C bridge. No package-manager dependency or generated-project tool is required.
 
 ## Build status
 
@@ -9,7 +9,7 @@ Native SwiftUI interface, Core Image import adaptation, and a C++17 HNCS numeric
 ## Open and run
 
 1. On a Mac with Xcode 16 or later, open `GlassCam.xcodeproj`.
-2. Select the shared `GlassCam` scheme and an iOS 17+ simulator.
+2. The first build phase verifies the bundled FFCS archive and extracts the 19 original assets offline. Keep `reference_ffcs/source.zip` and both resource-preparation files under `tools/` intact. Select the shared `GlassCam` scheme and an iOS 17+ simulator.
 3. Run. Signing is not required for the simulator. For a real device, choose your development team and a unique bundle identifier under Signing & Capabilities.
 4. With Xcode 26+ and iOS 26+, controls use SwiftUI `glassEffect`. Earlier supported SDKs/iOS versions use a translucent material fallback.
 
@@ -29,12 +29,13 @@ C++ files are referenced from `../core`; keep the project in the supplied folder
 - PhotosPicker or Files import JPEG, PNG, HEIC and supported DNG.
 - Rendered images use ImageIO transformed thumbnail decoding with a 2048px maximum, preserving the thumbnail CGImage color space for Core Image conversion to extended linear sRGB. DNG sets Apple `CIRAWFilter.scaleFactor` from `nativeSize` before requesting output and is experimental; support varies by Apple OS/camera decoder. DNG import is not a raw-camera-native calibration path.
 - Opaque RGB floats cross the C ABI into the C++ numerical core. All HNCS transform math is in the C++ backend.
+- Choose HNCS or FFCS; FFCS offers 19 source-backed XH2S looks and uses a cached immutable context. Its linear input route is independent of HNCS. See [FFCS](../docs/FFCS.md).
 - Exposure spans −2 to +2 EV. Factory CCT spans 2000–10000 K. CCT controls profile interpolation, not an accurate estimate of scene white balance.
 - Compare the processed left region with the original right region using the comparison slider.
 - Preview stays 8-bit sRGB. The default fast path keeps the HNCS core exact but approximates final 8-bit sRGB encoding by at most one code level; the exactReference API remains available.
 - Export is HEIF-only (`.heic`), using `CIContext.writeHEIF10Representation(of:to:colorSpace:options:)`. On explicit export, the numerical backend recomputes display-linear RGBA floats from the source/exposure/CCT snapshot associated with the displayed processed image. No UInt8 preview buffer, PNG, or JPEG enters this path. `CIImage` receives `.RGBAf` tagged `extendedLinearSRGB` (with values restricted to 0…1); the context works in float and encodes into standard SDR sRGB. No PQ/HLG, expanded HDR range, or gain map is requested. Encoder failure is shown as an error, with no fallback to 8-bit output.
 - The native share sheet offers the original HEIC file/data through `NSItemProvider` and `UIActivityItemsConfiguration`. Save to Files and compatible receiving apps use this same HEIF representation; there is no standalone JPEG export or automatic sharing transcode. WeChat compatibility is unverified and may require a separately tested sharing-only fallback in future.
-- The preview C++ backend uses up to four bounded workers; Swift reduces this for low-power or elevated thermal state. This policy is not yet device-benchmarked. The new float export kernel currently runs single-threaded; preview benchmark speedups are not HEIF export timings.
+- The HNCS preview C++ backend uses up to four bounded workers; Swift reduces this for low-power or elevated thermal state. This policy is not yet device-benchmarked. The new float export kernel currently runs single-threaded; preview benchmark speedups are not HEIF export timings. FFCS uses the exact tiled route with one worker by default pending device profiling; its C API supports 1–4 workers.
 
 ## Intentional prototype limits
 
