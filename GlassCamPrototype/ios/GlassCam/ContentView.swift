@@ -15,7 +15,6 @@ final class EditorModel: ObservableObject {
 
     private var importTask: Task<Void, Never>?
     private var operationID = UUID()
-    private var sharedURL: URL?
 
     func selectPhoto(_ selected: PhotosPickerItem) {
         beginImport {
@@ -89,25 +88,38 @@ final class EditorModel: ObservableObject {
 
     func share() {
         guard let processed, !busy else { return }
-        do {
-            let url = FileManager.default.temporaryDirectory.appendingPathComponent("GlassCam-\(UUID().uuidString).png")
-            try processed.png.write(to: url, options: .atomic)
-            sharedURL = url
-            export = ExportFile(url: url)
-        } catch { self.error = error.localizedDescription }
+        let id = UUID()
+        operationID = id
+        busy = true
+        error = nil
+        Task { @MainActor in
+            defer { if operationID == id { busy = false } }
+            do {
+                let file = try await Task.detached(priority: .userInitiated) {
+                    let file = TemporaryHEIFFile()
+                    try ImagePipeline.writeHEIF(processed, to: file.url)
+                    return file
+                }.value
+                guard operationID == id else { return }
+                export = ExportFile(file: file)
+            } catch {
+                if operationID == id { self.error = error.localizedDescription }
+            }
+        }
     }
+}
 
-    func cleanupExport() {
-        // The sheet has finished; recipients have had the opportunity to copy the file.
-        if let url = sharedURL { try? FileManager.default.removeItem(at: url) }
-        sharedURL = nil
-    }
-
+/// Providers retain this owner through any outstanding file request, so dismissing
+/// the sheet cannot eagerly delete a file that is still being handed to a recipient.
+final class TemporaryHEIFFile: @unchecked Sendable {
+    let url = FileManager.default.temporaryDirectory
+        .appendingPathComponent("GlassCam-\(UUID().uuidString).heic")
+    deinit { try? FileManager.default.removeItem(at: url) }
 }
 
 struct ExportFile: Identifiable {
     let id = UUID()
-    let url: URL
+    let file: TemporaryHEIFFile
 }
 
 struct ContentView: View {
@@ -131,7 +143,9 @@ struct ContentView: View {
                         .font(.caption2.weight(.semibold)).tracking(1.8).foregroundStyle(.orange)
                     Text("Imported images are adapted from linear sRGB into the target camera color space. This is an effect preview, not a calibrated camera match. Factory CCT selects the profile’s illuminant interpolation; it does not recover scene white balance.")
                         .font(.footnote).foregroundStyle(.secondary)
-                    Text("Preview and export: up to 2048 px • sRGB PNG • transparency flattened to black • source metadata omitted")
+                    Text("Preview: 8-bit • export: 10-bit SDR HEIF / sRGB • up to 2048 px • transparency flattened to black • source metadata omitted")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Text("Sharing sends the original HEIF. WeChat and other app compatibility still need device testing.")
                         .font(.caption).foregroundStyle(.secondary)
                 }.padding(22)
             }
@@ -147,7 +161,7 @@ struct ContentView: View {
             guard let selected else { return }
             model.selectPhoto(selected)
         }
-        .sheet(item: $model.export, onDismiss: model.cleanupExport) { file in ShareSheet(url: file.url) }
+        .sheet(item: $model.export) { export in ShareSheet(file: export.file) }
         .alert("Couldn’t finish", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
             Button("OK", role: .cancel) { model.error = nil }
         } message: { Text(model.error ?? "Unknown error") }
@@ -163,7 +177,7 @@ struct ContentView: View {
             Button(action: model.share) {
                 Image(systemName: "square.and.arrow.up").font(.title3).frame(width: 48, height: 48)
             }.glassSurface().disabled(model.processed == nil || model.busy)
-                .accessibilityLabel("Export processed PNG")
+                .accessibilityLabel("Export 10-bit SDR HEIF")
         }
     }
 
@@ -259,9 +273,25 @@ private extension View {
 }
 
 private struct ShareSheet: UIViewControllerRepresentable {
-    let url: URL
+    let file: TemporaryHEIFFile
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        let provider = NSItemProvider()
+        provider.suggestedName = file.url.lastPathComponent
+        // Offer original HEIC bytes only, never UIImage (which can be re-encoded).
+        // HEIC is the HEVC-coded HEIF type; no JPEG fallback is advertised.
+        provider.registerFileRepresentation(forTypeIdentifier: UTType.heic.identifier,
+                                            fileOptions: [], visibility: .all) { [file] completion in
+            completion(file.url, false, nil)
+            return nil
+        }
+        provider.registerDataRepresentation(forTypeIdentifier: UTType.heic.identifier,
+                                            visibility: .all) { [file] completion in
+            do { completion(try Data(contentsOf: file.url), nil) }
+            catch { completion(nil, error) }
+            return nil
+        }
+        let configuration = UIActivityItemsConfiguration(itemProviders: [provider])
+        return UIActivityViewController(activityItemsConfiguration: configuration)
     }
     func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
 }

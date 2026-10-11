@@ -1,9 +1,12 @@
 # 测试与性能状态
 
-更新：2026-10-11。以下严格区分已执行、受限、未执行。
+更新：2026-10-11（包括 HEIF-only 导出跟进）。以下严格区分已执行、受限、未执行。
 
 ## 已执行并通过
 
+- 新增 Float display-linear 导出路径：884,736 个 RGB 通道对 double 参考，最大绝对误差 2.9801849987798334e-8（阈值 1e-7）。灰阶扫描保留 4,096 / 4,096 / 4,070 个不同通道值，排除先降 8 位再扩展的实现。
+- Float 导出 tile 一致、alpha=1、范围 [0,1]、非法参数检查通过；原核黄金测试重新执行仍为 0 差。
+- 4 项 HEIF 源码契约静态测试通过：专用 HEIF10 writer、RGBAf/extendedLinearSRGB 输入、显示快照参数、无 PNG/JPEG/UInt8 回退。它们不能替代 Swift 编译或真实 HEIF 检验。
 - 原始资产 SHA-256 对照 provenance.json 通过。
 - 原始 Python 生产函数与独立参考实现：52 组黄金向量、6,656 像素，最大 UInt16 差 0。
 - 标准 C++17 原核：同一 52 组/6,656 像素，最大 UInt16 差 0；覆盖 legacy/L* × standard/reproduction 四模式。
@@ -26,7 +29,7 @@
 | 2048×1536 | 1308.8 ms | 968.1 ms | 750.2 ms | 400.4 ms | 3.27× |
 | 4000×3000 | 5151.7 ms | 4105.6 ms | 2042.4 ms | 1139.0 ms | 4.52× |
 
-计时包括源域桥、HNCS 与显示编码；**不包括解码、缩放、Swift 缓冲区、PNG 编码、界面与上下文初始化**。12MP 是独立 C++ benchmark，不代表当前 2048px iOS 原型能导出 12MP。这不是 iPhone 测量，不能推算手机帧率。
+计时包括源域桥、HNCS 与显示编码；**不包括解码、缩放、Swift 缓冲区、图像文件编码（当时为 PNG，当前为 HEIF）、界面与上下文初始化**。12MP 是独立 C++ benchmark，不代表当前 2048px iOS 原型能导出 12MP。这不是 iPhone 测量，不能推算手机帧率。
 
 本轮可归因优化：
 
@@ -36,13 +39,14 @@
 4. 加入最多 4 线程的连续块并行，原核不改，线程创建失败时安全串行补齐。
 5. Swift 默认使用 fast 路径并按低电量/系统热状态将工作线程降至 2 或 1；该 Apple 策略尚未真机测量，不能声称节电效果。
 
-显示近似的边界：最近 16 位 linear 采样误差 ≤0.5/65535；sRGB 最大斜率约 12.92，连续字节尺度误差约 ≤0.0252，因此量化输出最多差 1 码。原始 HNCS UInt16 核仍需 bit-exact。精确 API 与 Swift `exactReference` 选项保留，便于比较或重新导出。当前 UI 分享当前 fast PNG，未承诺无近似的高位深最终导出。
+显示近似的边界：最近 16 位 linear 采样误差 ≤0.5/65535；sRGB 最大斜率约 12.92，连续字节尺度误差约 ≤0.0252，因此量化输出最多差 1 码。原始 HNCS UInt16 核仍需 bit-exact。精确 API 与 Swift `exactReference` 选项保留，便于比较或重新导出。该有界近似现在仅用于屏幕预览。HEIF 导出走独立 Float display-linear 路径，不通过 fast 字节编码；实际 HEIF10 编码器仍未在此环境执行，不能把已通过的 Float 测试称为已验证的 HEIF bitstream。当前 float 导出核为单线程，前表的 4 线程预览速度不适用于端到端 HEIF 导出。
 
 ## 未执行 / 不能宣称通过
 
 - Xcode/Swift/Apple SDK 编译、模拟器或 iPhone 安装。
 - 实际 JPEG/HEIC/DNG/Apple ProRAW 导入、portrait 方向与 Core Image bitmap 行方向一致性。
-- 原生分享 sheet、sRGB 文件重开检查、Liquid Glass 真机外观。
+- Apple HEIF10 编码实际执行、输出 HEVC/HEIF 位深与 SDR/sRGB 标签、无 HDR gain map 验证。
+- 原生分享 sheet、微信/接收端可查看性、文件重开检查、Liquid Glass 真机外观。分享兼容转码尚未实现。
 - 手机峰值内存、后台恢复、低电量与热稳态、持续运行 p50/p95、功耗。
 - 完整旧 pipeline 的 RAW 解码、双光源拟合和空间滤镜；本轮只验证所使用的颜色核心。
 - FFCS、实时拍摄、48MP/高位深全尺寸导出、RAW+配方管理。
@@ -53,6 +57,8 @@
 - `python -m unittest discover -s tests -v`
 - `python tools/verify_cpp.py`
 - `python tools/benchmark_optimized.py`
+- `python tools/verify_linear_export.py`
+- `validation/linear-export.json`：Float 导出精度与未执行的 Apple/微信验证边界。
 - `validation/cpp-verification.json`：精确基线与运行环境。
 - `validation/optimization.json`：最终优化准确性、各路径耗时及输出摘要。
 - `validation/sanitizer-tests.txt`：检测结果与 LSan 限制。

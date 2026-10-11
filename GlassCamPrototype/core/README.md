@@ -59,3 +59,7 @@ and falls back safely if a worker cannot be launched. Inputs below 65536 pixels
 run sequentially. No Metal/GPU approximation is used. Benchmark results must be
 reported with their actual machine, compiler, dimensions and worker count;
 desktop measurements are not iPhone frame-rate claims.
+
+## High-bit-depth export boundary
+
+`hncs_process_linear_rgba` emits packed Float32 display-linear sRGB RGBA (alpha 1) after the unchanged UInt16 HNCS core and display matrices, before either 8-bit OETF encoder. It guards RGBA float byte-size overflow and rejects nonfinite source data. This is the dedicated input to Apple's HEIF10 writer, not a conversion from the byte preview. `python tools/verify_linear_export.py` compares it against the original double-precision display reference. The portable backend does not itself encode HEIF or establish the emitted Apple bitstream's bit depth.

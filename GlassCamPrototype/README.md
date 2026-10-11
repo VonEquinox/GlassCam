@@ -15,7 +15,7 @@
 
 ## Current implementation
 
-Photos/Files 导入 → Apple Core Image 解码 → experimental linear-sRGB source adapter → 既有 HNCS → before/after → sRGB PNG 分享。预览与导出最长边限制为 2048 px。
+Photos/Files 导入 → Apple Core Image 解码 → experimental linear-sRGB source adapter → 既有 HNCS → before/after → 10-bit SDR sRGB HEIF 分享。预览与导出最长边限制为 2048 px。
 
 颜色核心保留 double、原始 2D chroma LUT、曲线和量化边界。标准 C++ 可独立编译，不需 Apple SDK。Swift 只负责界面、Apple 图像入口与缓冲区桥接。
 
@@ -29,6 +29,7 @@ Photos/Files 导入 → Apple Core Image 解码 → experimental linear-sRGB sou
 python -m unittest discover -s tests -v
 python tools/verify_cpp.py
 python tools/benchmark_optimized.py
+python tools/verify_linear_export.py
 python tools/render_preview.py --synthetic
 # Or an existing ordinary photo, without new chart calibration:
 python tools/render_preview.py --input /path/to/photo.jpg --output validation/photo-preview
@@ -46,3 +47,7 @@ python core/generate_assets.py   # Rebuild lossless numeric include from origina
 实验性源域桥不是 iPhone→Hasselblad 标定；传入已经开发的照片也不会变回原始传感器信号。测试保证现有核的数值移植，而不是完整 Phocus RAW/spatial pipeline、真实 ProRAW 成片质量或版权清理。颜色偏好需要看真实照片后判断。
 
 原始 HNCS 技术交付与证据保持原位和内容不变。新的性能或外观修改必须先过黄金测试；近似优化需单独记录误差预算。
+
+## HEIF-only export
+
+用户导出只提供 HEIF（.heic），没有 JPEG 或 PNG 模式。8 位 fast 数据仅用于屏幕预览；HEIF 从独立 Float display-linear 路径计算，再调用 Apple 专用 HEIF10 writer。当前没有 Apple SDK，因此实际 HEIF 文件位深、颜色标签和微信发送/接收仍未验证。分享目前提供原始 HEIC，不保证接收应用支持或自动转码。离线 Python 诊断脚本仍可输出 PNG 以便在云端检视，这不属于 App 导出选项。

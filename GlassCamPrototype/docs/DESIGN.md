@@ -2,7 +2,7 @@
 
 ## 分层
 
-- SwiftUI：PhotosPicker / 文件导入、对比、曝光与工厂 CCT 参数、PNG 分享。
+- SwiftUI：PhotosPicker / 文件导入、对比、曝光与工厂 CCT 参数、HEIF 分享。
 - Apple 图像适配层：Core Image 解码及颜色管理，输出有限尺寸的 linear-sRGB RGB 浮点数据。DNG/ProRAW 为实验性输入，需要 Apple SDK/真机核验。
 - 标准 C++17：平台无关 HNCS 数值核、上下文参数预计算、逐像素处理和 C ABI。
 - Python：读取保留的原始资产与固定向量，执行不改写算法的基准核验与可复现诊断。
@@ -15,7 +15,7 @@ Swift 不重写颜色算法；C++ 不依赖 UIKit、Core Image、Metal 或第三
 
 第一原型为“先跑效果”采用明确标记的色度学桥：
 
-linear sRGB(D65) → XYZ → Bradford 白点适配 → inverse(interpolated camera_to_xyz) → virtual native RGB → 原有 HNCS 核 → Hasselblad 工作码 → 原有显示变换 → sRGB PNG。
+linear sRGB(D65) → XYZ → Bradford 白点适配 → inverse(interpolated camera_to_xyz) → virtual native RGB → 原有 HNCS 核 → Hasselblad 工作码 → 原有显示变换 → sRGB 显示预览。高位深导出在显示 OETF 前分支成 Float RGBA，交给 Apple 专用 HEIF10 writer 编码为 SDR HEIF。
 
 桥使用已有矩阵，不拟合新色卡，也不声称已有 iPhone→X2D 标定。它只能让现有核在明确输入域上工作。输入 JPEG/HEIC 已有 tone mapping；简单线性化不能还原原始场景。ProRAW 的系统解码也不等同于未处理 CFA。图像效果好坏与跨设备匹配仍需真实样片判断。
 
@@ -38,4 +38,4 @@ linear sRGB(D65) → XYZ → Bradford 白点适配 → inverse(interpolated came
 5. 新增显式 fast 显示编码路径：65,536 项线性采样表，仅最终 8 位 sRGB 编码允许最多 1 码误差；原 HNCS 核不近似。精确路径保留。CPU 连续块并行最多 4 线程，已做同输入对比测量。
 6. 未在手机上测量之前，不声称“极限优化完成”、实时 48MP、功耗或热稳定性目标达标。
 
-本次的 8 位 PNG 是可查看效果的导出端点，不是建议长期把 RAW/宽色域处理降为 8 位。
+8 位 fast 路径只服务屏幕预览。用户导出走独立 Float display-linear RGBA → extendedLinearSRGB CIImage → writeHEIF10Representation(sRGB) 路径，保留原 HNCS 的 16 位阶段，避免 8 位瓶颈。HEIF-only 不意味着无损，也不代表 HDR/gain map；当前为 SDR，最长边仍为 2048。实际编码位深与微信兼容需真机核验。

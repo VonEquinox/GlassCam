@@ -57,6 +57,35 @@ enum HNCSEngine {
         return rgba
     }
 
+    /// Full-precision export bridge. The original UInt16 HNCS core remains
+    /// unchanged; display-linear sRGB is returned before any 8-bit encoder.
+    /// The HEIF encoder applies the output transfer function and quantization.
+    static func exportLinearRGBA(linearSRGB: [Float], width: Int, height: Int,
+                                 exposureEV: Double, illuminantKelvin: Double) throws -> [Float] {
+        guard width > 0, height > 0, width <= Int.max / height else {
+            throw Error.invalidDimensions
+        }
+        let count = width * height
+        // Bound bytes, not merely element count, before multiplying. The RGBA
+        // output bound also protects the smaller RGB source's count and bytes.
+        guard count <= Int.max / MemoryLayout<Float>.stride / 4,
+              linearSRGB.count == count * 3 else {
+            throw Error.invalidDimensions
+        }
+        guard let context = hncs_create(exposureEV, illuminantKelvin) else {
+            throw Error.invalidSettings
+        }
+        defer { hncs_destroy(context) }
+        var rgba = [Float](repeating: 0, count: count * 4)
+        let status = linearSRGB.withUnsafeBufferPointer { source in
+            rgba.withUnsafeMutableBufferPointer { destination in
+                hncs_process_linear_rgba(context, source.baseAddress, destination.baseAddress, count)
+            }
+        }
+        guard status == 0 else { throw Error.invalidPixels }
+        return rgba
+    }
+
     /// Golden-test boundary: packed white-balanced native X2D RGB doubles in;
     /// packed original 16-bit legacy RGB codes out. No adapter or display conversion.
     static func renderNative(native: [Double], illuminantKelvin: Double) throws -> [UInt16] {

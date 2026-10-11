@@ -13,7 +13,11 @@ struct ImportedImage: @unchecked Sendable {
 
 struct ProcessedImage: @unchecked Sendable {
     let image: UIImage
-    let png: Data
+    // Snapshot belongs to this rendered preview, not the current slider positions.
+    // Copy-on-write source storage avoids a persistent additional RGBAf buffer.
+    let source: ImportedImage
+    let exposureEV: Double
+    let illuminantKelvin: Double
 }
 
 enum PipelineError: LocalizedError {
@@ -22,7 +26,7 @@ enum PipelineError: LocalizedError {
         switch self {
         case .invalidImage: return "This image could not be decoded. Try a JPEG, PNG, HEIC, or supported DNG."
         case .rendering: return "The image renderer could not create an output."
-        case .encoding: return "The processed image could not be encoded as PNG."
+        case .encoding: return "The processed image could not be encoded as 10-bit SDR HEIF. No lower-bit-depth fallback was saved."
         }
     }
 }
@@ -131,7 +135,45 @@ enum ImagePipeline {
                                provider: provider, decode: nil, shouldInterpolate: true,
                                intent: .defaultIntent) else { throw PipelineError.rendering }
         let image = UIImage(cgImage: cg)
-        guard let png = image.pngData() else { throw PipelineError.encoding }
-        return ProcessedImage(image: image, png: png)
+        return ProcessedImage(image: image, source: input,
+                              exposureEV: exposureEV, illuminantKelvin: kelvin)
     }
+
+    /// Export independently from the UInt8 display preview. The numerical core returns
+    /// display-linear sRGB floats in [0, 1] after its legacy-gamma inverse. Core Image
+    /// applies the sRGB transfer function exactly once when encoding the HEIF.
+    static func writeHEIF(_ processed: ProcessedImage, to url: URL) throws {
+        try autoreleasepool {
+            let source = processed.source
+            let rgba = try HNCSEngine.exportLinearRGBA(
+                linearSRGB: source.linearRGB, width: source.width, height: source.height,
+                exposureEV: processed.exposureEV, illuminantKelvin: processed.illuminantKelvin)
+            guard rgba.count == source.width * source.height * 4,
+                  rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }),
+                  let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB),
+                  let sRGB = CGColorSpace(name: CGColorSpace.sRGB) else {
+                throw PipelineError.rendering
+            }
+            let data = rgba.withUnsafeBytes { Data($0) }
+            let image = CIImage(bitmapData: data, bytesPerRow: source.width * 16,
+                                size: CGSize(width: CGFloat(source.width), height: CGFloat(source.height)),
+                                format: .RGBAf, colorSpace: linear)
+            let context = CIContext(options: [.workingColorSpace: linear,
+                                              .workingFormat: CIFormat.RGBAf.rawValue])
+            // Standard-gamut, SDR sRGB. No PQ/HLG, extended-range values, HDR
+            // expansion, gain-map image, or source properties enter this new image.
+            // This dedicated encoder requests 10 bits; do not substitute the generic
+            // writeHEIFRepresentation API or pass the 8-bit UIImage here.
+            do {
+                try context.writeHEIF10Representation(of: image, to: url,
+                                                       colorSpace: sRGB, options: [:])
+                let values = try url.resourceValues(forKeys: [.fileSizeKey])
+                guard (values.fileSize ?? 0) > 0 else { throw PipelineError.encoding }
+            } catch {
+                try? FileManager.default.removeItem(at: url)
+                throw error
+            }
+        }
+    }
+
 }

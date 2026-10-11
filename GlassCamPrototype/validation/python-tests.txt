@@ -1,9 +1,13 @@
+test_c_float_route_bypasses_both_byte_encoders (test_heif_source.HEIFSourceContracts.test_c_float_route_bypasses_both_byte_encoders) ... ok
+test_dedicated_ten_bit_writer_has_float_input (test_heif_source.HEIFSourceContracts.test_dedicated_ten_bit_writer_has_float_input) ... ok
+test_snapshot_not_live_controls_drives_export (test_heif_source.HEIFSourceContracts.test_snapshot_not_live_controls_drives_export) ... ok
+test_user_export_has_no_byte_image_fallback (test_heif_source.HEIFSourceContracts.test_user_export_has_no_byte_image_fallback) ... ok
 test_adapter_controls_and_nonfinite (test_reference.ReferenceTests.test_adapter_controls_and_nonfinite) ... ok
 test_all_original_native_golden_vectors (test_reference.ReferenceTests.test_all_original_native_golden_vectors) ... ok
 test_effect_returns_finite_display_rgb (test_reference.ReferenceTests.test_effect_returns_finite_display_rgb) ... ok
 test_original_bounds_and_tile_invariance (test_reference.ReferenceTests.test_original_bounds_and_tile_invariance) ... ok
 
 ----------------------------------------------------------------------
-Ran 4 tests in 0.228s
+Ran 8 tests in 0.276s
 
 OK

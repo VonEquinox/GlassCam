@@ -23,6 +23,14 @@ void hncs_destroy(hncs_context *context);
  * On failure output contents are unspecified. Reentrant on a shared context. */
 int hncs_process_srgb(const hncs_context *context, const float *input_rgb,
                       uint8_t *output_rgba, size_t pixel_count);
+/* Export path: packed linear sRGB RGB float triplets -> display-linear sRGB
+ * RGBA float quads, clipped to [0,1], with alpha exactly 1. Reuses the original
+ * UInt16 HNCS core and exact display matrices; no sRGB OETF or RGBA8 boundary.
+ * The export encoder is responsible for its transfer function and bit depth.
+ * Same errors/contracts as hncs_process_srgb; count is checked against both
+ * input and output byte sizes. */
+int hncs_process_linear_rgba(const hncs_context *context, const float *input_rgb,
+                             float *output_rgba, size_t pixel_count);
 /* Optimized display path: same native core and display matrices, but the final
  * sRGB OETF uses a 65536-entry table at the nearest linear sample. The maximum
  * continuous 8-bit-code perturbation is <= 0.026; quantized output differs by

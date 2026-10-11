@@ -24,4 +24,13 @@
 
 ## 2026-10-11 / D006：精确核与有界显示优化并存
 
-测量证明输出 OETF 表与 1–4 线程块并行有效。仅最终 8 位显示编码允许最多 1 码差异；原 HNCS 16 位核心仍精确。原精确 API 不删除。默认原型预览/PNG 使用经过测试的 fast 路径，低电量/热状态可减少线程。最终高位深导出与手机热策略仍待验证，不把云 CPU 加速比写成 iPhone 帧率。
+测量证明输出 OETF 表与 1–4 线程块并行有效。仅最终 8 位显示编码允许最多 1 码差异；原 HNCS 16 位核心仍精确。原精确 API 不删除。该阶段预览/PNG 使用经过测试的 fast 路径（PNG 导出已由 D007 替代），低电量/热状态可减少线程。最终高位深导出与手机热策略仍待验证，不把云 CPU 加速比写成 iPhone 帧率。
+
+
+## 2026-10-11 / D007：HEIF-only 与高位深独立导出
+
+用户确认保存/导出只保留 HEIF，不提供独立 JPEG 选项；微信分享的最终要求是能发送、接收方能看，不要求分享后保留 10 位。当前选择 10-bit SDR HEIF，不扩展 HDR、gain map 或显示映射。
+
+实现独立 display-linear Float RGBA 导出入口，位于既有 UInt16 HNCS 核与显示矩阵之后、8 位 OETF 之前。导出从与预览一致的源图/参数快照重新计算，绝不把 8 位 UIImage/PNG 扩成浮点伪装为 10 位。Swift 将 RGBAf 标为 extendedLinearSRGB，调用 Apple 的 writeHEIF10Representation 以 sRGB 编码 SDR HEIF。
+
+分享提供原始 HEIC 表示，不附带低位深 UIImage/JPEG 隐式替身；未声称 UIActivityViewController 自动保证微信转码。微信、实际 HEIF bitstream 位深和系统编码器行为仍需 Apple 环境/真机检验。若编码失败，明确报错，不悄悄退回 8 位。

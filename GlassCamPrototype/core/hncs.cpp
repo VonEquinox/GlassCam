@@ -204,6 +204,22 @@ extern "C" int hncs_process_srgb_fast(const hncs_context *c,const float *input,u
     }return 0;
 }
 
+extern "C" int hncs_process_linear_rgba(const hncs_context *c,const float *input,float *output,size_t count) {
+    // RGBA float output is larger than RGB float input; this bound protects
+    // both byte sizes and all component-index multiplications below.
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4)return -1;
+    for(size_t i=0;i<count;++i) {
+        V p={double(input[i*3])*c->exposure,double(input[i*3+1])*c->exposure,double(input[i*3+2])*c->exposure};
+        if(!finite(p))return -1;
+        p=transform(c->source_to_native,p);if(!finite(p))return -1;
+        // Preserve render's original UInt16 quantization and exact stage order.
+        // Only the final double-to-float storage conversion occurs here.
+        V linear=c->display_linear(c->render(p));
+        for(int j=0;j<3;++j)output[i*4+j]=float(linear[j]);
+        output[i*4+3]=1.f;
+    }return 0;
+}
+
 extern "C" int hncs_process_srgb_fast_parallel(const hncs_context *c,const float *input,uint8_t *output,size_t count,unsigned workers) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3||workers<1||workers>4)return -1;
     // Avoid launch overhead for small buffers. Context is immutable and each
