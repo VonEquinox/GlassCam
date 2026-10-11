@@ -1,6 +1,6 @@
-# Portable HNCS backend
+# Portable HNCS + FFCS backends
 
-Standard C++17, C ABI, no runtime third-party dependencies. Swift only owns UI,
+Standard C++17, C ABI, no runtime third-party dependencies. HNCS and FFCS are independent engines; neither is a substitute for measured iPhone source calibration. Swift only owns UI,
 image decoding via Apple frameworks, buffers, and export. `HNCSEngine.swift` is a
 thin bridge. The immutable context is thread-safe for nonoverlapping output
 buffers, so a caller may split rows or tiles across workers.
@@ -60,6 +60,21 @@ run sequentially. No Metal/GPU approximation is used. Benchmark results must be
 reported with their actual machine, compiler, dimensions and worker count;
 desktop measurements are not iPhone frame-rate claims.
 
+Current separated core timing is recorded in [COLOR_PERFORMANCE](../docs/COLOR_PERFORMANCE.md); it excludes Apple decoding/encoding and does not establish end-to-end export latency.
+
 ## High-bit-depth export boundary
 
 `hncs_process_linear_rgba` emits packed Float32 display-linear sRGB RGBA (alpha 1) after the unchanged UInt16 HNCS core and display matrices, before either 8-bit OETF encoder. It guards RGBA float byte-size overflow and rejects nonfinite source data. This is the dedicated input to Apple's HEIF10 writer, not a conversion from the byte preview. `python tools/verify_linear_export.py` compares it against the original double-precision display reference. The portable backend does not itself encode HEIF or establish the emitted Apple bitstream's bit depth.
+
+
+## FFCS exact stages and strip processing
+
+`ffcs.cpp` / `ffcs_c.h` implement the 19 actual XH2S reference assets. The linear-sRGB input branch retains matrix, original 80³ LUT channel/axis conventions, Lab/OKLab, tone, coordinate-seeded grain and neighborhood sharpening. Missing or corrupt resources fail explicitly; REALA ACE is not invented. See [FFCS asset preparation and stage evidence](../docs/FFCS.md).
+
+The reference full-frame route remains an oracle. The exact optimized route uses three RGB-double rows per worker, with 1–4 workers supported and one used by the app pending device profiling. The full-source strip API receives global dimensions/row coordinates and sharpening halo; it does not restart grain at each strip. The Apple caller uses 64 output rows at a time, writes a disk-backed Float raster, then downsizes in linear light only after exact source-resolution processing. Threading or bounded scratch does not itself establish an iPhone speedup or bounded total RSS.
+
+[Stage evidence](../validation/ffcs_cpp_report.json) and [strip evidence](../validation/ffcs_strips.json) cover reference parity; [strip sanitizer results](../validation/ffcs_strip_sanitizer.txt) cover the tested C ABI calls. Apple compile/runtime, Core Image strip orientation, HEIF bitstream and real-device memory/thermal behavior remain untested.
+
+## Delivery boundary
+
+Portable kernels emit preview bytes or display-linear floats, never HEIF/JPEG files. Photos/Files save the Apple-encoded original HEIF. The separate share provider may lazily decode that finalized HEIF into a same-size compatibility JPEG; it does not call an approximate color kernel or rerender preview data. No JPEG export setting exists.

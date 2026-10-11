@@ -191,6 +191,7 @@ private final class CameraBackend {
     private var observations: [NSKeyValueObservation] = []
     private var notifications: [NSObjectProtocol] = []
     private var captureDelegate: ProRAWCapture?
+    private var captureID: UUID?
     private var failureHandler: ((String) -> Void)?
     private var failed = false
     private var previewOutputs: [AVCaptureVideoDataOutput] = []
@@ -473,16 +474,33 @@ private final class CameraBackend {
         settings.photoQualityPrioritization = .quality
         settings.isAutoStillImageStabilizationEnabled = false
         settings.isAutoContentAwareDistortionCorrectionEnabled = false
+        let requestID = UUID()
+        captureID = requestID
         let delegate = ProRAWCapture(expectedDimensions: dimensions) { [weak self] result in
             guard let self else { return }
             self.queue.async {
-                self.captureDelegate = nil
+                // A cancelled old request must never release a newer delegate.
+                if self.captureID == requestID {
+                    self.captureDelegate = nil
+                    self.captureID = nil
+                }
                 completion(result)
             }
         }
         captureDelegate = delegate
         output.capturePhoto(with: settings, delegate: delegate)
     }
+    /// Terminal session failures release the shutter without relying on a later
+    /// AVFoundation capture callback. ProRAWCapture.finish is lock-protected and
+    /// consumes its completion, so stop/error/late delegate callbacks finish once.
+    private func failSession(_ message: String, stopRunning: Bool = false) {
+        dispatchPrecondition(condition: .onQueue(queue))
+        failed = true
+        captureDelegate?.cancel(reason: message)
+        if stopRunning { session?.stopRunning() }
+        failureHandler?(message)
+    }
+
     private func installObservers(_ observed: AVCaptureSession) {
         let center = NotificationCenter.default
         for name in [AVCaptureSession.runtimeErrorNotification, AVCaptureSession.wasInterruptedNotification, AVCaptureSession.interruptionEndedNotification] {
@@ -493,8 +511,7 @@ private final class CameraBackend {
                     if name == AVCaptureSession.interruptionEndedNotification {
                         self.failureHandler?("Camera interruption ended. Select the lens again to revalidate Apple ProRAW.")
                     } else {
-                        self.failed = true
-                        self.failureHandler?(detail ?? "Camera interrupted. Select the lens again when available.")
+                        self.failSession(detail ?? "Camera interrupted. Select the lens again when available.")
                     }
                 }
             })
@@ -505,9 +522,7 @@ private final class CameraBackend {
                 self?.queue.async { [weak self, weak observed] in
                     guard let self, let observed, self.session === observed else { return }
                     if level == .serious || level == .critical || level == .shutdown {
-                        self.failed = true
-                        observed.stopRunning()
-                        self.failureHandler?("Camera stopped due to system pressure. Let the device cool, then select the lens again. Capture quality was not reduced.")
+                        self.failSession("Camera stopped due to system pressure. Let the device cool, then select the lens again. Capture quality was not reduced.", stopRunning: true)
                     }
                 }
             }
@@ -522,7 +537,7 @@ private final class CameraBackend {
         notifications.removeAll()
         session?.stopRunning()
         captureDelegate?.cancel()
-        captureDelegate = nil
+        captureDelegate = nil; captureID = nil
         session = nil; photoOutput = nil; devices = []
         dimensions = CMVideoDimensions(width: 0, height: 0)
         failureHandler = nil; failed = true
@@ -561,7 +576,7 @@ private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
         lock.unlock()
         finish(finalResult)
     }
-    func cancel() { finish(.failure(CameraFailure("Camera capture cancelled."))) }
+    func cancel(reason: String = "Camera capture cancelled.") { finish(.failure(CameraFailure(reason))) }
     private func finish(_ value: Result<Data, Error>) {
         lock.lock(); let callback = completion; completion = nil; result = nil; lock.unlock()
         callback?(value)

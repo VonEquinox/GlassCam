@@ -1,56 +1,46 @@
-# GlassCam — HNCS + FFCS effect prototype
+# GlassCam — HNCS + FFCS 原生效果原型
 
-原生 SwiftUI 界面 + 标准 C++17 图像/颜色后端。现有 HNCS / FFCS 资产，不新增色卡拟合。先验证导入、现有效果、前后比较、导出这条闭环。
+SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。沿用现有技术交付，不新增色卡拟合。当前具备导入、原生 ProRAW 拍摄、比较、全源处理、HEIF 保存与兼容分享的源码；**尚未通过 Apple 编译、装机或真机验收**。
 
-## Start here
+## 当前路径
 
-- [持续更新的需求](docs/REQUIREMENTS.md)：确认需求、偏好推断、工程建议、待决定事项。
-- [架构与颜色域](docs/DESIGN.md)：真正 HNCS 核与实验性源域桥的边界。
-- [决策日志](docs/DECISIONS.md)
-- [测试状态与性能](docs/TEST_STATUS.md)
-- [硬件与加速路线](docs/HARDWARE_PERFORMANCE.md)
-- [iOS 项目与构建步骤](ios/README.md)
-- [C++ 数值核心](core/README.md)
-- [相机能力与取景](docs/camera-capture.md)
-- [全分辨率导出](docs/FULL_RESOLUTION_EXPORT.md)
-- [数据来源及分发边界](NOTICE.md)
+- Photos/Files 导入，或能力门控后的物理镜头 ProRAW 捕获；完整输入保留为本次编辑的临时文件。
+- HNCS 与 FFCS 独立选择。HNCS 保留真实数值核，但 linear-sRGB → virtual native RGB 源域桥仍是实验适配；FFCS 使用 19 款实际 XH2S 参考资产，不声称 iPhone 传感器标定。
+- 导入预览默认最长边 2048px。相机中心与外围视频输出独立缩放，预览像素不决定原始捕获或最终输出大小。
+- 最终图从完整源重新解码，精确算法按 64 行输出块处理，写磁盘 RGBAf；颜色/空间处理后才在线性光中 Lanczos 缩小，使用专用 HEIF10 writer 请求 10-bit SDR sRGB HEIF。
+- 用户保存仅有 HEIF：独立保存到 Photos / Files。分享先注册原始 HEIC，再提供按需、从最终 HEIF 转出的同尺寸 JPEG 兼容表示；没有 JPEG 导出选项。接收方选择哪种表示、微信能否发送和查看仍未验证。
+- 原生 iOS 26 Liquid Glass 控件，中心成片框不覆玻璃。主摄/长焦外围使用实际更广物理镜头与近似 FOV 映射、覆盖门控；超广无更广镜头时黑边。光学对齐、视差与硬件组合仍需实测。
 
-## Current implementation
+每颗物理镜头独立保存实际源能力允许的 12/24/48MP 输出档位。MultiCam 与高分辨率 ProRAW 有实际限制，不能由传感器宣传像素推断可用模式；不支持即明确报错，不静默换格式、降源尺寸或伪造外围。
 
-Photos/Files 导入 → Apple Core Image 解码 → experimental linear-sRGB source adapter → 独立选择 HNCS / FFCS → before/after → 10-bit SDR sRGB HEIF 分享。导入效果预览最长边默认 2048 px；导出保留完整原始输入，按源尺寸或拍摄时选定的镜头输出尺寸重新处理。
+## 文档
 
-颜色核心保留 double、原始 2D chroma LUT、曲线和量化边界。标准 C++ 可独立编译，不需 Apple SDK。Swift 只负责界面、Apple 图像入口与缓冲区桥接。
+- [已确认需求、偏好推断与建议](docs/REQUIREMENTS.md)
+- [架构、颜色域与生命周期](docs/DESIGN.md)
+- [有明确替代关系的决策日志](docs/DECISIONS.md)
+- [已执行测试、证据与未验证边界](docs/TEST_STATUS.md)
+- [FFCS 数值移植与资产准备](docs/FFCS.md)
+- [iOS 构建与设备验收](ios/README.md) / [C++ 核](core/README.md)
+- [相机能力与取景](docs/camera-capture.md) / [全源导出](docs/FULL_RESOLUTION_EXPORT.md)
+- [当前颜色核心分段性能](docs/COLOR_PERFORMANCE.md) / [硬件与加速路线](docs/HARDWARE_PERFORMANCE.md)
+- [保存、分享与失败恢复](docs/DELIVERY_AND_RECOVERY.md)
+- [来源及分发边界](NOTICE.md)
 
-完整 iOS Xcode 项目已包含。当前环境没有 Xcode/Apple SDK，**没有声称 iOS 已编译或真机跑通**。DNG/ProRAW 解码、图像方向、前后图一致性与分享需要 Apple 环境测试。新增原生 ProRAW 拍摄源码、真实单/双物理镜头取景和玻璃外围布局。组合能力、光学边界及 Apple 编译仍须真机验证；当前不宣称可安装验收。原始输入仅在本次编辑期间保留临时文件，尚无长期 RAW/配方资料库。FFCS 已移植 19 款真实 XH2S 参考模式，详见 [FFCS 来源、资源准备与测试](docs/FFCS.md)。
+## 可移植验证
 
-## Portable validation
-
-在本目录运行（位于仓库 `GlassCamPrototype/`，与原始 `HNCS技术交付/` 同级）：
+从本目录运行（仓库内为 `GlassCamPrototype/`，与原始技术交付同级）：
 
 ```sh
 python tools/materialize_ffcs_reference.py
 python -m unittest discover -s tests -v
 python tools/verify_cpp.py
-python tools/benchmark_optimized.py
 python tools/verify_linear_export.py
+python tools/benchmark_optimized.py
 python tools/render_preview.py --synthetic
-# Or an existing ordinary photo, without new chart calibration:
-python tools/render_preview.py --input /path/to/photo.jpg --output validation/photo-preview
 ```
 
-测试依赖见 requirements.txt。C++ 验证使用系统 g++；`verify_cpp.py` 同时生成准确性结果与可移植 CPU benchmark。`build/` 仅是本地产物。诊断 PNG 默认不加入 Git。
+依赖见 `requirements.txt`；使用系统 g++ 编译 C++，不需要 Apple SDK。Python 诊断 PNG 不属于 App 导出选项。具体通过记录见测试状态，不能把静态源码测试算成 Swift 编译或真实 HEIF 验收。
 
-```sh
-g++ -std=c++17 -O3 -ffp-contract=off -fno-fast-math -pthread core/hncs.cpp core/hncs_cli.cpp -o /tmp/hncs_cli
-python core/generate_assets.py   # Rebuild lossless numeric include from original NPZ
-```
+## 验证边界
 
-## What this does not establish
-
-实验性源域桥不是 iPhone→Hasselblad 标定；传入已经开发的照片也不会变回原始传感器信号。测试保证现有核的数值移植，而不是完整 Phocus RAW/spatial pipeline、真实 ProRAW 成片质量或版权清理。颜色偏好需要看真实照片后判断。
-
-原始 HNCS 技术交付与证据保持原位和内容不变。新的性能或外观修改必须先过黄金测试；近似优化需单独记录误差预算。
-
-## HEIF-only export
-
-用户导出只提供 HEIF（.heic），没有 JPEG 或 PNG 模式。8 位 fast 数据仅用于屏幕预览；HEIF 从独立 Float display-linear 路径计算，再调用 Apple 专用 HEIF10 writer。当前没有 Apple SDK，因此实际 HEIF 文件位深、颜色标签和微信发送/接收仍未验证。分享目前提供原始 HEIC，不保证接收应用支持或自动转码。离线 Python 诊断脚本仍可输出 PNG 以便在云端检视，这不属于 App 导出选项。
+现有核的数值一致性不证明完整 Phocus RAW pipeline、富士机内 JPEG 等价性、iPhone 标定或真实照片审美。10-bit 编码 API 请求不证明实际位流。原始 RAW/配方长期资料库、Apple 性能与内存/热状态、微信兼容和商业权利清理尚未完成。原始交付及证据保持不变。

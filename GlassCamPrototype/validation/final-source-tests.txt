@@ -12,6 +12,7 @@ test_no_implicit_resolution_or_framing_downgrade (test_camera_source.CameraSourc
 test_output_targets_are_separate_from_source (test_camera_source.CameraSourceContracts.test_output_targets_are_separate_from_source) ... ok
 test_physical_lenses_and_simultaneous_gates (test_camera_source.CameraSourceContracts.test_physical_lenses_and_simultaneous_gates) ... ok
 test_proraw_is_verified_at_setup_request_and_delivery (test_camera_source.CameraSourceContracts.test_proraw_is_verified_at_setup_request_and_delivery) ... ok
+test_terminal_failure_finishes_pending_capture_once (test_camera_source.CameraSourceContracts.test_terminal_failure_finishes_pending_capture_once) ... ok
 test_all_nine_original_test_functions (test_ffcs_source.FFCSReferenceTests.test_all_nine_original_test_functions) ... ok
 test_cpp_all_presets_stages_and_linear_mobile_contract (test_ffcs_source.FFCSReferenceTests.test_cpp_all_presets_stages_and_linear_mobile_contract) ... ok
 test_golden_assets_and_complete_stage_maps (test_ffcs_source.FFCSReferenceTests.test_golden_assets_and_complete_stage_maps) ... ok
@@ -30,8 +31,18 @@ test_adapter_controls_and_nonfinite (test_reference.ReferenceTests.test_adapter_
 test_all_original_native_golden_vectors (test_reference.ReferenceTests.test_all_original_native_golden_vectors) ... ok
 test_effect_returns_finite_display_rgb (test_reference.ReferenceTests.test_effect_returns_finite_display_rgb) ... ok
 test_original_bounds_and_tile_invariance (test_reference.ReferenceTests.test_original_bounds_and_tile_invariance) ... ok
+test_export_cancellation_crosses_queue_and_blocks_new_work (test_save_recovery_source.SaveRecoveryContracts.test_export_cancellation_crosses_queue_and_blocks_new_work) ... ok
+test_failed_effect_keeps_source_and_pauses_delivery (test_save_recovery_source.SaveRecoveryContracts.test_failed_effect_keeps_source_and_pauses_delivery) ... ok
+test_file_cancel_and_photos_completion_are_distinct (test_save_recovery_source.SaveRecoveryContracts.test_file_cancel_and_photos_completion_are_distinct) ... ok
+test_save_original_file_without_compatibility_encoder (test_save_recovery_source.SaveRecoveryContracts.test_save_original_file_without_compatibility_encoder) ... ok
+test_concrete_formats_are_registered_in_fidelity_order (test_share_delivery.ShareDeliveryContracts.test_concrete_formats_are_registered_in_fidelity_order) ... ok
+test_jpeg_is_lazy_cached_and_comes_from_final_file (test_share_delivery.ShareDeliveryContracts.test_jpeg_is_lazy_cached_and_comes_from_final_file) ... ok
+test_orientation_sdr_and_full_dimensions_are_explicit (test_share_delivery.ShareDeliveryContracts.test_orientation_sdr_and_full_dimensions_are_explicit) ... ok
+test_original_is_not_reencoded_or_renamed_as_jpeg (test_share_delivery.ShareDeliveryContracts.test_original_is_not_reencoded_or_renamed_as_jpeg) ... ok
+test_provider_and_callbacks_retain_files (test_share_delivery.ShareDeliveryContracts.test_provider_and_callbacks_retain_files) ... ok
+test_work_serialized_and_cancellation_is_cooperative (test_share_delivery.ShareDeliveryContracts.test_work_serialized_and_cancellation_is_cooperative) ... ok
 
 ----------------------------------------------------------------------
-Ran 32 tests in 20.588s
+Ran 43 tests in 26.105s
 
 OK

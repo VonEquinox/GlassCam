@@ -1,50 +1,53 @@
-# 第一原型架构与颜色域
+# 当前架构与颜色域
 
-## 分层
+## 分层与数据路径
 
-- SwiftUI：PhotosPicker / 文件导入、对比、曝光与工厂 CCT 参数、HEIF 分享。
-- Apple 图像适配层：Core Image 解码及颜色管理，输出有限尺寸的 linear-sRGB RGB 浮点数据。DNG/ProRAW 为实验性输入，需要 Apple SDK/真机核验。
-- 标准 C++17：平台无关 HNCS 数值核、上下文参数预计算、逐像素处理和 C ABI。
-- Python：读取保留的原始资产与固定向量，执行不改写算法的基准核验与可复现诊断。
+SwiftUI 管理导入、相机、比较、设置与交付；Apple 层负责解码/颜色管理、真实视频流、缩放与编码；标准 C++17 负责真正 HNCS / FFCS 数值处理。Swift 不重写颜色算法，C++ 不依赖 Apple SDK。Python 对保留资产执行参考验证和诊断。
 
-Swift 不重写颜色算法；C++ 不依赖 UIKit、Core Image、Metal 或第三方 JSON 解析库。后续 Apple 加速后端独立存在。
+完整原始文件 → Apple 解码的 linear-sRGB → 选定独立后端 → Float display-linear → 线性光 Lanczos（仅需缩小时）→ 专用 HEIF10 SDR sRGB writer。
 
-## 真实 HNCS 核与实验输入桥分开
+预览独立：导入默认最长边 2048px；相机中心/外围视频输出各自缩放。最终输出重新打开完整源，绝不读取 8 位 UIImage 或缩小预览作为导出输入。每颗物理镜头保存 12/24/48MP 输出选择；捕获源、视频预览与处理后输出是三个独立尺寸。
 
-本仓库的 HNCS 交付实现要求黑位扣除、归一化、白平衡后的 X2D II native RGB，不能把 iPhone RGB/linear-sRGB 直接冒充该输入。
+## HNCS：真实核，实验性源桥
 
-第一原型为“先跑效果”采用明确标记的色度学桥：
+原核需要黑位扣除、归一化、白平衡后的 X2D II native RGB。第一版为先看效果采用：linear sRGB(D65) → XYZ → Bradford → inverse(interpolated camera_to_xyz) → virtual native RGB → 原 HNCS → Hasselblad 工作码 → 原显示变换。
 
-linear sRGB(D65) → XYZ → Bradford 白点适配 → inverse(interpolated camera_to_xyz) → virtual native RGB → 原有 HNCS 核 → Hasselblad 工作码 → 原有显示变换 → sRGB 显示预览。高位深导出在显示 OETF 前分支成 Float RGBA，交给 Apple 专用 HEIF10 writer 编码为 SDR HEIF。
+桥沿用已有矩阵，不拟合新色卡，不声称 iPhone 标定。JPEG/HEIC 的既有 tone mapping 无法靠线性化恢复，系统 ProRAW 解码也不等于未处理 CFA。工厂 CCT 是核参数而非实测光源；EV 进入核前只乘一次。
 
-桥使用已有矩阵，不拟合新色卡，也不声称已有 iPhone→X2D 标定。它只能让现有核在明确输入域上工作。输入 JPEG/HEIC 已有 tone mapping；简单线性化不能还原原始场景。ProRAW 的系统解码也不等同于未处理 CFA。图像效果好坏与跨设备匹配仍需真实样片判断。
+保留 double、[0,1] 截断、16 位 ties-to-even 量化、原二维 chroma LUT、暗部/灰度权重、索引、65536 项曲线及色温插值/外推规则。没有新增 HDR 负值/超白保留承诺。
 
-工厂 CCT 是已有核的参数，不是拍摄光源的测量结果，也不是对解码图像再次叠加相机白平衡。曝光 EV 只在进入核前乘一次。原核入口保留 [0,1] 截断与 16 位就近偶数量化，因此没有额外宣称 HDR 负值/超白保留。
+## FFCS：独立完整阶段
 
-## 不改变的数值契约
+linear-sRGB 对应原 FFCS 的 linear 输入路线，不经过 HNCS。19 款真实 XH2S 表，原矩阵、80³ LUT 轴/通道规则、Lab/OKLab、tone、全图坐标/种子 grain 与 sharpen 均保留。CCT 只用于 HNCS。见 [FFCS](FFCS.md)。
 
-- Double 核心运算；输入 `rint(clip(rgb,0,1)*65535)` 的 ties-to-even。
-- Kelvin 节点线性插值，整体 2000–10000 K 限制后允许原表端点外推。
-- 原始二维 chroma LUT，绝非凭感觉生成的 RGB 3D LUT。
-- 原始暗部去饱和、灰度权重、工作域、截断索引和 65536 项曲线。
-- 不重新平滑中性轴，不移除已验证的原始核特征。
+## 精确导出与有界暂存
 
-## 第一轮性能策略
+源文件由共享不可变所有者保留。导出每块 64 输出行，FFCS 带一行 halo 和原全图坐标，保证锐化邻域与颗粒在条带间连续。处理后 RGBAf 顺序写临时文件，再只读映射给 Core Image；需要缩小时在线性光 Lanczos 后 clamp，再请求 HEIF10 SDR。没有 8 位回退、PQ/HLG 或 gain map。
 
-1. 每组参数预计算矩阵、插值 LUT 和输出转换，避免每像素重复工作。
-2. 融合逐像素操作，使用连续缓冲区，限定预览尺寸，控制并发，避免 48MP 多个全尺寸 double 中间图。
-3. 保留标准 C++ 参考实现和黄金向量，再用实际瓶颈决定 SIMD、线程池和 Metal。C++ 本身不等于自动使用 GPU/ANE。
-4. 可移植 CPU benchmark 只说明本次云端 CPU 的该处理段性能，不能换算 iPhone 帧率。
-5. 新增显式 fast 显示编码路径：65,536 项线性采样表，仅最终 8 位 sRGB 编码允许最多 1 码误差；原 HNCS 核不近似。精确路径保留。CPU 连续块并行最多 4 线程，已做同输入对比测量。
-6. 未在手机上测量之前，不声称“极限优化完成”、实时 48MP、功耗或热稳定性目标达标。
+这只约束应用处理暂存，不保证总 RSS：Apple 解码、过滤、编码、mmap 常驻页和页缓存可能是全图。48.8MP RGBAf 磁盘中间图约 781MB，另有源、编码文件和安全余量；详见 [全源导出](FULL_RESOLUTION_EXPORT.md)。
 
-8 位 fast 路径只服务屏幕预览。用户导出走独立 Float display-linear RGBA → extendedLinearSRGB CIImage → writeHEIF10Representation(sRGB) 路径，保留原 HNCS 的 16 位阶段，避免 8 位瓶颈。HEIF-only 不意味着无损，也不代表 HDR/gain map；当前为 SDR；2048px 仅是默认导入预览上限，导出已改为完整源或所选输出尺寸。实际编码位深与微信兼容需真机核验。
+## 保存与分享分别交付
 
-## FFCS independent backend
+- 保存 Photos：add-only 权限，直接以原始 HEIF 文件创建 photo resource；提交后不能取消已开始的 Photos transaction。
+- 保存 Files：document picker 复制同一原始 HEIF。
+- 分享：一个 NSItemProvider，按 HEIC 在前、JPEG 在后注册准确类型的 file/data 表示。JPEG 只在接收方请求时从最终 HEIF 解码生成，同尺寸、方向归一、8 位 SDR sRGB，成功后缓存。没有独立 JPEG 保存选项，也不重渲染配方/使用预览。
+- 分享排除系统 Save to Camera Roll；专门的保存入口承担原始 HEIF 保真承诺。接收方仍可自行选择/重编码，优先注册不是兼容性保证。
+- 共享文件所有权覆盖 picker/provider/在途回调，不能仅在 sheet dismiss 时删文件。失败/取消清理不完整输出；Apple 运行时与微信尚待实测。
 
-FFCS 与 HNCS 独立选择；显式 linear-sRGB 输入，不串接两个相机模型。19 个真实 XH2S 参考模式、逐阶段数值规则、三行缓冲与资源准备见 [FFCS](FFCS.md)。导出共用 Float → HEIF10 SDR 路径。模式/输入/曝光/种子绑定显示快照；FFCS 不使用 HNCS 色温矩阵。
+## 并发、失败与取消
 
+解码/效果/导出离开主线程，阶段串行避免不可取消解码或编码重叠。operation token 阻止旧任务覆盖新选择；导出绑定成功显示的源/引擎/外观/曝光/CCT/种子/输出快照。未渲染配方禁止保存/分享，失败保留可重试的已解码源。
 
-## 全源导出与原生相机阶段
+保留实际 worker 的取消句柄，使用 NSLock 保护的显式 token 跨 decodeQueue 传递，在条带与 codec 前后检查；同步 Apple 调用期间不能强制中断，busy 持续到它返回，取消后不提交交付。相机取消/最终回调错误清理 pending capture。Photos 提交后的取消边界独立于编码取消。
 
-最新实现替代早期预览/导出共用 2048px 的限制：源文件由不可变所有者保留，预览按需缩小；导出从完整源重新解码，HNCS 按像素块、FFCS 按全图坐标和一行 halo 处理，写磁盘 RGBAf，再缩小/HEIF10 编码。详见 [全源导出](FULL_RESOLUTION_EXPORT.md)。新相机按真实 physical ID 保存输出选择，实际会话能力决定模式，详见 [相机](camera-capture.md)。
+## 相机几何与能力
+
+中心使用实际照片比例与窗口 bounds；玻璃仅置于中心之外。主摄/长焦使用真实更广物理流，近似 FOV 映射加覆盖门控；并非同视点无缝拼接，视差/时差/畸变仍存在。超广接受黑色外围。外围永不进入 photo output，实时预览是系统视频而非实时 HNCS/FFCS。
+
+完整 graph 配置后及拍摄前检查 ProRAW；最大源、视频输出尺寸、实际 RAW 回调尺寸均门控。单超广 `.photo` 与 MultiCam `.inputPriority` 的高分辨率限制分别处理；没有宣传 48MP 即必然可用的推断。详见 [相机契约](camera-capture.md)。
+
+## 优化与验证界限
+
+HNCS 上下文预计算与精确解码表不改变核；fast 路径只在最终 8 位预览 OETF 允许最多 1 码差，支持至多四线程。Float 导出不经过 fast 字节编码。FFCS 三行环形缓冲是精确路径，默认一线程，避免把不稳定云计时当提速证明。
+
+原核、阶段及条带回归已在云端验证；Apple 编译、光学对齐、HEIF 位流/标签、手机峰值内存/热状态和接收方选择仍未验证。参考测试不替代视觉审美或相机标定。

@@ -1,12 +1,12 @@
 # 测试与性能状态
 
-更新：2026-10-11（包括 HEIF-only 与 FFCS 跟进）。以下严格区分已执行、受限、未执行。
+更新：2026-10-11。以下严格区分已执行、源码实现与未执行。当前合并运行 [43 项测试通过，26.105s](../validation/final-source-tests.txt)，包含保存/分享、显式跨队列取消 token、render 完成竞态 guard 与已解码源 Retry 的源码契约。Apple 代码仍只做静态验证。
 
 ## 已执行并通过
 
 - 新增 Float display-linear 导出路径：884,736 个 RGB 通道对 double 参考，最大绝对误差 2.9801849987798334e-8（阈值 1e-7）。灰阶扫描保留 4,096 / 4,096 / 4,070 个不同通道值，排除先降 8 位再扩展的实现。
 - Float 导出 tile 一致、alpha=1、范围 [0,1]、非法参数检查通过；原核黄金测试重新执行仍为 0 差。
-- 4 项 HEIF 源码契约静态测试通过：专用 HEIF10 writer、RGBAf/extendedLinearSRGB 输入、显示快照参数、无 PNG/JPEG/UInt8 回退。它们不能替代 Swift 编译或真实 HEIF 检验。
+- 既有 HEIF 静态契约覆盖专用 HEIF10 writer、RGBAf/extendedLinearSRGB 输入、快照与无 8 位导出回退。分享新增按需 JPEG 不属于 HEIF 保存回退；新交付静态契约已纳入上述 43 项运行。静态测试不等于 Swift 编译或真实 HEIF 检验。
 - 原始资产 SHA-256 对照 provenance.json 通过。
 - 原始 Python 生产函数与独立参考实现：52 组黄金向量、6,656 像素，最大 UInt16 差 0。
 - 标准 C++17 原核：同一 52 组/6,656 像素，最大 UInt16 差 0；覆盖 legacy/L* × standard/reproduction 四模式。
@@ -19,7 +19,9 @@
 - Xcode 工程文件引用、scheme XML 静态检查通过；不是 Apple 编译。
 - 诊断渐变/色块图跑通输入→HNCS→PNG，并人工查看生成图。它不是实拍照片，也不用于证明肤色/审美或设备匹配。
 
-## 实测性能与已实现优化
+## 历史预览基准与已实现优化
+
+新增精确 Float 导出核与分段测量见 [当前颜色性能报告](COLOR_PERFORMANCE.md)。下面保留旧同轮基准用于解释优化来源，不以新旧不同负载互算加速比。
 
 环境：Linux x86_64，Intel Xeon Platinum 8370C，g++ 14.2，`-O3 -fno-fast-math -ffp-contract=off -pthread`。以下为同一输入、同一次对比测试的中位耗时，预热后各 3 次。共享云 CPU 的短测会有噪声，不能当作稳定硬件极限。
 
@@ -29,7 +31,7 @@
 | 2048×1536 | 1308.8 ms | 968.1 ms | 750.2 ms | 400.4 ms | 3.27× |
 | 4000×3000 | 5151.7 ms | 4105.6 ms | 2042.4 ms | 1139.0 ms | 4.52× |
 
-计时包括源域桥、HNCS 与显示编码；**不包括解码、缩放、Swift 缓冲区、图像文件编码（当时为 PNG，当前为 HEIF）、界面与上下文初始化**。12MP 是独立 C++ benchmark，不代表当前 2048px iOS 原型能导出 12MP。这不是 iPhone 测量，不能推算手机帧率。
+计时包括源域桥、HNCS 与显示编码；**不包括解码、缩放、Swift 缓冲区、图像文件编码（当时为 PNG，当前为 HEIF）、界面与上下文初始化**。12MP 是独立 C++ 预览 benchmark；当前全源导出源码已不受 2048px 预览上限限制，但尚无 Apple 端到端导出测量。这不是 iPhone 测量，不能推算手机帧率。
 
 本轮可归因优化：
 
@@ -46,9 +48,9 @@
 - Xcode/Swift/Apple SDK 编译、模拟器或 iPhone 安装。
 - 实际 JPEG/HEIC/DNG/Apple ProRAW 导入、portrait 方向与 Core Image bitmap 行方向一致性。
 - Apple HEIF10 编码实际执行、输出 HEVC/HEIF 位深与 SDR/sRGB 标签、无 HDR gain map 验证。
-- 原生分享 sheet、微信/接收端可查看性、文件重开检查、Liquid Glass 真机外观。分享兼容转码尚未实现。
+- 原生分享 sheet、微信/接收端可查看性、文件重开检查、Liquid Glass 真机外观。HEIC-first/按需 JPEG 兼容转码已实现源码，但接收方类型选择与兼容性未验证。
 - 手机峰值内存、后台恢复、低电量与热稳态、持续运行 p50/p95、功耗。
-- 完整旧 pipeline 的 RAW 解码、双光源拟合和空间滤镜；本轮只验证所使用的颜色核心。
+- 完整 HNCS 旧 pipeline 的 RAW 解码、双光源拟合和全部空间阶段；FFCS 则已另行验证所移植的颜色、颗粒与锐化阶段，仍不等于完整相机 pipeline。
 - FFCS Apple 平台运行、实时拍摄、48MP/高位深全尺寸导出、RAW+配方管理。
 - 真实照片的审美验收和 iPhone→Hasselblad 匹配；没有新标定，也没有把合成图当作实拍证据。
 
@@ -70,13 +72,24 @@
 
 详见 [FFCS 实现和性能边界](FFCS.md)：原始 9 测试、14 案例/153 阶段；19 种移植模式/513 阶段图最大误差 2.51e-14；1,368 个分块组合逐值一致。三行缓冲明显降低暂存内存，但云端线程计时不稳定，不承诺加速。App 暂用单线程，保留 1–4 核心接口。
 
-最终合并源码测试：13 项 unittest 全部通过。此云环境未安装 CMake，CMake configure/build/ctest 未执行；g++ 数值/回归构建已执行。
+早期 13 项测试的记录已由后续 43 项合并运行替代，不能作为当前总数。此云环境未安装 CMake，CMake configure/build/ctest 未执行；g++ 数值/回归构建已执行。
 
 
-## 原生拍摄 / 全源导出追加实现
+## 当前原生拍摄 / 全源导出证据
 
-32 项合并 Python/source-contract 测试通过（其中 Apple 代码仅静态契约，非编译）。新增 FFCS strip 数值回归：399 全图、6,326 分块、653,904 像素与完整路线逐值一致；21 个非法调用无输出修改。项目新 Swift 文件引用/标识符检查通过。完整原始源临时保留、64 行输出块、FFCS halo/global grain、磁盘 RGBAf、颜色后 Lanczos 与十位写入已实现源码。
+[最后已记录运行](../validation/final-source-tests.txt)：43 项合并 Python/source-contract 测试通过（其中 Apple 代码仅静态契约，非编译）。新增 FFCS strip 数值回归：399 全图、6,326 分块、653,904 像素与完整路线逐值一致；21 个非法调用无输出修改。项目新 Swift 文件引用/标识符检查通过。完整原始源临时保留、64 行输出块、FFCS halo/global grain、磁盘 RGBAf、颜色后 Lanczos 与十位写入已实现源码。
 
-这些新增源码未在 Apple 平台编译运行；相机硬件、48MP/双路共存、实际条带行方向、HEIF 位流、磁盘/RSS/热状态、微信仍须设备测试。旧段落中 2048px 全导出限制属于前一阶段，已由本次全源路线替代。性能表仍是旧 HNCS 预览基准，不适用于完整新拍摄/导出链。
+这些新增源码未在 Apple 平台编译运行；相机硬件、48MP/双路共存、实际条带行方向、HEIF 位流、磁盘/RSS/热状态、微信仍须设备测试。2048px 只限制默认导入预览，不限制全源输出。性能表仍是旧 HNCS 预览基准，不适用于完整新拍摄/导出链。
 
 FFCS strip ASan+UBSan：19模式/760调用通过，见 `validation/ffcs_strip_sanitizer.txt`；LSan关闭。新增 `tests/apple_ci_strip_roundtrip.swift` 为未执行的 Apple 行方向诊断。
+
+
+## 新交付与生命周期：源码已实现，运行待验收
+
+- Photos add-only 原始 HEIF 保存、Files 原始 HEIF 复制；普通分享排除 Save to Camera Roll。
+- 一个 NSItemProvider 的 HEIC-first / lazy JPEG file/data 表示。JPEG 仅从最终 HEIF 生成，不经预览；真正接收方选择、回调取消、sheet/file 生命周期尚待 Apple 实测。
+- 保留导出 worker，显式 NSLock 取消 token 跨 decodeQueue 传递，条带与 codec 边界取消，不可中断调用结束前保持 busy。Photos 提交后不可取消。
+- 导入效果失败保留 decoded source 可 Retry；未渲染配方禁止 Save/share；相机取消/失败解除 pending capture。
+- 近似 FOV 外围映射、真实宽镜头覆盖门控、独立缩放的中心/外围视频输出不构成光学对齐或任意设备组合可用的证明。
+
+设备验收：见 [iOS 清单](../ios/README.md)。43 项合并通过仅覆盖报告列出的 portable/source-contract 范围，不意味着这些新增交互已在 Apple 运行时通过。

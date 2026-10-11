@@ -14,12 +14,24 @@ final class EditorModel: ObservableObject {
     @Published var busy = false
     @Published var error: String?
     @Published var export: ExportFile?
+    @Published var fileSave: ExportFile?
+    @Published var notice: String?
+    @Published var exportProgress = 0.0
+    @Published var canCancelExport = false
+    private var exportTask: Task<Void, Never>?
+    private var exportWork: Task<TemporaryHEIFFile, Swift.Error>?
+    private var exportCancellation: ImageOperationCancellation?
+    enum Destination: Equatable { case share, files, photos }
 
     private var recipe: ProcessingRecipe {
         ProcessingRecipe(mode: colorMode, exposureEV: exposure, illuminantKelvin: kelvin,
                          simulationIndex: simulationIndex, seed: 0)
     }
 
+    @Published var canCancelImageWork = false
+    private var cancelImageWorker: (() -> Void)?
+    var hasPendingChanges: Bool { imported != nil && processed?.recipe != recipe }
+    var canDeliver: Bool { processed != nil && !busy && !hasPendingChanges }
     private var importTask: Task<Void, Never>?
     private var operationID = UUID()
 
@@ -52,28 +64,46 @@ final class EditorModel: ObservableObject {
     /// may finish after cancellation, but can never replace the latest selection.
     private func beginImport(exportSettings: ExportSettings = .native, _ fetch: @escaping @MainActor () async throws -> (Data, String?)) {
         importTask?.cancel()
+        cancelImageWorker?()
         let id = UUID()
         operationID = id
-        busy = true
-        error = nil
+        busy = true; canCancelImageWork = true
+        error = nil; notice = nil
         let settings = recipe
         importTask = Task { @MainActor in
             defer {
-                if operationID == id { busy = false; importTask = nil }
+                if operationID == id {
+                    if Task.isCancelled { notice = "Image operation cancelled." }
+                    busy = false; importTask = nil; canCancelImageWork = false; cancelImageWorker = nil
+                }
             }
             do {
                 let (data, ext) = try await fetch()
                 guard operationID == id, !Task.isCancelled else { return }
-                let input = try await Task.detached(priority: .userInitiated) {
-                    try ImagePipeline.load(data: data, fileExtension: ext, exportSettings: exportSettings)
-                }.value
+                let decode = Task.detached(priority: .userInitiated) {
+                    try Task.checkCancellation()
+                    let input = try ImagePipeline.load(data: data, fileExtension: ext, exportSettings: exportSettings)
+                    try Task.checkCancellation()
+                    return input
+                }
+                cancelImageWorker = { decode.cancel() }
+                let input = try await decode.value
                 guard operationID == id, !Task.isCancelled else { return }
-                let output = try await Task.detached(priority: .userInitiated) {
-                    try ImagePipeline.process(input, recipe: settings)
-                }.value
-                guard operationID == id, !Task.isCancelled else { return }
+                // Retain a successfully decoded capture even if its effect fails.
                 imported = input
+                processed = nil
+                let rendering = Task.detached(priority: .userInitiated) {
+                    try Task.checkCancellation()
+                    let output = try ImagePipeline.process(input, recipe: settings)
+                    try Task.checkCancellation()
+                    return output
+                }
+                cancelImageWorker = { rendering.cancel() }
+                let output = try await rendering.value
+                guard operationID == id, !Task.isCancelled else { return }
                 processed = output
+            } catch is CancellationError {
+                if operationID == id { notice = "Image operation cancelled." }
             } catch {
                 guard operationID == id, !Task.isCancelled else { return }
                 self.error = error.localizedDescription
@@ -81,43 +111,110 @@ final class EditorModel: ObservableObject {
         }
     }
 
+    func cancelImageOperation() {
+        guard canCancelImageWork else { return }
+        canCancelImageWork = false
+        cancelImageWorker?()
+        importTask?.cancel()
+        notice = "Cancelling after the current image operation…"
+        // Busy stays set until work returns; no competing RAW decode is started.
+    }
+
+    func renderIfNeeded() async { if hasPendingChanges { await render() } }
+
     func render() async {
         guard let input = imported, !busy else { return }
         let id = UUID()
         operationID = id
-        busy = true
-        defer { if operationID == id { busy = false } }
+        busy = true; canCancelImageWork = true; error = nil; notice = nil
+        defer {
+            if operationID == id { busy = false; canCancelImageWork = false; cancelImageWorker = nil }
+        }
         let settings = recipe
+        let work = Task.detached(priority: .userInitiated) {
+            try Task.checkCancellation()
+            let output = try ImagePipeline.process(input, recipe: settings)
+            try Task.checkCancellation()
+            return output
+        }
+        cancelImageWorker = { work.cancel() }
         do {
-            let output = try await Task.detached(priority: .userInitiated) {
-                try ImagePipeline.process(input, recipe: settings)
-            }.value
-            guard operationID == id else { return }
+            let output = try await work.value
+            guard operationID == id, !work.isCancelled else {
+                if operationID == id { notice = "Image operation cancelled." }
+                return
+            }
             processed = output
+        } catch is CancellationError {
+            if operationID == id { notice = "Image operation cancelled." }
         } catch { if operationID == id { self.error = error.localizedDescription } }
     }
 
-    func share() {
-        guard let processed, !busy else { return }
+    func share() { deliver(.share) }
+    func saveToFiles() { deliver(.files) }
+    func saveToPhotos() { deliver(.photos) }
+
+    func cancelExport() {
+        guard canCancelExport else { return }
+        canCancelExport = false
+        exportCancellation?.cancel()
+        exportWork?.cancel()
+        exportTask?.cancel()
+        // Keep busy until the current decoder/encoder call returns. It has no
+        // synchronous cancellation API, and another export must not overlap it.
+        notice = "Cancelling after the current image operation…"
+    }
+
+    private func deliver(_ destination: Destination) {
+        guard let processed, canDeliver else { return }
         let id = UUID()
         operationID = id
-        busy = true
-        error = nil
-        Task { @MainActor in
-            defer { if operationID == id { busy = false } }
+        busy = true; error = nil; notice = nil; exportProgress = 0
+        exportTask = Task { @MainActor in
+            defer {
+                if operationID == id {
+                    busy = false; canCancelExport = false
+                    exportWork = nil; exportTask = nil; exportCancellation = nil
+                }
+            }
             do {
-                let file = try await Task.detached(priority: .userInitiated) {
+                if destination == .photos { try await HEIFSaveDelivery.authorizePhotos() }
+                try Task.checkCancellation()
+                canCancelExport = true
+                let cancellation = ImageOperationCancellation()
+                exportCancellation = cancellation
+                let work = Task.detached(priority: .userInitiated) {
                     let file = TemporaryHEIFFile()
-                    try ImagePipeline.writeHEIF(processed, to: file.url)
+                    try ImagePipeline.writeHEIF(processed, to: file.url, isCancelled: { cancellation.isCancelled }) { progress in
+                        Task { @MainActor [weak self] in
+                            guard let self, self.operationID == id else { return }
+                            self.exportProgress = progress
+                        }
+                    }
+                    try Task.checkCancellation()
                     return file
-                }.value
+                }
+                exportWork = work
+                let file = try await work.value
+                try Task.checkCancellation()
                 guard operationID == id else { return }
-                export = ExportFile(file: file)
+                canCancelExport = false
+                switch destination {
+                case .share: export = ExportFile(file: file)
+                case .files: fileSave = ExportFile(file: file)
+                case .photos:
+                    // Photos transactions cannot be cancelled after submission.
+                    try await HEIFSaveDelivery.saveToPhotos(file)
+                    notice = "Saved original 10-bit HEIF to Photos."
+                }
+            } catch is CancellationError {
+                if operationID == id { notice = "Export cancelled. No save was submitted." }
             } catch {
                 if operationID == id { self.error = error.localizedDescription }
             }
         }
     }
+
 }
 
 /// Providers retain this owner through any outstanding file request, so dismissing
@@ -148,6 +245,23 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     header
+                    if model.busy && model.canCancelExport {
+                        HStack {
+                            ProgressView(value: model.exportProgress)
+                            Button("Cancel export", action: model.cancelExport)
+                        }
+                    }
+                    if model.busy && model.canCancelImageWork {
+                        Button("Cancel image operation", action: model.cancelImageOperation)
+                    }
+                    if model.hasPendingChanges && !model.busy {
+                        Text("These settings have not been rendered. Save and share are paused until the preview succeeds.")
+                            .font(.footnote).foregroundStyle(.orange)
+                        Button("Retry effect") { Task { await model.render() } }.glassSurface()
+                    }
+                    if let notice = model.notice {
+                        Text(notice).font(.footnote).foregroundStyle(.secondary)
+                    }
                     imageArea
                     Button {
                         cameraPresented = true
@@ -165,7 +279,7 @@ struct ContentView: View {
                         .font(.footnote).foregroundStyle(.secondary)
                     Text("Preview: up to 2048 px / 8-bit • export: full source or selected lens output / 10-bit SDR HEIF • source metadata omitted")
                         .font(.caption).foregroundStyle(.secondary)
-                    Text("Sharing sends the original HEIF. WeChat and other app compatibility still need device testing.")
+                    Text("Save keeps the original 10-bit HEIF. Sharing offers HEIF first and an on-demand compatibility image; receiver behavior still needs device testing.")
                         .font(.caption).foregroundStyle(.secondary)
                 }.padding(22)
             }
@@ -187,12 +301,22 @@ struct ContentView: View {
         .onChange(of: model.simulationIndex) { _, _ in
             if !cameraPresented { Task { await model.render() } }
         }
-        .fullScreenCover(isPresented: $cameraPresented) {
+        .fullScreenCover(isPresented: $cameraPresented, onDismiss: {
+            // Camera controls may change the selected recipe even without a shot.
+            // Restore editor control/preview coherence after returning.
+            Task { await model.renderIfNeeded() }
+        }) {
             CameraView(colorMode: $model.colorMode, simulationIndex: $model.simulationIndex,
                        onCapture: { data, settings in
                            cameraPresented = false
                            model.selectCapture(data, settings: settings)
                        }, onClose: { cameraPresented = false })
+        }
+        .sheet(item: $model.fileSave) { exported in
+            HEIFFileSaveSheet(file: exported.file) { saved in
+                model.fileSave = nil
+                if saved { model.notice = "Saved original 10-bit HEIF to Files." }
+            }
         }
         .sheet(item: $model.export) { export in ShareSheet(file: export.file) }
         .alert("Couldn’t finish", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
@@ -207,9 +331,16 @@ struct ContentView: View {
                 Text("\(model.colorMode.title)  /  COLOR STUDY 01").font(.caption2.weight(.medium)).tracking(2).foregroundStyle(.secondary)
             }
             Spacer()
+            Menu {
+                Button("Save HEIF to Photos", action: model.saveToPhotos)
+                Button("Save HEIF to Files", action: model.saveToFiles)
+            } label: {
+                Image(systemName: "square.and.arrow.down").font(.title3).frame(width: 48, height: 48)
+            }.glassSurface().disabled(!model.canDeliver)
+                .accessibilityLabel("Save original 10-bit HEIF")
             Button(action: model.share) {
                 Image(systemName: "square.and.arrow.up").font(.title3).frame(width: 48, height: 48)
-            }.glassSurface().disabled(model.processed == nil || model.busy)
+            }.glassSurface().disabled(!model.canDeliver)
                 .accessibilityLabel("Export 10-bit SDR HEIF")
         }
     }
@@ -227,6 +358,9 @@ struct ContentView: View {
                                 .offset(x: geometry.size.width * comparison)
                         }
                     }.aspectRatio(CGFloat(input.width) / CGFloat(input.height), contentMode: .fit)
+                } else if let input = model.imported {
+                    Image(uiImage: input.original).resizable().scaledToFit()
+                        .accessibilityLabel("Retained source photograph; effect is pending")
                 } else {
                     VStack(spacing: 14) {
                         Image(systemName: "camera.aperture").font(.system(size: 56, weight: .ultraLight))
@@ -236,7 +370,7 @@ struct ContentView: View {
                     }.frame(maxWidth: .infinity).frame(height: 310).padding(.horizontal)
                 }
                 if model.busy {
-                    ProgressView("Developing color…").padding(22).background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18))
+                    ProgressView("Processing image…").padding(22).glassSurface()
                 }
             }.background(.white.opacity(0.035)).clipShape(RoundedRectangle(cornerRadius: 24))
                 .overlay(RoundedRectangle(cornerRadius: 24).stroke(.white.opacity(0.12)))
@@ -246,7 +380,7 @@ struct ContentView: View {
                     Spacer()
                     Text("ORIGINAL").foregroundStyle(.secondary)
                 }.font(.caption2.weight(.semibold)).tracking(1.5)
-                Slider(value: $comparison, in: 0...1).accessibilityLabel("Before and after comparison")
+                Slider(value: $comparison, in: 0...1).accessibilityLabel("Before and after comparison").disabled(model.processed == nil)
                 Text("\(input.width) × \(input.height)  ·  \(input.sourceDescription)")
                     .font(.caption2).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -325,23 +459,11 @@ private extension View {
 private struct ShareSheet: UIViewControllerRepresentable {
     let file: TemporaryHEIFFile
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        let provider = NSItemProvider()
-        provider.suggestedName = file.url.lastPathComponent
-        // Offer original HEIC bytes only, never UIImage (which can be re-encoded).
-        // HEIC is the HEVC-coded HEIF type; no JPEG fallback is advertised.
-        provider.registerFileRepresentation(forTypeIdentifier: UTType.heic.identifier,
-                                            fileOptions: [], visibility: .all) { [file] completion in
-            completion(file.url, false, nil)
-            return nil
-        }
-        provider.registerDataRepresentation(forTypeIdentifier: UTType.heic.identifier,
-                                            visibility: .all) { [file] completion in
-            do { completion(try Data(contentsOf: file.url), nil) }
-            catch { completion(nil, error) }
-            return nil
-        }
-        let configuration = UIActivityItemsConfiguration(itemProviders: [provider])
-        return UIActivityViewController(activityItemsConfiguration: configuration)
+        let configuration = ShareDelivery.makeConfiguration(for: file)
+        let controller = UIActivityViewController(activityItemsConfiguration: configuration)
+        // Direct save is a separate HEIF-only route, never a share fallback.
+        controller.excludedActivityTypes = [.saveToCameraRoll]
+        return controller
     }
     func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
 }

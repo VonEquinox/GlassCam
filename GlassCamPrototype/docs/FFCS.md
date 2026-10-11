@@ -12,7 +12,7 @@
 
 Apple 解码输出的 Float linear-sRGB 显式进入 FFCS 的 linear 输入分支，不串接 HNCS。C++17 保留参考顺序：输入归一化、gamma_pre、3×3 矩阵、原始 80³ 三线性 LUT、Lab/UCS、tone、坐标确定性 grain、邻域 sharpen、输出颜色域。矩阵截断、LUT 轴/通道顺序、灰度模式、边界邻域、种子和全图坐标均属于可测试行为。即使默认 UCS 参数中性，也保留原参考往返数学。
 
-移动预览输出 8 位 sRGB；导出取独立 Float display-linear RGB，再添加不透明 alpha，交由共享 RGBAf/extendedLinearSRGB → HEIF10 SDR sRGB 写入器。没有先做 UInt8 再扩展的导出路径。预览与导出使用同一不可变引擎/模式/曝光/种子快照。CCT 仅用于 HNCS。
+移动预览输出 8 位 sRGB；导出取独立 Float display-linear RGB，再添加不透明 alpha，交由共享 RGBAf/extendedLinearSRGB → HEIF10 SDR sRGB 写入器。没有先做 UInt8 再扩展的导出路径。保存 Photos / Files 直接使用该原始 HEIF；分享的按需 JPEG 仅从最终 HEIF 转出，不是 FFCS 的另一个导出模式。预览与导出使用同一不可变引擎/模式/曝光/种子快照。CCT 仅用于 HNCS。
 
 ## 离线资产准备
 
@@ -36,11 +36,15 @@ Git 复用研究分支已经存在的 ZIP blob；没有再上传一份不同内�
 - 57 组 Float32 输入/曝光案例及预览字节通过。
 - 分块优化的 456 个双输出、912 个单输出组合跨 19 款/6 尺寸/1–4 线程与基线逐值一致；非法参数拒绝测试通过。
 - ASan + UBSan smoke 通过：19 款、190 个小图/线程组合；LSan 因容器限制关闭。证据 `validation/ffcs_sanitizer.txt`。CMake 未安装，直接 g++ 构建执行；CTest 配置尚未执行。
-- 原始双全帧 double 暂存被每线程三行环形缓冲替代。3MP 暂存从 144MiB 降为单线程 144KiB、四线程 576KiB，不含 LUT、输入、输出及 Apple 缓冲。全局坐标和一行 halo 保持 grain/sharpen 结果。
+- 原始双全帧 double 暂存被每线程三行环形缓冲替代。3MP 暂存从 144MiB 降为单线程 144KiB、四线程 576KiB，不含 LUT、输入、输出及 Apple 缓冲。全局坐标和一行 halo 保持 grain/sharpen 结果。全源导出按 64 输出行调用精确 strip API，保留原全图宽高/坐标；颜色、颗粒与锐化完成后才缩小。
 
 计时见 `validation/ffcs_optimization.json`。共享云 CPU 波动明显：3MP 四线程一次中位 3.42s 对基线 6.06s，但 1MP 四线程更慢，不能据此认定稳定加速。App 默认单线程；核心保留 1–4 工作线程以便真机调优。上下文按模式缓存，预览不申请未使用的 Float 输出，导出不申请预览字节。
 
 独立 cube-multiply 候选通过已有样本及额外 242,079 像素，但计时没有稳定收益，因此未合入；记录 `validation/ffcs_cube_candidate.json` 是被否决实验，不代表当前代码使用它。没有启用 fast-math。
+
+## 全源条带验证
+
+[条带证据](../validation/ffcs_strips.json)：399 个全图、6,326 个分块、653,904 像素与完整路线逐值一致，21 个非法调用没有修改输出。另有 19 模式/760 调用 ASan+UBSan 通过，见 [sanitizer](../validation/ffcs_strip_sanitizer.txt)；LSan 关闭。该结果证明数值分块一致性，不证明 Apple 条带行方向或真实照片观感。
 
 ## 未验证
 

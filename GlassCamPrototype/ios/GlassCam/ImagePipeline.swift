@@ -3,6 +3,15 @@ import CoreImage
 import UIKit
 import ImageIO
 
+/// Explicit cancellation crosses the GCD decoder queue; it does not depend on
+/// Swift task-local cancellation surviving a synchronous DispatchQueue hop.
+final class ImageOperationCancellation: @unchecked Sendable {
+    private let lock = NSLock()
+    private var cancelled = false
+    var isCancelled: Bool { lock.lock(); defer { lock.unlock() }; return cancelled }
+    func cancel() { lock.lock(); cancelled = true; lock.unlock() }
+}
+
 struct ImportedImage: @unchecked Sendable {
     let sourceFile: SourceImageFile
     let exportSettings: ExportSettings
@@ -187,10 +196,12 @@ enum ImagePipeline {
     /// App-owned scratch is O(width * stripRows); Apple RAW/ImageIO/CI/HEIF may
     /// allocate full-size internal surfaces. Device peak-RSS validation is required.
     static func writeHEIF(_ processed: ProcessedImage, to url: URL,
-                          settings: ExportSettings? = nil) throws {
+                          settings: ExportSettings? = nil,
+                          isCancelled: @escaping @Sendable () -> Bool = { false },
+                          progress: @escaping @Sendable (Double) -> Void = { _ in }) throws {
         try decodeQueue.sync {
             try autoreleasepool {
-                try exportFullSource(processed, to: url, settings: settings ?? processed.source.exportSettings)
+                try exportFullSource(processed, to: url, settings: settings ?? processed.source.exportSettings, isCancelled: isCancelled, progress: progress)
             }
         }
     }
@@ -220,9 +231,18 @@ enum ImagePipeline {
                                                         y: -image.extent.minY))
     }
 
+    private static func checkExportCancellation(_ isCancelled: () -> Bool) throws {
+        if isCancelled() { throw CancellationError() }
+        try Task.checkCancellation()
+    }
+
     private static func exportFullSource(_ processed: ProcessedImage, to url: URL,
-                                          settings: ExportSettings) throws {
+                                          settings: ExportSettings, isCancelled: @escaping @Sendable () -> Bool,
+                                          progress: @escaping @Sendable (Double) -> Void) throws {
+        try checkExportCancellation(isCancelled)
+        progress(0)
         let decoded = try fullSourceImage(processed.source.sourceFile)
+        try checkExportCancellation(isCancelled)
         // Protect all byte-count arithmetic before allocating or creating a file.
         guard decoded.extent.width < CGFloat(Int.max / 16),
               decoded.extent.height < CGFloat(Int.max / 16) else { throw PipelineError.invalidImage }
@@ -249,7 +269,7 @@ enum ImagePipeline {
         let recipe = processed.recipe
         let stripRows = 64
         for start in stride(from: 0, to: height, by: stripRows) {
-            try Task.checkCancellation()
+            try checkExportCancellation(isCancelled)
             try autoreleasepool {
                 let rows = min(stripRows, height - start)
                 let halo = recipe.mode == .ffcs ? 1 : 0
@@ -287,8 +307,10 @@ enum ImagePipeline {
                 guard rgba.count == width * rows * 4,
                       rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
                 try raster.append(rgba)
+                progress(0.1 + 0.75 * Double(start + rows) / Double(height))
             }
         }
+        try checkExportCancellation(isCancelled)
         let data = try raster.mappedData(expectedBytes: rasterBytes)
         var image = CIImage(bitmapData: data, bytesPerRow: width * 16,
                             size: CGSize(width: CGFloat(width), height: CGFloat(height)), format: .RGBAf, colorSpace: linear)
@@ -306,9 +328,12 @@ enum ImagePipeline {
         do {
             // Fresh untagged raster: no source gain map, HDR metadata, PQ or HLG.
             // Keep mapped storage and file alive until synchronous encoding returns.
+            progress(0.9)
+            try checkExportCancellation(isCancelled)
             try withExtendedLifetime((data, raster)) {
                 try context.writeHEIF10Representation(of: image, to: url, colorSpace: sRGB, options: [:])
             }
+            try checkExportCancellation(isCancelled)
             guard let result = CGImageSourceCreateWithURL(url as CFURL, nil),
                   let properties = CGImageSourceCopyPropertiesAtIndex(result, 0, nil) as? [String: Any],
                   (properties[kCGImagePropertyPixelWidth as String] as? NSNumber)?.intValue == output.width,
@@ -316,6 +341,7 @@ enum ImagePipeline {
                   (properties[kCGImagePropertyDepth as String] as? NSNumber)?.intValue == 10 else {
                 throw PipelineError.encoding
             }
+            progress(1)
         } catch {
             try? FileManager.default.removeItem(at: url)
             throw error

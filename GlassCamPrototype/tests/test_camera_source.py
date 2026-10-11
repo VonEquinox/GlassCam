@@ -69,5 +69,23 @@ class CameraSourceContracts(unittest.TestCase):
         self.assertIn('previewReadiness.wait(timeout: .now() + 5)', SOURCE)
         self.assertIn('try waitForPreviewFrames()', SOURCE)
 
+    def test_terminal_failure_finishes_pending_capture_once(self):
+        failure = SOURCE.split('private func failSession(', 1)[1].split('private func installObservers', 1)[0]
+        for token in ['dispatchPrecondition(condition: .onQueue(queue))', 'failed = true',
+                      'captureDelegate?.cancel(reason: message)', 'failureHandler?(message)']:
+            self.assertIn(token, failure)
+        observers = SOURCE.split('private func installObservers', 1)[1].split('func stop()', 1)[0]
+        self.assertEqual(observers.count('self.failSession('), 2)
+        self.assertEqual(observers.count('self.session === observed'), 2)
+        self.assertIn('stopRunning: true', observers)
+        finish = SOURCE.split('private func finish(_ value:', 1)[1]
+        self.assertLess(finish.index('completion = nil'), finish.index('callback?(value)'))
+        self.assertLess(finish.index('lock.unlock()'), finish.index('callback?(value)'))
+        self.assertIn('if self.captureID == requestID', SOURCE)
+        self.assertIn('captureDelegate = nil; captureID = nil', SOURCE)
+        controller_capture = SOURCE.split('func captureProRAW(', 1)[1].split('deinit', 1)[0]
+        self.assertIn('DispatchQueue.main.async', controller_capture)
+        self.assertIn('self.isCapturing = false', controller_capture)
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

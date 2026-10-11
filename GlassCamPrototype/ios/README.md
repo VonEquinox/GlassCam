@@ -1,19 +1,15 @@
-# GlassCam native iOS effect prototype
+# GlassCam native iOS prototype
 
-Native SwiftUI interface, Core Image import adaptation, and independent C++17 HNCS and FFCS numerical backends via a thin Swift/C bridge. No package-manager dependency or generated-project tool is required.
+SwiftUI UI, Apple decoding/capture/encoding, and independent standard C++17 HNCS / FFCS engines. No package-manager or project-generator dependency.
 
-## Build status
+## Build status and setup
 
-**Not compiled or run on an Apple platform in this environment.** The source and Xcode project are provided for local validation. The Linux cloud has no Xcode/iOS SDK; passing C++ numerical checks does not establish an iOS build or visual correctness.
+**Not compiled or run with Apple SDKs in this cloud environment.** Portable numerical and source-contract tests do not establish a working iOS build, camera configuration or HEIF file.
 
-## Open and run
-
-1. On a Mac with Xcode 16 or later, open `GlassCam.xcodeproj`.
-2. The first build phase verifies the bundled FFCS archive and extracts the 19 original assets offline. Keep `reference_ffcs/source.zip` and both resource-preparation files under `tools/` intact. Select the shared `GlassCam` scheme and an iOS 17+ simulator.
-3. Run. Signing is not required for the simulator. For a real device, choose your development team and a unique bundle identifier under Signing & Capabilities.
-4. With Xcode 26+ and iOS 26+, controls use SwiftUI `glassEffect`. Earlier supported SDKs/iOS versions use a translucent material fallback.
-
-Simulator build from this folder:
+1. Open `GlassCam.xcodeproj` in Xcode 16 or later. Keep `../core`, `../reference_ffcs/source.zip` and `../tools` in the supplied layout.
+2. The first build phase verifies the bundled archive and extracts 19 original FFCS assets offline. Missing/corrupt assets fail the build; there is no approximate substitute.
+3. Select shared scheme `GlassCam`, iOS 17+ simulator. For hardware, set your development team and a unique bundle identifier.
+4. Native SwiftUI `glassEffect` requires Xcode 26+ and iOS 26+. Older supported configurations use material fallback; this is not the native Liquid Glass path.
 
 ```sh
 xcodebuild -project GlassCam.xcodeproj -scheme GlassCam \
@@ -22,65 +18,62 @@ xcodebuild -project GlassCam.xcodeproj -scheme GlassCam \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
-C++ files are referenced from `../core`; keep the project in the supplied folder layout.
+## Import, effects and full-source output
 
-## Current flow
+PhotosPicker / Files accepts JPEG, PNG, HEIC and supported DNG. The complete input is retained in an owned, protected temporary file for this editing session. Default import preview is capped at a 2048px long edge: ImageIO thumbnails for rendered inputs, requested RAW scale for DNG. Embedded profiles and orientation feed Apple conversion to extended linear sRGB. DNG support and all Apple color/orientation behavior need device validation. ProRAW is not unprocessed CFA, and the HNCS virtual-native source bridge is not iPhone calibration.
 
-- PhotosPicker or Files import JPEG, PNG, HEIC and supported DNG.
-- Rendered images use ImageIO transformed thumbnail decoding with a 2048px maximum, preserving the thumbnail CGImage color space for Core Image conversion to extended linear sRGB. DNG sets Apple `CIRAWFilter.scaleFactor` from `nativeSize` before requesting output and is experimental; support varies by Apple OS/camera decoder. DNG import is not a raw-camera-native calibration path.
-- Opaque RGB floats cross the C ABI into the C++ numerical core. All HNCS transform math is in the C++ backend.
-- Choose HNCS or FFCS; FFCS offers 19 source-backed XH2S looks and uses a cached immutable context. Its linear input route is independent of HNCS. See [FFCS](../docs/FFCS.md).
-- Exposure spans −2 to +2 EV. Factory CCT spans 2000–10000 K. CCT controls profile interpolation, not an accurate estimate of scene white balance.
-- Compare the processed left region with the original right region using the comparison slider.
-- Preview stays 8-bit sRGB. The default fast path keeps the HNCS core exact but approximates final 8-bit sRGB encoding by at most one code level; the exactReference API remains available.
-- Export is HEIF-only (`.heic`), using `CIContext.writeHEIF10Representation(of:to:colorSpace:options:)`. On explicit export, the numerical backend recomputes display-linear RGBA floats from the source/exposure/CCT snapshot associated with the displayed processed image. No UInt8 preview buffer, PNG, or JPEG enters this path. `CIImage` receives `.RGBAf` tagged `extendedLinearSRGB` (with values restricted to 0…1); the context works in float and encodes into standard SDR sRGB. No PQ/HLG, expanded HDR range, or gain map is requested. Encoder failure is shown as an error, with no fallback to 8-bit output.
-- The native share sheet offers the original HEIC file/data through `NSItemProvider` and `UIActivityItemsConfiguration`. Save to Files and compatible receiving apps use this same HEIF representation; there is no standalone JPEG export or automatic sharing transcode. WeChat compatibility is unverified and may require a separately tested sharing-only fallback in future.
-- The HNCS preview C++ backend uses up to four bounded workers; Swift reduces this for low-power or elevated thermal state. This policy is not yet device-benchmarked. The new float export kernel currently runs single-threaded; preview benchmark speedups are not HEIF export timings. FFCS uses the exact tiled route with one worker by default pending device profiling; its C API supports 1–4 workers.
+Select HNCS or one of 19 actual FFCS XH2S looks; the engines are not chained. Exposure is −2…+2 EV. HNCS factory CCT 2000…10000K selects profile interpolation, not measured scene white balance. FFCS does not use this CCT. Comparison shows processed left and original right. Preview is 8-bit sRGB; HNCS fast preview only approximates final byte OETF by at most one code. Exact numerical and Float export paths remain independent.
 
-## Intentional prototype limits
+Export reopens the full source, processes exact color/spatial stages before downsizing, and uses 64-row output strips with FFCS halo/global grain coordinates. A disk-backed RGBAf raster feeds linear-light Lanczos when a smaller output is requested. Dedicated `writeHEIF10Representation` requests 10-bit SDR sRGB: no UInt8 preview input, HDR/gain map, or 8-bit fallback. Dimension/component-depth metadata checks are implemented, but actual HEVC coded depth still needs independent inspection. Source metadata including location is omitted; transparency flattens onto black.
 
-- The import effect preview defaults to 2048 pixels on the long edge. Export reopens the retained full-resolution source and applies exact color before any requested output reduction; see [full-source export](../docs/FULL_RESOLUTION_EXPORT.md). The full input file is still read, and the Apple decoder may allocate full-resolution RAW data before downscaling; the cap does not bound total peak import memory. RAW `nativeSize` and `scaleFactor` request reduced output before evaluating `outputImage`; rendered formats use 2048px ImageIO thumbnails. Internal RAW peak memory and large-input behavior still require device profiling.
-- File reads and processing run off the UI thread. Settings lock as soon as photo transfer/file loading starts. Latest-request tokens prevent an older transfer/decode/render from replacing a newer selection; superseded photo tasks are cancelled. The complete decode/render stage is serialized so non-cancellable RAW decodes cannot overlap. Slider changes render after the drag ends.
-- High-bit-depth export does not restore detail absent from an 8-bit source. ImageIO thumbnail precision for HEIC/16-bit imports also needs device inspection before claiming a universally high-bit-depth import-to-export pipeline.
-- Source adaptation is experimental. No iPhone/device calibration and no claim of reproducing a particular camera exactly.
-- Transparent source images flatten onto black. Export omits source metadata, including location metadata.
-- Export recomputation and HEIF encoding run off the UI thread while the controls are busy/locked. The output belongs to the displayed processed snapshot even if unrendered slider positions differ. Export uses bounded row buffers and a disk-backed full-source RGBAf raster; Apple decoder/encoder peak memory still requires device measurement.
-- Export uses an app temporary file and the system share sheet. A shared owner retains the file for the sheet and its item-provider callbacks; the file is removed when those owners are released (a crash can leave OS-managed temporary data). No automatic upload, direct Photos-library write, background network work. ProRAW capture is a separate, explicitly opened native camera screen. Receiving apps may re-encode the file themselves; this prototype cannot guarantee their behavior.
-- Device/SDK compilation, actual 10-bit HEVC/HEIF bitstream, SDR/sRGB metadata, share-sheet behavior, WeChat compatibility, DNG support, color-space orientation and real-device performance still need validation. An encoder API request is not a verified device result; no exported HEIF has been generated in this Linux environment.
+Only application-owned processing scratch is bounded. Full-source file size, Apple decoder/encoder surfaces, mmap resident pages and disk intermediate storage remain significant; a 48.8MP Float RGBA raster is about 781MB. The preview cap does not bound total RAW decode memory. See [full-source design](../docs/FULL_RESOLUTION_EXPORT.md).
 
-## First Apple-platform validation checklist
+## Save original HEIF and share compatibly
 
-1. Run the simulator build command above and resolve any SDK/compiler diagnostics.
-2. Import a landscape JPEG, portrait JPEG with EXIF orientation, PNG and wide-gamut HEIC. Check orientation, aspect ratio and consistent comparison alignment.
-3. Import supported landscape and portrait DNGs in Files, then an unsupported/corrupt file. The decoder orientation is explicitly set from ImageIO EXIF orientation metadata (when available). Confirm orientation, useful errors and no crashes on Apple hardware.
-4. Drag comparison to both endpoints; left endpoint shows only original, right endpoint only processed.
-5. Change exposure/CCT, release each slider, and verify output changes. Reset and verify repeatability.
-6. Export via Files/AirDrop on a physical device; reopen the HEIC and check dimensions (full source or the selected per-lens output target), SDR sRGB tagging, orientation and approximate visual match to the preview (which has 8-bit quantization). Inspect the HEVC coded pixel depth and HEIF primary-image metadata with a HEIF-aware inspector: confirm 10-bit content, SDR transfer/color information, and no HDR gain map. A `.heic` suffix or a decoded 16-bit buffer alone is not proof of a 10-bit bitstream. Test a smooth gradient for retained precision beyond the 8-bit preview. Test encoder failure without silently producing another format.
-7. In WeChat, test both ordinary image sharing and file/original modes using the exact app/iOS/device versions. Inspect the received file and compare its hash, dimensions, bit depth and color tags; document whether it was accepted or re-encoded. Do not claim compatibility before this test. Check Save to Files and AirDrop independently.
-8. Try large inputs, iPad sheet presentation, dark mode, VoiceOver and cancellation. Simulate slow iCloud photo loading and rapid newer selections: only the newest result should commit, with settings locked throughout transfer. Dismiss/cancel sharing and verify the temporary file is removed after the sheet and provider release it; also test repeated shares and export after a failed render, which must export the still-displayed snapshot.
-9. On iOS 26 built with Xcode 26, inspect native glass; on iOS 17/18 inspect fallback rendering.
+- Save HEIF to Photos requests add-only permission and creates a photo resource directly from the original HEIF. No compatibility conversion participates.
+- Save HEIF to Files uses an exporting document picker to copy that same original file.
+- Share uses one NSItemProvider with HEIC file/data representations registered before JPEG. The JPEG is generated only on request, from the finalized HEIF, retaining dimensions and normalizing orientation into conventional 8-bit SDR sRGB. It never uses the preview or rerenders an effect. Successful conversion is cached for subsequent loads.
+- There is no JPEG or PNG export option. Standard Save to Camera Roll is excluded from the share sheet; use the explicit HEIF save control.
+- Receiving extensions choose the representation they request. Registration priority does not prove they select HEIC or that WeChat accepts either route. Some recipients may re-encode independently.
+- Shared ownership keeps originals/compatibility files alive through picker/provider callbacks. Sheet dismissal alone does not delete a file still in use. Partial or failed compatibility output is not published; temporary owners clean up on release. A crash can leave OS-managed temporary data.
 
-## Apple API references
+No automatic upload or background network work is implemented. Photos authorization and the receiving app's behavior remain platform-dependent and unverified here.
 
-- [CIRAWFilter data initializer](https://developer.apple.com/documentation/coreimage/cirawfilter/init(imagedata:identifierhint:))
-- [Core Image bitmap rendering](https://developer.apple.com/documentation/coreimage/cicontext/render(_:tobitmap:rowbytes:bounds:format:colorspace:))
-- [RAW native size](https://developer.apple.com/documentation/coreimage/cirawfilter/nativesize)
-- [RAW scale factor](https://developer.apple.com/documentation/coreimage/cirawfilter/scalefactor)
-- [ImageIO thumbnail decoding](https://developer.apple.com/documentation/imageio/cgimagesourcecreatethumbnailatindex(_:_:_:))
-- [RAW orientation](https://developer.apple.com/documentation/coreimage/cirawfilter/orientation)
-- [SwiftUI comparison masking](https://developer.apple.com/documentation/swiftui/view/mask(alignment:_:))
-- [Applying Liquid Glass](https://developer.apple.com/documentation/swiftui/applying-liquid-glass-to-custom-views)
+## Task state, errors and cancellation
 
-- [Dedicated HEIF10 writer (iOS 15+; verified in Apple documentation)](https://developer.apple.com/documentation/coreimage/cicontext/writeheif10representation(of:to:colorspace:options:))
-- [Core Image working format](https://developer.apple.com/documentation/coreimage/cicontextoption/workingformat)
-- [NSItemProvider file representations](https://developer.apple.com/documentation/foundation/nsitemprovider/registerfilerepresentation(fortypeidentifier:fileoptions:visibility:loadhandler:))
-- [Activity item-provider configuration](https://developer.apple.com/documentation/uikit/uiactivityitemsconfiguration/init(itemproviders:))
+Import transfer/decode/effect/export run away from the UI thread. Settings lock during operations; latest-operation tokens reject stale results. Effect failure retains the decoded source for Retry. A changed or failed, unrendered recipe disables Save/share until its preview succeeds, so an old result cannot be delivered as the pending settings.
 
+The actual worker and an explicit locked cancellation token carry cancellation across the serial decode queue. Cancellation is checked between strips and before/after codecs. Synchronous Apple calls cannot be interrupted mid-call; busy stays set until they return, and canceled work must not publish an image or start saving. Photos writes cannot be canceled after their transaction is submitted. Files picker cancellation and share-provider Progress cancellation are separate delivery boundaries.
+
+HNCS preview supports up to four bounded workers, reduced under low-power/thermal policy. Float export and FFCS app processing currently use a single worker. These are implementation choices, not measured iPhone energy/performance guarantees.
 
 ## Native camera and per-lens settings
 
-Open ProRAW camera from the editor. Camera permission is requested on use. The full-screen view uses real AVFoundation physical-camera previews; its clear center excludes glass and the preview-only perimeter never enters the photo. Main/tele require a supported wider simultaneous source; ultra-wide permits black perimeter. Native iOS 26 glass and older material fallback are separate code paths.
+The separately opened camera screen requests camera access on use. Physical center and wider peripheral video feeds extend across the window; the center photo rectangle is free of glass. The perimeter never enters PhotoOutput. Main/tele require an actual supported wider simultaneous source; ultra-wide permits black perimeter. Near/far objects, parallax, distortion and timing mean the FOV mapping is approximate, not a calibrated seamless continuation. Coverage is gated; optical edge alignment still needs physical targets.
 
-Select center/peripheral preview bounds independently. Select output 12/24/48MP only where the configured source supports it; preferences are keyed by physical camera ID and lens. Capture keeps its source ceiling independent of the requested HEIF reduction. Low-resolution preview settings may be incompatible with maximum native source; these combinations fail explicitly rather than changing quality silently.
+Center/peripheral preview limits are independent (defaults 1920/960). Scaled video outputs do not force full-resolution preview buffers or silently lower the selected native still source. Per-physical-camera settings persist only supported 12/24/48MP processed output targets; a smaller target is produced after full-source effects, never by upscaling a smaller source.
 
-On-device acceptance must cover every lens/preview/output combination, denied camera access, interruption/restart, rapid lens changes, rotation during capture, pressure events, actual RAW dimensions, center-to-DNG optical framing, and wider-view parallax/coverage. See [capture implementation](../docs/camera-capture.md). Linux source tests do not establish an Apple build or working hardware combination.
+The final graph and capture request must support Apple ProRAW. Actual returned RAW dimensions/type are checked. Single ultra-wide `.photo` and MultiCam `.inputPriority` have different high-resolution constraints; MultiCam is conservatively restricted to nominal 12MP native requests. Main/tele combinations may be unavailable on a given device. Missing capabilities fail explicitly instead of switching format, quality, source dimensions or fake wider content. Cancel/error clears pending capture; Retry rebuilds the camera. See [capture contract](../docs/camera-capture.md).
+
+Live video is the system preview, not live HNCS/FFCS; captured ProRAW runs through the effects pipeline afterward.
+
+## First Apple-platform acceptance checklist
+
+1. Build Debug and Release; test iOS 26 native glass and older material fallback. Check iPad, VoiceOver, dark mode and permission-denied paths.
+2. Import oriented landscape/portrait JPEG, wide-gamut HEIC, PNG and supported/corrupt DNG. Verify profile conversion, EXIF/RAW/bitmap row orientation and exact before/after alignment. Run `tests/apple_ci_strip_roundtrip.swift` on Apple to check strip row order.
+3. Compare both endpoints, adjust/retry/reset effects, trigger render failure and cancel just before completion. Pending settings must block Save/share; decoded source remains retryable. Rapid transfers must not commit stale images.
+4. Export full source and smaller per-lens targets with both engines. Check dimensions, aspect/no upscale, no stripe seams, deterministic grain/sharpen and preview-to-final appearance; allow expected scale/byte-quantization differences.
+5. Inspect HEVC coded depth and HEIF primary-image SDR/sRGB metadata with a HEIF-aware inspector. A `.heic` name or decoded 16-bit buffer is not proof. Verify no HDR gain map, smooth-gradient precision and explicit encoder failures.
+6. Save separately to Photos and Files; retrieve originals and verify format, dimensions, metadata and unchanged file bytes where the API exposes originals. Test denied add-only access and picker cancellation. Verify JPEG never enters these dedicated saves.
+7. Test AirDrop and exact WeChat/iOS/device versions with ordinary image and file/original flows. Record which provider type is requested, whether original HEIC or compatibility JPEG is sent, received dimensions/depth/tags and ability to view. Test receivers that reject HEIC, repeated file/data callbacks, provider cancellation and dismissal while codec work is in flight. No compatibility claim before this test.
+8. Cancel import/effect/export during slow RAW decode, each processing boundary and encoding. Busy must persist until noncancelable work finishes; no overlapping export or canceled delivery. Photos transaction submission is the point beyond which cancellation cannot undo a save. Check temporary-file lifetime/cleanup and disk-full failure.
+9. On each lens/preview/output combination, record actual formats, ProRAW support and native/output sizes; test wider-feed coverage, startup readiness, rapid changes, rotation, interruptions, pressure and Retry. Compare preview edge targets to saved DNG framing and verify perimeter exclusion. Do not accept a 48MP marketing specification as successful capture evidence.
+10. Profile decode, core, resize, encode and delivery separately: large-image peak RSS/disk, thermal steady state, p50/p95 latency and energy. Cloud C++ preview timings are not phone/export results.
+
+## Apple API references
+
+- [CIRAWFilter](https://developer.apple.com/documentation/coreimage/cirawfilter)
+- [Dedicated HEIF10 writer](https://developer.apple.com/documentation/coreimage/cicontext/writeheif10representation(of:to:colorspace:options:))
+- [Liquid Glass](https://developer.apple.com/documentation/swiftui/applying-liquid-glass-to-custom-views)
+- [Item-provider file representations](https://developer.apple.com/documentation/foundation/nsitemprovider/registerfilerepresentation(fortypeidentifier:fileoptions:visibility:loadhandler:))
+- [Activity item-provider configuration](https://developer.apple.com/documentation/uikit/uiactivityitemsconfiguration/init(itemproviders:))
