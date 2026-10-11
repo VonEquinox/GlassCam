@@ -1,0 +1,16 @@
+{
+  "working_directory": "/tmp",
+  "mapping_profile_sha256": "92a6c8de7947203aa5c8555364481122894259dbd740706efca5d74869a21a2c",
+  "colour_path_revision": 2,
+  "working_space": "legacy",
+  "shape": [
+    6374,
+    9566,
+    3
+  ],
+  "maximum_pixel_error": 0,
+  "reference_sha256": "449c9cab3fb2a230ebe3133af34f12ff36650d47eb4026e9471f43d65593a1d7",
+  "reused_tiff_sha256": "449c9cab3fb2a230ebe3133af34f12ff36650d47eb4026e9471f43d65593a1d7",
+  "elapsed_seconds": 14.10403879196383,
+  "scope": "Independent CLI render from saved revision-2 profile; compared all delivered Sony master pixels and ICC; temporary TIFFs removed afterwards."
+}

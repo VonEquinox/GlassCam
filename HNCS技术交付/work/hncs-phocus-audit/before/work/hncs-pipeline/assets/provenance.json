@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "phocus_version": "4.2.2",
+  "sensor_key": "0x616",
+  "colormap": "bohnjuhtuvuvtxyydb56.bin",
+  "colormap_sha256": "c2b3d08e0d489eb852610c12a9b985e9d0340a4dd544f5b0b5b7a6a4f3427e95",
+  "colormap_timestamp": "2024-10-16T20:20:00 -01:00",
+  "binary_sha256": {
+    "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+    "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c"
+  },
+  "matrix_convention": "row-major; column vectors; NumPy row samples multiply M.T",
+  "lut_semantics": "absolute mapped chroma: input*DivFactor-start, interpolate, output/DivFactor",
+  "pixel_kernel": "CVectorMethods::ColorNormalCorrectPixels @0x32a5c",
+  "kernel_options": "gray thresholds 0.07/0.005; shadow desaturation disabled (native bool=true)",
+  "runtime_matrix": "kMHasselbladRGB @0x69520 equals static @0x5fe70, verified by native load",
+  "scope": "Factory Standard/Reproduction colour path; no per-unit closed-loop calibration or Phocus spatial processing",
+  "files": {
+    "HasselbladLStarRGB.icc": "c55681b86c642d9f52cad595be5c9e23597598ead68cf6d41b8c375e6d2bc937",
+    "x2dii_phocus_422.npz": "2f1d9ec925de2bd60a57d937a79601c4cd229c78756e035e898b761d1c7a6410"
+  }
+}

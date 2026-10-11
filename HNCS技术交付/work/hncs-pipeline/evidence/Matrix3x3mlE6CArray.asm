@@ -1,0 +1,18 @@
+__ZNK9Matrix3x3mlE6CArrayIdLi3E23Matrix3x1InitializationE:
+0000000000064ca4	ldp	d3, d4, [x0]
+0000000000064ca8	fmul	d4, d1, d4
+0000000000064cac	fmadd	d3, d3, d0, d4
+0000000000064cb0	ldp	d4, d5, [x0, #0x10]
+0000000000064cb4	fmadd	d3, d4, d2, d3
+0000000000064cb8	ldp	d4, d6, [x0, #0x20]
+0000000000064cbc	fmul	d4, d1, d4
+0000000000064cc0	fmadd	d4, d5, d0, d4
+0000000000064cc4	fmadd	d4, d6, d2, d4
+0000000000064cc8	ldp	d5, d6, [x0, #0x30]
+0000000000064ccc	fmul	d1, d1, d6
+0000000000064cd0	fmadd	d0, d5, d0, d1
+0000000000064cd4	ldr	d1, [x0, #0x40]
+0000000000064cd8	fmadd	d2, d1, d2, d0
+0000000000064cdc	fmov	d0, d3
+0000000000064ce0	fmov	d1, d4
+0000000000064ce4	ret

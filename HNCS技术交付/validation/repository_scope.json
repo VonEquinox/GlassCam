@@ -1,0 +1,22 @@
+{
+  "scope": "technical documents, all source code, numerical models, LUT, ICC, DCP and test vectors only",
+  "excluded_file_count": 178,
+  "excluded_bytes": 3357240805,
+  "excluded_extensions": [
+    ".3fr",
+    ".arw",
+    ".bmp",
+    ".dmg",
+    ".dng",
+    ".gif",
+    ".heic",
+    ".heif",
+    ".jpeg",
+    ".jpg",
+    ".png",
+    ".tif",
+    ".tiff",
+    ".webp",
+    ".zip"
+  ]
+}

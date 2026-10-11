@@ -1,0 +1,147 @@
+{
+  "colour_path_revision": 2,
+  "render_path_revision": 4,
+  "working_space": "legacy",
+  "input": {
+    "path": "/Users/vonequinox/Program/ProgramDev/HNCS/DSC07294.ARW",
+    "sha256": "f357a399b5c7b1918a3a09a7fca475026b4deb7d62c0ae18a7c4fd0abccaf659",
+    "make": "SONY",
+    "model": "ILCE-7RM5",
+    "date": "2025:05:29 09:01:24",
+    "visible_shape": [
+      6374,
+      9566
+    ],
+    "cfa": [
+      [
+        0,
+        1
+      ],
+      [
+        3,
+        2
+      ]
+    ],
+    "black": [
+      512,
+      512,
+      512,
+      512
+    ],
+    "white": 16383,
+    "camera_wb": [
+      2754.0,
+      1024.0,
+      1590.0,
+      1024.0
+    ],
+    "linear_white": 15871,
+    "libraw": [
+      0,
+      22,
+      1
+    ],
+    "rawpy": "0.27.1"
+  },
+  "output": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-dual-illuminant/output/DSC07294/DSC07294_hncs.tif",
+  "output_space": "Hasselblad RGB",
+  "srgb_output": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-dual-illuminant/output/DSC07294/DSC07294_hncs_srgb.tif",
+  "preview": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-dual-illuminant/output/DSC07294/DSC07294_hncs.preview.jpg",
+  "shape": [
+    6374,
+    9566,
+    3
+  ],
+  "profile_sha256": "92a6c8de7947203aa5c8555364481122894259dbd740706efca5d74869a21a2c",
+  "cct": 6655,
+  "white_balance": [
+    2.689453125,
+    1.0,
+    1.552734375
+  ],
+  "wb_mode": "camera",
+  "scale": 1.4169209635346514,
+  "additional_ev": 0,
+  "intent": "standard",
+  "factory_lut_enabled": true,
+  "matrix": [
+    [
+      1.012403003495907,
+      -0.015163930235110564,
+      0.002760926739203442
+    ],
+    [
+      -0.010695394756866589,
+      1.0229360128803122,
+      -0.01224061812344581
+    ],
+    [
+      0.005307485532140046,
+      -0.034984619146714864,
+      1.0296771336145747
+    ]
+  ],
+  "cct_source": "dual_illuminant_virtual_x2d_wb",
+  "estimated_target_white_balance": [
+    2.9222950837313175,
+    1.0,
+    1.4949797102768045
+  ],
+  "estimated_target_cct": 6655,
+  "estimated_target_tint": -0.0021185380586813633,
+  "factory_cct_clamped": false,
+  "white_balance_bridge_enabled": true,
+  "white_balance_bridge_neutral_gain": 0.9720936771725084,
+  "illuminant_mode": "dual",
+  "cross_illuminant_assumption": false,
+  "experimental_dual_illuminant": true,
+  "dual_model_path": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-dual-illuminant/model.json",
+  "dual_model_sha256": "838fcc2a76cbc414bef57cc0bfdb8c7869d01bf8b24d9f4039e3cad3a45afed0",
+  "anchor_correction": [
+    [
+      2.0468354885707365,
+      0.0039036175898279164,
+      0.043107666489832434
+    ],
+    [
+      -0.026642859776777633,
+      2.1576814902887977,
+      0.12098815062632055
+    ],
+    [
+      0.050406272211804444,
+      -0.12884710661894322,
+      2.5262558770948975
+    ]
+  ],
+  "anchor_source_estimated_cct": 6011.290473171064,
+  "model_assumptions": [
+    "DXOMARK displayed matrix is treated as WB-normalized native-column to linear-sRGB-column, followed by inverse Bradford adaptation to the reference illuminant. This convention is an interpretation checked for neutral consistency, not verified against DXOMARK's raw processing code.",
+    "Sony A/D50 and Hasselblad A/D65 characterize different devices with independent fitted data; common XYZ is a model-mediated bridge, not a paired dual-light measurement.",
+    "External Hasselblad chart targets were Bradford-adapted reference patches, not spectral reflectance integrals under measured DPReview illuminant SPDs.",
+    "A constant left residual anchors the public response family to the existing paired calibration; its transfer across illuminants is assumed.",
+    "Stored XYZ-to-camera matrices interpolate in inverse Kelvin; outside each camera's own endpoints they clamp. No Sony D65 measurement is fabricated.",
+    "Neutral scalar normalization retains the existing calibration exposure. Full Phocus RAW equivalence and arbitrary LED accuracy are unverified."
+  ],
+  "source_estimated_cct": 5472.141808117459,
+  "source_estimated_white_xy": [
+    0.33317521752280077,
+    0.352447548141271
+  ],
+  "source_low_illuminant_weight": 0.0,
+  "target_low_illuminant_weight": 0.14762708568588184,
+  "source_profile_range_clamped": true,
+  "target_profile_range_clamped": false,
+  "clipping": {
+    "native_out_of_range_samples": 319601,
+    "native_samples": 182921052,
+    "working_out_of_range_samples": 135454,
+    "working_samples": 182921052
+  },
+  "limitations": [
+    "Captures are from 2022 and 2025; scene/illuminant changes remain confounded with sensor response.",
+    "One illumination and 24 patches cannot establish cross-scene or cross-illuminant accuracy.",
+    "Factory normal non-HDR colour path at unit effective gain; no per-unit closed-loop calibration or Phocus spatial processing.",
+    "LibRaw AHD decoding and chart exposure anchor differ from Phocus's RAW decoding/exposure chain; actual TIFF comparison is documented separately."
+  ]
+}

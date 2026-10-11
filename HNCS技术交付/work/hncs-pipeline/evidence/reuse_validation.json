@@ -1,0 +1,6 @@
+{
+  "exit_code": 0,
+  "working_directory": "/tmp",
+  "master_pixels_identical": true,
+  "scope": "render subcommand reuses existing fitted profile; temporary TIFFs removed after comparison"
+}

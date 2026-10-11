@@ -1,0 +1,183 @@
+{
+  "goal_scope_source": "scope.md",
+  "status": "complete_with_explicit_accuracy_scope",
+  "requirements": [
+    {
+      "id": 1,
+      "requirement": "接受用户原日光输入条件并写入当前模型与文档",
+      "status": "proven",
+      "evidence": [
+        "paired_illuminants.json",
+        "../../work/hncs-pipeline/a7rv_to_x2dii.json",
+        "../../README.md"
+      ],
+      "scope": "基准输入假设，不由年份推断误差"
+    },
+    {
+      "id": 2,
+      "requirement": "使用可取得的两机暖光 RAW 直接拟合并保留不同曝光验证",
+      "status": "proven",
+      "evidence": [
+        "sources/lowlight-candidates.json",
+        "evidence/warm-fit-selection.json",
+        "evidence/paired_chart_evaluation.json"
+      ],
+      "scope": "24 块 CFA；同场景不同曝光；各组中性 WB/曝光归一化"
+    },
+    {
+      "id": 3,
+      "requirement": "检查拟合、方向、光源插值、WB、曝光与边界，并按证据选默认",
+      "status": "proven",
+      "evidence": [
+        "evidence/tests.log",
+        "evidence/daylight-fit-study.json",
+        "evidence/fit-method-stability.json",
+        "evidence/sony-dcp-characterization.json",
+        "evidence/default_cli_regression.json"
+      ],
+      "scope": "30 测试通过、两光源简单拟合、精确日光锚点；任意光谱与插值准确性边界明确"
+    },
+    {
+      "id": 4,
+      "requirement": "完整 Python 默认流程、独立运行包、八张全尺寸 HNCS / DNG / JPG 与对比",
+      "status": "proven",
+      "evidence": [
+        "hncs-runtime-r6.zip",
+        "evidence/runtime_portability.json",
+        "output/batch_verification.json",
+        "evidence/final_output_verification.json",
+        "output/all_comparisons.jpg",
+        "output/previous_vs_final.jpg"
+      ],
+      "scope": "完整 CFA 再读取核验、当前哈希、位深/ICC/方向/JPG 尺寸；Phocus 完整 RAW 等价性仍未声明"
+    },
+    {
+      "id": 5,
+      "requirement": "完成多轮公开资料检索，采用合适数据后复查并按资料边界停止",
+      "status": "proven_with_bounded_search_scope",
+      "evidence": [
+        "public-data-search.json",
+        "public-data-search.md",
+        "evidence/search_round3_recheck.json",
+        "evidence/search_round4_recheck.json",
+        "evidence/search_round5_recheck.json",
+        "evidence/final_repository_recheck.json"
+      ],
+      "scope": "五轮与交付前三轮复查；新增暖光 RAW 和 DCP 已采用；不是全网不存在证明"
+    },
+    {
+      "id": 6,
+      "requirement": "保存来源、排除理由、搜索停止依据、测试、文件哈希和最终报告",
+      "status": "proven",
+      "evidence": [
+        "public-data-search.md",
+        "2026-10-03_技术-HNCS-final-report.md",
+        "artifact_hashes.json",
+        "evidence/timeline.json"
+      ],
+      "scope": "本审计结束后写入 manifest 并独立重读校验；不改写历史证据"
+    },
+    {
+      "id": 7,
+      "requirement": "恢复 Phocus 六个 Film Curve 名称并接入全部一键预设",
+      "status": "proven_with_explicit_accuracy_scope",
+      "evidence": [
+        "../hncs-pipeline/evidence/film_curve_probe.json",
+        "../hncs-pipeline/evidence/wb_preset_probe.json",
+        "../hncs-pipeline/evidence/preset_effect_audit.json",
+        "../hncs-pipeline/phocus_presets.json",
+        "2026-10-04_技术-Phocus-film-curves-presets-report.md",
+        "evidence/runtime_portability.json"
+      ],
+      "scope": "六个菜单名、43 个 Settings/Standard XML 全部映射；颜色、曲线、Tint、颗粒、锐化和裁剪参数接入，专有空间滤镜按报告标注边界"
+    }
+  ],
+  "raw_chart_checks": [
+    {
+      "source": "bd2ffdbfd1e441bc9a93c115117e5054.3fr",
+      "clipped_fraction_max": 0.0,
+      "sha256": "74e6d8ac8ebd0dcdd3a7888e7848d7f31136fb84844388d9eb05cfe2b8129497"
+    },
+    {
+      "source": "825b88ead50e440fbfed14437c27e470.arw",
+      "clipped_fraction_max": 0.0,
+      "sha256": "7c89bed5a8d32f8135a43a39c2f557489afd2871f417b86587e3c1ca437e4069"
+    },
+    {
+      "source": "b83908b171574fc5b33045dfca85daf6.arw",
+      "clipped_fraction_max": 0.0,
+      "sha256": "b3190de247c539e86f723ed2bd92ded9619a822ab4d6bae8f7cd1c66f204d08d"
+    },
+    {
+      "source": "f3da42aac2944357bd87685f9ae2ec1e.3fr",
+      "clipped_fraction_max": 0.0,
+      "sha256": "142a6c1c5c557aa5c5619a9c465d5f3f639467501124cbd7ad83fd502cb77f51"
+    }
+  ],
+  "current_photo_checks": [
+    {
+      "photo": "DSC07247",
+      "full_and_visible_cfa_identical_now": true,
+      "source_and_output_hashes_verified_now": true,
+      "cct": 6752
+    },
+    {
+      "photo": "DSC07426",
+      "full_and_visible_cfa_identical_now": true,
+      "source_and_output_hashes_verified_now": true,
+      "cct": 5772
+    },
+    {
+      "photo": "DSC07294",
+      "full_and_visible_cfa_identical_now": true,
+      "source_and_output_hashes_verified_now": true,
+      "cct": 6676
+    },
+    {
+      "photo": "DSC07372",
+      "full_and_visible_cfa_identical_now": true,
+      "source_and_output_hashes_verified_now": true,
+      "cct": 9514
+    },
+    {
+      "photo": "DSC07240",
+      "full_and_visible_cfa_identical_now": true,
+      "source_and_output_hashes_verified_now": true,
+      "cct": 7059
+    },
+    {
+      "photo": "DSC04637",
+      "full_and_visible_cfa_identical_now": true,
+      "source_and_output_hashes_verified_now": true,
+      "cct": 5714
+    },
+    {
+      "photo": "DSC04945",
+      "full_and_visible_cfa_identical_now": true,
+      "source_and_output_hashes_verified_now": true,
+      "cct": 5461
+    },
+    {
+      "photo": "DSC05218",
+      "full_and_visible_cfa_identical_now": true,
+      "source_and_output_hashes_verified_now": true,
+      "cct": 5409
+    }
+  ],
+  "warm_validation_mean_delta_e00": {
+    "calibration": 4.293714586002872,
+    "adaptive": 0.5511145816556062,
+    "dual": 2.266263493374318,
+    "paired": 0.4320187628672792
+  },
+  "test_count": 30,
+  "runtime_bundle_sha256": "6ada478ec0110ede8b35e7f3bba658e08fe7fd55f670d2b63c910d8b768b3fed",
+  "accuracy_limits": [
+    "Not full Phocus RAW/spatial equivalence",
+    "All 43 Phocus Settings/Standard XML payloads are catalogued; Film Grain/USM use explicit portable approximations and proprietary lens/dust/keystone/scene kernels remain provenance-only",
+    "No independent third-light or new-scene truth",
+    "WB cannot uniquely distinguish different physical spectra",
+    "Two-light interpolation remains assumed"
+  ],
+  "browser_preference": "No further browser Computer Use after explicit user instruction"
+}

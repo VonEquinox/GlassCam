@@ -1,0 +1,5229 @@
+{
+  "scope": "project directory recursively; cache and OS metadata excluded",
+  "files": [
+    {
+      "path": "19990c35cf194481a0093de2b02ed818.arw",
+      "bytes": 78446592,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "7fbb1471e0cf4b22858cd9a161fb83a8.3fr",
+      "bytes": 212574208,
+      "included": true,
+      "kind": ".3fr",
+      "text_read": false
+    },
+    {
+      "path": "DSC04637.ARW",
+      "bytes": 77893632,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "DSC04945.ARW",
+      "bytes": 71004160,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "DSC05218.ARW",
+      "bytes": 68841472,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "DSC07240.ARW",
+      "bytes": 70242304,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "DSC07247.ARW",
+      "bytes": 69066752,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "DSC07294.ARW",
+      "bytes": 75386880,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "DSC07372.ARW",
+      "bytes": 127774720,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "DSC07426.ARW",
+      "bytes": 72445952,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "Phocus_4.2.2_Mac.dmg",
+      "bytes": 748151023,
+      "included": true,
+      "kind": ".dmg",
+      "text_read": false
+    },
+    {
+      "path": "README.md",
+      "bytes": 11511,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "audit_hncs_finalization.py",
+      "bytes": 11228,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "audit_phocus_presets.py",
+      "bytes": 3134,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "compare_dual_illuminant.py",
+      "bytes": 4803,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "export_photo_original.py",
+      "bytes": 9905,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "extract_phocus_presets.py",
+      "bytes": 3380,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "fit_paired_illuminants.py",
+      "bytes": 7349,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "hncs_dual_illuminant.py",
+      "bytes": 10529,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "hncs_paired_illuminants.py",
+      "bytes": 5748,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "hncs_pipeline.py",
+      "bytes": 48404,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "package_hncs_runtime.py",
+      "bytes": 7551,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "phocus_presets.py",
+      "bytes": 16605,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "prepare_hncs_assets.py",
+      "bytes": 7033,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "prepare_sony_source_profile.py",
+      "bytes": 4044,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "process_photo_batch.py",
+      "bytes": 5363,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "requirements.txt",
+      "bytes": 76,
+      "included": true,
+      "kind": ".txt",
+      "text_read": true
+    },
+    {
+      "path": "test_dual_illuminant.py",
+      "bytes": 4424,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "test_hncs_pipeline.py",
+      "bytes": 8633,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "test_paired_illuminants.py",
+      "bytes": 3139,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "test_phocus_presets.py",
+      "bytes": 5659,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "verify_final_pipeline.py",
+      "bytes": 3821,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/DSC07247/DSC07247_comparison.jpg",
+      "bytes": 385063,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/DSC07247/DSC07247_hncs.jpg",
+      "bytes": 50813870,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/DSC07247/DSC07247_hncs.json",
+      "bytes": 2374,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/DSC07247/DSC07247_hncs.preview.jpg",
+      "bytes": 366376,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/DSC07247/DSC07247_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/DSC07247/DSC07247_hncs_display.preview.jpg",
+      "bytes": 370473,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/DSC07247/DSC07247_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/DSC07247/DSC07247_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/DSC07247/DSC07247_original.jpg",
+      "bytes": 26118119,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/DSC07247/DSC07247_original.preview.jpg",
+      "bytes": 367682,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/DSC07247/DSC07247_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/DSC07247/README.md",
+      "bytes": 2284,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/DSC07247/export_original.log",
+      "bytes": 2515,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/DSC07247/export_original.py",
+      "bytes": 7860,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/DSC07247/verification.json",
+      "bytes": 2453,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/19990c35cf194481a0093de2b02ed818.arw.preview.jpg",
+      "bytes": 210090,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/19990c35cf194481a0093de2b02ed818.arw.preview.jpg.chart.jpg",
+      "bytes": 278666,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/7RM5-LosslessCompressedLarge.ARW.preview.jpg",
+      "bytes": 273395,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/7fbb1471e0cf4b22858cd9a161fb83a8.3fr.preview.jpg",
+      "bytes": 219672,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/7fbb1471e0cf4b22858cd9a161fb83a8.3fr.preview.jpg.chart.jpg",
+      "bytes": 260988,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/B_31325.3FR.preview.jpg",
+      "bytes": 79353,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/B_31325.JPG.preview.jpg",
+      "bytes": 82012,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/DSC00278.ARW.preview.jpg",
+      "bytes": 125505,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/dpreview-access.png",
+      "bytes": 209782,
+      "included": true,
+      "kind": ".png",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/fetch_dpreview.py",
+      "bytes": 3524,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/inspect_samples.py",
+      "bytes": 3677,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/paired-scene-manifest.json",
+      "bytes": 3369,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sample-inspection.json",
+      "bytes": 20255,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/samples/7RM5-LosslessCompressedLarge.ARW",
+      "bytes": 85950464,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/samples/B_31325.3FR",
+      "bytes": 211501056,
+      "included": true,
+      "kind": ".3fr",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/samples/B_31325.JPG",
+      "bytes": 23003136,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/samples/DSC00278.ARW",
+      "bytes": 127864832,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/sources/SpyderChecker24_DataCol_V2_Lab.cie",
+      "bytes": 920,
+      "included": true,
+      "kind": ".cie",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/SpyderCheckr_Color_Data_V2.pdf",
+      "bytes": 1129881,
+      "included": true,
+      "kind": ".pdf",
+      "text_read": false
+    },
+    {
+      "path": "work/color-data-audit/sources/dpreview-access.html",
+      "bytes": 6263,
+      "included": true,
+      "kind": ".html",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/dpreview-network.json",
+      "bytes": 84562,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/dpreview-page.html",
+      "bytes": 454801,
+      "included": true,
+      "kind": ".html",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/dpreview-rest-route.json",
+      "bytes": 12421480,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/dpreview-widget.json",
+      "bytes": 12897592,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/hncs-dpreview-download.py",
+      "bytes": 4938,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/hncs-evaluation.md",
+      "bytes": 352814,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/hncs-github-tree.json",
+      "bytes": 349954,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/kmichels-manifest.csv",
+      "bytes": 2682,
+      "included": true,
+      "kind": ".csv",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/kmichels-native-matrix.json",
+      "bytes": 9611,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/pixls-58801-page2.json",
+      "bytes": 62976,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/pixls-58801-page3.json",
+      "bytes": 66500,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/pixls-58801.json",
+      "bytes": 56166,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/pixls-DSC00278.xmp",
+      "bytes": 17963,
+      "included": true,
+      "kind": ".xmp",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/pixls-mkicc.txt",
+      "bytes": 766,
+      "included": true,
+      "kind": ".txt",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/sony-issue.json",
+      "bytes": 7413,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/color-data-audit/sources/x2dii-studio-manifest.csv",
+      "bytes": 5927,
+      "included": true,
+      "kind": ".csv",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_comparison.jpg",
+      "bytes": 735392,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_hncs.jpg",
+      "bytes": 66513790,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_hncs.json",
+      "bytes": 2906,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_hncs.preview.jpg",
+      "bytes": 759080,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_hncs_display.preview.jpg",
+      "bytes": 748221,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_original.jpg",
+      "bytes": 32283700,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_original.preview.jpg",
+      "bytes": 703269,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/DSC04637_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/processing.log",
+      "bytes": 3781,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04637/verification.json",
+      "bytes": 2982,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_comparison.jpg",
+      "bytes": 282239,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_hncs.jpg",
+      "bytes": 52540433,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_hncs.json",
+      "bytes": 2902,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_hncs.preview.jpg",
+      "bytes": 462200,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_hncs_display.preview.jpg",
+      "bytes": 463504,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_original.jpg",
+      "bytes": 26322802,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_original.preview.jpg",
+      "bytes": 439459,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/DSC04945_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/processing.log",
+      "bytes": 3799,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC04945/verification.json",
+      "bytes": 3000,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_comparison.jpg",
+      "bytes": 294895,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_hncs.jpg",
+      "bytes": 37735940,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_hncs.json",
+      "bytes": 2910,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_hncs.preview.jpg",
+      "bytes": 397244,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_hncs_display.preview.jpg",
+      "bytes": 398567,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_original.jpg",
+      "bytes": 24610965,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_original.preview.jpg",
+      "bytes": 410649,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/DSC05218_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/processing.log",
+      "bytes": 3798,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC05218/verification.json",
+      "bytes": 2999,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_comparison.jpg",
+      "bytes": 220301,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_hncs.jpg",
+      "bytes": 52300025,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_hncs.json",
+      "bytes": 2907,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_hncs.preview.jpg",
+      "bytes": 371719,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_hncs_display.preview.jpg",
+      "bytes": 373525,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_original.jpg",
+      "bytes": 26704867,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_original.preview.jpg",
+      "bytes": 371243,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/DSC07240_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/processing.log",
+      "bytes": 3779,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07240/verification.json",
+      "bytes": 2980,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_comparison.jpg",
+      "bytes": 383715,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_hncs.jpg",
+      "bytes": 49731958,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_hncs.json",
+      "bytes": 2905,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_hncs.preview.jpg",
+      "bytes": 363383,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_hncs_display.preview.jpg",
+      "bytes": 367945,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_original.jpg",
+      "bytes": 26118119,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_original.preview.jpg",
+      "bytes": 367682,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/DSC07247_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/processing.log",
+      "bytes": 3797,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07247/verification.json",
+      "bytes": 2998,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_comparison.jpg",
+      "bytes": 329281,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_hncs.jpg",
+      "bytes": 60579662,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_hncs.json",
+      "bytes": 2911,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_hncs.preview.jpg",
+      "bytes": 568219,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_hncs_display.preview.jpg",
+      "bytes": 563273,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_original.jpg",
+      "bytes": 33956713,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_original.preview.jpg",
+      "bytes": 554649,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/DSC07294_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/processing.log",
+      "bytes": 3780,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07294/verification.json",
+      "bytes": 2981,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_comparison.jpg",
+      "bytes": 217339,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_hncs.jpg",
+      "bytes": 69221421,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_hncs.json",
+      "bytes": 2905,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_hncs.preview.jpg",
+      "bytes": 386333,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_hncs.tif",
+      "bytes": 365896768,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_hncs_display.preview.jpg",
+      "bytes": 387652,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_hncs_srgb.tif",
+      "bytes": 365896768,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_original.dng",
+      "bytes": 122419952,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_original.jpg",
+      "bytes": 26829446,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_original.preview.jpg",
+      "bytes": 332307,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_original_srgb.tif",
+      "bytes": 365881200,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/processing.log",
+      "bytes": 3777,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07372/verification.json",
+      "bytes": 2978,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_comparison.jpg",
+      "bytes": 265757,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_hncs.jpg",
+      "bytes": 51025773,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_hncs.json",
+      "bytes": 2906,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_hncs.preview.jpg",
+      "bytes": 448582,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_hncs_display.preview.jpg",
+      "bytes": 449222,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_original.jpg",
+      "bytes": 26908386,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_original.preview.jpg",
+      "bytes": 427312,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/DSC07426_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/processing.log",
+      "bytes": 3778,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/DSC07426/verification.json",
+      "bytes": 2979,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/README.md",
+      "bytes": 2330,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/all_comparisons.jpg",
+      "bytes": 927483,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/batch_verification.json",
+      "bytes": 27956,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-adaptive-2026-10-03/fixed_vs_adaptive.jpg",
+      "bytes": 1008748,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_comparison.jpg",
+      "bytes": 734777,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_hncs.jpg",
+      "bytes": 66926185,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_hncs.json",
+      "bytes": 2442,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_hncs.preview.jpg",
+      "bytes": 759183,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_hncs_display.preview.jpg",
+      "bytes": 747133,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_original.jpg",
+      "bytes": 32283700,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_original.preview.jpg",
+      "bytes": 703269,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/DSC04637_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/processing.log",
+      "bytes": 3166,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04637/verification.json",
+      "bytes": 2435,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_comparison.jpg",
+      "bytes": 283152,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_hncs.jpg",
+      "bytes": 55261377,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_hncs.json",
+      "bytes": 2435,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_hncs.preview.jpg",
+      "bytes": 467548,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_hncs_display.preview.jpg",
+      "bytes": 468661,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_original.jpg",
+      "bytes": 26322802,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_original.preview.jpg",
+      "bytes": 439459,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/DSC04945_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/processing.log",
+      "bytes": 3184,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC04945/verification.json",
+      "bytes": 2453,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_comparison.jpg",
+      "bytes": 295280,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_hncs.jpg",
+      "bytes": 39033614,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_hncs.json",
+      "bytes": 2443,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_hncs.preview.jpg",
+      "bytes": 399492,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_hncs_display.preview.jpg",
+      "bytes": 400853,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_original.jpg",
+      "bytes": 24610965,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_original.preview.jpg",
+      "bytes": 410649,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/DSC05218_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/processing.log",
+      "bytes": 3184,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC05218/verification.json",
+      "bytes": 2453,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_comparison.jpg",
+      "bytes": 220750,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_hncs.jpg",
+      "bytes": 53088525,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_hncs.json",
+      "bytes": 2441,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_hncs.preview.jpg",
+      "bytes": 374063,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_hncs_display.preview.jpg",
+      "bytes": 375811,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_original.jpg",
+      "bytes": 26704867,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_original.preview.jpg",
+      "bytes": 371243,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/DSC07240_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/processing.log",
+      "bytes": 3165,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07240/verification.json",
+      "bytes": 2434,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_comparison.jpg",
+      "bytes": 329773,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_hncs.jpg",
+      "bytes": 61487956,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_hncs.json",
+      "bytes": 2443,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_hncs.preview.jpg",
+      "bytes": 571042,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_hncs_display.preview.jpg",
+      "bytes": 565942,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_original.jpg",
+      "bytes": 33956713,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_original.preview.jpg",
+      "bytes": 554649,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/DSC07294_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/processing.log",
+      "bytes": 3165,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07294/verification.json",
+      "bytes": 2434,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_comparison.jpg",
+      "bytes": 215980,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_hncs.jpg",
+      "bytes": 65294092,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_hncs.json",
+      "bytes": 2440,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_hncs.preview.jpg",
+      "bytes": 373811,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_hncs.tif",
+      "bytes": 365896768,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_hncs_display.preview.jpg",
+      "bytes": 375317,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_hncs_srgb.tif",
+      "bytes": 365896768,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_original.dng",
+      "bytes": 122419952,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_original.jpg",
+      "bytes": 26829446,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_original.preview.jpg",
+      "bytes": 332307,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/DSC07372_original_srgb.tif",
+      "bytes": 365881200,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/processing.log",
+      "bytes": 3165,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07372/verification.json",
+      "bytes": 2434,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_comparison.jpg",
+      "bytes": 266705,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_hncs.jpg",
+      "bytes": 53077827,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_hncs.json",
+      "bytes": 2440,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_hncs.preview.jpg",
+      "bytes": 452828,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_hncs_display.preview.jpg",
+      "bytes": 453288,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_original.jpg",
+      "bytes": 26908386,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_original.preview.jpg",
+      "bytes": 427312,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/DSC07426_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/processing.log",
+      "bytes": 3164,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/DSC07426/verification.json",
+      "bytes": 2433,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/README.md",
+      "bytes": 1811,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/all_comparisons.jpg",
+      "bytes": 815651,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-batch-2026-10-03/batch_verification.json",
+      "bytes": 20131,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/README.md",
+      "bytes": 8802,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/artifact_hashes.json",
+      "bytes": 11047,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/calibration_regression.json",
+      "bytes": 5475,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/model.json",
+      "bytes": 3266,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_comparison.jpg",
+      "bytes": 735808,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_hncs.jpg",
+      "bytes": 67158646,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_hncs.json",
+      "bytes": 4939,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_hncs.preview.jpg",
+      "bytes": 761270,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_hncs_display.preview.jpg",
+      "bytes": 749153,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_original.jpg",
+      "bytes": 32283700,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_original.preview.jpg",
+      "bytes": 703269,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/DSC04637_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/processing.log",
+      "bytes": 4174,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04637/verification.json",
+      "bytes": 3361,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_comparison.jpg",
+      "bytes": 282813,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_hncs.jpg",
+      "bytes": 53765463,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_hncs.json",
+      "bytes": 4943,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_hncs.preview.jpg",
+      "bytes": 464939,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_hncs_display.preview.jpg",
+      "bytes": 466060,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_original.jpg",
+      "bytes": 26322802,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_original.preview.jpg",
+      "bytes": 439459,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/DSC04945_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/processing.log",
+      "bytes": 4199,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC04945/verification.json",
+      "bytes": 3386,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_comparison.jpg",
+      "bytes": 295370,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_hncs.jpg",
+      "bytes": 38634880,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_hncs.json",
+      "bytes": 4945,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_hncs.preview.jpg",
+      "bytes": 399002,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_hncs_display.preview.jpg",
+      "bytes": 400192,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_original.jpg",
+      "bytes": 24610965,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_original.preview.jpg",
+      "bytes": 410649,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/DSC05218_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/processing.log",
+      "bytes": 4197,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC05218/verification.json",
+      "bytes": 3384,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_comparison.jpg",
+      "bytes": 220414,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_hncs.jpg",
+      "bytes": 52513622,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_hncs.json",
+      "bytes": 4925,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_hncs.preview.jpg",
+      "bytes": 372239,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_hncs_display.preview.jpg",
+      "bytes": 374114,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_original.jpg",
+      "bytes": 26704867,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_original.preview.jpg",
+      "bytes": 371243,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/DSC07240_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/processing.log",
+      "bytes": 4161,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07240/verification.json",
+      "bytes": 3348,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_comparison.jpg",
+      "bytes": 384100,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_hncs.jpg",
+      "bytes": 50056253,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_hncs.json",
+      "bytes": 4924,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_hncs.preview.jpg",
+      "bytes": 364274,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_hncs_display.preview.jpg",
+      "bytes": 368493,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_original.jpg",
+      "bytes": 26118119,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_original.preview.jpg",
+      "bytes": 367682,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/DSC07247_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/processing.log",
+      "bytes": 4182,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07247/verification.json",
+      "bytes": 3369,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_comparison.jpg",
+      "bytes": 329423,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_hncs.jpg",
+      "bytes": 60978093,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_hncs.json",
+      "bytes": 4930,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_hncs.preview.jpg",
+      "bytes": 569561,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_hncs_display.preview.jpg",
+      "bytes": 564394,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_original.jpg",
+      "bytes": 33956713,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_original.preview.jpg",
+      "bytes": 554649,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/DSC07294_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/processing.log",
+      "bytes": 4164,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07294/verification.json",
+      "bytes": 3351,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_comparison.jpg",
+      "bytes": 217615,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_hncs.jpg",
+      "bytes": 69049804,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_hncs.json",
+      "bytes": 4910,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_hncs.preview.jpg",
+      "bytes": 386080,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_hncs.tif",
+      "bytes": 365896768,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_hncs_display.preview.jpg",
+      "bytes": 387424,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_hncs_srgb.tif",
+      "bytes": 365896768,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_original.dng",
+      "bytes": 122419952,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_original.jpg",
+      "bytes": 26829446,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_original.preview.jpg",
+      "bytes": 332307,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/DSC07372_original_srgb.tif",
+      "bytes": 365881200,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/processing.log",
+      "bytes": 4146,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07372/verification.json",
+      "bytes": 3333,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_comparison.jpg",
+      "bytes": 266119,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_hncs.jpg",
+      "bytes": 52006358,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_hncs.json",
+      "bytes": 4939,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_hncs.preview.jpg",
+      "bytes": 450801,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_hncs_display.preview.jpg",
+      "bytes": 451169,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_original.dng",
+      "bytes": 129499888,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_original.jpg",
+      "bytes": 26908386,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_original.preview.jpg",
+      "bytes": 427312,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/DSC07426_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/processing.log",
+      "bytes": 4177,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/DSC07426/verification.json",
+      "bytes": 3364,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/README.md",
+      "bytes": 2366,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/adaptive_vs_dual.jpg",
+      "bytes": 1313610,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/all_comparisons.jpg",
+      "bytes": 927779,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output/batch_verification.json",
+      "bytes": 31203,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/output_verification.json",
+      "bytes": 12008,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/source_audit.json",
+      "bytes": 14207,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/LICENSE",
+      "bytes": 1074,
+      "included": true,
+      "kind": "",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/chart_baseline.py",
+      "bytes": 9868,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/chart_validation_report.json",
+      "bytes": 1280,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/dcp_interpolate.py",
+      "bytes": 7314,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/dual_illuminant_report_v2_illuminant_referenced.json",
+      "bytes": 3578,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/dual_illuminant_report_v3_adobe_illuminant_order.json",
+      "bytes": 4187,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/fit_dpreview_studio_chart.py",
+      "bytes": 8276,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/illuminant_referenced_interpolation_report.json",
+      "bytes": 1195,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/io.py",
+      "bytes": 10601,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/manifest.csv",
+      "bytes": 5927,
+      "included": true,
+      "kind": ".csv",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/raw_baseline.py",
+      "bytes": 8286,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/refit_x2dii_dual_illuminant_v2_illuminant_referenced.py",
+      "bytes": 13429,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/repository-commit.json",
+      "bytes": 130,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/repository-tree.json",
+      "bytes": 349954,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/sources/sony-dxomark.json",
+      "bytes": 1269,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-dual-illuminant/tests.log",
+      "bytes": 2463,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/2026-10-03_技术-HNCS-final-report.md",
+      "bytes": 15948,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/2026-10-04_技术-Phocus-film-curves-presets-report.md",
+      "bytes": 15259,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/README.md",
+      "bytes": 2179,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/artifact_hashes.json",
+      "bytes": 36014,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/before/README.md",
+      "bytes": 14226,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/before/a7rv_to_x2dii.json",
+      "bytes": 47435,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/before/export_photo_original.py",
+      "bytes": 8812,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/before/hncs_dual_illuminant.py",
+      "bytes": 9890,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/before/hncs_pipeline.py",
+      "bytes": 41717,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/before/process_photo_batch.py",
+      "bytes": 4383,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/before/test_dual_illuminant.py",
+      "bytes": 4424,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/before/test_hncs_pipeline.py",
+      "bytes": 8633,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/completion_audit.json",
+      "bytes": 6643,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/825b88ead50e440fbfed14437c27e470.arw.patches.json",
+      "bytes": 13865,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/825b88ead50e440fbfed14437c27e470.arw.roi.jpg",
+      "bytes": 226188,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/evidence/b83908b171574fc5b33045dfca85daf6.arw.patches.json",
+      "bytes": 13865,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/b83908b171574fc5b33045dfca85daf6.arw.roi.jpg",
+      "bytes": 225960,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/evidence/bd2ffdbfd1e441bc9a93c115117e5054.3fr.patches.json",
+      "bytes": 13875,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/bd2ffdbfd1e441bc9a93c115117e5054.3fr.roi.jpg",
+      "bytes": 259504,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/evidence/daylight-fit-study.json",
+      "bytes": 2671,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/default_cli_regression.json",
+      "bytes": 4225,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/f3da42aac2944357bd87685f9ae2ec1e.3fr.patches.json",
+      "bytes": 13865,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/f3da42aac2944357bd87685f9ae2ec1e.3fr.roi.jpg",
+      "bytes": 259547,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/evidence/final_batch.log",
+      "bytes": 858,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/final_output_verification.json",
+      "bytes": 7673,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/final_output_verification.log",
+      "bytes": 360,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/final_repository_recheck.json",
+      "bytes": 16188,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/fit-method-stability.json",
+      "bytes": 1517,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/paired_chart_evaluation.json",
+      "bytes": 10090,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/paired_fit.log",
+      "bytes": 485,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/paired_fit_and_validation.log",
+      "bytes": 686,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/runtime_portability.json",
+      "bytes": 4907,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/runtime_portability.log",
+      "bytes": 196,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/search_round3_recheck.json",
+      "bytes": 29919,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/search_round4_recheck.json",
+      "bytes": 28912,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/search_round5_recheck.json",
+      "bytes": 29408,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/sony-dcp-characterization.json",
+      "bytes": 1388,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/sony-dcp-tags.json",
+      "bytes": 1817,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/sony-source-profile-comparison.json",
+      "bytes": 816,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/sony_lowlight.preview.jpg",
+      "bytes": 215925,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/evidence/sony_lowlight_patches.json",
+      "bytes": 13844,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/sony_lowlight_roi.jpg",
+      "bytes": 225960,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/evidence/source_profile_prepare.log",
+      "bytes": 127,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/tests.log",
+      "bytes": 4329,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/timeline.json",
+      "bytes": 2458,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/evidence/warm-fit-selection.json",
+      "bytes": 2947,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/hncs-runtime-r5.zip",
+      "bytes": 857892,
+      "included": false,
+      "kind": ".zip",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/hncs-runtime-r6.zip",
+      "bytes": 872151,
+      "included": false,
+      "kind": ".zip",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_comparison.jpg",
+      "bytes": 734766,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_hncs.jpg",
+      "bytes": 66349932,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_hncs.json",
+      "bytes": 3669,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_hncs.preview.jpg",
+      "bytes": 757872,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_hncs_display.preview.jpg",
+      "bytes": 747148,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_original.dng",
+      "bytes": 129499984,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_original.jpg",
+      "bytes": 32283700,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_original.preview.jpg",
+      "bytes": 703269,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/DSC04637_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/processing.log",
+      "bytes": 4366,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04637/verification.json",
+      "bytes": 3513,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_comparison.jpg",
+      "bytes": 281531,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_hncs.jpg",
+      "bytes": 51976734,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_hncs.json",
+      "bytes": 3660,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_hncs.preview.jpg",
+      "bytes": 460048,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_hncs_display.preview.jpg",
+      "bytes": 461253,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_original.dng",
+      "bytes": 129500000,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_original.jpg",
+      "bytes": 26322802,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_original.preview.jpg",
+      "bytes": 439459,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/DSC04945_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/processing.log",
+      "bytes": 4382,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC04945/verification.json",
+      "bytes": 3529,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_comparison.jpg",
+      "bytes": 294673,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_hncs.jpg",
+      "bytes": 37484807,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_hncs.json",
+      "bytes": 3666,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_hncs.preview.jpg",
+      "bytes": 396548,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_hncs_display.preview.jpg",
+      "bytes": 397834,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_original.dng",
+      "bytes": 129499984,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_original.jpg",
+      "bytes": 24610965,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_original.preview.jpg",
+      "bytes": 410649,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/DSC05218_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/processing.log",
+      "bytes": 4384,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC05218/verification.json",
+      "bytes": 3531,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_comparison.jpg",
+      "bytes": 220076,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_hncs.jpg",
+      "bytes": 52133594,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_hncs.json",
+      "bytes": 3651,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_hncs.preview.jpg",
+      "bytes": 370967,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_hncs_display.preview.jpg",
+      "bytes": 372782,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_original.dng",
+      "bytes": 129499984,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_original.jpg",
+      "bytes": 26704867,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_original.preview.jpg",
+      "bytes": 371243,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/DSC07240_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/processing.log",
+      "bytes": 4349,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07240/verification.json",
+      "bytes": 3496,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_comparison.jpg",
+      "bytes": 383247,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_hncs.jpg",
+      "bytes": 49501864,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_hncs.json",
+      "bytes": 3670,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_hncs.preview.jpg",
+      "bytes": 362591,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_hncs_display.preview.jpg",
+      "bytes": 367066,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_original.dng",
+      "bytes": 129499984,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_original.jpg",
+      "bytes": 26118119,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_original.preview.jpg",
+      "bytes": 367682,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/DSC07247_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/processing.log",
+      "bytes": 4385,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07247/verification.json",
+      "bytes": 3532,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_comparison.jpg",
+      "bytes": 329163,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_hncs.jpg",
+      "bytes": 60401603,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_hncs.json",
+      "bytes": 3671,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_hncs.preview.jpg",
+      "bytes": 567602,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_hncs_display.preview.jpg",
+      "bytes": 562823,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_original.dng",
+      "bytes": 129499984,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_original.jpg",
+      "bytes": 33956713,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_original.preview.jpg",
+      "bytes": 554649,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/DSC07294_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/processing.log",
+      "bytes": 4365,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07294/verification.json",
+      "bytes": 3512,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_comparison.jpg",
+      "bytes": 217339,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_hncs.jpg",
+      "bytes": 69221421,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_hncs.json",
+      "bytes": 3630,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_hncs.preview.jpg",
+      "bytes": 386333,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_hncs.tif",
+      "bytes": 365896768,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_hncs_display.preview.jpg",
+      "bytes": 387652,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_hncs_srgb.tif",
+      "bytes": 365896768,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_original.dng",
+      "bytes": 122420064,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_original.jpg",
+      "bytes": 26829446,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_original.preview.jpg",
+      "bytes": 332307,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/DSC07372_original_srgb.tif",
+      "bytes": 365881200,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/processing.log",
+      "bytes": 4329,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07372/verification.json",
+      "bytes": 3476,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_comparison.jpg",
+      "bytes": 265599,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_hncs.jpg",
+      "bytes": 50665110,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_hncs.json",
+      "bytes": 3663,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_hncs.preview.jpg",
+      "bytes": 447390,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_hncs_display.preview.jpg",
+      "bytes": 448089,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_original.dng",
+      "bytes": 129499984,
+      "included": false,
+      "kind": ".dng",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_original.jpg",
+      "bytes": 26908386,
+      "included": false,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_original.preview.jpg",
+      "bytes": 427312,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/DSC07426_original_srgb.tif",
+      "bytes": 365842920,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/processing.log",
+      "bytes": 4362,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/DSC07426/verification.json",
+      "bytes": 3509,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/README.md",
+      "bytes": 2383,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/all_comparisons.jpg",
+      "bytes": 926699,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/output/batch_verification.json",
+      "bytes": 32509,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/output/previous_vs_final.jpg",
+      "bytes": 1306570,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/paired_illuminants.json",
+      "bytes": 19012,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/paired_illuminants_dcp_candidate.json",
+      "bytes": 18961,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/public-data-search.json",
+      "bytes": 12860,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/public-data-search.md",
+      "bytes": 9818,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/raw/825b88ead50e440fbfed14437c27e470.arw",
+      "bytes": 77287424,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/raw/b83908b171574fc5b33045dfca85daf6.arw",
+      "bytes": 76566528,
+      "included": true,
+      "kind": ".arw",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/raw/bd2ffdbfd1e441bc9a93c115117e5054.3fr",
+      "bytes": 212467712,
+      "included": true,
+      "kind": ".3fr",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/raw/f3da42aac2944357bd87685f9ae2ec1e.3fr",
+      "bytes": 212463616,
+      "included": true,
+      "kind": ".3fr",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/scope.md",
+      "bytes": 1693,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/sony_dcp_source_model.json",
+      "bytes": 1859,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/sources/Sony ILCE-7RM5 Adobe Standard Linear.dcp",
+      "bytes": 65406,
+      "included": true,
+      "kind": ".dcp",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-finalization/sources/adobe-linear-profile-tree.json",
+      "bytes": 575928,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/sources/ccc-tree.json",
+      "bytes": 14644,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/sources/hncs-current-tree.json",
+      "bytes": 349954,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/sources/lowlight-candidates.json",
+      "bytes": 5128,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/sources/sony-dcp-provenance.json",
+      "bytes": 493,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/sources/ssf-data-tree.json",
+      "bytes": 69963,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-finalization/sources/ssf-fork-tree.json",
+      "bytes": 72758,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/2026-10-03_技术-Phocus-HNCS-audit-report.md",
+      "bytes": 16055,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/before/README.md",
+      "bytes": 9300,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/before/hncs_pipeline.py",
+      "bytes": 31066,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/before/native_validation.py",
+      "bytes": 5276,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/before/prepare_hncs_assets.py",
+      "bytes": 4353,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/before/test_hncs_pipeline.py",
+      "bytes": 3686,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/before/work/hncs-pipeline/a7rv_to_x2dii.json",
+      "bytes": 46513,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/before/work/hncs-pipeline/assets/provenance.json",
+      "bytes": 1238,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/before/work/hncs-pipeline/assets/x2dii_phocus_422.npz",
+      "bytes": 674877,
+      "included": true,
+      "kind": ".npz",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-audit/compare_phocus_export.py",
+      "bytes": 7078,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/HBImageProcessing.arm64.asm",
+      "bytes": 15755892,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/HBStorage.arm64.asm",
+      "bytes": 13414660,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/README.md",
+      "bytes": 690,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/actual_export.icc",
+      "bytes": 532,
+      "included": true,
+      "kind": ".icc",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/actual_export.phos",
+      "bytes": 32499,
+      "included": true,
+      "kind": ".phos",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/actual_export_comparison.json",
+      "bytes": 15435,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/actual_export_comparison.log",
+      "bytes": 2182,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/artifact_hashes.json",
+      "bytes": 12825,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/assets.log",
+      "bytes": 1791,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/native_capture.json",
+      "bytes": 1350,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/native_capture.log",
+      "bytes": 1673,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/native_chain.json",
+      "bytes": 38236,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/native_chain.log",
+      "bytes": 24302,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/native_config.json",
+      "bytes": 6053,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/native_config.log",
+      "bytes": 3443,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/native_kernel_vectors.npz",
+      "bytes": 97596,
+      "included": true,
+      "kind": ".npz",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/pipeline_run.log",
+      "bytes": 2263,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/reuse_validation.json",
+      "bytes": 637,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/reuse_validation.log",
+      "bytes": 683,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/evidence/tests.log",
+      "bytes": 1112,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/exports/phocus_roi.preview.jpg",
+      "bytes": 756794,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-audit/exports/phocus_vs_pipeline.jpg",
+      "bytes": 502084,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-audit/exports/x2dii_.tif",
+      "bytes": 611387389,
+      "included": true,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-audit/film_curve_probe.py",
+      "bytes": 2627,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/native_capture_probe.py",
+      "bytes": 7076,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/native_chain_probe.py",
+      "bytes": 9960,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/native_config_probe.py",
+      "bytes": 4447,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/scope.md",
+      "bytes": 1322,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/timeline.md",
+      "bytes": 2327,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/update_audit_manifest.py",
+      "bytes": 2315,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-audit/wb_preset_probe.py",
+      "bytes": 2276,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/README.md",
+      "bytes": 363,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/E-001.md",
+      "bytes": 601,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/E-002.md",
+      "bytes": 548,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/E-003.md",
+      "bytes": 391,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/E-004.md",
+      "bytes": 382,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/binary_validation.md",
+      "bytes": 3950,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/374adw566wecu4ai5xgw.bin",
+      "bytes": 2035229,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/3v3gs37kfuzt3pvzkos4.bin",
+      "bytes": 2110554,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/4dvxtxwss6pma3sinntd.bin",
+      "bytes": 2111351,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/5z2xpkwuxlsw7s52ogew.bin",
+      "bytes": 2110100,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/6rett63a7u3ymthirovr.bin",
+      "bytes": 1653365,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/atrsjhfdpwin6lcabrqg.bin",
+      "bytes": 1716897,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/bohnjuhtuvuvtxyydb56.bin",
+      "bytes": 3115577,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/cdw4627ghtz2rfx7ygch.bin",
+      "bytes": 898366,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/ci4ev4psd3mrymlscnhk.bin",
+      "bytes": 1653656,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/cz635rnm5l2hkqajtux4.bin",
+      "bytes": 1653945,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/dwswfnbnhalbooci5rqd.bin",
+      "bytes": 935545,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/er5ymloaq43pg23qeafi.bin",
+      "bytes": 3051784,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/f45ztndkb5yu7rcno7nz.bin",
+      "bytes": 2110677,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/fx77eloqamxuqijs5plh.bin",
+      "bytes": 1651090,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/gl77kcracyokrc4ma7j7.bin",
+      "bytes": 898080,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/hzdkqixccpbhkyi5kewj.bin",
+      "bytes": 1652274,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/mq7w3wb56dc3gq3hhv3s.bin",
+      "bytes": 3051833,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/ooy2px6dqqqdvk3bolic.bin",
+      "bytes": 898153,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/pj2rtfkvmvcocnsthgxj.bin",
+      "bytes": 1651878,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/v7xcumi3eqoxbfelm4sb.bin",
+      "bytes": 1653014,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/vouzhcyvtlb3c65lbpc2.bin",
+      "bytes": 2111357,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/vto23zbibzdmitbjdg2m.bin",
+      "bytes": 2111356,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/woaitvdykvaksnyuaegm.bin",
+      "bytes": 2110015,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/wzgvam54lehu2ofp6mn3.bin",
+      "bytes": 2110442,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/xcsmihuzljuqlyjislw5.bin",
+      "bytes": 1653108,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/colormaps_plain/y22fh7amwo4umjevnl6o.bin",
+      "bytes": 1653531,
+      "included": true,
+      "kind": ".bin",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/decrypt_colormap.py",
+      "bytes": 1455,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/e2e_hncs.py",
+      "bytes": 9358,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/e2e_output.txt",
+      "bytes": 2680,
+      "included": true,
+      "kind": ".txt",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/v1_curves.csv",
+      "bytes": 61325,
+      "included": true,
+      "kind": ".csv",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/v1curve.py",
+      "bytes": 7693,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/evidence/waes.py",
+      "bytes": 4658,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/report/HNCS_技术交付报告.md",
+      "bytes": 14947,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/report/analysis.md",
+      "bytes": 33220,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/scope.md",
+      "bytes": 1523,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/timeline.md",
+      "bytes": 406,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-phocus-correction/workitems.md",
+      "bytes": 722,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/19990c35cf194481a0093de2b02ed818.arw.sensor-preview.jpg",
+      "bytes": 229327,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/2026-10-02_技术-HNCS-pipeline-report.md",
+      "bytes": 13668,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/7fbb1471e0cf4b22858cd9a161fb83a8.3fr.sensor-preview.jpg",
+      "bytes": 267396,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/a7rv_to_x2dii.json",
+      "bytes": 47496,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/assets/HasselbladLStarRGB.icc",
+      "bytes": 4732,
+      "included": true,
+      "kind": ".icc",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/assets/HasselbladRGB.icc",
+      "bytes": 532,
+      "included": true,
+      "kind": ".icc",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/assets/provenance.json",
+      "bytes": 1861,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/assets/x2dii_phocus_422.npz",
+      "bytes": 829338,
+      "included": true,
+      "kind": ".npz",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/chart_regions.json",
+      "bytes": 700,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/CalculateGrayWeight.asm",
+      "bytes": 912,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/CalculateHSVTriple.asm",
+      "bytes": 9517,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/CalculateLUT.asm",
+      "bytes": 11012,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/CalculateLowDesat.asm",
+      "bytes": 447,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/ColorNormalCorrectPixel.asm",
+      "bytes": 5131,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/ColorNormalCorrectPixels.asm",
+      "bytes": 5131,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/GetColorSpaceChangeMatrix.asm",
+      "bytes": 3383,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/GetFileNameE13uColorProfile.asm",
+      "bytes": 14981,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/HBRawCorrections.arm64.asm",
+      "bytes": 2313326,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/HBRawCorrections.imports.txt",
+      "bytes": 1209,
+      "included": true,
+      "kind": ".txt",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/HBUtil.arm64.asm",
+      "bytes": 5070541,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/Matrix3x3mlE6CArray.asm",
+      "bytes": 659,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/Phocus.codesign.txt",
+      "bytes": 651,
+      "included": true,
+      "kind": ".txt",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/PrepareLinearizations.asm",
+      "bytes": 1309,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/README.md",
+      "bytes": 751,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/Scaled2DLUT11LookupIndex.asm",
+      "bytes": 3484,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/Scaled2DLUT12FromCbCrData.asm",
+      "bytes": 2978,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/SetupCCE9Matrix3x3S0_P7CXMLLut.asm",
+      "bytes": 7043,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/ZN16CColorCorrection7SetupCCE9Matrix3x3S0_P7CXMLLut.asm",
+      "bytes": 7042,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/ZN16CColorCorrectionC1Ev.asm",
+      "bytes": 73,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/ZN16CColorCorrectionC2Ev.asm",
+      "bytes": 5877,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/ZN9Matrix3x3C1EPKd.asm",
+      "bytes": 235,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/ZN9Matrix3x3C2EPKd.asm",
+      "bytes": 235,
+      "included": true,
+      "kind": ".asm",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/artifact_hashes.json",
+      "bytes": 3164,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/ciede2000testdata.txt",
+      "bytes": 1830,
+      "included": true,
+      "kind": ".txt",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/film_curve_probe.json",
+      "bytes": 9484,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/native_validation.json",
+      "bytes": 2265,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/native_validation.log",
+      "bytes": 3599,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/preset_effect_audit.json",
+      "bytes": 33669,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/raw_normalisation.json",
+      "bytes": 10615,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/raw_normalisation.log",
+      "bytes": 6782,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/reuse_validation.json",
+      "bytes": 192,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/reuse_validation.log",
+      "bytes": 660,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/run_timing.log",
+      "bytes": 31,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/target_scale_diagnostic.json",
+      "bytes": 5290,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/tests.log",
+      "bytes": 4329,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/tool-index.json",
+      "bytes": 17919,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/tool-index.md",
+      "bytes": 7659,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/evidence/wb_preset_probe.json",
+      "bytes": 3312,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/native_validation.py",
+      "bytes": 422,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/output/a7rv_hncs.json",
+      "bytes": 2443,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/output/a7rv_hncs.preview.jpg",
+      "bytes": 637485,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/output/a7rv_hncs.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/output/a7rv_hncs_srgb.tif",
+      "bytes": 365858488,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/output/comparison.jpg",
+      "bytes": 490660,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/output/verification.json",
+      "bytes": 867,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/output/x2dii_reference_hncs.json",
+      "bytes": 2344,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/output/x2dii_reference_hncs.preview.jpg",
+      "bytes": 745121,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/output/x2dii_reference_hncs.tif",
+      "bytes": 631547392,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/output/x2dii_reference_hncs_srgb.tif",
+      "bytes": 631547392,
+      "included": false,
+      "kind": ".tif",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/phocus_presets.json",
+      "bytes": 63251,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/run.log",
+      "bytes": 1765,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/scope.md",
+      "bytes": 850,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/sony_chart_regions.jpg",
+      "bytes": 239367,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-pipeline/timeline.md",
+      "bytes": 1445,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/verify_raw_normalisation.py",
+      "bytes": 2135,
+      "included": true,
+      "kind": ".py",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-pipeline/x2dii_chart_regions.jpg",
+      "bytes": 278380,
+      "included": true,
+      "kind": ".jpg",
+      "text_read": false
+    },
+    {
+      "path": "work/hncs-white-balance-bridge/README.md",
+      "bytes": 3968,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-white-balance-bridge/artifact_hashes.json",
+      "bytes": 5943,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-white-balance-bridge/calibration_regression.json",
+      "bytes": 3428,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-white-balance-bridge/feasibility.json",
+      "bytes": 5672,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-white-balance-bridge/output_verification.json",
+      "bytes": 4729,
+      "included": true,
+      "kind": ".json",
+      "text_read": true
+    },
+    {
+      "path": "work/hncs-white-balance-bridge/tests.log",
+      "bytes": 1545,
+      "included": true,
+      "kind": ".log",
+      "text_read": true
+    },
+    {
+      "path": "work/master-route-20261002-175145/route-scope.md",
+      "bytes": 628,
+      "included": false,
+      "kind": ".md",
+      "text_read": true
+    }
+  ],
+  "source_count": 52,
+  "documents_read": 37
+}

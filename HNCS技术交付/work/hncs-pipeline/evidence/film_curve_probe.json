@@ -1,0 +1,432 @@
+{
+  "phocus_version": "4.2.2",
+  "source_binary_sha256": {
+    "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+    "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0"
+  },
+  "rows": [
+    {
+      "working_space": 0,
+      "color_model": 0,
+      "film_curve_type": 0,
+      "curve_sha256": "6df65262f98f0f930eddef6eda6dd4e15f9ec6b3defdab5f1386ee88b09b04e7",
+      "samples": [
+        0,
+        11361,
+        45831,
+        61032,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 0,
+      "film_curve_type": 1,
+      "curve_sha256": "3ff3e7bb83b37fc64961b2eee02833f9e52766f2ecdd5486ed7a24412006bf4d",
+      "samples": [
+        0,
+        7719,
+        37092,
+        57326,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 0,
+      "film_curve_type": 2,
+      "curve_sha256": "3ff3e7bb83b37fc64961b2eee02833f9e52766f2ecdd5486ed7a24412006bf4d",
+      "samples": [
+        0,
+        7719,
+        37092,
+        57326,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 0,
+      "film_curve_type": 3,
+      "curve_sha256": "3ff3e7bb83b37fc64961b2eee02833f9e52766f2ecdd5486ed7a24412006bf4d",
+      "samples": [
+        0,
+        7719,
+        37092,
+        57326,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 0,
+      "film_curve_type": 4,
+      "curve_sha256": "3ff3e7bb83b37fc64961b2eee02833f9e52766f2ecdd5486ed7a24412006bf4d",
+      "samples": [
+        0,
+        7719,
+        37092,
+        57326,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 0,
+      "film_curve_type": 5,
+      "curve_sha256": "3ff3e7bb83b37fc64961b2eee02833f9e52766f2ecdd5486ed7a24412006bf4d",
+      "samples": [
+        0,
+        7719,
+        37092,
+        57326,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 0,
+      "film_curve_type": 6,
+      "curve_sha256": "3ff3e7bb83b37fc64961b2eee02833f9e52766f2ecdd5486ed7a24412006bf4d",
+      "samples": [
+        0,
+        7719,
+        37092,
+        57326,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 0,
+      "film_curve_type": 7,
+      "curve_sha256": "238e1b3f40c7064b4427dbd3e49941a5d9d1ad102a40afb007276fcf0416e428",
+      "samples": [
+        0,
+        9783,
+        30049,
+        47818,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 1,
+      "film_curve_type": 0,
+      "curve_sha256": "238e1b3f40c7064b4427dbd3e49941a5d9d1ad102a40afb007276fcf0416e428",
+      "samples": [
+        0,
+        9783,
+        30049,
+        47818,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 1,
+      "film_curve_type": 1,
+      "curve_sha256": "238e1b3f40c7064b4427dbd3e49941a5d9d1ad102a40afb007276fcf0416e428",
+      "samples": [
+        0,
+        9783,
+        30049,
+        47818,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 1,
+      "film_curve_type": 2,
+      "curve_sha256": "238e1b3f40c7064b4427dbd3e49941a5d9d1ad102a40afb007276fcf0416e428",
+      "samples": [
+        0,
+        9783,
+        30049,
+        47818,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 1,
+      "film_curve_type": 3,
+      "curve_sha256": "238e1b3f40c7064b4427dbd3e49941a5d9d1ad102a40afb007276fcf0416e428",
+      "samples": [
+        0,
+        9783,
+        30049,
+        47818,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 1,
+      "film_curve_type": 4,
+      "curve_sha256": "238e1b3f40c7064b4427dbd3e49941a5d9d1ad102a40afb007276fcf0416e428",
+      "samples": [
+        0,
+        9783,
+        30049,
+        47818,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 1,
+      "film_curve_type": 5,
+      "curve_sha256": "238e1b3f40c7064b4427dbd3e49941a5d9d1ad102a40afb007276fcf0416e428",
+      "samples": [
+        0,
+        9783,
+        30049,
+        47818,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 1,
+      "film_curve_type": 6,
+      "curve_sha256": "238e1b3f40c7064b4427dbd3e49941a5d9d1ad102a40afb007276fcf0416e428",
+      "samples": [
+        0,
+        9783,
+        30049,
+        47818,
+        65535
+      ]
+    },
+    {
+      "working_space": 0,
+      "color_model": 1,
+      "film_curve_type": 7,
+      "curve_sha256": "238e1b3f40c7064b4427dbd3e49941a5d9d1ad102a40afb007276fcf0416e428",
+      "samples": [
+        0,
+        9783,
+        30049,
+        47818,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 0,
+      "film_curve_type": 0,
+      "curve_sha256": "f4b82d2fce3df7ac86a4654ee0043a0bb9d7b6fb01819cab4f8460ae26c0449f",
+      "samples": [
+        0,
+        5363,
+        39601,
+        58431,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 0,
+      "film_curve_type": 1,
+      "curve_sha256": "f4b82d2fce3df7ac86a4654ee0043a0bb9d7b6fb01819cab4f8460ae26c0449f",
+      "samples": [
+        0,
+        5363,
+        39601,
+        58431,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 0,
+      "film_curve_type": 2,
+      "curve_sha256": "f4b82d2fce3df7ac86a4654ee0043a0bb9d7b6fb01819cab4f8460ae26c0449f",
+      "samples": [
+        0,
+        5363,
+        39601,
+        58431,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 0,
+      "film_curve_type": 3,
+      "curve_sha256": "f4b82d2fce3df7ac86a4654ee0043a0bb9d7b6fb01819cab4f8460ae26c0449f",
+      "samples": [
+        0,
+        5363,
+        39601,
+        58431,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 0,
+      "film_curve_type": 4,
+      "curve_sha256": "f4b82d2fce3df7ac86a4654ee0043a0bb9d7b6fb01819cab4f8460ae26c0449f",
+      "samples": [
+        0,
+        5363,
+        39601,
+        58431,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 0,
+      "film_curve_type": 5,
+      "curve_sha256": "f4b82d2fce3df7ac86a4654ee0043a0bb9d7b6fb01819cab4f8460ae26c0449f",
+      "samples": [
+        0,
+        5363,
+        39601,
+        58431,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 0,
+      "film_curve_type": 6,
+      "curve_sha256": "f4b82d2fce3df7ac86a4654ee0043a0bb9d7b6fb01819cab4f8460ae26c0449f",
+      "samples": [
+        0,
+        5363,
+        39601,
+        58431,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 0,
+      "film_curve_type": 7,
+      "curve_sha256": "ef30f472abf7a61bd4bd09cf52c12948ee152866a2b204c659508ef4a2a618a1",
+      "samples": [
+        0,
+        8370,
+        32437,
+        49852,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 1,
+      "film_curve_type": 0,
+      "curve_sha256": "ef30f472abf7a61bd4bd09cf52c12948ee152866a2b204c659508ef4a2a618a1",
+      "samples": [
+        0,
+        8370,
+        32437,
+        49852,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 1,
+      "film_curve_type": 1,
+      "curve_sha256": "ef30f472abf7a61bd4bd09cf52c12948ee152866a2b204c659508ef4a2a618a1",
+      "samples": [
+        0,
+        8370,
+        32437,
+        49852,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 1,
+      "film_curve_type": 2,
+      "curve_sha256": "ef30f472abf7a61bd4bd09cf52c12948ee152866a2b204c659508ef4a2a618a1",
+      "samples": [
+        0,
+        8370,
+        32437,
+        49852,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 1,
+      "film_curve_type": 3,
+      "curve_sha256": "ef30f472abf7a61bd4bd09cf52c12948ee152866a2b204c659508ef4a2a618a1",
+      "samples": [
+        0,
+        8370,
+        32437,
+        49852,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 1,
+      "film_curve_type": 4,
+      "curve_sha256": "ef30f472abf7a61bd4bd09cf52c12948ee152866a2b204c659508ef4a2a618a1",
+      "samples": [
+        0,
+        8370,
+        32437,
+        49852,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 1,
+      "film_curve_type": 5,
+      "curve_sha256": "ef30f472abf7a61bd4bd09cf52c12948ee152866a2b204c659508ef4a2a618a1",
+      "samples": [
+        0,
+        8370,
+        32437,
+        49852,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 1,
+      "film_curve_type": 6,
+      "curve_sha256": "ef30f472abf7a61bd4bd09cf52c12948ee152866a2b204c659508ef4a2a618a1",
+      "samples": [
+        0,
+        8370,
+        32437,
+        49852,
+        65535
+      ]
+    },
+    {
+      "working_space": 1,
+      "color_model": 1,
+      "film_curve_type": 7,
+      "curve_sha256": "ef30f472abf7a61bd4bd09cf52c12948ee152866a2b204c659508ef4a2a618a1",
+      "samples": [
+        0,
+        8370,
+        32437,
+        49852,
+        65535
+      ]
+    }
+  ],
+  "interpretation": {
+    "type_0": "original film curve in gamma companding",
+    "type_7": "pure gamma/L* OETF",
+    "types_1_2_3_4_5_6": "V1 family in the non-HDR native gradation manager",
+    "type_4": "UI automatic/as-shot sentinel when stored in CImageCorrection",
+    "reproduction": "color_model 1 resolves to type 7 regardless of the requested type"
+  }
+}

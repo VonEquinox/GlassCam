@@ -1,0 +1,63 @@
+{
+  "phocus_tiff": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-phocus-audit/exports/x2dii_.tif",
+  "phocus_tiff_sha256": "39f2ce36ffd4cdff8d32574c99861de5711f42574a9f6b542a45e8a9dd2d2735",
+  "shape": [
+    8742,
+    11656,
+    3
+  ],
+  "icc_sha256": "a6ef4e6adde0f028cd9ec03d74de7b9d1a2807bb6a4d61f7f3bc8bf4f1dcdb8e",
+  "actual_settings": {
+    "ExpToolVersion": 4,
+    "FilmCurve": 4,
+    "HDR": false,
+    "ColorModel": 0,
+    "ColorWorkingSpace": 0,
+    "ColorTemperature": 7523,
+    "Tint": -0.003,
+    "EV": 1.0,
+    "USMAmount": 100,
+    "LensCorrection": 7,
+    "VignetteAmount": 0
+  },
+  "default_crop_origin": [
+    128.0,
+    96.0
+  ],
+  "chart_reference_vs_actual_deltaE00": {
+    "mean": 1.8822262621804633,
+    "median": 1.9650466767912267,
+    "p95": 2.3987855312133313,
+    "maximum": 2.4261777464558403
+  },
+  "saved_reference_tiff": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-pipeline/output/x2dii_reference_hncs.tif",
+  "saved_reference_sha256": "5bb0d68c71a9cc1e2eb833bbc7263e95ccfea13dd30d640bee6ba28568bf086f",
+  "saved_reference_vs_actual_deltaE00": {
+    "mean": 1.8800184097169612,
+    "median": 1.9705006990409337,
+    "p95": 2.3955072775224227,
+    "maximum": 2.44593776745975
+  },
+  "diagnostic_camera_wb": [
+    3.06964111328125,
+    1.0,
+    1.41644287109375
+  ],
+  "diagnostic_cct": 7523,
+  "diagnostic_internal_tint": -0.002997869370286445,
+  "diagnostic_fitted_ev": 0.1014220222262684,
+  "diagnostic_fitted_scale": 1.072830399042056,
+  "diagnostic_camera_wb_without_exposure_fit_deltaE00": {
+    "mean": 1.90402447545672,
+    "median": 2.0834982884781104,
+    "p95": 2.5166365842198615,
+    "maximum": 2.6138748117542963
+  },
+  "diagnostic_exposure_fitted_deltaE00": {
+    "mean": 0.630752124273284,
+    "median": 0.5596163491301595,
+    "p95": 1.2152169967616824,
+    "maximum": 1.3801689219428426
+  },
+  "scope": "Actual default non-HDR Phocus export, with its default sharpening/lens processing. ROIs use nominal crop registration, not a measured lens-warp map. Exposure diagnostic fits only four neutral lightness values and is not evidence of exact exposure-chain recovery. No per-pixel or full-pipeline equivalence claim."
+}

@@ -1,0 +1,109 @@
+{
+  "selection": "Five predeclared simple matrix variants; select by warm chromatic-patch LOOCV before reading the separate-exposure validation pair. LOOCV shares neutral normalization; held-out exposure results are reported separately.",
+  "selected": {
+    "weight_power": 0.5,
+    "ridge": 0.01
+  },
+  "variants": [
+    {
+      "fit_parameters": {
+        "weight_power": 0.5,
+        "ridge": 0.0
+      },
+      "metrics": {
+        "chromatic_patch_loocv": {
+          "mean": 0.44555199392798184,
+          "median": 0.3565377413383384,
+          "p95": 0.9772646986143795,
+          "maximum": 1.0027457363302552
+        },
+        "all_patch_training": {
+          "mean": 0.3882073238958159,
+          "median": 0.34594613750079556,
+          "p95": 0.8438656445122662,
+          "maximum": 0.9434229338637534
+        }
+      }
+    },
+    {
+      "fit_parameters": {
+        "weight_power": 0.0,
+        "ridge": 0.0
+      },
+      "metrics": {
+        "chromatic_patch_loocv": {
+          "mean": 0.45568607653771653,
+          "median": 0.3480269486793437,
+          "p95": 0.9611371234342994,
+          "maximum": 1.0335268005647582
+        },
+        "all_patch_training": {
+          "mean": 0.3921186811874942,
+          "median": 0.3521278912889808,
+          "p95": 0.8545311890008214,
+          "maximum": 0.9293023801856637
+        }
+      }
+    },
+    {
+      "fit_parameters": {
+        "weight_power": 0.0,
+        "ridge": 0.01
+      },
+      "metrics": {
+        "chromatic_patch_loocv": {
+          "mean": 0.4466246053580288,
+          "median": 0.3446020362827917,
+          "p95": 0.9618275422487814,
+          "maximum": 1.0281083788300103
+        },
+        "all_patch_training": {
+          "mean": 0.3872241159029857,
+          "median": 0.3445821164890651,
+          "p95": 0.8455725001910226,
+          "maximum": 0.9304233455234795
+        }
+      }
+    },
+    {
+      "fit_parameters": {
+        "weight_power": 0.5,
+        "ridge": 0.01
+      },
+      "metrics": {
+        "chromatic_patch_loocv": {
+          "mean": 0.438189517744299,
+          "median": 0.34088253613490765,
+          "p95": 0.9783923699336263,
+          "maximum": 0.9983816342861861
+        },
+        "all_patch_training": {
+          "mean": 0.38475152937932156,
+          "median": 0.3381147812587234,
+          "p95": 0.8414849776329111,
+          "maximum": 0.9397938631186986
+        }
+      }
+    },
+    {
+      "fit_parameters": {
+        "weight_power": 1.0,
+        "ridge": 0.0
+      },
+      "metrics": {
+        "chromatic_patch_loocv": {
+          "mean": 0.45153227954760766,
+          "median": 0.3757937874128058,
+          "p95": 0.9915907623314043,
+          "maximum": 1.0259073288528486
+        },
+        "all_patch_training": {
+          "mean": 0.39460137635809084,
+          "median": 0.3634697468847473,
+          "p95": 0.8980595702239559,
+          "maximum": 0.9412110784916787
+        }
+      }
+    }
+  ]
+}

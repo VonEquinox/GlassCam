@@ -1,0 +1,494 @@
+[
+  {
+    "path": "README.md",
+    "characters": 7030,
+    "topics": [
+      "A7R V → X2D II → HNCS",
+      "处理自己的照片",
+      "六个 Film Curve 菜单项",
+      "工厂一键预设；例如 nature / portrait / product / square-crop、",
+      "saturated / extra-contrast / lighten、white-balance-cloudy、",
+      "film-grain-fine-texture、grayscale-red-filter、sharpness-high 等",
+      "光源和颜色流程",
+      "参数",
+      "重现拟合和核验",
+      "原日光拟合（默认参数保留原矩阵）",
+      "解析并核验 Sony 白点模型，再拟合两光源模型及不同曝光验证",
+      "30 项数学、工厂颜色与光源模型检查",
+      "逐个调用 Phocus 4.2.2 原生构造函数核对 eFilmCurveType 0..7",
+      "验收已经生成的八张输出并制作新旧对比",
+      "验证结果与适用范围"
+    ]
+  },
+  {
+    "path": "work/DSC07247/README.md",
+    "characters": 1375,
+    "topics": [
+      "DSC07247 输出"
+    ]
+  },
+  {
+    "path": "work/color-data-audit/sources/hncs-evaluation.md",
+    "characters": 225905,
+    "topics": [
+      "hybrid_engine 평가 결과 (2026-07)",
+      "Protocol 1: Fidelity (RAW → 공식 렌더러 vs RAW → hybrid_engine)",
+      "해석",
+      "Protocol 2: Cross-camera generalization (타깃: hasselblad)",
+      "해석 - 두 가지 실패를 정직하게 인정",
+      "종합 결론",
+      "후속 실측 21: 카메라 네이티브 색매트릭스 + DCP 프로필 (2026-07-25)",
+      "HNCS 구조 실험: 4단계 구조 미러링이 ΔE를 개선하는가",
+      "Fuji X-Trans 데모자이크 알고리즘 비교: 기본 vs DHT",
+      "(kL,kC,kH)=(4.1,1.1,1.6) 가중치 재검증 (2026-08-09)",
+      "darktable vs rawpy RAW 디코드 비교 (핫셀블라드 13쌍 + Fuji 3쌍)",
+      "(kL,kC,kH)=(4.1,1.1,1.6) 가중치 재검증 (2026-08-09)",
+      "색수차 보정(chromatic aberration) 실험",
+      "HNCS 조명 블렌딩 실험",
+      "74쌍 재실행 (2026-08, local-mixed-2026-07 기여분 포함)",
+      "(kL,kC,kH)=(4.1,1.1,1.6) 가중치 재검증 - RB vs CCT만 (2026-08-09)",
+      "표본 확대 시뮬레이션 (n=60, 부트스트랩 - 실제 새 데이터 아님)",
+      "Sony 바디별 소스 인식 파일럿",
+      "WB 이중처리 확정 실험 - camera WB + Bradford + Gray World 삼중 스택 (2026-08)",
+      "라이카 hybrid_engine 캘리브레이션 - 첫 raw+jpeg 파이프라인 (2026-08)",
+      "후지 hybrid_engine 캘리브레이션 - 라이카와 반대 결론 (2026-08)",
+      "해셀블라드 재보정 시도 - 공식+기여 487쌍 전체 (2026-08, 게이트 미통과)",
+      "세대별 분해 - X2D II 100C만 이상치 (2026-08)",
+      "깃허브 이슈 #4 / docs/measurements.md와 동기화 - 같은 문제가 이미 배포 파이프라인에서 해결돼 있었음 (2026-08)",
+      "데이터 무결성 버그 - local-work-2026-08/x1d-x2d100c-restore-2026-08 중복 (2026-08)",
+      "공식 13쌍 잔차 L-채널 보정 시도 - 배포 가능한 방법 전부 무효 (2026-09)",
+      "DCP 챠트 매트릭스 - 무채색 패치 가중치 낮춰서 재피팅, 사용자 승인 채택 (2026-09-01)",
+      "DCP 챠트 매트릭스 - Huber IRLS로 한 번 더 재피팅, 사용자 승인 채택 (2026-09-01, 같은 날)",
+      "DCP 챠트 매트릭스 - patch 17(cyan) 초기가중치 재조정, 사용자 승인 채택 (2026-09-01, \"천장\" 결론 이후)",
+      "DCP HueSatMap(hue-only 축소판) 실험 - 배포 아님, 실기기 미검증 (2026-09-01)",
+      "챠트 파이프라인 방법론 검증 - 완전히 다른 카메라(Sony A57, 2012년식)로 재확인 (2026-09-02)",
+      "Nikon D40 n=117로 재검증 - n=5의 약한 결과는 표본 노이즈였음 (2026-09-02, 같은 날)",
+      "Leica SL3-P(현행 배포 바디) 진짜 챠트 데이터 발견 - 지금까지 중 최고 결과 (2026-09-02, 같은 날)",
+      "Leica SL3-P 챠트 5-fold CV floor 화질 보정 3종 실험 - 전부 무효 (2026-09-02, 같은 날)",
+      "dpreview 스튜디오씬 비교위젯 - 브랜드 무관 공용 챠트 데이터베이스 발견 (2026-09-03)",
+      "Nikon Z5II 실 챠트 검증 (첫 실 챠트 데이터, Nikon 브랜드 사상 최초)",
+      "Canon EOS R6 Mark III 실 챠트 검증 (Canon 브랜드 사상 최초 raw 데이터)",
+      "Panasonic Lumix DC-S1II 실 챠트 검증 (Panasonic 브랜드 사상 최초 raw 데이터)",
+      "Sigma fp L 실 챠트 검증 (raw+jpeg 매트릭스가 이미 있던 브랜드에 챠트 근거 추가 - 지금까지 4개 브랜드 중 가장 강한 개선)",
+      "X2D II 100C DCP - 단일매트릭스가 못 잡는 다조명 문제, dual-illuminant로 재교체 (2026-09-03)",
+      "X2D II 100C dual-illuminant - 재검증 3건: burst-fair 수정, 오라클 격차, RT 교차검증에서 발견한 D50기준 구조적 편향 (2026-09-04)",
+      "dpreview 스튜디오씬 챠트 - 11개 브랜드 컬러체커 검증 총괄 (2026-09-04)",
+      "dpreview 스튜디오씬 챠트 - Leica 9바디 컬러체커 검증 (2026-09-04)",
+      "X2D II 100C: RawTherapee illuminant1 스냅 근본원인 확정 (2026-09-04)",
+      "배포 - v3 재발급(2026-09-04, 같은 날): 슬롯 순서만 Adobe 관례로 스왑",
+      "X2D II Capture One(ICC): 조명별 프로필 2장 발급 (2026-09-04)",
+      "Capture One 커버리지 확장: Fuji generic ICC + 룩 DeviceLink 40장 (2026-09-04)",
+      "HueSatMap 전자유도 LOO - \"1점대는 되나?\"의 상한 측정, 배포 아님 (2026-09-04)",
+      "후지 필름모드 분리력 - 같은 장면 묶음, 부트스트랩 CI 없음(리드) (2026-09-04)",
+      "확장: GFX100RF 세트로 두 번째 유효 측정 (같은 날)",
+      "후속: Velvia 미구현이 실제로 손해인가 - 신설 안 함, 여지만 측정 (같은 날)",
+      "후지 페어 오매칭 정정이 룩 측정치에 준 영향 - 재보정은 별도 결정 (2026-09-04)",
+      "룩 LUT 굽는 방식 - 실사진 조건부 평균은 현재 방식보다 나쁘다 + 배포 리포트의 충실도 판정은 난수 이미지 탓 (2026-09-05)",
+      "1. 조건부 평균 굽기 - 가설 기각",
+      "2. 부산물 - 배포 리포트의 `faithful` 판정은 난수 이미지 때문이다",
+      "Classic Negative 재보정 - 기준은 통과했는데 기준이 틀린 걸 재고 있었다 (2026-09-05)",
+      "1. 현행 계열 재보정 - 기준 통과, 그러나 기각",
+      "2. 원인 - 룩이 아니라 렌더였다",
+      "3. 이 편향은 후지만의 것이 아니다",
+      "4. 처방 - 검증된 계열로 재적합",
+      "5. 경계 재확인",
+      "부수 발견 - 소니 세트의 실효 표본은 62가 아니라 22이다",
+      "6. 격자 확장 재실행 - shoulder_start/sat_mult 경계 해소, white_point만 설계상 상한 (2026-09-06)",
+      "권고",
+      "핫셀블라드 차용 파라미터(shoulder_start/clahe_clip) 재적합 - Leica/Sony 둘 다 null, 양성 대조로 방법 검증 (2026-09-06)",
+      "dpreview 스튜디오씬 챠트 - 7브랜드 DCP/ICC 발급 (2026-09-06, 사용자 승인)",
+      "NARE 공개 샘플 intake - Fujifilm X-T100 한 쌍은 피팅 불가 (2026-09-08)",
+      "GFX100RF NARE pool strict pairing - 63/63, coverage는 아직 부족 (2026-09-08)",
+      "GFX100RF Provia NARE exploratory replay - +14.987%, ship 판정 보류 (2026-09-08)",
+      "GFX100RF Provia registration selection sensitivity - methodology evidence only (2026-09-09)",
+      "GFX100RF Provia session-level holdout fit - 개선 없음, 배포 보류 (2026-09-08)"
+    ]
+  },
+  {
+    "path": "work/hncs-adaptive-2026-10-03/README.md",
+    "characters": 1900,
+    "topics": [
+      "批量输出"
+    ]
+  },
+  {
+    "path": "work/hncs-batch-2026-10-03/README.md",
+    "characters": 1485,
+    "topics": [
+      "批量输出"
+    ]
+  },
+  {
+    "path": "work/hncs-dual-illuminant/README.md",
+    "characters": 5431,
+    "topics": [
+      "双光源实验版本",
+      "数据核实与修正",
+      "具体流程",
+      "实际八张照片",
+      "验证",
+      "运行",
+      "从已保存的原始数据重建实验 model.json",
+      "单张双光源实验渲染",
+      "批量输出，与其他模式使用不同输出目录"
+    ]
+  },
+  {
+    "path": "work/hncs-dual-illuminant/output/README.md",
+    "characters": 1902,
+    "topics": [
+      "批量输出"
+    ]
+  },
+  {
+    "path": "work/hncs-finalization/2026-10-03_技术-HNCS-final-report.md",
+    "characters": 9653,
+    "topics": [
+      "A7R V → X2D II → HNCS 最终技术报告",
+      "结果与范围",
+      "数据与选择",
+      "最终处理路径",
+      "实测结果",
+      "八张照片与正常 DNG",
+      "Evidence → Finding → Path",
+      "可复现交付",
+      "检索停止依据与剩余准确性边界"
+    ]
+  },
+  {
+    "path": "work/hncs-finalization/2026-10-04_技术-Phocus-film-curves-presets-report.md",
+    "characters": 12121,
+    "topics": [
+      "Phocus Film Curve 与工厂预设技术报告",
+      "执行摘要",
+      "范围与证据约束",
+      "核心发现",
+      "F-001：Film Curve 是六个 UI 名称，但当前非 HDR 核心只有三种曲线族",
+      "F-002：Reproduction 不是第七个 Film Curve 菜单项",
+      "F-003：Standard、Nature、Portrait、Product 是参数预设",
+      "F-004：全部 43 个 `Settings/Standard` XML 已映射到 CLI",
+      "F-005：空间效果的边界已显式保留",
+      "调用路径",
+      "Evidence",
+      "E-001",
+      "E-002",
+      "E-003",
+      "E-004",
+      "E-005",
+      "Path",
+      "P-001",
+      "复现与使用",
+      "遗留问题",
+      "Timeline",
+      "附件"
+    ]
+  },
+  {
+    "path": "work/hncs-finalization/README.md",
+    "characters": 1243,
+    "topics": [
+      "最终版本：直接配对的两光源 Pipeline",
+      "目录"
+    ]
+  },
+  {
+    "path": "work/hncs-finalization/before/README.md",
+    "characters": 8744,
+    "topics": [
+      "A7R V → X2D II → HNCS pipeline",
+      "一条命令拟合并出图",
+      "使用已保存的映射",
+      "处理流程",
+      "当前标定和验证结果",
+      "重现核验",
+      "更换标定图"
+    ]
+  },
+  {
+    "path": "work/hncs-finalization/output/README.md",
+    "characters": 1919,
+    "topics": [
+      "批量输出"
+    ]
+  },
+  {
+    "path": "work/hncs-finalization/public-data-search.md",
+    "characters": 6488,
+    "topics": [
+      "公开数据检索与停止记录",
+      "五轮查询",
+      "第 1 轮",
+      "第 2 轮",
+      "第 3 轮",
+      "第 4 轮",
+      "第 5 轮",
+      "来源决策",
+      "实际采用的暖光文件",
+      "停止边界",
+      "交付前复查"
+    ]
+  },
+  {
+    "path": "work/hncs-finalization/scope.md",
+    "characters": 671,
+    "topics": [
+      "当前目标与验收"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/2026-10-03_技术-Phocus-HNCS-audit-report.md",
+    "characters": 10504,
+    "topics": [
+      "Phocus 4.2.2 / HNCS pipeline 一致性复核",
+      "结论",
+      "本次实际 Phocus 设置",
+      "已确认并修正的实现问题",
+      "矩阵与 LUT 语义",
+      "RAW 曝光事实与未闭合环节",
+      "验证数值",
+      "Evidence → Finding → Path",
+      "P-001：工厂颜色链独立核验",
+      "复现和交付"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/before/README.md",
+    "characters": 5748,
+    "topics": [
+      "A7R V → X2D II → HNCS pipeline",
+      "一条命令完成拟合和出图",
+      "重用已经拟合好的映射",
+      "处理过程",
+      "本次映射和验证",
+      "重现检查",
+      "换一组标定图"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/evidence/README.md",
+    "characters": 326,
+    "topics": [
+      "原生核验记录的版本范围"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/scope.md",
+    "characters": 648,
+    "topics": [
+      "本次 Phocus 一致性核验范围"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/timeline.md",
+    "characters": 1563,
+    "topics": [
+      "本轮操作记录（Asia/Shanghai）"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/README.md",
+    "characters": 363,
+    "topics": [
+      "Case hncs-phocus-correction"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/evidence/E-001.md",
+    "characters": 601,
+    "topics": [
+      "E-001 Binary function and constant validation"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/evidence/E-002.md",
+    "characters": 548,
+    "topics": [
+      "E-002 WAES and factory colormap inventory"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/evidence/E-003.md",
+    "characters": 391,
+    "topics": [
+      "E-003 V1 and L* curve reproduction"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/evidence/E-004.md",
+    "characters": 382,
+    "topics": [
+      "E-004 HNCS numerical synthesis and scope boundary"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/evidence/binary_validation.md",
+    "characters": 3950,
+    "topics": [
+      "Binary Validation Summary",
+      "Confirmed in HBRawCorrections",
+      "Confirmed in HBUtil and HBStorage",
+      "Reproducible local checks"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/report/HNCS_技术交付报告.md",
+    "characters": 9703,
+    "topics": [
+      "Phocus 4.2.2 (macOS) — 3FR RAW → HNCS 校正管线技术交付报告",
+      "0. 执行摘要（Executive Summary）",
+      "1. RAW(3FR/FFF) 文件内嵌参数全清单",
+      "2. 校正管线全景（CPU+Metal 双路径，60+ CImageFilter 子类）",
+      "3. HNCS 色彩链核心（数值级）",
+      "4. 深挖 I — Colormap 加密破解与工厂校准数据（第三轮任务 1）",
+      "4.1 WAES 密码（HBUtil，字节级还原）",
+      "4.2 工厂校准数据结构（每传感器型号 × IR 滤镜一份）",
+      "4.3 传感器型号映射（CXMLLut::GetFileName 反汇编 + eCCDTypes 位掩码）",
+      "5. 深挖 II — V1 胶片曲线完整还原（第三轮任务 3）",
+      "5.1 选表逻辑（ReturnGradationCurve @HBUtil 0x25438）",
+      "6. 验证与产物",
+      "7. 结论"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/report/analysis.md",
+    "characters": 24946,
+    "topics": [
+      "Phocus 4.2.2 RAW → HNCS 校正管线技术分析",
+      "Evidence Index",
+      "结构化结论",
+      "1. RAW(3FR/FFF) 文件参数（文件内嵌）",
+      "2. 校正管线（滤镜链，CPU+Metal 双路径）",
+      "3. HNCS 色彩链核心",
+      "深挖报告（第二轮：任务 1/3/4）",
+      "任务 3：HNCS 工作空间 ICC 精确解析（数值级）",
+      "任务 1：CColorCorrectFilter 与工厂 Colormaps",
+      "任务 4：CSpectralCalculator 光谱积分（算法级还原）",
+      "第三轮深挖报告（任务 1 + 3）",
+      "任务 1：Colormap 加密破解与工厂校准数据完整提取 ✅",
+      "1.1 WAES 密码完整还原（HBUtil arm64）",
+      "1.2 文件加密格式（HBCryptoNameSpace::decrypt @HBUtil 0x1228）",
+      "1.3 工厂校准数据结构（解密后 plist）",
+      "1.4 传感器型号映射（CXMLLut::GetFileName 反汇编 + CImageSensor 位掩码）",
+      "1.5 矩阵数值语义（以 X2D=0x14 mq7w3wb56dc3gq3hhv3s 为例）",
+      "任务 3：V1 胶片曲线完整还原（CGradationManager / CGradation, HBUtil arm64）✅",
+      "3.1 五张运行时曲线表（InitGradationCurves @0x2556c）",
+      "3.2 SetFilmCurveOriginal(x=0.76, y=4.1, strength=48) @0x258c0",
+      "3.3 V1 七级管线（CGradation::CGradation 长路径 @0x57684）",
+      "3.4 两个查表增益函数",
+      "3.5 默认对比度点曲线（SetDefaultContrastCurve + SetPointCurve @0x57a28）",
+      "3.6 L* OETF 尾（与 HNCS ICC TRC 交叉自洽）",
+      "3.7 Python 完整复现与验证（`evidence/v1curve.py` → `evidence/v1_curves.csv`）",
+      "第四轮深挖报告（任务 2：端到端数值合成）✅",
+      "2.1 重大修正：plist 反混淆编码推翻“log2 域”假说",
+      "2.2 CPU 像素内核完整还原（CorrectPixelsHasselbladRGB @0x15f60）",
+      "2.3 工作空间静态矩阵全家福（@0x3fc30–0x3fd50，fat binary 直提）",
+      "2.4 端到端数值闭环（evidence/e2e_hncs.py，输出 e2e_output.txt）",
+      "第五轮深挖报告（任务 3：CCLCalibration 用户校准深挖）✅",
+      "3.1 双层数据保护：WAES 文件加密 + ×0.5+1 元素混淆",
+      "3.2 序列号绑定机制（一机一档）",
+      "3.3 HBNameObfuscation::obfuscated_name 完整算法（HBUtil @0x1e10）",
+      "3.4 Std/Repro 双渲染意图选择链",
+      "3.5 用户校准注入点汇总",
+      "任务 4：FilmCurveType → 曲线表选择链（ReturnGradationCurve @HBUtil 0x25438）✅",
+      "4.1 五表选择的完整判定（两级 csel 位级还原）",
+      "4.2 3FR 字段映射：FilmCurveType = IFD3 tag 0x22",
+      "4.3 RAW 管线编组（CRawColorCorrection::GetGradationCurveUpdate @0x146e8）",
+      "4.4 第六张派生表（线性光域 V1）"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/scope.md",
+    "characters": 1523,
+    "topics": [
+      "Case Scope",
+      "meta",
+      "auth",
+      "in_scope",
+      "out_of_scope",
+      "network_profile",
+      "deliverables",
+      "constraints",
+      "signoff",
+      "ops_refs"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/timeline.md",
+    "characters": 406,
+    "topics": [
+      "Timeline (append-only)",
+      "2026-10-02T17:52:05+08:00 | lead | init"
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/workitems.md",
+    "characters": 722,
+    "topics": [
+      "Work Items",
+      "Coverage",
+      "Refs"
+    ]
+  },
+  {
+    "path": "work/hncs-pipeline/2026-10-02_技术-HNCS-pipeline-report.md",
+    "characters": 9208,
+    "topics": [
+      "A7R V → X2D II → HNCS 工厂颜色路径实现报告",
+      "结果与范围",
+      "输入身份与二进制信息",
+      "处理链与关键公式",
+      "Evidence → Finding → Path",
+      "Evidence",
+      "Findings",
+      "P-001",
+      "验证结果",
+      "使用与交付验收"
+    ]
+  },
+  {
+    "path": "work/hncs-pipeline/evidence/README.md",
+    "characters": 475,
+    "topics": [
+      "证据版本说明"
+    ]
+  },
+  {
+    "path": "work/hncs-pipeline/evidence/tool-index.md",
+    "characters": 7087,
+    "topics": [
+      "Tool Index",
+      "Next steps",
+      "能力状态视图 (Capability Status)"
+    ]
+  },
+  {
+    "path": "work/hncs-pipeline/scope.md",
+    "characters": 420,
+    "topics": [
+      "本轮范围"
+    ]
+  },
+  {
+    "path": "work/hncs-pipeline/timeline.md",
+    "characters": 931,
+    "topics": [
+      "本轮记录（Asia/Shanghai）"
+    ]
+  },
+  {
+    "path": "work/hncs-white-balance-bridge/README.md",
+    "characters": 2203,
+    "topics": [
+      "白平衡衔接的可行性计算"
+    ]
+  },
+  {
+    "path": "work/master-route-20261002-175145/route-scope.md",
+    "characters": 562,
+    "topics": [
+      "reverse-skill Master route (PRIMARY)",
+      "MUST open next",
+      "Notes"
+    ]
+  }
+]

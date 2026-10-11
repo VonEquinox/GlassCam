@@ -1,0 +1,121 @@
+{
+  "colour_path_revision": 2,
+  "render_path_revision": 5,
+  "working_space": "legacy",
+  "input": {
+    "path": "/Users/vonequinox/Program/ProgramDev/HNCS/DSC04637.ARW",
+    "sha256": "ddf49c185a9f1622f4ba53f15f82504ef3e4998ac2c4ccca57db33d4a4de48c6",
+    "make": "SONY",
+    "model": "ILCE-7RM5",
+    "date": "2024:07:30 14:14:27",
+    "visible_shape": [
+      6374,
+      9566
+    ],
+    "orientation": 8,
+    "cfa": [
+      [
+        0,
+        1
+      ],
+      [
+        3,
+        2
+      ]
+    ],
+    "black": [
+      512,
+      512,
+      512,
+      512
+    ],
+    "white": 16383,
+    "camera_wb": [
+      2571.0,
+      1024.0,
+      1718.0,
+      1024.0
+    ],
+    "linear_white": 15871,
+    "libraw": [
+      0,
+      22,
+      1
+    ],
+    "rawpy": "0.27.1"
+  },
+  "output": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-finalization/output/DSC04637/DSC04637_hncs.tif",
+  "output_space": "Hasselblad RGB",
+  "srgb_output": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-finalization/output/DSC04637/DSC04637_hncs_srgb.tif",
+  "preview": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-finalization/output/DSC04637/DSC04637_hncs.preview.jpg",
+  "shape": [
+    6374,
+    9566,
+    3
+  ],
+  "profile_sha256": "24ae7681dcf4abdb6881ebd9f1f86f836e99b79e2a13493d1cff40209444def3",
+  "cct": 5714,
+  "white_balance": [
+    2.5107421875,
+    1.0,
+    1.677734375
+  ],
+  "wb_mode": "camera",
+  "calibration_input_assumption": "User confirms the supplied calibration chart and illumination are correct and equivalent; capture years are not an error source.",
+  "scale": 1.4169209635346514,
+  "additional_ev": 0,
+  "intent": "standard",
+  "factory_lut_enabled": true,
+  "matrix": [
+    [
+      0.9805251281987971,
+      0.017059549007782875,
+      0.002415322793420167
+    ],
+    [
+      -0.014627012234379863,
+      1.0125631586635904,
+      0.0020638535707892557
+    ],
+    [
+      0.003912936646615649,
+      -0.031535350784457135,
+      1.0276224141378416
+    ]
+  ],
+  "cct_source": "paired_illuminant_virtual_x2d_wb",
+  "estimated_target_white_balance": [
+    2.7267153525512193,
+    1.0,
+    1.6218775367355394
+  ],
+  "estimated_target_cct": 5714,
+  "estimated_target_tint": -0.0014403069261463024,
+  "factory_cct_clamped": false,
+  "white_balance_bridge_enabled": true,
+  "white_balance_bridge_neutral_gain": 1.0036577323432903,
+  "illuminant_mode": "paired",
+  "cross_illuminant_assumption": false,
+  "paired_model_path": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-finalization/paired_illuminants.json",
+  "paired_model_sha256": "f2ce8aea7c5acb168e9e971e0c77c16059238e506fd8e42c7685f8a748f88fa4",
+  "source_estimated_cct": 5556.676370831137,
+  "paired_warm_weight": 0.16837792980016547,
+  "paired_range_clamped": false,
+  "source_low_illuminant_weight": 0.13347091568183808,
+  "source_estimated_white_xy": [
+    0.3311173693235065,
+    0.35255091391852666
+  ],
+  "interpolation_assumption": "Two directly fitted nominal light responses interpolate in inverse estimated source CCT. Different physical light spectra with the same WB are not distinguished.",
+  "clipping": {
+    "native_out_of_range_samples": 48900,
+    "native_samples": 182921052,
+    "working_out_of_range_samples": 55163,
+    "working_samples": 182921052
+  },
+  "limitations": [
+    "One illumination and 24 patches cannot establish cross-scene or cross-illuminant accuracy.",
+    "Factory normal non-HDR colour path at unit effective gain; no per-unit closed-loop calibration or Phocus spatial processing.",
+    "LibRaw AHD decoding and chart exposure anchor differ from Phocus's RAW decoding/exposure chain; actual TIFF comparison is documented separately."
+  ]
+}

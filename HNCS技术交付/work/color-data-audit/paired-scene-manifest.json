@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-10-02",
+  "download_proxy": "http://127.0.0.1:7897",
+  "purpose": "Paired DPReview studio-scene RAW candidates for Sony A7R V to Hasselblad X2D II color-response comparison.",
+  "samples": [
+    {
+      "file": "/Users/vonequinox/Program/ProgramDev/HNCS/19990c35cf194481a0093de2b02ed818.arw",
+      "source_url": "https://www.dpreview.com/wp-content/uploads/image-compare/519596/526411/19990c35cf194481a0093de2b02ed818.arw",
+      "source_record": "DPReview Studio scene image id 526411",
+      "sha256": "b5cfe674ceb2de22ff01ea24ef2fdf4af63c915f6c56b40f6c2db41a8c3ec983",
+      "bytes": 78446592,
+      "camera": "Sony ILCE-7RM5",
+      "target": "X-Rite ColorChecker Classic 24 visible in the fixed studio scene",
+      "capture": {
+        "iso": 100,
+        "exposure": "1/40 s",
+        "aperture": "f/5.6",
+        "lens": "FE 85mm F1.4 GM",
+        "lighting_label": "Daylight",
+        "multi_shot_mode": "Normal"
+      },
+      "raw_decode": {
+        "raw_size": [9728, 6656],
+        "visible_size": [9566, 6374],
+        "pattern": "RGBG",
+        "black_level": 512,
+        "white_level": 16383,
+        "camera_wb": [2909.0, 1024.0, 1504.0, 1024.0],
+        "full_frame_white_fraction": 0.0003178912
+      },
+      "quality": "usable paired-scene candidate; exact studio illuminant SPD and chart reference spectra are not embedded in the RAW"
+    },
+    {
+      "file": "/Users/vonequinox/Program/ProgramDev/HNCS/7fbb1471e0cf4b22858cd9a161fb83a8.3fr",
+      "source_url": "https://www.dpreview.com/wp-content/uploads/image-compare/519596/521065/7fbb1471e0cf4b22858cd9a161fb83a8.3fr",
+      "source_record": "DPReview Studio scene image id 521065",
+      "sha256": "9ca1cce4a36fb559fdb500114397d55565cac7be09d5190f547dc73956faf5fd",
+      "bytes": 212574208,
+      "camera": "Hasselblad X2D II 100C",
+      "target": "The same X-Rite ColorChecker Classic 24 visible in the fixed studio scene",
+      "capture": {
+        "iso": 50,
+        "exposure": "1/20 s",
+        "aperture": "f/5.6",
+        "lens": "XCD 90V",
+        "lighting_label": "Daylight"
+      },
+      "raw_decode": {
+        "raw_size": [11904, 8842],
+        "visible_size": [11904, 8842],
+        "pattern": "RGBG",
+        "black_level": 4094,
+        "white_level": 64763,
+        "camera_wb": [3.0696411, 1.0, 1.4164429, 0.0],
+        "full_frame_white_fraction": 0.0007312040
+      },
+      "quality": "usable paired-scene candidate; exact studio illuminant SPD and chart reference spectra are not embedded in the RAW"
+    }
+  ],
+  "interpretation": {
+    "what_is_now_supported": "Both files are valid, directly decoded RAW captures from the same named DPReview daylight studio scene, and both frames visibly contain the 24-patch Classic chart.",
+    "what_is_not_yet_supported": "This does not by itself prove an exact Sony-to-Hasselblad HNCS/Phocus rendering match. Patch registration, raw-domain normalization, chart reference values, and the Phocus output transform still need to be measured.",
+    "other_samples": {
+      "sony_spyderchecker": "work/color-data-audit/samples/DSC00278.ARW; valid A7R V RAW but different SpyderChecker24 target and partial-shade conditions.",
+      "x2dii_classic": "work/color-data-audit/samples/B_31325.3FR; valid X2D II Classic chart RAW but its illuminant is not recorded as a controlled standard."
+    }
+  }
+}

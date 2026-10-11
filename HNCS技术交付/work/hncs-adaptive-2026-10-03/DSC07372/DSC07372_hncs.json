@@ -1,0 +1,109 @@
+{
+  "colour_path_revision": 2,
+  "render_path_revision": 3,
+  "working_space": "legacy",
+  "input": {
+    "path": "/Users/vonequinox/Program/ProgramDev/HNCS/DSC07372.ARW",
+    "sha256": "021e94632819a1d052016aed131d95a508c3b18b05cc1ae744e437cc9a46ac2f",
+    "make": "SONY",
+    "model": "ILCE-7RM5",
+    "date": "2025:06:01 22:02:16",
+    "visible_shape": [
+      6376,
+      9564
+    ],
+    "cfa": [
+      [
+        0,
+        1
+      ],
+      [
+        3,
+        2
+      ]
+    ],
+    "black": [
+      512,
+      512,
+      512,
+      512
+    ],
+    "white": 16383,
+    "camera_wb": [
+      2937.0,
+      1024.0,
+      1353.0,
+      1024.0
+    ],
+    "linear_white": 15871,
+    "libraw": [
+      0,
+      22,
+      1
+    ],
+    "rawpy": "0.27.1"
+  },
+  "output": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_hncs.tif",
+  "output_space": "Hasselblad RGB",
+  "srgb_output": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_hncs_srgb.tif",
+  "preview": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-adaptive-2026-10-03/DSC07372/DSC07372_hncs.preview.jpg",
+  "shape": [
+    6376,
+    9564,
+    3
+  ],
+  "profile_sha256": "92a6c8de7947203aa5c8555364481122894259dbd740706efca5d74869a21a2c",
+  "cct": 9514,
+  "white_balance": [
+    2.8681640625,
+    1.0,
+    1.3212890625
+  ],
+  "wb_mode": "camera",
+  "scale": 1.4169209635346514,
+  "additional_ev": 0,
+  "intent": "standard",
+  "factory_lut_enabled": true,
+  "matrix": [
+    [
+      0.9919287914604837,
+      0.0179956295695754,
+      -0.009924421030059067
+    ],
+    [
+      -0.013010403756251853,
+      1.0191079091523376,
+      -0.0060975053960857185
+    ],
+    [
+      0.0031760121472591265,
+      -0.02653020219653947,
+      1.0233541900492804
+    ]
+  ],
+  "cct_source": "virtual_x2d_capture_wb",
+  "estimated_target_white_balance": [
+    3.139545753366604,
+    1.0,
+    1.265195491476201
+  ],
+  "estimated_target_cct": 9514,
+  "estimated_target_tint": 0.0013520145975651325,
+  "factory_cct_clamped": false,
+  "white_balance_bridge_enabled": true,
+  "white_balance_bridge_neutral_gain": 0.999557312623616,
+  "illuminant_mode": "adaptive",
+  "cross_illuminant_assumption": true,
+  "clipping": {
+    "native_out_of_range_samples": 81,
+    "native_samples": 182940192,
+    "working_out_of_range_samples": 105644,
+    "working_samples": 182940192
+  },
+  "limitations": [
+    "Captures are from 2022 and 2025; scene/illuminant changes remain confounded with sensor response.",
+    "One illumination and 24 patches cannot establish cross-scene or cross-illuminant accuracy.",
+    "Factory normal non-HDR colour path at unit effective gain; no per-unit closed-loop calibration or Phocus spatial processing.",
+    "LibRaw AHD decoding and chart exposure anchor differ from Phocus's RAW decoding/exposure chain; actual TIFF comparison is documented separately."
+  ]
+}

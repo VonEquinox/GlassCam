@@ -1,0 +1,52 @@
+Constructing native read-only 3FR
+3FR constructor completed
+RawDescription() raw file /Users/vonequinox/Program/ProgramDev/HNCS/7fbb1471e0cf4b22858cd9a161fb83a8.3fr has RawCaptureInfo NULL
+RawDescription() raw file /Users/vonequinox/Program/ProgramDev/HNCS/7fbb1471e0cf4b22858cd9a161fb83a8.3fr has CRawImageBufferInfo NULL
+{
+  "GetSensitivityGain": 1.0,
+  "GetAnalogGain": 1.0,
+  "GetIsoGain": 1.0653693159208844,
+  "GetFilmCurveType": 2,
+  "GetBlackLevel": 4096,
+  "GetDNGWhiteLevel": 64763,
+  "GetNeutralGain_success": true,
+  "GetNeutralGain": [
+    3.06964111328125,
+    1.0,
+    1.41644287109375
+  ],
+  "raw_description": {
+    "sensitivity_gain": 1.0,
+    "iso_gain": 1.0653693159208844,
+    "analog_gain": 1.0,
+    "film_curve": 2,
+    "black_level": 4096,
+    "sensor": 22,
+    "ir_filter": 6
+  },
+  "selected_native_settings": {
+    "working_space": 0,
+    "cct": 7523,
+    "tint": -0.003,
+    "ev_multiplier": 1.0,
+    "hdr": false,
+    "color_model": 0,
+    "film_curve_selection": 4,
+    "closed_loop_configuration_present": false,
+    "exposure_tool_version": 4,
+    "effective_film_curve": 2,
+    "local_white_balance_filter_active": false,
+    "resolved_white_balance": [
+      3.0696504063233774,
+      1.0,
+      1.4164528348948053
+    ]
+  },
+  "iso_gain_formula": {
+    "baseline_exposure": 0.0,
+    "baseline_exposure_offset": -0.02,
+    "computed_native_code_gain": 1.0653693159208844,
+    "white_normalised_gain": 0.9862327044933592,
+    "note": "Native code-unit gain includes white/black normalization; it cannot be applied again to white-normalized LibRaw data. This getter alone does not establish the complete preprocessing exposure chain."
+  }
+}

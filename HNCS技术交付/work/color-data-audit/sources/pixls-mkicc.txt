@@ -1,0 +1,28 @@
+#!/bin/sh
+tifFILE=ColChart_test2
+argyll=/usr/share/color/argyll/ref
+DTpath=~/.config/darktable/color/in
+LUT="SonyA7_test2"
+ 
+echo "S C A N I N :"
+echo "-------------"
+scanin -v -dipn $tifFILE.tif $argyll/SpyderChecker24.cht SpyderChecker24_Lk.cie diag_chart.tif
+echo ""
+echo ""
+echo "C O L P R O F :"
+echo "--------------"
+# colprof -v -A "Sony" -M "A7RM5" -D $LUT -qh -ax -no -ua $tifFILE
+# Verwenden Sie statt -ax (reine cLUT) einmal -as (Shaper + Matrix) oder -aX (Matrix + cLUT kombiniert)
+colprof -v -A "Sony" -M "A7RM5" -D $LUT -qh -ax -no -u $tifFILE
+echo ""
+echo ""
+echo "P R O F C H E C K:"
+echo "------------------"
+profcheck -v $tifFILE.ti3 $tifFILE.icc
+echo ""
+echo ""
+echo "C O P Y:"
+echo "--------"
+cp $tifFILE.icc $DTpath/$tifFILE.icc
+echo ""
+echo ""

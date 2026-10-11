@@ -1,0 +1,48 @@
+[
+  {
+    "event": "Accepted the original daylight pair as trusted under the explicit user assumption; removed capture-year confounding from current profile"
+  },
+  {
+    "event": "Located two-camera Lowlight RAW candidates in the cached official DPReview widget"
+  },
+  {
+    "event": "Command-line downloads were challenged; the normal Chrome session downloaded files after automatic site verification"
+  },
+  {
+    "event": "Both low-ISO training RAWs decoded; visually checked ColorChecker CFA ROIs; no clipping above threshold"
+  },
+  {
+    "event": "Fit five simple warm-matrix variants before opening the validation RAW pair; selected weight power 0.5, ridge 0.01 by chromatic-patch LOOCV"
+  },
+  {
+    "event": "Added paired response interpolation and ran 22 tests successfully; separate-exposure validation RAW still downloading"
+  },
+  {
+    "event": "Different-exposure warm pair decoded and visually checked; paired mean ΔE00 0.4320188, adaptive 0.5511146, dual 2.2662635",
+    "evidence": "evidence/paired_chart_evaluation.json"
+  },
+  {
+    "event": "Pinned Sony A/D65 DCP parsed; correct camera and light tags, D65 independently matches LibRaw; adopted only source white coordinates, not a look",
+    "evidence": "evidence/sony-dcp-characterization.json"
+  },
+  {
+    "event": "Five public-data search rounds completed; last targeted SSF/CSV/third-light rounds added no usable verified data",
+    "evidence": "public-data-search.json"
+  },
+  {
+    "event": "Default CLI original daylight master file regressed exactly; source/DCP model changes did not alter calibration anchor",
+    "evidence": "evidence/default_cli_regression.json"
+  },
+  {
+    "event": "Final eight-photo batch completed; full DNG CFA equality, TIFF ICC/orientation and JPEG dimensions checked, normal render pixels equal prior version",
+    "evidence": "evidence/final_output_verification.json"
+  },
+  {
+    "event": "Packaged the isolated rendering runtime and executed a full one-photo batch outside the workspace",
+    "evidence": "evidence/runtime_portability.json"
+  },
+  {
+    "event": "After final outputs and runtime verification, rechecked three search focuses and current repository trees; no additional exact-model usable data found; browser Computer Use stopped per user instruction",
+    "evidence": "evidence/search_round3_recheck.json; evidence/search_round4_recheck.json; evidence/search_round5_recheck.json; evidence/final_repository_recheck.json"
+  }
+]

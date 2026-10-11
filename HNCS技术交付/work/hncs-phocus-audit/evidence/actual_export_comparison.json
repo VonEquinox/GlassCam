@@ -1,0 +1,713 @@
+{
+  "phocus_tiff": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-phocus-audit/exports/x2dii_.tif",
+  "phocus_tiff_sha256": "39f2ce36ffd4cdff8d32574c99861de5711f42574a9f6b542a45e8a9dd2d2735",
+  "shape": [
+    8742,
+    11656,
+    3
+  ],
+  "icc_sha256": "a6ef4e6adde0f028cd9ec03d74de7b9d1a2807bb6a4d61f7f3bc8bf4f1dcdb8e",
+  "actual_settings": {
+    "ExpToolVersion": 4,
+    "FilmCurve": 4,
+    "HDR": false,
+    "ColorModel": 0,
+    "ColorWorkingSpace": 0,
+    "ColorTemperature": 7523,
+    "Tint": -0.003,
+    "EV": 1.0,
+    "USMAmount": 100,
+    "LensCorrection": 7,
+    "VignetteAmount": 0
+  },
+  "default_crop_origin": [
+    128.0,
+    96.0
+  ],
+  "chart_reference_vs_actual_deltaE00": {
+    "mean": 1.8822262621804633,
+    "median": 1.9650466767912267,
+    "p95": 2.3987855312133313,
+    "maximum": 2.4261777464558403
+  },
+  "saved_reference_tiff": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-pipeline/output/x2dii_reference_hncs.tif",
+  "saved_reference_sha256": "5bb0d68c71a9cc1e2eb833bbc7263e95ccfea13dd30d640bee6ba28568bf086f",
+  "saved_reference_vs_actual_deltaE00": {
+    "mean": 1.8800184097169612,
+    "median": 1.9705006990409337,
+    "p95": 2.3955072775224227,
+    "maximum": 2.44593776745975
+  },
+  "diagnostic_camera_wb": [
+    3.06964111328125,
+    1.0,
+    1.41644287109375
+  ],
+  "diagnostic_cct": 7523,
+  "diagnostic_internal_tint": -0.002997869370286445,
+  "diagnostic_fitted_ev": 0.1014220222262684,
+  "diagnostic_fitted_scale": 1.072830399042056,
+  "diagnostic_camera_wb_without_exposure_fit_deltaE00": {
+    "mean": 1.90402447545672,
+    "median": 2.0834982884781104,
+    "p95": 2.5166365842198615,
+    "maximum": 2.6138748117542963
+  },
+  "diagnostic_exposure_fitted_deltaE00": {
+    "mean": 0.630752124273284,
+    "median": 0.5596163491301595,
+    "p95": 1.2152169967616824,
+    "maximum": 1.3801689219428426
+  },
+  "patches": [
+    {
+      "patch": 1,
+      "name": "dark skin",
+      "phocus_codes": [
+        21908.0,
+        15351.0,
+        12007.0
+      ],
+      "calibrated_pipeline_codes": [
+        20387,
+        14569,
+        11782
+      ],
+      "pipeline_deltaE00": 2.066656640974085,
+      "saved_reference_codes": [
+        20387.0,
+        14565.0,
+        11782.0
+      ],
+      "saved_reference_deltaE00": 2.068853929591257,
+      "diagnostic_codes": [
+        21208,
+        15242,
+        12360
+      ],
+      "diagnostic_deltaE00": 1.3801689219428426
+    },
+    {
+      "patch": 2,
+      "name": "light skin",
+      "phocus_codes": [
+        42538.0,
+        32848.0,
+        27507.0
+      ],
+      "calibrated_pipeline_codes": [
+        40700,
+        31310,
+        26416
+      ],
+      "pipeline_deltaE00": 2.3461424304810277,
+      "saved_reference_codes": [
+        40687.0,
+        31308.0,
+        26421.0
+      ],
+      "saved_reference_deltaE00": 2.3574942461111483,
+      "diagnostic_codes": [
+        41959,
+        32540,
+        27602
+      ],
+      "diagnostic_deltaE00": 0.8419643068881321
+    },
+    {
+      "patch": 3,
+      "name": "blue sky",
+      "phocus_codes": [
+        19923.0,
+        25081.0,
+        33562.0
+      ],
+      "calibrated_pipeline_codes": [
+        19136,
+        23683,
+        31823
+      ],
+      "pipeline_deltaE00": 2.154733766025542,
+      "saved_reference_codes": [
+        19133.0,
+        23688.0,
+        31815.0
+      ],
+      "saved_reference_deltaE00": 2.141794906823549,
+      "diagnostic_codes": [
+        19870,
+        24762,
+        33167
+      ],
+      "diagnostic_deltaE00": 0.6216732634317449
+    },
+    {
+      "patch": 4,
+      "name": "foliage",
+      "phocus_codes": [
+        18407.0,
+        21157.0,
+        12034.0
+      ],
+      "calibrated_pipeline_codes": [
+        17522,
+        19920,
+        12026
+      ],
+      "pipeline_deltaE00": 2.2148512641442517,
+      "saved_reference_codes": [
+        17518.0,
+        19917.0,
+        12026.0
+      ],
+      "saved_reference_deltaE00": 2.2202805775691865,
+      "diagnostic_codes": [
+        18232,
+        20871,
+        12593
+      ],
+      "diagnostic_deltaE00": 1.1988129390902411
+    },
+    {
+      "patch": 5,
+      "name": "blue flower",
+      "phocus_codes": [
+        28295.0,
+        27523.0,
+        38498.0
+      ],
+      "calibrated_pipeline_codes": [
+        26994,
+        26115,
+        36792
+      ],
+      "pipeline_deltaE00": 2.2118202516750833,
+      "saved_reference_codes": [
+        26996.0,
+        26112.0,
+        36788.0
+      ],
+      "saved_reference_deltaE00": 2.2163975430212957,
+      "diagnostic_codes": [
+        27954,
+        27249,
+        38288
+      ],
+      "diagnostic_deltaE00": 0.5004407093638665
+    },
+    {
+      "patch": 6,
+      "name": "bluish green",
+      "phocus_codes": [
+        28161.0,
+        43282.0,
+        38882.0
+      ],
+      "calibrated_pipeline_codes": [
+        26729,
+        41396,
+        37535
+      ],
+      "pipeline_deltaE00": 2.3207971886083256,
+      "saved_reference_codes": [
+        26739.0,
+        41395.0,
+        37532.0
+      ],
+      "saved_reference_deltaE00": 2.3192855484551367,
+      "diagnostic_codes": [
+        27685,
+        42889,
+        38995
+      ],
+      "diagnostic_deltaE00": 0.8879182357356558
+    },
+    {
+      "patch": 7,
+      "name": "orange",
+      "phocus_codes": [
+        45775.0,
+        26787.0,
+        11602.0
+      ],
+      "calibrated_pipeline_codes": [
+        43902,
+        25574,
+        11737
+      ],
+      "pipeline_deltaE00": 2.4261777464558403,
+      "saved_reference_codes": [
+        43890.0,
+        25566.0,
+        11745.0
+      ],
+      "saved_reference_deltaE00": 2.44593776745975,
+      "diagnostic_codes": [
+        45181,
+        26647,
+        12210
+      ],
+      "diagnostic_deltaE00": 0.8560139064494404
+    },
+    {
+      "patch": 8,
+      "name": "purplish blue",
+      "phocus_codes": [
+        14412.0,
+        17838.0,
+        36095.0
+      ],
+      "calibrated_pipeline_codes": [
+        14085,
+        16927,
+        33802
+      ],
+      "pipeline_deltaE00": 1.7866950003513986,
+      "saved_reference_codes": [
+        14085.0,
+        16924.0,
+        33795.0
+      ],
+      "saved_reference_deltaE00": 1.7935051404788966,
+      "diagnostic_codes": [
+        14624,
+        17715,
+        35216
+      ],
+      "diagnostic_deltaE00": 0.68637039883674
+    },
+    {
+      "patch": 9,
+      "name": "moderate red",
+      "phocus_codes": [
+        40537.0,
+        16677.0,
+        18483.0
+      ],
+      "calibrated_pipeline_codes": [
+        38596,
+        16274,
+        18011
+      ],
+      "pipeline_deltaE00": 1.9313266500335626,
+      "saved_reference_codes": [
+        38594.0,
+        16277.0,
+        18004.0
+      ],
+      "saved_reference_deltaE00": 1.9300891735834311,
+      "diagnostic_codes": [
+        39821,
+        17009,
+        18878
+      ],
+      "diagnostic_deltaE00": 0.8885536681993412
+    },
+    {
+      "patch": 10,
+      "name": "purple",
+      "phocus_codes": [
+        15056.0,
+        9902.0,
+        19185.0
+      ],
+      "calibrated_pipeline_codes": [
+        14295,
+        9512,
+        17988
+      ],
+      "pipeline_deltaE00": 1.231897332913088,
+      "saved_reference_codes": [
+        14299.0,
+        9512.0,
+        17978.0
+      ],
+      "saved_reference_deltaE00": 1.2410359975579925,
+      "diagnostic_codes": [
+        14844,
+        9957,
+        18887
+      ],
+      "diagnostic_deltaE00": 0.5005536317107917
+    },
+    {
+      "patch": 11,
+      "name": "yellow green",
+      "phocus_codes": [
+        38019.0,
+        42532.0,
+        16261.0
+      ],
+      "calibrated_pipeline_codes": [
+        36577,
+        40871,
+        15780
+      ],
+      "pipeline_deltaE00": 2.0136709759682057,
+      "saved_reference_codes": [
+        36559.0,
+        40872.0,
+        15787.0
+      ],
+      "saved_reference_deltaE00": 2.0193673805021017,
+      "diagnostic_codes": [
+        37792,
+        42353,
+        16450
+      ],
+      "diagnostic_deltaE00": 0.3555099942324171
+    },
+    {
+      "patch": 12,
+      "name": "orange yellow",
+      "phocus_codes": [
+        47784.0,
+        36387.0,
+        12707.0
+      ],
+      "calibrated_pipeline_codes": [
+        46271,
+        34895,
+        12421
+      ],
+      "pipeline_deltaE00": 2.0149572947280228,
+      "saved_reference_codes": [
+        46249.0,
+        34886.0,
+        12437.0
+      ],
+      "saved_reference_deltaE00": 2.0338349661837762,
+      "diagnostic_codes": [
+        47528,
+        36210,
+        12947
+      ],
+      "diagnostic_deltaE00": 0.35868757641093
+    },
+    {
+      "patch": 13,
+      "name": "blue",
+      "phocus_codes": [
+        9016.0,
+        11628.0,
+        29381.0
+      ],
+      "calibrated_pipeline_codes": [
+        8907,
+        11070,
+        27309
+      ],
+      "pipeline_deltaE00": 1.4300729006559163,
+      "saved_reference_codes": [
+        8907.0,
+        11070.0,
+        27300.0
+      ],
+      "saved_reference_deltaE00": 1.433903134326893,
+      "diagnostic_codes": [
+        9263,
+        11587,
+        28551
+      ],
+      "diagnostic_deltaE00": 0.6053788600877769
+    },
+    {
+      "patch": 14,
+      "name": "green",
+      "phocus_codes": [
+        20492.0,
+        32849.0,
+        15321.0
+      ],
+      "calibrated_pipeline_codes": [
+        19901,
+        31261,
+        15228
+      ],
+      "pipeline_deltaE00": 2.408075490166091,
+      "saved_reference_codes": [
+        19883.0,
+        31263.0,
+        15217.0
+      ],
+      "saved_reference_deltaE00": 2.402215459536177,
+      "diagnostic_codes": [
+        20693,
+        32544,
+        15879
+      ],
+      "diagnostic_deltaE00": 0.8039315253719139
+    },
+    {
+      "patch": 15,
+      "name": "red",
+      "phocus_codes": [
+        35132.0,
+        11528.0,
+        11073.0
+      ],
+      "calibrated_pipeline_codes": [
+        33240,
+        11628,
+        11283
+      ],
+      "pipeline_deltaE00": 1.946574602493113,
+      "saved_reference_codes": [
+        33225.0,
+        11628.0,
+        11283.0
+      ],
+      "saved_reference_deltaE00": 1.9612325785419147,
+      "diagnostic_codes": [
+        34349,
+        12145,
+        11791
+      ],
+      "diagnostic_deltaE00": 1.2181118304684073
+    },
+    {
+      "patch": 16,
+      "name": "yellow",
+      "phocus_codes": [
+        51574.0,
+        46183.0,
+        15003.0
+      ],
+      "calibrated_pipeline_codes": [
+        50331,
+        44655,
+        14354
+      ],
+      "pipeline_deltaE00": 1.637966396060293,
+      "saved_reference_codes": [
+        50305.0,
+        44649.0,
+        14373.0
+      ],
+      "saved_reference_deltaE00": 1.6424025054897629,
+      "diagnostic_codes": [
+        51514,
+        46100,
+        15051
+      ],
+      "diagnostic_deltaE00": 0.10877058126887455
+    },
+    {
+      "patch": 17,
+      "name": "magenta",
+      "phocus_codes": [
+        39635.0,
+        16833.0,
+        32727.0
+      ],
+      "calibrated_pipeline_codes": [
+        38010,
+        16423,
+        31300
+      ],
+      "pipeline_deltaE00": 1.6965648530589441,
+      "saved_reference_codes": [
+        38010.0,
+        16419.0,
+        31298.0
+      ],
+      "saved_reference_deltaE00": 1.6980624830551028,
+      "diagnostic_codes": [
+        39206,
+        17165,
+        32637
+      ],
+      "diagnostic_deltaE00": 0.43631749718271573
+    },
+    {
+      "patch": 18,
+      "name": "cyan",
+      "phocus_codes": [
+        12356.0,
+        30003.0,
+        37917.0
+      ],
+      "calibrated_pipeline_codes": [
+        12589,
+        28510,
+        36204
+      ],
+      "pipeline_deltaE00": 2.186885541018141,
+      "saved_reference_codes": [
+        12589.0,
+        28500.0,
+        36203.0
+      ],
+      "saved_reference_deltaE00": 2.2039463085430464,
+      "diagnostic_codes": [
+        13018,
+        29729,
+        37670
+      ],
+      "diagnostic_deltaE00": 0.7192935583823248
+    },
+    {
+      "patch": 19,
+      "name": "white",
+      "phocus_codes": [
+        55758.0,
+        55653.5,
+        55425.0
+      ],
+      "calibrated_pipeline_codes": [
+        54579,
+        54234,
+        54052
+      ],
+      "pipeline_deltaE00": 1.4429572901319818,
+      "saved_reference_codes": [
+        54575.0,
+        54236.0,
+        54049.0
+      ],
+      "saved_reference_deltaE00": 1.4305349390105575,
+      "diagnostic_codes": [
+        55643,
+        55491,
+        55386
+      ],
+      "diagnostic_deltaE00": 0.3584060597008587
+    },
+    {
+      "patch": 20,
+      "name": "neutral 8",
+      "phocus_codes": [
+        46938.0,
+        47188.0,
+        47330.0
+      ],
+      "calibrated_pipeline_codes": [
+        45677,
+        45655,
+        45790
+      ],
+      "pipeline_deltaE00": 1.7896936116052942,
+      "saved_reference_codes": [
+        45676.0,
+        45656.0,
+        45784.0
+      ],
+      "saved_reference_deltaE00": 1.7847992686896086,
+      "diagnostic_codes": [
+        46906,
+        47100,
+        47308
+      ],
+      "diagnostic_deltaE00": 0.2704617675677407
+    },
+    {
+      "patch": 21,
+      "name": "neutral 6.5",
+      "phocus_codes": [
+        36714.0,
+        37031.0,
+        37210.0
+      ],
+      "calibrated_pipeline_codes": [
+        35597,
+        35657,
+        35760
+      ],
+      "pipeline_deltaE00": 1.9835187510893406,
+      "saved_reference_codes": [
+        35594.0,
+        35657.0,
+        35758.0
+      ],
+      "saved_reference_deltaE00": 1.9797688195399528,
+      "diagnostic_codes": [
+        36757,
+        37028,
+        37207
+      ],
+      "diagnostic_deltaE00": 0.16490462711605283
+    },
+    {
+      "patch": 22,
+      "name": "neutral 5",
+      "phocus_codes": [
+        25471.0,
+        25494.0,
+        25478.0
+      ],
+      "calibrated_pipeline_codes": [
+        24621,
+        24411,
+        24368
+      ],
+      "pipeline_deltaE00": 1.7949323909927521,
+      "saved_reference_codes": [
+        24607.0,
+        24409.0,
+        24366.0
+      ],
+      "saved_reference_deltaE00": 1.777117803497816,
+      "diagnostic_codes": [
+        25561,
+        25499,
+        25517
+      ],
+      "diagnostic_deltaE00": 0.3778670644147532
+    },
+    {
+      "patch": 23,
+      "name": "neutral 3.5",
+      "phocus_codes": [
+        15636.0,
+        15874.0,
+        16112.0
+      ],
+      "calibrated_pipeline_codes": [
+        15098,
+        15145,
+        15400
+      ],
+      "pipeline_deltaE00": 1.2778076471390096,
+      "saved_reference_codes": [
+        15091.0,
+        15145.0,
+        15389.0
+      ],
+      "saved_reference_deltaE00": 1.2531216808469143,
+      "diagnostic_codes": [
+        15706,
+        15854,
+        16159
+      ],
+      "diagnostic_deltaE00": 0.48408622053271033
+    },
+    {
+      "patch": 24,
+      "name": "black",
+      "phocus_codes": [
+        8296.0,
+        8407.0,
+        8612.0
+      ],
+      "calibrated_pipeline_codes": [
+        8022,
+        8012,
+        8251
+      ],
+      "pipeline_deltaE00": 0.8586542755618004,
+      "saved_reference_codes": [
+        8007.0,
+        8017.0,
+        8247.0
+      ],
+      "saved_reference_deltaE00": 0.7654596747917991,
+      "diagnostic_codes": [
+        8344,
+        8382,
+        8661
+      ],
+      "diagnostic_deltaE00": 0.513853838172542
+    }
+  ],
+  "scope": "Actual default non-HDR Phocus export, with its default sharpening/lens processing. ROIs use nominal crop registration, not a measured lens-warp map. Exposure diagnostic fits only four neutral lightness values and is not evidence of exact exposure-chain recovery. No per-pixel or full-pipeline equivalence claim."
+}

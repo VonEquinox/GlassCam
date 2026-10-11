@@ -1,0 +1,85 @@
+{
+  "source_sha256": "f357a399b5c7b1918a3a09a7fca475026b4deb7d62c0ae18a7c4fd0abccaf659",
+  "dng_cfa_samples_identical": true,
+  "dng_white_balance_relative_max_error": 0.0,
+  "original_arw_vs_dng_srgb_uint16_max_difference": 4485,
+  "original_arw_vs_dng_srgb_uint16_mean_difference": 0.018616714493857163,
+  "original_arw_vs_dng_srgb_uint16_p99_difference": 0.0,
+  "jpeg_shape": [
+    6374,
+    9566,
+    3
+  ],
+  "orientation": 1,
+  "dng_white_level": 15360,
+  "arw_container_white_level": 16383,
+  "normal_render": "LibRaw AHD, capture WB, camera matrix, sRGB transfer, no automatic brightening",
+  "dng": "Uncompressed original CFA samples, active area, black/white levels, capture WB, D65 camera matrix; not an Adobe Converter export; proprietary Sony MakerNotes are not migrated",
+  "hncs": "Existing calibrated pipeline; source capture WB; HNCS settings recorded in hncs_parameters; full Phocus equivalence unverified",
+  "hncs_parameters": {
+    "render_path_revision": 4,
+    "cct": 6655,
+    "cct_source": "dual_illuminant_virtual_x2d_wb",
+    "illuminant_mode": "dual",
+    "white_balance_bridge_enabled": true,
+    "estimated_target_white_balance": [
+      2.9222950837313175,
+      1.0,
+      1.4949797102768045
+    ],
+    "estimated_target_cct": 6655,
+    "estimated_target_tint": -0.0021185380586813633,
+    "factory_cct_clamped": false,
+    "cross_illuminant_assumption": false,
+    "profile_sha256": "92a6c8de7947203aa5c8555364481122894259dbd740706efca5d74869a21a2c",
+    "experimental_dual_illuminant": true,
+    "source_estimated_cct": 5472.141808117459,
+    "source_low_illuminant_weight": 0.0,
+    "target_low_illuminant_weight": 0.14762708568588184,
+    "dual_model_sha256": "838fcc2a76cbc414bef57cc0bfdb8c7869d01bf8b24d9f4039e3cad3a45afed0",
+    "source_profile_range_clamped": true,
+    "target_profile_range_clamped": false
+  },
+  "files": {
+    "DSC07294_comparison.jpg": {
+      "bytes": 329423,
+      "sha256": "c081d52a3df973ac043cfc3633a14105a21f8e6aa7dcc30d232f1fa2ccd6f5a9"
+    },
+    "DSC07294_hncs.jpg": {
+      "bytes": 60978093,
+      "sha256": "2bfab50e015a0daa0a5a7d36e3f0ac8520f9ed3e25641ee8f1e3ed32f4785eea"
+    },
+    "DSC07294_hncs.preview.jpg": {
+      "bytes": 569561,
+      "sha256": "f81f4cd180fd471869ffd68b227eda9461f8f7d48a354257fe51ca1611177fec"
+    },
+    "DSC07294_hncs.tif": {
+      "bytes": 365858488,
+      "sha256": "047323685264e042f779e0bcac022b8a586cf55fbeb2fcb54a65a09cc43b00df"
+    },
+    "DSC07294_hncs_display.preview.jpg": {
+      "bytes": 564394,
+      "sha256": "432c312744b29144b4b5bd7ae3f75f90d3ab16791e142b886dbe85ea845e945f"
+    },
+    "DSC07294_hncs_srgb.tif": {
+      "bytes": 365858488,
+      "sha256": "26b3bc1fd3158a397bfabeb9dad2ec126c8fef0f5d8b5ec69e90c30c81b6d36a"
+    },
+    "DSC07294_original.dng": {
+      "bytes": 129499888,
+      "sha256": "6fea74c592e18f4866bf7c4a553acc7cad4b655e0a2ba0501de9ebf749705a81"
+    },
+    "DSC07294_original.jpg": {
+      "bytes": 33956713,
+      "sha256": "40d0622e030f4db0102e52fbfadd5496cf5c6e52b438ea60f0b70234d3ad7c2c"
+    },
+    "DSC07294_original.preview.jpg": {
+      "bytes": 554649,
+      "sha256": "7db09b07d107c7fdef66e4a5d94d6e1fc44fe5b4379b676d76a4048d8d260d14"
+    },
+    "DSC07294_original_srgb.tif": {
+      "bytes": 365842920,
+      "sha256": "fc044d46059d310f5629eac8d3428e8794723ee27fd4aaf58464a9dcbd7c2f29"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "repository": "TingfengLuo/Camera-Profile-for-Fujifilm-Film-Simulation",
+  "commit": "2c763d73214004c50738f7a85225b0c11b1d820b",
+  "path": "Adobe Standard Linear Profile/Sony ILCE-7RM5 Adobe Standard Linear.dcp",
+  "git_blob_sha": "3f1056e9118c384007af83cf0cbb8fe19636698c",
+  "file_sha256": "0e862c17f6ad0b1d3148216f773c41c2f4255d6274b43f99efffaab4e039dbcc",
+  "source_scope": "Third-party linearized Adobe profile; matrix values still need convention and D65 cross-check before using"
+}

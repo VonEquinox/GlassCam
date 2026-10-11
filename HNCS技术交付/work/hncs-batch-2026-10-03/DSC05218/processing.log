@@ -1,0 +1,92 @@
+Demosaicing DSC05218.ARW
+Saved /Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-batch-2026-10-03/DSC05218/DSC05218_hncs.tif and /Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-batch-2026-10-03/DSC05218/DSC05218_hncs_srgb.tif
+Verification: {
+  "hncs": {
+    "shape": [
+      6374,
+      9566,
+      3
+    ],
+    "dtype": "uint16",
+    "icc_bytes": 532,
+    "colour_space": "hasselblad",
+    "minimum": 0,
+    "maximum": 65535,
+    "bytes": 365858488
+  },
+  "srgb": {
+    "shape": [
+      6374,
+      9566,
+      3
+    ],
+    "dtype": "uint16",
+    "icc_bytes": 588,
+    "colour_space": "srgb",
+    "minimum": 0,
+    "maximum": 65535,
+    "bytes": 365858488
+  }
+}
+DNG re-opened: CFA samples identical, WB and matrix preserved
+{
+  "source_sha256": "747219b57544307978ffaf7738826655c82f8f5ccb2f242db06b824c761e6e59",
+  "dng_cfa_samples_identical": true,
+  "dng_white_balance_relative_max_error": 1.1920928955078125e-07,
+  "original_arw_vs_dng_srgb_uint16_max_difference": 2404,
+  "original_arw_vs_dng_srgb_uint16_mean_difference": 0.011847362434806028,
+  "original_arw_vs_dng_srgb_uint16_p99_difference": 0.0,
+  "jpeg_shape": [
+    6374,
+    9566,
+    3
+  ],
+  "orientation": 1,
+  "dng_white_level": 15360,
+  "arw_container_white_level": 16383,
+  "normal_render": "LibRaw AHD, capture WB, camera matrix, sRGB transfer, no automatic brightening",
+  "dng": "Uncompressed original CFA samples, active area, black/white levels, capture WB, D65 camera matrix; not an Adobe Converter export; proprietary Sony MakerNotes are not migrated",
+  "hncs": "Existing calibrated pipeline; source capture WB; other-scene factory CCT remains calibration default; full Phocus equivalence unverified",
+  "files": {
+    "DSC05218_comparison.jpg": {
+      "bytes": 295280,
+      "sha256": "6879dbaa4a05ad29f3d4b17d063fd27511764f6d9249fe1d1c4db02867d415d2"
+    },
+    "DSC05218_hncs.jpg": {
+      "bytes": 39033614,
+      "sha256": "eceebba0505ffb219894418d9e407d700b7a229fd47c2b3c4b40ccdf4b0f1c99"
+    },
+    "DSC05218_hncs.preview.jpg": {
+      "bytes": 399492,
+      "sha256": "00fdc0739ee8237216a19b551381675c69b28c58d49fbfc241d0ac7101a02e2e"
+    },
+    "DSC05218_hncs.tif": {
+      "bytes": 365858488,
+      "sha256": "18e4644754689592ebf684993623cd5f25f64036009f73c0b5eb3edbd3f696e3"
+    },
+    "DSC05218_hncs_display.preview.jpg": {
+      "bytes": 400853,
+      "sha256": "02d8d5f3a92cad778a8e99b8851734591e962939f4fa150eef06693750d2dc52"
+    },
+    "DSC05218_hncs_srgb.tif": {
+      "bytes": 365858488,
+      "sha256": "5bc582fc34f0e3f5a4afdafef9c1b76d03749810cff93c152215580591c2292e"
+    },
+    "DSC05218_original.dng": {
+      "bytes": 129499888,
+      "sha256": "07251ac260e1701bf67bce09ea0f0982dbd965f44bbdd84160efcac063e1264e"
+    },
+    "DSC05218_original.jpg": {
+      "bytes": 24610965,
+      "sha256": "c02eeed5b6a6f8e05691a052cad307e280fa3d8d0b767caa5bbe5c88e97c88ce"
+    },
+    "DSC05218_original.preview.jpg": {
+      "bytes": 410649,
+      "sha256": "6b891664080e51446c136289f7163496da8baa1a1730fab6e54388647ebfc439"
+    },
+    "DSC05218_original_srgb.tif": {
+      "bytes": 365842920,
+      "sha256": "3e0d3b692d07fc339c12e34803c90902b5a4462fde052d2f932706573890d44a"
+    }
+  }
+}

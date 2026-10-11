@@ -1,0 +1,12 @@
+/Volumes/Phocus/Phocus.app/Contents/Frameworks/HBRawCorrections.framework/Versions/A/HBRawCorrections (architecture x86_64):
+	@rpath/HBRawCorrections.framework/Versions/A/HBRawCorrections (compatibility version 1.0.0, current version 1.0.0)
+	@rpath/HBUtil.framework/Versions/A/HBUtil (compatibility version 1.0.0, current version 1.0.0)
+	@rpath/HBStorage.framework/Versions/A/HBStorage (compatibility version 1.0.0, current version 1.0.0)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2000.63.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+/Volumes/Phocus/Phocus.app/Contents/Frameworks/HBRawCorrections.framework/Versions/A/HBRawCorrections (architecture arm64):
+	@rpath/HBRawCorrections.framework/Versions/A/HBRawCorrections (compatibility version 1.0.0, current version 1.0.0)
+	@rpath/HBUtil.framework/Versions/A/HBUtil (compatibility version 1.0.0, current version 1.0.0)
+	@rpath/HBStorage.framework/Versions/A/HBStorage (compatibility version 1.0.0, current version 1.0.0)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2000.63.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)

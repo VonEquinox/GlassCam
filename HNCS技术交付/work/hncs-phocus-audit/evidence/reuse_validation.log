@@ -1,0 +1,30 @@
+Demosaicing 19990c35cf194481a0093de2b02ed818.arw
+Saved /var/folders/_t/h6vv268j65s166v4flh5yzdc0000gn/T/hncs-audit-reuse-j3sph7mq/a7rv_reused.tif and /var/folders/_t/h6vv268j65s166v4flh5yzdc0000gn/T/hncs-audit-reuse-j3sph7mq/a7rv_reused_srgb.tif
+Verification: {
+  "hncs": {
+    "shape": [
+      6374,
+      9566,
+      3
+    ],
+    "dtype": "uint16",
+    "icc_bytes": 532,
+    "colour_space": "hasselblad",
+    "minimum": 0,
+    "maximum": 65535,
+    "bytes": 365858488
+  },
+  "srgb": {
+    "shape": [
+      6374,
+      9566,
+      3
+    ],
+    "dtype": "uint16",
+    "icc_bytes": 588,
+    "colour_space": "srgb",
+    "minimum": 0,
+    "maximum": 65535,
+    "bytes": 365858488
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "DSC07247_hncs.tif": {
+    "shape": [
+      6374,
+      9566,
+      3
+    ],
+    "pixel_sha256": "e0dfd17ad19ca930e05e7703b100e11ea2f09d2210749df763cf11289bec294c",
+    "orientation": 8,
+    "master_icc_sha256": "a6ef4e6adde0f028cd9ec03d74de7b9d1a2807bb6a4d61f7f3bc8bf4f1dcdb8e"
+  },
+  "DSC07247_hncs_srgb.tif": {
+    "shape": [
+      6374,
+      9566,
+      3
+    ],
+    "pixel_sha256": "bf9c2c4a1a5f84e761e7d943d893aef635b551cc8056122e2faef28e558732f3",
+    "orientation": 8,
+    "master_icc_sha256": null
+  },
+  "DSC07247_original_srgb.tif": {
+    "shape": [
+      9566,
+      6374,
+      3
+    ],
+    "pixel_sha256": "b3e6f897789014b5f1a74eafe0e92ab61299bd8b84725624c16c16a2dcaf61b7",
+    "orientation": 1,
+    "master_icc_sha256": null
+  }
+}

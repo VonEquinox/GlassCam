@@ -1,0 +1,117 @@
+Demosaicing DSC04945.ARW
+Factory CCT: 5402 K (dual_illuminant_virtual_x2d_wb); WB bridge: True
+Saved /Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-dual-illuminant/output/DSC04945/DSC04945_hncs.tif and /Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-dual-illuminant/output/DSC04945/DSC04945_hncs_srgb.tif
+Verification: {
+  "hncs": {
+    "shape": [
+      6374,
+      9566,
+      3
+    ],
+    "dtype": "uint16",
+    "icc_bytes": 532,
+    "colour_space": "hasselblad",
+    "minimum": 0,
+    "maximum": 62409,
+    "bytes": 365858488
+  },
+  "srgb": {
+    "shape": [
+      6374,
+      9566,
+      3
+    ],
+    "dtype": "uint16",
+    "icc_bytes": 588,
+    "colour_space": "srgb",
+    "minimum": 0,
+    "maximum": 64937,
+    "bytes": 365858488
+  }
+}
+DNG re-opened: CFA samples identical, WB and matrix preserved
+{
+  "source_sha256": "cb7d28bd89cdfc9f14bd5a21eb60edba6202360122f1a2299340a95a4e3d4213",
+  "dng_cfa_samples_identical": true,
+  "dng_white_balance_relative_max_error": 1.1920928955078125e-07,
+  "original_arw_vs_dng_srgb_uint16_max_difference": 2001,
+  "original_arw_vs_dng_srgb_uint16_mean_difference": 0.027873341773695902,
+  "original_arw_vs_dng_srgb_uint16_p99_difference": 0.0,
+  "jpeg_shape": [
+    6374,
+    9566,
+    3
+  ],
+  "orientation": 1,
+  "dng_white_level": 15360,
+  "arw_container_white_level": 16383,
+  "normal_render": "LibRaw AHD, capture WB, camera matrix, sRGB transfer, no automatic brightening",
+  "dng": "Uncompressed original CFA samples, active area, black/white levels, capture WB, D65 camera matrix; not an Adobe Converter export; proprietary Sony MakerNotes are not migrated",
+  "hncs": "Existing calibrated pipeline; source capture WB; HNCS settings recorded in hncs_parameters; full Phocus equivalence unverified",
+  "hncs_parameters": {
+    "render_path_revision": 4,
+    "cct": 5402,
+    "cct_source": "dual_illuminant_virtual_x2d_wb",
+    "illuminant_mode": "dual",
+    "white_balance_bridge_enabled": true,
+    "estimated_target_white_balance": [
+      2.6253403604836514,
+      1.0,
+      1.6558216343958774
+    ],
+    "estimated_target_cct": 5402,
+    "estimated_target_tint": 6.961955415996818e-05,
+    "factory_cct_clamped": false,
+    "cross_illuminant_assumption": false,
+    "profile_sha256": "92a6c8de7947203aa5c8555364481122894259dbd740706efca5d74869a21a2c",
+    "experimental_dual_illuminant": true,
+    "source_estimated_cct": 4708.887641851896,
+    "source_low_illuminant_weight": 0.08308470917406856,
+    "target_low_illuminant_weight": 0.29845350412346344,
+    "dual_model_sha256": "838fcc2a76cbc414bef57cc0bfdb8c7869d01bf8b24d9f4039e3cad3a45afed0",
+    "source_profile_range_clamped": false,
+    "target_profile_range_clamped": false
+  },
+  "files": {
+    "DSC04945_comparison.jpg": {
+      "bytes": 282813,
+      "sha256": "f824427bbf1417f3edd1b6d3fd1d06357a456408d67c5077a1b894c4c1f8d09e"
+    },
+    "DSC04945_hncs.jpg": {
+      "bytes": 53765463,
+      "sha256": "f88acf67365caa6e68b1881985a6ac24eebf01e93666535557ecb853a9a123a5"
+    },
+    "DSC04945_hncs.preview.jpg": {
+      "bytes": 464939,
+      "sha256": "0be21b7df575f46c42cc5006d96387ec008ae16eee54f1e5c3e54d31560f58e6"
+    },
+    "DSC04945_hncs.tif": {
+      "bytes": 365858488,
+      "sha256": "948287b9ad57d743a1e6a2e8c676f4f69c5d941ccf690b8b1db467b83c365d66"
+    },
+    "DSC04945_hncs_display.preview.jpg": {
+      "bytes": 466060,
+      "sha256": "4529f3ae6b5486f0f6ab62c57fa1110170a835344758e98329e0801784f8a909"
+    },
+    "DSC04945_hncs_srgb.tif": {
+      "bytes": 365858488,
+      "sha256": "a59d0db873dd1c274cc3965c5f5c6f4a15f806d52dcb2be2fe4aabe9fb014374"
+    },
+    "DSC04945_original.dng": {
+      "bytes": 129499888,
+      "sha256": "cdefdeb8aba3349427517d3e6e540107931090339ba245c74adfaeea3395bda9"
+    },
+    "DSC04945_original.jpg": {
+      "bytes": 26322802,
+      "sha256": "0e47104c053aa9c627ccef39c5bb323b170981e93f3d6ac1ef7d4420753a17bc"
+    },
+    "DSC04945_original.preview.jpg": {
+      "bytes": 439459,
+      "sha256": "2722f8f70bf33aaf44b612080a1b7af2f9ee5ce6f2a57ff522c3dd7c756f91c8"
+    },
+    "DSC04945_original_srgb.tif": {
+      "bytes": 365842920,
+      "sha256": "d46192661ab52c0d4efbb105ff17795d9d52742d5426b8fab2c919abb7564d1a"
+    }
+  }
+}

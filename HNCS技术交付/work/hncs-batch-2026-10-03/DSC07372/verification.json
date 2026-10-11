@@ -1,0 +1,61 @@
+{
+  "source_sha256": "021e94632819a1d052016aed131d95a508c3b18b05cc1ae744e437cc9a46ac2f",
+  "dng_cfa_samples_identical": true,
+  "dng_white_balance_relative_max_error": 0.0,
+  "original_arw_vs_dng_srgb_uint16_max_difference": 1870,
+  "original_arw_vs_dng_srgb_uint16_mean_difference": 0.026073821984400235,
+  "original_arw_vs_dng_srgb_uint16_p99_difference": 0.0,
+  "jpeg_shape": [
+    6376,
+    9564,
+    3
+  ],
+  "orientation": 1,
+  "dng_white_level": 15360,
+  "arw_container_white_level": 16383,
+  "normal_render": "LibRaw AHD, capture WB, camera matrix, sRGB transfer, no automatic brightening",
+  "dng": "Uncompressed original CFA samples, active area, black/white levels, capture WB, D65 camera matrix; not an Adobe Converter export; proprietary Sony MakerNotes are not migrated",
+  "hncs": "Existing calibrated pipeline; source capture WB; other-scene factory CCT remains calibration default; full Phocus equivalence unverified",
+  "files": {
+    "DSC07372_comparison.jpg": {
+      "bytes": 215980,
+      "sha256": "90585483316ee279203eb8b215439124fb5428f29b3333252a2ebb94cb568eea"
+    },
+    "DSC07372_hncs.jpg": {
+      "bytes": 65294092,
+      "sha256": "5d43d463fe8d30bc7d7aeffe279942b7c793aef715602a06802ed612e2b5dcf8"
+    },
+    "DSC07372_hncs.preview.jpg": {
+      "bytes": 373811,
+      "sha256": "bd8aa5be2b01664199a1247079fd80224bc46b7e8a92ed8c0523d9d060df10a3"
+    },
+    "DSC07372_hncs.tif": {
+      "bytes": 365896768,
+      "sha256": "e06b53020b5c954468f04d8a0a8f0e958ee62cbbed0b3dfde9347a855f4dff96"
+    },
+    "DSC07372_hncs_display.preview.jpg": {
+      "bytes": 375317,
+      "sha256": "a67f064138525ce2214aada0b51cfc581151d4be1195d681129b0b11586fc14e"
+    },
+    "DSC07372_hncs_srgb.tif": {
+      "bytes": 365896768,
+      "sha256": "c8a939289f86d46d63259d0fc860544a101ebe425cc24b15c310202b2dcc9916"
+    },
+    "DSC07372_original.dng": {
+      "bytes": 122419952,
+      "sha256": "dd5bf95f0dbff354ffa27804ff7952346449d2aae8873adeb689e6d03ca72ab7"
+    },
+    "DSC07372_original.jpg": {
+      "bytes": 26829446,
+      "sha256": "9770bec6e4548c53d52b6ea8669c37d36dc4bb8f0fd7e85bb0c39b8c078f6ab9"
+    },
+    "DSC07372_original.preview.jpg": {
+      "bytes": 332307,
+      "sha256": "cc7d9dc5216a22dec204afe12de40a6e2469734745ab720b1ffe569883320183"
+    },
+    "DSC07372_original_srgb.tif": {
+      "bytes": 365881200,
+      "sha256": "328f8d4f2b988d23c8a41ae20c6ecdab366c81567a21d38384fecf10df191e57"
+    }
+  }
+}

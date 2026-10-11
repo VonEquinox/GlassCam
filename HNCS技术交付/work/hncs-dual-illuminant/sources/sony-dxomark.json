@@ -1,0 +1,68 @@
+{
+  "url": "https://www.dxomark.com/Cameras/Sony/A7R-V---Measurements",
+  "retrieved_date": "2026-10-03",
+  "camera": "Sony A7R V",
+  "note": "Numbers independently verified from primary measurements page. Coefficients displayed to two decimals. Matrix direction interpreted as white-balanced native column -> linear sRGB column; display labels alone are ambiguous.",
+  "illuminants": [
+    {
+      "name": "CIE A",
+      "cct": 2856.0,
+      "xy": [
+        0.44758,
+        0.40745
+      ],
+      "wb": [
+        1.62,
+        1,
+        2.67
+      ],
+      "white_balanced_native_to_linear_srgb": [
+        [
+          1.94,
+          -0.87,
+          -0.07
+        ],
+        [
+          -0.22,
+          1.53,
+          -0.31
+        ],
+        [
+          0.04,
+          -0.71,
+          1.67
+        ]
+      ]
+    },
+    {
+      "name": "CIE D50",
+      "cct": 5003.0,
+      "xy": [
+        0.34567,
+        0.3585
+      ],
+      "wb": [
+        2.53,
+        1,
+        1.62
+      ],
+      "white_balanced_native_to_linear_srgb": [
+        [
+          1.95,
+          -0.87,
+          -0.08
+        ],
+        [
+          -0.15,
+          1.58,
+          -0.43
+        ],
+        [
+          0.03,
+          -0.45,
+          1.41
+        ]
+      ]
+    }
+  ]
+}

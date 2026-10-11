@@ -1,0 +1,35 @@
+test_bridge_preserves_calibration_pixels_and_neutral_exposure (test_hncs_pipeline.PipelineTests.test_bridge_preserves_calibration_pixels_and_neutral_exposure) ... ok
+test_bridge_rejects_invalid_neutrals (test_hncs_pipeline.PipelineTests.test_bridge_rejects_invalid_neutrals) ... ok
+test_display_gray_and_preview_edges (test_hncs_pipeline.PipelineTests.test_display_gray_and_preview_edges) ... ok
+test_gray_black_and_stripe_invariance (test_hncs_pipeline.PipelineTests.test_gray_black_and_stripe_invariance) ... ok
+test_known_mapping_recovery (test_hncs_pipeline.PipelineTests.test_known_mapping_recovery) ... ok
+test_lut_coordinate_units_and_edges (test_hncs_pipeline.PipelineTests.test_lut_coordinate_units_and_edges) ... ok
+test_native_white_balance_temperatures (test_hncs_pipeline.PipelineTests.test_native_white_balance_temperatures) ... ok
+test_nonfinite_rejected (test_hncs_pipeline.PipelineTests.test_nonfinite_rejected) ... ok
+test_original_native_constructor_pixel_vectors (test_hncs_pipeline.PipelineTests.test_original_native_constructor_pixel_vectors) ... ok
+test_published_ciede2000_pairs (test_hncs_pipeline.PipelineTests.test_published_ciede2000_pairs) ... ok
+test_render_resolves_capture_temperature_and_override (test_hncs_pipeline.PipelineTests.test_render_resolves_capture_temperature_and_override) ... ok
+test_srgb_conversion_against_littlecms (test_hncs_pipeline.PipelineTests.test_srgb_conversion_against_littlecms) ... ok
+test_anchor_pixels_and_capture_neutral_exposure (test_dual_illuminant.DualIlluminantTests.test_anchor_pixels_and_capture_neutral_exposure) ... ok
+test_explicit_mode_and_factory_override (test_dual_illuminant.DualIlluminantTests.test_explicit_mode_and_factory_override) ... ok
+test_external_row_and_dcp_column_matrices_are_inverses (test_dual_illuminant.DualIlluminantTests.test_external_row_and_dcp_column_matrices_are_inverses) ... ok
+test_measured_source_wb_recovers_reference_illuminants (test_dual_illuminant.DualIlluminantTests.test_measured_source_wb_recovers_reference_illuminants) ... ok
+test_mired_midpoint_clamps_and_inverts_after_interpolation (test_dual_illuminant.DualIlluminantTests.test_mired_midpoint_clamps_and_inverts_after_interpolation) ... ok
+test_synthetic_intermediate_illuminant_is_recovered (test_dual_illuminant.DualIlluminantTests.test_synthetic_intermediate_illuminant_is_recovered) ... ok
+test_both_real_chart_endpoints_reproduce_stored_fits (test_paired_illuminants.PairedIlluminantTests.test_both_real_chart_endpoints_reproduce_stored_fits) ... ok
+test_capture_neutral_gain_and_wb_scale_invariance (test_paired_illuminants.PairedIlluminantTests.test_capture_neutral_gain_and_wb_scale_invariance) ... ok
+test_factory_override_and_range_flags (test_paired_illuminants.PairedIlluminantTests.test_factory_override_and_range_flags) ... ok
+test_profile_guard_and_invalid_inputs (test_paired_illuminants.PairedIlluminantTests.test_profile_guard_and_invalid_inputs) ... ok
+test_all_extracted_presets_execute_the_portable_entrypoint (test_phocus_presets.PhocusPresetTests.test_all_extracted_presets_execute_the_portable_entrypoint) ... ok
+test_catalog_contains_all_extracted_factory_settings (test_phocus_presets.PhocusPresetTests.test_catalog_contains_all_extracted_factory_settings) ... ok
+test_every_extracted_settings_file_has_a_portable_key (test_phocus_presets.PhocusPresetTests.test_every_extracted_settings_file_has_a_portable_key) ... ok
+test_explicit_sharpness_switch_applies_portable_filter (test_phocus_presets.PhocusPresetTests.test_explicit_sharpness_switch_applies_portable_filter) ... ok
+test_native_curve_families_and_as_shot_resolution (test_phocus_presets.PhocusPresetTests.test_native_curve_families_and_as_shot_resolution) ... ok
+test_native_white_balance_and_film_grain_presets_are_applied (test_phocus_presets.PhocusPresetTests.test_native_white_balance_and_film_grain_presets_are_applied) ... ok
+test_nature_tone_and_saturation_presets_change_codes (test_phocus_presets.PhocusPresetTests.test_nature_tone_and_saturation_presets_change_codes) ... ok
+test_portrait_product_presets_preserve_color_core_and_record_sharpness (test_phocus_presets.PhocusPresetTests.test_portrait_product_presets_preserve_color_core_and_record_sharpness) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.349s
+
+OK

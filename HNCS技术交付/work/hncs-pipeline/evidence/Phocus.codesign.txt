@@ -1,0 +1,17 @@
+Executable=/Volumes/Phocus/Phocus.app/Contents/MacOS/Phocus
+Identifier=dk.hasselblad.phocus
+Format=app bundle with Mach-O universal (x86_64 arm64)
+CodeDirectory v=20500 size=29888 flags=0x10000(runtime) hashes=923+7 location=embedded
+Signature size=8977
+Authority=Developer ID Application: Hasselblad A/S (56UFF38UTM)
+Authority=Developer ID Certification Authority
+Authority=Apple Root CA
+Timestamp=Aug 20, 2026 at 6:13:59 PM
+Notarization Ticket=stapled
+Info.plist entries=32
+TeamIdentifier=56UFF38UTM
+Runtime Version=26.1.0
+Sealed Resources version=2 rules=13 files=1029
+Internal requirements count=1 size=212
+Total signatures=1
+Chosen signature=1
