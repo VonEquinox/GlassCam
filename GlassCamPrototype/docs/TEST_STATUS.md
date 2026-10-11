@@ -41,7 +41,7 @@
 4. 加入最多 4 线程的连续块并行，原核不改，线程创建失败时安全串行补齐。
 5. Swift 默认使用 fast 路径并按低电量/系统热状态将工作线程降至 2 或 1；该 Apple 策略尚未真机测量，不能声称节电效果。
 
-显示近似的边界：最近 16 位 linear 采样误差 ≤0.5/65535；sRGB 最大斜率约 12.92，连续字节尺度误差约 ≤0.0252，因此量化输出最多差 1 码。原始 HNCS UInt16 核仍需 bit-exact。精确 API 与 Swift `exactReference` 选项保留，便于比较或重新导出。该有界近似现在仅用于屏幕预览。HEIF 导出走独立 Float display-linear 路径，不通过 fast 字节编码；实际 HEIF10 编码器仍未在此环境执行，不能把已通过的 Float 测试称为已验证的 HEIF bitstream。当前 HNCS Float 导出已新增 1–4 线程精确并行，336 组对串行 oracle 逐位一致；真实8064×64条带及12MP计时见 [精确 Float 并行](EXACT_FLOAT_PARALLEL.md)。前表的旧8位预览速度仍不适用于端到端 HEIF 导出。
+显示近似的边界：最近 16 位 linear 采样误差 ≤0.5/65535；sRGB 最大斜率约 12.92，连续字节尺度误差约 ≤0.0252，因此量化输出最多差 1 码。原始 HNCS UInt16 核仍需 bit-exact。精确 API 与 Swift `exactReference` 选项保留，便于比较或重新导出。该有界近似仅保留在旧8位诊断/预览API；当前App已改用精确Float高精度效果显示。HEIF 导出走独立 Float display-linear 路径，不通过 fast 字节编码；实际 HEIF10 编码器仍未在此环境执行，不能把已通过的 Float 测试称为已验证的 HEIF bitstream。当前 HNCS Float 导出已新增 1–4 线程精确并行，336 组对串行 oracle 逐位一致；真实8064×64条带及12MP计时见 [精确 Float 并行](EXACT_FLOAT_PARALLEL.md)。前表的旧8位预览速度仍不适用于端到端 HEIF 导出。
 
 ## 未执行 / 不能宣称通过
 
@@ -97,3 +97,9 @@ FFCS strip ASan+UBSan：19模式/760调用通过，见 `validation/ffcs_strip_sa
 ## 精确 Float 并行回归
 
 52 组/6656 像素、额外892080通道原核仍为0差；336并行case逐位一致；ASan/UBSan通过。真实64行条带1→4线程104.9→54.3ms，12MP2.731→1.063s（同轮云CPU中位数，含启动/join，不含Apple解码编码）。总CPU时间增加，不宣称省电。详见 [实现与原始样本](EXACT_FLOAT_PARALLEL.md)。
+
+## 高精度效果预览追加
+
+Float32原图/效果图→CoreImage/Metal RGBA16Float SDR源码已加入；软件binary16灰阶4096样本保留3073级，线性及sRGB编码域误差低于声明样本预算。此检查不等于Apple编译、GPU或面板实测；详见 [高精度预览](HIGH_PRECISION_PREVIEW.md)。
+
+高精度预览合并 [51项测试通过，20.302s](../validation/high-precision-integration-tests.txt)。其中八项新增为源码/软件存储检查，Apple显示未执行；实时HNCS/FFCS视频处理未接入，用户已明确后置，不属于本轮待实施功能。

@@ -1,6 +1,5 @@
 import Foundation
 import CoreImage
-import UIKit
 import ImageIO
 
 /// Explicit cancellation crosses the GCD decoder queue; it does not depend on
@@ -18,7 +17,7 @@ struct ImportedImage: @unchecked Sendable {
     let linearRGB: [Float]
     let width: Int
     let height: Int
-    let original: UIImage
+    let original: PreviewRaster
     let sourceDescription: String
 }
 
@@ -50,9 +49,9 @@ struct ProcessingRecipe: Equatable, Sendable {
 }
 
 struct ProcessedImage: @unchecked Sendable {
-    let image: UIImage
+    let image: PreviewRaster
     // Snapshot belongs to this rendered preview, not the current slider positions.
-    // Copy-on-write source storage avoids a persistent additional RGBAf buffer.
+    // Source and processed previews retain immutable Float32 rasters for GPU display.
     let source: ImportedImage
     let recipe: ProcessingRecipe
     var exposureEV: Double { recipe.exposureEV }
@@ -94,6 +93,7 @@ enum ImagePipeline {
     private static func decode(data: Data, fileExtension: String?, sourceFile: SourceImageFile, maximumEdge: CGFloat, exportSettings: ExportSettings) throws -> ImportedImage {
         let isRAW = ["dng", "raw"].contains(fileExtension?.lowercased() ?? "")
         var source: CIImage?
+        var decodePrecisionDescription = "Float32 RAW decode · not sensor-native bit depth"
         if isRAW {
             if let raw = CIRAWFilter(imageData: data, identifierHint: "com.adobe.raw-image") {
                 // Set the decoder orientation explicitly from source metadata. Do not
@@ -131,6 +131,7 @@ enum ImagePipeline {
             // CIImage takes the thumbnail CGImage's embedded color space. Do not
             // force sRGB here: Core Image performs the later linear-sRGB conversion.
             // ImageIO has already applied EXIF orientation during thumbnail creation.
+            decodePrecisionDescription = "\(thumbnail.bitsPerComponent)-bit decoded thumbnail source"
             source = CIImage(cgImage: thumbnail)
         }
         guard var image = source, !image.extent.isEmpty, !image.extent.isInfinite else {
@@ -143,9 +144,9 @@ enum ImagePipeline {
         let width = max(1, Int(image.extent.width.rounded(.down)))
         let height = max(1, Int(image.extent.height.rounded(.down)))
         let bounds = CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
-        guard let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB),
-              let sRGB = CGColorSpace(name: CGColorSpace.sRGB) else { throw PipelineError.rendering }
-        let context = CIContext(options: [.workingColorSpace: linear])
+        guard let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB) else { throw PipelineError.rendering }
+        let context = CIContext(options: [.workingColorSpace: linear,
+                                          .workingFormat: CIFormat.RGBAf.rawValue])
         // Transparent inputs are intentionally flattened onto black before color conversion.
         image = image.composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
             .cropped(to: bounds)
@@ -154,40 +155,34 @@ enum ImagePipeline {
             context.render(image, toBitmap: bytes.baseAddress!, rowBytes: width * 16,
                            bounds: bounds, format: .RGBAf, colorSpace: linear)
         }
-        guard let originalCG = context.createCGImage(image, from: bounds, format: .RGBA8, colorSpace: sRGB)
-        else { throw PipelineError.rendering }
+        // Retain the actual decoded float pixels. ImageIO thumbnail decoding may
+        // already have source precision limits; this display route cannot restore them.
+        let original = try PreviewRaster(linearRGBA: pixels, width: width, height: height)
         var rgb = [Float]()
         rgb.reserveCapacity(width * height * 3)
         for i in stride(from: 0, to: pixels.count, by: 4) {
             rgb.append(contentsOf: pixels[i..<(i + 3)])
         }
         return ImportedImage(sourceFile: sourceFile, exportSettings: exportSettings, linearRGB: rgb, width: width, height: height,
-                             original: UIImage(cgImage: originalCG),
-                             sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter" : "Rendered image • embedded profile → linear sRGB")
+                             original: original,
+                             sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter • \(decodePrecisionDescription)" : "Rendered image • embedded profile → linear sRGB • \(decodePrecisionDescription)")
     }
 
     static func process(_ input: ImportedImage, recipe: ProcessingRecipe) throws -> ProcessedImage {
-        let rgba: [UInt8]
+        // The exact engines produce display-linear Float32 output. Their internal
+        // reference math remains double precision; no byte preview encoder runs.
+        let rgba: [Float]
         switch recipe.mode {
         case .hncs:
-            rgba = try HNCSEngine.process(linearSRGB: input.linearRGB, width: input.width,
-                                          height: input.height, exposureEV: recipe.exposureEV,
-                                          illuminantKelvin: recipe.illuminantKelvin)
+            rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: input.linearRGB, width: input.width,
+                                                   height: input.height, exposureEV: recipe.exposureEV,
+                                                   illuminantKelvin: recipe.illuminantKelvin)
         case .ffcs:
-            rgba = try FFCSEngine.process(linearSRGB: input.linearRGB, width: input.width,
-                                          height: input.height, exposureEV: recipe.exposureEV,
-                                          simulationIndex: recipe.simulationIndex, seed: recipe.seed)
+            rgba = try FFCSEngine.exportLinearRGBA(linearSRGB: input.linearRGB, width: input.width,
+                                                   height: input.height, exposureEV: recipe.exposureEV,
+                                                   simulationIndex: recipe.simulationIndex, seed: recipe.seed)
         }
-        guard rgba.count == input.width * input.height * 4,
-              let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
-              let provider = CGDataProvider(data: Data(rgba) as CFData),
-              let cg = CGImage(width: input.width, height: input.height,
-                               bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: input.width * 4,
-                               space: colorSpace,
-                               bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue),
-                               provider: provider, decode: nil, shouldInterpolate: true,
-                               intent: .defaultIntent) else { throw PipelineError.rendering }
-        let image = UIImage(cgImage: cg)
+        let image = try PreviewRaster(linearRGBA: rgba, width: input.width, height: input.height)
         return ProcessedImage(image: image, source: input, recipe: recipe)
     }
 

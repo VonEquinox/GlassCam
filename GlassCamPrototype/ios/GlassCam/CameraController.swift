@@ -42,6 +42,8 @@ final class CameraController: ObservableObject {
     @Published private(set) var physicalCameraID: String?
     @Published private(set) var centerPreviewDimensions: CGSize?
     @Published private(set) var peripheralPreviewDimensions: CGSize?
+    @Published private(set) var centerPreviewEncoding: String?
+    @Published private(set) var peripheralPreviewEncoding: String?
     private let backend = CameraBackend()
     private var generation = UUID()
     @Published private(set) var isConfiguring = false
@@ -56,6 +58,7 @@ final class CameraController: ObservableObject {
         centerPreviewLayer = nil; peripheralPreviewLayer = nil; geometry = nil
         supportedOutputOptions = []; sourceCaptureDimensions = nil; physicalCameraID = nil
         centerPreviewDimensions = nil; peripheralPreviewDimensions = nil
+        centerPreviewEncoding = nil; peripheralPreviewEncoding = nil
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized: configure(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, peripheralPreviewLongEdge: peripheralPreviewLongEdge, token: token)
         case .notDetermined:
@@ -92,6 +95,8 @@ final class CameraController: ObservableObject {
                     self.physicalCameraID = bundle.physicalCameraID
                     self.centerPreviewDimensions = bundle.centerPreviewDimensions
                     self.peripheralPreviewDimensions = bundle.peripheralPreviewDimensions
+                    self.centerPreviewEncoding = bundle.centerPreviewEncoding
+                    self.peripheralPreviewEncoding = bundle.peripheralPreviewEncoding
                     self.isReady = true
                     self.status = mode == .ultraWide ? "Apple ProRAW · black periphery" : "Apple ProRAW · separate wider live preview"
                     self.updateOrientation(self.orientation)
@@ -138,6 +143,7 @@ final class CameraController: ObservableObject {
         centerPreviewLayer = nil; peripheralPreviewLayer = nil; geometry = nil
         supportedOutputOptions = []; sourceCaptureDimensions = nil; physicalCameraID = nil
         centerPreviewDimensions = nil; peripheralPreviewDimensions = nil
+        centerPreviewEncoding = nil; peripheralPreviewEncoding = nil
         status = "Camera stopped"
         backend.queue.async { [backend] in backend.stop() }
     }
@@ -181,6 +187,8 @@ private final class CameraBackend {
         let physicalCameraID: String
         let centerPreviewDimensions: CGSize
         let peripheralPreviewDimensions: CGSize?
+        let centerPreviewEncoding: String
+        let peripheralPreviewEncoding: String?
     }
     let queue = DispatchQueue(label: "dev.glasscam.camera", qos: .userInitiated)
     private var session: AVCaptureSession?
@@ -328,7 +336,9 @@ private final class CameraBackend {
         return Bundle(center: frameDeliveries[0].layer, periphery: frameDeliveries.count > 1 ? frameDeliveries[1].layer : nil, geometry: geometry,
                       outputOptions: Self.outputOptions(source: dimensions), physicalCameraID: center.uniqueID,
                       centerPreviewDimensions: Self.size(previewSizes[0]),
-                      peripheralPreviewDimensions: previewSizes.count > 1 ? Self.size(previewSizes[1]) : nil)
+                      peripheralPreviewDimensions: previewSizes.count > 1 ? Self.size(previewSizes[1]) : nil,
+                      centerPreviewEncoding: Self.previewEncoding(previewPixelFormats[0]),
+                      peripheralPreviewEncoding: previewPixelFormats.count > 1 ? Self.previewEncoding(previewPixelFormats[1]) : nil)
     }
 
     private func selectFormat(device: AVCaptureDevice, multi: Bool, needsPhoto: Bool,
@@ -423,7 +433,7 @@ private final class CameraBackend {
             let height = Int(portrait ? size.width : size.height)
             let readiness = previewReadiness
             readiness.enter()
-            frameDeliveries[index].expect(width: width, height: height) { readiness.leave() }
+            frameDeliveries[index].expect(width: width, height: height, pixelFormat: previewPixelFormats[index]) { readiness.leave() }
             video.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelFormats[index],
                                    kCVPixelBufferWidthKey as String: width,
                                    kCVPixelBufferHeightKey as String: height]
@@ -441,6 +451,15 @@ private final class CameraBackend {
             throw CameraFailure("A physical camera preview did not deliver the negotiated frame size within 5 seconds. Capture is disabled; select the lens again to retry.")
         }
     }
+    private static func previewEncoding(_ format: OSType) -> String {
+        // Published only after the first frame matches the requested OSType.
+        switch format {
+        case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange: return "8-bit YCbCr420 (420f)"
+        case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: return "8-bit YCbCr420 (420v)"
+        default: return String(format: "Pixel format 0x%08X", format)
+        }
+    }
+
     private static func scaledPreviewDimensions(source: CMVideoDimensions, cap: Int) throws -> CMVideoDimensions {
         guard source.width > 0, source.height > 0, (640...4096).contains(cap) else {
             throw CameraFailure("Invalid source dimensions or preview long-edge limit.")

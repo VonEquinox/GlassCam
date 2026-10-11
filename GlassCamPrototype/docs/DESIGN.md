@@ -51,3 +51,7 @@ linear-sRGB 对应原 FFCS 的 linear 输入路线，不经过 HNCS。19 款真�
 HNCS 上下文预计算与精确解码表不改变核；fast 路径只在最终 8 位预览 OETF 允许最多 1 码差，支持至多四线程。Float 导出不经过 fast 字节编码。FFCS 三行环形缓冲是精确路径，默认一线程，避免把不稳定云计时当提速证明。
 
 原核、阶段及条带回归已在云端验证；Apple 编译、光学对齐、HEIF 位流/标签、手机峰值内存/热状态和接收方选择仍未验证。参考测试不替代视觉审美或相机标定。
+
+## 高精度效果显示
+
+原图与效果图均由 Float32 PreviewRaster 保持，单个 Metal-backed CIContext 做比较合成，最终 RGBA16Float SDR drawable。没有8位UIImage中间结果；半精度仅显示存储，CPU原核精度不变。实时视频当前独立为8bit YUV并在UI显示实际格式。详见 [高精度预览](HIGH_PRECISION_PREVIEW.md)。

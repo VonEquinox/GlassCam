@@ -141,8 +141,8 @@ struct CameraView: View {
     }
 
     private var previewLabel: some View {
-        Text(selectedLens == .ultraWide ? "SYSTEM PREVIEW · ProRAW"
-             : "SYSTEM PREVIEW · APPROX. ALIGNMENT / PARALLAX")
+        Text(selectedLens == .ultraWide ? "SYSTEM PREVIEW · 8-BIT VIDEO · ProRAW PHOTO"
+             : "8-BIT VIDEO · APPROX. ALIGNMENT / PARALLAX")
             .font(.system(size: 10, weight: .semibold)).tracking(1)
             .multilineTextAlignment(.center)
             .foregroundStyle(.white.opacity(0.8))
@@ -244,9 +244,11 @@ struct CameraView: View {
                 }
                 if let dimensions = camera.centerPreviewDimensions {
                     Text("Center: \(Int(dimensions.width)) × \(Int(dimensions.height)) px")
+                    Text(camera.centerPreviewEncoding ?? "Pixel format pending")
                 }
                 if let dimensions = camera.peripheralPreviewDimensions {
                     Text("Periphery: \(Int(dimensions.width)) × \(Int(dimensions.height)) px")
+                    Text(camera.peripheralPreviewEncoding ?? "Pixel format pending")
                 }
             }
             if let dimensions = camera.sourceCaptureDimensions {

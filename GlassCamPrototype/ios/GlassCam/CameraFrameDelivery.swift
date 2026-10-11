@@ -13,6 +13,7 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
     private var generation: UInt64 = 0
     private var expectedWidth = 0
     private var expectedHeight = 0
+    private var expectedPixelFormat: OSType = 0
     private var firstFrame: (() -> Void)?
 
     @MainActor private init(makeLayer: Void) {
@@ -25,9 +26,9 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
     static func makeOnMainThread() -> CameraFrameDelivery {
         DispatchQueue.main.sync { MainActor.assumeIsolated { CameraFrameDelivery(makeLayer: ()) } }
     }
-    func expect(width: Int, height: Int, onFirstValidFrame: @escaping () -> Void) {
+    func expect(width: Int, height: Int, pixelFormat: OSType, onFirstValidFrame: @escaping () -> Void) {
         lock.lock()
-        expectedWidth = width; expectedHeight = height; generation &+= 1
+        expectedWidth = width; expectedHeight = height; expectedPixelFormat = pixelFormat; generation &+= 1
         firstFrame = onFirstValidFrame
         lock.unlock()
         DispatchQueue.main.async { [weak self] in
@@ -44,7 +45,8 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
                        from connection: AVCaptureConnection) {
         guard CMSampleBufferDataIsReady(sampleBuffer), let image = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         lock.lock()
-        guard active, CVPixelBufferGetWidth(image) == expectedWidth,
+        guard active, CVPixelBufferGetPixelFormatType(image) == expectedPixelFormat,
+              CVPixelBufferGetWidth(image) == expectedWidth,
               CVPixelBufferGetHeight(image) == expectedHeight else { lock.unlock(); return }
         let first = firstFrame; firstFrame = nil
         guard !pending else { lock.unlock(); first?(); return }

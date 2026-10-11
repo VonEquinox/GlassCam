@@ -12,7 +12,7 @@
 
 Apple 解码输出的 Float linear-sRGB 显式进入 FFCS 的 linear 输入分支，不串接 HNCS。C++17 保留参考顺序：输入归一化、gamma_pre、3×3 矩阵、原始 80³ 三线性 LUT、Lab/UCS、tone、坐标确定性 grain、邻域 sharpen、输出颜色域。矩阵截断、LUT 轴/通道顺序、灰度模式、边界邻域、种子和全图坐标均属于可测试行为。即使默认 UCS 参数中性，也保留原参考往返数学。
 
-移动预览输出 8 位 sRGB；导出取独立 Float display-linear RGB，再添加不透明 alpha，交由共享 RGBAf/extendedLinearSRGB → HEIF10 SDR sRGB 写入器。没有先做 UInt8 再扩展的导出路径。保存 Photos / Files 直接使用该原始 HEIF；分享的按需 JPEG 仅从最终 HEIF 转出，不是 FFCS 的另一个导出模式。预览与导出使用同一不可变引擎/模式/曝光/种子快照。CCT 仅用于 HNCS。
+移动App效果预览现取 Float display-linear RGB，添加不透明alpha并送高精度Metal显示；保留8位预览C接口作诊断对照。导出同样取 Float 并交由共享 RGBAf/extendedLinearSRGB → HEIF10 SDR sRGB 写入器。没有先做 UInt8 再扩展的导出路径。保存 Photos / Files 直接使用该原始 HEIF；分享的按需 JPEG 仅从最终 HEIF 转出，不是 FFCS 的另一个导出模式。预览与导出使用同一不可变引擎/模式/曝光/种子快照。CCT 仅用于 HNCS。
 
 ## 离线资产准备
 

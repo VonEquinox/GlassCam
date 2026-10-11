@@ -1,0 +1,42 @@
+# 高精度 SDR 效果预览
+
+更新：2026-10-11。实现源码已加入；Apple 编译、实际显示链及面板行为未验证。
+
+## 当前实现
+
+- 解码后的原图预览保留 Float32 linear-sRGB RGBA；HNCS/FFCS 处理后的预览也使用精确 Float 输出。HNCS 内部 double / UInt16 核不变，FFCS 原数学不变。
+- before/after 使用同一个按需重绘的 MTKView：CPU 只在配方变化时处理，拖动比较线在 Core Image / Metal 中裁切合成，不重新运行颜色核。
+- 不再将效果输出转成 UInt8、8位 CGImage 或 UIImage 再显示。使用 RGBAf 输入/工作格式，最终 drawable 为 `.rgba16Float`。
+- render destination 与 CAMetalLayer 都标为 extendedLinearSRGB；SDR 显示值限制在0…1，`wantsExtendedDynamicRangeContent=false`。没有增加HDR/PQ/HLG/gain map。
+- 半精度只用于最终显示存储，不把颜色算法改成 half，也不声称面板原生10bit。无法初始化 Metal 或 GPU 命令失败时显示错误，不静默降成8位图。
+- Float 数据由不可变所有者保持，GPU 完成前继续保留；视图销毁或新图替换不提前释放当前命令引用的内存。
+
+## 来源位深与处理精度分开
+
+普通图片的 ImageIO 缩略解码可能只有8bit，即使后续缓冲为Float也不能恢复丢失的信息。界面显示实际 `thumbnail.bitsPerComponent`。RAW 显示“Float32 decoded”，明确这不是传感器原生位深。
+
+实时相机视频是独立路径，当前选用8bit YCbCr420（420f/420v），首帧检查像素格式与尺寸，设置菜单将在运行时首帧检查通过后显示该格式；此检查尚未在Apple设备执行；拍摄的 ProRAW 不取自视频帧。高精度拍后/导入效果显示不代表相机视频输入自动变成10bit。10bit视频输出必须按设备/activeFormat/SDR颜色空间另行查询和验证，不能只改最终纹理名字。
+
+## 已执行的软件检查
+
+`python tests/test_precision_preview_source.py --write-report`
+
+-4096个线性灰阶样本经 IEEE binary16 存储后仍有3073级，超过8位的256级。
+- 最大线性误差0.000244081；换算到sRGB编码域最大误差0.000107317；本样本均低于半个归一化10bit步长0.000488759。
+- 原色/灰阶/alpha样本保留，opaque alpha精确为1。
+
+这是软件存储量化检查，不是GPU实测、连续域证明、屏幕位深检测或对所有解码器的保证。结果见 `validation/precision-preview-storage.json`。既有 CPU 参考数值回归继续适用；历史8bit fast benchmark仅保留为对照，不代表当前App效果预览路线。
+
+## 实时效果由用户明确后置
+
+实时中央/外围当前显示系统相机视频，不逐帧运行HNCS/FFCS。用户已明确决定这部分以后再做，本轮优先拍摄图片的色彩处理，因此实时色彩不再是当前实施任务。本次完成范围是拍后/导入before-after高精度效果显示源码；未来如重启实时色彩，再单独测量分辨率、帧率/丢帧/热状态和源格式。
+
+## Apple 侧待验收
+
+- Release 编译；检查实际 Metal drawable 和工作格式，确认无隐式8bit中间降级。
+- 不对称方向图、before/after端点与滑线、窗口/旋转尺寸变化；确认一次色彩转换、无上下翻转和暗/亮偏差。
+- 超过256级的真实渐变、负值/超白SDR裁切、sRGB/P3来源、alpha黑底。
+- 连续拖动、切换配方/图片、视图销毁时GPU在途、无Metal/命令失败状态。
+- 峰值内存与热状态。两份Float32 RGBA预览各需16字节/像素，此外还有输入RGB、CoreImage/Metal资源和解码器；不能将低分辨率预览理解为固定总内存。
+
+官方API与精度限制见 [Apple精度研究](apple_precision_acceleration.md)。

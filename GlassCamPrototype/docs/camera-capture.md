@@ -63,3 +63,7 @@ Only one photo request is retained at a time. The completion waits for `didFinis
 ## Peripheral geometry implementation
 
 The wider source is now positioned using a first-order pinhole FOV ratio, tan(widerFOV/2)/tan(centerFOV/2), keeping its real oriented aspect. It is not stretched to fill the screen. Main/tele shutter remains disabled if that real extent cannot cover the requested window; only ultra-wide accepts black margins. This is approximate center-aligned geometry, not extrinsic calibration, depth-aware stitching or removal of parallax. Native glass stays outside the photo rectangle. Actual photo/preview edge correspondence is still a device release gate.
+
+## 实时视频像素格式
+
+当前选择8bit NV12（420f/420v），每路首帧除尺寸还验证CVPixelBuffer实际OSType，界面显示该格式。独立高精度Float效果预览不能反推实时视频也有10bit源精度。后续10bit视频选择须同时验证activeFormat、输出类型、SDR颜色空间和显示链。

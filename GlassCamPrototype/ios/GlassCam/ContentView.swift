@@ -277,7 +277,7 @@ struct ContentView: View {
                          ? "Imported images are adapted from linear sRGB into the target camera color space. This is an effect preview, not a calibrated camera match. Factory CCT selects the profile’s illuminant interpolation; it does not recover scene white balance."
                          : "FFCS uses the supplied XH2S reference LUTs and research rendering pipeline with fixed grain seed 0. Imported images enter as linear sRGB. This is an experimental effect, not a calibrated Fujifilm camera match.")
                         .font(.footnote).foregroundStyle(.secondary)
-                    Text("Preview: up to 2048 px / 8-bit • export: full source or selected lens output / 10-bit SDR HEIF • source metadata omitted")
+                    Text("Preview: up to 2048 px / high-precision SDR Float → RGBA16F • export: full source or selected lens output / 10-bit SDR HEIF")
                         .font(.caption).foregroundStyle(.secondary)
                     Text("Save keeps the original 10-bit HEIF. Sharing offers HEIF first and an on-demand compatibility image; receiver behavior still needs device testing.")
                         .font(.caption).foregroundStyle(.secondary)
@@ -351,16 +351,16 @@ struct ContentView: View {
                 if let input = model.imported, let output = model.processed {
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
-                            Image(uiImage: input.original).resizable().scaledToFit()
-                            Image(uiImage: output.image).resizable().scaledToFit()
-                                .mask(alignment: .leading) { Rectangle().frame(width: geometry.size.width * comparison) }
+                            PrecisionPreview(source: input.original, processed: output.image,
+                                             comparisonFraction: CGFloat(comparison))
                             Rectangle().fill(.white.opacity(0.85)).frame(width: 1)
                                 .offset(x: geometry.size.width * comparison)
                         }
                     }.aspectRatio(CGFloat(input.width) / CGFloat(input.height), contentMode: .fit)
                 } else if let input = model.imported {
-                    Image(uiImage: input.original).resizable().scaledToFit()
-                        .accessibilityLabel("Retained source photograph; effect is pending")
+                    PrecisionPreview(source: input.original)
+                        .aspectRatio(CGFloat(input.width) / CGFloat(input.height), contentMode: .fit)
+                        .accessibilityLabel("Retained high-precision source preview; effect is pending")
                 } else {
                     VStack(spacing: 14) {
                         Image(systemName: "camera.aperture").font(.system(size: 56, weight: .ultraLight))
