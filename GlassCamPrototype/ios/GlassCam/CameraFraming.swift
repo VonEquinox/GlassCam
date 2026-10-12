@@ -10,24 +10,23 @@ struct CameraFraming {
     let peripheral: CGRect?
     let hasPeripheralCoverage: Bool
 
-    init(size: CGSize, photoAspectRatio: CGFloat, controlBand: CGFloat = 112,
+    init(size: CGSize, photoAspectRatio: CGFloat,
          centerHorizontalFieldOfView: Float? = nil,
          peripheralHorizontalFieldOfView: Float? = nil,
          peripheralAspectRatio: CGFloat? = nil) {
-        let width = max(0, size.width)
-        let height = max(0, size.height)
+        let width = size.width.isFinite ? max(0, size.width) : 0
+        let height = size.height.isFinite ? max(0, size.height) : 0
         window = CGRect(x: 0, y: 0, width: width, height: height)
-        usesVerticalControls = width > height
-        // Reserve usable control strips even in square windows or split-screen.
-        // Actual photo aspect always comes from the negotiated capture configuration.
-        let band = min(max(0, controlBand), max(width, height) * 0.3)
-        let available = CGSize(width: usesVerticalControls ? max(0, width - 2 * band) : width,
-                               height: usesVerticalControls ? height : max(0, height - 2 * band))
+        // The photograph is always the largest aspect-fit rectangle in the actual
+        // window. Controls must adapt to the remaining space, never the reverse.
         let aspect = photoAspectRatio.isFinite && photoAspectRatio > 0 ? photoAspectRatio : 1
-        let photoWidth = min(available.width, available.height * aspect)
+        let photoWidth = min(width, height * aspect)
         let photoHeight = photoWidth / aspect
         photo = CGRect(x: (width - photoWidth) / 2, y: (height - photoHeight) / 2,
                        width: photoWidth, height: photoHeight)
+        // A landscape window can still have horizontal spare regions (and vice
+        // versa): derive chrome placement from the fitted photo, not orientation.
+        usesVerticalControls = photo.minX > photo.minY
         // Four disjoint rectangular panes: their union is exactly window minus photo.
         perimeter = [
             CGRect(x: 0, y: 0, width: width, height: photo.minY),

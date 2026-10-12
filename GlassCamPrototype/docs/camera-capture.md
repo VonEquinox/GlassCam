@@ -71,3 +71,7 @@ The wider source is now positioned using a first-order pinhole FOV ratio, tan(wi
 ## Experimental center color preview
 
 A default-off switch adds a color-only GPU proxy over the unchanged system center layer. The wider peripheral layer stays unprocessed. Only measured EV0 recipes are admitted (HNCS5500/6500K, FFCS PROVIA/ACROS); unsupported settings retain system preview with a reason. One GPU job plus one replaceable latest source frame bounds retention. Session/recipe changes, stale input, off-window state and GPU failure hide the overlay. This does not alter capture configuration or final-photo processing. See [implementation and untested device gates](LIVE_COLOR_PROXY.md).
+
+## Plan A native-clear composition
+
+The selected photo rectangle is now the maximal aspect-fit rectangle in the full window; control bands no longer reduce it. Glass.clear panes are clipped to the natural window-minus-photo regions. Real photo-only controls follow the reference composition; insufficient margins use a separate plain control panel without changing photo geometry. Grid/thumbnail/settings are functional, flash-off is status only, and diagnostic text lives in details. No edge-copy, custom seam shader, extra blur or image elongation is part of A. See [scope and visual acceptance](CLEAR_GLASS_UI.md).

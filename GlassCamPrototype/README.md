@@ -10,7 +10,7 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 - 最终图从完整源重新解码，精确算法按 64 行输出块处理，写磁盘 RGBAf；颜色/空间处理后才在线性光中 Lanczos 缩小，使用专用 HEIF10 writer 请求 10-bit SDR sRGB HEIF。
 - 用户保存仅有 HEIF：独立保存到 Photos / Files。分享先注册原始 HEIC，再提供按需、从最终 HEIF 转出的同尺寸 JPEG 兼容表示；没有 JPEG 导出选项。接收方选择哪种表示、微信能否发送和查看仍未验证。
 - 默认关闭的实验性中心实时色彩开关：65³ GPU代理仅省取景空间效果，原始系统取景保留为回退；支持范围与误差见[实现边界](docs/LIVE_COLOR_PROXY.md)。最终照片继续精确处理。
-- 原生 iOS 26 Liquid Glass 控件，中心成片框不覆玻璃。主摄/长焦外围使用实际更广物理镜头与近似 FOV 映射、覆盖门控；超广无更广镜头时黑边。光学对齐、视差与硬件组合仍需实测。
+- 方案A参考布局：外围使用原生iOS26 Glass.clear；中央成片框按完整窗口最大等比显示，不为控件缩小、不覆玻璃。真实网格、缩略图与设置入口保留，详见[clear玻璃UI](docs/CLEAR_GLASS_UI.md)。主摄/长焦外围使用实际更广物理镜头与近似 FOV 映射、覆盖门控；超广无更广镜头时黑边。光学对齐、视差与硬件组合仍需实测。
 
 每颗物理镜头独立保存实际源能力允许的 12/24/48MP 输出档位。主摄/长焦先双路预览，按快门后明确冻结画面、停止MultiCam，切到同一物理镜头的普通.photo会话拍最高支持ProRAW，再恢复预览。48MP须运行时检测与回调验证；不静默降为12MP，恢复预览失败也不丢已成功照片。见[会话切换](docs/CAPTURE_SESSION_HANDOFF.md)。
 
@@ -22,7 +22,7 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 - [已执行测试、证据与未验证边界](docs/TEST_STATUS.md)
 - [FFCS 数值移植与资产准备](docs/FFCS.md)
 - [iOS 构建与设备验收](ios/README.md) / [C++ 核](core/README.md)
-- [相机能力与取景](docs/camera-capture.md) / [全源导出](docs/FULL_RESOLUTION_EXPORT.md)
+- [相机能力与取景](docs/camera-capture.md) / [方案A透明玻璃UI](docs/CLEAR_GLASS_UI.md) / [全源导出](docs/FULL_RESOLUTION_EXPORT.md)
 - [精确 Float 并行优化](docs/EXACT_FLOAT_PARALLEL.md) / [Apple 精度与加速约束](docs/apple_precision_acceleration.md)
 - [当前颜色核心分段性能](docs/COLOR_PERFORMANCE.md) / [硬件与加速路线](docs/HARDWARE_PERFORMANCE.md)
 - [高精度 SDR 预览](docs/HIGH_PRECISION_PREVIEW.md)

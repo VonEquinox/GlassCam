@@ -20,10 +20,14 @@ def section(source, start, end):
 
 class CaptureHandoffViewContracts(unittest.TestCase):
     def test_frozen_is_labeled_and_never_exposed_as_live_color(self):
-        label = section(VIEW, "private var previewLabel:", "private var recipeLabel:")
-        self.assertIn("camera.isPreviewFrozen", label)
-        self.assertIn("FROZEN PREVIEW", label)
-        self.assertLess(label.index("camera.isPreviewFrozen"), label.index("experimentalLiveColor"))
+        # Frozen status is now visible on the photograph, while detailed preview
+        # diagnostics live in the settings panel. Preserve its priority over the
+        # ordinary system-preview label without coupling to deleted chrome.
+        self.assertIn('if camera.isPreviewFrozen {', VIEW)
+        self.assertIn('Text(camera.isCapturing ? "Preview paused · Capturing RAW" : "Preview paused")', VIEW)
+        label = section(VIEW, 'Section("Diagnostics")', 'if let dimensions = camera.centerPreviewDimensions')
+        self.assertIn('Text(camera.isPreviewFrozen ? "FROZEN PREVIEW"', label)
+        self.assertLess(label.index("camera.isPreviewFrozen"), label.index("SYSTEM PREVIEW"))
         self.assertIn("enabled: experimentalLiveColor && scenePhase == .active && !camera.isPreviewFrozen", VIEW)
         self.assertIn("cameraReady: camera.isReady && coverageAvailable(framing)", VIEW)
 
@@ -45,11 +49,13 @@ class CaptureHandoffViewContracts(unittest.TestCase):
         self.assertIn("if phase == .background { camera.stop() }", VIEW)
 
     def test_close_cancels_active_request_without_suppressing_committed_photo(self):
-        close = section(VIEW, "private var closeButton:", "private var lensMenu:")
+        close = section(VIEW, "private func closeCamera()", "private func restartCamera()")
         self.assertIn("isClosing = true", close)
         self.assertLess(close.index("camera.stop()"), close.index("onClose()"))
         self.assertNotIn(".disabled(", close)
-        self.assertIn("Stop capture and close camera", close)
+        self.assertIn('Button("Close camera", action: closeCamera)', VIEW)
+        self.assertIn('"Stop capture and open editor"', VIEW)
+        self.assertIn('Button(action: closeCamera)', VIEW)
         shutter = section(VIEW, "private func shutter(", "private struct CameraPaneGlass")
         self.assertIn("case .success(let data): onCapture(data, export)", shutter)
         self.assertIn("if !isClosing { captureError = error.localizedDescription }", shutter)
@@ -59,7 +65,7 @@ class CaptureHandoffViewContracts(unittest.TestCase):
         selected = section(VIEW, "private var selectedOutput:", "private var outputSelection:")
         self.assertIn("$0.megapixels == saved", selected)
         self.assertNotIn("$0.megapixels <= saved", selected)
-        binding = section(VIEW, "private var outputSelection:", "private var settingsMenu:")
+        binding = section(VIEW, "private var outputSelection:", "private func closeCamera()")
         self.assertIn("guard !camera.isCapturing", binding)
         self.assertIn("camera.supportedOutputOptions.contains", binding)
         self.assertIn("Saved output is unavailable. Choose a supported size.", VIEW)

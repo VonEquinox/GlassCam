@@ -42,7 +42,7 @@ linear-sRGB 对应原 FFCS 的 linear 输入路线，不经过 HNCS。19 款真�
 
 ## 相机几何与能力
 
-中心使用实际照片比例与窗口 bounds；玻璃仅置于中心之外。主摄/长焦使用真实更广物理流，近似 FOV 映射加覆盖门控；并非同视点无缝拼接，视差/时差/畸变仍存在。超广接受黑色外围。外围永不进入 photo output。取景默认系统色彩，中心可显式开启 [实验性颜色GPU代理](LIVE_COLOR_PROXY.md)，不执行完整逐帧CPU流水线。
+中心使用实际照片比例在整个窗口bounds内最大等比显示；不再为controlBand缩小成片框。控件适应天然外围，空间不足时走独立普通控制面板；原生Glass.clear仅置于中心之外。主摄/长焦使用真实更广物理流，近似 FOV 映射加覆盖门控；并非同视点无缝拼接，视差/时差/畸变仍存在。超广接受黑色外围。外围永不进入 photo output。取景默认系统色彩，中心可显式开启 [实验性颜色GPU代理](LIVE_COLOR_PROXY.md)，不执行完整逐帧CPU流水线。
 
 MultiCam仅用于主摄/长焦双路video预览。快门事务保留冻结画面并真正停止双摄图，再建普通单摄.photo捕获并恢复预览；源能力来自单摄探测，ProRAW和实际RAW尺寸在真实捕获图门控。成功照片不依赖预览恢复成功；没有宣传48MP即必然可用的推断。详见 [相机契约](camera-capture.md)。
 
@@ -55,3 +55,5 @@ HNCS 上下文预计算与精确解码表不改变核；fast 路径只在最终 
 ## 高精度效果显示
 
 原图与效果图均由 Float32 PreviewRaster 保持，单个 Metal-backed CIContext 做比较合成，最终 RGBA16Float SDR drawable。没有8位UIImage中间结果；半精度仅显示存储，CPU原核精度不变。实时视频当前独立为8bit YUV并在UI显示实际格式。详见 [高精度预览](HIGH_PRECISION_PREVIEW.md)。
+
+方案A仅实现参考布局和系统clear玻璃，不增加接缝shader、边缘复制或拉伸。两镜头基础FOV映射保持；视觉/成本验收后是否做B须另行批准。详见 [方案A](CLEAR_GLASS_UI.md)。

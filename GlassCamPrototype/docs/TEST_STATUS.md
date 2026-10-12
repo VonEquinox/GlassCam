@@ -121,3 +121,9 @@ Float32原图/效果图→CoreImage/Metal RGBA16Float SDR源码已加入；软�
 MultiCam视频预览与普通.photo ProRAW图已分离；快门保留冻结图像并真正释放旧会话，再拍摄最高支持源并恢复预览。逐请求身份、同步取消令牌、终态照片成功保留、同镜头/FOV/方向/真实RAW尺寸验证、冻结渲染栅栏和显式关闭路径已纳入源码审查。最终99项测试通过（9.477秒），新增19项切换源码契约和9项状态规格测试。独立审查未发现剩余阻断项；源文件契约与状态模型测试记录见 `validation/capture-handoff-integration-tests.txt`。
 
 状态模型遍历100,000条短事件序列，只验证独立可执行规格，不等同Swift/AVFoundation执行。Apple编译、双摄→单摄切换延迟、实际48MP及预览/成片构图依然未验证。见 [会话切换](CAPTURE_SESSION_HANDOFF.md)。
+
+## 2026-10-12：方案A原生clear玻璃UI
+
+参考布局已接入，中央按完整窗口最大aspect-fit，控件不再通过controlBand压缩成片框；clear玻璃与字形阴影限制在天然外围，紧凑窗口采用独立普通控制面板。真实网格/高精度缩略图/效果与设置入口保留，未加入B方案的边缘复制、拉伸、额外blur或seam shader。
+
+几何测试含6060个随机比例案例、精确竖横/方窗、边界分区、极端/无效尺寸和控件区域契约；新增16项clear UI源码契约并重跑完整套件：122项通过（10.461秒），测试前后45个源码/规格文件hash一致。最终运行和源码hash见 `validation/clear-glass-integration-tests.txt`、`validation/clear-glass-source-hashes.json`。独立源码审查未发现阻断项，仍未执行Apple编译、原生玻璃渲染、参考图视觉一致性或真机成本测试。

@@ -56,7 +56,7 @@ class LiveProxySourceContracts(unittest.TestCase):
         self.assertIn('!(0..<Int(ffcs_simulation_count())).contains(simulationIndex)', gate)
         self.assertIn('!["PROVIA", "ACROS"].contains', gate)
         self.assertIn('static let dimension = 65', PROXY)
-        self.assertIn('exposureEV: model.exposure, illuminantKelvin: model.kelvin', CONTENT)
+        self.assertIn('exposureEV: $model.exposure, illuminantKelvin: $model.kelvin', CONTENT)
         self.assertIn('simulationIndex: colorMode == .ffcs ? simulationIndex : 0', VIEW)
 
     def test_cube_is_baked_from_actual_pointwise_cores(self):

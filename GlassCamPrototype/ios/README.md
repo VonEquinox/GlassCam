@@ -9,7 +9,7 @@ SwiftUI UI, Apple decoding/capture/encoding, and independent standard C++17 HNCS
 1. Open `GlassCam.xcodeproj` in Xcode 16 or later. Keep `../core`, `../reference_ffcs/source.zip` and `../tools` in the supplied layout.
 2. The first build phase verifies the bundled archive and extracts 19 original FFCS assets offline. Missing/corrupt assets fail the build; there is no approximate substitute.
 3. Select shared scheme `GlassCam`, iOS 17+ simulator. For hardware, set your development team and a unique bundle identifier.
-4. Native SwiftUI `glassEffect` requires Xcode 26+ and iOS 26+. Older supported configurations use material fallback; this is not the native Liquid Glass path.
+4. Native SwiftUI `glassEffect` requires Xcode 26+ and iOS 26+. The Plan A camera scene uses Glass.clear on iOS26; older camera configurations use a plain transparent perimeter, not imitation frosted glass. Existing editor compatibility styling is separate.
 
 ```sh
 xcodebuild -project GlassCam.xcodeproj -scheme GlassCam \
@@ -81,3 +81,7 @@ Live video is the system preview, not live HNCS/FFCS; captured ProRAW runs throu
 ## Experimental color-only live preview
 
 Default off. Center-only 65³ shaped GPU cube; full-photo C++ processing and 10-bit HEIF remain independent. Currently admitted: EV 0, HNCS 5500/6500 K or FFCS PROVIA/ACROS. Other recipes use the unchanged system layer with an explicit status; peripheral video remains system color. Source is still 8-bit NV12, processing/display is Float/RGBA16Float SDR. See [scope and measured approximation](../docs/LIVE_COLOR_PROXY.md). Device acceptance must cover source-age timeout, unavailable drawable, off-window/background, orientation, rapid look/lens changes, cancellation and GPU failure. No device FPS/energy result has been measured.
+
+## Plan A reference camera UI
+
+Native clear glass is confined to the natural area outside the maximal full-window photo rectangle. No control-band reservation, center crop/warp or app-added blur/seam effect. Settings retain lens output, HNCS/FFCS, EV/Factory CCT, preview limits and diagnostics; the real Float thumbnail returns to the editor/import flow. Compact windows use a separate plain control panel. This is source implementation only, not a verified visual replica; see [Plan A](../docs/CLEAR_GLASS_UI.md).
