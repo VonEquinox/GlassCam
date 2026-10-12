@@ -44,7 +44,7 @@ linear-sRGB 对应原 FFCS 的 linear 输入路线，不经过 HNCS。19 款真�
 
 中心使用实际照片比例与窗口 bounds；玻璃仅置于中心之外。主摄/长焦使用真实更广物理流，近似 FOV 映射加覆盖门控；并非同视点无缝拼接，视差/时差/畸变仍存在。超广接受黑色外围。外围永不进入 photo output。取景默认系统色彩，中心可显式开启 [实验性颜色GPU代理](LIVE_COLOR_PROXY.md)，不执行完整逐帧CPU流水线。
 
-完整 graph 配置后及拍摄前检查 ProRAW；最大源、视频输出尺寸、实际 RAW 回调尺寸均门控。单超广 `.photo` 与 MultiCam `.inputPriority` 的高分辨率限制分别处理；没有宣传 48MP 即必然可用的推断。详见 [相机契约](camera-capture.md)。
+MultiCam仅用于主摄/长焦双路video预览。快门事务保留冻结画面并真正停止双摄图，再建普通单摄.photo捕获并恢复预览；源能力来自单摄探测，ProRAW和实际RAW尺寸在真实捕获图门控。成功照片不依赖预览恢复成功；没有宣传48MP即必然可用的推断。详见 [相机契约](camera-capture.md)。
 
 ## 优化与验证界限
 

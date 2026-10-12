@@ -53,7 +53,7 @@ The separately opened camera screen requests camera access on use. Physical cent
 
 Center/peripheral preview limits are independent (defaults 1920/960). Scaled video outputs do not force full-resolution preview buffers or silently lower the selected native still source. Per-physical-camera settings persist only supported 12/24/48MP processed output targets; a smaller target is produced after full-source effects, never by upscaling a smaller source.
 
-The final graph and capture request must support Apple ProRAW. Actual returned RAW dimensions/type are checked. Single ultra-wide `.photo` and MultiCam `.inputPriority` have different high-resolution constraints; MultiCam is conservatively restricted to nominal 12MP native requests. Main/tele combinations may be unavailable on a given device. Missing capabilities fail explicitly instead of switching format, quality, source dimensions or fake wider content. Cancel/error clears pending capture; Retry rebuilds the camera. See [capture contract](../docs/camera-capture.md).
+Main/tele MultiCam is video-only. At shutter, the UI labels and retains frozen preview, stops the MultiCam graph, then rebuilds an ordinary single-camera `.photo` graph for the same physical lens and highest supported ProRAW source. Actual returned RAW dimensions/type are validated; no silent12MP fallback. Preview is restored afterward, but restoration failure never discards an already successful photo. Single ultra-wide `.photo` remains direct. Per-lens output settings are preserved with exact supported-tier selection. Missing capabilities fail explicitly. See [handoff contract](../docs/CAPTURE_SESSION_HANDOFF.md).
 
 Live video is the system preview, not live HNCS/FFCS; captured ProRAW runs through the effects pipeline afterward.
 

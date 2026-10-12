@@ -16,6 +16,7 @@ struct CameraView: View {
     @StateObject private var settings = CameraSettingsStore()
     @State private var selectedLens: CameraController.Mode = .main
     @State private var captureError: String?
+    @State private var isClosing = false
     @State private var experimentalLiveColor = false
     @State private var liveProxyStatus = LiveColorProxyStatus.off
     @Environment(\.scenePhase) private var scenePhase
@@ -60,7 +61,7 @@ struct CameraView: View {
                 }
                 if let source = camera.centerLiveSource, camera.geometry != nil {
                     LiveColorProxy(source: source, recipe: liveRecipe,
-                                   enabled: experimentalLiveColor && scenePhase == .active,
+                                   enabled: experimentalLiveColor && scenePhase == .active && !camera.isPreviewFrozen,
                                    cameraReady: camera.isReady && coverageAvailable(framing)) { status in
                         liveProxyStatus = status
                     }
@@ -69,7 +70,7 @@ struct CameraView: View {
                     .position(x: framing.photo.midX, y: framing.photo.midY)
                     .allowsHitTesting(false)
                 }
-                if !camera.isReady || !coverageAvailable(framing) {
+                if !camera.isCapturing && (!camera.isReady || !coverageAvailable(framing)) {
                     VStack(spacing: 12) {
                         Image(systemName: "camera.fill").font(.largeTitle)
                         Text(camera.isReady && !coverageAvailable(framing)
@@ -167,7 +168,8 @@ struct CameraView: View {
     }
 
     private var previewLabel: some View {
-        Text(experimentalLiveColor ? (liveRecipe.unsupportedReason ?? liveProxyStatus.text)
+        Text(camera.isPreviewFrozen ? "FROZEN PREVIEW · \(camera.status)"
+             : experimentalLiveColor ? (liveRecipe.unsupportedReason ?? liveProxyStatus.text)
              : selectedLens == .ultraWide ? "SYSTEM PREVIEW · 8-BIT VIDEO · ProRAW PHOTO"
              : "8-BIT VIDEO · RAW PERIPHERY · APPROX. ALIGNMENT / PARALLAX")
             .font(.system(size: 10, weight: .semibold)).tracking(1)
@@ -182,10 +184,14 @@ struct CameraView: View {
     }
 
     private var closeButton: some View {
-        Button(action: onClose) {
+        Button {
+            isClosing = true
+            camera.stop()
+            onClose()
+        } label: {
             Image(systemName: "xmark").frame(width: 40, height: 40)
-        }.modifier(CameraControlGlass()).accessibilityLabel("Close camera")
-            .disabled(camera.isCapturing)
+        }.modifier(CameraControlGlass())
+            .accessibilityLabel(camera.isCapturing ? "Stop capture and close camera" : "Close camera")
     }
 
     private var lensMenu: some View {
@@ -232,15 +238,16 @@ struct CameraView: View {
         guard let cameraID = camera.physicalCameraID else { return nil }
         let choices = camera.supportedOutputOptions.sorted { $0.megapixels < $1.megapixels }
         if let saved = settings.outputMegapixels(physicalCameraID: cameraID, mode: selectedLens.rawValue) {
-            // A changed runtime graph may lower the cap. Never silently exceed it.
-            return choices.last(where: { $0.megapixels <= saved })
+            // Preserve the saved physical-lens choice. A capability change must
+            // require a new explicit selection, never silently lower resolution.
+            return choices.first(where: { $0.megapixels == saved })
         }
         return choices.first
     }
 
     private var outputSelection: Binding<Int> {
         Binding(get: { selectedOutput?.megapixels ?? 0 }, set: { value in
-            guard let cameraID = camera.physicalCameraID,
+            guard !camera.isCapturing, let cameraID = camera.physicalCameraID,
                   camera.supportedOutputOptions.contains(where: { $0.megapixels == value }) else { return }
             settings.setOutputMegapixels(value, physicalCameraID: cameraID, mode: selectedLens.rawValue)
         })
@@ -258,6 +265,7 @@ struct CameraView: View {
             if camera.supportedOutputOptions.isEmpty {
                 Text("Output unavailable for this camera configuration")
             } else {
+                if selectedOutput == nil { Text("Saved output is unavailable. Choose a supported size.") }
                 Picker("\(selectedLens.title) output", selection: outputSelection) {
                     ForEach(camera.supportedOutputOptions) { option in
                         Text("\(option.megapixels) MP · \(option.width) × \(option.height)")
@@ -286,7 +294,7 @@ struct CameraView: View {
                 }
             }
             if let dimensions = camera.sourceCaptureDimensions {
-                Text("ProRAW source: \(Int(dimensions.width)) × \(Int(dimensions.height)) px")
+                Text("Single-camera ProRAW source: \(Int(dimensions.width)) × \(Int(dimensions.height)) px")
             }
         } label: {
             VStack(spacing: 2) {
@@ -300,6 +308,7 @@ struct CameraView: View {
     }
 
     private func restartCamera() {
+        guard !isClosing, scenePhase == .active, !camera.isCapturing else { return }
         camera.start(mode: selectedLens,
                      centerPreviewLongEdge: settings.centerPreviewLongEdge,
                      peripheralPreviewLongEdge: settings.peripheralPreviewLongEdge)
@@ -307,7 +316,7 @@ struct CameraView: View {
 
     private func shutter(coverageAvailable: Bool) -> some View {
         Button {
-            guard coverageAvailable, let output = selectedOutput else { return }
+            guard camera.isReady, !camera.isCapturing, coverageAvailable, let output = selectedOutput else { return }
             // Snapshot dimensions before exposure. Later UI changes cannot retarget
             // this source; ExportSettings is retained with its processing recipe.
             let portrait = (camera.geometry?.photoAspectRatio ?? 1) < 1
@@ -316,7 +325,8 @@ struct CameraView: View {
             camera.captureProRAW { result in
                 switch result {
                 case .success(let data): onCapture(data, export)
-                case .failure(let error): captureError = error.localizedDescription
+                case .failure(let error):
+                    if !isClosing { captureError = error.localizedDescription }
                 }
             }
         } label: {

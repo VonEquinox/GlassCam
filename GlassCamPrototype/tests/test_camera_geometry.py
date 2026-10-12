@@ -106,7 +106,7 @@ class CameraGeometryTests(unittest.TestCase):
         self.assertIn('peripheralPreviewLongEdge: settings.peripheralPreviewLongEdge', view)
         self.assertNotIn('outputMegapixels:', view[view.index('private func restartCamera'):])
         self.assertIn('let export = ExportSettings', view)
-        self.assertIn('choices.last(where: { $0.megapixels <= saved })', view)
+        self.assertIn('choices.first(where: { $0.megapixels == saved })', view)
         self.assertIn('$0 < settings.centerPreviewLongEdge', view)
         self.assertIn('camera.isCapturing || camera.isConfiguring', view)
         self.assertIn('Button("Retry camera") { restartCamera() }', view)

@@ -31,9 +31,13 @@ final class CameraController: ObservableObject {
         let centerHorizontalFieldOfView: Float
         let peripheralHorizontalFieldOfView: Float?
     }
+    enum CapturePhase: String { case idle, preparing, capturing, restoring }
     @Published private(set) var status = "Camera stopped"
     @Published private(set) var isReady = false
     @Published private(set) var isCapturing = false
+    @Published private(set) var isPreviewFrozen = false
+    @Published private(set) var capturePhase: CapturePhase = .idle
+    @Published private(set) var actualCapturedDimensions: CGSize?
     @Published private(set) var centerLiveSource: LiveCameraFrameSource?
     @Published private(set) var centerPreviewLayer: AVSampleBufferDisplayLayer?
     @Published private(set) var peripheralPreviewLayer: AVSampleBufferDisplayLayer?
@@ -45,24 +49,27 @@ final class CameraController: ObservableObject {
     @Published private(set) var peripheralPreviewDimensions: CGSize?
     @Published private(set) var centerPreviewEncoding: String?
     @Published private(set) var peripheralPreviewEncoding: String?
+    @Published private(set) var isConfiguring = false
     private let backend = CameraBackend()
     private var generation = UUID()
-    @Published private(set) var isConfiguring = false
+    private var lifetime = CameraLifetime()
+    private var usesCaptureHandoff = false
     private var orientation: UIInterfaceOrientation = .portrait
+    private var appliedOrientation: UIInterfaceOrientation = .unknown
     private var orientationRevision: UInt64 = 0
+    private var isApplyingOrientation = false
 
     func start(mode: Mode, centerPreviewLongEdge: Int = 1920, peripheralPreviewLongEdge: Int = 1280) {
         dispatchPrecondition(condition: .onQueue(.main))
         guard !isConfiguring, !isCapturing else { return }
+        lifetime.cancel(); lifetime = CameraLifetime()
         let token = UUID(); generation = token
-        isConfiguring = true; isReady = false; status = "Checking camera access…"
-        centerPreviewLayer = nil; peripheralPreviewLayer = nil; geometry = nil
-        centerLiveSource?.setEnabled(false); centerLiveSource = nil
-        supportedOutputOptions = []; sourceCaptureDimensions = nil; physicalCameraID = nil
-        centerPreviewDimensions = nil; peripheralPreviewDimensions = nil
-        centerPreviewEncoding = nil; peripheralPreviewEncoding = nil
+        isConfiguring = true; isReady = false; isPreviewFrozen = false; capturePhase = .idle
+        status = "Checking camera access…"; appliedOrientation = .unknown; isApplyingOrientation = false
+        clearPreview()
         switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized: configure(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, peripheralPreviewLongEdge: peripheralPreviewLongEdge, token: token)
+        case .authorized:
+            configure(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, peripheralPreviewLongEdge: peripheralPreviewLongEdge, token: token)
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { [weak self] allowed in
                 DispatchQueue.main.async {
@@ -77,10 +84,13 @@ final class CameraController: ObservableObject {
     }
     private func configure(mode: Mode, centerPreviewLongEdge: Int, peripheralPreviewLongEdge: Int, token: UUID) {
         let initialOrientation = orientation
-        status = "Configuring \(mode.title)…"
+        let lifetime = lifetime
+        status = "Checking \(mode.title) single-camera ProRAW capability…"
         backend.queue.async { [weak self, backend] in
             do {
-                let bundle = try backend.configure(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, peripheralPreviewLongEdge: peripheralPreviewLongEdge, orientation: initialOrientation) { message in
+                let bundle = try backend.configure(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge,
+                                                   peripheralPreviewLongEdge: peripheralPreviewLongEdge,
+                                                   orientation: initialOrientation, lifetime: lifetime) { message in
                     DispatchQueue.main.async { [weak self] in
                         guard let self, self.generation == token else { return }
                         self.isReady = false; self.status = message
@@ -88,20 +98,10 @@ final class CameraController: ObservableObject {
                 }
                 DispatchQueue.main.async { [weak self] in
                     guard let self, self.generation == token else { return }
-                    self.isConfiguring = false
-                    self.centerPreviewLayer = bundle.center
-                    self.centerLiveSource = bundle.liveSource
-                    self.peripheralPreviewLayer = bundle.periphery
-                    self.geometry = bundle.geometry
-                    self.supportedOutputOptions = bundle.outputOptions
-                    self.sourceCaptureDimensions = bundle.geometry.sensorPhotoDimensions
-                    self.physicalCameraID = bundle.physicalCameraID
-                    self.centerPreviewDimensions = bundle.centerPreviewDimensions
-                    self.peripheralPreviewDimensions = bundle.peripheralPreviewDimensions
-                    self.centerPreviewEncoding = bundle.centerPreviewEncoding
-                    self.peripheralPreviewEncoding = bundle.peripheralPreviewEncoding
-                    self.isReady = true
-                    self.status = mode == .ultraWide ? "Apple ProRAW · black periphery" : "Apple ProRAW · separate wider live preview"
+                    self.install(bundle)
+                    self.isConfiguring = false; self.isReady = true
+                    self.appliedOrientation = initialOrientation
+                    self.status = self.readyStatus
                     self.updateOrientation(self.orientation)
                 }
             } catch {
@@ -113,76 +113,124 @@ final class CameraController: ObservableObject {
             }
         }
     }
+    private var readyStatus: String {
+        usesCaptureHandoff ? "Apple ProRAW · wider live preview · preview freezes for full-resolution capture" : "Apple ProRAW · black periphery"
+    }
+    private func install(_ bundle: CameraBackend.Bundle) {
+        centerPreviewLayer = bundle.center; centerLiveSource = bundle.liveSource
+        peripheralPreviewLayer = bundle.periphery; geometry = bundle.geometry
+        supportedOutputOptions = bundle.outputOptions
+        sourceCaptureDimensions = bundle.geometry.sensorPhotoDimensions
+        physicalCameraID = bundle.physicalCameraID
+        centerPreviewDimensions = bundle.centerPreviewDimensions
+        peripheralPreviewDimensions = bundle.peripheralPreviewDimensions
+        centerPreviewEncoding = bundle.centerPreviewEncoding
+        peripheralPreviewEncoding = bundle.peripheralPreviewEncoding
+        usesCaptureHandoff = bundle.usesCaptureHandoff
+    }
+    private func clearPreview() {
+        centerPreviewLayer = nil; peripheralPreviewLayer = nil; geometry = nil
+        centerLiveSource?.setEnabled(false); centerLiveSource = nil
+        supportedOutputOptions = []; sourceCaptureDimensions = nil; physicalCameraID = nil
+        centerPreviewDimensions = nil; peripheralPreviewDimensions = nil
+        centerPreviewEncoding = nil; peripheralPreviewEncoding = nil
+    }
     func updateOrientation(_ value: UIInterfaceOrientation) {
         dispatchPrecondition(condition: .onQueue(.main))
         guard value != .unknown else { return }
         orientation = value
-        guard !isConfiguring, centerPreviewLayer != nil else { return }
-        isReady = false
-        // Revoke the proxy synchronously, before SwiftUI redraw/session rotation.
-        // An already-finished old GPU frame must not revive the previous view.
-        centerLiveSource?.setEnabled(false)
+        // A shutter snapshot owns orientation until both the photo and restoration
+        // finish. Keep the newest UI orientation, but never rotate its photo graph.
+        guard !isConfiguring, !isCapturing, !isApplyingOrientation, value != appliedOrientation,
+              centerPreviewLayer != nil, !lifetime.isCancelled else { return }
+        isReady = false; isApplyingOrientation = true; centerLiveSource?.setEnabled(false)
         orientationRevision &+= 1
-        let revision = orientationRevision
-        let token = generation
+        let revision = orientationRevision, token = generation
         backend.queue.async { [weak self, backend] in
-            backend.applyOrientation(value)
             do {
-                try backend.waitForPreviewFrames()
+                try backend.rotatePreview(value)
                 let geometry = backend.geometry()
                 DispatchQueue.main.async { [weak self] in
-                    guard let self, self.generation == token, self.orientationRevision == revision else { return }
-                    self.geometry = geometry
-                    self.isReady = true
+                    guard let self, self.generation == token, self.orientationRevision == revision, !self.isCapturing else { return }
+                    self.geometry = geometry; self.appliedOrientation = value; self.isApplyingOrientation = false; self.isReady = true
+                    // Coalesce rotations arriving during negotiation, including a
+                    // turn back to the previously applied orientation.
+                    self.updateOrientation(self.orientation)
                 }
             } catch {
                 DispatchQueue.main.async { [weak self] in
                     guard let self, self.generation == token, self.orientationRevision == revision else { return }
-                    self.isReady = false; self.status = error.localizedDescription
+                    self.isApplyingOrientation = false; self.isReady = false; self.status = error.localizedDescription
                 }
             }
         }
     }
     func stop() {
         dispatchPrecondition(condition: .onQueue(.main))
-        generation = UUID(); isConfiguring = false; isReady = false; isCapturing = false
-        centerPreviewLayer = nil; peripheralPreviewLayer = nil; geometry = nil
-        centerLiveSource?.setEnabled(false); centerLiveSource = nil
-        supportedOutputOptions = []; sourceCaptureDimensions = nil; physicalCameraID = nil
-        centerPreviewDimensions = nil; peripheralPreviewDimensions = nil
-        centerPreviewEncoding = nil; peripheralPreviewEncoding = nil
-        status = "Camera stopped"
+        // This cancellation is synchronous even if AVFoundation currently blocks
+        // its serial queue in startRunning or first-frame negotiation.
+        lifetime.cancel(); generation = UUID()
+        isConfiguring = false; isReady = false; isCapturing = false
+        isPreviewFrozen = false; capturePhase = .idle; appliedOrientation = .unknown; isApplyingOrientation = false
+        clearPreview(); status = "Camera stopped"
         backend.queue.async { [backend] in backend.stop() }
     }
-    /// Delivers the actual ProRAW DNG. Pass to ImagePipeline.load(data:fileExtension: "dng").
-    /// No preview/peripheral buffers enter this result. At most one capture is in flight.
+    /// Delivers only the validated Apple ProRAW DNG. Preview restore errors are
+    /// reported through status/isReady and cannot replace a completed photo.
     func captureProRAW(completion: @escaping (Result<Data, Error>) -> Void) {
         dispatchPrecondition(condition: .onQueue(.main))
-        guard isReady, !isCapturing else {
+        guard isReady, !isCapturing, !isConfiguring else {
             completion(.failure(CameraFailure("Camera is unavailable or a capture is already in progress."))); return
         }
-        isCapturing = true
+        isCapturing = true; isReady = false; isPreviewFrozen = usesCaptureHandoff
+        capturePhase = .preparing; actualCapturedDimensions = nil
+        if usesCaptureHandoff { centerLiveSource?.setEnabled(false) }
+        status = usesCaptureHandoff ? "Preview frozen · preparing full-resolution ProRAW…" : "Preparing ProRAW…"
         let token = generation
         backend.queue.async { [weak self, backend] in
-            backend.capture { result in
+            backend.capture(progress: { phase, message in
                 DispatchQueue.main.async { [weak self] in
-                    guard let self, self.generation == token else {
-                        completion(.failure(CameraFailure("Capture cancelled because the camera stopped."))); return
-                    }
-                    self.isCapturing = false
-                    if case .failure(let error) = result { self.status = error.localizedDescription }
-                    completion(result)
+                    guard let self, self.generation == token else { return }
+                    self.capturePhase = phase; self.status = message
+                }
+            }) { outcome in
+                DispatchQueue.main.async { [weak self] in
+                    let photoResult = outcome.result.map { $0.data }
+                    // Stop/background can invalidate view state, never a completed DNG.
+                    guard let self, self.generation == token else { completion(photoResult); return }
+                    if let bundle = outcome.bundle { self.install(bundle) }
+                    if case .success(let photo) = outcome.result { self.actualCapturedDimensions = photo.dimensions }
+                    self.isCapturing = false; self.capturePhase = .idle
+                    self.isPreviewFrozen = !outcome.previewReady && self.usesCaptureHandoff
+                    self.isReady = outcome.previewReady
+                    self.status = outcome.message ?? self.readyStatus
+                    if outcome.previewReady { self.updateOrientation(self.orientation) }
+                    completion(photoResult)
                 }
             }
         }
     }
-    deinit { let engine = backend; engine.queue.async { engine.stop() } }
+    deinit { lifetime.cancel(); let engine = backend; engine.queue.async { engine.stop() } }
 }
 
 private struct CameraFailure: LocalizedError {
     let message: String
     init(_ message: String) { self.message = message }
     var errorDescription: String? { message }
+}
+
+/// Cross-queue cancellation only. All AVFoundation state stays on backend.queue.
+private final class CameraLifetime {
+    private let lock = NSLock()
+    private var cancelled = false
+    var isCancelled: Bool { lock.lock(); defer { lock.unlock() }; return cancelled }
+    func cancel() { lock.lock(); cancelled = true; lock.unlock() }
+    func check() throws { if isCancelled { throw CameraFailure("Camera operation cancelled.") } }
+}
+
+private struct CapturedProRAW {
+    let data: Data
+    let dimensions: CGSize
 }
 
 private final class CameraBackend {
@@ -197,193 +245,282 @@ private final class CameraBackend {
         let peripheralPreviewDimensions: CGSize?
         let centerPreviewEncoding: String
         let peripheralPreviewEncoding: String?
+        let usesCaptureHandoff: Bool
+    }
+    struct CaptureOutcome {
+        let result: Result<CapturedProRAW, Error>
+        let bundle: Bundle?
+        let previewReady: Bool
+        let message: String?
+    }
+    private enum Phase { case stopped, configuring, preview, preparingPhoto, capturing, restoringPreview, failed }
+    private struct PreviewConfiguration {
+        let mode: CameraController.Mode
+        let centerPreviewLongEdge: Int
+        let peripheralPreviewLongEdge: Int
+        var usesCaptureHandoff: Bool { mode.peripheralType != nil }
+    }
+    private struct PhotoCapability {
+        let physicalCameraID: String
+        let dimensions: CMVideoDimensions
+        let horizontalFieldOfView: Float
+        let zoom: CGFloat
+    }
+    private final class CaptureRequest {
+        let id = UUID()
+        let configuration: PreviewConfiguration
+        let capability: PhotoCapability
+        let orientation: UIInterfaceOrientation
+        let lifetime: CameraLifetime
+        let progress: (CameraController.CapturePhase, String) -> Void
+        var completion: ((CaptureOutcome) -> Void)?
+        var result: Result<CapturedProRAW, Error>?
+        init(configuration: PreviewConfiguration, capability: PhotoCapability, orientation: UIInterfaceOrientation,
+             lifetime: CameraLifetime, progress: @escaping (CameraController.CapturePhase, String) -> Void,
+             completion: @escaping (CaptureOutcome) -> Void) {
+            self.configuration = configuration; self.capability = capability; self.orientation = orientation
+            self.lifetime = lifetime; self.progress = progress; self.completion = completion
+        }
     }
     let queue = DispatchQueue(label: "dev.glasscam.camera", qos: .userInitiated)
+    private var phase: Phase = .stopped
+    private var lifetime: CameraLifetime?
+    private var configuration: PreviewConfiguration?
+    private var capability: PhotoCapability?
     private var session: AVCaptureSession?
     private var photoOutput: AVCapturePhotoOutput?
     private var devices: [AVCaptureDevice] = []
     private var dimensions = CMVideoDimensions(width: 0, height: 0)
     private var orientation: AVCaptureVideoOrientation = .portrait
+    private var interfaceOrientation: UIInterfaceOrientation = .portrait
     private var observations: [NSKeyValueObservation] = []
     private var notifications: [NSObjectProtocol] = []
     private var captureDelegate: ProRAWCapture?
-    private var captureID: UUID?
+    private var currentRequest: CaptureRequest?
     private var failureHandler: ((String) -> Void)?
     private var failed = false
     private var previewOutputs: [AVCaptureVideoDataOutput] = []
     private var frameDeliveries: [CameraFrameDelivery] = []
+    private var frozenDeliveries: [CameraFrameDelivery] = []
     private var previewSizes: [CMVideoDimensions] = []
     private var previewPixelFormats: [OSType] = []
     private var previewReadiness = DispatchGroup()
 
-    func configure(mode: CameraController.Mode, centerPreviewLongEdge: Int, peripheralPreviewLongEdge: Int, orientation: UIInterfaceOrientation,
+    func configure(mode: CameraController.Mode, centerPreviewLongEdge: Int, peripheralPreviewLongEdge: Int,
+                   orientation: UIInterfaceOrientation, lifetime: CameraLifetime,
                    failure: @escaping (String) -> Void) throws -> Bundle {
         dispatchPrecondition(condition: .onQueue(queue))
-        stop(); failed = false; failureHandler = failure
-        let discovery = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInUltraWideCamera, .builtInWideAngleCamera, .builtInTelephotoCamera], mediaType: .video, position: .back)
-        guard let center = discovery.devices.first(where: { $0.deviceType == mode.centerType }) else {
-            throw CameraFailure("This device has no physical \(mode.title.lowercased()) camera.")
+        stop()
+        self.lifetime = lifetime; try lifetime.check()
+        failed = false; phase = .configuring; failureHandler = failure
+        let plan = PreviewConfiguration(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge,
+                                        peripheralPreviewLongEdge: peripheralPreviewLongEdge)
+        configuration = plan
+        // Probe a real ordinary .photo graph independently. A MultiCam active
+        // format, ProRAW flag, or 12MP ceiling is never used as source capability.
+        let photo = try buildSinglePhotoGraph(configuration: plan, orientation: orientation,
+                                             expected: nil, includePreview: !plan.usesCaptureHandoff)
+        capability = photo; dimensions = photo.dimensions
+        if plan.usesCaptureHandoff {
+            tearDownGraph(preservingPreview: false)
+            try lifetime.check()
+            try buildMultiPreview(configuration: plan, capability: photo, orientation: orientation)
         }
-        var chosen = [center]
-        if let type = mode.peripheralType {
-            guard AVCaptureMultiCamSession.isMultiCamSupported,
-                  let peripheral = discovery.devices.first(where: { $0.deviceType == type }),
-                  discovery.supportedMultiCamDeviceSets.contains(where: { $0.contains(center) && $0.contains(peripheral) }) else {
-                throw CameraFailure("This physical camera pair does not support simultaneous capture. No substitute preview or lens was used.")
-            }
-            chosen.append(peripheral)
-        }
-        let multi = chosen.count == 2
-        let newSession: AVCaptureSession = multi ? AVCaptureMultiCamSession() : AVCaptureSession()
-        session = newSession; devices = chosen
+        try waitForPreviewFrames()
+        phase = .preview
+        return try previewBundle()
+    }
+
+    private func discover(_ type: AVCaptureDevice.DeviceType) throws -> AVCaptureDevice {
+        let discovery = AVCaptureDevice.DiscoverySession(deviceTypes: [type], mediaType: .video, position: .back)
+        guard let device = discovery.devices.first else { throw CameraFailure("The requested physical camera is unavailable.") }
+        return device
+    }
+    /// Creates only an ordinary .photo session. The previous graph must already
+    /// have stopped and released all inputs/outputs; two sessions never own a lens.
+    @discardableResult
+    private func buildSinglePhotoGraph(configuration plan: PreviewConfiguration, orientation value: UIInterfaceOrientation,
+                                       expected: PhotoCapability?, includePreview: Bool) throws -> PhotoCapability {
+        try checkLifetime()
+        guard session == nil else { throw CameraFailure("A camera graph still owns the device.") }
+        let center = try discover(plan.mode.centerType)
+        if let expected, center.uniqueID != expected.physicalCameraID { throw CameraFailure("The physical photo camera changed. Capture was cancelled.") }
+        let newSession = AVCaptureSession()
+        session = newSession; devices = [center]
         newSession.beginConfiguration()
         var committed = false
         defer { if !committed { newSession.commitConfiguration() } }
-        // MultiCam is always inputPriority. Single-camera setup switches to .photo below.
-        if !multi { newSession.sessionPreset = .inputPriority }
-        var ports: [AVCaptureInput.Port] = []
-        for (index, device) in chosen.enumerated() {
-            let selection = try selectFormat(device: device, multi: multi, needsPhoto: index == 0,
-                                             previewLongEdge: index == 0 ? centerPreviewLongEdge : peripheralPreviewLongEdge)
-            try device.lockForConfiguration()
-            device.activeFormat = selection.format
-            device.videoZoomFactor = 1 // Never substitute digital telephoto or crop.
-            let interval = CMTime(value: 1, timescale: 30)
-            device.activeVideoMinFrameDuration = interval
-            device.activeVideoMaxFrameDuration = interval
-            device.unlockForConfiguration()
-            if index == 0 { dimensions = selection.photo }
-            let input = try AVCaptureDeviceInput(device: device)
-            guard newSession.canAddInput(input) else { throw CameraFailure("Cannot add the requested physical camera input.") }
-            newSession.addInputWithNoConnections(input)
-            guard let port = input.ports.first(where: { $0.mediaType == .video }) else { throw CameraFailure("Camera video port is unavailable.") }
-            ports.append(port)
-        }
-        // Apple requires .photo for high-resolution single-camera capture.
-        // MultiCam remains .inputPriority and exposes only its lower native ceiling.
-        if !multi {
-            guard newSession.canSetSessionPreset(.photo) else { throw CameraFailure("The photo preset is unavailable.") }
-            newSession.sessionPreset = .photo
-        }
-        // A preset may select a different active format. Inspect its still ceiling;
-        // independent VideoDataOutput scaling sets the preview raster below.
-        let finalCenterFormat = center.activeFormat
-        let nativeOptions = nativePhotoDimensions(format: finalCenterFormat, multi: multi)
-        guard let largest = nativeOptions.max(by: { Self.area($0) < Self.area($1) }) else {
-            throw CameraFailure("No native ProRAW photo dimensions match this configuration and framing.")
-        }
-        let sourceCeiling = center.formats.filter { !multi || $0.isMultiCamSupported }
-            .flatMap { nativePhotoDimensions(format: $0, multi: multi) }.map(Self.area).max() ?? 0
-        guard Self.area(largest) == sourceCeiling else {
-            throw CameraFailure("This camera/photo configuration cannot preserve its largest native ProRAW source. Capture resolution was not lowered.")
-        }
-        dimensions = largest
+        guard newSession.canSetSessionPreset(.photo) else { throw CameraFailure("The photo preset is unavailable.") }
+        newSession.sessionPreset = .photo
+        let port = try addInput(center, to: newSession)
+        // Do not set activeFormat here: it would switch the ordinary session to
+        // inputPriority and invalidate Apple's high-resolution .photo requirement.
+        try center.lockForConfiguration()
+        center.videoZoomFactor = expected?.zoom ?? 1
+        center.unlockForConfiguration()
         let output = AVCapturePhotoOutput()
-        guard newSession.canAddOutput(output) else { throw CameraFailure("Photo capture is unavailable for this camera pair.") }
+        guard newSession.canAddOutput(output) else { throw CameraFailure("Single-camera photo capture is unavailable.") }
         newSession.addOutputWithNoConnections(output)
-        let photoConnection = AVCaptureConnection(inputPorts: [ports[0]], output: output)
-        guard newSession.canAddConnection(photoConnection) else { throw CameraFailure("Cannot connect the center camera to photo capture.") }
+        let photoConnection = AVCaptureConnection(inputPorts: [port], output: output)
+        guard newSession.canAddConnection(photoConnection) else { throw CameraFailure("Cannot connect the physical camera to photo capture.") }
         newSession.addConnection(photoConnection)
         guard photoConnection.isVideoOrientationSupported else { throw CameraFailure("Photo orientation control is unavailable.") }
         photoOutput = output
-        for (index, port) in ports.enumerated() {
-            let video = AVCaptureVideoDataOutput()
-            video.automaticallyConfiguresOutputBufferDimensions = false
-            video.deliversPreviewSizedOutputBuffers = false
-            video.alwaysDiscardsLateVideoFrames = true
-            guard newSession.canAddOutput(video) else { throw CameraFailure("Cannot add the independent scaled live-preview output.") }
-            newSession.addOutputWithNoConnections(video)
-            let connection = AVCaptureConnection(inputPorts: [port], output: video)
-            guard newSession.canAddConnection(connection) else { throw CameraFailure("A physical-lens video preview connection is unavailable.") }
-            newSession.addConnection(connection)
-            guard connection.isVideoOrientationSupported else { throw CameraFailure("This scaled-preview connection cannot match photo orientation.") }
-            // Prefer native bi-planar YCbCr rather than converting to memory-heavy BGRA.
-            let supported = video.availableVideoPixelFormatTypes
-            guard let pixelFormat = [kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
-                                     kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange].first(where: { supported.contains($0) }) else {
-                throw CameraFailure("The preview output exposes no supported 8-bit YCbCr format.")
-            }
-            let sourceVideo = CMVideoFormatDescriptionGetDimensions(chosen[index].activeFormat.formatDescription)
-            let size = try Self.scaledPreviewDimensions(source: sourceVideo,
-                                                       cap: index == 0 ? centerPreviewLongEdge : peripheralPreviewLongEdge)
-            let delivery = CameraFrameDelivery.makeOnMainThread()
-            video.setSampleBufferDelegate(delivery, queue: delivery.callbackQueue)
-            previewOutputs.append(video); frameDeliveries.append(delivery)
-            previewSizes.append(size); previewPixelFormats.append(pixelFormat)
-        }
-        guard center.activeFormat === finalCenterFormat else {
-            throw CameraFailure("Adding scaled preview changed the photo source format. No lower-resolution capture was substituted.")
-        }
-        applyOrientation(orientation, configurationOpen: true)
-        // Query only after the complete input/output graph is connected.
-        guard output.isAppleProRAWSupported else {
-            throw CameraFailure("Apple ProRAW is unsupported with this exact physical camera / simultaneous-preview configuration. No Bayer RAW or HEIF fallback was captured.")
-        }
-        output.isAppleProRAWEnabled = true
-        output.maxPhotoDimensions = dimensions
         output.maxPhotoQualityPrioritization = .quality
+        guard output.isAppleProRAWSupported else { throw CameraFailure("Apple ProRAW is unavailable on this physical camera in a single-camera photo session.") }
+        output.isAppleProRAWEnabled = true
         if output.isContentAwareDistortionCorrectionSupported { output.isContentAwareDistortionCorrectionEnabled = false }
+        let finalFormat = center.activeFormat
+        let photo = try photoCapability(center)
+        if let expected { try validate(photo, matches: expected) }
+        dimensions = photo.dimensions
+        output.maxPhotoDimensions = dimensions
         guard output.availableRawPhotoPixelFormatTypes.contains(where: AVCapturePhotoOutput.isAppleProRAWPixelFormat) else {
-            throw CameraFailure("This configuration exposes no Apple ProRAW pixel format.")
+            throw CameraFailure("The single-camera photo graph exposes no Apple ProRAW pixel format.")
         }
+        if includePreview { try addPreview(port: port, device: center, cap: plan.centerPreviewLongEdge, to: newSession) }
+        applyOrientation(value, configurationOpen: true)
         newSession.commitConfiguration(); committed = true
-        if let multiSession = newSession as? AVCaptureMultiCamSession,
-           multiSession.hardwareCost > 1 || multiSession.systemPressureCost > 1 {
-            throw CameraFailure("This full-quality camera pair exceeds the device capture budget. No lower-quality capture was substituted.")
-        }
+        try checkLifetime()
         installObservers(newSession)
         newSession.startRunning()
-        guard newSession.isRunning, output.isAppleProRAWSupported, output.isAppleProRAWEnabled else {
-            throw CameraFailure("The Apple ProRAW camera session could not start in this configuration.")
+        try validateRunningGraph()
+        guard newSession.sessionPreset == .photo, center.activeFormat === finalFormat,
+              output.isAppleProRAWSupported, output.isAppleProRAWEnabled else {
+            throw CameraFailure("Starting the photo graph changed its source configuration. No lower-resolution capture was substituted.")
         }
-        try waitForPreviewFrames()
-        guard let geometry = geometry() else { throw CameraFailure("Photo framing is unavailable.") }
-        guard center.activeFormat === finalCenterFormat else {
-            throw CameraFailure("The photo preset changed the active format after configuration; this combination requires device validation.")
-        }
-        return Bundle(center: frameDeliveries[0].layer, liveSource: frameDeliveries[0].liveSource, periphery: frameDeliveries.count > 1 ? frameDeliveries[1].layer : nil, geometry: geometry,
-                      outputOptions: Self.outputOptions(source: dimensions), physicalCameraID: center.uniqueID,
-                      centerPreviewDimensions: Self.size(previewSizes[0]),
-                      peripheralPreviewDimensions: previewSizes.count > 1 ? Self.size(previewSizes[1]) : nil,
-                      centerPreviewEncoding: Self.previewEncoding(previewPixelFormats[0]),
-                      peripheralPreviewEncoding: previewPixelFormats.count > 1 ? Self.previewEncoding(previewPixelFormats[1]) : nil)
+        try validate(try photoCapability(center), matches: photo)
+        return photo
     }
-
-    private func selectFormat(device: AVCaptureDevice, multi: Bool, needsPhoto: Bool,
-                              previewLongEdge: Int)
-        throws -> (format: AVCaptureDevice.Format, photo: CMVideoDimensions) {
-        guard (640...4096).contains(previewLongEdge) else {
-            throw CameraFailure("Preview raster limit must be between 640 and 4096 pixels, independently of photo resolution.")
+    private func photoCapability(_ center: AVCaptureDevice) throws -> PhotoCapability {
+        let format = center.activeFormat
+        guard format.videoFieldOfView.isFinite, format.videoFieldOfView > 0, format.videoFieldOfView < 180 else {
+            throw CameraFailure("The physical camera did not report a usable photo field of view.")
         }
-        let candidates = device.formats.compactMap { format -> (AVCaptureDevice.Format, CMVideoDimensions)? in
-            guard !multi || format.isMultiCamSupported,
-                  format.videoSupportedFrameRateRanges.contains(where: { $0.minFrameRate <= 30 && $0.maxFrameRate >= 30 }) else { return nil }
-            guard let photo = nativePhotoDimensions(format: format, multi: multi).max(by: { Self.area($0) < Self.area($1) }) else { return nil }
-            return (format, photo)
+        guard let largest = nativePhotoDimensions(format: format).max(by: { Self.area($0) < Self.area($1) }) else {
+            throw CameraFailure("The photo format has no full-framing 12MP or 48MP ProRAW source dimensions.")
         }
-        // Source first, preview second: reducing HEIF target never affects this choice.
-        // Within the same native source ceiling prefer the smallest sensor video raster;
-        // preview buffer dimensions are independently downscaled by VideoDataOutput.
-        guard let chosen = candidates.max(by: {
-            if needsPhoto && Self.area($0.1) != Self.area($1.1) { return Self.area($0.1) < Self.area($1.1) }
-            return Self.area(CMVideoFormatDescriptionGetDimensions($0.0.formatDescription)) > Self.area(CMVideoFormatDescriptionGetDimensions($1.0.formatDescription))
-        }) else {
-            throw CameraFailure("No 30 fps full-photo-aspect format supports this preview limit and physical camera combination. Choose another preview limit or lens explicitly.")
+        let sourceCeiling = center.formats.flatMap { nativePhotoDimensions(format: $0) }.map(Self.area).max() ?? 0
+        guard Self.area(largest) == sourceCeiling else {
+            throw CameraFailure("The photo preset did not expose this lens's largest native source. Capture resolution was not lowered.")
         }
+        return PhotoCapability(physicalCameraID: center.uniqueID, dimensions: largest,
+                               horizontalFieldOfView: format.videoFieldOfView, zoom: center.videoZoomFactor)
+    }
+    private func validate(_ actual: PhotoCapability, matches expected: PhotoCapability) throws {
+        guard actual.physicalCameraID == expected.physicalCameraID,
+              actual.dimensions.width == expected.dimensions.width, actual.dimensions.height == expected.dimensions.height,
+              abs(actual.horizontalFieldOfView - expected.horizontalFieldOfView) < 0.1,
+              abs(actual.zoom - expected.zoom) < 0.0001 else {
+            throw CameraFailure("The single-camera photo graph changed the lens, zoom, framing, or native resolution. No substitute photo was captured.")
+        }
+    }
+    private func buildMultiPreview(configuration plan: PreviewConfiguration, capability photo: PhotoCapability,
+                                   orientation value: UIInterfaceOrientation) throws {
+        try checkLifetime()
+        guard session == nil, let type = plan.mode.peripheralType else { throw CameraFailure("Invalid preview handoff state.") }
+        let discovery = AVCaptureDevice.DiscoverySession(deviceTypes: [plan.mode.centerType, type], mediaType: .video, position: .back)
+        guard AVCaptureMultiCamSession.isMultiCamSupported,
+              let center = discovery.devices.first(where: { $0.uniqueID == photo.physicalCameraID }),
+              let peripheral = discovery.devices.first(where: { $0.deviceType == type }),
+              discovery.supportedMultiCamDeviceSets.contains(where: { $0.contains(center) && $0.contains(peripheral) }) else {
+            throw CameraFailure("This physical camera pair does not support simultaneous preview. No substitute lens was used.")
+        }
+        let newSession = AVCaptureMultiCamSession()
+        session = newSession; devices = [center, peripheral]; dimensions = photo.dimensions
+        newSession.beginConfiguration()
+        var committed = false
+        defer { if !committed { newSession.commitConfiguration() } }
+        // MultiCam is inputPriority and VIDEO ONLY. It has no ProRAW requirement.
+        for (index, device) in devices.enumerated() {
+            let cap = index == 0 ? plan.centerPreviewLongEdge : plan.peripheralPreviewLongEdge
+            let format = try selectPreviewFormat(device: device, matching: index == 0 ? photo : nil, previewLongEdge: cap)
+            try device.lockForConfiguration()
+            device.activeFormat = format; device.videoZoomFactor = index == 0 ? photo.zoom : 1
+            device.activeVideoMinFrameDuration = CMTime(value: 1, timescale: 30)
+            device.activeVideoMaxFrameDuration = CMTime(value: 1, timescale: 30)
+            device.unlockForConfiguration()
+            let port = try addInput(device, to: newSession)
+            try addPreview(port: port, device: device, cap: cap, to: newSession)
+        }
+        applyOrientation(value, configurationOpen: true)
+        newSession.commitConfiguration(); committed = true
+        guard newSession.hardwareCost <= 1, newSession.systemPressureCost <= 1 else {
+            throw CameraFailure("This preview pair exceeds the device capture budget. Choose another lens or preview limit.")
+        }
+        try checkLifetime()
+        installObservers(newSession); newSession.startRunning()
+        try validateRunningGraph()
+        try validatePreviewFraming(photo)
+    }
+    private func validatePreviewFraming(_ photo: PhotoCapability) throws {
+        guard let center = devices.first else { throw CameraFailure("The physical preview camera is unavailable.") }
+        let video = CMVideoFormatDescriptionGetDimensions(center.activeFormat.formatDescription)
+        guard center.uniqueID == photo.physicalCameraID,
+              abs(center.videoZoomFactor - photo.zoom) < 0.0001,
+              abs(center.activeFormat.videoFieldOfView - photo.horizontalFieldOfView) < 0.1,
+              Self.sameAspect(video, photo.dimensions) else {
+            throw CameraFailure("The preview cannot preserve the single-camera photo lens, zoom, and field of view.")
+        }
+    }
+    private func selectPreviewFormat(device: AVCaptureDevice, matching photo: PhotoCapability?, previewLongEdge: Int) throws -> AVCaptureDevice.Format {
+        guard (640...4096).contains(previewLongEdge) else { throw CameraFailure("Preview raster limit must be between 640 and 4096 pixels.") }
+        let candidates = device.formats.filter { format in
+            guard format.isMultiCamSupported,
+                  format.videoSupportedFrameRateRanges.contains(where: { $0.minFrameRate <= 30 && $0.maxFrameRate >= 30 }) else { return false }
+            let video = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+            guard video.width > 0, video.height > 0 else { return false }
+            if let photo {
+                return Self.sameAspect(video, photo.dimensions) && abs(format.videoFieldOfView - photo.horizontalFieldOfView) < 0.1
+            }
+            // A genuine wider full-aspect video format; never require RAW support.
+            return format.supportedMaxPhotoDimensions.contains { Self.sameAspect(video, $0) }
+        }
+        guard let chosen = candidates.min(by: {
+            Self.area(CMVideoFormatDescriptionGetDimensions($0.formatDescription)) < Self.area(CMVideoFormatDescriptionGetDimensions($1.formatDescription))
+        }) else { throw CameraFailure("No 30 fps MultiCam preview format preserves this lens's photo framing.") }
         return chosen
     }
-    private func nativePhotoDimensions(format: AVCaptureDevice.Format, multi: Bool) -> [CMVideoDimensions] {
+    private func nativePhotoDimensions(format: AVCaptureDevice.Format) -> [CMVideoDimensions] {
         let video = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
-        guard video.width > 0, video.height > 0 else { return [] }
         return format.supportedMaxPhotoDimensions.filter { photo in
-            let pixels = Self.area(photo)
-            guard photo.width > 0, photo.height > 0,
-                  abs(Double(video.width) / Double(video.height) - Double(photo.width) / Double(photo.height)) < 0.001 else { return false }
-            // Nominal MP tiers include native 4032x3024 and 8064x6048 sizes.
-            // 24 MP native deferred-processed delivery is not a ProRAW source.
-            let nominal = Self.nominalMegapixels(pixels)
-            return nominal == 12 || (!multi && nominal == 48)
+            guard Self.sameAspect(video, photo) else { return false }
+            // Native 24MP deferred processed delivery is not a ProRAW source.
+            let nominal = Self.nominalMegapixels(Self.area(photo))
+            return nominal == 12 || nominal == 48
         }
+    }
+    private static func sameAspect(_ a: CMVideoDimensions, _ b: CMVideoDimensions) -> Bool {
+        a.width > 0 && a.height > 0 && b.width > 0 && b.height > 0 &&
+        abs(Double(a.width) / Double(a.height) - Double(b.width) / Double(b.height)) < 0.001
+    }
+    private func addInput(_ device: AVCaptureDevice, to session: AVCaptureSession) throws -> AVCaptureInput.Port {
+        let input = try AVCaptureDeviceInput(device: device)
+        guard session.canAddInput(input) else { throw CameraFailure("Cannot add the requested physical camera input.") }
+        session.addInputWithNoConnections(input)
+        guard let port = input.ports.first(where: { $0.mediaType == .video }) else { throw CameraFailure("Camera video port is unavailable.") }
+        return port
+    }
+    private func addPreview(port: AVCaptureInput.Port, device: AVCaptureDevice, cap: Int, to session: AVCaptureSession) throws {
+        let video = AVCaptureVideoDataOutput()
+        video.automaticallyConfiguresOutputBufferDimensions = false
+        video.deliversPreviewSizedOutputBuffers = false; video.alwaysDiscardsLateVideoFrames = true
+        guard session.canAddOutput(video) else { throw CameraFailure("Cannot add the independent scaled live-preview output.") }
+        session.addOutputWithNoConnections(video)
+        let connection = AVCaptureConnection(inputPorts: [port], output: video)
+        guard session.canAddConnection(connection) else { throw CameraFailure("A physical-lens video preview connection is unavailable.") }
+        session.addConnection(connection)
+        guard connection.isVideoOrientationSupported else { throw CameraFailure("This preview cannot match photo orientation.") }
+        let supported = video.availableVideoPixelFormatTypes
+        guard let pixelFormat = [kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
+                                 kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange].first(where: { supported.contains($0) }) else {
+            throw CameraFailure("The preview exposes no supported 8-bit YCbCr format.")
+        }
+        let size = try Self.scaledPreviewDimensions(source: CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription), cap: cap)
+        let delivery = CameraFrameDelivery.makeOnMainThread()
+        video.setSampleBufferDelegate(delivery, queue: delivery.callbackQueue)
+        previewOutputs.append(video); frameDeliveries.append(delivery)
+        previewSizes.append(size); previewPixelFormats.append(pixelFormat)
     }
     private static func nominalMegapixels(_ pixels: Int64) -> Int? {
         [12, 24, 48].first { abs(Double(pixels) / (Double($0) * 1_000_000) - 1) <= 0.08 }
@@ -406,7 +543,19 @@ private final class CameraBackend {
     }
     private static func area(_ size: CMVideoDimensions) -> Int64 { Int64(size.width) * Int64(size.height) }
 
-    func applyOrientation(_ value: UIInterfaceOrientation, configurationOpen: Bool = false) {
+    func rotatePreview(_ value: UIInterfaceOrientation) throws {
+        dispatchPrecondition(condition: .onQueue(queue))
+        guard phase == .preview, currentRequest == nil else { throw CameraFailure("Camera orientation is locked during capture.") }
+        do {
+            try checkLifetime()
+            applyOrientation(value)
+            try waitForPreviewFrames()
+        } catch {
+            failSession(error.localizedDescription, stopRunning: true)
+            throw error
+        }
+    }
+    private func applyOrientation(_ value: UIInterfaceOrientation, configurationOpen: Bool = false) {
         switch value {
         case .portrait: orientation = .portrait
         case .portraitUpsideDown: orientation = .portraitUpsideDown
@@ -414,15 +563,14 @@ private final class CameraBackend {
         case .landscapeRight: orientation = .landscapeRight
         default: return
         }
+        interfaceOrientation = value
         guard let session else { return }
         if !configurationOpen { session.beginConfiguration() }
         defer { if !configurationOpen { session.commitConfiguration() } }
-        // Remove explicit size keys before rotating. Otherwise the old width/height
-        // can disagree with the new connection orientation and cause an Obj-C exception.
         for (index, video) in previewOutputs.enumerated() {
             video.connection(with: .video)?.isEnabled = false
             video.setSampleBufferDelegate(nil, queue: nil)
-            frameDeliveries[index].callbackQueue.sync {} // Drain old-orientation callbacks.
+            frameDeliveries[index].callbackQueue.sync {}
             video.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelFormats[index]]
         }
         for connection in session.connections {
@@ -437,27 +585,41 @@ private final class CameraBackend {
         for (index, video) in previewOutputs.enumerated() {
             let size = previewSizes[index]
             let portrait = orientation == .portrait || orientation == .portraitUpsideDown
-            let width = Int(portrait ? size.height : size.width)
-            let height = Int(portrait ? size.width : size.height)
+            let width = Int(portrait ? size.height : size.width), height = Int(portrait ? size.width : size.height)
             let readiness = previewReadiness
             readiness.enter()
             frameDeliveries[index].expect(width: width, height: height, pixelFormat: previewPixelFormats[index]) { readiness.leave() }
             video.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelFormats[index],
-                                   kCVPixelBufferWidthKey as String: width,
-                                   kCVPixelBufferHeightKey as String: height]
+                                   kCVPixelBufferWidthKey as String: width, kCVPixelBufferHeightKey as String: height]
             video.setSampleBufferDelegate(frameDeliveries[index], queue: frameDeliveries[index].callbackQueue)
             video.connection(with: .video)?.isEnabled = true
         }
     }
-    /// Each physical feed must deliver a negotiated-size frame before the shutter
-    /// enables. Delegate queues signal this directly; no main-queue/frame backlog.
-    func waitForPreviewFrames() throws {
-        guard let session, session.isRunning, !failed,
-              previewReadiness.wait(timeout: .now() + 5) == .success else {
-            failed = true
-            self.session?.stopRunning()
-            throw CameraFailure("A physical camera preview did not deliver the negotiated frame size within 5 seconds. Capture is disabled; select the lens again to retry.")
+    private func checkLifetime() throws {
+        guard let lifetime else { throw CameraFailure("Camera stopped.") }
+        try lifetime.check()
+    }
+    private func validateRunningGraph() throws {
+        try checkLifetime()
+        guard let session, session.isRunning, !session.isInterrupted, !failed else { throw CameraFailure("The camera session is stopped or interrupted.") }
+        for device in devices {
+            let level = device.systemPressureState.level
+            if level == .serious || level == .critical || level == .shutdown {
+                throw CameraFailure("Camera unavailable due to system pressure. Let the device cool, then retry. Capture quality was not reduced.")
+            }
         }
+    }
+    /// First-frame readiness means a matching frame was actually enqueued on
+    /// each main-thread display layer. Cancellation is checked while waiting.
+    private func waitForPreviewFrames() throws {
+        let deadline = DispatchTime.now() + 5
+        while previewReadiness.wait(timeout: .now() + 0.05) != .success {
+            try validateRunningGraph()
+            if DispatchTime.now() >= deadline {
+                throw CameraFailure("A physical camera preview did not deliver its negotiated frame within 5 seconds. Select the lens again to retry.")
+            }
+        }
+        try validateRunningGraph()
     }
     private static func previewEncoding(_ format: OSType) -> String {
         // Published only after the first frame matches the requested OSType.
@@ -484,51 +646,169 @@ private final class CameraBackend {
     func geometry() -> CameraController.CameraGeometry? {
         guard dimensions.width > 0, dimensions.height > 0, let center = devices.first else { return nil }
         let portrait = orientation == .portrait || orientation == .portraitUpsideDown
-        let size = CGSize(width: CGFloat(dimensions.width), height: CGFloat(dimensions.height))
-        return .init(sensorPhotoDimensions: size,
-                     photoAspectRatio: portrait ? size.height / size.width : size.width / size.height,
+        let size = Self.size(dimensions)
+        return .init(sensorPhotoDimensions: size, photoAspectRatio: portrait ? size.height / size.width : size.width / size.height,
                      centerHorizontalFieldOfView: center.activeFormat.videoFieldOfView,
                      peripheralHorizontalFieldOfView: devices.count > 1 ? devices[1].activeFormat.videoFieldOfView : nil)
     }
-    func capture(completion: @escaping (Result<Data, Error>) -> Void) {
-        guard !failed, captureDelegate == nil, let session, session.isRunning, !session.isInterrupted,
-              let output = photoOutput, output.isAppleProRAWSupported, output.isAppleProRAWEnabled,
-              let raw = output.availableRawPhotoPixelFormatTypes.first(where: AVCapturePhotoOutput.isAppleProRAWPixelFormat) else {
-            completion(.failure(CameraFailure("Apple ProRAW capture is currently unavailable."))); return
+    private func previewBundle() throws -> Bundle {
+        guard let photo = capability, let configuration, let geometry = geometry(),
+              !frameDeliveries.isEmpty, previewSizes.count == frameDeliveries.count else {
+            throw CameraFailure("The preview graph is incomplete.")
+        }
+        return Bundle(center: frameDeliveries[0].layer, liveSource: frameDeliveries[0].liveSource,
+                      periphery: frameDeliveries.count > 1 ? frameDeliveries[1].layer : nil, geometry: geometry,
+                      outputOptions: Self.outputOptions(source: photo.dimensions), physicalCameraID: photo.physicalCameraID,
+                      centerPreviewDimensions: Self.size(previewSizes[0]),
+                      peripheralPreviewDimensions: previewSizes.count > 1 ? Self.size(previewSizes[1]) : nil,
+                      centerPreviewEncoding: Self.previewEncoding(previewPixelFormats[0]),
+                      peripheralPreviewEncoding: previewPixelFormats.count > 1 ? Self.previewEncoding(previewPixelFormats[1]) : nil,
+                      usesCaptureHandoff: configuration.usesCaptureHandoff)
+    }
+    func capture(progress: @escaping (CameraController.CapturePhase, String) -> Void,
+                 completion: @escaping (CaptureOutcome) -> Void) {
+        dispatchPrecondition(condition: .onQueue(queue))
+        guard phase == .preview, currentRequest == nil, let configuration, let capability, let lifetime else {
+            completion(CaptureOutcome(result: .failure(CameraFailure("Apple ProRAW capture is currently unavailable.")), bundle: nil,
+                                      previewReady: false, message: "Camera is unavailable. Retry the camera.")); return
+        }
+        let request = CaptureRequest(configuration: configuration, capability: capability,
+                                     orientation: interfaceOrientation, lifetime: lifetime, progress: progress, completion: completion)
+        currentRequest = request; phase = .preparingPhoto
+        do {
+            try validateRunningGraph()
+            if configuration.usesCaptureHandoff {
+                try validatePreviewFraming(capability)
+                // Freeze displayed pixels first, then stop and release the entire
+                // MultiCam graph before constructing an ordinary .photo graph.
+                frameDeliveries.forEach { $0.freeze() }
+                tearDownGraph(preservingPreview: true)
+                try request.lifetime.check()
+                try buildSinglePhotoGraph(configuration: configuration, orientation: request.orientation,
+                                          expected: capability, includePreview: false)
+            }
+            waitUntilPhotoReady(request, deadline: .now() + 8)
+        } catch {
+            finishPhoto(.failure(error), request: request)
+        }
+    }
+    private func waitUntilPhotoReady(_ request: CaptureRequest, deadline: DispatchTime) {
+        // Old timers/delegates may never touch a newer graph or restore a lens.
+        guard currentRequest === request, phase == .preparingPhoto else { return }
+        do {
+            try request.lifetime.check(); try validateRunningGraph()
+            guard let output = photoOutput, let center = devices.first,
+                  let session, !(session is AVCaptureMultiCamSession), session.sessionPreset == .photo,
+                  output.isAppleProRAWSupported, output.isAppleProRAWEnabled else {
+                throw CameraFailure("The ordinary photo session cannot capture Apple ProRAW.")
+            }
+            try validate(try photoCapability(center), matches: request.capability)
+            guard interfaceOrientation == request.orientation,
+                  output.connection(with: .video)?.videoOrientation == orientation else {
+                throw CameraFailure("Photo orientation changed during the shutter handoff.")
+            }
+            if output.captureReadiness == .ready {
+                try submitPhoto(request, output: output)
+            } else if DispatchTime.now() >= deadline {
+                throw CameraFailure("The full-resolution photo output did not become ready within 8 seconds. No lower-resolution capture was substituted.")
+            } else {
+                queue.asyncAfter(deadline: .now() + 0.05) { [weak self, weak request] in
+                    guard let self, let request else { return }; self.waitUntilPhotoReady(request, deadline: deadline)
+                }
+            }
+        } catch { finishPhoto(.failure(error), request: request) }
+    }
+    private func submitPhoto(_ request: CaptureRequest, output: AVCapturePhotoOutput) throws {
+        guard currentRequest === request, phase == .preparingPhoto else { return }
+        try request.lifetime.check()
+        guard let raw = output.availableRawPhotoPixelFormatTypes.first(where: AVCapturePhotoOutput.isAppleProRAWPixelFormat) else {
+            throw CameraFailure("The photo graph no longer exposes Apple ProRAW.")
         }
         let settings = AVCapturePhotoSettings(rawPixelFormatType: raw)
-        settings.maxPhotoDimensions = dimensions
+        settings.maxPhotoDimensions = request.capability.dimensions
         settings.photoQualityPrioritization = .quality
         settings.isAutoStillImageStabilizationEnabled = false
         settings.isAutoContentAwareDistortionCorrectionEnabled = false
-        let requestID = UUID()
-        captureID = requestID
-        let delegate = ProRAWCapture(expectedDimensions: dimensions) { [weak self] result in
-            guard let self else { return }
-            self.queue.async {
-                // A cancelled old request must never release a newer delegate.
-                if self.captureID == requestID {
-                    self.captureDelegate = nil
-                    self.captureID = nil
-                }
-                completion(result)
+        let delegate = ProRAWCapture(expectedDimensions: request.capability.dimensions) { [weak self, weak request] result in
+            guard let self, let request else { return }
+            self.queue.async { [weak self, weak request] in
+                guard let self, let request, self.currentRequest === request else { return }
+                self.finishPhoto(result, request: request)
             }
         }
-        captureDelegate = delegate
+        captureDelegate = delegate; phase = .capturing
+        request.progress(.capturing, "Capturing full-resolution Apple ProRAW…")
         output.capturePhoto(with: settings, delegate: delegate)
+        // AVFoundation normally finishes via its delegate. A watchdog prevents a
+        // missing terminal callback from leaving the shutter owned forever.
+        queue.asyncAfter(deadline: .now() + 45) { [weak self, weak request] in
+            guard let self, let request, self.currentRequest === request, self.phase == .capturing else { return }
+            self.failSession("Photo capture timed out. Retry the camera.", stopRunning: true)
+        }
     }
-    /// Terminal session failures release the shutter without relying on a later
-    /// AVFoundation capture callback. ProRAWCapture.finish is lock-protected and
-    /// consumes its completion, so stop/error/late delegate callbacks finish once.
+    private func finishPhoto(_ result: Result<CapturedProRAW, Error>, request: CaptureRequest) {
+        dispatchPrecondition(condition: .onQueue(queue))
+        guard currentRequest === request, request.completion != nil else { return }
+        request.result = result; captureDelegate = nil
+        var bundle: Bundle?
+        var previewReady = false
+        var previewError: String?
+        if !request.lifetime.isCancelled && !failed && phase != .stopped {
+            do {
+                if request.configuration.usesCaptureHandoff {
+                    phase = .restoringPreview
+                    request.progress(.restoring, "Restoring wider live preview…")
+                    tearDownGraph(preservingPreview: true)
+                    try request.lifetime.check()
+                    try buildMultiPreview(configuration: request.configuration, capability: request.capability,
+                                          orientation: request.orientation)
+                    try waitForPreviewFrames()
+                    bundle = try previewBundle()
+                } else {
+                    try validateRunningGraph()
+                }
+                try request.lifetime.check()
+                phase = .preview; previewReady = true
+                // Old layers remain alive through the controller's references
+                // until its main-thread bundle replacement. Do not flush them.
+                frozenDeliveries.removeAll()
+            } catch {
+                previewError = error.localizedDescription
+                phase = .failed; failed = true
+                tearDownGraph(preservingPreview: true)
+            }
+        } else {
+            previewError = request.lifetime.isCancelled ? "Camera stopped." : "Camera interrupted. Retry the camera to restore preview."
+            tearDownGraph(preservingPreview: true)
+        }
+        let message: String?
+        switch result {
+        case .success:
+            message = previewReady ? nil : "Photo captured. Preview unavailable: \(previewError ?? "Retry the camera.")"
+        case .failure(let error):
+            message = previewReady ? error.localizedDescription : "\(error.localizedDescription) Preview unavailable: \(previewError ?? "Retry the camera.")"
+        }
+        finishRequest(request, result: result, bundle: bundle, previewReady: previewReady, message: message)
+    }
+    private func finishRequest(_ request: CaptureRequest, result: Result<CapturedProRAW, Error>, bundle: Bundle?,
+                               previewReady: Bool, message: String?) {
+        guard currentRequest === request, let callback = request.completion else { return }
+        request.completion = nil; currentRequest = nil; captureDelegate = nil
+        callback(CaptureOutcome(result: result, bundle: bundle, previewReady: previewReady, message: message))
+    }
     private func failSession(_ message: String, stopRunning: Bool = false) {
         dispatchPrecondition(condition: .onQueue(queue))
-        failed = true
-        frameDeliveries.forEach { $0.liveSource.invalidate() }
-        captureDelegate?.cancel(reason: message)
+        failed = true; phase = .failed
+        frameDeliveries.forEach { $0.freeze() }
         if stopRunning { session?.stopRunning() }
         failureHandler?(message)
+        if let request = currentRequest {
+            let result = request.result ?? captureDelegate?.cancel(reason: message) ?? .failure(CameraFailure(message))
+            // Preserve only a successfully committed terminal photo result, even
+            // if its queued callback or preview restoration has not run yet.
+            finishPhoto(result, request: request)
+        }
     }
-
     private func installObservers(_ observed: AVCaptureSession) {
         let center = NotificationCenter.default
         for name in [AVCaptureSession.runtimeErrorNotification, AVCaptureSession.wasInterruptedNotification, AVCaptureSession.interruptionEndedNotification] {
@@ -539,7 +819,7 @@ private final class CameraBackend {
                     if name == AVCaptureSession.interruptionEndedNotification {
                         self.failureHandler?("Camera interruption ended. Select the lens again to revalidate Apple ProRAW.")
                     } else {
-                        self.failSession(detail ?? "Camera interrupted. Select the lens again when available.")
+                        self.failSession(detail ?? "Camera interrupted. Select the lens again when available.", stopRunning: true)
                     }
                 }
             })
@@ -556,30 +836,51 @@ private final class CameraBackend {
             }
         }
     }
-    func stop() {
+    /// Owns graph disposal only, never a request completion. Stop and remove every
+    /// input/output before another graph can acquire the same physical device.
+    private func tearDownGraph(preservingPreview: Bool) {
         previewOutputs.forEach { $0.setSampleBufferDelegate(nil, queue: nil) }
-        frameDeliveries.forEach { $0.invalidate() }
-        previewOutputs.removeAll(); frameDeliveries.removeAll(); previewSizes.removeAll(); previewPixelFormats.removeAll()
+        frameDeliveries.forEach { delivery in
+            if preservingPreview { delivery.freeze() } else { delivery.invalidate() }
+            delivery.callbackQueue.sync {}
+        }
+        if preservingPreview && !frameDeliveries.isEmpty { frozenDeliveries = frameDeliveries }
         observations.removeAll()
-        notifications.forEach { NotificationCenter.default.removeObserver($0) }
-        notifications.removeAll()
-        session?.stopRunning()
-        captureDelegate?.cancel()
-        captureDelegate = nil; captureID = nil
+        notifications.forEach { NotificationCenter.default.removeObserver($0) }; notifications.removeAll()
+        if let old = session {
+            old.stopRunning()
+            old.beginConfiguration()
+            old.connections.forEach { old.removeConnection($0) }
+            old.outputs.forEach { old.removeOutput($0) }
+            old.inputs.forEach { old.removeInput($0) }
+            old.commitConfiguration()
+        }
+        previewOutputs.removeAll(); frameDeliveries.removeAll(); previewSizes.removeAll(); previewPixelFormats.removeAll()
         session = nil; photoOutput = nil; devices = []
-        dimensions = CMVideoDimensions(width: 0, height: 0)
-        failureHandler = nil; failed = true
+    }
+    func stop() {
+        dispatchPrecondition(condition: .onQueue(queue))
+        lifetime?.cancel(); phase = .stopped; failed = true
+        let request = currentRequest
+        let result = request?.result ?? captureDelegate?.cancel() ?? .failure(CameraFailure("Camera capture cancelled."))
+        tearDownGraph(preservingPreview: false)
+        frozenDeliveries.forEach { $0.invalidate() }; frozenDeliveries.removeAll()
+        if let request { finishRequest(request, result: result, bundle: nil, previewReady: false, message: "Camera stopped.") }
+        captureDelegate = nil; configuration = nil; capability = nil; lifetime = nil
+        dimensions = CMVideoDimensions(width: 0, height: 0); failureHandler = nil
     }
 }
 
-/// One request and one retained DNG. CameraFrameDelivery separately bounds previews
-/// to one pending sample per lens; preview pixels never enter this photo result.
+/// Exactly one committed DNG per request. Processing bytes are provisional until
+/// didFinishCaptureFor succeeds. A stop preserves that terminal result, including
+/// when its backend-queue callback has not run yet; late callbacks cannot restore.
 private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
     private let lock = NSLock()
-    private var completion: ((Result<Data, Error>) -> Void)?
-    private var result: Result<Data, Error>?
+    private var completion: ((Result<CapturedProRAW, Error>) -> Void)?
+    private var result: Result<CapturedProRAW, Error>?
+    private var terminalResult: Result<CapturedProRAW, Error>?
     private let expectedDimensions: CMVideoDimensions
-    init(expectedDimensions: CMVideoDimensions, completion: @escaping (Result<Data, Error>) -> Void) {
+    init(expectedDimensions: CMVideoDimensions, completion: @escaping (Result<CapturedProRAW, Error>) -> Void) {
         self.expectedDimensions = expectedDimensions; self.completion = completion
     }
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
@@ -592,21 +893,32 @@ private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
             result = .failure(CameraFailure("The camera did not return an Apple ProRAW DNG.")); return
         }
         let actual = photo.resolvedSettings.rawPhotoDimensions
+        let bufferWidth = CVPixelBufferGetWidth(buffer), bufferHeight = CVPixelBufferGetHeight(buffer)
         guard min(actual.width, actual.height) == min(expectedDimensions.width, expectedDimensions.height),
-              max(actual.width, actual.height) == max(expectedDimensions.width, expectedDimensions.height) else {
-            result = .failure(CameraFailure("The camera delivered different RAW dimensions from the requested full-quality framing. This capture was rejected.")); return
+              max(actual.width, actual.height) == max(expectedDimensions.width, expectedDimensions.height),
+              min(bufferWidth, bufferHeight) == Int(min(actual.width, actual.height)),
+              max(bufferWidth, bufferHeight) == Int(max(actual.width, actual.height)) else {
+            result = .failure(CameraFailure("The camera delivered different RAW dimensions from the requested full-quality framing. This capture was rejected; no lower-resolution photo was substituted.")); return
         }
-        result = .success(data)
+        result = .success(CapturedProRAW(data: data, dimensions: CGSize(width: CGFloat(actual.width), height: CGFloat(actual.height))))
     }
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
         lock.lock()
-        let finalResult: Result<Data, Error> = error.map { .failure($0) } ?? result ?? .failure(CameraFailure("No Apple ProRAW photo was delivered."))
+        guard completion != nil else { lock.unlock(); return }
+        let finalResult: Result<CapturedProRAW, Error> = error.map { .failure($0) } ?? result ?? .failure(CameraFailure("No Apple ProRAW photo was delivered."))
+        let callback = completion; completion = nil; terminalResult = finalResult; result = nil
         lock.unlock()
-        finish(finalResult)
+        callback?(finalResult)
     }
-    func cancel(reason: String = "Camera capture cancelled.") { finish(.failure(CameraFailure(reason))) }
-    private func finish(_ value: Result<Data, Error>) {
-        lock.lock(); let callback = completion; completion = nil; result = nil; lock.unlock()
+    @discardableResult
+    func cancel(reason: String = "Camera capture cancelled.") -> Result<CapturedProRAW, Error> {
+        lock.lock()
+        let value: Result<CapturedProRAW, Error>
+        if let terminalResult { value = terminalResult }
+        else { value = .failure(CameraFailure(reason)) }
+        let callback = completion; completion = nil; result = nil
+        lock.unlock()
         callback?(value)
+        return value
     }
 }

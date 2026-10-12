@@ -9,13 +9,13 @@ class CameraSourceContracts(unittest.TestCase):
     def test_physical_lenses_and_simultaneous_gates(self):
         for token in ['.builtInUltraWideCamera', '.builtInWideAngleCamera', '.builtInTelephotoCamera',
                       'AVCaptureMultiCamSession.isMultiCamSupported', 'supportedMultiCamDeviceSets',
-                      'format.isMultiCamSupported', 'multiSession.hardwareCost', 'multiSession.systemPressureCost']:
+                      'format.isMultiCamSupported', 'newSession.hardwareCost', 'newSession.systemPressureCost']:
             self.assertIn(token, SOURCE)
         self.assertNotIn('.builtInTripleCamera', SOURCE)
 
     def test_graph_uses_manual_center_photo_connection(self):
-        for token in ['.inputPriority', 'addInputWithNoConnections', 'addOutputWithNoConnections',
-                      'AVCaptureConnection(inputPorts: [ports[0]], output: output)',
+        for token in ['AVCaptureMultiCamSession()', 'addInputWithNoConnections', 'addOutputWithNoConnections',
+                      'AVCaptureConnection(inputPorts: [port], output: output)',
                       'AVCaptureVideoDataOutput()',
                       'AVCaptureConnection(inputPorts: [port], output: video)']:
             self.assertIn(token, SOURCE)
@@ -31,26 +31,26 @@ class CameraSourceContracts(unittest.TestCase):
 
     def test_no_implicit_resolution_or_framing_downgrade(self):
         for token in ['sourceCeiling', 'Self.area(largest) == sourceCeiling',
-                      'device.videoZoomFactor = 1', 'connection.videoScaleAndCropFactor = 1',
+                      'center.videoZoomFactor = expected?.zoom ?? 1', 'connection.videoScaleAndCropFactor = 1',
                       'connection.preferredVideoStabilizationMode = .off',
-                      'output.maxPhotoDimensions = dimensions', 'settings.maxPhotoDimensions = dimensions',
+                      'output.maxPhotoDimensions = dimensions', 'settings.maxPhotoDimensions = request.capability.dimensions',
                       'settings.photoQualityPrioritization = .quality', 'connection.videoOrientation = orientation']:
             self.assertIn(token, SOURCE)
 
     def test_output_targets_are_separate_from_source(self):
         for token in ['struct OutputOption', 'supportedOutputOptions', 'physicalCameraID',
                       'centerPreviewLongEdge', 'peripheralPreviewLongEdge',
-                      'newSession.sessionPreset = .photo', 'nominal == 12 || (!multi && nominal == 48)',
+                      'newSession.sessionPreset = .photo', 'nominal == 12 || nominal == 48',
                       '[12, 24, 48].filter { $0 <= sourceTier }', 'min(divisor, Int(sqrt(',
-                      'outputOptions: Self.outputOptions(source: dimensions)']:
+                      'outputOptions: Self.outputOptions(source: photo.dimensions)']:
             self.assertIn(token, SOURCE)
-        capture = SOURCE.split('func capture(completion:', 1)[1].split('private func installObservers', 1)[0]
+        capture = SOURCE.split('private func submitPhoto(', 1)[1].split('private func finishPhoto(', 1)[0]
         self.assertNotIn('OutputOption', capture)
         self.assertNotIn('megapixels', capture)
-        self.assertIn('settings.maxPhotoDimensions = dimensions', capture)
+        self.assertIn('settings.maxPhotoDimensions = request.capability.dimensions', capture)
 
     def test_bounded_capture_and_failure_observation(self):
-        for token in ['captureDelegate == nil', 'didFinishCaptureFor', 'runtimeErrorNotification',
+        for token in ['currentRequest == nil', 'didFinishCaptureFor', 'runtimeErrorNotification',
                       'wasInterruptedNotification', 'interruptionEndedNotification',
                       'systemPressureState', 'level == .serious', 'captureDelegate?.cancel()']:
             self.assertIn(token, SOURCE)
@@ -66,23 +66,23 @@ class CameraSourceContracts(unittest.TestCase):
             self.assertIn(token, FRAMES)
         self.assertNotIn('Int(max(video.width, video.height)) <= previewLongEdge', SOURCE)
         self.assertNotIn('AVCaptureVideoPreviewLayer', SOURCE)
-        self.assertIn('previewReadiness.wait(timeout: .now() + 5)', SOURCE)
+        self.assertIn('previewReadiness.wait(timeout: .now() + 0.05)', SOURCE)
         self.assertIn('try waitForPreviewFrames()', SOURCE)
 
     def test_terminal_failure_finishes_pending_capture_once(self):
         failure = SOURCE.split('private func failSession(', 1)[1].split('private func installObservers', 1)[0]
         for token in ['dispatchPrecondition(condition: .onQueue(queue))', 'failed = true',
-                      'captureDelegate?.cancel(reason: message)', 'failureHandler?(message)']:
+                      'captureDelegate?.cancel(reason: message)', 'failureHandler?(message)',
+                      'finishPhoto(result, request: request)']:
             self.assertIn(token, failure)
-        observers = SOURCE.split('private func installObservers', 1)[1].split('func stop()', 1)[0]
+        observers = SOURCE.split('private func installObservers', 1)[1].split('private func tearDownGraph', 1)[0]
         self.assertEqual(observers.count('self.failSession('), 2)
         self.assertEqual(observers.count('self.session === observed'), 2)
         self.assertIn('stopRunning: true', observers)
-        finish = SOURCE.split('private func finish(_ value:', 1)[1]
-        self.assertLess(finish.index('completion = nil'), finish.index('callback?(value)'))
-        self.assertLess(finish.index('lock.unlock()'), finish.index('callback?(value)'))
-        self.assertIn('if self.captureID == requestID', SOURCE)
-        self.assertIn('captureDelegate = nil; captureID = nil', SOURCE)
+        finish = SOURCE.split('private func finishRequest(', 1)[1].split('private func failSession(', 1)[0]
+        self.assertLess(finish.index('request.completion = nil'), finish.index('callback(CaptureOutcome('))
+        self.assertIn('guard currentRequest === request', finish)
+        self.assertIn('currentRequest = nil; captureDelegate = nil', finish)
         controller_capture = SOURCE.split('func captureProRAW(', 1)[1].split('deinit', 1)[0]
         self.assertIn('DispatchQueue.main.async', controller_capture)
         self.assertIn('self.isCapturing = false', controller_capture)

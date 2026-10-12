@@ -79,7 +79,7 @@
 
 [拍摄/导出阶段记录](../validation/final-source-tests.txt)：43 项合并 Python/source-contract 测试通过（其中 Apple 代码仅静态契约，非编译）。新增 FFCS strip 数值回归：399 全图、6,326 分块、653,904 像素与完整路线逐值一致；21 个非法调用无输出修改。项目新 Swift 文件引用/标识符检查通过。完整原始源临时保留、64 行输出块、FFCS halo/global grain、磁盘 RGBAf、颜色后 Lanczos 与十位写入已实现源码。
 
-这些新增源码未在 Apple 平台编译运行；相机硬件、48MP/双路共存、实际条带行方向、HEIF 位流、磁盘/RSS/热状态、微信仍须设备测试。2048px 只限制默认导入预览，不限制全源输出。性能表仍是旧 HNCS 预览基准，不适用于完整新拍摄/导出链。
+这些新增源码未在 Apple 平台编译运行；相机硬件、双路预览与单摄48MP捕获切换、实际条带行方向、HEIF 位流、磁盘/RSS/热状态、微信仍须设备测试。2048px 只限制默认导入预览，不限制全源输出。性能表仍是旧 HNCS 预览基准，不适用于完整新拍摄/导出链。
 
 FFCS strip ASan+UBSan：19模式/760调用通过，见 `validation/ffcs_strip_sanitizer.txt`；LSan关闭。新增 `tests/apple_ci_strip_roundtrip.swift` 为未执行的 Apple 行方向诊断。
 
@@ -115,3 +115,9 @@ Float32原图/效果图→CoreImage/Metal RGBA16Float SDR源码已加入；软�
 这不是Apple GPU执行结果。CIshaper/插值、实际位深/颜色附件、源新鲜度、窗口切换、GPU失败回退、帧率和功耗均需设备验收；见 [实现边界](LIVE_COLOR_PROXY.md)。
 
 [最终合并运行](../validation/live-proxy-integration-tests.txt)：71项通过，其中18项新增实验取景源码契约；Apple运行时与编译仍未执行。源码审查同时修复了源帧过期、离窗调度、不可用drawable及旋转后旧GPU完成回调的回退问题。
+
+## 2026-10-12：双路预览 / 单摄高分辨率捕获切换
+
+MultiCam视频预览与普通.photo ProRAW图已分离；快门保留冻结图像并真正释放旧会话，再拍摄最高支持源并恢复预览。逐请求身份、同步取消令牌、终态照片成功保留、同镜头/FOV/方向/真实RAW尺寸验证、冻结渲染栅栏和显式关闭路径已纳入源码审查。最终99项测试通过（9.477秒），新增19项切换源码契约和9项状态规格测试。独立审查未发现剩余阻断项；源文件契约与状态模型测试记录见 `validation/capture-handoff-integration-tests.txt`。
+
+状态模型遍历100,000条短事件序列，只验证独立可执行规格，不等同Swift/AVFoundation执行。Apple编译、双摄→单摄切换延迟、实际48MP及预览/成片构图依然未验证。见 [会话切换](CAPTURE_SESSION_HANDOFF.md)。
