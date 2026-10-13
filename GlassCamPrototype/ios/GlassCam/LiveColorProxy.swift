@@ -16,6 +16,9 @@ struct LiveColorRecipe: Equatable {
     let exposureEV: Double
     let illuminantKelvin: Double
     let hncs: HNCSSettings
+    // Snapshot/cache identity includes the photo stage choices. The cube still
+    // renders color only and never bakes grain, sharpening or a geometric crop.
+    let effects: EffectToggles
     static let dimension = 65
     // A recipe/cache identity must change if an asset, engine or domain changes.
     let contract = "v2:hncs-revision8-legacy-identity-only/ffcs-xh2s:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"

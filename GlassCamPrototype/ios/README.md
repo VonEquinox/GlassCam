@@ -96,3 +96,7 @@ Native clear glass is confined to the natural area outside the maximal full-wind
 - 新预设没有实时cube误差批准，必须系统取景回退；Standard5500/6500原旧配方单独保留。
 
 C++/Python黄金及源码模型测试通过不意味着以上Apple SDK/设备项目已执行。
+
+## 三个独立开关验收
+
+编辑器和相机共用颗粒、锐化、预设额外裁切三个设置；默认true，切换preset/引擎与Reset均保留用户值。确认旧HNCS显式false与旧FFCS默认全开的迁移；关闭Square Crop后中心边界、比较与HEIF恢复源比例。无对应效果时开关可设置未来偏好，但不添加新处理。切换期间拍摄/关闭/晚到成功必须保留快门三项值。App recipe JSON已包含三项；未新增HEIF内嵌Exif配方。Apple编译与实际操作仍未执行。

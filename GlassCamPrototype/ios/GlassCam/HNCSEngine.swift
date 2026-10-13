@@ -41,15 +41,32 @@ struct HNCSSettings: Codable, Equatable, Sendable {
     // capture CCT or the preset's absolute target-camera white-balance gains.
     var factoryKelvinOverride: Double? = nil
     var applyToneCurve = true
-    var applyGrain = true
-    var applySharpness = true
     static let standard = HNCSSettings()
 
-    var crop: ImageCrop { presetKey == "square-crop" ? .centeredSquare : .none }
+    init() {}
+    private enum CodingKeys: String, CodingKey {
+        case renderRevision, presetKey, filmCurve, rawFilmCurveType, workingSpace, intent
+        case factoryKelvinOverride, applyToneCurve
+    }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        renderRevision = try values.decodeIfPresent(Int.self, forKey: .renderRevision) ?? Self.currentRenderRevision
+        presetKey = try values.decodeIfPresent(String.self, forKey: .presetKey) ?? "standard"
+        filmCurve = try values.decodeIfPresent(HNCSFilmCurve.self, forKey: .filmCurve) ?? .asShot
+        rawFilmCurveType = try values.decodeIfPresent(Int.self, forKey: .rawFilmCurveType) ?? 2
+        workingSpace = try values.decodeIfPresent(HNCSWorkingSpace.self, forKey: .workingSpace) ?? .legacy
+        intent = try values.decodeIfPresent(HNCSIntent.self, forKey: .intent) ?? .standard
+        factoryKelvinOverride = try values.decodeIfPresent(Double.self, forKey: .factoryKelvinOverride)
+        applyToneCurve = try values.decodeIfPresent(Bool.self, forKey: .applyToneCurve) ?? true
+    }
+
+    func crop(effects: EffectToggles) -> ImageCrop {
+        effects.applyExtraCrop && presetKey == "square-crop" ? .centeredSquare : .none
+    }
     var isLegacyLiveCompatible: Bool { self == .standard }
-    var requiresSpatial: Bool {
+    func requiresSpatial(effects: EffectToggles) -> Bool {
         guard presetKey != "standard", let flags = HNCSEngine.presets.first(where: { $0.id == presetKey })?.flags else { return false }
-        return (applyGrain && flags & 4 != 0) || (applySharpness && flags & (8 | 16) != 0)
+        return (effects.applyGrain && flags & 4 != 0) || (effects.applySharpness && flags & (8 | 16) != 0)
     }
     var presetTitle: String { HNCSEngine.presets.first { $0.id == presetKey }?.name ?? "Unavailable preset" }
     var isValid: Bool {
@@ -86,6 +103,7 @@ enum HNCSEngine {
         let exposure: Double
         let captureKelvin: Double
         let settings: HNCSSettings
+        let effects: EffectToggles
     }
 
     enum Error: LocalizedError {
@@ -128,9 +146,9 @@ enum HNCSEngine {
     private final class ContextCache: @unchecked Sendable {
         private let lock = NSLock()
         private var cached: ContextOwner?
-        func context(exposure: Double, kelvin: Double, settings: HNCSSettings) throws -> ContextOwner {
+        func context(exposure: Double, kelvin: Double, settings: HNCSSettings, effects: EffectToggles) throws -> ContextOwner {
             lock.lock(); defer { lock.unlock() }
-            let key = ContextKey(exposure: exposure, captureKelvin: kelvin, settings: settings)
+            let key = ContextKey(exposure: exposure, captureKelvin: kelvin, settings: settings, effects: effects)
             if let cached, cached.key == key { return cached }
             let owner = try ContextOwner(key: key)
             cached = owner
@@ -155,8 +173,8 @@ enum HNCSEngine {
 
     static func process(linearSRGB: [Float], width: Int, height: Int,
                         exposureEV: Double, illuminantKelvin: Double,
-                        settings: HNCSSettings = .standard, quality: Quality = .fastPreview) throws -> [UInt8] {
-        guard !settings.requiresSpatial else { throw Error.spatialRequiresFloat }
+                        settings: HNCSSettings = .standard, effects: EffectToggles = .standard, quality: Quality = .fastPreview) throws -> [UInt8] {
+        guard !settings.requiresSpatial(effects: effects) else { throw Error.spatialRequiresFloat }
         guard width > 0, height > 0, width <= Int.max / height else {
             throw Error.invalidDimensions
         }
@@ -164,7 +182,7 @@ enum HNCSEngine {
         guard count <= Int.max / 4, linearSRGB.count == count * 3 else {
             throw Error.invalidDimensions
         }
-        let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings)
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings, effects: effects)
         let context = owner.pointer
         defer { withExtendedLifetime(owner) {} }
         var rgba = [UInt8](repeating: 0, count: count * 4)
@@ -190,7 +208,7 @@ enum HNCSEngine {
     /// The HEIF encoder applies the output transfer function and quantization.
     static func exportLinearRGBA(linearSRGB: [Float], width: Int, height: Int,
                                  exposureEV: Double, illuminantKelvin: Double,
-                                 settings: HNCSSettings = .standard) throws -> [Float] {
+                                 settings: HNCSSettings = .standard, effects: EffectToggles = .standard) throws -> [Float] {
         guard width > 0, height > 0, width <= Int.max / height else {
             throw Error.invalidDimensions
         }
@@ -201,17 +219,17 @@ enum HNCSEngine {
               linearSRGB.count == count * 3 else {
             throw Error.invalidDimensions
         }
-        if settings.requiresSpatial {
+        if settings.requiresSpatial(effects: effects) {
             let work = try presetWork(linearSRGB: linearSRGB, width: width, height: height,
-                                      exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings)
+                                      exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects)
             let file = try HNCSPresetWorkFile(width: width, height: height)
             try file.writeBottomUpRows(work, originY: 0, rows: height)
-            try applySpatial(to: file, settings: settings, isCancelled: { Task.isCancelled })
+            try applySpatial(to: file, settings: settings, effects: effects, isCancelled: { Task.isCancelled })
             let adjusted = try file.readBottomUpRows(originY: 0, rows: height)
             return try finishPresetWork(adjusted, width: width, height: height,
-                                        exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings)
+                                        exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects)
         }
-        let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings)
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings, effects: effects)
         let context = owner.pointer
         defer { withExtendedLifetime(owner) {} }
         var rgba = [Float](repeating: 0, count: count * 4)
@@ -228,10 +246,10 @@ enum HNCSEngine {
     /// CI bottom-up row ordering is preserved here; the temporary-file owner
     /// performs the single row reversal required by the NumPy spatial reference.
     static func presetWork(linearSRGB: [Float], width: Int, height: Int,
-                           exposureEV: Double, captureKelvin: Double, settings: HNCSSettings) throws -> [Float] {
+                           exposureEV: Double, captureKelvin: Double, settings: HNCSSettings, effects: EffectToggles = .standard) throws -> [Float] {
         guard width > 0, height > 0, width <= Int.max / 16 / height,
               linearSRGB.count == width * height * 3 else { throw Error.invalidDimensions }
-        let owner = try contextCache.context(exposure: exposureEV, kelvin: captureKelvin, settings: settings)
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: captureKelvin, settings: settings, effects: effects)
         defer { withExtendedLifetime(owner) {} }
         var result = [Float](repeating: 0, count: width * height * 3)
         let status = linearSRGB.withUnsafeBufferPointer { source in
@@ -244,10 +262,10 @@ enum HNCSEngine {
     }
 
     static func finishPresetWork(_ work: [Float], width: Int, height: Int,
-                                 exposureEV: Double, captureKelvin: Double, settings: HNCSSettings) throws -> [Float] {
+                                 exposureEV: Double, captureKelvin: Double, settings: HNCSSettings, effects: EffectToggles = .standard) throws -> [Float] {
         guard width > 0, height > 0, width <= Int.max / 16 / height,
               work.count == width * height * 3 else { throw Error.invalidDimensions }
-        let owner = try contextCache.context(exposure: exposureEV, kelvin: captureKelvin, settings: settings)
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: captureKelvin, settings: settings, effects: effects)
         defer { withExtendedLifetime(owner) {} }
         var result = [Float](repeating: 0, count: width * height * 4)
         let status = work.withUnsafeBufferPointer { source in
@@ -264,7 +282,7 @@ enum HNCSEngine {
         init(_ isCancelled: @escaping () -> Bool) { self.isCancelled = isCancelled }
     }
 
-    static func applySpatial(to file: HNCSPresetWorkFile, settings: HNCSSettings,
+    static func applySpatial(to file: HNCSPresetWorkFile, settings: HNCSSettings, effects: EffectToggles = .standard,
                              isCancelled: @escaping () -> Bool) throws {
         try file.prepareForSpatialPass()
         if isCancelled() { throw CancellationError() }
@@ -274,7 +292,7 @@ enum HNCSEngine {
             settings.presetKey.withCString { key in
                 FileManager.default.temporaryDirectory.path.withCString { scratch in
                     hncs_apply_spatial_preset_file(path, file.width, file.height, key,
-                        settings.applyGrain ? 1 : 0, settings.applySharpness ? 1 : 0,
+                        effects.applyGrain ? 1 : 0, effects.applySharpness ? 1 : 0,
                         scratch, { context in
                             guard let context else { return 0 }
                             return Unmanaged<SpatialCancellation>.fromOpaque(context).takeUnretainedValue().isCancelled() ? 1 : 0

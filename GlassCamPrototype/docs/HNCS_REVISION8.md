@@ -24,7 +24,7 @@ Square Crop 对实际源尺寸取居中 min(width,height) 正方形；奇数剩�
 
 43个原始XML payload及已知别名均保留在后端catalog；UI展示29个有实际效果的预设（含Standard），不把原参考的无效果工具项伪装成处理模式。C ABI接受canonical/已列别名，并只剥离空格、tab、CR/LF；不会完整复刻Python对所有Unicode空白的str.strip。
 
-预设、film curve、tone 开关、源域虚拟 CCT、工厂 CCT/目标 WB、空间阶段设置均属于不可变处理配方。预览、导出和缓存不得分别读取不断变化的 UI 值。实验65³实时代理只继续接受已验证的原 Standard 配方，新增预设/目标 WB/空间参数不继承旧误差预算，退回系统取景。
+预设、film curve、tone 开关、源域虚拟 CCT、工厂 CCT/目标 WB、空间阶段设置均属于不可变处理配方。预览、导出和缓存不得分别读取不断变化的 UI 值。实验65³实时代理只继续接受已验证的原 Standard 配方，新增预设/目标WB等颜色参数不继承旧误差预算，退回系统取景。独立颗粒/锐化/预设裁切开关不向cube加入空间处理，完整身份仍进入缓存；见[三个开关](EFFECT_TOGGLES.md)。
 
 ## 空间阶段边界
 

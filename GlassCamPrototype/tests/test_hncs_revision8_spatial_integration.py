@@ -153,14 +153,14 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
     def test_preview_and_full_export_use_same_pointwise_spatial_final_sequence(self):
         engine = source('HNCSEngine.swift')
         preview = body(engine, 'static func exportLinearRGBA(')
-        self.assertOrdered(preview, 'if settings.requiresSpatial', 'presetWork(linearSRGB:',
+        self.assertOrdered(preview, 'if settings.requiresSpatial(effects: effects)', 'presetWork(linearSRGB:',
                            'HNCSPresetWorkFile(width: width, height: height)',
                            'writeBottomUpRows(work, originY: 0, rows: height)',
                            'applySpatial(to: file, settings: settings',
                            'readBottomUpRows(originY: 0, rows: height)',
                            'finishPresetWork(adjusted,')
         export = body(source('ImagePipeline.swift'), 'private static func exportFullSource(')
-        self.assertOrdered(export, 'recipe.hncs.requiresSpatial', 'HNCSPresetWorkFile(width: width, height: height)',
+        self.assertOrdered(export, 'recipe.hncs.requiresSpatial(effects: recipe.effects)', 'HNCSPresetWorkFile(width: width, height: height)',
                            'HNCSEngine.presetWork(', 'spatialWork.writeBottomUpRows(',
                            'HNCSEngine.applySpatial(to: spatialWork, settings: recipe.hncs',
                            'spatialWork.readBottomUpRows(', 'HNCSEngine.finishPresetWork(',
@@ -172,21 +172,21 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
 
     def test_spatial_flags_and_cancellation_cross_bridge_without_dropping_recipe(self):
         engine = source('HNCSEngine.swift')
-        gate = body(engine, 'var requiresSpatial: Bool')
+        gate = body(engine, 'func requiresSpatial(effects:')
         self.assertIn('presetKey != "standard"', gate)
-        self.assertIn('(applyGrain && flags & 4 != 0)', gate)
-        self.assertIn('(applySharpness && flags & (8 | 16) != 0)', gate)
+        self.assertIn('(effects.applyGrain && flags & 4 != 0)', gate)
+        self.assertIn('(effects.applySharpness && flags & (8 | 16) != 0)', gate)
         spatial = body(engine, 'static func applySpatial(')
         self.assertOrdered(spatial, 'file.prepareForSpatialPass()', 'if isCancelled()',
                            'Unmanaged.passUnretained(cancellation).toOpaque()',
                            'settings.presetKey.withCString', 'hncs_apply_spatial_preset_file(',
-                           'settings.applyGrain ? 1 : 0, settings.applySharpness ? 1 : 0',
+                           'effects.applyGrain ? 1 : 0, effects.applySharpness ? 1 : 0',
                            'withExtendedLifetime(cancellation)',
                            'if status == -3 || isCancelled() { throw CancellationError() }',
                            'guard status == 0')
         self.assertIn('takeUnretainedValue().isCancelled() ? 1 : 0', spatial)
         legacy = body(engine, 'static func process(')
-        self.assertIn('guard !settings.requiresSpatial else { throw Error.spatialRequiresFloat }', legacy)
+        self.assertIn('guard !settings.requiresSpatial(effects: effects) else { throw Error.spatialRequiresFloat }', legacy)
 
 
 if __name__ == '__main__':

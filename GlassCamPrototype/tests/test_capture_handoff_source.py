@@ -44,7 +44,7 @@ class CaptureHandoffViewContracts(unittest.TestCase):
         shutter = section(VIEW, "private func shutter(", "private struct CameraPaneGlass")
         self.assertIn("guard camera.isReady, !camera.isCapturing, coverageAvailable, let output = selectedOutput", shutter)
         self.assertLess(shutter.index("let export = ExportSettings"), shutter.index("camera.captureProRAW"))
-        self.assertIn("case .success(let data): onCapture(data, export)", shutter)
+        self.assertIn("case .success(let data): onCapture(data, export, capturedRecipe)", shutter)
         self.assertIn(".onDisappear { camera.stop() }", VIEW)
         self.assertIn("if phase == .background { camera.stop() }", VIEW)
 
@@ -57,7 +57,7 @@ class CaptureHandoffViewContracts(unittest.TestCase):
         self.assertIn('"Stop capture and open editor"', VIEW)
         self.assertIn('Button(action: closeCamera)', VIEW)
         shutter = section(VIEW, "private func shutter(", "private struct CameraPaneGlass")
-        self.assertIn("case .success(let data): onCapture(data, export)", shutter)
+        self.assertIn("case .success(let data): onCapture(data, export, capturedRecipe)", shutter)
         self.assertIn("if !isClosing { captureError = error.localizedDescription }", shutter)
         self.assertIn(".disabled(camera.isCapturing || camera.isConfiguring)", VIEW)
 

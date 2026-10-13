@@ -1,6 +1,6 @@
 # 测试与性能状态
 
-更新：2026-10-13。当前最新整合为183/183项通过，HNCS revision8真实曲线/WB/crop/便携空间路径与迟到捕获恢复已完成；独立源码审查无剩余阻断项，Apple编译/设备验收仍未执行。以下保留各历史阶段证据，旧计数不是当前总数。
+更新：2026-10-13。当前最新整合为216/216项通过，三个独立效果开关、旧配方迁移及HNCS/FFCS阶段旁路已完成；独立源码审查无剩余阻断项，Apple编译/设备验收仍未执行。以下保留各历史阶段证据，旧计数不是当前总数。
 
 早期保存/分享合并运行 [43 项测试通过，26.105s](../validation/final-source-tests.txt)，随后精确 Float 并行集成 [43 项通过，19.088s](../validation/performance-integration-tests.txt)，包含保存/分享、显式跨队列取消 token、render 完成竞态 guard 与已解码源 Retry 的源码契约。Apple 代码仍只做静态验证。
 
@@ -135,3 +135,9 @@ MultiCam视频预览与普通.photo ProRAW图已分离；快门保留冻结图�
 新增真实六张UInt16后曲线、film解析、完整目标WB的实验源桥、方形裁切和全图portable grain/USM。核心278,528有效native像素及20,134,896逐点通道均0差，旧52组黄金与默认5500/6500路径不变。空间324案例/114,980,382Float32通道逐位一致；RNG32,000,096double及cast一致。ASan/UBSan通过，LSan不可用。细目、环境版本与证据链接见[revision8](HNCS_REVISION8.md)。
 
 最终整合183/183通过（9.688秒），包含原122项与新增61项；38个生产/构建/生成源文件测试前后hash一致。日志与快照见 `validation/hncs-revision8-integration-tests.txt`、`validation/hncs-revision8-source-hashes.json`。覆盖完整快门配方、迟到成功不抢占新导入/导出或关闭新相机、单槽临时保留与失败恢复。C++三编译单元联合smoke通过。此证据不代表Apple编译或硬件验收。
+
+## 2026-10-13：独立锐化、颗粒与预设额外裁切
+
+最终216/216通过（26.287秒），保留全部183个既有测试ID，新增33项；212个源码/资源/黄金文件测试前后SHA-256一致。证据：`validation/effect-toggles-regression.txt`、`validation/effect-toggles-regression-manifest.json`。覆盖八组合、多preset、旧HNCS/FFCS迁移、共享持久化、快门/待打开照片/导出快照、缓存、裁切开关几何与空间旁路。
+
+实际C++ HNCS组合80案例UInt16精确、display Float最大误差2.9782e-8；FFCS19×4状态、1,140全图、13,224条带、380阶段案例逐位一致，修改前默认字节不变。ASan/UBSan通过，LSan受ptrace限制不可用。独立源码审查无阻断。详见[开关合同与证据](EFFECT_TOGGLES.md)。旧recipe迁移仍是便携模型/源码测试，Apple JSONDecoder/SwiftUI/设备尚未执行；HEIF未新增内嵌配方元数据。

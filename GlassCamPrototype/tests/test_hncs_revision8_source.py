@@ -1,7 +1,7 @@
 """Revision-8 integration dataflow/ownership contracts, not a Swift compilation.
 
 Checks are scoped to declarations and method bodies, including equality and
-Codable synthesis, cache keys, frozen recipes, ordered fail-closed transitions,
+Codable migration, cache keys, frozen recipes, ordered fail-closed transitions,
 and common crop coordinates. Executable reference and geometry tests are kept
 separately; Apple SDK/device testing remains required.
 """
@@ -68,22 +68,26 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertRegex(self.engine, r'struct HNCSSettings:\s*Codable,\s*Equatable,\s*Sendable')
         members = stored_members(self.engine, 'struct HNCSSettings:')
         expected = {'renderRevision', 'presetKey', 'filmCurve', 'rawFilmCurveType',
-                    'workingSpace', 'intent', 'factoryKelvinOverride', 'applyToneCurve',
-                    'applyGrain', 'applySharpness'}
+                    'workingSpace', 'intent', 'factoryKelvinOverride', 'applyToneCurve'}
         self.assertEqual(set(members), expected)
         settings = body(self.engine, 'struct HNCSSettings:')
-        # Synthesized Codable/equality must include all stored fields. A partial
-        # manual implementation or CodingKeys would break cache/persistence identity.
-        for manual in ['CodingKeys', 'func ==', 'func encode(', 'init(from:']:
-            self.assertNotIn(manual, settings)
+        # HNCS fields now have explicit backward-compatible decoding, while
+        # synthesized equality and encoding still cover the complete payload.
+        coding_keys = body(settings, 'private enum CodingKeys:')
+        for field in expected:
+            self.assertRegex(coding_keys, r'\b' + field + r'\b')
+            self.assertIn('forKey: .' + field, body(settings, 'init(from decoder:'))
+        self.assertNotIn('func ==', settings)
+        self.assertNotIn('func encode(', settings)
         self.assertEqual(members['presetKey'][2], '"standard"')
         self.assertEqual(members['filmCurve'][2], '.asShot')
         self.assertEqual(members['rawFilmCurveType'][2], '2')
         self.assertEqual(members['factoryKelvinOverride'][2], 'nil')
         recipe = stored_members(self.pipeline, 'struct ProcessingRecipe:')
-        self.assertEqual(set(recipe), {'mode', 'exposureEV', 'illuminantKelvin', 'simulationIndex', 'seed', 'hncs'})
+        self.assertEqual(set(recipe), {'mode', 'exposureEV', 'illuminantKelvin', 'simulationIndex', 'seed', 'hncs', 'effects'})
         self.assertTrue(all(member[0] == 'let' for member in recipe.values()))
         self.assertEqual(recipe['hncs'][1], 'HNCSSettings')
+        self.assertEqual(recipe['effects'][1], 'EffectToggles')
         self.assertRegex(self.pipeline, r'struct ProcessingRecipe:\s*Codable,\s*Equatable,\s*Sendable')
 
     def test_settings_restore_as_one_validated_recipe_and_all_controls_persist(self):
@@ -91,9 +95,9 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertOrdered(init, 'defaults.data(forKey: Self.recipeKey)',
                            'JSONDecoder().decode(ProcessingRecipe.self, from: data)',
                            'saved.isValid', 'colorMode = saved.mode')
-        assignments = dict(re.findall(r'(colorMode|simulationIndex|exposure|kelvin|hncs)\s*=\s*saved\.(\w+)', init))
+        assignments = dict(re.findall(r'(colorMode|simulationIndex|exposure|kelvin|hncs|effects)\s*=\s*saved\.(\w+)', init))
         self.assertEqual(assignments, {'colorMode': 'mode', 'simulationIndex': 'simulationIndex',
-                                      'exposure': 'exposureEV', 'kelvin': 'illuminantKelvin', 'hncs': 'hncs'})
+                                      'exposure': 'exposureEV', 'kelvin': 'illuminantKelvin', 'hncs': 'hncs', 'effects': 'effects'})
         for control in assignments:
             self.assertRegex(self.content, r'@Published var ' + control + r'[^\n]*\{ didSet \{ persistRecipe\(\) \} \}')
         persist = body(self.content, 'private func persistRecipe()')
@@ -108,15 +112,15 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
     def test_context_cache_matches_complete_settings_and_retains_inflight_owner(self):
         members = stored_members(self.engine, 'private struct ContextKey:')
         self.assertEqual({key: value[1] for key, value in members.items()},
-                         {'exposure': 'Double', 'captureKelvin': 'Double', 'settings': 'HNCSSettings'})
+                         {'exposure': 'Double', 'captureKelvin': 'Double', 'settings': 'HNCSSettings', 'effects': 'EffectToggles'})
         cache = body(self.engine, 'private final class ContextCache:')
         self.assertOrdered(cache, 'lock.lock()',
-                           'ContextKey(exposure: exposure, captureKelvin: kelvin, settings: settings)',
+                           'ContextKey(exposure: exposure, captureKelvin: kelvin, settings: settings, effects: effects)',
                            'cached.key == key', 'ContextOwner(key: key)', 'cached = owner')
         self.assertNotRegex(cache, r'cached\.(?:exposure|kelvin)\s*==')
         for signature in ['static func process(', 'static func exportLinearRGBA(']:
             method = body(self.engine, signature)
-            self.assertOrdered(method, 'contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings)',
+            self.assertOrdered(method, 'contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings, effects: effects)',
                                'let context = owner.pointer', 'withExtendedLifetime(owner)', 'withUnsafeBufferPointer')
         self.assertIn('deinit { hncs_destroy(pointer) }', self.engine)
 
@@ -254,7 +258,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
                            'let result = try crop.resolve(width: width, height: height)',
                            'return (result.width, result.height)')
         recipe_crop = body(self.pipeline, 'var crop: ImageCrop')
-        self.assertEqual(compact(recipe_crop), 'mode == .hncs ? hncs.crop : .none')
+        self.assertEqual(compact(recipe_crop), 'mode == .hncs ? hncs.crop(effects: effects) : .none')
 
     def test_camera_square_frame_clips_unstretched_source_and_preserves_peripheral_fov(self):
         framing = body(self.framing, 'init(size:')
@@ -272,7 +276,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertEqual(center.count('.frame(width: framing.photo.width, height: framing.photo.height)'), 2)
         self.assertEqual(center.count('.clipped()'), 2)
         self.assertNotIn('.resizeAspectFill', center)
-        self.assertIn('cropToSquare: colorMode == .hncs && hncs.crop == .centeredSquare', self.view)
+        self.assertIn('cropToSquare: colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare', self.view)
 
 
 if __name__ == '__main__':

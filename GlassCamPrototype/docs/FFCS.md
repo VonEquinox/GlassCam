@@ -49,3 +49,7 @@ Git 复用研究分支已经存在的 ZIP blob；没有再上传一份不同内�
 ## 未验证
 
 Apple 编译、实际照片审美、ProRAW、HEIF bitstream、微信兼容、手机性能/内存/热稳定仍未执行。黄金测试验证恢复的研究算法，不验证真实 Fujifilm 相机等价性。导入效果预览默认最长边 2048px；全源导出与原生相机源码已在后续阶段加入，见 [全源导出](FULL_RESOLUTION_EXPORT.md) 和 [相机能力](camera-capture.md)，仍须 Apple 环境验证。
+
+## 独立颗粒/锐化开关
+
+新增`ffcs_create_options`以严格0/1参数创建不可变grain/sharpen设置；旧`ffcs_create`等价于两者开启，原look系数不改。reference、完整图、优化图与strip路径都跳过关闭的阶段；两者关闭与独立color-only输出一致。此锐化为交付的3×3邻域参考算法，不冒称HNCS的Gaussian USM。FFCS无preset额外裁切，开关不能创造一项不存在的效果。Swift上下文缓存含共享完整开关身份，实时cube继续只含颜色。

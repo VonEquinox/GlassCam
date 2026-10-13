@@ -11,6 +11,7 @@ struct CameraView: View {
     @Binding var exposureEV: Double
     @Binding var illuminantKelvin: Double
     @Binding var hncs: HNCSSettings
+    @Binding var effects: EffectToggles
     let thumbnail: PreviewRaster?
     let captureSlotAvailable: Bool
     let reserveCapture: () -> Bool
@@ -34,7 +35,7 @@ struct CameraView: View {
         GeometryReader { proxy in
             let framing = CameraFraming(size: proxy.size,
                                         photoAspectRatio: camera.geometry?.photoAspectRatio ?? 1,
-                                        cropToSquare: colorMode == .hncs && hncs.crop == .centeredSquare,
+                                        cropToSquare: colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare,
                                         centerHorizontalFieldOfView: camera.geometry?.centerHorizontalFieldOfView,
                                         peripheralHorizontalFieldOfView: camera.geometry?.peripheralHorizontalFieldOfView,
                                         peripheralAspectRatio: orientedPeripheralAspectRatio)
@@ -305,7 +306,7 @@ struct CameraView: View {
     }
 
     private var photoAspectLabel: String {
-        if colorMode == .hncs && hncs.crop == .centeredSquare { return "1:1 crop" }
+        if colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare { return "1:1 crop" }
         guard let size = camera.geometry?.sensorPhotoDimensions,
               size.width > 0, size.height > 0 else { return "—" }
         let long = Int(max(size.width, size.height))
@@ -369,7 +370,7 @@ struct CameraView: View {
     private var liveRecipe: LiveColorRecipe {
         LiveColorRecipe(mode: colorMode, simulationIndex: colorMode == .ffcs ? simulationIndex : 0,
                         exposureEV: exposureEV, illuminantKelvin: colorMode == .hncs ? illuminantKelvin : 5500,
-                        hncs: colorMode == .hncs ? hncs : .standard)
+                        hncs: colorMode == .hncs ? hncs : .standard, effects: effects)
     }
 
     private func cameraPanel(_ panel: CameraPanel, framing: CameraFraming) -> some View {
@@ -397,7 +398,7 @@ struct CameraView: View {
                     }
                     Toggle("Composition grid", isOn: $gridVisible)
                     LabeledContent("Photo aspect", value: photoAspectLabel)
-                    if colorMode == .hncs && hncs.crop == .centeredSquare {
+                    if colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare {
                         Text("Output choices below describe the full sensor. The square export keeps its center at the same pixel scale; no upsampling.")
                             .font(.footnote).foregroundStyle(.secondary)
                     }
@@ -440,6 +441,7 @@ struct CameraView: View {
                         Text("Synthetic baseline for Apple-decoded RGB, not measured camera WB. Preset target gains are resolved separately.")
                             .font(.footnote).foregroundStyle(.secondary)
                     }
+                    EffectToggleControls(effects: $effects, mode: colorMode, hncs: hncs)
                     Button("Reset effect adjustments") {
                         exposureEV = 0
                         if colorMode == .hncs { illuminantKelvin = 6500; hncs = .standard }
@@ -579,7 +581,7 @@ struct CameraView: View {
             let export = ExportSettings(targetWidth: portrait ? output.height : output.width,
                                         targetHeight: portrait ? output.width : output.height)
             let capturedRecipe = ProcessingRecipe(mode: colorMode, exposureEV: exposureEV,
-                illuminantKelvin: illuminantKelvin, simulationIndex: simulationIndex, seed: 0, hncs: hncs)
+                illuminantKelvin: illuminantKelvin, simulationIndex: simulationIndex, seed: 0, hncs: hncs, effects: effects)
             guard reserveCapture() else { return }
             camera.captureProRAW { [capturedRecipe, export] result in
                 switch result {

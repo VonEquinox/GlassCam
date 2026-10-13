@@ -57,3 +57,7 @@ HNCS 上下文预计算与精确解码表不改变核；fast 路径只在最终 
 原图与效果图均由 Float32 PreviewRaster 保持，单个 Metal-backed CIContext 做比较合成，最终 RGBA16Float SDR drawable。没有8位UIImage中间结果；半精度仅显示存储，CPU原核精度不变。实时视频当前独立为8bit YUV并在UI显示实际格式。详见 [高精度预览](HIGH_PRECISION_PREVIEW.md)。
 
 方案A仅实现参考布局和系统clear玻璃，不增加接缝shader、边缘复制或拉伸。两镜头基础FOV映射保持；视觉/成本验收后是否做B须另行批准。详见 [方案A](CLEAR_GLASS_UI.md)。
+
+## 独立效果开关
+
+ProcessingRecipe含共享EffectToggles，grain/sharp/preset-extra-crop默认true。模式/preset/reset不覆盖用户开关；HNCS和FFCS按原stage参数旁路，FFCS没有crop。开关参与快门、迟到成功保留、导出、缓存和持久化JSON；裁切关闭恢复选定源比例，before/after与HEIF同源几何。旧配方按当前引擎保真迁移，详细边界见[开关合同](EFFECT_TOGGLES.md)。

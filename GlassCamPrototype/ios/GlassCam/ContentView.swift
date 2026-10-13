@@ -52,6 +52,7 @@ final class EditorModel: ObservableObject {
     @Published var exposure = 0.0 { didSet { persistRecipe() } }
     @Published var kelvin = 6500.0 { didSet { persistRecipe() } }
     @Published var hncs = HNCSSettings.standard { didSet { persistRecipe() } }
+    @Published var effects = EffectToggles.standard { didSet { persistRecipe() } }
     private let defaults: UserDefaults
     private static let recipeKey = "editor.processingRecipe.revision8.v1"
 
@@ -61,7 +62,10 @@ final class EditorModel: ObservableObject {
            let saved = try? JSONDecoder().decode(ProcessingRecipe.self, from: data), saved.isValid {
             colorMode = saved.mode; simulationIndex = saved.simulationIndex
             exposure = saved.exposureEV; kelvin = saved.illuminantKelvin; hncs = saved.hncs
+            effects = saved.effects
         }
+        // Normalize migrated legacy switches once every property is initialized.
+        persistRecipe()
     }
 
     private func persistRecipe() {
@@ -82,7 +86,7 @@ final class EditorModel: ObservableObject {
 
     private var recipe: ProcessingRecipe {
         ProcessingRecipe(mode: colorMode, exposureEV: exposure, illuminantKelvin: kelvin,
-                         simulationIndex: simulationIndex, seed: 0, hncs: hncs)
+                         simulationIndex: simulationIndex, seed: 0, hncs: hncs, effects: effects)
     }
 
     @Published var canCancelImageWork = false
@@ -173,6 +177,7 @@ final class EditorModel: ObservableObject {
     private func adoptRecipeSnapshot(_ snapshot: ProcessingRecipe) {
         colorMode = snapshot.mode; simulationIndex = snapshot.simulationIndex
         exposure = snapshot.exposureEV; kelvin = snapshot.illuminantKelvin; hncs = snapshot.hncs
+        effects = snapshot.effects
     }
 
     /// The token guards every suspension point: an older provider transfer or decode
@@ -440,6 +445,9 @@ struct ContentView: View {
         .onChange(of: model.hncs) { _, _ in
             if !cameraPresented { Task { await model.render() } }
         }
+        .onChange(of: model.effects) { _, _ in
+            if !cameraPresented { Task { await model.render() } }
+        }
         .fullScreenCover(isPresented: $cameraPresented, onDismiss: {
             // Camera controls may change the selected recipe even without a shot.
             // Restore editor control/preview coherence after returning.
@@ -447,7 +455,7 @@ struct ContentView: View {
         }) {
             let sessionTicket = cameraTicket
             CameraView(colorMode: $model.colorMode, simulationIndex: $model.simulationIndex,
-                       exposureEV: $model.exposure, illuminantKelvin: $model.kelvin, hncs: $model.hncs,
+                       exposureEV: $model.exposure, illuminantKelvin: $model.kelvin, hncs: $model.hncs, effects: $model.effects,
                        thumbnail: model.processed?.image ?? model.imported?.original,
                        captureSlotAvailable: model.captureSlotAvailable,
                        reserveCapture: { model.reserveCaptureDelivery(ticket: sessionTicket) },
@@ -574,6 +582,7 @@ struct ContentView: View {
                     if !editing { Task { await model.render() } }
                 }.accessibilityLabel("Virtual capture correlated color temperature")
             }
+            EffectToggleControls(effects: $model.effects, mode: model.colorMode, hncs: model.hncs)
             Button(model.colorMode == .hncs ? "Reset HNCS effect" : "Reset exposure to 0 EV") {
                 model.exposure = 0
                 if model.colorMode == .hncs { model.kelvin = 6500; model.hncs = .standard }
@@ -586,7 +595,6 @@ struct ContentView: View {
 /// Both editor and camera edit the same persisted, immutable-on-render recipe.
 struct HNCSPresetControls: View {
     @Binding var settings: HNCSSettings
-    private var selectedPreset: HNCSEngine.Preset? { HNCSEngine.presets.first { $0.id == settings.presetKey } }
 
     var body: some View {
         Picker("Phocus preset", selection: $settings.presetKey) {
@@ -602,14 +610,6 @@ struct HNCSPresetControls: View {
             ForEach(HNCSIntent.allCases) { intent in Text(intent.title).tag(intent) }
         }
         Toggle("Preset tone curve", isOn: $settings.applyToneCurve)
-        Toggle("Preset grain (portable)", isOn: $settings.applyGrain)
-            .disabled((selectedPreset?.flags ?? 0) & 4 == 0)
-        Toggle("Preset sharpening (portable)", isOn: $settings.applySharpness)
-            .disabled(settings.presetKey == "standard" || (selectedPreset?.flags ?? 0) & (8 | 16) == 0)
-        if settings.presetKey == "standard" {
-            Text("Standard preserves the unadjusted core render and bypasses preset grain and sharpening.")
-                .font(.caption).foregroundStyle(.secondary)
-        }
         Toggle("Override factory CCT", isOn: Binding(
             get: { settings.factoryKelvinOverride != nil },
             set: { settings.factoryKelvinOverride = $0 ? 6500 : nil }))
@@ -622,13 +622,58 @@ struct HNCSPresetControls: View {
             .font(.caption).foregroundStyle(.secondary)
         Text("As Shot uses Standard because Apple inputs have no Phocus curve metadata. Standard, Low and High share the recovered V1 family; Old Standard is distinct only in legacy space. Reproduction uses the pure curve. Grain and sharpening follow the portable reference, not proprietary Phocus kernels.")
             .font(.caption).foregroundStyle(.secondary)
-        if (selectedPreset?.flags ?? 0) & 4 != 0 && settings.applyGrain {
-            Text("Grain uses image dimensions and whole-image statistics. Its preview pattern can differ from the full-source export, even with the same recipe.")
+    }
+}
+
+/// Shared gates remain editable even when a look has no matching stage. Their
+/// saved state survives preset/mode changes; only source-defined stages run.
+struct EffectToggleControls: View {
+    @Binding var effects: EffectToggles
+    let mode: ColorMode
+    let hncs: HNCSSettings
+    private var presetFlags: UInt32 {
+        HNCSEngine.presets.first { $0.id == hncs.presetKey }?.flags ?? 0
+    }
+
+    var body: some View {
+        Toggle("Preset USM / sharpening", isOn: $effects.applySharpness)
+            .accessibilityIdentifier("effects.sharpening")
+        Toggle("Preset grain", isOn: $effects.applyGrain)
+            .accessibilityIdentifier("effects.grain")
+        Toggle("Preset extra crop", isOn: $effects.applyExtraCrop)
+            .accessibilityIdentifier("effects.extraCrop")
+        Text("Each switch uses only the current preset's parameters. Your choices stay saved when you change presets or engines.")
+            .font(.caption).foregroundStyle(.secondary)
+        if mode == .ffcs {
+            Text("FFCS uses its reference 3×3 sharpening filter, not HNCS USM. These simulations have no extra-crop stage; this crop choice stays saved for HNCS.")
                 .font(.caption).foregroundStyle(.secondary)
-        }
-        if settings.crop == .centeredSquare {
-            Text("Centered 1:1 crop. Output keeps genuine pixels; its megapixel count is lower than the full-sensor selection.")
-                .font(.caption).foregroundStyle(.secondary)
+        } else {
+            if hncs.presetKey == "standard" {
+                Text("Standard bypasses preset grain and sharpening. Enabling either switch adds no effect to this preset.")
+                    .font(.caption).foregroundStyle(.secondary)
+            } else {
+                if presetFlags & 4 == 0 {
+                    Text("This HNCS preset has no grain stage.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                if presetFlags & (8 | 16) == 0 {
+                    Text("This HNCS preset has no sharpening stage.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            if presetFlags & 4 != 0 && effects.applyGrain {
+                Text("Grain uses image dimensions and whole-image statistics. Its preview pattern can differ from the full-source export, even with the same recipe.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            if hncs.presetKey == "square-crop" {
+                Text(effects.applyExtraCrop
+                     ? "Centered 1:1 crop. Output keeps genuine pixels; its megapixel count is lower than the full-sensor selection."
+                     : "Extra crop is off. The full source aspect and selected sensor output are preserved.")
+                    .font(.caption).foregroundStyle(.secondary)
+            } else {
+                Text("This HNCS preset has no extra crop.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
         }
     }
 }

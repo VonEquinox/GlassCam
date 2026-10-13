@@ -1,5 +1,5 @@
 // Test-only access to the original stage runner and private copied contexts.
-// Production users include ffcs_c.h and cannot turn off full-photo effects.
+// Production users include ffcs_c.h and select immutable effect options.
 #include "../core/ffcs.cpp"
 #include <iostream>
 #include <memory>

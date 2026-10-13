@@ -35,10 +35,12 @@ enum FFCSEngine {
         let pointer: OpaquePointer
         let directory: String
         let simulationIndex: Int
-        init(pointer: OpaquePointer, directory: String, simulationIndex: Int) {
+        let effects: EffectToggles
+        init(pointer: OpaquePointer, directory: String, simulationIndex: Int, effects: EffectToggles) {
             self.pointer = pointer
             self.directory = directory
             self.simulationIndex = simulationIndex
+            self.effects = effects
         }
         deinit { ffcs_destroy(pointer) }
     }
@@ -47,20 +49,21 @@ enum FFCSEngine {
         private let lock = NSLock()
         private var cached: ContextOwner?
 
-        func context(directory: URL, simulationIndex: Int) throws -> ContextOwner {
+        func context(directory: URL, simulationIndex: Int, effects: EffectToggles) throws -> ContextOwner {
             lock.lock()
             defer { lock.unlock() }
             if let cached, cached.directory == directory.path,
-               cached.simulationIndex == simulationIndex { return cached }
+               cached.simulationIndex == simulationIndex, cached.effects == effects { return cached }
             var message = [CChar](repeating: 0, count: 1024)
             let pointer = directory.path.withCString { path in
                 message.withUnsafeMutableBufferPointer { error in
-                    ffcs_create(path, simulationIndex, error.baseAddress, error.count)
+                    ffcs_create_options(path, simulationIndex, effects.applyGrain ? 1 : 0,
+                                        effects.applySharpness ? 1 : 0, error.baseAddress, error.count)
                 }
             }
             guard let pointer else { throw Error.backend(String(cString: message)) }
             let owner = ContextOwner(pointer: pointer, directory: directory.path,
-                                     simulationIndex: simulationIndex)
+                                     simulationIndex: simulationIndex, effects: effects)
             cached = owner
             return owner
         }
@@ -72,17 +75,17 @@ enum FFCSEngine {
     private static let workerCount: UInt32 = 1
 
     static func process(linearSRGB: [Float], width: Int, height: Int,
-                        exposureEV: Double, simulationIndex: Int, seed: UInt32) throws -> [UInt8] {
+                        exposureEV: Double, simulationIndex: Int, seed: UInt32, effects: EffectToggles = .standard) throws -> [UInt8] {
         try render(linearSRGB: linearSRGB, width: width, height: height,
                    exposureEV: exposureEV, simulationIndex: simulationIndex,
-                   seed: seed, includePreview: true).preview
+                   seed: seed, effects: effects, includePreview: true).preview
     }
 
     static func exportLinearRGBA(linearSRGB: [Float], width: Int, height: Int,
-                                 exposureEV: Double, simulationIndex: Int, seed: UInt32) throws -> [Float] {
+                                 exposureEV: Double, simulationIndex: Int, seed: UInt32, effects: EffectToggles = .standard) throws -> [Float] {
         let result = try render(linearSRGB: linearSRGB, width: width, height: height,
                                 exposureEV: exposureEV, simulationIndex: simulationIndex,
-                                seed: seed, includePreview: false)
+                                seed: seed, effects: effects, includePreview: false)
         // Expand the backend's packed Float32 RGB without an 8-bit intermediate.
         let count = width * height
         var rgba = [Float](repeating: 1, count: count * 4)
@@ -102,7 +105,7 @@ enum FFCSEngine {
                                       inputOriginY: Int, inputRows: Int,
                                       outputOriginY: Int, outputRows: Int,
                                       exposureEV: Double, simulationIndex: Int,
-                                      seed: UInt32) throws -> [Float] {
+                                      seed: UInt32, effects: EffectToggles = .standard) throws -> [Float] {
         guard fullWidth > 0, fullHeight > 0, fullWidth <= 100_000, fullHeight <= 100_000,
               fullWidth <= Int.max / fullHeight,
               inputOriginY >= 0, inputOriginY < fullHeight,
@@ -126,7 +129,7 @@ enum FFCSEngine {
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory),
               isDirectory.boolValue else { throw Error.missingResources }
-        let context = try contextCache.context(directory: directory, simulationIndex: simulationIndex)
+        let context = try contextCache.context(directory: directory, simulationIndex: simulationIndex, effects: effects)
         var output = [Float](repeating: 0, count: fullWidth * outputRows * 3)
         var message = [CChar](repeating: 0, count: 1024)
         let status = withExtendedLifetime(context) {
@@ -147,7 +150,7 @@ enum FFCSEngine {
 
     private static func render(linearSRGB: [Float], width: Int, height: Int,
                                exposureEV: Double, simulationIndex: Int, seed: UInt32,
-                               includePreview: Bool) throws -> (linearRGB: [Float], preview: [UInt8]) {
+                               effects: EffectToggles, includePreview: Bool) throws -> (linearRGB: [Float], preview: [UInt8]) {
         guard width > 0, height > 0, width <= Int.max / height,
               exposureEV.isFinite, Float(exposureEV).isFinite,
               simulationIndex >= 0, simulationIndex < Int(ffcs_simulation_count()) else {
@@ -162,7 +165,7 @@ enum FFCSEngine {
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory),
               isDirectory.boolValue else { throw Error.missingResources }
-        let context = try contextCache.context(directory: directory, simulationIndex: simulationIndex)
+        let context = try contextCache.context(directory: directory, simulationIndex: simulationIndex, effects: effects)
         var message = [CChar](repeating: 0, count: 1024)
         // Each call requests just one output. Preview never allocates an unused
         // full-image Float32 buffer; export never allocates a byte preview.

@@ -16,10 +16,10 @@ from test_hncs_revision8_source import body, compact, source
 def square_recipe():
     return {'mode': 'hncs', 'exposureEV': .5, 'illuminantKelvin': 6500,
             'simulationIndex': 3, 'seed': 0,
-            'hncs': {'renderRevision': 8, 'presetKey': 'square-crop', 'filmCurve': 'linear',
+            'hncs': {'renderRevision': 8, 'presetKey': 'square-crop', 'filmCurve': 7,
                      'rawFilmCurveType': 2, 'workingSpace': 'lstar', 'intent': 'standard',
-                     'factoryKelvinOverride': 4500, 'applyToneCurve': False,
-                     'applyGrain': True, 'applySharpness': False}}
+                     'factoryKelvinOverride': 4500, 'applyToneCurve': False},
+            'effects': {'applyGrain': True, 'applySharpness': False, 'applyExtraCrop': True}}
 
 
 @dataclass
@@ -83,10 +83,10 @@ class LateCaptureRecipeModelTests(unittest.TestCase):
         editor.controls['exposureEV'] = -2
         editor.controls['illuminantKelvin'] = 2850
         editor.controls['simulationIndex'] = 12
-        editor.controls['hncs'].update(presetKey='standard', filmCurve='oldStandard',
+        editor.controls['hncs'].update(presetKey='standard', filmCurve=0,
                                        workingSpace='legacy', intent='reproduction',
-                                       factoryKelvinOverride=None, applyToneCurve=True,
-                                       applyGrain=False, applySharpness=True)
+                                       factoryKelvinOverride=None, applyToneCurve=True)
+        editor.controls['effects'].update(applyGrain=False, applySharpness=True, applyExtraCrop=False)
         # A terminal success may be delivered after Close and these editor changes.
         operation = editor.begin_import(explicit_recipe=captured)
         self.assertEqual(editor.controls, captured)
@@ -169,10 +169,10 @@ class LateCaptureRecipeSourceContracts(unittest.TestCase):
                            'camera.captureProRAW { [capturedRecipe, export] result in',
                            'case .success(let data): onCapture(data, export, capturedRecipe)')
         snapshot = compact(shutter.split('let capturedRecipe = ProcessingRecipe(', 1)[1].split('camera.captureProRAW', 1)[0])
-        fields = dict(re.findall(r'(mode|exposureEV|illuminantKelvin|simulationIndex|seed|hncs):\s*(\w+)', snapshot))
+        fields = dict(re.findall(r'(mode|exposureEV|illuminantKelvin|simulationIndex|seed|hncs|effects):\s*(\w+)', snapshot))
         self.assertEqual(fields, {'mode': 'colorMode', 'exposureEV': 'exposureEV',
                                   'illuminantKelvin': 'illuminantKelvin',
-                                  'simulationIndex': 'simulationIndex', 'seed': '0', 'hncs': 'hncs'})
+                                  'simulationIndex': 'simulationIndex', 'seed': '0', 'hncs': 'hncs', 'effects': 'effects'})
         callback = body(shutter, 'camera.captureProRAW')
         self.assertNotIn('ProcessingRecipe(', callback)
         self.assertNotIn('selectedOutput', callback)
@@ -209,9 +209,9 @@ class LateCaptureRecipeSourceContracts(unittest.TestCase):
                            'if explicitRecipe != nil { adoptRecipeSnapshot(settings) }',
                            'importTask = Task')
         adopted = body(content, 'private func adoptRecipeSnapshot(')
-        assignments = dict(re.findall(r'(colorMode|simulationIndex|exposure|kelvin|hncs)\s*=\s*snapshot\.(\w+)', adopted))
+        assignments = dict(re.findall(r'(colorMode|simulationIndex|exposure|kelvin|hncs|effects)\s*=\s*snapshot\.(\w+)', adopted))
         self.assertEqual(assignments, {'colorMode': 'mode', 'simulationIndex': 'simulationIndex',
-                                      'exposure': 'exposureEV', 'kelvin': 'illuminantKelvin', 'hncs': 'hncs'})
+                                      'exposure': 'exposureEV', 'kelvin': 'illuminantKelvin', 'hncs': 'hncs', 'effects': 'effects'})
         self.assertIn('guard let input = imported, !busy else { return }', body(content, 'func render() async'))
         self.assertIn('processed?.recipe != recipe', content)
         self.assertIn('processed != nil && !busy && !hasPendingChanges', content)

@@ -34,8 +34,31 @@ enum ColorMode: String, CaseIterable, Identifiable, Codable, Sendable {
     }
 }
 
+/// Independent, persisted stage gates. Enabling a gate uses only the selected
+/// preset's existing parameters; it never invents grain, sharpening or crop.
+struct EffectToggles: Codable, Equatable, Sendable {
+    var applyGrain = true
+    var applySharpness = true
+    var applyExtraCrop = true
+    static let standard = EffectToggles()
+
+    init(applyGrain: Bool = true, applySharpness: Bool = true, applyExtraCrop: Bool = true) {
+        self.applyGrain = applyGrain
+        self.applySharpness = applySharpness
+        self.applyExtraCrop = applyExtraCrop
+    }
+
+    private enum CodingKeys: String, CodingKey { case applyGrain, applySharpness, applyExtraCrop }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        applyGrain = try values.decodeIfPresent(Bool.self, forKey: .applyGrain) ?? true
+        applySharpness = try values.decodeIfPresent(Bool.self, forKey: .applySharpness) ?? true
+        applyExtraCrop = try values.decodeIfPresent(Bool.self, forKey: .applyExtraCrop) ?? true
+    }
+}
+
 /// Immutable settings captured before background work starts. Export must use
-/// the rendered recipe, including its engine, rather than current editor controls.
+/// the rendered recipe, including every stage gate, rather than current controls.
 struct ProcessingRecipe: Codable, Equatable, Sendable {
     let mode: ColorMode
     let exposureEV: Double
@@ -43,7 +66,45 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
     let simulationIndex: Int
     let seed: UInt32
     let hncs: HNCSSettings
-    var crop: ImageCrop { mode == .hncs ? hncs.crop : .none }
+    let effects: EffectToggles
+    // Only the HNCS square preset defines a crop. FFCS has no extra-crop stage.
+    var crop: ImageCrop { mode == .hncs ? hncs.crop(effects: effects) : .none }
+
+    init(mode: ColorMode, exposureEV: Double, illuminantKelvin: Double,
+         simulationIndex: Int, seed: UInt32, hncs: HNCSSettings,
+         effects: EffectToggles = .standard) {
+        self.mode = mode; self.exposureEV = exposureEV; self.illuminantKelvin = illuminantKelvin
+        self.simulationIndex = simulationIndex; self.seed = seed; self.hncs = hncs
+        self.effects = effects
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case mode, exposureEV, illuminantKelvin, simulationIndex, seed, hncs, effects
+    }
+    private enum LegacyEffectKeys: String, CodingKey { case applyGrain, applySharpness }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        mode = try values.decodeIfPresent(ColorMode.self, forKey: .mode) ?? .hncs
+        exposureEV = try values.decodeIfPresent(Double.self, forKey: .exposureEV) ?? 0
+        illuminantKelvin = try values.decodeIfPresent(Double.self, forKey: .illuminantKelvin) ?? 6500
+        simulationIndex = try values.decodeIfPresent(Int.self, forKey: .simulationIndex) ?? 0
+        seed = try values.decodeIfPresent(UInt32.self, forKey: .seed) ?? 0
+        hncs = try values.decodeIfPresent(HNCSSettings.self, forKey: .hncs) ?? .standard
+        if let savedEffects = try values.decodeIfPresent(EffectToggles.self, forKey: .effects) {
+            effects = savedEffects
+        } else if mode == .hncs, values.contains(.hncs), try !values.decodeNil(forKey: .hncs) {
+            // revision8.v1 stored the two old switches inside HNCS. Preserve
+            // explicit false choices for the active HNCS render. Old FFCS always
+            // applied both stages, so its active rendering defaults stay enabled.
+            let legacy = try values.nestedContainer(keyedBy: LegacyEffectKeys.self, forKey: .hncs)
+            effects = EffectToggles(
+                applyGrain: try legacy.decodeIfPresent(Bool.self, forKey: .applyGrain) ?? true,
+                applySharpness: try legacy.decodeIfPresent(Bool.self, forKey: .applySharpness) ?? true,
+                applyExtraCrop: true)
+        } else {
+            effects = .standard
+        }
+    }
 
     static let standard = ProcessingRecipe(mode: .hncs, exposureEV: 0, illuminantKelvin: 6500,
                                             simulationIndex: 0, seed: 0, hncs: .standard)
@@ -203,11 +264,11 @@ enum ImagePipeline {
         case .hncs:
             rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: rgb, width: crop.width,
                                                    height: crop.height, exposureEV: recipe.exposureEV,
-                                                   illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs)
+                                                   illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects)
         case .ffcs:
             rgba = try FFCSEngine.exportLinearRGBA(linearSRGB: rgb, width: crop.width,
                                                    height: crop.height, exposureEV: recipe.exposureEV,
-                                                   simulationIndex: recipe.simulationIndex, seed: recipe.seed)
+                                                   simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects)
         }
         let image = try PreviewRaster(linearRGBA: rgba, width: crop.width, height: crop.height)
         return ProcessedImage(image: image, comparisonSource: comparisonSource, source: input, recipe: recipe)
@@ -280,7 +341,7 @@ enum ImagePipeline {
         let capacity = try FileManager.default.temporaryDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
         // Reserve RGBAf + encoded-output margin and, when needed, 12-byte RGB
         // work plus a conservative 20-byte/pixel global spatial scratch budget.
-        let needsSpatial = recipe.mode == .hncs && recipe.hncs.requiresSpatial
+        let needsSpatial = recipe.mode == .hncs && recipe.hncs.requiresSpatial(effects: recipe.effects)
         let spatialBytes = needsSpatial ? Double(width) * Double(height) * 32 : 0
         if let available = capacity.volumeAvailableCapacityForImportantUsage,
            Double(available) < Double(rasterBytes) * 1.5 + spatialBytes + 64 * 1024 * 1024 {
@@ -319,7 +380,7 @@ enum ImagePipeline {
                 }
                 if let spatialWork {
                     let work = try HNCSEngine.presetWork(linearSRGB: rgb, width: width, height: rows,
-                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs)
+                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects)
                     try spatialWork.writeBottomUpRows(work, originY: start, rows: rows)
                     progress(0.1 + 0.35 * Double(start + rows) / Double(height))
                     return
@@ -329,13 +390,13 @@ enum ImagePipeline {
                 case .hncs:
                     rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: rgb, width: width, height: rows,
                                                            exposureEV: recipe.exposureEV,
-                                                           illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs)
+                                                           illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects)
                 case .ffcs:
                     let rendered = try FFCSEngine.exportLinearRGBStrip(
                         linearSRGB: rgb, fullWidth: width, fullHeight: height,
                         inputOriginY: inputStart, inputRows: inputRows,
                         outputOriginY: start, outputRows: rows,
-                        exposureEV: recipe.exposureEV, simulationIndex: recipe.simulationIndex, seed: recipe.seed)
+                        exposureEV: recipe.exposureEV, simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects)
                     var expanded = [Float](repeating: 1, count: width * rows * 4)
                     for pixel in 0..<(width * rows) {
                         for channel in 0..<3 { expanded[pixel * 4 + channel] = rendered[pixel * 3 + channel] }
@@ -353,7 +414,7 @@ enum ImagePipeline {
             progress(0.45)
             // Grain normalization and USM see one complete cropped top-down
             // image, never independently seeded 64-row strips.
-            try HNCSEngine.applySpatial(to: spatialWork, settings: recipe.hncs, isCancelled: isCancelled)
+            try HNCSEngine.applySpatial(to: spatialWork, settings: recipe.hncs, effects: recipe.effects, isCancelled: isCancelled)
             progress(0.65)
             for start in stride(from: 0, to: height, by: stripRows) {
                 try checkExportCancellation(isCancelled)
@@ -361,7 +422,7 @@ enum ImagePipeline {
                     let rows = min(stripRows, height - start)
                     let work = try spatialWork.readBottomUpRows(originY: start, rows: rows)
                     let rgba = try HNCSEngine.finishPresetWork(work, width: width, height: rows,
-                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs)
+                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects)
                     guard rgba.count == width * rows * 4,
                           rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
                     try raster.append(rgba)

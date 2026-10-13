@@ -97,3 +97,7 @@ HEIF 导出使用与预览一致的引擎/外观/曝光/种子快照，从 Float
 ## D018：同步最新HNCS预设与render revision8（2026-10-13，用户确认）
 
 用户要求先接入真实预设曲线，并按照新的技术交付修正相关行为。保留colour revision2不变核心及旧黄金证据，新增完整配置WB、真实后曲线、方裁切、portable空间阶段的独立验证。Apple源域继续明确实验性，固定WB不能仅替换CCT；新增预设不自动继承旧实时cube误差批准。具体合同与验收见 [revision8同步](HNCS_REVISION8.md)。
+
+## D019：独立锐化、颗粒、预设裁切开关（2026-10-13，用户确认）
+
+共享EffectToggles进入持久化不可变recipe，切换预设/引擎保留选择。默认三个true，实际阶段仍受原preset参数决定。关闭额外裁切恢复选定源画幅；FFCS无preset crop，不添加新算法。旧HNCS迁移其显式开关，旧FFCS维持原全开输出；JSON内新显式值优先。配方元数据不是新增HEIF内嵌Exif功能。见[细则与验证](EFFECT_TOGGLES.md)。

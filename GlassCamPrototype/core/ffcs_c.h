@@ -13,6 +13,15 @@ const char *ffcs_simulation_name(size_t index);
 const char *ffcs_simulation_asset(size_t index);
 FFCSContext *ffcs_create(const char *asset_directory, size_t simulation_index,
                         char *error, size_t error_size);
+/* Additive constructor with independent immutable spatial-effect switches.
+ * Each flag must be exactly 0 or 1. Enabled uses only the selected look's
+ * original coefficient; it never adds an effect absent from that look.
+ * ffcs_create is equivalent to this constructor with both flags set to 1.
+ * All full-photo/reference/strip APIs honor these switches. The color-only
+ * preview API always omits grain/sharpening, regardless of these flags.
+ * FFCS has no preset-crop stage. On failure returns NULL and sets error. */
+FFCSContext *ffcs_create_options(const char *asset_directory, size_t simulation_index,
+    int grain_enabled, int sharpen_enabled, char *error, size_t error_size);
 void ffcs_destroy(FFCSContext *context);
 /* Experimental preview / runtime LUT baking only. This is the genuine FFCS
  * pointwise color transform, retaining the original matrix, LUT, Lab/OKLab,
