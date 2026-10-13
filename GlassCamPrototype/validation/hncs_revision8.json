@@ -1,0 +1,249 @@
+{
+  "catalog": {
+    "unique_xml_payloads": 43,
+    "accepted_source_names": 56,
+    "exact_parameters": "passed"
+  },
+  "native_postcurves": {
+    "active_pixels": 278528,
+    "active_max_code_difference": 0,
+    "inactive_bypass_pixels": 278528,
+    "inactive_note": "Revision-8 Python bypasses inactive gradation. Unconditional native filter probe artifacts are intentionally not applied.",
+    "checks": [
+      {
+        "preset": "standard",
+        "tone": false,
+        "group": "source",
+        "pixels": 4096,
+        "active": false,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 2
+      },
+      {
+        "preset": "standard",
+        "tone": false,
+        "group": "ramp",
+        "pixels": 65536,
+        "active": false,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 1
+      },
+      {
+        "preset": "standard",
+        "tone": true,
+        "group": "source",
+        "pixels": 4096,
+        "active": false,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 2
+      },
+      {
+        "preset": "standard",
+        "tone": true,
+        "group": "ramp",
+        "pixels": 65536,
+        "active": false,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 1
+      },
+      {
+        "preset": "nature",
+        "tone": false,
+        "group": "source",
+        "pixels": 4096,
+        "active": false,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 2
+      },
+      {
+        "preset": "nature",
+        "tone": false,
+        "group": "ramp",
+        "pixels": 65536,
+        "active": false,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 1
+      },
+      {
+        "preset": "nature",
+        "tone": true,
+        "group": "source",
+        "pixels": 4096,
+        "active": true,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 0
+      },
+      {
+        "preset": "nature",
+        "tone": true,
+        "group": "ramp",
+        "pixels": 65536,
+        "active": true,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 0
+      },
+      {
+        "preset": "lighten",
+        "tone": false,
+        "group": "source",
+        "pixels": 4096,
+        "active": false,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 2
+      },
+      {
+        "preset": "lighten",
+        "tone": false,
+        "group": "ramp",
+        "pixels": 65536,
+        "active": false,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 1
+      },
+      {
+        "preset": "lighten",
+        "tone": true,
+        "group": "source",
+        "pixels": 4096,
+        "active": true,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 0
+      },
+      {
+        "preset": "lighten",
+        "tone": true,
+        "group": "ramp",
+        "pixels": 65536,
+        "active": true,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 0
+      },
+      {
+        "preset": "extra-contrast",
+        "tone": false,
+        "group": "source",
+        "pixels": 4096,
+        "active": true,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 0
+      },
+      {
+        "preset": "extra-contrast",
+        "tone": false,
+        "group": "ramp",
+        "pixels": 65536,
+        "active": true,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 0
+      },
+      {
+        "preset": "extra-contrast",
+        "tone": true,
+        "group": "source",
+        "pixels": 4096,
+        "active": true,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 0
+      },
+      {
+        "preset": "extra-contrast",
+        "tone": true,
+        "group": "ramp",
+        "pixels": 65536,
+        "active": true,
+        "python_max_code_difference": 0,
+        "native_max_code_difference": 0
+      }
+    ]
+  },
+  "pointwise": {
+    "channel_comparisons": 20134896,
+    "max_code_difference": 0,
+    "stages": "Float32 saturation \u2192 ties-even UInt16 \u2192 native postcurves/hue/truncation \u2192 Float32 grayscale \u2192 final ties-even UInt16; grain/USM excluded"
+  },
+  "film_resolution": {
+    "cases": 120,
+    "max_code_difference": 0,
+    "covered": "all six menu types; as-shot raw0/raw2/raw4/raw7/raw99; both spaces/intents; original gamma distinct only legacy; reproduction pure regardless request"
+  },
+  "native_combined": {
+    "cases": 86,
+    "max_code_difference": 0,
+    "scope": "caller-supplied white-balanced native RGB \u2192 selected kernel CCT/film \u2192 pointwise preset; source bridge/WB replacement excluded"
+  },
+  "old_new_default_equivalence": {
+    "cases": 54,
+    "result": "bit-exact; adapter matrix and UInt8/Float outputs unchanged"
+  },
+  "spatial_boundary": {
+    "catalog_cases": 43,
+    "result": "no-spatial Float32 work/finish split bit-exact to direct pointwise processing",
+    "parallel_workers": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "synthetic_apple_bridge": {
+    "cases": 260,
+    "matrix_ratio_contract": "bit-exact",
+    "baseline": "factory_wb at truncated/clamped capture CCT, interpolation clamped to original WB table endpoints, normalized to green=1",
+    "target": "explicit gains or exact configured preset absolute gains, normalized to green=1",
+    "formula": "diag(desired/baseline) \u00d7 A(capture CCT); factory kernel CCT separate",
+    "calibrated_for_apple": false
+  },
+  "invalid_arguments": "passed",
+  "unchanged_core": {
+    "status": "passed",
+    "original_golden_groups": 52,
+    "original_golden_pixels": 6656,
+    "original_max_code_difference": 0,
+    "additional_random_boundary_channel_comparisons": 892080,
+    "additional_native_max_code_difference": 0,
+    "display_adapter_max_uint8_difference": 0,
+    "display_tolerance_uint8": 1,
+    "tile_equivalence": "bit-exact",
+    "nonfinite_null_and_invalid_mode": "passed"
+  },
+  "status": "passed",
+  "environment": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+    "command": [
+      "g++",
+      "-std=c++17",
+      "-O3",
+      "-ffp-contract=off",
+      "-fno-fast-math",
+      "-pthread",
+      "-shared",
+      "-fPIC",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "/workspace/shared/glasscam-prototype/core/hncs.cpp",
+      "-o",
+      "/workspace/shared/glasscam-prototype/build/libhncs_revision8.so"
+    ]
+  },
+  "assets": {
+    "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+    "core/hncs_preset_assets.inc": "7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306",
+    "reference/work/hncs-pipeline/phocus_post_curves.npz": "72d862916aea6ede45897ddf36abae4e6ac2dae2aff942d551c4e94275b4330b",
+    "reference/work/hncs-pipeline/evidence/native_preset_vectors.npz": "7779df367cff6ac2191844c39b71037addf716df3d613041dbb6290d9cf1f84a"
+  },
+  "implementation_sha256": {
+    "core/hncs.cpp": "91ded7f9bdcbebad1a783fb9746237dca801d5137d46843e8502870e6757c40f",
+    "core/hncs_c.h": "bda069e00bab194b47b8936461414022d6186a6070d61700ca11c10ead418df3",
+    "core/generate_preset_assets.py": "ac3d265120bedcd204d4b964b65b843270b28a13a18df5a69cbf3334f42d4056",
+    "core/hncs_preset_catalog.json": "5bfc7b0875189fe47365bdd91b16aeb2f4ab61b218dedd250b010816e09457dd",
+    "tools/verify_hncs_revision8.py": "7e1141d346e35ecff630afc8076e57746c2b9a8535bff47c1ee607881159888a",
+    "tests/hncs_revision8_sanitizer.cpp": "723686c128900c01112c5e8fd604f33135571fb6966a0d608b46f69636886de5",
+    "tools/reference_runtime.py": "a781d7e0662626fdbd55349c6076e0b4ca6d37cb6dbdf03bd761c4baa622f287",
+    "reference/hncs_pipeline.py": "db8009a38a3d2948d6e177fee2ef79a24f808f8b2b98c619f9c8041eacaa5a99",
+    "reference/phocus_presets.py": "fd5f33d8f37608ca8974272942882a7149d10edd66bf23cc954914f1f79e5a4c",
+    "reference/work/hncs-pipeline/phocus_presets.json": "d99c5a2e09810e2977c7be9230289b23148348b52c92ad05d75f5c87c0d84886"
+  }
+}

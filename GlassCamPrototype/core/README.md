@@ -80,3 +80,11 @@ The reference full-frame route remains an oracle. The exact optimized route uses
 Portable kernels emit preview bytes or display-linear floats, never HEIF/JPEG files. Photos/Files save the Apple-encoded original HEIF. The separate share provider may lazily decode that finalized HEIF into a same-size compatibility JPEG; it does not call an approximate color kernel or rerender preview data. No JPEG export setting exists.
 
 Exact Float parallel benchmark, regression and failure contracts: [EXACT_FLOAT_PARALLEL](../docs/EXACT_FLOAT_PARALLEL.md). Apple acceleration constraints: [precision research](../docs/apple_precision_acceleration.md).
+
+## HNCS render revision8
+
+`hncs_create_preset` is additive: old constructors retain their exact original output. It selects real generated post-curves/film families, complete configured target-WB ratios through a declared synthetic source bridge, and exposes Float32 work/finish hooks. Frame-aware `hncs_apply_spatial_preset_file` implements the supplied portable grain/USM model with global statistics and canonical top-left row order. This is not proprietary Phocus spatial equivalence.
+
+Build all three HNCS translation units: `hncs.cpp`, `hncs_spatial.cpp`, `hncs_numpy_rng.cpp`. Numerical code uses C++17 with strict FP; the current file backend additionally requires POSIX and the RNG uses Clang/GCC 128-bit integers. Apple/Linux are intended targets; native MSVC support is not established. Both spatial APIs use temporary-file scratch, even when caller input is an in-memory buffer. Scratch ≤16B/pixel, explicit extra processing RAM <4MiB, excluding caller/source/output buffers and OS cache. Preserve the embedded NumPy/SciPy/PCG license notices.
+
+Reproduction: `python core/generate_preset_assets.py`; `python tools/generate_hncs_spatial_assets.py --help`; `python tools/verify_hncs_revision8.py`; `python tools/test_hncs_spatial.py --reference reference --large`; `python tools/test_hncs_numpy_rng.py`. Details and actual versioned evidence: [revision8](../docs/HNCS_REVISION8.md).

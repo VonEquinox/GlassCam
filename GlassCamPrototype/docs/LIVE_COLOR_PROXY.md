@@ -9,7 +9,7 @@
 - CI 读取带实际颜色附件的 NV12，转换到线性工作域，显式限制到 [0,1]，用 `CILinearToSRGBToneCurve` 生成查表坐标，再应用 cube。之后不再做逆 shaper；输出已经是线性显示值。
 - 常驻 Metal-backed CIContext，Float 工作域、RGBA16Float drawable、SDR/EDR关闭。当前相机输入仍是8位 NV12，高精度处理不会恢复源位数。P3越域分量被显式裁剪，不能声称保留其完整色域或高光。
 - Cube 只在配方变化时由后台任务生成，按蓝色切片检查取消；最多一个生成任务和一个最新请求，缓存最多两个cube。每个65³ Float32 RGBA cube约4.19MiB。
-- 预览只放行EV0：HNCS 5500K或6500K，以及FFCS PROVIA/ACROS。其他模式/参数继续显示系统取景并给出说明。完整照片的全部19个FFCS模式仍可选择，不受此预览门控限制。
+- 预览只放行EV0：HNCS原始Standard完整配方、虚拟capture 5500K或6500K，以及FFCS PROVIA/ACROS。revision8预设/film curve/空间/目标WB/工厂覆盖等配方身份进入缓存与门控；没有新误差证据的配方直接系统取景回退。其他模式/参数继续显示系统取景并给出说明。完整照片的全部19个FFCS模式仍可选择，不受此预览门控限制。
 
 ## 精度不是位深
 

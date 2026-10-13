@@ -1,0 +1,3105 @@
+{
+  "status": "pass",
+  "compile_command": [
+    "g++",
+    "-std=c++17",
+    "-O3",
+    "-ffp-contract=off",
+    "-fno-fast-math",
+    "-shared",
+    "-fPIC",
+    "-pthread",
+    "/workspace/shared/glasscam-prototype/core/ffcs.cpp",
+    "-lz",
+    "-o",
+    "/workspace/shared/glasscam-prototype/build/libffcs_verify.so"
+  ],
+  "presets": 19,
+  "stage_comparisons": 513,
+  "maximum_absolute_stage_error": 2.5102142576186878e-14,
+  "stage_tolerance": 1e-12,
+  "linear_mobile_cases": 57,
+  "linear_mobile_max_error": 0.0,
+  "linear_mobile_tolerance": 2e-07,
+  "preview_max_byte_error": 0,
+  "checks": [
+    {
+      "look": "PROVIA",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 1.4488410471358293e-14
+    },
+    {
+      "look": "PROVIA",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 1.484923295436147e-14
+    },
+    {
+      "look": "PROVIA",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.484923295436147e-14
+    },
+    {
+      "look": "PROVIA",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.5792922525292852e-14
+    },
+    {
+      "look": "PROVIA",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.5792922525292852e-14
+    },
+    {
+      "look": "PROVIA",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.9262369477246466e-14
+    },
+    {
+      "look": "PROVIA",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.9845236565174673e-14
+    },
+    {
+      "look": "PROVIA",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 1.9845236565174673e-14
+    },
+    {
+      "look": "PROVIA",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 1.584843367652411e-14
+    },
+    {
+      "look": "PROVIA",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 1.584843367652411e-14
+    },
+    {
+      "look": "PROVIA",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "PROVIA",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 1.887379141862766e-15
+    },
+    {
+      "look": "VELVIA",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 1.9984014443252818e-15
+    },
+    {
+      "look": "VELVIA",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.9984014443252818e-15
+    },
+    {
+      "look": "VELVIA",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 2.1094237467877974e-15
+    },
+    {
+      "look": "VELVIA",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 2.1094237467877974e-15
+    },
+    {
+      "look": "VELVIA",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 2.5102142576186878e-14
+    },
+    {
+      "look": "VELVIA",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.199040866595169e-14
+    },
+    {
+      "look": "VELVIA",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 1.199040866595169e-14
+    },
+    {
+      "look": "VELVIA",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 1.2434497875801753e-14
+    },
+    {
+      "look": "VELVIA",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 1.2434497875801753e-14
+    },
+    {
+      "look": "VELVIA",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "VELVIA",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 1.7930101847696278e-14
+    },
+    {
+      "look": "ASTIA",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 1.789714210165272e-14
+    },
+    {
+      "look": "ASTIA",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.7897358942087216e-14
+    },
+    {
+      "look": "ASTIA",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 9.992007221626409e-16
+    },
+    {
+      "look": "ASTIA",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 9.992007221626409e-16
+    },
+    {
+      "look": "ASTIA",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.3627987627273797e-14
+    },
+    {
+      "look": "ASTIA",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.362625290379782e-14
+    },
+    {
+      "look": "ASTIA",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 1.362625290379782e-14
+    },
+    {
+      "look": "ASTIA",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 1.4389531233227615e-14
+    },
+    {
+      "look": "ASTIA",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 1.4389531233227615e-14
+    },
+    {
+      "look": "ASTIA",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "ASTIA",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 2.1094237467877974e-15
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 2.275957200481571e-15
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 2.275957200481571e-15
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 2.4147350785597155e-15
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 2.4147350785597155e-15
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 3.9968028886505635e-15
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 4.163336342344337e-15
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 4.163336342344337e-15
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 4.440892098500626e-15
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 4.440892098500626e-15
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 3.3306690738754696e-16
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 3.3306690738754696e-16
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 3.3306690738754696e-16
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 3.3306690738754696e-16
+    },
+    {
+      "look": "CLASSIC CHROME",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 3.3306690738754696e-16
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 9.992007221626409e-16
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 9.992007221626409e-16
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 9.992007221626409e-16
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.0547118733938987e-15
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.0547118733938987e-15
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.43440814569812e-14
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 3.552713678800501e-15
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 3.552713678800501e-15
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 3.6914915568786455e-15
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 3.6914915568786455e-15
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 2.498001805406602e-16
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "CLASSIC NEG.",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 1.0040857041062663e-14
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 6.276229536084088e-15
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 6.4878658001532585e-15
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 6.4878658001532585e-15
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 4.676814491233472e-15
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 4.676814491233472e-15
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "NOSTALGIC NEG.",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 9.43689570931383e-16
+    },
+    {
+      "look": "ETERNA",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ETERNA",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ETERNA",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ETERNA",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ETERNA",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 2.7755575615628914e-15
+    },
+    {
+      "look": "ETERNA",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 2.3314683517128287e-15
+    },
+    {
+      "look": "ETERNA",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 2.3314683517128287e-15
+    },
+    {
+      "look": "ETERNA",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 2.3869795029440866e-15
+    },
+    {
+      "look": "ETERNA",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 2.3869795029440866e-15
+    },
+    {
+      "look": "ETERNA",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 7.771561172376096e-16
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 8.881784197001252e-16
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 8.881784197001252e-16
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 9.992007221626409e-16
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 9.992007221626409e-16
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.6653345369377348e-15
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.887379141862766e-15
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 1.887379141862766e-15
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 1.9984014443252818e-15
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 1.9984014443252818e-15
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 2.7755575615628914e-16
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 2.7755575615628914e-16
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 2.7755575615628914e-16
+    },
+    {
+      "look": "ETERNA BLEACH BYPASS",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 2.7755575615628914e-16
+    },
+    {
+      "look": "ACROS",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "ACROS",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "ACROS",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "ACROS",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "ACROS",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "ACROS",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.4432899320127035e-15
+    },
+    {
+      "look": "ACROS",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.5543122344752192e-15
+    },
+    {
+      "look": "ACROS",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ACROS",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ACROS",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ACROS",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.7763568394002505e-15
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.887379141862766e-15
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 1.2212453270876722e-15
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 1.3322676295501878e-15
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.3322676295501878e-15
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.4432899320127035e-15
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.4432899320127035e-15
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 5.329070518200751e-15
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 5.828670879282072e-15
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 5.828670879282072e-15
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 6.106226635438361e-15
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 6.106226635438361e-15
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. HI",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 1.7763568394002505e-15
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 1.7763568394002505e-15
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.7763568394002505e-15
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.8318679906315083e-15
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.8318679906315083e-15
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 3.83026943495679e-15
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 3.608224830031759e-15
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 3.608224830031759e-15
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 3.802513859341161e-15
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 3.802513859341161e-15
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "PRO NEG. STD",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 1.4432899320127035e-15
+    },
+    {
+      "look": "SEPIA",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 1.3322676295501878e-15
+    },
+    {
+      "look": "SEPIA",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.3322676295501878e-15
+    },
+    {
+      "look": "SEPIA",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.3322676295501878e-15
+    },
+    {
+      "look": "SEPIA",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.3322676295501878e-15
+    },
+    {
+      "look": "SEPIA",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.9984014443252818e-15
+    },
+    {
+      "look": "SEPIA",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.887379141862766e-15
+    },
+    {
+      "look": "SEPIA",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 1.887379141862766e-15
+    },
+    {
+      "look": "SEPIA",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 1.887379141862766e-15
+    },
+    {
+      "look": "SEPIA",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 1.887379141862766e-15
+    },
+    {
+      "look": "SEPIA",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "SEPIA",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 2.7755575615628914e-16
+    },
+    {
+      "look": "SEPIA",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 2.7755575615628914e-16
+    },
+    {
+      "look": "SEPIA",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 2.7755575615628914e-16
+    },
+    {
+      "look": "SEPIA",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 2.7755575615628914e-16
+    },
+    {
+      "look": "SEPIA",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 2.7755575615628914e-16
+    },
+    {
+      "look": "ACROS+G",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 4.996003610813204e-16
+    },
+    {
+      "look": "ACROS+G",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "ACROS+G",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "ACROS+G",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "ACROS+G",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "ACROS+G",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 2.7755575615628914e-15
+    },
+    {
+      "look": "ACROS+G",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 2.9976021664879227e-15
+    },
+    {
+      "look": "ACROS+G",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ACROS+G",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 7.771561172376096e-16
+    },
+    {
+      "look": "ACROS+G",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 7.771561172376096e-16
+    },
+    {
+      "look": "ACROS+G",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+G",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 2.7755575615628914e-17
+    },
+    {
+      "look": "ACROS+G",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 2.7755575615628914e-17
+    },
+    {
+      "look": "ACROS+G",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 2.7755575615628914e-17
+    },
+    {
+      "look": "ACROS+R",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 1.942890293094024e-16
+    },
+    {
+      "look": "ACROS+R",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 2.0816681711721685e-16
+    },
+    {
+      "look": "ACROS+R",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "ACROS+R",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "ACROS+R",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "ACROS+R",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.2212453270876722e-15
+    },
+    {
+      "look": "ACROS+R",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.3322676295501878e-15
+    },
+    {
+      "look": "ACROS+R",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ACROS+R",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 7.771561172376096e-16
+    },
+    {
+      "look": "ACROS+R",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 7.771561172376096e-16
+    },
+    {
+      "look": "ACROS+R",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+R",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 3.3306690738754696e-16
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 3.3306690738754696e-16
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 2.220446049250313e-15
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 2.220446049250313e-15
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "ACROS+Ye",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 4.440892098500626e-16
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 4.440892098500626e-16
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.5543122344752192e-15
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.5543122344752192e-15
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 3.885780586188048e-16
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 3.885780586188048e-16
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 2.7755575615628914e-17
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 2.7755575615628914e-17
+    },
+    {
+      "look": "MONOCHROME+G",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 2.7755575615628914e-17
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 4.440892098500626e-16
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 4.440892098500626e-16
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.6653345369377348e-15
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.6653345369377348e-15
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 6.661338147750939e-16
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+R",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "golden_6x4",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "golden_6x4",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "golden_6x4",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "golden_6x4",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "golden_6x4",
+      "stage": "lab_ucs",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "golden_6x4",
+      "stage": "tone_curve",
+      "max_error": 2.220446049250313e-16
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "golden_6x4",
+      "stage": "film_grain",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "golden_6x4",
+      "stage": "sharpen",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "golden_6x4",
+      "stage": "output_icc",
+      "max_error": 1.1102230246251565e-16
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "rich_131x9",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "rich_131x9",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "rich_131x9",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "rich_131x9",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "rich_131x9",
+      "stage": "lab_ucs",
+      "max_error": 1.6653345369377348e-15
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "rich_131x9",
+      "stage": "tone_curve",
+      "max_error": 1.6653345369377348e-15
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "rich_131x9",
+      "stage": "film_grain",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "rich_131x9",
+      "stage": "sharpen",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "rich_131x9",
+      "stage": "output_icc",
+      "max_error": 5.551115123125783e-16
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "single_pixel",
+      "stage": "input_normalized",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "single_pixel",
+      "stage": "gamma_pre",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "single_pixel",
+      "stage": "matrix_3x3",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "single_pixel",
+      "stage": "lut_3d",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "single_pixel",
+      "stage": "lab_ucs",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "single_pixel",
+      "stage": "tone_curve",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "single_pixel",
+      "stage": "film_grain",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "single_pixel",
+      "stage": "sharpen",
+      "max_error": 0.0
+    },
+    {
+      "look": "MONOCHROME+Ye",
+      "case": "single_pixel",
+      "stage": "output_icc",
+      "max_error": 0.0
+    }
+  ]
+}

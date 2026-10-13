@@ -37,3 +37,11 @@ HEIC/JPEG 都是 `public.image` 的具体类型。实现没有把任意字节标
 - [Document picker export copy](https://developer.apple.com/documentation/uikit/uidocumentpickerviewcontroller/init(forexporting:ascopy:))
 - [Provider fidelity ordering](https://developer.apple.com/documentation/foundation/nsitemprovider/registeredcontenttypes)
 - [Receiver file lifetime](https://developer.apple.com/documentation/foundation/nsitemprovider/loadfilerepresentation(fortypeidentifier:completionhandler:))
+
+## revision8：快门配方与迟到成功交付
+
+快门同时冻结完整ProcessingRecipe和输出尺寸。一个交付reservation从快门持有至失败/取消，或成功DNG已交给解码源所有者；关闭界面不会丢弃已终态成功照片。新导入、相机打开或导出使旧自动打开资格失效，普通配方rerender不改变这个代次。旧成功回调不得关闭新相机、取消新导入或抢占导出。
+
+成功先保留为一个拥有生命周期的临时DNG文件，再重新检查代次。过期成功显示明确的Open captured photo入口，仅空闲时由用户打开并恢复快门配方；打开失败/取消仍保留，可重试。reservation未释放时另一快门不可用，避免无限待交付队列。若磁盘保留失败，则仅这一份DNG暂留内存并显示警告，仍阻止下一快门；这不是跨退出/崩溃的永久照片库。所有终态失败/取消即使发生在Close之后也释放匹配reservation。
+
+相关源码/状态模型测试不替代Apple并发、后台FileProtection、实际磁盘故障与相机回调时序验收。

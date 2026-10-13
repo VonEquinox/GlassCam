@@ -32,6 +32,23 @@ final class PreviewRaster: @unchecked Sendable {
                              size: CGSize(width: CGFloat(width), height: CGFloat(height)),
                              format: .RGBAf, colorSpace: space)
     }
+
+    private init(image: CIImage, width: Int, height: Int, storage: Data) {
+        self.image = image; self.width = width; self.height = height; self.storage = storage
+    }
+
+    func cropped(to crop: PixelCrop) throws -> PreviewRaster {
+        guard crop.x >= 0, crop.ciY >= 0, crop.width > 0, crop.height > 0,
+              crop.x + crop.width <= width, crop.ciY + crop.height <= height else {
+            throw PipelineError.rendering
+        }
+        if crop.x == 0 && crop.ciY == 0 && crop.width == width && crop.height == height { return self }
+        let cropped = image.cropped(to: crop.ciRect)
+            .transformed(by: CGAffineTransform(translationX: -CGFloat(crop.x), y: -CGFloat(crop.ciY)))
+        // Data is copy-on-write; the crop owns the same immutable Float storage.
+        return PreviewRaster(image: cropped, width: crop.width, height: crop.height, storage: storage)
+    }
+
 }
 
 /// High-precision SDR preview. Float32 input and working surfaces feed a half-float

@@ -5,12 +5,15 @@ import Foundation
 struct CameraFraming {
     let window: CGRect
     let photo: CGRect
+    // Uncropped sensor view at exactly the same scale as the final photo crop.
+    // Center clips this rect; peripheral FOV mapping uses its full sensor span.
+    let sourcePhoto: CGRect
     let perimeter: [CGRect]
     let usesVerticalControls: Bool
     let peripheral: CGRect?
     let hasPeripheralCoverage: Bool
 
-    init(size: CGSize, photoAspectRatio: CGFloat,
+    init(size: CGSize, photoAspectRatio: CGFloat, cropToSquare: Bool = false,
          centerHorizontalFieldOfView: Float? = nil,
          peripheralHorizontalFieldOfView: Float? = nil,
          peripheralAspectRatio: CGFloat? = nil) {
@@ -20,10 +23,15 @@ struct CameraFraming {
         // The photograph is always the largest aspect-fit rectangle in the actual
         // window. Controls must adapt to the remaining space, never the reverse.
         let aspect = photoAspectRatio.isFinite && photoAspectRatio > 0 ? photoAspectRatio : 1
-        let photoWidth = min(width, height * aspect)
-        let photoHeight = photoWidth / aspect
+        let outputAspect: CGFloat = cropToSquare ? 1 : aspect
+        let photoWidth = min(width, height * outputAspect)
+        let photoHeight = photoWidth / outputAspect
         photo = CGRect(x: (width - photoWidth) / 2, y: (height - photoHeight) / 2,
                        width: photoWidth, height: photoHeight)
+        let sourceWidth = cropToSquare ? photoWidth * max(1, aspect) : photoWidth
+        let sourceHeight = cropToSquare ? photoHeight * max(1, 1 / aspect) : photoHeight
+        sourcePhoto = CGRect(x: (width - sourceWidth) / 2, y: (height - sourceHeight) / 2,
+                             width: sourceWidth, height: sourceHeight)
         // A landscape window can still have horizontal spare regions (and vice
         // versa): derive chrome placement from the fitted photo, not orientation.
         usesVerticalControls = photo.minX > photo.minY
@@ -49,11 +57,11 @@ struct CameraFraming {
             // in portrait that sensor-horizontal extent is the displayed height.
             let extent: CGSize
             if aspect < 1 {
-                let sensorHorizontalExtent = photoHeight * ratio
+                let sensorHorizontalExtent = sourcePhoto.height * ratio
                 extent = CGSize(width: sensorHorizontalExtent * widerAspect,
                                 height: sensorHorizontalExtent)
             } else {
-                let sensorHorizontalExtent = photoWidth * ratio
+                let sensorHorizontalExtent = sourcePhoto.width * ratio
                 extent = CGSize(width: sensorHorizontalExtent,
                                 height: sensorHorizontalExtent / widerAspect)
             }

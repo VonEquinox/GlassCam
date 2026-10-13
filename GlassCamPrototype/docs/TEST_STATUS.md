@@ -1,6 +1,8 @@
 # 测试与性能状态
 
-更新：2026-10-11。以下严格区分已执行、源码实现与未执行。保存/分享合并运行 [43 项测试通过，26.105s](../validation/final-source-tests.txt)，随后精确 Float 并行集成 [43 项通过，19.088s](../validation/performance-integration-tests.txt)，包含保存/分享、显式跨队列取消 token、render 完成竞态 guard 与已解码源 Retry 的源码契约。Apple 代码仍只做静态验证。
+更新：2026-10-13。当前最新整合为183/183项通过，HNCS revision8真实曲线/WB/crop/便携空间路径与迟到捕获恢复已完成；独立源码审查无剩余阻断项，Apple编译/设备验收仍未执行。以下保留各历史阶段证据，旧计数不是当前总数。
+
+早期保存/分享合并运行 [43 项测试通过，26.105s](../validation/final-source-tests.txt)，随后精确 Float 并行集成 [43 项通过，19.088s](../validation/performance-integration-tests.txt)，包含保存/分享、显式跨队列取消 token、render 完成竞态 guard 与已解码源 Retry 的源码契约。Apple 代码仍只做静态验证。
 
 ## 已执行并通过
 
@@ -127,3 +129,9 @@ MultiCam视频预览与普通.photo ProRAW图已分离；快门保留冻结图�
 参考布局已接入，中央按完整窗口最大aspect-fit，控件不再通过controlBand压缩成片框；clear玻璃与字形阴影限制在天然外围，紧凑窗口采用独立普通控制面板。真实网格/高精度缩略图/效果与设置入口保留，未加入B方案的边缘复制、拉伸、额外blur或seam shader。
 
 几何测试含6060个随机比例案例、精确竖横/方窗、边界分区、极端/无效尺寸和控件区域契约；新增16项clear UI源码契约并重跑完整套件：122项通过（10.461秒），测试前后45个源码/规格文件hash一致。最终运行和源码hash见 `validation/clear-glass-integration-tests.txt`、`validation/clear-glass-source-hashes.json`。独立源码审查未发现阻断项，仍未执行Apple编译、原生玻璃渲染、参考图视觉一致性或真机成本测试。
+
+## 2026-10-13：HNCS revision8预设同步
+
+新增真实六张UInt16后曲线、film解析、完整目标WB的实验源桥、方形裁切和全图portable grain/USM。核心278,528有效native像素及20,134,896逐点通道均0差，旧52组黄金与默认5500/6500路径不变。空间324案例/114,980,382Float32通道逐位一致；RNG32,000,096double及cast一致。ASan/UBSan通过，LSan不可用。细目、环境版本与证据链接见[revision8](HNCS_REVISION8.md)。
+
+最终整合183/183通过（9.688秒），包含原122项与新增61项；38个生产/构建/生成源文件测试前后hash一致。日志与快照见 `validation/hncs-revision8-integration-tests.txt`、`validation/hncs-revision8-source-hashes.json`。覆盖完整快门配方、迟到成功不抢占新导入/导出或关闭新相机、单槽临时保留与失败恢复。C++三编译单元联合smoke通过。此证据不代表Apple编译或硬件验收。

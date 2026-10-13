@@ -10,8 +10,12 @@ struct CameraView: View {
     @Binding var simulationIndex: Int
     @Binding var exposureEV: Double
     @Binding var illuminantKelvin: Double
+    @Binding var hncs: HNCSSettings
     let thumbnail: PreviewRaster?
-    let onCapture: (Data, ExportSettings) -> Void
+    let captureSlotAvailable: Bool
+    let reserveCapture: () -> Bool
+    let onCaptureFailure: () -> Void
+    let onCapture: (Data, ExportSettings, ProcessingRecipe) -> Void
     let onClose: () -> Void
     @StateObject private var camera = CameraController()
     @StateObject private var settings = CameraSettingsStore()
@@ -30,6 +34,7 @@ struct CameraView: View {
         GeometryReader { proxy in
             let framing = CameraFraming(size: proxy.size,
                                         photoAspectRatio: camera.geometry?.photoAspectRatio ?? 1,
+                                        cropToSquare: colorMode == .hncs && hncs.crop == .centeredSquare,
                                         centerHorizontalFieldOfView: camera.geometry?.centerHorizontalFieldOfView,
                                         peripheralHorizontalFieldOfView: camera.geometry?.peripheralHorizontalFieldOfView,
                                         peripheralAspectRatio: orientedPeripheralAspectRatio)
@@ -59,6 +64,7 @@ struct CameraView: View {
                 // There is no glass modifier or rounded clipping on the photograph.
                 if let layer = camera.centerPreviewLayer, camera.geometry != nil {
                     CameraPreview(layer: layer, gravity: .resizeAspect)
+                        .frame(width: framing.sourcePhoto.width, height: framing.sourcePhoto.height)
                         .background(.black)
                         .frame(width: framing.photo.width, height: framing.photo.height)
                         .clipped()
@@ -71,6 +77,7 @@ struct CameraView: View {
                                    cameraReady: camera.isReady && coverageAvailable(framing)) { status in
                         liveProxyStatus = status
                     }
+                    .frame(width: framing.sourcePhoto.width, height: framing.sourcePhoto.height)
                     .frame(width: framing.photo.width, height: framing.photo.height)
                     .clipped()
                     .position(x: framing.photo.midX, y: framing.photo.midY)
@@ -298,6 +305,7 @@ struct CameraView: View {
     }
 
     private var photoAspectLabel: String {
+        if colorMode == .hncs && hncs.crop == .centeredSquare { return "1:1 crop" }
         guard let size = camera.geometry?.sensorPhotoDimensions,
               size.width > 0, size.height > 0 else { return "—" }
         let long = Int(max(size.width, size.height))
@@ -360,7 +368,8 @@ struct CameraView: View {
 
     private var liveRecipe: LiveColorRecipe {
         LiveColorRecipe(mode: colorMode, simulationIndex: colorMode == .ffcs ? simulationIndex : 0,
-                        exposureEV: exposureEV, illuminantKelvin: colorMode == .hncs ? illuminantKelvin : 5500)
+                        exposureEV: exposureEV, illuminantKelvin: colorMode == .hncs ? illuminantKelvin : 5500,
+                        hncs: colorMode == .hncs ? hncs : .standard)
     }
 
     private func cameraPanel(_ panel: CameraPanel, framing: CameraFraming) -> some View {
@@ -388,7 +397,15 @@ struct CameraView: View {
                     }
                     Toggle("Composition grid", isOn: $gridVisible)
                     LabeledContent("Photo aspect", value: photoAspectLabel)
+                    if colorMode == .hncs && hncs.crop == .centeredSquare {
+                        Text("Output choices below describe the full sensor. The square export keeps its center at the same pixel scale; no upsampling.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
                     LabeledContent("Flash", value: "Off")
+                    if !captureSlotAvailable {
+                        Text("A previous capture is finishing or waiting in the editor. Open that photo before taking another.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
                     if camera.supportedOutputOptions.isEmpty {
                         Text("Output unavailable for this camera configuration")
                     } else {
@@ -416,15 +433,16 @@ struct CameraView: View {
                     Slider(value: $exposureEV, in: -2...2, step: 0.05)
                         .accessibilityLabel("Photo effect exposure")
                     if colorMode == .hncs {
-                        LabeledContent("Factory CCT", value: "\(Int(illuminantKelvin)) K")
+                        HNCSPresetControls(settings: $hncs)
+                        LabeledContent("Virtual capture CCT", value: "\(Int(illuminantKelvin)) K")
                         Slider(value: $illuminantKelvin, in: 2000...10000, step: 50)
-                            .accessibilityLabel("Factory correlated color temperature")
-                        Text("Profile illuminant interpolation, not measured scene white balance.")
+                            .accessibilityLabel("Virtual capture correlated color temperature")
+                        Text("Synthetic baseline for Apple-decoded RGB, not measured camera WB. Preset target gains are resolved separately.")
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                     Button("Reset effect adjustments") {
                         exposureEV = 0
-                        if colorMode == .hncs { illuminantKelvin = 6500 }
+                        if colorMode == .hncs { illuminantKelvin = 6500; hncs = .standard }
                     }
                 } header: { Text("Photo effects") }
                   footer: { Text("\(colorMode == .ffcs ? FFCSEngine.simulationName(at: simulationIndex) : colorMode.title) is applied after capture. Compare, save and share in the editor.") }
@@ -466,7 +484,7 @@ struct CameraView: View {
                     if let dimensions = camera.sourceCaptureDimensions {
                         Text("Single-camera ProRAW source: \(Int(dimensions.width)) × \(Int(dimensions.height)) px")
                     }
-                    Text("The wider lens uses approximate FOV alignment. Parallax and lens distortion remain; the photo itself stays complete.")
+                    Text("The wider lens uses approximate FOV alignment. Parallax and lens distortion remain; the central frame matches the selected final crop.")
                     if !camera.isReady && !camera.isConfiguring {
                         Button("Retry camera") { restartCamera() }
                     }
@@ -554,15 +572,21 @@ struct CameraView: View {
         Button {
             guard camera.isReady, !camera.isCapturing, coverageAvailable, let output = selectedOutput else { return }
             activePanel = nil
-            // Snapshot dimensions before exposure. Later UI changes cannot retarget
-            // this source; ExportSettings is retained with its processing recipe.
+            // Freeze the entire output recipe at shutter time. A successful photo
+            // can arrive after Close, when editor controls already show another look.
+            // Neither those controls nor onDismiss may retarget this committed shot.
             let portrait = (camera.geometry?.photoAspectRatio ?? 1) < 1
             let export = ExportSettings(targetWidth: portrait ? output.height : output.width,
                                         targetHeight: portrait ? output.width : output.height)
-            camera.captureProRAW { result in
+            let capturedRecipe = ProcessingRecipe(mode: colorMode, exposureEV: exposureEV,
+                illuminantKelvin: illuminantKelvin, simulationIndex: simulationIndex, seed: 0, hncs: hncs)
+            guard reserveCapture() else { return }
+            camera.captureProRAW { [capturedRecipe, export] result in
                 switch result {
-                case .success(let data): onCapture(data, export)
+                case .success(let data): onCapture(data, export, capturedRecipe)
                 case .failure(let error):
+                    // Every terminal failure/cancel frees the slot, even after Close.
+                    onCaptureFailure()
                     if !isClosing { captureError = error.localizedDescription }
                 }
             }
@@ -576,9 +600,11 @@ struct CameraView: View {
             .frame(width: diameter, height: diameter)
             .contentShape(Circle())
         }
-        .disabled(!camera.isReady || camera.isCapturing || selectedOutput == nil || !coverageAvailable)
+        .disabled(!camera.isReady || camera.isCapturing || selectedOutput == nil || !coverageAvailable || !captureSlotAvailable)
         .accessibilityLabel("Capture Apple ProRAW DNG")
-        .accessibilityHint("Full-resolution photo with the selected effect applied after capture")
+        .accessibilityHint(captureSlotAvailable
+            ? "Full-resolution photo with the selected effect applied after capture"
+            : "Open the previous completed capture in the editor before taking another photo")
     }
 }
 

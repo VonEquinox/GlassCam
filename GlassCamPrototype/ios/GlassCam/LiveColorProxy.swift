@@ -15,14 +15,18 @@ struct LiveColorRecipe: Equatable {
     let simulationIndex: Int
     let exposureEV: Double
     let illuminantKelvin: Double
+    let hncs: HNCSSettings
     static let dimension = 65
     // A recipe/cache identity must change if an asset, engine or domain changes.
-    let contract = "v1:original-hncs-legacy-standard/ffcs-xh2s:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"
+    let contract = "v2:hncs-revision8-legacy-identity-only/ffcs-xh2s:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"
 
     var unsupportedReason: String? {
+        if mode == .hncs && !hncs.isLegacyLiveCompatible {
+            return "This HNCS preset, film curve, working space, tone or WB setting has no measured live-color cube. Showing system preview."
+        }
         guard exposureEV == 0 else { return "Experimental live color needs photo exposure 0 EV. Showing system preview." }
         if mode == .hncs && ![5500.0, 6500.0].contains(illuminantKelvin) {
-            return "Experimental HNCS live color needs factory CCT 5500 or 6500 K. Showing system preview."
+            return "Experimental HNCS live color needs virtual capture CCT 5500 or 6500 K. Showing system preview."
         }
         if mode == .ffcs && !(0..<Int(ffcs_simulation_count())).contains(simulationIndex) {
             return "This FFCS look is unavailable. Showing system preview."

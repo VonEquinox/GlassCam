@@ -7,6 +7,7 @@ import ast
 import hashlib
 import importlib.util
 import json
+import math
 from pathlib import Path
 import numpy as np
 
@@ -18,6 +19,8 @@ ASSETS = REFERENCE / 'work/hncs-pipeline/assets'
 
 def assets():
     provenance = json.loads((ASSETS / 'provenance.json').read_text())
+    if provenance.get('colour_path_revision') != COLOUR_PATH_REVISION:
+        raise ValueError('Unsupported HNCS colour path revision')
     for name, sha in provenance['files'].items():
         actual = hashlib.sha256((ASSETS / name).read_bytes()).hexdigest()
         if actual != sha:
@@ -34,16 +37,30 @@ def load_module(path, name):
 reference = load_module(REFERENCE / 'tools/reference_color_core.py', 'hncs_reference')
 presets = load_module(REFERENCE / 'phocus_presets.py', 'hncs_presets')
 source = (REFERENCE / 'hncs_pipeline.py').read_text()
+source_ast = ast.parse(source)
+revisions = {node.targets[0].id: ast.literal_eval(node.value)
+             for node in source_ast.body if isinstance(node, ast.Assign)
+             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+             and node.targets[0].id in ('COLOUR_PATH_REVISION', 'RENDER_PATH_REVISION')}
+COLOUR_PATH_REVISION = revisions['COLOUR_PATH_REVISION']
+RENDER_PATH_REVISION = revisions['RENDER_PATH_REVISION']
+if COLOUR_PATH_REVISION != 2 or RENDER_PATH_REVISION != 8:
+    raise ValueError('Unexpected pinned HNCS source revision')
 wanted = {'lerp_table', 'expand_lut', 'lookup_chroma', 'kernel_matrices',
-          'hncs_codes', 'lstar_decode', 'srgb_from_hncs'}
+          'hncs_codes', 'lstar_decode', 'srgb_from_hncs', 'estimate_cct',
+          'bridge_white_balance', 'render_colour_parameters', 'apply_target_white_balance'}
 functions = [node for node in ast.parse(source).body
              if isinstance(node, ast.FunctionDef) and node.name in wanted]
 if {node.name for node in functions} != wanted:
     raise ValueError('Pinned source functions missing')
-namespace = {'np': np, 'resolve_film_curve': presets.resolve_film_curve}
+namespace = {'np': np, 'math': math, 'resolve_film_curve': presets.resolve_film_curve}
 exec(compile(ast.Module(body=functions, type_ignores=[]), 'pinned_hncs_functions', 'exec'), namespace)
 hncs_codes = namespace['hncs_codes']
 srgb_from_hncs = namespace['srgb_from_hncs']
+estimate_cct = namespace['estimate_cct']
+bridge_white_balance = namespace['bridge_white_balance']
+render_colour_parameters = namespace['render_colour_parameters']
+apply_target_white_balance = namespace['apply_target_white_balance']
 
 SRGB_TO_XYZ = np.array([[.4124564,.3575761,.1804375],
                         [.2126729,.7151522,.0721750],

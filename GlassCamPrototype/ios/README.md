@@ -85,3 +85,14 @@ Default off. Center-only 65³ shaped GPU cube; full-photo C++ processing and 10-
 ## Plan A reference camera UI
 
 Native clear glass is confined to the natural area outside the maximal full-window photo rectangle. No control-band reservation, center crop/warp or app-added blur/seam effect. Settings retain lens output, HNCS/FFCS, EV/Factory CCT, preview limits and diagnostics; the real Float thumbnail returns to the editor/import flow. Compact windows use a separate plain control panel. This is source implementation only, not a verified visual replica; see [Plan A](../docs/CLEAR_GLASS_UI.md).
+
+## HNCS revision8设备验收增项
+
+- 检查真实preset/film/space/intent与tone/portable grain/USM控件、重启配方持久化和跨相机/编辑器同步。Standard按上游CLI绕过空间预设；其他预设默认sharpness开与CLI一致。
+- 虚拟capture CCT与工厂CCT、完整目标WB明确区分，不标称测量的相机白平衡。
+- Square Crop竖横屏、奇数源尺寸、中央边界、比较两侧、真实HEIF像素尺寸必须一致；玻璃仅在最终照片外。
+- HNCS工作RGB磁盘top-left行序、全图grain/USM和RGBAf还原必须用真实Apple CI诊断；空间导出取消、磁盘不足和后台时的FileProtection行为均待实测。
+- 核验快门配方快照、关闭后晚到照片与新导入/新相机/导出并发，成功DNG不得配错方或抢占新任务。
+- 新预设没有实时cube误差批准，必须系统取景回退；Standard5500/6500原旧配方单独保留。
+
+C++/Python黄金及源码模型测试通过不意味着以上Apple SDK/设备项目已执行。

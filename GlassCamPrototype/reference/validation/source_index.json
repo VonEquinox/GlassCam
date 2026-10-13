@@ -1,0 +1,1321 @@
+[
+  {
+    "path": "audit_hncs_finalization.py",
+    "sha256": "344fa7fef7049f0d4ed167b564731d0d2fc96e8d74554d9c1cc484b77af59855",
+    "functions": [
+      {
+        "name": "main",
+        "line": 14,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "audit_phocus_presets.py",
+    "sha256": "81def37e3bbb2df6b5530fdf31b7586499da10f7285aa8ecd4bcece9bee1f011",
+    "functions": [
+      {
+        "name": "main",
+        "line": 15,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "compare_dual_illuminant.py",
+    "sha256": "a5086a6f927ea3bd1b522cc2a86779f5a132fb460d7da88375b1b33e2bad7844",
+    "functions": [
+      {
+        "name": "main",
+        "line": 11,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "export_photo_original.py",
+    "sha256": "6b04ca5aa0ed4ecc2d541a05766e49cf2c582aeab2db481a23ffe406b84360ab",
+    "functions": [
+      {
+        "name": "sha",
+        "line": 13,
+        "doc": ""
+      },
+      {
+        "name": "develop",
+        "line": 20,
+        "doc": ""
+      },
+      {
+        "name": "jpeg",
+        "line": 32,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 36,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "extract_phocus_presets.py",
+    "sha256": "8eb689649f2345ce6c2066286a05261fa37a5ae3ffbb4ab0b0f1cc4b11203905",
+    "functions": [
+      {
+        "name": "digest",
+        "line": 23,
+        "doc": ""
+      },
+      {
+        "name": "load",
+        "line": 27,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 31,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "fit_paired_illuminants.py",
+    "sha256": "9b59c2124812cd2afde204b373b0431eb5b4293df73806329a9372e8c8520b41",
+    "functions": [
+      {
+        "name": "sample",
+        "line": 22,
+        "doc": ""
+      },
+      {
+        "name": "normalized_pair",
+        "line": 35,
+        "doc": ""
+      },
+      {
+        "name": "endpoint",
+        "line": 43,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 63,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "hncs_dual_illuminant.py",
+    "sha256": "63731c584b437c1f6e1445337d55f5a67f624afbe16edddeac68412f38919ef1",
+    "functions": [
+      {
+        "name": "xy_xyz",
+        "line": 18,
+        "doc": ""
+      },
+      {
+        "name": "adaptation",
+        "line": 25,
+        "doc": ""
+      },
+      {
+        "name": "xyz_cct",
+        "line": 29,
+        "doc": "Continuous Robertson CCT for iteration, using the recovered table."
+      },
+      {
+        "name": "interpolate_cm",
+        "line": 50,
+        "doc": "Interpolate stored XYZ->native matrices in inverse Kelvin, then invert."
+      },
+      {
+        "name": "source_illuminant",
+        "line": 62,
+        "doc": ""
+      },
+      {
+        "name": "public_response",
+        "line": 81,
+        "doc": ""
+      },
+      {
+        "name": "load_model",
+        "line": 93,
+        "doc": ""
+      },
+      {
+        "name": "colour_parameters",
+        "line": 104,
+        "doc": ""
+      },
+      {
+        "name": "build_model",
+        "line": 150,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "hncs_paired_illuminants.py",
+    "sha256": "2e21ece5d61b56efed04ea9524381a2f2ccca177a237774504abba342225c482",
+    "functions": [
+      {
+        "name": "profile_fingerprint",
+        "line": 12,
+        "doc": ""
+      },
+      {
+        "name": "load_model",
+        "line": 20,
+        "doc": ""
+      },
+      {
+        "name": "colour_parameters",
+        "line": 46,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "hncs_pipeline.py",
+    "sha256": "db8009a38a3d2948d6e177fee2ef79a24f808f8b2b98c619f9c8041eacaa5a99",
+    "functions": [
+      {
+        "name": "save_json",
+        "line": 46,
+        "doc": ""
+      },
+      {
+        "name": "digest",
+        "line": 52,
+        "doc": ""
+      },
+      {
+        "name": "load_assets",
+        "line": 57,
+        "doc": ""
+      },
+      {
+        "name": "lerp_table",
+        "line": 73,
+        "doc": ""
+      },
+      {
+        "name": "estimate_cct",
+        "line": 80,
+        "doc": "Phocus GainToTempAndTint(..., false), including its direction interpolation."
+      },
+      {
+        "name": "bridge_white_balance",
+        "line": 119,
+        "doc": "Transfer a neutral under the assumed constant unbalanced sensor mapping."
+      },
+      {
+        "name": "render_colour_parameters",
+        "line": 153,
+        "doc": "Resolve the mapping and factory temperature together; expose provenance."
+      },
+      {
+        "name": "apply_target_white_balance",
+        "line": 209,
+        "doc": "Set absolute virtual-X2D WB while retaining the capture-light response."
+      },
+      {
+        "name": "expand_lut",
+        "line": 250,
+        "doc": "CXMLLut::CalculateExpandedLUT: extend each coordinate with unit slope."
+      },
+      {
+        "name": "lookup_chroma",
+        "line": 273,
+        "doc": "Scaled2DLUT::Lookup(...,true), including coordinate and value scaling."
+      },
+      {
+        "name": "kernel_matrices",
+        "line": 287,
+        "doc": ""
+      },
+      {
+        "name": "hncs_codes",
+        "line": 301,
+        "doc": "Recovered normal CPU kernel + gradation, with its uint16 stage boundaries."
+      },
+      {
+        "name": "lstar_decode",
+        "line": 360,
+        "doc": ""
+      },
+      {
+        "name": "xyz_to_lab",
+        "line": 365,
+        "doc": ""
+      },
+      {
+        "name": "delta_e_2000",
+        "line": 371,
+        "doc": "CIEDE2000 with kL=kC=kH=1; validated against published Sharma pairs."
+      },
+      {
+        "name": "output_lab",
+        "line": 397,
+        "doc": ""
+      },
+      {
+        "name": "raw_metadata",
+        "line": 404,
+        "doc": ""
+      },
+      {
+        "name": "homography",
+        "line": 420,
+        "doc": ""
+      },
+      {
+        "name": "project",
+        "line": 431,
+        "doc": ""
+      },
+      {
+        "name": "patch_polygons",
+        "line": 436,
+        "doc": ""
+      },
+      {
+        "name": "preview_sensor",
+        "line": 449,
+        "doc": ""
+      },
+      {
+        "name": "extract_patches",
+        "line": 467,
+        "doc": ""
+      },
+      {
+        "name": "normalisation",
+        "line": 507,
+        "doc": ""
+      },
+      {
+        "name": "fit_matrix",
+        "line": 515,
+        "doc": "Six free coefficients, exact preservation of the neutral axis; no offset."
+      },
+      {
+        "name": "summary",
+        "line": 537,
+        "doc": ""
+      },
+      {
+        "name": "calibrate",
+        "line": 542,
+        "doc": ""
+      },
+      {
+        "name": "demosaic",
+        "line": 608,
+        "doc": "LibRaw linear camera RGB, unity WB, fixed metadata white; no lens corrections."
+      },
+      {
+        "name": "srgb_from_hncs",
+        "line": 626,
+        "doc": ""
+      },
+      {
+        "name": "make_preview",
+        "line": 642,
+        "doc": "Area-average the full image so thumbnail sampling does not introduce moiré."
+      },
+      {
+        "name": "render",
+        "line": 657,
+        "doc": ""
+      },
+      {
+        "name": "validate_output",
+        "line": 746,
+        "doc": ""
+      },
+      {
+        "name": "comparison_preview",
+        "line": 763,
+        "doc": ""
+      },
+      {
+        "name": "parser",
+        "line": 777,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 824,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "package_hncs_runtime.py",
+    "sha256": "ecae4ee9c92875738b12e85e63527876a43df0c9153421cc03830cce39195a47",
+    "functions": [
+      {
+        "name": "bundle",
+        "line": 58,
+        "doc": ""
+      },
+      {
+        "name": "verify",
+        "line": 73,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "phocus_presets.py",
+    "sha256": "fd5f33d8f37608ca8974272942882a7149d10edd66bf23cc954914f1f79e5a4c",
+    "functions": [
+      {
+        "name": "_norm_name",
+        "line": 115,
+        "doc": ""
+      },
+      {
+        "name": "catalog",
+        "line": 121,
+        "doc": ""
+      },
+      {
+        "name": "preset_key",
+        "line": 127,
+        "doc": ""
+      },
+      {
+        "name": "preset_payload",
+        "line": 136,
+        "doc": "Return the exact extracted plist payload for a factory setting."
+      },
+      {
+        "name": "_image_correction",
+        "line": 146,
+        "doc": ""
+      },
+      {
+        "name": "_first_image_description",
+        "line": 152,
+        "doc": ""
+      },
+      {
+        "name": "_native_wb_row",
+        "line": 156,
+        "doc": "Look up native TempAndTintToGain data for a preset."
+      },
+      {
+        "name": "settings",
+        "line": 170,
+        "doc": ""
+      },
+      {
+        "name": "resolve_crop",
+        "line": 216,
+        "doc": "Resolve a factory crop against this image's pixel dimensions."
+      },
+      {
+        "name": "post_curve_tables",
+        "line": 241,
+        "doc": ""
+      },
+      {
+        "name": "_recover_hue",
+        "line": 262,
+        "doc": "Recover input hue with the adjusted HSL lightness and saturation."
+      },
+      {
+        "name": "apply_post_curves",
+        "line": 301,
+        "doc": "Apply factory channel/Gamma tables, contrast and optional luma curve."
+      },
+      {
+        "name": "_apply_film_grain",
+        "line": 342,
+        "doc": "Apply XML grain controls with a deterministic portable noise model."
+      },
+      {
+        "name": "apply_preset",
+        "line": 375,
+        "doc": "Apply the color/tone part of a factory setting to HNCS uint16 codes."
+      },
+      {
+        "name": "original_gamma_curve",
+        "line": 437,
+        "doc": "Generate HBUtil SetFilmCurveOriginal's 65536-entry gamma table."
+      },
+      {
+        "name": "resolve_film_curve",
+        "line": 451,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "prepare_hncs_assets.py",
+    "sha256": "df2357057264c7eb1a090ac5236ad89ffc95a91bae803dde942e784e37853565",
+    "functions": [
+      {
+        "name": "arm64_data",
+        "line": 17,
+        "doc": "Map a VM address to its file offset in the arm64 Mach-O slice."
+      },
+      {
+        "name": "main",
+        "line": 37,
+        "doc": ""
+      },
+      {
+        "name": "matrix",
+        "line": 55,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "prepare_sony_source_profile.py",
+    "sha256": "0cd80e0b72121bc8a00221f9f6b3e9325571275e6c7cef6b8e355fd8e6fdf562",
+    "functions": [
+      {
+        "name": "read_tags",
+        "line": 14,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 42,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "process_photo_batch.py",
+    "sha256": "19f2549a6177b90294bea2e3d35a194affd8a8e61233e36e57aa8df73cb084b3",
+    "functions": [
+      {
+        "name": "main",
+        "line": 13,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "test_dual_illuminant.py",
+    "sha256": "8a3016872ffd75cd337b22ffbe49ae1f6b6314165a37c94aeffd665fbffe02ee",
+    "functions": [
+      {
+        "name": "DualIlluminantTests",
+        "line": 9,
+        "doc": ""
+      },
+      {
+        "name": "setUpClass",
+        "line": 11,
+        "doc": ""
+      },
+      {
+        "name": "test_external_row_and_dcp_column_matrices_are_inverses",
+        "line": 16,
+        "doc": ""
+      },
+      {
+        "name": "test_measured_source_wb_recovers_reference_illuminants",
+        "line": 24,
+        "doc": ""
+      },
+      {
+        "name": "test_synthetic_intermediate_illuminant_is_recovered",
+        "line": 29,
+        "doc": ""
+      },
+      {
+        "name": "test_mired_midpoint_clamps_and_inverts_after_interpolation",
+        "line": 42,
+        "doc": ""
+      },
+      {
+        "name": "test_anchor_pixels_and_capture_neutral_exposure",
+        "line": 53,
+        "doc": ""
+      },
+      {
+        "name": "test_explicit_mode_and_factory_override",
+        "line": 70,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "test_hncs_pipeline.py",
+    "sha256": "0833a4d936f80c172e741d33b81e9cd19f5d42cf82166230f6f309d5de7e1217",
+    "functions": [
+      {
+        "name": "PipelineTests",
+        "line": 10,
+        "doc": ""
+      },
+      {
+        "name": "setUpClass",
+        "line": 12,
+        "doc": ""
+      },
+      {
+        "name": "test_published_ciede2000_pairs",
+        "line": 15,
+        "doc": ""
+      },
+      {
+        "name": "test_known_mapping_recovery",
+        "line": 22,
+        "doc": ""
+      },
+      {
+        "name": "test_lut_coordinate_units_and_edges",
+        "line": 32,
+        "doc": ""
+      },
+      {
+        "name": "test_gray_black_and_stripe_invariance",
+        "line": 41,
+        "doc": ""
+      },
+      {
+        "name": "test_original_native_constructor_pixel_vectors",
+        "line": 54,
+        "doc": ""
+      },
+      {
+        "name": "test_native_white_balance_temperatures",
+        "line": 65,
+        "doc": ""
+      },
+      {
+        "name": "test_display_gray_and_preview_edges",
+        "line": 76,
+        "doc": ""
+      },
+      {
+        "name": "test_srgb_conversion_against_littlecms",
+        "line": 84,
+        "doc": ""
+      },
+      {
+        "name": "test_nonfinite_rejected",
+        "line": 94,
+        "doc": ""
+      },
+      {
+        "name": "test_bridge_preserves_calibration_pixels_and_neutral_exposure",
+        "line": 98,
+        "doc": ""
+      },
+      {
+        "name": "test_render_resolves_capture_temperature_and_override",
+        "line": 122,
+        "doc": ""
+      },
+      {
+        "name": "test_bridge_rejects_invalid_neutrals",
+        "line": 144,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "test_paired_illuminants.py",
+    "sha256": "3c717d789fbe9c2c257ccb0d549a93639651dbbe9030b807ff87511894c2619f",
+    "functions": [
+      {
+        "name": "PairedIlluminantTests",
+        "line": 10,
+        "doc": ""
+      },
+      {
+        "name": "setUpClass",
+        "line": 12,
+        "doc": ""
+      },
+      {
+        "name": "test_both_real_chart_endpoints_reproduce_stored_fits",
+        "line": 16,
+        "doc": ""
+      },
+      {
+        "name": "test_capture_neutral_gain_and_wb_scale_invariance",
+        "line": 30,
+        "doc": ""
+      },
+      {
+        "name": "test_profile_guard_and_invalid_inputs",
+        "line": 42,
+        "doc": ""
+      },
+      {
+        "name": "test_factory_override_and_range_flags",
+        "line": 48,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "test_phocus_presets.py",
+    "sha256": "50f016cefd1c626305026b734d4512188b78ee58d27f1aec6da707c053af12af",
+    "functions": [
+      {
+        "name": "PhocusPresetTests",
+        "line": 15,
+        "doc": ""
+      },
+      {
+        "name": "setUpClass",
+        "line": 17,
+        "doc": ""
+      },
+      {
+        "name": "test_catalog_contains_all_extracted_factory_settings",
+        "line": 20,
+        "doc": ""
+      },
+      {
+        "name": "test_every_extracted_settings_file_has_a_portable_key",
+        "line": 26,
+        "doc": ""
+      },
+      {
+        "name": "test_native_curve_families_and_as_shot_resolution",
+        "line": 34,
+        "doc": ""
+      },
+      {
+        "name": "test_nature_tone_and_saturation_presets_change_codes",
+        "line": 50,
+        "doc": ""
+      },
+      {
+        "name": "test_factory_curves_against_independent_native_filter_vectors",
+        "line": 64,
+        "doc": ""
+      },
+      {
+        "name": "test_native_point_curve_samples_and_gamma_are_applied_by_render",
+        "line": 92,
+        "doc": ""
+      },
+      {
+        "name": "test_portrait_product_presets_preserve_color_core_and_record_sharpness",
+        "line": 116,
+        "doc": ""
+      },
+      {
+        "name": "test_native_white_balance_and_film_grain_presets_are_applied",
+        "line": 124,
+        "doc": ""
+      },
+      {
+        "name": "test_all_extracted_presets_execute_the_portable_entrypoint",
+        "line": 143,
+        "doc": ""
+      },
+      {
+        "name": "test_explicit_sharpness_switch_applies_portable_filter",
+        "line": 152,
+        "doc": ""
+      },
+      {
+        "name": "test_white_balance_gains_match_configured_native_camera_and_roundtrip",
+        "line": 160,
+        "doc": ""
+      },
+      {
+        "name": "test_absolute_wb_preset_neutralises_the_selected_target_illuminant",
+        "line": 177,
+        "doc": ""
+      },
+      {
+        "name": "test_square_crop_fits_each_camera_including_portrait_and_odd_sizes",
+        "line": 205,
+        "doc": ""
+      },
+      {
+        "name": "test_render_wires_absolute_white_balance_and_square_crop_to_tiff",
+        "line": 218,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "tools/build_delivery_zip.py",
+    "sha256": "998a01c040b1f1c63850c7a003278b793f13ab77c50905f140bc0917fc1713a1",
+    "functions": [
+      {
+        "name": "main",
+        "line": 9,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "tools/build_manifest.py",
+    "sha256": "d174d1c0f3d7a7dae1d17fce4bab610ce821659deefcc7db19f1eb66e4525c3a",
+    "functions": [
+      {
+        "name": "main",
+        "line": 13,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "tools/check_isolated_render.py",
+    "sha256": "3cde9e655a0e35d1b38973b32599c7c623536835d5dfb804b0a0d154457aab0c",
+    "functions": [
+      {
+        "name": "main",
+        "line": 17,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "tools/reference_color_core.py",
+    "sha256": "3052ca96671aa51b152987b125ce3a3e1534db7c38aa3440b73daa7414812d6d",
+    "functions": [
+      {
+        "name": "interpolate",
+        "line": 4,
+        "doc": ""
+      },
+      {
+        "name": "extend",
+        "line": 8,
+        "doc": ""
+      },
+      {
+        "name": "render",
+        "line": 18,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "tools/refit_delivery.py",
+    "sha256": "1df6105edbc6639005a23485875a504393cac6bdb996a3b5a175d0616234a6f6",
+    "functions": []
+  },
+  {
+    "path": "tools/sync_delivery.py",
+    "sha256": "6136ca6614df7573fbe84fd3ee4308aee0680d29a28aa88b9a62732ff0e9647b",
+    "functions": [
+      {
+        "name": "main",
+        "line": 11,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "tools/verify_delivery.py",
+    "sha256": "d26b1b1f3fecf1f7022405b1423bd2bfe7e0eadcb8c10288e7beb818722633f8",
+    "functions": [
+      {
+        "name": "verify_manifest",
+        "line": 17,
+        "doc": ""
+      },
+      {
+        "name": "verify_numerics",
+        "line": 26,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 70,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "tools/write_current_docs.py",
+    "sha256": "f9a9921c612ef1b96d7d96b5f457d12c1378c9209e04ddf01a5bfbf482edb75f",
+    "functions": [
+      {
+        "name": "numeric_export",
+        "line": 342,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 350,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "verify_final_pipeline.py",
+    "sha256": "4ea7fe7e0013cb3bfed83a4cf1e0f35347ea622146e6fb6833a9f1c248125e9a",
+    "functions": [
+      {
+        "name": "verify",
+        "line": 9,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 46,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/compare_phocus_export.py",
+    "sha256": "c1cd861598fc2146242b53eaac2356e65c0bbd7352f05296ca570cbc999fcbc0",
+    "functions": [
+      {
+        "name": "patch_medians",
+        "line": 23,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 37,
+        "doc": ""
+      },
+      {
+        "name": "diagnostic",
+        "line": 70,
+        "doc": ""
+      },
+      {
+        "name": "loss",
+        "line": 72,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/film_curve_probe.py",
+    "sha256": "e72fc14c20a3b4f1dd58eb340acb0c5f539c8a3f093ee187cb00ade198fbf7e3",
+    "functions": [
+      {
+        "name": "digest",
+        "line": 17,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 21,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/native_capture_probe.py",
+    "sha256": "1dd9f99f7f6fe83c8d8d511d6f296bab07ce41d3663b17548467640982025e93",
+    "functions": [
+      {
+        "name": "main",
+        "line": 19,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/native_chain_probe.py",
+    "sha256": "f04ea460e722686b8d74d7d6f78cef27ec1d41545b52029f7c32bb51949100d2",
+    "functions": [
+      {
+        "name": "Vec3",
+        "line": 20,
+        "doc": ""
+      },
+      {
+        "name": "Native",
+        "line": 24,
+        "doc": ""
+      },
+      {
+        "name": "__init__",
+        "line": 25,
+        "doc": ""
+      },
+      {
+        "name": "fn",
+        "line": 49,
+        "doc": ""
+      },
+      {
+        "name": "wb_to_cct",
+        "line": 52,
+        "doc": ""
+      },
+      {
+        "name": "correction",
+        "line": 58,
+        "doc": ""
+      },
+      {
+        "name": "array",
+        "line": 63,
+        "doc": ""
+      },
+      {
+        "name": "close",
+        "line": 67,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 72,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/native_config_probe.py",
+    "sha256": "2c67bba00d517984418b79141cc94c3354868143af012ad219f5d786ed7eab8a",
+    "functions": [
+      {
+        "name": "verified_framework",
+        "line": 24,
+        "doc": ""
+      },
+      {
+        "name": "LUT",
+        "line": 31,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 37,
+        "doc": ""
+      },
+      {
+        "name": "fn",
+        "line": 41,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/preset_curves_probe.py",
+    "sha256": "bc2e10d1d945c4c14f6fead62a3ac54c4b7280cc6343a81bb649517f2ffbfe3d",
+    "functions": [
+      {
+        "name": "NativeCurves",
+        "line": 26,
+        "doc": ""
+      },
+      {
+        "name": "__init__",
+        "line": 27,
+        "doc": ""
+      },
+      {
+        "name": "arrays",
+        "line": 43,
+        "doc": ""
+      },
+      {
+        "name": "settings",
+        "line": 53,
+        "doc": ""
+      },
+      {
+        "name": "close",
+        "line": 60,
+        "doc": ""
+      },
+      {
+        "name": "bridge",
+        "line": 70,
+        "doc": ""
+      },
+      {
+        "name": "run",
+        "line": 88,
+        "doc": ""
+      },
+      {
+        "name": "correction_payload",
+        "line": 99,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 109,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/update_audit_manifest.py",
+    "sha256": "3a04f2ac30e9d6390bef1c81f3513f2215caf4a71f87fc1c5e71f1ce0997869e",
+    "functions": [
+      {
+        "name": "digest",
+        "line": 10,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 18,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-audit/wb_preset_probe.py",
+    "sha256": "a359ee13e85b664245b5ff6f27d5042261b63b4e34280d226994abcc3a6b4526",
+    "functions": [
+      {
+        "name": "Vec3",
+        "line": 16,
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "line": 20,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/evidence/decrypt_colormap.py",
+    "sha256": "05c6443611bd38be8a5db2eec0ed3573f4ccf723111ae853c36c83c111b43213",
+    "functions": [
+      {
+        "name": "decrypt_file",
+        "line": 9,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/evidence/e2e_hncs.py",
+    "sha256": "d3ba417d3a32bdebd9d5fb3556bf6fd26b69ab0be0fc9ad19af951e120892877",
+    "functions": [
+      {
+        "name": "grab_arr",
+        "line": 33,
+        "doc": ""
+      },
+      {
+        "name": "grab_int",
+        "line": 36,
+        "doc": ""
+      },
+      {
+        "name": "dec",
+        "line": 38,
+        "doc": ""
+      },
+      {
+        "name": "binmat",
+        "line": 62,
+        "doc": ""
+      },
+      {
+        "name": "mul",
+        "line": 69,
+        "doc": ""
+      },
+      {
+        "name": "matvec",
+        "line": 71,
+        "doc": ""
+      },
+      {
+        "name": "inv",
+        "line": 73,
+        "doc": ""
+      },
+      {
+        "name": "lerp",
+        "line": 80,
+        "doc": ""
+      },
+      {
+        "name": "interp_by_cct",
+        "line": 83,
+        "doc": "CalculateMatrix @0x266c：解码域(线性)按色温线性插值"
+      },
+      {
+        "name": "wb_gains",
+        "line": 93,
+        "doc": ""
+      },
+      {
+        "name": "cam2xyz",
+        "line": 97,
+        "doc": ""
+      },
+      {
+        "name": "color_correct",
+        "line": 100,
+        "doc": "合成模型：×1.7 → inv(S)·m(cct) → clamp。"
+      },
+      {
+        "name": "lut_lookup",
+        "line": 112,
+        "doc": "CbCr 2D 残差 LUT 双线性插值（DivFactor=32: 每整数 32 子格；表值=(ΔCb,ΔCr) 原值）"
+      },
+      {
+        "name": "v",
+        "line": 115,
+        "doc": ""
+      },
+      {
+        "name": "hncs_code",
+        "line": 129,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/evidence/v1curve.py",
+    "sha256": "2d7505413c074077246ece40b069d55f796b5d8262a2244391ce27df2c804911",
+    "functions": [
+      {
+        "name": "_dbl",
+        "line": 29,
+        "doc": ""
+      },
+      {
+        "name": "gain",
+        "line": 41,
+        "doc": ""
+      },
+      {
+        "name": "pinch",
+        "line": 49,
+        "doc": ""
+      },
+      {
+        "name": "knot_arrays",
+        "line": 52,
+        "doc": ""
+      },
+      {
+        "name": "spline",
+        "line": 58,
+        "doc": ""
+      },
+      {
+        "name": "splint",
+        "line": 70,
+        "doc": ""
+      },
+      {
+        "name": "curve_gain",
+        "line": 81,
+        "doc": ""
+      },
+      {
+        "name": "PointCurve",
+        "line": 90,
+        "doc": ""
+      },
+      {
+        "name": "__init__",
+        "line": 91,
+        "doc": ""
+      },
+      {
+        "name": "gain",
+        "line": 98,
+        "doc": ""
+      },
+      {
+        "name": "lstar",
+        "line": 104,
+        "doc": ""
+      },
+      {
+        "name": "film_curve_original",
+        "line": 108,
+        "doc": ""
+      },
+      {
+        "name": "gradation_table",
+        "line": 122,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-phocus-correction/evidence/waes.py",
+    "sha256": "7ca2be315f45c406272c20d9ebf06dccf8228081b7d77e9735b35575af372a13",
+    "functions": [
+      {
+        "name": "_rd",
+        "line": 24,
+        "doc": ""
+      },
+      {
+        "name": "WAES",
+        "line": 28,
+        "doc": ""
+      },
+      {
+        "name": "__init__",
+        "line": 29,
+        "doc": ""
+      },
+      {
+        "name": "_tbl",
+        "line": 41,
+        "doc": ""
+      },
+      {
+        "name": "shift_mix",
+        "line": 44,
+        "doc": ""
+      },
+      {
+        "name": "mix_shift",
+        "line": 54,
+        "doc": ""
+      },
+      {
+        "name": "_subst",
+        "line": 65,
+        "doc": ""
+      },
+      {
+        "name": "encrypt",
+        "line": 68,
+        "doc": ""
+      },
+      {
+        "name": "decrypt",
+        "line": 76,
+        "doc": ""
+      },
+      {
+        "name": "gf2_mul",
+        "line": 84,
+        "doc": ""
+      }
+    ]
+  },
+  {
+    "path": "work/hncs-pipeline/native_validation.py",
+    "sha256": "642626028d220d2ec1dd2a466bb0384f7f631ac2420481c97a08f99fdd8bcdbe",
+    "functions": []
+  },
+  {
+    "path": "work/hncs-pipeline/verify_raw_normalisation.py",
+    "sha256": "cfdd3ffb48a1ac792503eea9781e277bd20db533e3086e3a44f917c0ad45b126",
+    "functions": [
+      {
+        "name": "main",
+        "line": 13,
+        "doc": ""
+      }
+    ]
+  }
+]

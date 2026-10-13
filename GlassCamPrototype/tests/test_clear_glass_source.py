@@ -23,8 +23,8 @@ class ClearGlassSourceContracts(unittest.TestCase):
     def test_full_window_geometry_never_reserves_space_for_controls(self):
         self.assertIn('CameraFraming(size: proxy.size,', VIEW)
         self.assertIn('.ignoresSafeArea()', VIEW)
-        self.assertIn('let photoWidth = min(width, height * aspect)', FRAMING)
-        self.assertIn('let photoHeight = photoWidth / aspect', FRAMING)
+        self.assertIn('let photoWidth = min(width, height * outputAspect)', FRAMING)
+        self.assertIn('let photoHeight = photoWidth / outputAspect', FRAMING)
         self.assertIn('width: photoWidth, height: photoHeight', FRAMING)
         for forbidden in ('controlBand', 'available.width', 'available.height',
                           'safeAreaInsets', 'insetBy(', 'UIScreen.main.bounds'):
@@ -222,7 +222,7 @@ class ClearGlassSourceContracts(unittest.TestCase):
         self.assertIn('@State private var experimentalLiveColor = false', VIEW)
         self.assertIn('liveRecipe.unsupportedReason', settings)
         self.assertIn('Apple GPU validation pending', settings)
-        self.assertIn('not measured scene white balance', settings)
+        self.assertIn('not measured camera WB', settings)
 
     def test_chrome_legibility_shadow_is_clipped_to_spare_region(self):
         region = section(VIEW, 'private struct CameraChromeRegion:', 'private struct PhotoFrameGuide:')
@@ -256,8 +256,8 @@ class ClearGlassSourceContracts(unittest.TestCase):
         self.assertIn('exposureEV: $model.exposure', camera)
         self.assertIn('illuminantKelvin: $model.kelvin', camera)
         self.assertIn('thumbnail: model.processed?.image ?? model.imported?.original', camera)
-        self.assertIn('model.selectCapture(data, settings: settings)', camera)
-        self.assertIn('onClose: { cameraPresented = false }', camera)
+        self.assertIn('model.selectCapture(data, settings: settings, capturedRecipe: capturedRecipe, ticket: sessionTicket)', camera)
+        self.assertIn('if cameraTicket == sessionTicket { cameraPresented = false }', camera)
         self.assertIn('Task { await model.renderIfNeeded() }', CONTENT)
 
 

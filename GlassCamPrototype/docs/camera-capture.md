@@ -75,3 +75,7 @@ A default-off switch adds a color-only GPU proxy over the unchanged system cente
 ## Plan A native-clear composition
 
 The selected photo rectangle is now the maximal aspect-fit rectangle in the full window; control bands no longer reduce it. Glass.clear panes are clipped to the natural window-minus-photo regions. Real photo-only controls follow the reference composition; insufficient margins use a separate plain control panel without changing photo geometry. Grid/thumbnail/settings are functional, flash-off is status only, and diagnostic text lives in details. No edge-copy, custom seam shader, extra blur or image elongation is part of A. See [scope and visual acceptance](CLEAR_GLASS_UI.md).
+
+## revision8方形预设与捕获配方
+
+Square Crop把最终中央边界改为最大等比方形，底层完整sensor sourcePhoto仍保持同一像素比例，外围FOV按未裁切sensor尺寸映射；没有拉伸或玻璃覆盖成片。实际ProRAW仍保留完整捕获源，后处理按参考中心裁切；HEIF的方形实际像素数低于完整4:3档位。快门冻结完整处理配方，迟到成功照片与新任务隔离，详见[捕获交付](CAPTURE_SESSION_HANDOFF.md)。

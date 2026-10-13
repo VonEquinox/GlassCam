@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "status": "experimental",
+  "sony": {
+    "temperatures": [
+      2856.0,
+      6504.0
+    ],
+    "xyz_to_native": [
+      [
+        [
+          0.9185,
+          -0.4857,
+          0.0505
+        ],
+        [
+          -0.3651,
+          1.1061,
+          0.2982
+        ],
+        [
+          -0.0161,
+          0.0698,
+          0.6769
+        ]
+      ],
+      [
+        [
+          0.82,
+          -0.2976,
+          -0.0719
+        ],
+        [
+          -0.4296,
+          1.2053,
+          0.2532
+        ],
+        [
+          -0.0429,
+          0.1282,
+          0.5774
+        ]
+      ]
+    ],
+    "direction": "DCP ColorMatrix1/2: XYZ column to Sony ILCE-7RM5 native column"
+  },
+  "source_data": {
+    "sony_source_dcp": {
+      "repository": "TingfengLuo/Camera-Profile-for-Fujifilm-Film-Simulation",
+      "commit": "2c763d73214004c50738f7a85225b0c11b1d820b",
+      "path": "Adobe Standard Linear Profile/Sony ILCE-7RM5 Adobe Standard Linear.dcp",
+      "git_blob_sha": "3f1056e9118c384007af83cf0cbb8fe19636698c",
+      "file_sha256": "0e862c17f6ad0b1d3148216f773c41c2f4255d6274b43f99efffaab4e039dbcc",
+      "source_scope": "Third-party linearized Adobe profile; matrix values still need convention and D65 cross-check before using"
+    },
+    "sony_d65_matches_libraw": true
+  },
+  "assumptions": [
+    "Characterization coefficients come from a public third-party mirror of an Adobe Standard Linear DCP. Camera identifier and A/D65 slots are verified; D65 matches the independent LibRaw and RawTherapee coefficients.",
+    "Only ColorMatrix1/2 are used to estimate source-white chromaticity; no tone curve, hue tables, creative look or ForwardMatrix rendering is imported.",
+    "CCT estimates are rendering coordinates, not measurements of the studio's illuminant spectrum. Two source matrices clamp outside A/D65."
+  ]
+}

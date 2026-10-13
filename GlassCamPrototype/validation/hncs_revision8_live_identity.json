@@ -1,0 +1,56 @@
+{
+  "status": "pass",
+  "scope": "revision8 Standard default versus unchanged legacy constructor; no GPU/new preset accuracy claim",
+  "checks": [
+    {
+      "virtual_capture_kelvin": 5500,
+      "case": "all_65_cubed_shaped_nodes",
+      "pixels": 274625,
+      "bit_mismatches": 0,
+      "rgba_sha256": "8d33de7c2aa0c744dc9c14aeda12d9264e8f95bb0bbf21b48e02f6ab1699e838"
+    },
+    {
+      "virtual_capture_kelvin": 5500,
+      "case": "independent_random_negative_superwhite",
+      "pixels": 200003,
+      "bit_mismatches": 0,
+      "rgba_sha256": "740ed9c0751118c8998a75423af0cfcf1658f9bc6d22116a92aa2f155332e1a9"
+    },
+    {
+      "virtual_capture_kelvin": 6500,
+      "case": "all_65_cubed_shaped_nodes",
+      "pixels": 274625,
+      "bit_mismatches": 0,
+      "rgba_sha256": "06ca561f10f7aa64983f1b0516d6f6f2b2779a25b75471829cd2267ff3db46e5"
+    },
+    {
+      "virtual_capture_kelvin": 6500,
+      "case": "independent_random_negative_superwhite",
+      "pixels": 200003,
+      "bit_mismatches": 0,
+      "rgba_sha256": "c11d99fed1c65dfe11855427eb5e968f4e4f030a2d402d289c3174d2bcd4bdf9"
+    }
+  ],
+  "source_sha256": {
+    "core/hncs.cpp": "91ded7f9bdcbebad1a783fb9746237dca801d5137d46843e8502870e6757c40f",
+    "core/hncs_c.h": "bda069e00bab194b47b8936461414022d6186a6070d61700ca11c10ead418df3",
+    "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+    "core/hncs_preset_assets.inc": "7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306",
+    "tools/verify_hncs_revision8_live.py": "039b37709a96de9cc746517fd2068ad670896de8334ab0b351acc8c3424eea28"
+  },
+  "numpy": "2.3.5",
+  "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+  "compile_command": [
+    "g++",
+    "-std=c++17",
+    "-O3",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "-pthread",
+    "-shared",
+    "-fPIC",
+    "/workspace/shared/glasscam-prototype/core/hncs.cpp",
+    "-o",
+    "/workspace/shared/glasscam-prototype/build/libhncs_revision8_live.so"
+  ]
+}

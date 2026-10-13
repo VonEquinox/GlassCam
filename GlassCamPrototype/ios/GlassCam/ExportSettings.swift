@@ -1,15 +1,49 @@
 import Foundation
+import CoreGraphics
 
-/// Physical-lens capability selection supplies an allowed output size. This
-/// backend never invents larger pixels. Nil means the genuine source size.
+/// Crop coordinates are resolved in oriented source pixels, never UI points.
+/// The reference chooses floor offsets from the top-left. CI bitmap row zero
+/// is lower-left, so ciY preserves that same odd-pixel bias on both routes.
+enum ImageCrop: String, Codable, Equatable, Sendable {
+    case none, centeredSquare
+
+    func resolve(width: Int, height: Int) throws -> PixelCrop {
+        guard width > 0, height > 0 else { throw PipelineError.invalidImage }
+        let side = min(width, height)
+        let cropWidth = self == .centeredSquare ? side : width
+        let cropHeight = self == .centeredSquare ? side : height
+        return PixelCrop(x: (width - cropWidth) / 2,
+                         top: (height - cropHeight) / 2,
+                         width: cropWidth, height: cropHeight, sourceHeight: height)
+    }
+}
+
+struct PixelCrop: Equatable, Sendable {
+    let x: Int
+    let top: Int
+    let width: Int
+    let height: Int
+    let sourceHeight: Int
+    var ciY: Int { sourceHeight - top - height }
+    var ciRect: CGRect {
+        CGRect(x: CGFloat(x), y: CGFloat(ciY), width: CGFloat(width), height: CGFloat(height))
+    }
+}
+
+/// Physical-lens capability selection supplies an allowed uncropped output size.
+/// Crop keeps its scale: a 4:3 48MP source becomes a 1:1 crop, never a 48MP upscale.
 struct ExportSettings: Equatable, Sendable {
     let targetWidth: Int?
     let targetHeight: Int?
     static let native = ExportSettings(targetWidth: nil, targetHeight: nil)
 
-    func dimensions(sourceWidth: Int, sourceHeight: Int) throws -> (width: Int, height: Int) {
+    func dimensions(sourceWidth: Int, sourceHeight: Int,
+                    crop: ImageCrop = .none) throws -> (width: Int, height: Int) {
         guard sourceWidth > 0, sourceHeight > 0 else { throw PipelineError.invalidImage }
-        guard targetWidth != nil || targetHeight != nil else { return (sourceWidth, sourceHeight) }
+        guard targetWidth != nil || targetHeight != nil else {
+            let result = try crop.resolve(width: sourceWidth, height: sourceHeight)
+            return (result.width, result.height)
+        }
         guard let selectedWidth = targetWidth, let selectedHeight = targetHeight,
               selectedWidth > 0, selectedHeight > 0 else { throw PipelineError.unsupportedOutput }
         let swap = (sourceWidth < sourceHeight) != (selectedWidth < selectedHeight)
@@ -19,6 +53,7 @@ struct ExportSettings: Equatable, Sendable {
               abs(Double(width) / Double(height) - Double(sourceWidth) / Double(sourceHeight)) < 1e-12 else {
             throw PipelineError.unsupportedOutput
         }
-        return (width, height)
+        let result = try crop.resolve(width: width, height: height)
+        return (result.width, result.height)
     }
 }

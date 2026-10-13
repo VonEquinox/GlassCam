@@ -1,3 +1,4 @@
 # Test/diagnostic dependencies only; the C++ backend has no third-party runtime dependency.
 numpy>=2.0,<3
 Pillow>=11,<13
+scipy>=1.14,<2  # Revision-8 portable spatial oracle only; no C++ runtime dependency.

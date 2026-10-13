@@ -23,7 +23,7 @@ struct ImportedImage: @unchecked Sendable {
 
 /// Only implemented, audited backends belong in this list. Adding a mode must
 /// implement both preview and float export dispatch before exposing it in the UI.
-enum ColorMode: String, CaseIterable, Identifiable, Sendable {
+enum ColorMode: String, CaseIterable, Identifiable, Codable, Sendable {
     case hncs, ffcs
     var id: Self { self }
     var title: String {
@@ -36,20 +36,31 @@ enum ColorMode: String, CaseIterable, Identifiable, Sendable {
 
 /// Immutable settings captured before background work starts. Export must use
 /// the rendered recipe, including its engine, rather than current editor controls.
-struct ProcessingRecipe: Equatable, Sendable {
+struct ProcessingRecipe: Codable, Equatable, Sendable {
     let mode: ColorMode
     let exposureEV: Double
     let illuminantKelvin: Double
     let simulationIndex: Int
     let seed: UInt32
+    let hncs: HNCSSettings
+    var crop: ImageCrop { mode == .hncs ? hncs.crop : .none }
+
+    static let standard = ProcessingRecipe(mode: .hncs, exposureEV: 0, illuminantKelvin: 6500,
+                                            simulationIndex: 0, seed: 0, hncs: .standard)
+    var isValid: Bool {
+        exposureEV.isFinite && (-2...2).contains(exposureEV) &&
+        illuminantKelvin.isFinite && (2000...10000).contains(illuminantKelvin) &&
+        (0..<Int(ffcs_simulation_count())).contains(simulationIndex) && hncs.isValid
+    }
 
     var displayName: String {
-        mode == .ffcs ? "FFCS · \(FFCSEngine.simulationName(at: simulationIndex))" : mode.title
+        mode == .ffcs ? "FFCS · \(FFCSEngine.simulationName(at: simulationIndex))" : "HNCS · \(hncs.presetTitle) · \(hncs.filmCurve.title)"
     }
 }
 
 struct ProcessedImage: @unchecked Sendable {
     let image: PreviewRaster
+    let comparisonSource: PreviewRaster
     // Snapshot belongs to this rendered preview, not the current slider positions.
     // Source and processed previews retain immutable Float32 rasters for GPU display.
     let source: ImportedImage
@@ -64,7 +75,7 @@ enum PipelineError: LocalizedError {
         switch self {
         case .invalidImage: return "This image could not be decoded. Try a JPEG, PNG, HEIC, or supported DNG."
         case .rendering: return "The image renderer could not create an output."
-        case .unsupportedOutput: return "The selected output dimensions exceed the genuine source or change its aspect ratio. Capture at a supported resolution; upsampling is disabled."
+        case .unsupportedOutput: return "The selected sensor output exceeds the genuine source or changes its uncropped aspect ratio. Capture at a supported resolution; upsampling is disabled."
         case .encoding: return "The processed image could not be encoded as 10-bit SDR HEIF. No lower-bit-depth fallback was saved."
         }
     }
@@ -169,21 +180,37 @@ enum ImagePipeline {
     }
 
     static func process(_ input: ImportedImage, recipe: ProcessingRecipe) throws -> ProcessedImage {
-        // The exact engines produce display-linear Float32 output. Their internal
-        // reference math remains double precision; no byte preview encoder runs.
+        guard recipe.isValid else { throw HNCSEngine.Error.invalidSettings }
+        let crop = try recipe.crop.resolve(width: input.width, height: input.height)
+        let comparisonSource = try input.original.cropped(to: crop)
+        let rgb: [Float]
+        if crop.width == input.width && crop.height == input.height {
+            rgb = input.linearRGB
+        } else {
+            var pixels = [Float]()
+            pixels.reserveCapacity(crop.width * crop.height * 3)
+            // CIContext bitmap and PreviewRaster share lower-left row ordering.
+            for row in crop.ciY..<(crop.ciY + crop.height) {
+                let start = (row * input.width + crop.x) * 3
+                pixels.append(contentsOf: input.linearRGB[start..<(start + crop.width * 3)])
+            }
+            rgb = pixels
+        }
+        // Crop before pointwise/spatial processing, just as the source reference.
+        // Exact engines return display-linear Float32; no byte encoder runs.
         let rgba: [Float]
         switch recipe.mode {
         case .hncs:
-            rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: input.linearRGB, width: input.width,
-                                                   height: input.height, exposureEV: recipe.exposureEV,
-                                                   illuminantKelvin: recipe.illuminantKelvin)
+            rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: rgb, width: crop.width,
+                                                   height: crop.height, exposureEV: recipe.exposureEV,
+                                                   illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs)
         case .ffcs:
-            rgba = try FFCSEngine.exportLinearRGBA(linearSRGB: input.linearRGB, width: input.width,
-                                                   height: input.height, exposureEV: recipe.exposureEV,
+            rgba = try FFCSEngine.exportLinearRGBA(linearSRGB: rgb, width: crop.width,
+                                                   height: crop.height, exposureEV: recipe.exposureEV,
                                                    simulationIndex: recipe.simulationIndex, seed: recipe.seed)
         }
-        let image = try PreviewRaster(linearRGBA: rgba, width: input.width, height: input.height)
-        return ProcessedImage(image: image, source: input, recipe: recipe)
+        let image = try PreviewRaster(linearRGBA: rgba, width: crop.width, height: crop.height)
+        return ProcessedImage(image: image, comparisonSource: comparisonSource, source: input, recipe: recipe)
     }
 
     /// Export from the retained full-resolution capture, with its immutable recipe.
@@ -241,15 +268,22 @@ enum ImagePipeline {
         // Protect all byte-count arithmetic before allocating or creating a file.
         guard decoded.extent.width < CGFloat(Int.max / 16),
               decoded.extent.height < CGFloat(Int.max / 16) else { throw PipelineError.invalidImage }
-        let width = Int(decoded.extent.width.rounded(.down))
-        let height = Int(decoded.extent.height.rounded(.down))
+        let sourceWidth = Int(decoded.extent.width.rounded(.down))
+        let sourceHeight = Int(decoded.extent.height.rounded(.down))
+        let recipe = processed.recipe
+        guard recipe.isValid else { throw HNCSEngine.Error.invalidSettings }
+        let crop = try recipe.crop.resolve(width: sourceWidth, height: sourceHeight)
+        let width = crop.width, height = crop.height
         guard width > 0, height > 0, width <= Int.max / 16 / height else { throw PipelineError.invalidImage }
-        let output = try settings.dimensions(sourceWidth: width, sourceHeight: height)
+        let output = try settings.dimensions(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: recipe.crop)
         let rasterBytes = width * height * 16
         let capacity = try FileManager.default.temporaryDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
-        // Allow the uncompressed raster plus a conservative encoded-output margin.
+        // Reserve RGBAf + encoded-output margin and, when needed, 12-byte RGB
+        // work plus a conservative 20-byte/pixel global spatial scratch budget.
+        let needsSpatial = recipe.mode == .hncs && recipe.hncs.requiresSpatial
+        let spatialBytes = needsSpatial ? Double(width) * Double(height) * 32 : 0
         if let available = capacity.volumeAvailableCapacityForImportantUsage,
-           Double(available) < Double(rasterBytes) * 1.5 + 64 * 1024 * 1024 {
+           Double(available) < Double(rasterBytes) * 1.5 + spatialBytes + 64 * 1024 * 1024 {
             throw CocoaError(.fileWriteOutOfSpace)
         }
         guard let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB),
@@ -258,10 +292,12 @@ enum ImagePipeline {
                                           .workingFormat: CIFormat.RGBAf.rawValue,
                                           .cacheIntermediates: false])
         let bounds = CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
-        let source = decoded.composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
+        let croppedSource = decoded.cropped(to: crop.ciRect)
+            .transformed(by: CGAffineTransform(translationX: -CGFloat(crop.x), y: -CGFloat(crop.ciY)))
+        let source = croppedSource.composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
             .cropped(to: bounds)
         let raster = try ExportRasterFile()
-        let recipe = processed.recipe
+        let spatialWork = needsSpatial ? try HNCSPresetWorkFile(width: width, height: height) : nil
         let stripRows = 64
         for start in stride(from: 0, to: height, by: stripRows) {
             try checkExportCancellation(isCancelled)
@@ -281,12 +317,19 @@ enum ImagePipeline {
                 for pixel in 0..<(width * inputRows) {
                     for channel in 0..<3 { rgb[pixel * 3 + channel] = decodedRGBA[pixel * 4 + channel] }
                 }
+                if let spatialWork {
+                    let work = try HNCSEngine.presetWork(linearSRGB: rgb, width: width, height: rows,
+                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs)
+                    try spatialWork.writeBottomUpRows(work, originY: start, rows: rows)
+                    progress(0.1 + 0.35 * Double(start + rows) / Double(height))
+                    return
+                }
                 let rgba: [Float]
                 switch recipe.mode {
                 case .hncs:
                     rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: rgb, width: width, height: rows,
                                                            exposureEV: recipe.exposureEV,
-                                                           illuminantKelvin: recipe.illuminantKelvin)
+                                                           illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs)
                 case .ffcs:
                     let rendered = try FFCSEngine.exportLinearRGBStrip(
                         linearSRGB: rgb, fullWidth: width, fullHeight: height,
@@ -305,12 +348,33 @@ enum ImagePipeline {
                 progress(0.1 + 0.75 * Double(start + rows) / Double(height))
             }
         }
+        if let spatialWork {
+            try checkExportCancellation(isCancelled)
+            progress(0.45)
+            // Grain normalization and USM see one complete cropped top-down
+            // image, never independently seeded 64-row strips.
+            try HNCSEngine.applySpatial(to: spatialWork, settings: recipe.hncs, isCancelled: isCancelled)
+            progress(0.65)
+            for start in stride(from: 0, to: height, by: stripRows) {
+                try checkExportCancellation(isCancelled)
+                try autoreleasepool {
+                    let rows = min(stripRows, height - start)
+                    let work = try spatialWork.readBottomUpRows(originY: start, rows: rows)
+                    let rgba = try HNCSEngine.finishPresetWork(work, width: width, height: rows,
+                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs)
+                    guard rgba.count == width * rows * 4,
+                          rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
+                    try raster.append(rgba)
+                    progress(0.65 + 0.2 * Double(start + rows) / Double(height))
+                }
+            }
+        }
         try checkExportCancellation(isCancelled)
         let data = try raster.mappedData(expectedBytes: rasterBytes)
         var image = CIImage(bitmapData: data, bytesPerRow: width * 16,
                             size: CGSize(width: CGFloat(width), height: CGFloat(height)), format: .RGBAf, colorSpace: linear)
         if output.width != width || output.height != height {
-            // Color and spatial FFCS effects have already run at source resolution.
+            // Color and spatial effects have already run at cropped source resolution.
             // Lanczos executes in linear light, with no fake higher-resolution path.
             let scale = Double(output.height) / Double(height)
             image = image.applyingFilter("CILanczosScaleTransform", parameters: [kCIInputScaleKey: scale,

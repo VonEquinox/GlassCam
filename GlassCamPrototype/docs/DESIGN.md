@@ -12,7 +12,7 @@ SwiftUI 管理导入、相机、比较、设置与交付；Apple 层负责解码
 
 原核需要黑位扣除、归一化、白平衡后的 X2D II native RGB。第一版为先看效果采用：linear sRGB(D65) → XYZ → Bradford → inverse(interpolated camera_to_xyz) → virtual native RGB → 原 HNCS → Hasselblad 工作码 → 原显示变换。
 
-桥沿用已有矩阵，不拟合新色卡，不声称 iPhone 标定。JPEG/HEIC 的既有 tone mapping 无法靠线性化恢复，系统 ProRAW 解码也不等于未处理 CFA。工厂 CCT 是核参数而非实测光源；EV 进入核前只乘一次。
+桥沿用已有矩阵，不拟合新色卡，不声称 iPhone 标定。JPEG/HEIC 的既有 tone mapping 无法靠线性化恢复，系统 ProRAW 解码也不等于未处理 CFA。工厂CCT是核参数而非实测光源；EV进入核前只乘一次。revision8新增独立虚拟captureCCT和完整目标WB增益，采用明确的factory-WB插值虚拟基线，再以desired/baseline比例作用于native桥；不向已白平衡linear-sRGB直接乘原相机增益。真实后曲线/film curve与portable空间阶段见[详细合同](HNCS_REVISION8.md)。
 
 保留 double、[0,1] 截断、16 位 ties-to-even 量化、原二维 chroma LUT、暗部/灰度权重、索引、65536 项曲线及色温插值/外推规则。没有新增 HDR 负值/超白保留承诺。
 
@@ -22,7 +22,7 @@ linear-sRGB 对应原 FFCS 的 linear 输入路线，不经过 HNCS。19 款真�
 
 ## 精确导出与有界暂存
 
-源文件由共享不可变所有者保留。导出每块 64 输出行，FFCS 带一行 halo 和原全图坐标，保证锐化邻域与颗粒在条带间连续。处理后 RGBAf 顺序写临时文件，再只读映射给 Core Image；需要缩小时在线性光 Lanczos 后 clamp，再请求 HEIF10 SDR。没有 8 位回退、PQ/HLG 或 gain map。
+源文件由共享不可变所有者保留。Square Crop先以实际源像素居中裁切，再选择输出尺寸；比较两侧同裁切。HNCS空间预设先将Float32工作码流写为top-left全图RGB临时文件，运行与全图shape绑定的颗粒/可选USM，再按64行转换至显示RGBAf；不能逐条带各自归一化。导出每块 64 输出行，FFCS 带一行 halo 和原全图坐标，保证锐化邻域与颗粒在条带间连续。处理后 RGBAf 顺序写临时文件，再只读映射给 Core Image；需要缩小时在线性光 Lanczos 后 clamp，再请求 HEIF10 SDR。没有 8 位回退、PQ/HLG 或 gain map。
 
 这只约束应用处理暂存，不保证总 RSS：Apple 解码、过滤、编码、mmap 常驻页和页缓存可能是全图。48.8MP RGBAf 磁盘中间图约 781MB，另有源、编码文件和安全余量；详见 [全源导出](FULL_RESOLUTION_EXPORT.md)。
 
@@ -36,13 +36,13 @@ linear-sRGB 对应原 FFCS 的 linear 输入路线，不经过 HNCS。19 款真�
 
 ## 并发、失败与取消
 
-解码/效果/导出离开主线程，阶段串行避免不可取消解码或编码重叠。operation token 阻止旧任务覆盖新选择；导出绑定成功显示的源/引擎/外观/曝光/CCT/种子/输出快照。未渲染配方禁止保存/分享，失败保留可重试的已解码源。
+解码/效果/导出离开主线程，阶段串行避免不可取消解码或编码重叠。operation token 阻止旧任务覆盖新选择；导出绑定成功显示的源/引擎/外观/曝光/CCT/种子/输出快照，以及render revision、preset、film curve、工作空间、intent、tone/空间开关；所有影响像素的项参与缓存身份。未渲染配方禁止保存/分享，失败保留可重试的已解码源。
 
 保留实际 worker 的取消句柄，使用 NSLock 保护的显式 token 跨 decodeQueue 传递，在条带与 codec 前后检查；同步 Apple 调用期间不能强制中断，busy 持续到它返回，取消后不提交交付。相机取消/最终回调错误清理 pending capture。Photos 提交后的取消边界独立于编码取消。
 
 ## 相机几何与能力
 
-中心使用实际照片比例在整个窗口bounds内最大等比显示；不再为controlBand缩小成片框。控件适应天然外围，空间不足时走独立普通控制面板；原生Glass.clear仅置于中心之外。主摄/长焦使用真实更广物理流，近似 FOV 映射加覆盖门控；并非同视点无缝拼接，视差/时差/畸变仍存在。超广接受黑色外围。外围永不进入 photo output。取景默认系统色彩，中心可显式开启 [实验性颜色GPU代理](LIVE_COLOR_PROXY.md)，不执行完整逐帧CPU流水线。
+中心使用实际最终照片比例在整个窗口bounds内最大等比显示；Square Crop时中央为方形，未裁切sourcePhoto保持同一像素比例供光学外围映射，既不拉伸也不为控件缩水。不再为controlBand缩小成片框。控件适应天然外围，空间不足时走独立普通控制面板；原生Glass.clear仅置于中心之外。主摄/长焦使用真实更广物理流，近似 FOV 映射加覆盖门控；并非同视点无缝拼接，视差/时差/畸变仍存在。超广接受黑色外围。外围永不进入 photo output。取景默认系统色彩，中心可显式开启 [实验性颜色GPU代理](LIVE_COLOR_PROXY.md)，不执行完整逐帧CPU流水线。
 
 MultiCam仅用于主摄/长焦双路video预览。快门事务保留冻结画面并真正停止双摄图，再建普通单摄.photo捕获并恢复预览；源能力来自单摄探测，ProRAW和实际RAW尺寸在真实捕获图门控。成功照片不依赖预览恢复成功；没有宣传48MP即必然可用的推断。详见 [相机契约](camera-capture.md)。
 

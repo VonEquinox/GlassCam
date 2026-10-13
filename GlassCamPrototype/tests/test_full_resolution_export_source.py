@@ -45,7 +45,8 @@ class FullResolutionExportContracts(unittest.TestCase):
     def test_hncs_context_is_reused_across_strips(self):
         bridge = (ROOT / 'ios/GlassCam/HNCSEngine.swift').read_text()
         self.assertIn('private static let contextCache = ContextCache()', bridge)
-        self.assertIn('cached.exposure == exposure, cached.kelvin == kelvin', bridge)
+        self.assertIn('ContextKey(exposure: exposure, captureKelvin: kelvin, settings: settings)', bridge)
+        self.assertIn('cached.key == key', bridge)
         self.assertIn('defer { withExtendedLifetime(owner) {} }', bridge)
         self.assertIn('deinit { hncs_destroy(pointer) }', bridge)
 

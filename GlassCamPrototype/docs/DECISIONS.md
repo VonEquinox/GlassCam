@@ -93,3 +93,7 @@ HEIF 导出使用与预览一致的引擎/外观/曝光/种子快照，从 Float
 ## D017：先实施原生clear玻璃方案A
 
 用户批准参考图布局和外围Glass.clear，保持完整中央photoRect与现有基础FOV对齐。去掉旧为controlBand预留空间而缩小中央图的几何；控件适应真实剩余区域，必要时走独立紧凑控制界面。禁止用额外blur、复制边缘像素、拉伸或自定义seam shader掩盖接缝。B尚未批准，须先做A设备视觉验收，再由用户决定是否需要。详见 [实现范围与验收](CLEAR_GLASS_UI.md)。
+
+## D018：同步最新HNCS预设与render revision8（2026-10-13，用户确认）
+
+用户要求先接入真实预设曲线，并按照新的技术交付修正相关行为。保留colour revision2不变核心及旧黄金证据，新增完整配置WB、真实后曲线、方裁切、portable空间阶段的独立验证。Apple源域继续明确实验性，固定WB不能仅替换CCT；新增预设不自动继承旧实时cube误差批准。具体合同与验收见 [revision8同步](HNCS_REVISION8.md)。

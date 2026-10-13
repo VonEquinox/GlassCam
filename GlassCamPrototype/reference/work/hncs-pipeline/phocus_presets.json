@@ -1,0 +1,4280 @@
+{
+  "schema": 1,
+  "phocus_version": "4.2.2",
+  "source_root": "/Volumes/Phocus/Phocus.app/Contents/Resources/Settings/Standard",
+  "source_files": {
+    "Adjustment Layers/Default.xml": {
+      "sha256": "acb56e74a3244b4aaa2bb5edfa0ded15ee5c4105e0851c896e42a9bfd7273d0a",
+      "plist": {
+        "AdjustmentLayers": {
+          "Default": 1,
+          "Height": 7216,
+          "Width": 5412,
+          "streamableVersion": 1
+        },
+        "ApplyAdjustmentLayers": true
+      }
+    },
+    "Color Corrections/Default.xml": {
+      "sha256": "02bf06df23a8ad45f30270008b04dc600548a82d2b9c200f5262e9c0af1d5507",
+      "plist": {
+        "ColorCorr": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ColorModel": 0,
+        "Default": 1,
+        "Saturation": 0
+      }
+    },
+    "Color Corrections/Saturated.xml": {
+      "sha256": "91b7224b103e59b2f5595ce9d74da7482cfef08983e71681aada1805b11d235d",
+      "plist": {
+        "ColorCorr": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "ColorModel": 0,
+        "Saturation": 10
+      }
+    },
+    "Color Management/Default.xml": {
+      "sha256": "7e7e39bcfbd2fd49e749cb5b85c54c8a0235bd41eb6618256fe0564fed74a5f7",
+      "plist": {
+        "Default": 1,
+        "ColorModel": 0,
+        "InputProfile": {
+          "Creator": 0,
+          "Name": "Hasselblad RGB",
+          "ParID": 0,
+          "Path": "",
+          "ReadOnly": false,
+          "Type": 0,
+          "VRefNum": 0,
+          "streamableVersion": 1
+        }
+      }
+    },
+    "Defringe/Default.xml": {
+      "sha256": "5f91c02394f02432df50a6d5f21ba89fb60999a51601217418b9140bf513fd13",
+      "plist": {
+        "ApplyDefringe": false,
+        "GreenDefringeAmount": 0,
+        "MaxGreenValue": 1900,
+        "MaxPurpleValue": 3450,
+        "MinGreenValue": 600,
+        "MinPurpleValue": 2350,
+        "PurpleDefringeAmount": 0
+      }
+    },
+    "Dust/Default.xml": {
+      "sha256": "ee5f770dbe7ba198b058eb6a1f3f3b81ecd4a4ce27afb7a742a2dc267945f973",
+      "plist": {
+        "ApplyDust": true,
+        "Default": 1,
+        "DustPointCount": 0
+      }
+    },
+    "Exposure/Default.xml": {
+      "sha256": "f649652edf6fdefd85710453c342e5b98bdf651b8b87973383966991cc4adbe1",
+      "plist": {
+        "Brightness": 0,
+        "Contrast": 0,
+        "Default": 1,
+        "EV": 1,
+        "Gamma": 2,
+        "Lightness": 0
+      }
+    },
+    "Exposure/Extra contrast.xml": {
+      "sha256": "145a4029aee632bcc0f11cb2bb2828e5b19ca149e95e831bda161f87eb407d09",
+      "plist": {
+        "Brightness": 0,
+        "Contrast": 10,
+        "EV": 1,
+        "Gamma": 2.2,
+        "Lightness": 0
+      }
+    },
+    "Film Grain/Artistic.xml": {
+      "sha256": "133666fe096d2be124aa346882e3f618dc194c2fd94887940000e88e29559708",
+      "plist": {
+        "SortKey": "o",
+        "ApplyFilmGrain": true,
+        "FilmGrainAmount": 80,
+        "FilmGrainColor": 15,
+        "FilmGrainRoughness": 80,
+        "FilmGrainSize": 80,
+        "FilmGrainType": 2
+      }
+    },
+    "Film Grain/Default.xml": {
+      "sha256": "797f2cfa7f22534360043de2be45d7f71ea553aae947aa91a08f8e9d952058f6",
+      "plist": {
+        "SortKey": "a",
+        "ApplyFilmGrain": false,
+        "FilmGrainAmount": 40,
+        "FilmGrainColor": 0,
+        "FilmGrainRoughness": 15,
+        "FilmGrainSize": 40,
+        "FilmGrainType": 1
+      }
+    },
+    "Film Grain/Fine Texture.xml": {
+      "sha256": "53b13895d003d176042439def6139e54488d9c1b63763390e25a8946c142b618",
+      "plist": {
+        "SortKey": "f",
+        "ApplyFilmGrain": true,
+        "FilmGrainAmount": 40,
+        "FilmGrainColor": 0,
+        "FilmGrainRoughness": 5,
+        "FilmGrainSize": 10,
+        "FilmGrainType": 0
+      }
+    },
+    "Film Grain/High ISO.xml": {
+      "sha256": "21f8621db59a886fea32bd617df1eac2365a52b015742f1a210124ae3e74903f",
+      "plist": {
+        "SortKey": "c",
+        "ApplyFilmGrain": true,
+        "FilmGrainAmount": 100,
+        "FilmGrainColor": 0,
+        "FilmGrainRoughness": 30,
+        "FilmGrainSize": 50,
+        "FilmGrainType": 1
+      }
+    },
+    "Film Grain/Medium ISO.xml": {
+      "sha256": "6ad4a4642a518d97492bf5c394c531aabe5711764a55af910b8b0aea03c356a5",
+      "plist": {
+        "SortKey": "b",
+        "ApplyFilmGrain": true,
+        "FilmGrainAmount": 60,
+        "FilmGrainColor": 0,
+        "FilmGrainRoughness": 15,
+        "FilmGrainSize": 40,
+        "FilmGrainType": 1
+      }
+    },
+    "Film Grain/Rough Color.xml": {
+      "sha256": "5dbab68cec73eadb8dce6fee887e4a11c7533bca37e8d97d620cf3bc11dc5ea0",
+      "plist": {
+        "SortKey": "g",
+        "ApplyFilmGrain": true,
+        "FilmGrainAmount": 100,
+        "FilmGrainColor": 25,
+        "FilmGrainRoughness": 100,
+        "FilmGrainSize": 75,
+        "FilmGrainType": 0
+      }
+    },
+    "Film Grain/Slide High ISO.xml": {
+      "sha256": "a4ff35aac8ec9c76d1af82926ac9b68b5b9b1bce915b6f203ae6c0a891e58f5d",
+      "plist": {
+        "SortKey": "e",
+        "ApplyFilmGrain": true,
+        "FilmGrainAmount": 100,
+        "FilmGrainColor": 15,
+        "FilmGrainRoughness": 50,
+        "FilmGrainSize": 75,
+        "FilmGrainType": 1
+      }
+    },
+    "Film Grain/Slide Medium ISO.xml": {
+      "sha256": "c06560f4fe957d94c18b8d82aec5e92cd32f54a47c6f6ac526dbcc9c6235ddc4",
+      "plist": {
+        "SortKey": "d",
+        "ApplyFilmGrain": true,
+        "FilmGrainAmount": 70,
+        "FilmGrainColor": 15,
+        "FilmGrainRoughness": 15,
+        "FilmGrainSize": 60,
+        "FilmGrainType": 1
+      }
+    },
+    "Film Grain/Tabular Grain.xml": {
+      "sha256": "a067d6a9136ab9c1478257d71ff3f2f866edfa785bdf50bc74098bcba301d44b",
+      "plist": {
+        "SortKey": "h",
+        "ApplyFilmGrain": true,
+        "FilmGrainAmount": 39,
+        "FilmGrainColor": 0,
+        "FilmGrainRoughness": 29,
+        "FilmGrainSize": 77,
+        "FilmGrainType": 0
+      }
+    },
+    "Gradation Curves/Default.xml": {
+      "sha256": "5a73941db015572f6bbfcdf66f4502a073aaf71e4cc0918642d73185337438ca",
+      "plist": {
+        "Default": 1,
+        "FilmCurve": 4,
+        "Gradations": [
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          }
+        ],
+        "Threshold": 128
+      }
+    },
+    "Gradation Curves/Lighten.xml": {
+      "sha256": "9670480b06b2b7286558bccdb21ca27380398017f654e194a568ade9a360b501",
+      "plist": {
+        "FilmCurve": 4,
+        "Gradations": [
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 53,
+                "Y": 46
+              },
+              {
+                "DY": 1,
+                "X": 104,
+                "Y": 156
+              },
+              {
+                "DY": 1,
+                "X": 218,
+                "Y": 202
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          },
+          {
+            "Points": [
+              {
+                "DY": 1,
+                "X": 0,
+                "Y": 0
+              },
+              {
+                "DY": 1,
+                "X": 255,
+                "Y": 255
+              }
+            ]
+          }
+        ],
+        "Threshold": 128
+      }
+    },
+    "Grayscale/Blue filter.xml": {
+      "sha256": "e85199103b5b60e8343230f07a33c47d217b507d170473c2d5edf8ba14166ab0",
+      "plist": {
+        "SortKey": "d",
+        "ApplyGrayScale": true,
+        "GrayScale": [
+          100.0,
+          0,
+          0,
+          100
+        ]
+      }
+    },
+    "Grayscale/Default.xml": {
+      "sha256": "8474cfd00baa170a560c4a1ac83d4e041b002f4525f620ef092ed355cacfef93",
+      "plist": {
+        "SortKey": "a",
+        "ApplyGrayScale": false,
+        "GrayScale": [
+          100.0,
+          21.0,
+          72.0,
+          7.0
+        ]
+      }
+    },
+    "Grayscale/Green filter.xml": {
+      "sha256": "de2e87148ea4b5c616e4b00c360a30499aa151ae24a21b0bbfef0d95c82fefa2",
+      "plist": {
+        "SortKey": "c",
+        "ApplyGrayScale": true,
+        "GrayScale": [
+          100.0,
+          0,
+          100,
+          0
+        ]
+      }
+    },
+    "Grayscale/Red filter.xml": {
+      "sha256": "163ba0f3d8ade5bdfb8881ba97519e732a72057fa3f1385e246fc1aa975b4ea2",
+      "plist": {
+        "SortKey": "b",
+        "ApplyGrayScale": true,
+        "GrayScale": [
+          100.0,
+          100,
+          0,
+          0
+        ]
+      }
+    },
+    "Histogram/Default.xml": {
+      "sha256": "249ec3aad0944a78011d3e29a8908adf276f33962dfad02e42017d0b2fa7c514",
+      "plist": {
+        "Default": 1,
+        "DotColor": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          255,
+          255,
+          255,
+          255,
+          255,
+          255,
+          255
+        ],
+        "EndPoints": [
+          1,
+          1
+        ],
+        "Gamma": 2,
+        "Gray": [
+          128,
+          128,
+          128,
+          128
+        ],
+        "Highlight": [
+          16320,
+          16320,
+          16320,
+          16320
+        ],
+        "Shadow": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "Keystone Correction/Default.xml": {
+      "sha256": "9bbd35767485dbeba8d1c9bd76e49bfffbb9e2cc8dce0bd13a17d1645fdaaaa0",
+      "plist": {
+        "Default": 1,
+        "KeyAmount": 80,
+        "KeyAspect": 0.0,
+        "KeyGuideX": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "KeyGuideY": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "KeyHorizontal": 0.0,
+        "KeyVertical": 0.0
+      }
+    },
+    "Lens Corrections/Default.xml": {
+      "sha256": "2adbc4efd9c44cc743aee26b4341a0c2d35cf629cd92eace220b6ba6d4fbc7d6",
+      "plist": {
+        "Default": 1,
+        "LensCorrection": 7,
+        "VignetteAmount": 100
+      }
+    },
+    "Nature.xml": {
+      "sha256": "1233eb4082921ae5dd9b2074bfd34bb2a9f19e6938cbf4f13c72cc71ed8f3cae",
+      "plist": {
+        "ImageSetting": {
+          "Created": {
+            "Day": 0,
+            "GMT": 90000,
+            "Hour": 0,
+            "Minute": 0,
+            "Month": 0,
+            "Second": 0,
+            "Year": 0
+          },
+          "Flags": 0,
+          "ImageCorrection": {
+            "ApplyCC": true,
+            "ApplyCNFilter": true,
+            "ApplyCurves": true,
+            "ApplyDust": false,
+            "ApplyEV": true,
+            "ApplyHistogram": true,
+            "ApplyLensCorrection": true,
+            "ApplyNoiseFilterBias": true,
+            "ApplySliders": true,
+            "ApplyUSM": true,
+            "ApplyFilmGrain": false,
+            "AutoHighlight": 0,
+            "AutoShadow": 0,
+            "Brightness": 0,
+            "CMYKProfile": {
+              "Creator": 0,
+              "FullPath": "Hasselblad 330Skel 30K75",
+              "Name": "Hasselblad 330Skel 30K75",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "ColorCorr": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "ColorModel": 0,
+            "ColorNoiseRadius": 0,
+            "ColorTemperature": 5500,
+            "Contrast": 0,
+            "Convert": true,
+            "DotColor": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            "DustLevel": 50,
+            "EV": 1.0,
+            "EmbedProfile": true,
+            "EndPoints": [
+              1,
+              1
+            ],
+            "EnhancedShadow": false,
+            "FilmCurve": 4,
+            "FilmType": 0,
+            "Gamma": 2.0,
+            "GradationSliders": [
+              0,
+              0,
+              0
+            ],
+            "Gradations": [
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 71,
+                    "Y": 31
+                  },
+                  {
+                    "DY": 1,
+                    "X": 184,
+                    "Y": 223
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              }
+            ],
+            "Gray": [
+              128,
+              128,
+              128,
+              128
+            ],
+            "GrayProfile": {
+              "Creator": 0,
+              "FullPath": "Generic Gray Profile",
+              "Name": "Generic Gray Profile",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "Highlight": [
+              16320,
+              16320,
+              16320,
+              16320
+            ],
+            "InputProfile": {
+              "Creator": 0,
+              "FullPath": "Hasselblad RGB",
+              "Name": "Hasselblad RGB",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "LensCorrection": 7,
+            "Lightness": 0,
+            "Mode": 0,
+            "MoireRemoval": 0,
+            "NoiseFilterBias": 0,
+            "RGBProfile": {
+              "Creator": 0,
+              "FullPath": "Adobe RGB (1998)",
+              "Name": "Adobe RGB (1998)",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "RemoveCastHighlight": false,
+            "RemoveCastShadow": false,
+            "Saturation": 0,
+            "SelectiveAngle": [],
+            "SelectiveDstH": [],
+            "SelectiveDstL": [],
+            "SelectiveDstS": [],
+            "SelectiveSrcH": [],
+            "SelectiveSrcL": [],
+            "SelectiveSrcS": [],
+            "Shadow": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "SoftProof": false,
+            "Threshold": 128,
+            "Tint": -0.003333333333333333,
+            "USMAmount": 180,
+            "USMColFactor": [
+              100,
+              100,
+              100
+            ],
+            "USMDarkLimit": 10,
+            "USMNoiseLimit": 0,
+            "USMRadius": 8,
+            "FilmGrainAmount": 40,
+            "FilmGrainColor": 0,
+            "FilmGrainRoughness": 15,
+            "FilmGrainSize": 40,
+            "FilmGrainType": 1,
+            "Vibrancy": 0,
+            "VignetteAmount": 100,
+            "streamableVersion": 11
+          },
+          "ImageDescription": {
+            "AdaptiveLight": 0,
+            "Aperture": 10,
+            "AutoFocus": true,
+            "CaptureType": 0,
+            "CropBottom": 0.0,
+            "CropLeft": 0.0,
+            "CropRight": 0.0,
+            "CropTop": 0.0,
+            "Descreen": 0,
+            "Exposure": 15,
+            "FeederPosition": 1,
+            "Frame": 1,
+            "ISO": 50.0,
+            "Mirror": false,
+            "OutputPPI": 300,
+            "ResizeLevel": 3,
+            "Resolution": 300,
+            "Rotation": 0,
+            "Zoom": 100.0,
+            "streamableVersion": 11
+          },
+          "Info": "",
+          "Modified": {
+            "Day": 0,
+            "GMT": 90000,
+            "Hour": 0,
+            "Minute": 0,
+            "Month": 0,
+            "Second": 0,
+            "Year": 0
+          },
+          "Name": ""
+        },
+        "SortKey": "d"
+      }
+    },
+    "Noise Filter/Default.xml": {
+      "sha256": "620475124ad93f09eaea552bc9b47aa0647b3b9a861571205749877cb39ab24d",
+      "plist": {
+        "ColorNoiseRadius": 0,
+        "Default": 1,
+        "NoiseFilterBias": 0
+      }
+    },
+    "Portrait.xml": {
+      "sha256": "535374a01394ab6e85952155b380058e14e3508d9a994ad735ba8a596d79a462",
+      "plist": {
+        "ImageSetting": {
+          "Created": {
+            "Day": 0,
+            "GMT": 90000,
+            "Hour": 0,
+            "Minute": 0,
+            "Month": 0,
+            "Second": 0,
+            "Year": 0
+          },
+          "Flags": 0,
+          "ImageCorrection": {
+            "ApplyCC": true,
+            "ApplyCNFilter": true,
+            "ApplyCurves": true,
+            "ApplyDust": false,
+            "ApplyEV": true,
+            "ApplyHistogram": true,
+            "ApplyLensCorrection": true,
+            "ApplyNoiseFilterBias": true,
+            "ApplySliders": true,
+            "ApplyUSM": true,
+            "ApplyFilmGrain": false,
+            "AutoHighlight": 0,
+            "AutoShadow": 0,
+            "Brightness": 0,
+            "CMYKProfile": {
+              "Creator": 0,
+              "FullPath": "Hasselblad 330Skel 30K75",
+              "Name": "Hasselblad 330Skel 30K75",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "ColorCorr": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "ColorModel": 0,
+            "ColorNoiseRadius": 0,
+            "ColorTemperature": 5500,
+            "Contrast": 0,
+            "Convert": true,
+            "DotColor": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            "DustLevel": 50,
+            "EV": 1.0,
+            "EmbedProfile": true,
+            "EndPoints": [
+              1,
+              1
+            ],
+            "EnhancedShadow": false,
+            "FilmCurve": 4,
+            "FilmType": 0,
+            "Gamma": 2.0,
+            "GradationSliders": [
+              0,
+              0,
+              0
+            ],
+            "Gradations": [
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              }
+            ],
+            "Gray": [
+              128,
+              128,
+              128,
+              128
+            ],
+            "GrayProfile": {
+              "Creator": 0,
+              "FullPath": "Generic Gray Profile",
+              "Name": "Generic Gray Profile",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "Highlight": [
+              16320,
+              16320,
+              16320,
+              16320
+            ],
+            "InputProfile": {
+              "Creator": 0,
+              "FullPath": "Hasselblad RGB",
+              "Name": "Hasselblad RGB",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "LensCorrection": 7,
+            "Lightness": 0,
+            "Mode": 0,
+            "MoireRemoval": 0,
+            "NoiseFilterBias": 0,
+            "RGBProfile": {
+              "Creator": 0,
+              "FullPath": "Adobe RGB (1998)",
+              "Name": "Adobe RGB (1998)",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "RemoveCastHighlight": false,
+            "RemoveCastShadow": false,
+            "Saturation": 0,
+            "SelectiveAngle": [],
+            "SelectiveDstH": [],
+            "SelectiveDstL": [],
+            "SelectiveDstS": [],
+            "SelectiveSrcH": [],
+            "SelectiveSrcL": [],
+            "SelectiveSrcS": [],
+            "Shadow": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "SoftProof": false,
+            "Threshold": 128,
+            "Tint": 0.0,
+            "USMAmount": 90,
+            "USMColFactor": [
+              100,
+              100,
+              100
+            ],
+            "USMDarkLimit": 10,
+            "USMNoiseLimit": 3,
+            "USMRadius": 8,
+            "FilmGrainAmount": 40,
+            "FilmGrainColor": 0,
+            "FilmGrainRoughness": 15,
+            "FilmGrainSize": 40,
+            "FilmGrainType": 1,
+            "Vibrancy": 0,
+            "VignetteAmount": 100,
+            "streamableVersion": 11
+          },
+          "ImageDescription": {
+            "AdaptiveLight": 0,
+            "Aperture": 10,
+            "AutoFocus": true,
+            "CaptureType": 0,
+            "CropBottom": 0.0,
+            "CropLeft": 0.0,
+            "CropRight": 0.0,
+            "CropTop": 0.0,
+            "Descreen": 0,
+            "Exposure": 15,
+            "FeederPosition": 1,
+            "Frame": 1,
+            "ISO": 50.0,
+            "Mirror": false,
+            "OutputPPI": 300,
+            "ResizeLevel": 3,
+            "Resolution": 300,
+            "Rotation": 0,
+            "Zoom": 100.0,
+            "streamableVersion": 11
+          },
+          "Info": "",
+          "Modified": {
+            "Day": 0,
+            "GMT": 90000,
+            "Hour": 0,
+            "Minute": 0,
+            "Month": 0,
+            "Second": 0,
+            "Year": 0
+          },
+          "Name": ""
+        },
+        "SortKey": "e"
+      }
+    },
+    "Product.xml": {
+      "sha256": "c848cdef03b5c391e53b85ffe1ec8ea6abeb2a0707bd239002bb11389f48ec21",
+      "plist": {
+        "ImageSetting": {
+          "Created": {
+            "Day": 0,
+            "GMT": 90000,
+            "Hour": 0,
+            "Minute": 0,
+            "Month": 0,
+            "Second": 0,
+            "Year": 0
+          },
+          "Flags": 0,
+          "ImageCorrection": {
+            "ApplyCC": true,
+            "ApplyCNFilter": true,
+            "ApplyCurves": true,
+            "ApplyDust": false,
+            "ApplyEV": true,
+            "ApplyHistogram": true,
+            "ApplyLensCorrection": true,
+            "ApplyNoiseFilterBias": true,
+            "ApplySliders": true,
+            "ApplyUSM": true,
+            "ApplyFilmGrain": false,
+            "AutoHighlight": 0,
+            "AutoShadow": 0,
+            "Brightness": 0,
+            "CMYKProfile": {
+              "Creator": 0,
+              "FullPath": "Hasselblad 330Skel 30K75",
+              "Name": "Hasselblad 330Skel 30K75",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "ColorCorr": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "ColorModel": 0,
+            "ColorNoiseRadius": 0,
+            "ColorTemperature": 5500,
+            "Contrast": 0,
+            "Convert": true,
+            "DotColor": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            "DustLevel": 50,
+            "EV": 1.0,
+            "EmbedProfile": true,
+            "EndPoints": [
+              1,
+              1
+            ],
+            "EnhancedShadow": false,
+            "FilmCurve": 4,
+            "FilmType": 0,
+            "Gamma": 2.0,
+            "GradationSliders": [
+              0,
+              0,
+              0
+            ],
+            "Gradations": [
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              }
+            ],
+            "Gray": [
+              128,
+              128,
+              128,
+              128
+            ],
+            "GrayProfile": {
+              "Creator": 0,
+              "FullPath": "Generic Gray Profile",
+              "Name": "Generic Gray Profile",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "Highlight": [
+              16320,
+              16320,
+              16320,
+              16320
+            ],
+            "InputProfile": {
+              "Creator": 0,
+              "FullPath": "Hasselblad RGB",
+              "Name": "Hasselblad RGB",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "LensCorrection": 7,
+            "Lightness": 0,
+            "Mode": 0,
+            "MoireRemoval": 0,
+            "NoiseFilterBias": 0,
+            "RGBProfile": {
+              "Creator": 0,
+              "FullPath": "Adobe RGB (1998)",
+              "Name": "Adobe RGB (1998)",
+              "ReadOnly": false,
+              "Type": 0,
+              "streamableVersion": 1
+            },
+            "RemoveCastHighlight": false,
+            "RemoveCastShadow": false,
+            "Saturation": 0,
+            "SelectiveAngle": [],
+            "SelectiveDstH": [],
+            "SelectiveDstL": [],
+            "SelectiveDstS": [],
+            "SelectiveSrcH": [],
+            "SelectiveSrcL": [],
+            "SelectiveSrcS": [],
+            "Shadow": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "SoftProof": false,
+            "Threshold": 128,
+            "Tint": 0.0,
+            "USMAmount": 350,
+            "USMColFactor": [
+              100,
+              100,
+              100
+            ],
+            "USMDarkLimit": 10,
+            "USMNoiseLimit": 0,
+            "USMRadius": 8,
+            "FilmGrainAmount": 40,
+            "FilmGrainColor": 0,
+            "FilmGrainRoughness": 15,
+            "FilmGrainSize": 40,
+            "FilmGrainType": 1,
+            "Vibrancy": 0,
+            "VignetteAmount": 100,
+            "streamableVersion": 11
+          },
+          "ImageDescription": {
+            "AdaptiveLight": 0,
+            "Aperture": 10,
+            "AutoFocus": true,
+            "CaptureType": 0,
+            "CropBottom": 0.0,
+            "CropLeft": 0.0,
+            "CropRight": 0.0,
+            "CropTop": 0.0,
+            "Descreen": 0,
+            "Exposure": 15,
+            "FeederPosition": 1,
+            "Frame": 1,
+            "ISO": 50.0,
+            "Mirror": false,
+            "OutputPPI": 300,
+            "ResizeLevel": 3,
+            "Resolution": 300,
+            "Rotation": 0,
+            "Zoom": 100.0,
+            "streamableVersion": 11
+          },
+          "Info": "",
+          "Modified": {
+            "Day": 0,
+            "GMT": 90000,
+            "Hour": 0,
+            "Minute": 0,
+            "Month": 0,
+            "Second": 0,
+            "Year": 0
+          },
+          "Name": ""
+        },
+        "SortKey": "f"
+      }
+    },
+    "Scene Calibration/Default.xml": {
+      "sha256": "360b9867ead79845c48291ae7182ad4b620995de0f0a5955b6ba6919738abc40",
+      "plist": {
+        "Default": 1,
+        "SortKey": "a",
+        "ApplyCustomWhite": false,
+        "ApplySceneCalibration": false,
+        "ApplySceneCastCorrection": false,
+        "ApplySceneEqualization": false,
+        "CustomWhite": {
+          "BigEndian": true,
+          "CenterX": -1,
+          "CenterY": -1,
+          "HSize": 0.0,
+          "Height": 0,
+          "Name": "",
+          "Orientation": 0,
+          "UseCenterAsRef": false,
+          "VSize": 0.0,
+          "Version": 2,
+          "Width": 0
+        }
+      }
+    },
+    "Sharpness/Default.xml": {
+      "sha256": "e3f791206985e479b6feba3737eb4b8f153048afb257b5158e33ed3fd7ffa743",
+      "plist": {
+        "Default": 1,
+        "SortKey": "a",
+        "USMAmount": 100,
+        "USMColFactor": [
+          100,
+          100,
+          100
+        ],
+        "USMDarkLimit": 10,
+        "USMNoiseLimit": 0,
+        "USMRadius": 10
+      }
+    },
+    "Sharpness/High.xml": {
+      "sha256": "a027678539e0f7e26a87963045178fca5c5c81d12dd869a0aa25f84628dc3ca2",
+      "plist": {
+        "SortKey": "c",
+        "USMAmount": 350,
+        "USMColFactor": [
+          100,
+          100,
+          100
+        ],
+        "USMDarkLimit": 10,
+        "USMNoiseLimit": 0,
+        "USMRadius": 8
+      }
+    },
+    "Sharpness/Medium.xml": {
+      "sha256": "ba1378574032f76772d702cebbc588f4a1df89777044f901339584a88a77e92f",
+      "plist": {
+        "SortKey": "b",
+        "USMAmount": 180,
+        "USMColFactor": [
+          100,
+          100,
+          100
+        ],
+        "USMDarkLimit": 10,
+        "USMNoiseLimit": 0,
+        "USMRadius": 8
+      }
+    },
+    "Sharpness/Portrait.xml": {
+      "sha256": "7c41cf92d33a72022245b3759788dd6cdadca963c6101dcbaa1315e6258d9b4a",
+      "plist": {
+        "SortKey": "m",
+        "USMAmount": 90,
+        "USMColFactor": [
+          100,
+          100,
+          100
+        ],
+        "USMDarkLimit": 10,
+        "USMNoiseLimit": 3,
+        "USMRadius": 8
+      }
+    },
+    "Square Crop.xml": {
+      "sha256": "9ab8fae86f7c772042c2edd2b2cb174c2a4374aafba572e1e5cbdff868c48361",
+      "plist": {
+        "SortKey": "s",
+        "ImageSetting": {
+          "Created": {
+            "Day": 0,
+            "Hour": 0,
+            "Minute": 0,
+            "Month": 0,
+            "Second": 0,
+            "Year": 0
+          },
+          "Flags": 0,
+          "ImageCorrection": {
+            "ApplyCC": true,
+            "ApplyCNFilter": true,
+            "ApplyCurves": true,
+            "ApplyDust": false,
+            "ApplyEV": true,
+            "ApplyHistogram": true,
+            "ApplyLensCorrection": true,
+            "ApplyNoiseFilterBias": true,
+            "ApplySliders": true,
+            "ApplyUSM": true,
+            "ApplyFilmGrain": false,
+            "AutoHighlight": 0,
+            "AutoShadow": 0,
+            "Brightness": 0,
+            "CMYKProfile": {
+              "Creator": 0,
+              "Name": ".dfC:",
+              "ParID": 0,
+              "Path": "",
+              "ReadOnly": false,
+              "Type": 0,
+              "VRefNum": 0,
+              "streamableVersion": 1
+            },
+            "ColorCorr": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "ColorModel": 0,
+            "ColorNoiseRadius": 0,
+            "ColorTemperature": 0,
+            "Contrast": 0,
+            "Convert": true,
+            "DotColor": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            "DustLevel": 50,
+            "EV": 1,
+            "EmbedProfile": true,
+            "EndPoints": [
+              1,
+              1
+            ],
+            "EnhancedShadow": false,
+            "FilmCurve": 4,
+            "FilmType": 0,
+            "Gamma": 2.0,
+            "Gradations": [
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              }
+            ],
+            "Gray": [
+              128,
+              128,
+              128,
+              128
+            ],
+            "GrayProfile": {
+              "Creator": 0,
+              "Name": ".dfG:",
+              "ParID": 0,
+              "Path": "",
+              "ReadOnly": false,
+              "Type": 0,
+              "VRefNum": 0,
+              "streamableVersion": 1
+            },
+            "Highlight": [
+              16320,
+              16320,
+              16320,
+              16320
+            ],
+            "InputProfile": {
+              "Creator": 0,
+              "Name": ".dp:",
+              "ParID": 0,
+              "Path": "",
+              "ReadOnly": false,
+              "Type": 0,
+              "VRefNum": 0,
+              "streamableVersion": 1
+            },
+            "LensCorrection": 7,
+            "Lightness": 0,
+            "Mode": 0,
+            "NoiseFilterBias": 0,
+            "RGBProfile": {
+              "Creator": 0,
+              "Name": ".dfR:",
+              "ParID": 0,
+              "Path": "",
+              "ReadOnly": false,
+              "Type": 0,
+              "VRefNum": 0,
+              "streamableVersion": 1
+            },
+            "RemoveCastHighlight": false,
+            "RemoveCastShadow": false,
+            "Saturation": 0,
+            "Shadow": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "SoftProof": false,
+            "Threshold": 128,
+            "Tint": 0,
+            "USMAmount": 100,
+            "USMColFactor": [
+              100,
+              100,
+              100
+            ],
+            "USMDarkLimit": 10,
+            "USMNoiseLimit": 0,
+            "USMRadius": 10,
+            "FilmGrainAmount": 40,
+            "FilmGrainColor": 0,
+            "FilmGrainRoughness": 15,
+            "FilmGrainSize": 40,
+            "FilmGrainType": 1,
+            "VignetteAmount": 100,
+            "streamableVersion": 11
+          },
+          "ImageDescription": {
+            "RelativeCrop": {
+              "Bottom": 1.0,
+              "Left": 0.125,
+              "Right": 0.875,
+              "Top": 0.0,
+              "streamableVersion": 1
+            },
+            "AdaptiveLight": 0,
+            "Aperture": 9,
+            "AutoFocus": true,
+            "CaptureType": 0,
+            "CropBottom": 0.0,
+            "CropLeft": 0.0,
+            "CropRight": 0.0,
+            "CropTop": 0.0,
+            "Descreen": 0,
+            "Exposure": 12,
+            "FeederPosition": 1,
+            "Frame": 1,
+            "ISO": 50.0,
+            "Mirror": false,
+            "ResizeLevel": 3,
+            "Resolution": 300,
+            "Rotation": 0,
+            "Zoom": 100.0,
+            "streamableVersion": 11
+          },
+          "Info": "",
+          "Modified": {
+            "Day": 0,
+            "Hour": 0,
+            "Minute": 0,
+            "Month": 0,
+            "Second": 0,
+            "Year": 0
+          },
+          "Name": "Standard"
+        }
+      }
+    },
+    "Standard.xml": {
+      "sha256": "a81a561d271ab35229117e1023ae077d01029605b306af3eeb946fddf7521a9f",
+      "plist": {
+        "Default": 1,
+        "ImageSetting": {
+          "Created": {
+            "Day": 0,
+            "Hour": 0,
+            "Minute": 0,
+            "Month": 0,
+            "Second": 0,
+            "Year": 0
+          },
+          "Flags": 0,
+          "ImageCorrection": {
+            "ApplyCC": true,
+            "ApplyCNFilter": true,
+            "ApplyCurves": true,
+            "ApplyDust": false,
+            "ApplyEV": true,
+            "ApplyHistogram": true,
+            "ApplyLensCorrection": true,
+            "ApplyNoiseFilterBias": true,
+            "ApplySliders": true,
+            "ApplyUSM": true,
+            "ApplyFilmGrain": false,
+            "AutoHighlight": 0,
+            "AutoShadow": 0,
+            "Brightness": 0,
+            "CMYKProfile": {
+              "Creator": 0,
+              "Name": ".dfC:",
+              "ParID": 0,
+              "Path": "",
+              "ReadOnly": false,
+              "Type": 0,
+              "VRefNum": 0,
+              "streamableVersion": 1
+            },
+            "ColorCorr": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "ColorModel": 0,
+            "ColorNoiseRadius": 0,
+            "ColorTemperature": 0,
+            "Contrast": 0,
+            "Convert": true,
+            "DotColor": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            "DustLevel": 50,
+            "EV": 1,
+            "EmbedProfile": true,
+            "EndPoints": [
+              1,
+              1
+            ],
+            "EnhancedShadow": false,
+            "FilmCurve": 4,
+            "FilmType": 0,
+            "Gamma": 2.0,
+            "Gradations": [
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              },
+              {
+                "Points": [
+                  {
+                    "DY": 1,
+                    "X": 0,
+                    "Y": 0
+                  },
+                  {
+                    "DY": 1,
+                    "X": 255,
+                    "Y": 255
+                  }
+                ]
+              }
+            ],
+            "Gray": [
+              128,
+              128,
+              128,
+              128
+            ],
+            "GrayProfile": {
+              "Creator": 0,
+              "Name": ".dfG:",
+              "ParID": 0,
+              "Path": "",
+              "ReadOnly": false,
+              "Type": 0,
+              "VRefNum": 0,
+              "streamableVersion": 1
+            },
+            "Highlight": [
+              16320,
+              16320,
+              16320,
+              16320
+            ],
+            "InputProfile": {
+              "Creator": 0,
+              "Name": ".dp:",
+              "ParID": 0,
+              "Path": "",
+              "ReadOnly": false,
+              "Type": 0,
+              "VRefNum": 0,
+              "streamableVersion": 1
+            },
+            "LensCorrection": 7,
+            "Lightness": 0,
+            "Mode": 0,
+            "NoiseFilterBias": 0,
+            "RGBProfile": {
+              "Creator": 0,
+              "Name": ".dfR:",
+              "ParID": 0,
+              "Path": "",
+              "ReadOnly": false,
+              "Type": 0,
+              "VRefNum": 0,
+              "streamableVersion": 1
+            },
+            "RemoveCastHighlight": false,
+            "RemoveCastShadow": false,
+            "Saturation": 0,
+            "Shadow": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "SoftProof": false,
+            "Threshold": 128,
+            "Tint": 0,
+            "USMAmount": 100,
+            "USMColFactor": [
+              100,
+              100,
+              100
+            ],
+            "USMDarkLimit": 10,
+            "USMNoiseLimit": 0,
+            "USMRadius": 10,
+            "FilmGrainAmount": 40,
+            "FilmGrainColor": 0,
+            "FilmGrainRoughness": 15,
+            "FilmGrainSize": 40,
+            "FilmGrainType": 1,
+            "VignetteAmount": 100,
+            "streamableVersion": 11
+          },
+          "ImageDescription": {
+            "AdaptiveLight": 0,
+            "Aperture": 9,
+            "AutoFocus": true,
+            "CaptureType": 0,
+            "CropBottom": 0.0,
+            "CropLeft": 0.0,
+            "CropRight": 0.0,
+            "CropTop": 0.0,
+            "Descreen": 0,
+            "Exposure": 12,
+            "FeederPosition": 1,
+            "Frame": 1,
+            "ISO": 50.0,
+            "Mirror": false,
+            "ResizeLevel": 3,
+            "Resolution": 300,
+            "Rotation": 0,
+            "Zoom": 100.0,
+            "streamableVersion": 11
+          },
+          "Info": "",
+          "Modified": {
+            "Day": 0,
+            "Hour": 0,
+            "Minute": 0,
+            "Month": 0,
+            "Second": 0,
+            "Year": 0
+          },
+          "Name": "Standard"
+        }
+      }
+    },
+    "White Balance/Cloudy.xml": {
+      "sha256": "1aeaf4a588c591d2974df1565a8bc2481b0ce3c5f2b335b6fd36cd6592b3ab1f",
+      "plist": {
+        "ColorTemperature": 6500,
+        "Tint": -0.003333333333333333
+      }
+    },
+    "White Balance/Daylight.xml": {
+      "sha256": "959d5b2ee4fa3858e672df8984ad66294cb66f8f70f520a9c99f297b232226f3",
+      "plist": {
+        "ColorTemperature": 5500,
+        "Tint": -0.003333333333333333
+      }
+    },
+    "White Balance/Flash.xml": {
+      "sha256": "ccf5ab66b05e824775276a727dccca280004174bf2b3e2a6409faa52f0b5b16a",
+      "plist": {
+        "ColorTemperature": 5500,
+        "Tint": 0.0
+      }
+    },
+    "White Balance/Fluorescent.xml": {
+      "sha256": "48a64f8b6d095c4a5dd42f1ca58bbbc32be75b3903ec50d7ddfa26545fde4408",
+      "plist": {
+        "ColorTemperature": 3800,
+        "Tint": -0.007
+      }
+    },
+    "White Balance/Shade.xml": {
+      "sha256": "14d751f1d35b34a25cf5023bed6c29cb5ba1a0103f803d8f82a76203d5e76e34",
+      "plist": {
+        "ColorTemperature": 7500,
+        "Tint": -0.003333333333333333
+      }
+    },
+    "White Balance/Tungsten.xml": {
+      "sha256": "1933e76a34c8c95c9e77c799c3fd2e28608631b614c76a242a4416a8b41681d8",
+      "plist": {
+        "ColorTemperature": 2850,
+        "Tint": 0.0
+      }
+    }
+  },
+  "factory_setting_names": [
+    "Standard",
+    "Product",
+    "Portrait",
+    "Nature",
+    "Default",
+    "Saturated",
+    "Extra contrast",
+    "Lighten",
+    "High",
+    "Medium",
+    "Cloudy",
+    "Daylight",
+    "Flash",
+    "Fluorescent",
+    "Shade",
+    "Tungsten",
+    "Square Crop"
+  ],
+  "film_curve_menu_names": [
+    "As Shot",
+    "Standard",
+    "Low Contrast",
+    "High Contrast",
+    "Old Standard",
+    "Linear"
+  ],
+  "binary_evidence": {
+    "hbutil_sha256": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+    "hbrawcorrections_sha256": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+    "hbstorage_sha256": "c311cedfe841f757a3154713f24e08de1601f0ad6a57d601c25e21cd1ce87826",
+    "film_curve_selection": {
+      "default_selection_value": 4,
+      "default_selection_meaning": "auto/as-shot; resolve the RAW film curve",
+      "observed_target_raw_film_curve": 2,
+      "effective_reproduction_curve": 7,
+      "return_gradation_curve": {
+        "type_0": "original film curve in gamma companding",
+        "type_7": "pure gamma/L* OETF",
+        "other_types": "V1 standard curve"
+      }
+    },
+    "white_balance_presets": {
+      "source_binary_sha256": "125dd5b0bf0cc1ad00d1cf959eeeea82aa24acee117c2b2bcb55fa44f430d010",
+      "factory_configuration_loaded": true,
+      "factory_configuration_sha256": "c2b3d08e0d489eb852610c12a9b985e9d0340a4dd544f5b0b5b7a6a4f3427e95",
+      "rows": {
+        "cloudy": {
+          "cct": 6500,
+          "tint": -0.003333333333333333,
+          "native_gains": [
+            2.922584619012437,
+            1.0,
+            1.5269511570043037
+          ],
+          "normalized_gains": [
+            2.922584619012437,
+            1.0,
+            1.5269511570043037
+          ],
+          "zero_tint_gains": [
+            2.846967611532293,
+            1.0,
+            1.4890650375120116
+          ],
+          "tint_multiplier": [
+            1.0265605436373213,
+            1.0,
+            1.0254428910342248
+          ],
+          "roundtrip_cct": 6500,
+          "roundtrip_tint": -0.0033268569642182235
+        },
+        "daylight": {
+          "cct": 5500,
+          "tint": -0.003333333333333333,
+          "native_gains": [
+            2.711552043782954,
+            1.0,
+            1.690108149776517
+          ],
+          "normalized_gains": [
+            2.711552043782954,
+            1.0,
+            1.690108149776517
+          ],
+          "zero_tint_gains": [
+            2.649809374267314,
+            1.0,
+            1.6382634821644158
+          ],
+          "tint_multiplier": [
+            1.0233007966970122,
+            1.0,
+            1.031646110760893
+          ],
+          "roundtrip_cct": 5500,
+          "roundtrip_tint": -0.003330506700661743
+        },
+        "flash": {
+          "cct": 5500,
+          "tint": 0.0,
+          "native_gains": [
+            2.649809374267314,
+            1.0,
+            1.6382634821644158
+          ],
+          "normalized_gains": [
+            2.649809374267314,
+            1.0,
+            1.6382634821644158
+          ],
+          "zero_tint_gains": [
+            2.649809374267314,
+            1.0,
+            1.6382634821644158
+          ],
+          "tint_multiplier": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "roundtrip_cct": 5500,
+          "roundtrip_tint": 4.23269164205436e-09
+        },
+        "fluorescent": {
+          "cct": 3800,
+          "tint": -0.007,
+          "native_gains": [
+            2.1767616316447964,
+            1.0,
+            2.476808461041348
+          ],
+          "normalized_gains": [
+            2.1767616316447964,
+            1.0,
+            2.476808461041348
+          ],
+          "zero_tint_gains": [
+            2.113909035888671,
+            1.0,
+            2.1954399051055926
+          ],
+          "tint_multiplier": [
+            1.0297328762444609,
+            1.0,
+            1.1281604453309881
+          ],
+          "roundtrip_cct": 3800,
+          "roundtrip_tint": -0.00699993902044098
+        },
+        "shade": {
+          "cct": 7500,
+          "tint": -0.003333333333333333,
+          "native_gains": [
+            3.0753716346944935,
+            1.0,
+            1.4214406501199623
+          ],
+          "normalized_gains": [
+            3.0753716346944935,
+            1.0,
+            1.4214406501199623
+          ],
+          "zero_tint_gains": [
+            2.9892586915216706,
+            1.0,
+            1.391307823771802
+          ],
+          "tint_multiplier": [
+            1.028807457653987,
+            1.0,
+            1.0216579148289924
+          ],
+          "roundtrip_cct": 7500,
+          "roundtrip_tint": -0.0033319364694457555
+        },
+        "tungsten": {
+          "cct": 2850,
+          "tint": 0.0,
+          "native_gains": [
+            1.6435585674015674,
+            1.0,
+            3.051623849435867
+          ],
+          "normalized_gains": [
+            1.6435585674015674,
+            1.0,
+            3.051623849435867
+          ],
+          "zero_tint_gains": [
+            1.6435585674015674,
+            1.0,
+            3.051623849435867
+          ],
+          "tint_multiplier": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "roundtrip_cct": 2850,
+          "roundtrip_tint": -9.179936889099653e-11
+        }
+      }
+    },
+    "post_curves": {
+      "schema": 1,
+      "phocus_version": "4.2.2",
+      "factory_configuration_loaded": true,
+      "framework_hashes": {
+        "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+        "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+        "HBImageProcessing": "125dd5b0bf0cc1ad00d1cf959eeeea82aa24acee117c2b2bcb55fa44f430d010",
+        "HBStorage": "c311cedfe841f757a3154713f24e08de1601f0ad6a57d601c25e21cd1ce87826"
+      },
+      "baseline_xml_sha256": "a81a561d271ab35229117e1023ae077d01029605b306af3eeb946fddf7521a9f",
+      "curves_file": "work/hncs-pipeline/phocus_post_curves.npz",
+      "curves_sha256": "72d862916aea6ede45897ddf36abae4e6ac2dae2aff942d551c4e94275b4330b",
+      "unique_tables": 6,
+      "source_files": {
+        "Adjustment Layers/Default.xml": {
+          "xml_sha256": "acb56e74a3244b4aaa2bb5edfa0ded15ee5c4105e0851c896e42a9bfd7273d0a",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Color Corrections/Default.xml": {
+          "xml_sha256": "02bf06df23a8ad45f30270008b04dc600548a82d2b9c200f5262e9c0af1d5507",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Color Corrections/Saturated.xml": {
+          "xml_sha256": "91b7224b103e59b2f5595ce9d74da7482cfef08983e71681aada1805b11d235d",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Color Management/Default.xml": {
+          "xml_sha256": "7e7e39bcfbd2fd49e749cb5b85c54c8a0235bd41eb6618256fe0564fed74a5f7",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Defringe/Default.xml": {
+          "xml_sha256": "5f91c02394f02432df50a6d5f21ba89fb60999a51601217418b9140bf513fd13",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Dust/Default.xml": {
+          "xml_sha256": "ee5f770dbe7ba198b058eb6a1f3f3b81ecd4a4ce27afb7a742a2dc267945f973",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Exposure/Default.xml": {
+          "xml_sha256": "f649652edf6fdefd85710453c342e5b98bdf651b8b87973383966991cc4adbe1",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Exposure/Extra contrast.xml": {
+          "xml_sha256": "145a4029aee632bcc0f11cb2bb2828e5b19ca149e95e831bda161f87eb407d09",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_b5eb68c3cb2c5314befdd79ce081353f4812250cd20c729135623a3ed1d1daf9",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce",
+                "green": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce",
+                "blue": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce"
+              },
+              "native_settings": {
+                "gamma": 2.200000047683716,
+                "effective_gamma": 1.2000000476837158,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              },
+              "vector_key": "p7_tone",
+              "samples_red_x255": [
+                0.0,
+                25.381322957198442,
+                45.22568093385214,
+                80.58365758754864,
+                87.86381322957199,
+                112.97665369649805,
+                143.57976653696497,
+                172.9260700389105,
+                194.284046692607,
+                201.29961089494162,
+                228.89105058365757,
+                255.0
+              ]
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_b5eb68c3cb2c5314befdd79ce081353f4812250cd20c729135623a3ed1d1daf9",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce",
+                "green": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce",
+                "blue": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce"
+              },
+              "native_settings": {
+                "gamma": 2.200000047683716,
+                "effective_gamma": 1.2000000476837158,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              },
+              "vector_key": "p7_no_tone",
+              "samples_red_x255": [
+                0.0,
+                25.381322957198442,
+                45.22568093385214,
+                80.58365758754864,
+                87.86381322957199,
+                112.97665369649805,
+                143.57976653696497,
+                172.9260700389105,
+                194.284046692607,
+                201.29961089494162,
+                228.89105058365757,
+                255.0
+              ]
+            }
+          }
+        },
+        "Film Grain/Artistic.xml": {
+          "xml_sha256": "133666fe096d2be124aa346882e3f618dc194c2fd94887940000e88e29559708",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Film Grain/Default.xml": {
+          "xml_sha256": "797f2cfa7f22534360043de2be45d7f71ea553aae947aa91a08f8e9d952058f6",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Film Grain/Fine Texture.xml": {
+          "xml_sha256": "53b13895d003d176042439def6139e54488d9c1b63763390e25a8946c142b618",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Film Grain/High ISO.xml": {
+          "xml_sha256": "21f8621db59a886fea32bd617df1eac2365a52b015742f1a210124ae3e74903f",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Film Grain/Medium ISO.xml": {
+          "xml_sha256": "6ad4a4642a518d97492bf5c394c531aabe5711764a55af910b8b0aea03c356a5",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Film Grain/Rough Color.xml": {
+          "xml_sha256": "5dbab68cec73eadb8dce6fee887e4a11c7533bca37e8d97d620cf3bc11dc5ea0",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Film Grain/Slide High ISO.xml": {
+          "xml_sha256": "a4ff35aac8ec9c76d1af82926ac9b68b5b9b1bce915b6f203ae6c0a891e58f5d",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Film Grain/Slide Medium ISO.xml": {
+          "xml_sha256": "c06560f4fe957d94c18b8d82aec5e92cd32f54a47c6f6ac526dbcc9c6235ddc4",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Film Grain/Tabular Grain.xml": {
+          "xml_sha256": "a067d6a9136ab9c1478257d71ff3f2f866edfa785bdf50bc74098bcba301d44b",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Gradation Curves/Default.xml": {
+          "xml_sha256": "5a73941db015572f6bbfcdf66f4502a073aaf71e4cc0918642d73185337438ca",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Gradation Curves/Lighten.xml": {
+          "xml_sha256": "9670480b06b2b7286558bccdb21ca27380398017f654e194a568ade9a360b501",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_8562d36cd013194b932fc13aceb666d71233b3120fa4e7b620c9bfdab71adfbb",
+                "green": "t_8562d36cd013194b932fc13aceb666d71233b3120fa4e7b620c9bfdab71adfbb",
+                "blue": "t_8562d36cd013194b932fc13aceb666d71233b3120fa4e7b620c9bfdab71adfbb"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              },
+              "vector_key": "p18_tone",
+              "samples_red_x255": [
+                0.0,
+                15.821011673151752,
+                34.249027237354085,
+                72.95719844357977,
+                81.20622568093385,
+                109.22568093385215,
+                141.53696498054475,
+                170.3579766536965,
+                190.3657587548638,
+                196.8599221789883,
+                223.12451361867704,
+                255.0
+              ]
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              },
+              "vector_key": "p18_no_tone",
+              "samples_red_x255": [
+                0.0,
+                16.0,
+                32.0,
+                64.0,
+                71.0,
+                96.0,
+                128.0,
+                160.0,
+                184.0,
+                192.0,
+                224.0,
+                255.0
+              ]
+            }
+          }
+        },
+        "Grayscale/Blue filter.xml": {
+          "xml_sha256": "e85199103b5b60e8343230f07a33c47d217b507d170473c2d5edf8ba14166ab0",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Grayscale/Default.xml": {
+          "xml_sha256": "8474cfd00baa170a560c4a1ac83d4e041b002f4525f620ef092ed355cacfef93",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Grayscale/Green filter.xml": {
+          "xml_sha256": "de2e87148ea4b5c616e4b00c360a30499aa151ae24a21b0bbfef0d95c82fefa2",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Grayscale/Red filter.xml": {
+          "xml_sha256": "163ba0f3d8ade5bdfb8881ba97519e732a72057fa3f1385e246fc1aa975b4ea2",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Histogram/Default.xml": {
+          "xml_sha256": "249ec3aad0944a78011d3e29a8908adf276f33962dfad02e42017d0b2fa7c514",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Keystone Correction/Default.xml": {
+          "xml_sha256": "9bbd35767485dbeba8d1c9bd76e49bfffbb9e2cc8dce0bd13a17d1645fdaaaa0",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Lens Corrections/Default.xml": {
+          "xml_sha256": "2adbc4efd9c44cc743aee26b4341a0c2d35cf629cd92eace220b6ba6d4fbc7d6",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Nature.xml": {
+          "xml_sha256": "1233eb4082921ae5dd9b2074bfd34bb2a9f19e6938cbf4f13c72cc71ed8f3cae",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_4b549e27e217e67e4a1a5737edda933bba9b024584ec74ce5fb3ee07f95f3a12",
+                "green": "t_4b549e27e217e67e4a1a5737edda933bba9b024584ec74ce5fb3ee07f95f3a12",
+                "blue": "t_4b549e27e217e67e4a1a5737edda933bba9b024584ec74ce5fb3ee07f95f3a12"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              },
+              "vector_key": "p26_tone",
+              "samples_red_x255": [
+                0.0,
+                9.108949416342412,
+                21.556420233463037,
+                52.87937743190661,
+                60.5136186770428,
+                89.21011673151752,
+                127.73151750972762,
+                166.26070038910507,
+                193.86381322957197,
+                202.61089494163423,
+                233.94941634241246,
+                255.0
+              ]
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              },
+              "vector_key": "p26_no_tone",
+              "samples_red_x255": [
+                0.0,
+                16.0,
+                32.0,
+                64.0,
+                71.0,
+                96.0,
+                128.0,
+                160.0,
+                184.0,
+                192.0,
+                224.0,
+                255.0
+              ]
+            }
+          }
+        },
+        "Noise Filter/Default.xml": {
+          "xml_sha256": "620475124ad93f09eaea552bc9b47aa0647b3b9a861571205749877cb39ab24d",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Portrait.xml": {
+          "xml_sha256": "535374a01394ab6e85952155b380058e14e3508d9a994ad735ba8a596d79a462",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Product.xml": {
+          "xml_sha256": "c848cdef03b5c391e53b85ffe1ec8ea6abeb2a0707bd239002bb11389f48ec21",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Scene Calibration/Default.xml": {
+          "xml_sha256": "360b9867ead79845c48291ae7182ad4b620995de0f0a5955b6ba6919738abc40",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Sharpness/Default.xml": {
+          "xml_sha256": "e3f791206985e479b6feba3737eb4b8f153048afb257b5158e33ed3fd7ffa743",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Sharpness/High.xml": {
+          "xml_sha256": "a027678539e0f7e26a87963045178fca5c5c81d12dd869a0aa25f84628dc3ca2",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Sharpness/Medium.xml": {
+          "xml_sha256": "ba1378574032f76772d702cebbc588f4a1df89777044f901339584a88a77e92f",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Sharpness/Portrait.xml": {
+          "xml_sha256": "7c41cf92d33a72022245b3759788dd6cdadca963c6101dcbaa1315e6258d9b4a",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Square Crop.xml": {
+          "xml_sha256": "9ab8fae86f7c772042c2edd2b2cb174c2a4374aafba572e1e5cbdff868c48361",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "Standard.xml": {
+          "xml_sha256": "a81a561d271ab35229117e1023ae077d01029605b306af3eeb946fddf7521a9f",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              },
+              "vector_key": "p36_tone",
+              "samples_red_x255": [
+                0.0,
+                16.0,
+                32.0,
+                64.0,
+                71.0,
+                96.0,
+                128.0,
+                160.0,
+                184.0,
+                192.0,
+                224.0,
+                255.0
+              ]
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              },
+              "vector_key": "p36_no_tone",
+              "samples_red_x255": [
+                0.0,
+                16.0,
+                32.0,
+                64.0,
+                71.0,
+                96.0,
+                128.0,
+                160.0,
+                184.0,
+                192.0,
+                224.0,
+                255.0
+              ]
+            }
+          }
+        },
+        "White Balance/Cloudy.xml": {
+          "xml_sha256": "1aeaf4a588c591d2974df1565a8bc2481b0ce3c5f2b335b6fd36cd6592b3ab1f",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "White Balance/Daylight.xml": {
+          "xml_sha256": "959d5b2ee4fa3858e672df8984ad66294cb66f8f70f520a9c99f297b232226f3",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "White Balance/Flash.xml": {
+          "xml_sha256": "ccf5ab66b05e824775276a727dccca280004174bf2b3e2a6409faa52f0b5b16a",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "White Balance/Fluorescent.xml": {
+          "xml_sha256": "48a64f8b6d095c4a5dd42f1ca58bbbc32be75b3903ec50d7ddfa26545fde4408",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "White Balance/Shade.xml": {
+          "xml_sha256": "14d751f1d35b34a25cf5023bed6c29cb5ba1a0103f803d8f82a76203d5e76e34",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        },
+        "White Balance/Tungsten.xml": {
+          "xml_sha256": "1933e76a34c8c95c9e77c799c3fd2e28608631b614c76a242a4416a8b41681d8",
+          "modes": {
+            "tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            },
+            "no_tone": {
+              "tables": {
+                "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+                "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+                "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+              },
+              "native_settings": {
+                "gamma": 2.0,
+                "effective_gamma": 1.0,
+                "ev_multiplier": 1.0,
+                "luma_point_count": 2
+              }
+            }
+          }
+        }
+      },
+      "native_vector_sha256": "7779df367cff6ac2191844c39b71037addf716df3d613041dbb6290d9cf1f84a",
+      "application": "CGradationFilter channel tables, hue-preserving contrast, optional luma; non-HDR factory settings over Standard baseline."
+    }
+  }
+}

@@ -57,6 +57,73 @@ int hncs_process_srgb_fast_parallel(const hncs_context *context,
  * Input rounds ties to even; linear-code curve indices truncate (not round). */
 int hncs_render_native(const hncs_context *context, const double *native_rgb,
                        uint16_t *output_rgb, size_t pixel_count);
+
+/* Revision-8 additive API. Old constructors and their output are unchanged.
+ * capture_kelvin chooses the experimental Apple-linear-RGB source bridge.
+ * factory_kelvin_override=0 chooses preset CCT, or capture CCT when unspecified.
+ * Other finite factory/capture CCTs are truncated and clamped to [2000,10000].
+ * film_curve_type: 0 original, 1 high, 2 standard, 4 as-shot, 6 low, 7 linear.
+ * As-shot resolves raw_film_curve_type once (Apple callers declare a fallback).
+ * As in the source, raw 0 chooses original, raw 7 pure, every other int V1;
+ * raw 4 is not recursively resolved. Unknown requested film types are rejected.
+ * Reproduction always resolves type 7; original is distinct only in legacy RGB.
+ * apply_tone_curve=0 disables point curves only, retaining gamma and contrast.
+ * Optional WB pointers contain three positive finite gains, normalized to G=1.
+ * NULL capture_target_wb uses interpolated factory_wb(capture CCT), clamped to
+ * its original [3050,9100] table endpoints, a SYNTHETIC
+ * virtual-X2D baseline, not measured Apple capture WB. NULL target_wb_override
+ * uses preset absolute WB, or no WB replacement if that preset has none.
+ * Applied virtual-native gain is desired/baseline; capture mapping and final
+ * factory CCT remain distinct. Exposure EV is separate from XML EV multiplier.
+ * Existing process APIs on this context apply POINTWISE stages only. Grain and
+ * optional USM require the frame-aware spatial route and hooks below. */
+hncs_context *hncs_create_preset(double exposure_ev, double capture_kelvin,
+    double factory_kelvin_override, int lstar, int reproduction,
+    int film_curve_type, int raw_film_curve_type, const char *preset_key,
+    int apply_tone_curve, const double *capture_target_wb,
+    const double *target_wb_override);
+
+/* Immutable, generated catalog: 43 unique XML payloads; aliases accepted by all
+ * key-based calls. Strings remain valid for the lifetime of the process.
+ * Flags: 1 pointwise/WB effect, 2 square crop, 4 grain needs spatial route,
+ * 8 sharpness-only needs optional spatial route, 16 optional sharpness values,
+ * 32 source-defined pointwise no-op. Unknown key returns NULL or UINT_MAX.
+ * Settings JSON includes exact original payload, WB and spatial parameters. */
+size_t hncs_preset_count(void);
+const char *hncs_preset_key(size_t index);
+const char *hncs_preset_name(size_t index);
+unsigned hncs_preset_flags(const char *preset_key);
+const char *hncs_preset_settings_json(const char *preset_key);
+
+/* Independent numerical oracles. Postcurves exclude saturation and grayscale;
+ * pointwise includes saturation, postcurves, grayscale and final UInt16 round.
+ * Neither applies WB, film curve, crop, grain or USM. Packed RGB; disjoint
+ * buffers. Return 0 success or -1 invalid argument/overflow. */
+int hncs_apply_post_curves(const char *preset_key, int apply_tone_curve,
+    const uint16_t *input_rgb, uint16_t *output_rgb, size_t pixel_count);
+int hncs_apply_preset_pointwise(const char *preset_key, int apply_tone_curve,
+    const uint16_t *input_rgb, uint16_t *output_rgb, size_t pixel_count);
+/* Core film curve + pointwise preset; input already white-balanced native RGB.
+ * No source bridge, target WB replacement or EV is applied to native input. */
+int hncs_render_native_preset(const hncs_context *context,
+    const double *input_rgb, uint16_t *output_rgb, size_t pixel_count);
+
+/* Frame-aware spatial handoff. Float32 working RGB is AFTER saturation,
+ * postcurves and grayscale but BEFORE grain, optional USM, final clip/rint.
+ * Crop before calling a spatial route: its seed/variance use cropped shape.
+ * Finish performs exactly one final UInt16 quantization then exact display
+ * decoding. Never feed already-finished display-linear pixels to finish. */
+int hncs_apply_preset_work_float(const char *preset_key, int apply_tone_curve,
+    const uint16_t *input_rgb, float *work_rgb, size_t pixel_count);
+int hncs_process_preset_work_float(const hncs_context *context,
+    const float *linear_srgb_rgb, float *work_rgb, size_t pixel_count);
+int hncs_finish_preset_work_linear(const hncs_context *context,
+    const float *work_rgb, float *linear_rgba, size_t pixel_count);
+/* Diagnostics for explicit synthetic-bridge verification. Row-major 3x3;
+ * exposure is separate. Returns 0/-1. No capture metadata is inferred. */
+int hncs_source_to_native_matrix(const hncs_context *context, double *matrix9);
+int hncs_preset_white_balance(const hncs_context *context,
+    double *capture_target_wb3, double *target_wb3, double *factory_kelvin);
 #ifdef __cplusplus
 }
 #endif

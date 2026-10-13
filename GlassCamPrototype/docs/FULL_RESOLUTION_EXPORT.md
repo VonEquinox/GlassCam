@@ -97,3 +97,7 @@ promise bounded internal decoder/encoder allocation.
 Output dimensions must have the exact source aspect ratio (tolerance only for floating arithmetic); Lanczos aspectRatio stays1, so the exporter does not stretch to fit. Full-source FFCS grain/sharpen followed by reduction can differ visibly from a low-resolution effect preview, even with the same recipe. That preview is approximate. Run `swift tests/apple_ci_strip_roundtrip.swift` on macOS with Apple frameworks before accepting stripe orientation: this asymmetric diagnostic compares64/64/3 row segments and bitmap roundtrip. It has not run in the Linux workspace.
 
 HNCS now also keeps a one-entry immutable recipe context cache, avoiding LUT/matrix preparation for every64-row strip. On the cloud CPU,96 repeated native context constructions alone cost median0.538s across5 samples (`validation/hncs_context_cache.json`); the cache removes repeated setup, but this is not an Apple end-to-end export benchmark. In-flight calls retain ownership while a new recipe replaces the cached entry.
+
+## HNCS revision8空间预设
+
+Square Crop先按实际源像素居中裁切；输出保持原输出档位的缩小比例，方图实际MP更少。需要grain/USM的HNCS配方先流写12B/像素top-left工作RGB，运行全图统计与滤波（最大16B/像素scratch），再64行finish至RGBAf；不逐条带重设随机种子或方差。Swift额外磁盘预算按32B/像素保守预留，之外仍有RGBAf和编码余量。内核固定RAM小于4MiB不含Apple处理/文件缓存；48MP总磁盘需要数GB，实际设备峰值尚未测量。详见[参考合同](HNCS_REVISION8.md)。

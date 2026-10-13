@@ -5,9 +5,9 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 ## 当前路径
 
 - Photos/Files 导入，或能力门控后的物理镜头 ProRAW 捕获；完整输入保留为本次编辑的临时文件。
-- HNCS 与 FFCS 独立选择。HNCS 保留真实数值核，但 linear-sRGB → virtual native RGB 源域桥仍是实验适配；FFCS 使用 19 款实际 XH2S 参考资产，不声称 iPhone 传感器标定。
+- HNCS 与 FFCS 独立选择。HNCS已接入render revision8真实预设后曲线、film curve、完整目标WB、方裁切及便携颗粒/锐化；linear-sRGB → virtual native RGB 源域桥仍是实验适配。FFCS使用19款实际XH2S参考资产，不声称iPhone传感器标定。详见[revision8合同与验证](docs/HNCS_REVISION8.md)。
 - 导入/拍后效果预览走 Float32 → Metal RGBA16Float 高精度 SDR 显示，不经过8位UIImage；不声称屏幕面板原生10bit。导入预览默认最长边 2048px。相机中心与外围视频输出独立缩放，预览像素不决定原始捕获或最终输出大小。
-- 最终图从完整源重新解码，精确算法按 64 行输出块处理，写磁盘 RGBAf；颜色/空间处理后才在线性光中 Lanczos 缩小，使用专用 HEIF10 writer 请求 10-bit SDR sRGB HEIF。
+- 最终图从完整源重新解码，裁切后按64行处理；HNCS空间预设额外经过磁盘暂存的全图统计/滤波，再写RGBAf；颜色/空间处理后才在线性光中 Lanczos 缩小，使用专用 HEIF10 writer 请求 10-bit SDR sRGB HEIF。
 - 用户保存仅有 HEIF：独立保存到 Photos / Files。分享先注册原始 HEIC，再提供按需、从最终 HEIF 转出的同尺寸 JPEG 兼容表示；没有 JPEG 导出选项。接收方选择哪种表示、微信能否发送和查看仍未验证。
 - 默认关闭的实验性中心实时色彩开关：65³ GPU代理仅省取景空间效果，原始系统取景保留为回退；支持范围与误差见[实现边界](docs/LIVE_COLOR_PROXY.md)。最终照片继续精确处理。
 - 方案A参考布局：外围使用原生iOS26 Glass.clear；中央成片框按完整窗口最大等比显示，不为控件缩小、不覆玻璃。真实网格、缩略图与设置入口保留，详见[clear玻璃UI](docs/CLEAR_GLASS_UI.md)。主摄/长焦外围使用实际更广物理镜头与近似 FOV 映射、覆盖门控；超广无更广镜头时黑边。光学对齐、视差与硬件组合仍需实测。
@@ -20,6 +20,7 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 - [架构、颜色域与生命周期](docs/DESIGN.md)
 - [有明确替代关系的决策日志](docs/DECISIONS.md)
 - [已执行测试、证据与未验证边界](docs/TEST_STATUS.md)
+- [HNCS revision8预设/WB/空间处理](docs/HNCS_REVISION8.md)
 - [FFCS 数值移植与资产准备](docs/FFCS.md)
 - [iOS 构建与设备验收](ios/README.md) / [C++ 核](core/README.md)
 - [相机能力与取景](docs/camera-capture.md) / [方案A透明玻璃UI](docs/CLEAR_GLASS_UI.md) / [全源导出](docs/FULL_RESOLUTION_EXPORT.md)
@@ -40,6 +41,9 @@ python tools/materialize_ffcs_reference.py
 python -m unittest discover -s tests -v
 python tools/verify_cpp.py
 python tools/verify_linear_export.py
+python tools/verify_hncs_revision8.py
+python tools/test_hncs_spatial.py --reference reference --large --output validation/hncs-spatial.json
+python tools/test_hncs_numpy_rng.py
 python tools/benchmark_optimized.py
 python tools/render_preview.py --synthetic
 ```

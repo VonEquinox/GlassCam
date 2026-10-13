@@ -7,8 +7,11 @@
 #include <cmath>
 #include <limits>
 #include <new>
+#include <cstring>
+#include <string>
 #include <vector>
 #include "hncs_assets.inc"
+#include "hncs_preset_assets.inc"
 
 namespace {
 using V = std::array<double,3>;
@@ -53,6 +56,98 @@ inline double round_even(double x) {
     return f + ((d>.5 || (d==.5 && std::fmod(f,2.)!=0.)) ? 1. : 0.);
 }
 inline bool finite(const V& v) {return std::isfinite(v[0])&&std::isfinite(v[1])&&std::isfinite(v[2]);}
+using Codes = std::array<uint16_t,3>;
+using F = std::array<float,3>;
+const preset_assets::Preset *find_preset(const char *key) {
+    if(!key) key="standard";
+    // Match the reference's ordinary ASCII case/outer-whitespace normalization.
+    std::string normalized(key);
+    const auto first=normalized.find_first_not_of(" \t\r\n");
+    if(first==std::string::npos)return nullptr;
+    normalized=normalized.substr(first,normalized.find_last_not_of(" \t\r\n")-first+1);
+    for(char& c:normalized)if(c>='A'&&c<='Z')c=char(c-'A'+'a');
+    for(const char *dash:{"\xe2\x80\x93","\xe2\x80\x94"}) {
+        size_t position=0;
+        while((position=normalized.find(dash,position))!=std::string::npos)normalized.replace(position,3,"-");
+    }
+    for(const auto& alias:preset_assets::aliases)
+        if(normalized==alias.key)return preset_assets::catalog[alias.index];
+    return nullptr;
+}
+// RecoverHue intentionally mixes Float32 arithmetic and double constants.
+// Do not simplify the divide/multiply or hue reconstruction boundaries.
+F recover_hue(const Codes& original,const Codes& adjusted) {
+    F rgb{},mapped{};
+    for(int i=0;i<3;++i) {rgb[i]=float(original[i])/65535.f;mapped[i]=float(adjusted[i])/65535.f;}
+    const float lo=std::min({rgb[0],rgb[1],rgb[2]}),hi=std::max({rgb[0],rgb[1],rgb[2]}),span=hi-lo;
+    const float divisor=span!=0.f?span:1.f;
+    float hue=hi==rgb[0]?((rgb[1]-rgb[2])*60.f)/divisor:
+        hi==rgb[1]?((rgb[2]-rgb[0])*60.f)/divisor+120.f:((rgb[0]-rgb[1])*60.f)/divisor+240.f;
+    if(hi==rgb[0]&&rgb[1]<rgb[2])hue=hue+360.f;
+    if(span==0.f)hue=0.f;
+    const float bottom=std::min({mapped[0],mapped[1],mapped[2]}),top=std::max({mapped[0],mapped[1],mapped[2]});
+    const float light=(bottom+top)*.5f,delta=top-bottom;
+    const float low_s=light>float(1./65535.)?(delta*.5f)/light:0.f;
+    const float low_p=light*(1.f+low_s);
+    const float denominator=float(2.-2.*double(light));
+    const float high_s=double(light)<1.-1./65535.?delta/denominator:0.f;
+    const float high_p=float(double(light+high_s)-double(light)*double(high_s));
+    const double p=light<.5f?double(low_p):double(high_p);
+    const double q=double(light+light)-p,normalized_hue=double(hue/360.f),amplitude=(p-q)*6.;
+    constexpr double offsets[3]={.3333333432674408,0.,-.3333333432674408};
+    F color{};
+    for(int i=0;i<3;++i) {
+        double t=normalized_hue+offsets[i];if(t<0.)t+=1.;else if(t>1.)t-=1.;
+        const double v=t<.1666666716337204?amplitude*t+q:
+            t<.5?p:t<.6666666865348816?amplitude*(.6666666865348816-t)+q:q;
+        color[i]=float(v)*65535.f;
+    }
+    return color;
+}
+Codes post_curves(const preset_assets::Preset& preset,bool tone,const Codes& input) {
+    const auto& mode=preset.mode[tone?1:0];
+    if(!mode.active)return input;
+    Codes base{};
+    for(int i=0;i<3;++i)base[i]=preset_assets::tables[mode.table[i]][input[i]];
+    F ratio[2]={{1.f,1.f,1.f},{1.f,1.f,1.f}};
+    for(int stage=0;stage<2;++stage) {
+        if(stage==1&&!mode.luma)continue;
+        Codes mapped{};
+        for(int i=0;i<3;++i)mapped[i]=preset_assets::tables[mode.table[3+stage]][base[i]];
+        const F recovered=recover_hue(base,mapped);
+        for(int i=0;i<3;++i)ratio[stage][i]=base[i]?recovered[i]/float(base[i]):recovered[i];
+    }
+    Codes out{};
+    for(int i=0;i<3;++i) {
+        const float value=(float(base[i])*ratio[0][i])*ratio[1][i];
+        out[i]=uint16_t(std::max(0.f,std::min(value,65535.f))); // truncate, never rint
+    }
+    return out;
+}
+F preset_work(const preset_assets::Preset *preset,bool tone,const Codes& input) {
+    Codes saturation_codes=input;
+    if(preset&&preset->saturation!=0.) {
+        F work{};for(int i=0;i<3;++i)work[i]=float(input[i])/65535.f;
+        const float mean=((work[0]+work[1])+work[2])/3.f;
+        const float scale=float(1.+preset->saturation/100.);
+        for(int i=0;i<3;++i) {
+            const float value=mean+(work[i]-mean)*scale;
+            saturation_codes[i]=uint16_t(round_even(double(std::max(0.f,std::min(value,1.f))*65535.f)));
+        }
+    }
+    const Codes adjusted=preset?post_curves(*preset,tone,saturation_codes):saturation_codes;
+    F work{};for(int i=0;i<3;++i)work[i]=float(adjusted[i])/65535.f;
+    if(preset&&preset->grayscale) {
+        F gray{};for(int i=0;i<3;++i)gray[i]=work[i]*(float(preset->gray[i])/100.f);
+        const float value=(gray[0]+gray[1])+gray[2];work={value,value,value};
+    }
+    return work;
+}
+Codes finish_work(const F& work) {
+    Codes out{};
+    for(int i=0;i<3;++i)out[i]=uint16_t(round_even(double(std::max(0.f,std::min(work[i],1.f))*65535.f)));
+    return out;
+}
 }
 
 struct hncs_context {
@@ -66,6 +161,11 @@ struct hncs_context {
     int width=0,height=0;
     double cb0=0., cr0=0.;
     bool reproduction=false;
+    const preset_assets::Preset *preset=nullptr;
+    bool preset_tone=true;
+    bool preset_pointwise_active=false;
+    V capture_target_wb={1.,1.,1.},target_wb={1.,1.,1.};
+    double factory_kelvin=0.;
     const uint16_t *curve=assets::v1_gamma;
     explicit hncs_context(double ev,double kelvin,bool lstar=false,bool repro=false) {
         reproduction=repro;
@@ -148,12 +248,15 @@ struct hncs_context {
         }
         return result;
     }
-    inline V display_linear(const std::array<uint16_t,3>& codes) const {
+    inline V display_linear_core(const std::array<uint16_t,3>& codes) const {
         V linear={gamma_decode[codes[0]],gamma_decode[codes[1]],gamma_decode[codes[2]]};
         // Keep the original stage order instead of folding matrices together.
         V rgb=transform(xyz_to_srgb,transform(display_adaptation,transform(legacy_to_xyz,linear)));
         for(double& v:rgb)v=clamp(v,0,1);
         return rgb;
+    }
+    inline V display_linear(const std::array<uint16_t,3>& codes) const {
+        return display_linear_core(preset_pointwise_active?finish_work(preset_work(preset,preset_tone,codes)):codes);
     }
     inline V display(const std::array<uint16_t,3>& codes) const {
         V rgb=display_linear(codes);
@@ -269,4 +372,127 @@ extern "C" int hncs_process_linear_rgba_parallel(const hncs_context *c,const flo
     for(unsigned i=launched;i<workers;++i)run(i);
     for(unsigned i=0;i<launched;++i)if(threads[i].joinable())threads[i].join();
     return status.load(std::memory_order_relaxed);
+}
+
+extern "C" size_t hncs_preset_count(void) {
+    return sizeof(preset_assets::catalog)/sizeof(preset_assets::catalog[0]);
+}
+extern "C" const char *hncs_preset_key(size_t index) {
+    return index<hncs_preset_count()?preset_assets::catalog[index]->key:nullptr;
+}
+extern "C" const char *hncs_preset_name(size_t index) {
+    return index<hncs_preset_count()?preset_assets::catalog[index]->name:nullptr;
+}
+extern "C" unsigned hncs_preset_flags(const char *key) {
+    try { const auto *p=find_preset(key);return p?p->flags:std::numeric_limits<unsigned>::max(); }
+    catch(...) {return std::numeric_limits<unsigned>::max();}
+}
+extern "C" const char *hncs_preset_settings_json(const char *key) {
+    try {const auto *p=find_preset(key);return p?p->json:nullptr;} catch(...) {return nullptr;}
+}
+extern "C" hncs_context *hncs_create_preset(double ev,double capture_kelvin,double factory_override,
+    int lstar,int repro,int film_type,int raw_type,const char *key,int tone,
+    const double *capture_wb,const double *desired_wb) {
+    if(!std::isfinite(ev)||ev < -20.||ev > 20.||!std::isfinite(capture_kelvin)||
+       !std::isfinite(factory_override)||(lstar!=0&&lstar!=1)||(repro!=0&&repro!=1)||
+       (tone!=0&&tone!=1)||(film_type!=0&&film_type!=1&&film_type!=2&&film_type!=4&&film_type!=6&&film_type!=7))return nullptr;
+    try {
+        const auto *preset=find_preset(key);if(!preset)return nullptr;
+        const double capture=clamp(std::trunc(capture_kelvin),2000,10000);
+        const double factory=clamp(std::trunc(factory_override!=0.?factory_override:
+            preset->cct!=0.?preset->cct:capture_kelvin),2000,10000);
+        V baseline{},desired{};
+        if(capture_wb)std::copy(capture_wb,capture_wb+3,baseline.begin());
+        else interpolate(clamp(capture,assets::wb_temperatures[0],assets::wb_temperatures[2]),
+            assets::wb_temperatures,3,preset_assets::factory_wb,3,baseline.data());
+        const bool replace=desired_wb||preset->wb[0]>0.;
+        if(desired_wb)std::copy(desired_wb,desired_wb+3,desired.begin());
+        else if(replace)std::copy(preset->wb,preset->wb+3,desired.begin());
+        else desired=baseline;
+        for(const auto& wb:{baseline,desired})if(!finite(wb)||wb[0]<=0.||wb[1]<=0.||wb[2]<=0.)return nullptr;
+        const double bg=baseline[1],dg=desired[1];
+        for(int i=0;i<3;++i){baseline[i]/=bg;desired[i]/=dg;}
+        if(!finite(baseline)||!finite(desired))return nullptr;
+        for(int i=0;i<3;++i)if(baseline[i]<=0.||desired[i]<=0.)return nullptr;
+        M camera{};
+        interpolate(capture,assets::matrix_temperatures,4,assets::camera_to_xyz,9,camera.data());
+        M adapter=mul(mul(inverse(camera),adaptation(d65,transform(camera,{1.,1.,1.}))),srgb_to_xyz);
+        if(replace)for(int row=0;row<3;++row)for(int col=0;col<3;++col)adapter[row*3+col]*=desired[row]/baseline[row];
+        for(double v:adapter)if(!std::isfinite(v))return nullptr;
+        auto *context=new hncs_context(ev,factory,lstar!=0,repro!=0);
+        context->preset=preset;context->preset_tone=tone!=0;
+        context->preset_pointwise_active=preset->saturation!=0.||preset->grayscale||preset->mode[tone].active;
+        context->source_to_native=adapter;
+        context->capture_target_wb=baseline;context->target_wb=desired;context->factory_kelvin=factory;
+        const int resolved=repro?7:film_type==4?raw_type:film_type;
+        context->curve=resolved==7?(lstar?assets::pure_lstar:assets::pure_gamma):
+            resolved==0&&!lstar?preset_assets::original_gamma:(lstar?assets::v1_lstar:assets::v1_gamma);
+        return context;
+    } catch(...) {return nullptr;}
+}
+extern "C" int hncs_apply_post_curves(const char *key,int tone,const uint16_t *input,uint16_t *output,size_t count) {
+    if((tone!=0&&tone!=1)||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(uint16_t)/3)return -1;
+    try {
+        const auto *preset=find_preset(key);if(!preset)return -1;
+        for(size_t i=0;i<count;++i){Codes v={input[3*i],input[3*i+1],input[3*i+2]};v=post_curves(*preset,tone!=0,v);for(int j=0;j<3;++j)output[3*i+j]=v[j];}
+        return 0;
+    } catch(...) {return -1;}
+}
+extern "C" int hncs_apply_preset_pointwise(const char *key,int tone,const uint16_t *input,uint16_t *output,size_t count) {
+    if((tone!=0&&tone!=1)||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(uint16_t)/3)return -1;
+    try {
+        const auto *preset=find_preset(key);if(!preset)return -1;
+        for(size_t i=0;i<count;++i){Codes v={input[3*i],input[3*i+1],input[3*i+2]};v=finish_work(preset_work(preset,tone!=0,v));for(int j=0;j<3;++j)output[3*i+j]=v[j];}
+        return 0;
+    } catch(...) {return -1;}
+}
+extern "C" int hncs_render_native_preset(const hncs_context *c,const double *input,uint16_t *output,size_t count) {
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(double)/3)return -1;
+    for(size_t i=0;i<count;++i) {
+        V p={input[i*3],input[i*3+1],input[i*3+2]};if(!finite(p))return -1;
+        const Codes codes=c->preset_pointwise_active?finish_work(preset_work(c->preset,c->preset_tone,c->render(p))):c->render(p);
+        for(int j=0;j<3;++j)output[3*i+j]=codes[j];
+    }
+    return 0;
+}
+extern "C" int hncs_apply_preset_work_float(const char *key,int tone,const uint16_t *input,float *output,size_t count) {
+    if((tone!=0&&tone!=1)||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;
+    try {
+        const auto *preset=find_preset(key);if(!preset)return -1;
+        for(size_t i=0;i<count;++i){const F v=preset_work(preset,tone!=0,{input[3*i],input[3*i+1],input[3*i+2]});for(int j=0;j<3;++j)output[3*i+j]=v[j];}
+        return 0;
+    } catch(...) {return -1;}
+}
+extern "C" int hncs_process_preset_work_float(const hncs_context *c,const float *input,float *output,size_t count) {
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;
+    for(size_t i=0;i<count;++i) {
+        V p={double(input[i*3])*c->exposure,double(input[i*3+1])*c->exposure,double(input[i*3+2])*c->exposure};
+        if(!finite(p))return -1;
+        p=transform(c->source_to_native,p);
+        if(!finite(p))return -1;
+        const F work=preset_work(c->preset,c->preset_tone,c->render(p));
+        for(int j=0;j<3;++j)output[3*i+j]=work[j];
+    }
+    return 0;
+}
+extern "C" int hncs_finish_preset_work_linear(const hncs_context *c,const float *input,float *output,size_t count) {
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4)return -1;
+    for(size_t i=0;i<count;++i) {
+        const F work={input[3*i],input[3*i+1],input[3*i+2]};
+        if(!std::isfinite(work[0])||!std::isfinite(work[1])||!std::isfinite(work[2]))return -1;
+        const V linear=c->display_linear_core(finish_work(work));
+        for(int j=0;j<3;++j)output[4*i+j]=float(linear[j]);
+        output[4*i+3]=1.f;
+    }
+    return 0;
+}
+extern "C" int hncs_source_to_native_matrix(const hncs_context *c,double *out) {
+    if(!c||!out)return -1;
+    std::copy(c->source_to_native.begin(),c->source_to_native.end(),out);
+    return 0;
+}
+extern "C" int hncs_preset_white_balance(const hncs_context *c,double *capture,double *target,double *kelvin) {
+    if(!c||!c->preset||!capture||!target||!kelvin)return -1;
+    std::copy(c->capture_target_wb.begin(),c->capture_target_wb.end(),capture);
+    std::copy(c->target_wb.begin(),c->target_wb.end(),target);*kelvin=c->factory_kelvin;return 0;
 }

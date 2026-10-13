@@ -1,0 +1,1644 @@
+{
+  "schema": 1,
+  "phocus_version": "4.2.2",
+  "factory_configuration_loaded": true,
+  "framework_hashes": {
+    "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+    "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+    "HBImageProcessing": "125dd5b0bf0cc1ad00d1cf959eeeea82aa24acee117c2b2bcb55fa44f430d010",
+    "HBStorage": "c311cedfe841f757a3154713f24e08de1601f0ad6a57d601c25e21cd1ce87826"
+  },
+  "baseline_xml_sha256": "a81a561d271ab35229117e1023ae077d01029605b306af3eeb946fddf7521a9f",
+  "curves_file": "work/hncs-pipeline/phocus_post_curves.npz",
+  "curves_sha256": "72d862916aea6ede45897ddf36abae4e6ac2dae2aff942d551c4e94275b4330b",
+  "unique_tables": 6,
+  "source_files": {
+    "Adjustment Layers/Default.xml": {
+      "xml_sha256": "acb56e74a3244b4aaa2bb5edfa0ded15ee5c4105e0851c896e42a9bfd7273d0a",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Color Corrections/Default.xml": {
+      "xml_sha256": "02bf06df23a8ad45f30270008b04dc600548a82d2b9c200f5262e9c0af1d5507",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Color Corrections/Saturated.xml": {
+      "xml_sha256": "91b7224b103e59b2f5595ce9d74da7482cfef08983e71681aada1805b11d235d",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Color Management/Default.xml": {
+      "xml_sha256": "7e7e39bcfbd2fd49e749cb5b85c54c8a0235bd41eb6618256fe0564fed74a5f7",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Defringe/Default.xml": {
+      "xml_sha256": "5f91c02394f02432df50a6d5f21ba89fb60999a51601217418b9140bf513fd13",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Dust/Default.xml": {
+      "xml_sha256": "ee5f770dbe7ba198b058eb6a1f3f3b81ecd4a4ce27afb7a742a2dc267945f973",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Exposure/Default.xml": {
+      "xml_sha256": "f649652edf6fdefd85710453c342e5b98bdf651b8b87973383966991cc4adbe1",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Exposure/Extra contrast.xml": {
+      "xml_sha256": "145a4029aee632bcc0f11cb2bb2828e5b19ca149e95e831bda161f87eb407d09",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_b5eb68c3cb2c5314befdd79ce081353f4812250cd20c729135623a3ed1d1daf9",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce",
+            "green": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce",
+            "blue": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce"
+          },
+          "native_settings": {
+            "gamma": 2.200000047683716,
+            "effective_gamma": 1.2000000476837158,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          },
+          "vector_key": "p7_tone",
+          "samples_red_x255": [
+            0.0,
+            25.381322957198442,
+            45.22568093385214,
+            80.58365758754864,
+            87.86381322957199,
+            112.97665369649805,
+            143.57976653696497,
+            172.9260700389105,
+            194.284046692607,
+            201.29961089494162,
+            228.89105058365757,
+            255.0
+          ]
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_b5eb68c3cb2c5314befdd79ce081353f4812250cd20c729135623a3ed1d1daf9",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce",
+            "green": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce",
+            "blue": "t_ce319fc41ecf3ac562253601e2d51dd7d6c9878005b7160d0f7eae985fb013ce"
+          },
+          "native_settings": {
+            "gamma": 2.200000047683716,
+            "effective_gamma": 1.2000000476837158,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          },
+          "vector_key": "p7_no_tone",
+          "samples_red_x255": [
+            0.0,
+            25.381322957198442,
+            45.22568093385214,
+            80.58365758754864,
+            87.86381322957199,
+            112.97665369649805,
+            143.57976653696497,
+            172.9260700389105,
+            194.284046692607,
+            201.29961089494162,
+            228.89105058365757,
+            255.0
+          ]
+        }
+      }
+    },
+    "Film Grain/Artistic.xml": {
+      "xml_sha256": "133666fe096d2be124aa346882e3f618dc194c2fd94887940000e88e29559708",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Film Grain/Default.xml": {
+      "xml_sha256": "797f2cfa7f22534360043de2be45d7f71ea553aae947aa91a08f8e9d952058f6",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Film Grain/Fine Texture.xml": {
+      "xml_sha256": "53b13895d003d176042439def6139e54488d9c1b63763390e25a8946c142b618",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Film Grain/High ISO.xml": {
+      "xml_sha256": "21f8621db59a886fea32bd617df1eac2365a52b015742f1a210124ae3e74903f",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Film Grain/Medium ISO.xml": {
+      "xml_sha256": "6ad4a4642a518d97492bf5c394c531aabe5711764a55af910b8b0aea03c356a5",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Film Grain/Rough Color.xml": {
+      "xml_sha256": "5dbab68cec73eadb8dce6fee887e4a11c7533bca37e8d97d620cf3bc11dc5ea0",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Film Grain/Slide High ISO.xml": {
+      "xml_sha256": "a4ff35aac8ec9c76d1af82926ac9b68b5b9b1bce915b6f203ae6c0a891e58f5d",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Film Grain/Slide Medium ISO.xml": {
+      "xml_sha256": "c06560f4fe957d94c18b8d82aec5e92cd32f54a47c6f6ac526dbcc9c6235ddc4",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Film Grain/Tabular Grain.xml": {
+      "xml_sha256": "a067d6a9136ab9c1478257d71ff3f2f866edfa785bdf50bc74098bcba301d44b",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Gradation Curves/Default.xml": {
+      "xml_sha256": "5a73941db015572f6bbfcdf66f4502a073aaf71e4cc0918642d73185337438ca",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Gradation Curves/Lighten.xml": {
+      "xml_sha256": "9670480b06b2b7286558bccdb21ca27380398017f654e194a568ade9a360b501",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_8562d36cd013194b932fc13aceb666d71233b3120fa4e7b620c9bfdab71adfbb",
+            "green": "t_8562d36cd013194b932fc13aceb666d71233b3120fa4e7b620c9bfdab71adfbb",
+            "blue": "t_8562d36cd013194b932fc13aceb666d71233b3120fa4e7b620c9bfdab71adfbb"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          },
+          "vector_key": "p18_tone",
+          "samples_red_x255": [
+            0.0,
+            15.821011673151752,
+            34.249027237354085,
+            72.95719844357977,
+            81.20622568093385,
+            109.22568093385215,
+            141.53696498054475,
+            170.3579766536965,
+            190.3657587548638,
+            196.8599221789883,
+            223.12451361867704,
+            255.0
+          ]
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          },
+          "vector_key": "p18_no_tone",
+          "samples_red_x255": [
+            0.0,
+            16.0,
+            32.0,
+            64.0,
+            71.0,
+            96.0,
+            128.0,
+            160.0,
+            184.0,
+            192.0,
+            224.0,
+            255.0
+          ]
+        }
+      }
+    },
+    "Grayscale/Blue filter.xml": {
+      "xml_sha256": "e85199103b5b60e8343230f07a33c47d217b507d170473c2d5edf8ba14166ab0",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Grayscale/Default.xml": {
+      "xml_sha256": "8474cfd00baa170a560c4a1ac83d4e041b002f4525f620ef092ed355cacfef93",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Grayscale/Green filter.xml": {
+      "xml_sha256": "de2e87148ea4b5c616e4b00c360a30499aa151ae24a21b0bbfef0d95c82fefa2",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Grayscale/Red filter.xml": {
+      "xml_sha256": "163ba0f3d8ade5bdfb8881ba97519e732a72057fa3f1385e246fc1aa975b4ea2",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Histogram/Default.xml": {
+      "xml_sha256": "249ec3aad0944a78011d3e29a8908adf276f33962dfad02e42017d0b2fa7c514",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Keystone Correction/Default.xml": {
+      "xml_sha256": "9bbd35767485dbeba8d1c9bd76e49bfffbb9e2cc8dce0bd13a17d1645fdaaaa0",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Lens Corrections/Default.xml": {
+      "xml_sha256": "2adbc4efd9c44cc743aee26b4341a0c2d35cf629cd92eace220b6ba6d4fbc7d6",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Nature.xml": {
+      "xml_sha256": "1233eb4082921ae5dd9b2074bfd34bb2a9f19e6938cbf4f13c72cc71ed8f3cae",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_4b549e27e217e67e4a1a5737edda933bba9b024584ec74ce5fb3ee07f95f3a12",
+            "green": "t_4b549e27e217e67e4a1a5737edda933bba9b024584ec74ce5fb3ee07f95f3a12",
+            "blue": "t_4b549e27e217e67e4a1a5737edda933bba9b024584ec74ce5fb3ee07f95f3a12"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          },
+          "vector_key": "p26_tone",
+          "samples_red_x255": [
+            0.0,
+            9.108949416342412,
+            21.556420233463037,
+            52.87937743190661,
+            60.5136186770428,
+            89.21011673151752,
+            127.73151750972762,
+            166.26070038910507,
+            193.86381322957197,
+            202.61089494163423,
+            233.94941634241246,
+            255.0
+          ]
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          },
+          "vector_key": "p26_no_tone",
+          "samples_red_x255": [
+            0.0,
+            16.0,
+            32.0,
+            64.0,
+            71.0,
+            96.0,
+            128.0,
+            160.0,
+            184.0,
+            192.0,
+            224.0,
+            255.0
+          ]
+        }
+      }
+    },
+    "Noise Filter/Default.xml": {
+      "xml_sha256": "620475124ad93f09eaea552bc9b47aa0647b3b9a861571205749877cb39ab24d",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Portrait.xml": {
+      "xml_sha256": "535374a01394ab6e85952155b380058e14e3508d9a994ad735ba8a596d79a462",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Product.xml": {
+      "xml_sha256": "c848cdef03b5c391e53b85ffe1ec8ea6abeb2a0707bd239002bb11389f48ec21",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Scene Calibration/Default.xml": {
+      "xml_sha256": "360b9867ead79845c48291ae7182ad4b620995de0f0a5955b6ba6919738abc40",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Sharpness/Default.xml": {
+      "xml_sha256": "e3f791206985e479b6feba3737eb4b8f153048afb257b5158e33ed3fd7ffa743",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Sharpness/High.xml": {
+      "xml_sha256": "a027678539e0f7e26a87963045178fca5c5c81d12dd869a0aa25f84628dc3ca2",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Sharpness/Medium.xml": {
+      "xml_sha256": "ba1378574032f76772d702cebbc588f4a1df89777044f901339584a88a77e92f",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Sharpness/Portrait.xml": {
+      "xml_sha256": "7c41cf92d33a72022245b3759788dd6cdadca963c6101dcbaa1315e6258d9b4a",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Square Crop.xml": {
+      "xml_sha256": "9ab8fae86f7c772042c2edd2b2cb174c2a4374aafba572e1e5cbdff868c48361",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "Standard.xml": {
+      "xml_sha256": "a81a561d271ab35229117e1023ae077d01029605b306af3eeb946fddf7521a9f",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          },
+          "vector_key": "p36_tone",
+          "samples_red_x255": [
+            0.0,
+            16.0,
+            32.0,
+            64.0,
+            71.0,
+            96.0,
+            128.0,
+            160.0,
+            184.0,
+            192.0,
+            224.0,
+            255.0
+          ]
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          },
+          "vector_key": "p36_no_tone",
+          "samples_red_x255": [
+            0.0,
+            16.0,
+            32.0,
+            64.0,
+            71.0,
+            96.0,
+            128.0,
+            160.0,
+            184.0,
+            192.0,
+            224.0,
+            255.0
+          ]
+        }
+      }
+    },
+    "White Balance/Cloudy.xml": {
+      "xml_sha256": "1aeaf4a588c591d2974df1565a8bc2481b0ce3c5f2b335b6fd36cd6592b3ab1f",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "White Balance/Daylight.xml": {
+      "xml_sha256": "959d5b2ee4fa3858e672df8984ad66294cb66f8f70f520a9c99f297b232226f3",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "White Balance/Flash.xml": {
+      "xml_sha256": "ccf5ab66b05e824775276a727dccca280004174bf2b3e2a6409faa52f0b5b16a",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "White Balance/Fluorescent.xml": {
+      "xml_sha256": "48a64f8b6d095c4a5dd42f1ca58bbbc32be75b3903ec50d7ddfa26545fde4408",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "White Balance/Shade.xml": {
+      "xml_sha256": "14d751f1d35b34a25cf5023bed6c29cb5ba1a0103f803d8f82a76203d5e76e34",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    },
+    "White Balance/Tungsten.xml": {
+      "xml_sha256": "1933e76a34c8c95c9e77c799c3fd2e28608631b614c76a242a4416a8b41681d8",
+      "modes": {
+        "tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        },
+        "no_tone": {
+          "tables": {
+            "contrast": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "luma": "t_68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+            "red": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "green": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4",
+            "blue": "t_c907ad29250886808205386e719107d7a45b4bd34cee89fdd165910e579662d4"
+          },
+          "native_settings": {
+            "gamma": 2.0,
+            "effective_gamma": 1.0,
+            "ev_multiplier": 1.0,
+            "luma_point_count": 2
+          }
+        }
+      }
+    }
+  },
+  "native_vector_sha256": "7779df367cff6ac2191844c39b71037addf716df3d613041dbb6290d9cf1f84a",
+  "application": "CGradationFilter channel tables, hue-preserving contrast, optional luma; non-HDR factory settings over Standard baseline."
+}
