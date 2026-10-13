@@ -1,7 +1,7 @@
 """Source-backed FFCS verification; never replaces the supplied baseline.
 
 Run --source PATH --generate to execute the nine original tests and original
-14-case reproduction, then capture exact Python-double maps for 19 LUT looks.
+historical 14-case reproduction (v0.2 uses verify_ffcs_v020.py), then capture exact Python-double maps for 19 LUT looks.
 No pytest installation is needed: each original test gets its own temporary dir.
 """
 from __future__ import annotations
@@ -54,12 +54,12 @@ def original_tests(source):
 def original_reproduction(source):
     baseline = source / 'validation/baseline_pixels.json'
     before = hashlib.sha256(baseline.read_bytes()).hexdigest()
-    env = dict(os.environ, PYTHONPATH=str(source / 'implementation'))
+    env = dict(os.environ, PYTHONPATH=os.pathsep.join([str(source / 'implementation'), os.environ.get('PYTHONPATH', '')]))
     run = subprocess.run([sys.executable, str(source / 'examples/reproduce.py')], env=env, capture_output=True, text=True, check=True)
     after = hashlib.sha256(baseline.read_bytes()).hexdigest()
     assert before == after, 'Original baseline was modified'
     report = json.loads(run.stdout)
-    assert report['cases'] == 14 and report['stage_maps'] == 153
+    assert report['cases'] == 19 and report['stage_maps'] == 198
     return dict(report, baseline_sha256=before, baseline_unchanged=True)
 
 
@@ -91,6 +91,10 @@ def reference(pixels, name, seed=0, linear=False):
 
 
 def generate(source):
+    if (source / 'validation/delivery_manifest.json').is_file():
+        version = json.loads((source / 'validation/delivery_manifest.json').read_text()).get('version')
+        if version == '0.2.0':
+            raise RuntimeError('Historical v0.1 golden files are immutable. Use verify_ffcs_v020.py --generate for FFCS 0.2.0.')
     tests = original_tests(source)
     reproduction = original_reproduction(source)
     pixels = small_input()
@@ -140,6 +144,8 @@ def build_library():
 
 
 def compare_cpp(source):
+    if json.loads((source / 'validation/delivery_manifest.json').read_text()).get('version') == '0.2.0':
+        raise RuntimeError('Historical v0.1 comparison is superseded by verify_ffcs_v020.py --compare.')
     import ctypes as c
     import numpy as np
     from ffcs.color import srgb_decode, srgb_encode

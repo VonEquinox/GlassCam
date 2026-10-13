@@ -1,3 +1,5 @@
+> FFCS部分为0.1历史数学/性能证据；0.2中性默认与Gaussian算法已变更，不能直接外推。当前实现及新证据见[FFCS](FFCS.md)。HNCS部分依其自身版本说明。
+
 # Color-only GPU preview LUT investigation
 
 This is an offline approximation study, **not a production enable**. This study does not change production kernels, full-photo processing, original resources or the high-precision display path. A separately implemented experimental app option is outside these offline results. The user has explicitly scoped live preview to color only: no grain, blur, halation, sharpening or other spatial effects.

@@ -1,596 +1,740 @@
-[
-  {
-    "path": ".DS_Store",
-    "bytes": 8196,
-    "classification": "Finder元信息",
-    "sha256": "b7727b742948a644b38740376fb797b92f155553ea0bf3a7231148b60fd8bf54"
-  },
-  {
-    "path": ".gitignore",
-    "bytes": 42,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "48959b88edd74ee1136127969f2d2d6df25387b8b743e73b056f9c64036c9fa8"
-  },
-  {
-    "path": ".pytest_cache/.gitignore",
-    "bytes": 37,
-    "classification": "生成缓存",
-    "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
-  },
-  {
-    "path": ".pytest_cache/CACHEDIR.TAG",
-    "bytes": 191,
-    "classification": "生成缓存",
-    "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
-  },
-  {
-    "path": ".pytest_cache/README.md",
-    "bytes": 302,
-    "classification": "生成缓存",
-    "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
-  },
-  {
-    "path": ".pytest_cache/v/cache/nodeids",
-    "bytes": 674,
-    "classification": "生成缓存",
-    "sha256": "807ea6bcd5a3066d37e5e0947df99adc7fd55155a36d53b13c946fdf61949847"
-  },
-  {
-    "path": "MANIFEST.in",
-    "bytes": 53,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "5c033dd0069dfa6e8b9381fc5598d7631f3ea2aee849d3c742ba8a2b0756eb0b"
-  },
-  {
-    "path": "PIPELINE_REPLICATION_PLAN.md",
-    "bytes": 2983,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "8af897716744a880948393b3ee72258983ca3832af7909eaf407c825e0fa0dd0"
-  },
-  {
-    "path": "README.md",
-    "bytes": 2985,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "79bfb6364978897be12088f096428a77d1a6f0dbe213ff8dc5c2c973487a6e18"
-  },
-  {
-    "path": "REFERENCE_ANALYSIS.md",
-    "bytes": 1752,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "4941137cdc7714f112f340143d68c698ee75db59dcb610af49937d212d410301"
-  },
-  {
-    "path": "RFCEX30Ins81200.dmg",
-    "bytes": 394886487,
-    "classification": "原始材料（仅本地元信息和hash检查，不随交付上传）",
-    "sha256": "2e16c11f901b8f656bc8ee80cf53afd50553081d7f47ee860e777460adc50a2a"
-  },
-  {
-    "path": "VALIDATION_STATUS.md",
-    "bytes": 2144,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "a390149c95011999154e42bed9a644eb17a387dd72a3523277f73cbd91064cf5"
-  },
-  {
-    "path": "ffcs/__init__.py",
-    "bytes": 924,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "f464fd0bbab8fdfb0a7cdb7b3283df0b8cc0eb2e34c3b43c57d6f6e3038c0790"
-  },
-  {
-    "path": "ffcs/__main__.py",
-    "bytes": 49,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "76fa916e93e0ae1a6c1bb51dcc0bcf289c014e9f760a47165f8a84401ccf41d7"
-  },
-  {
-    "path": "ffcs/__pycache__/__init__.cpython-314.pyc",
-    "bytes": 1039,
-    "classification": "生成缓存",
-    "sha256": "a0d17103600007d640e341d19914266b9c965e7561125773e1f0757ae7e24296"
-  },
-  {
-    "path": "ffcs/__pycache__/__main__.cpython-314.pyc",
-    "bytes": 196,
-    "classification": "生成缓存",
-    "sha256": "bd6aad0d198009a5e12c2824529fbd528dc42806a5f22e175a0ef26e0558f26e"
-  },
-  {
-    "path": "ffcs/__pycache__/cli.cpython-314.pyc",
-    "bytes": 9962,
-    "classification": "生成缓存",
-    "sha256": "5cdb5b96ef7c77308e397aa11158e3ac3b91eea1c663a80f7498f37718772617"
-  },
-  {
-    "path": "ffcs/__pycache__/color.cpython-314.pyc",
-    "bytes": 29055,
-    "classification": "生成缓存",
-    "sha256": "3bab7ef7eb3c3fb891af1acbd629067261d9585311909baeb63ef8ea0bde06a8"
-  },
-  {
-    "path": "ffcs/__pycache__/effects.cpython-314.pyc",
-    "bytes": 8780,
-    "classification": "生成缓存",
-    "sha256": "7778743daea23d08f140ce1b74ff20806a7258585093d65410dddfcbef44b2c4"
-  },
-  {
-    "path": "ffcs/__pycache__/io.cpython-314.pyc",
-    "bytes": 17785,
-    "classification": "生成缓存",
-    "sha256": "5f793bf98e4002272025b4d5bbf7f6a3ff614e0499b5f7d0b40e8f28e84dec92"
-  },
-  {
-    "path": "ffcs/__pycache__/lutdata.cpython-314.pyc",
-    "bytes": 8414,
-    "classification": "生成缓存",
-    "sha256": "f6fce81a210e1e3105ef409add3915dd71a1aa4db2a1ac0c3c16c56225b364b3"
-  },
-  {
-    "path": "ffcs/__pycache__/metrics.cpython-314.pyc",
-    "bytes": 23984,
-    "classification": "生成缓存",
-    "sha256": "a5f70323fa60b6182a96b24edb417ea5205441ba21c6f06b4cb12675b23725db"
-  },
-  {
-    "path": "ffcs/__pycache__/models.cpython-314.pyc",
-    "bytes": 14004,
-    "classification": "生成缓存",
-    "sha256": "40f5ca353fdd9bb902c98f0b605528239af27b58d188f46e6a867e269f4ecc26"
-  },
-  {
-    "path": "ffcs/__pycache__/pipeline.cpython-314.pyc",
-    "bytes": 26667,
-    "classification": "生成缓存",
-    "sha256": "a5af4071f796946eafb5ce7e2a56dc38bd6ae8207cd813522309f725467630fc"
-  },
-  {
-    "path": "ffcs/__pycache__/raw.cpython-314.pyc",
-    "bytes": 41599,
-    "classification": "生成缓存",
-    "sha256": "fde655ed40ad8380fb0beff2e294b4b45e2c1407b23c0a9fd908582b26b61de6"
-  },
-  {
-    "path": "ffcs/cli.py",
-    "bytes": 6192,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "8ae7c8b2e2f3c02e817adf992bcc772a04d312ffe0177e17631f05c26c9e4845"
-  },
-  {
-    "path": "ffcs/color.py",
-    "bytes": 11518,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "b1b68f13565f84785c78181976718146812abc308bbc0dab3e9daf8ad5e3f4cd"
-  },
-  {
-    "path": "ffcs/data/README.md",
-    "bytes": 699,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "387e47219f708d359200e83ca8ef0db4e31c5cae4e899e79c3fccd8670d461d5"
-  },
-  {
-    "path": "ffcs/data/gfx100/acros.lutz",
-    "bytes": 1046567,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "51335969caa840ecca737ac6fa0d6407c4229f16bea972cf714cb078f1955634"
-  },
-  {
-    "path": "ffcs/data/gfx100/acros_g_filter.lutz",
-    "bytes": 1057790,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "ca623105541998c0bd48a0a6987eb2053309334ae70856d0dbe7835c045b8ccb"
-  },
-  {
-    "path": "ffcs/data/gfx100/acros_r_filter.lutz",
-    "bytes": 831063,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "c1e29f244e3f564aa5186e8e6ba3ed9c4af5b2be5170dd8bc831784d140604fe"
-  },
-  {
-    "path": "ffcs/data/gfx100/acros_ye_filter.lutz",
-    "bytes": 934117,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "ac6c87fbedb8d12b96d074ca7e0c623a256c92a4dd5384ec6f8f0d211aec0419"
-  },
-  {
-    "path": "ffcs/data/gfx100/astia.lutz",
-    "bytes": 2417426,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "c8c5332a77c7ce3405ef29c0929116a76bcc6ba25d94131fb48025dbee7d1fd7"
-  },
-  {
-    "path": "ffcs/data/gfx100/bleach_bypass.lutz",
-    "bytes": 2805231,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "68174f4913ece5cf91ab52e136640b5abbc4de928e3233678c842fa084d03ad5"
-  },
-  {
-    "path": "ffcs/data/gfx100/bw.lutz",
-    "bytes": 1049740,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "f747f00c7e99e5c23573d67755b0dacf2fe4d790f83fcbc9877ec815fa2550f5"
-  },
-  {
-    "path": "ffcs/data/gfx100/classic_chrome.lutz",
-    "bytes": 2592451,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "aa454a12b556fc31260aa6c4ca9fe7773b8ba1d1926cb975ff72540c4207e236"
-  },
-  {
-    "path": "ffcs/data/gfx100/classic_neg.lutz",
-    "bytes": 2708700,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "c126b12802ee52e4f1d1df0634f016f1e065db35e02dc821d76ad5efd3c04aa2"
-  },
-  {
-    "path": "ffcs/data/gfx100/eterna.lutz",
-    "bytes": 2638612,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "2a436969dc03d58527c9e68b8be346d65309926d4e01abd60ea694de6480d9ec"
-  },
-  {
-    "path": "ffcs/data/gfx100/manifest.json",
-    "bytes": 2875,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "ff403d671c23f31451ba69a2fa0df8b73e3ab82d2b92be5689561aae607f0032"
-  },
-  {
-    "path": "ffcs/data/gfx100/mono_g_filter.lutz",
-    "bytes": 1054704,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "a7da4b1599b28b1b7d60735f3dfe4d62127433fdd936919029e6381231da2887"
-  },
-  {
-    "path": "ffcs/data/gfx100/mono_r_filter.lutz",
-    "bytes": 877547,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "d1428a0e955fde927067d376abb564868c387bbb3fef4cf5ad799bfbe9e36aec"
-  },
-  {
-    "path": "ffcs/data/gfx100/mono_ye_filter.lutz",
-    "bytes": 952748,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "661821c1beea7454207ad41454e6a09fc561e9abe673a7c4282995fcf392c5d3"
-  },
-  {
-    "path": "ffcs/data/gfx100/pro_neg_hi.lutz",
-    "bytes": 2468713,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "a02c62b6ff8c0db8aa6ae38d3ee380d92be16a5d0efe957789690a71644bfe9e"
-  },
-  {
-    "path": "ffcs/data/gfx100/pro_neg_std.lutz",
-    "bytes": 2518186,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "5ede0757d6076dfe4cd739584d4b68a965c7ae8a796310a81d7ecd8caa368f94"
-  },
-  {
-    "path": "ffcs/data/gfx100/provia.lutz",
-    "bytes": 2443436,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "fd7b0f76f80beeedeb0a4f45d16e98a5d0c20b10e011f9feef20f65804740f28"
-  },
-  {
-    "path": "ffcs/data/gfx100/sepia.lutz",
-    "bytes": 2713249,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "090ed67519961a41b62979f0cb5e7bc7958efd0b6ff6b8ada5100851d59272b5"
-  },
-  {
-    "path": "ffcs/data/gfx100/velvia.lutz",
-    "bytes": 2333319,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "c7c2fd4ff4bf7ec911278994fb376c10e5c445b57748c10c80fb3263fa06f812"
-  },
-  {
-    "path": "ffcs/data/icc/ISL-ARGB1998.icc",
-    "bytes": 588,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "ac1bcf9aa29b4459f33919e07fdd584b70781a5b4205898e8eb99117dcebc34a"
-  },
-  {
-    "path": "ffcs/data/icc/ISL-sRGB.icc",
-    "bytes": 3140,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "5ac017f2137114bc2fdb7046371c33725ea6b3829096a084b90f5aea47323ee9"
-  },
-  {
-    "path": "ffcs/data/xa3/astia.lutz",
-    "bytes": 1370590,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "e4b898c51ef9b351a28c1b0490301b217837921a78fcd98aeab3f84c01e4a790"
-  },
-  {
-    "path": "ffcs/data/xa3/bw.lutz",
-    "bytes": 544401,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "0803ab6202424698de535b9153e7f1e15660014e0492e5a937f5580f71110f82"
-  },
-  {
-    "path": "ffcs/data/xa3/classic_chrome.lutz",
-    "bytes": 1354382,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "b22a0ee37ad0641cbf97dd2612d4bab6b398fcd32bb4804e4b19870f4aadec4b"
-  },
-  {
-    "path": "ffcs/data/xa3/manifest.json",
-    "bytes": 1804,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "1cff1f94933cd60293d0a82eebac969e91ebc418c4f811be80215333d194f320"
-  },
-  {
-    "path": "ffcs/data/xa3/mono_g_filter.lutz",
-    "bytes": 538091,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "61e326cd81dba34d0500b4e5777ac8ce41dbbfa96b5f5f9b4efda9a9c88ca698"
-  },
-  {
-    "path": "ffcs/data/xa3/mono_r_filter.lutz",
-    "bytes": 503323,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "3138aed66dd074e2807f126eb13f7656bbff69dcecd0b0b1237afa8e85a75643"
-  },
-  {
-    "path": "ffcs/data/xa3/mono_ye_filter.lutz",
-    "bytes": 518046,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "a74209e6ab1b6aefc3230832d637622c57e367cdceeb8a0a520cc2da00e76cd5"
-  },
-  {
-    "path": "ffcs/data/xa3/pro_neg_hi.lutz",
-    "bytes": 1361092,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "09472f90a4f93b296f5eee06c67ef458b9ddbe4e22dfeb92a3399ff5abce1efc"
-  },
-  {
-    "path": "ffcs/data/xa3/pro_neg_std.lutz",
-    "bytes": 1366190,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "2fcfa97d660cdf451bec5c2df02406746190be49f31259d335d2b26a8f206c0a"
-  },
-  {
-    "path": "ffcs/data/xa3/provia.lutz",
-    "bytes": 1361185,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "f69247d6aac6f988869463a7ca5fafaea97112b3ad6ba733b30a6d09325d2b0e"
-  },
-  {
-    "path": "ffcs/data/xa3/sepia.lutz",
-    "bytes": 1321645,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "439412e3e88244d94d203c014f76960e127d61ffe58eef6794f6fe62bb44076d"
-  },
-  {
-    "path": "ffcs/data/xa3/velvia.lutz",
-    "bytes": 1354838,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "e84efeb18434d900f3639d6f265527e1561ba89b84b94fa17b11a0960fd75641"
-  },
-  {
-    "path": "ffcs/data/xh2s/acros.lutz",
-    "bytes": 1050148,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "2e3d6d82df6d6ed3e64c5ba003e7858088c97243194dd7e79478546d755b4a8e"
-  },
-  {
-    "path": "ffcs/data/xh2s/acros_g_filter.lutz",
-    "bytes": 1046412,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "f051fd8626ec89a6d464411b3bf7125312a476005d797c9cd24f64dd3865a5c9"
-  },
-  {
-    "path": "ffcs/data/xh2s/acros_r_filter.lutz",
-    "bytes": 978026,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "bd96caf710ccf437e2ca2270e54cc9653d56376cbf6b14690dea5416583f80ef"
-  },
-  {
-    "path": "ffcs/data/xh2s/acros_ye_filter.lutz",
-    "bytes": 1003032,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "a027df6020529bad2f3102072cf14ae99b3135e0c066329440b54520af10d066"
-  },
-  {
-    "path": "ffcs/data/xh2s/astia.lutz",
-    "bytes": 2672062,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "378198892d7f5e73bedada0887b1adc091fe73c466640edefc390a4139e6ec4b"
-  },
-  {
-    "path": "ffcs/data/xh2s/bleach_bypass.lutz",
-    "bytes": 2805720,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "5b8ad31efa461c7f7312901df83134135ad28c253b5ba6493e2e778de22c4561"
-  },
-  {
-    "path": "ffcs/data/xh2s/bw.lutz",
-    "bytes": 1051932,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "68b3b5af726d4263c4610528d13518a06f6fc94173f9e147148968c919051da8"
-  },
-  {
-    "path": "ffcs/data/xh2s/classic_chrome.lutz",
-    "bytes": 2744308,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "6efc19bfe3d2d5b9b39acb8b8d1d742afa72ac1af3816376c459c02802745099"
-  },
-  {
-    "path": "ffcs/data/xh2s/classic_neg.lutz",
-    "bytes": 2701193,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "aa5bb94a6275e3ea532cafc0eb907654d4c4137cfaf62c3929e7f5a068f4ea78"
-  },
-  {
-    "path": "ffcs/data/xh2s/eterna.lutz",
-    "bytes": 2776973,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "735b1fcd4a4d58e133421d82f2482cf6917d43fac7b2a96cca37590590383f5e"
-  },
-  {
-    "path": "ffcs/data/xh2s/manifest.json",
-    "bytes": 3018,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "b7d100e64ec4e93ecb550ac5f482923677bfce0b9af520a7815f00aecc23358d"
-  },
-  {
-    "path": "ffcs/data/xh2s/mono_g_filter.lutz",
-    "bytes": 1046029,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "305bf630c4cdb9efb6649861186fb8205e24fb65c646e3c508d01808791e79d1"
-  },
-  {
-    "path": "ffcs/data/xh2s/mono_r_filter.lutz",
-    "bytes": 975771,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "b7d39b6b22a7d5ff6d1353d027c18bbaa30737fb69daa319d925d6e8846570f1"
-  },
-  {
-    "path": "ffcs/data/xh2s/mono_ye_filter.lutz",
-    "bytes": 1005184,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "bcdc70ed0580fecbc078934b82c91b7703579616d44118b3893368c34a4fe463"
-  },
-  {
-    "path": "ffcs/data/xh2s/nostalgic_neg.lutz",
-    "bytes": 2570732,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "e3e7d9447e834405c454682cda1deba368f0aecced283cce6b4dd70e346a5865"
-  },
-  {
-    "path": "ffcs/data/xh2s/pro_neg_hi.lutz",
-    "bytes": 2686816,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "5fd6618f719c4c4028c8d3e6859be3f50baff46ddb144743f32bd31c13ef06b0"
-  },
-  {
-    "path": "ffcs/data/xh2s/pro_neg_std.lutz",
-    "bytes": 2720232,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "6adb421cb0f185a71bdaf6eeeb36929af7596b4cd171b065a5582f486fd81e3c"
-  },
-  {
-    "path": "ffcs/data/xh2s/provia.lutz",
-    "bytes": 2688051,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "35cd11c9c9f5653a68d9059378b7b22fe8ef574765c99bfaa6f6e2c3fe79b69c"
-  },
-  {
-    "path": "ffcs/data/xh2s/sepia.lutz",
-    "bytes": 2712985,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "ae87d2b19ef7cb91aece17d7623e6d8dffe1657cfcb4607de8c4484c56f731e4"
-  },
-  {
-    "path": "ffcs/data/xh2s/velvia.lutz",
-    "bytes": 2605860,
-    "classification": "颜色数据（解析/摘要校验）",
-    "sha256": "04f226f7be8fe4eb2770bbde6e2ead17d84c6b24185a323f5e06a04807751841"
-  },
-  {
-    "path": "ffcs/effects.py",
-    "bytes": 3910,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "976d76c2eb39c23a94035d754b1c3405ed25867ea880ea97016d6e7d98526282"
-  },
-  {
-    "path": "ffcs/io.py",
-    "bytes": 9118,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "4e4f10297adb38503dcb2be47e50d8ccfca074253633b37f497b6c228c5d0fa0"
-  },
-  {
-    "path": "ffcs/lutdata.py",
-    "bytes": 4805,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "a44d9414c9833c3c0b3e4b4274c7484403646514a969dc968042eca934b3a53f"
-  },
-  {
-    "path": "ffcs/metrics.py",
-    "bytes": 11850,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "dd6828cad8adadbb9b752d14aabeeee240629d92bea913292c96b876fcd837f3"
-  },
-  {
-    "path": "ffcs/models.py",
-    "bytes": 8803,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "c33aab8f8fafb24b60e1efa97fe1763bdc7191d7dc0fe20003479cd29c76b676"
-  },
-  {
-    "path": "ffcs/pipeline.py",
-    "bytes": 17309,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "7d5bd9f250d28ee102fa41c120b16f15e66935e00bb4ab7e46d709a974a0909b"
-  },
-  {
-    "path": "ffcs/raw.py",
-    "bytes": 20109,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "5f08380fcfd85aebcd0de613527f71e7db0346ccb37b5eff0976e722a870f4f5"
-  },
-  {
-    "path": "ffcs.egg-info/PKG-INFO",
-    "bytes": 225,
-    "classification": "安装生成元信息",
-    "sha256": "90f56602f8df8fcfa640d55253947d7d79c2e6fbcffb4461872ca5f45938f86e"
-  },
-  {
-    "path": "ffcs.egg-info/SOURCES.txt",
-    "bytes": 2057,
-    "classification": "安装生成元信息",
-    "sha256": "d503e72c1bcc4690268e2f4df9d2fb9652ff623ea17f02a2c788822455dee80d"
-  },
-  {
-    "path": "ffcs.egg-info/dependency_links.txt",
-    "bytes": 1,
-    "classification": "安装生成元信息",
-    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
-  },
-  {
-    "path": "ffcs.egg-info/entry_points.txt",
-    "bytes": 39,
-    "classification": "安装生成元信息",
-    "sha256": "63f381d700699eb869584d84f93eb2a08815dd6c3a427cfad8f49e995d0b54b9"
-  },
-  {
-    "path": "ffcs.egg-info/requires.txt",
-    "bytes": 31,
-    "classification": "安装生成元信息",
-    "sha256": "413cceb8227a36e42eba7a6eb49af85affe7dd18a9d1fbbd3e044998969dde23"
-  },
-  {
-    "path": "ffcs.egg-info/top_level.txt",
-    "bytes": 5,
-    "classification": "安装生成元信息",
-    "sha256": "a51d209ce2f7ddb5bf4b992dc79aad1a698c615b78ef8a02293749945ec381d4"
-  },
-  {
-    "path": "pyproject.toml",
-    "bytes": 517,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "1c34c7c944b4bd505599a21bc085238c768002906a65a76f657da8bc37ad1654"
-  },
-  {
-    "path": "reference_core_validation.json",
-    "bytes": 287,
-    "classification": "配置/文档/验证记录（文本读取）",
-    "sha256": "5bb900c550d9eaaae47c9733c4eea82e36013f2aea8144ecf302e90dd3d39994"
-  },
-  {
-    "path": "tests/__pycache__/test_pipeline.cpython-314-pytest-9.1.1.pyc",
-    "bytes": 20249,
-    "classification": "生成缓存",
-    "sha256": "c5dc92537ba1538a91c9b12974ad117ce6c96c17008f5cedd2375e172c4a20f5"
-  },
-  {
-    "path": "tests/__pycache__/test_pipeline.cpython-314.pyc",
-    "bytes": 8695,
-    "classification": "生成缓存",
-    "sha256": "63c0dbb9af502c8fc96d332cf853a94d5d58e49282226fc7e2552695d5c19164"
-  },
-  {
-    "path": "tests/test_pipeline.py",
-    "bytes": 4092,
-    "classification": "Python源码/测试（逐行读取）",
-    "sha256": "f41b625b8bd7d7dc48dc9ac957d887d6103dddfbb9affc2bd786783a28a92ba5"
-  }
-]
+{
+  "date": "2026-10-13",
+  "version": "0.2.0",
+  "scope": "local workspace except delivery tree, current ZIP/hash, generated fixtures and caches",
+  "archive_hash_location": "workspace SHA256SUMS outside the ZIP",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 98,
+      "sha256": "fb27decea067e3314bfcc0bd2046a5dffcca791f907b7044cfbd1fcd0a4c1e47",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "FIXES_20261013.md",
+      "bytes": 3952,
+      "sha256": "efc481dfdbf536cac1c8131ea67f43c8a971265bf3792358300d9e75b3b4911b",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "MANIFEST.in",
+      "bytes": 53,
+      "sha256": "5c033dd0069dfa6e8b9381fc5598d7631f3ea2aee849d3c742ba8a2b0756eb0b",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "PIPELINE_REPLICATION_PLAN.md",
+      "bytes": 1515,
+      "sha256": "46629121088db4ac91bf969f47f7d14b38a2dbaf0abcfa5c8d4b9c8a9b2f9bbf",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3228,
+      "sha256": "ca56fbd116c22aebd9deb4a7b6f59c84ab21bb9526f5ec9697385a6c839bdb1b",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "REFERENCE_ANALYSIS.md",
+      "bytes": 2185,
+      "sha256": "302602a2fe99834572e7967ff48ad3b82732dc67bd7e4e2a2c2cb31be7467436",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "RFCEX30Ins81200.dmg",
+      "bytes": 394886487,
+      "sha256": "2e16c11f901b8f656bc8ee80cf53afd50553081d7f47ee860e777460adc50a2a",
+      "classification": "vendor installer; excluded from delivery"
+    },
+    {
+      "path": "VALIDATION_STATUS.md",
+      "bytes": 1758,
+      "sha256": "4300d2c51479e1ced8c354461952a99f2c02d562f0884ed819dabd7bc5cbdcce",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "audit_review/REVIEW_REPORT.md",
+      "bytes": 17526,
+      "sha256": "56a5f01e9360f7151deb67b7ff7b2b17144872db6984a95960495ee832c6d6f1",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/behavior_results.json",
+      "bytes": 5110,
+      "sha256": "28776b133a08e96ea1b023564f288fd897ffaf194536037e3d9ef61fdc973879",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/binary_analysis.json",
+      "bytes": 1242,
+      "sha256": "9753100df78ab7e4fa0fc02ca213447af33fb3c941ecb723a1eadc0510f5cd76",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/check_behavior.py",
+      "bytes": 9538,
+      "sha256": "c050c4fed31d58443c905ff05fc9f0bf9a15dd031554af2b2c608d847ab0d0c6",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/check_metrics.py",
+      "bytes": 2146,
+      "sha256": "672983cc90695e7111d8def0666c98fb304e40e30b774b124839305eba2f0f51",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/check_native_lut.py",
+      "bytes": 4614,
+      "sha256": "ef73e81c532d1ef0650f30e029df1f928477a8120002805c77fdaec097456061",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/ciede2000_reference.txt",
+      "bytes": 1830,
+      "sha256": "44aebb39107128328add54fbef5ac8ee89909e50508f448a1580adea2058a4b8",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/disassembly/mapping_constructor.txt",
+      "bytes": 10493,
+      "sha256": "efce9f540211d6adbfa1d10ffbec9da4b2e19ad5a1052b43523270808dccdf7c",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/disassembly/mapping_header_v2.txt",
+      "bytes": 7242,
+      "sha256": "15e820756fac40b2bb6d2722dd8cee6b5182c0e232835b3cac8a97718092b462",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/disassembly/mapping_reader.txt",
+      "bytes": 2103,
+      "sha256": "1fe66e21f4aeffe0e0f9be954fc7eec805df3e6c86b090ac339b228d643c81da",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/disassembly/standard_deviation.txt",
+      "bytes": 8007,
+      "sha256": "9bdfc57bb40ae0652a3a7846b367c0415f39556ff68199e37daf4a2ac00a4d8e",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/disassembly/transform_dispatch.txt",
+      "bytes": 11245,
+      "sha256": "cdb1053faa2f74aa1bf0cd2eedce40f05048b7186a1a7fae34d097b5e8c08bd8",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/disassembly/transform_file_reader.txt",
+      "bytes": 1295,
+      "sha256": "2b74592c01b503b6bee2e83232d90619378be6faf239440e4f0fa961160f1ae5",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/disassembly/trilinear.txt",
+      "bytes": 9829,
+      "sha256": "ab40cd424f33dbb8477722d490402e0d82070e30a506bccac4c0e0823f56e021",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/history/v0.1.0/FFCS_技术实现完整交付_v0.1.0.zip",
+      "bytes": 82996719,
+      "sha256": "bc8c9b4d7691f3ecef03a79e3b1a7ddd8364647e97877ee02ceefa8e50e2ea02",
+      "classification": "v0.1.0 historical backup"
+    },
+    {
+      "path": "audit_review/history/v0.1.0/asset_inventory.json",
+      "bytes": 19732,
+      "sha256": "5b6b59e626436b3981f376f78d66cb4630f5413aa4c2e60bf498ccc840695185",
+      "classification": "v0.1.0 historical backup"
+    },
+    {
+      "path": "audit_review/history/v0.1.0/baseline_pixels.json",
+      "bytes": 373763,
+      "sha256": "98cc3e2531a71d37d6150de33cfd0d00247bf64ccb6fb4da3bde9d590dfb0af8",
+      "classification": "v0.1.0 historical backup"
+    },
+    {
+      "path": "audit_review/history/v0.1.0/delivery_manifest.json",
+      "bytes": 16370,
+      "sha256": "397a09eab866f4f240b8092489b5993f548e6c1ebb3539cf25c1d4ffcf329369",
+      "classification": "v0.1.0 historical backup"
+    },
+    {
+      "path": "audit_review/history/v0.1.0/model_parameters.json",
+      "bytes": 14726,
+      "sha256": "9a142686babc12f5e15380250c96de386e4b8175c6060f9f64a6fa0a3613908a",
+      "classification": "v0.1.0 historical backup"
+    },
+    {
+      "path": "audit_review/history/v0.1.0/run_report.json",
+      "bytes": 1689,
+      "sha256": "0d35ea83b8e1d684c4d1a9eb492497d58950085f75c13ad16876ada40e812701",
+      "classification": "v0.1.0 historical backup"
+    },
+    {
+      "path": "audit_review/independent_tiff_check.json",
+      "bytes": 324,
+      "sha256": "069ddec1484dba2d31f4da610f1972983c4b96432ded8f6e48e72e9c956ca406",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/macho_inventory.json",
+      "bytes": 12197,
+      "sha256": "c97c08acf310e486a0750f2fae1b39d58595df279bc39f2699797db8ea5e295e",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/metric_edge_results.json",
+      "bytes": 739,
+      "sha256": "3dcb04d1c10d7ecd1e8aba9fa7eb6f98efc5d105d3d6c47ca29e02d03e91668a",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/native_all_luts_results.json",
+      "bytes": 42088,
+      "sha256": "1cbf6533b817d0ebb438253d4f76037c94f8769bbd1a6997d55423c3d28c102b",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/native_boundary_probe.txt",
+      "bytes": 374,
+      "sha256": "e02a527abe1146ca84be02e5305fe086dd5af35b22e0714793aef29e85aefdfe",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/native_input_bgr16.bin",
+      "bytes": 12000,
+      "sha256": "6c64ba0b58df31807c92f62589d5d35bf350e7053901af5c8a172ae068c9f8d0",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/native_input_samples.json",
+      "bytes": 125630,
+      "sha256": "f77b92af9d83f869ff244baad0025aca38c4f9e924cca1ffd2d40cdb5c6563e5",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/native_output_bgr16.bin",
+      "bytes": 12000,
+      "sha256": "f28a450fb2c0296032ba649b237eb34c7df730a8a11097d947e42aeb46bc5768",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/native_probe.cpp",
+      "bytes": 3425,
+      "sha256": "8055743490837aed4e7aebc0deed6dbada32511ed1765b72579616a7f1030955",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/native_provia_results.json",
+      "bytes": 3044,
+      "sha256": "f7ea7fa1eb8abe53cdb5717b3294ce2f6a87c4940a8f7affaa195a40e1c88608",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/native_relevant_symbols.txt",
+      "bytes": 10297,
+      "sha256": "eb0ff787619e839f76e3bbbcf5c2bdef500d1731c556f95e37c547627694aed1",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/packed_asset_results.json",
+      "bytes": 25395,
+      "sha256": "a049464aac3c4e6962b4f852e6aa893246fbd3324403b9c1126264b3040d0cb1",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/review_summary.json",
+      "bytes": 1150,
+      "sha256": "7242532d701eb80bc6cde23b22f3c1778010a1eb743b4df41a3bc8a3215cc583",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "audit_review/vendor_s3d_inventory.json",
+      "bytes": 101340,
+      "sha256": "bc706d14872fc1283af3646928fd629d3635b539d0a50b206082da2a9fa4dd47",
+      "classification": "historical audit evidence and diagnostics"
+    },
+    {
+      "path": "ffcs/__init__.py",
+      "bytes": 924,
+      "sha256": "cabb965fea0d980477d90164ba4f0af886f7e75277d4d5a0be15a459d0985b25",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/__main__.py",
+      "bytes": 49,
+      "sha256": "76fa916e93e0ae1a6c1bb51dcc0bcf289c014e9f760a47165f8a84401ccf41d7",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/cli.py",
+      "bytes": 6973,
+      "sha256": "cdb5babed88a45dd68d753322dc102183ff3973edce2bfd9b63890ee3ccc13f6",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/color.py",
+      "bytes": 14292,
+      "sha256": "84e0c675a9f7507f71d6cd952842b90354b23226f34b31e47a0c51dd981c3db5",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/data/README.md",
+      "bytes": 1111,
+      "sha256": "a5b1c4197820ef226af6a745e429d824794f36d2baca78474bf718288118da7d",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/data/gfx100/acros.lutz",
+      "bytes": 1046567,
+      "sha256": "51335969caa840ecca737ac6fa0d6407c4229f16bea972cf714cb078f1955634",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/acros_g_filter.lutz",
+      "bytes": 1057790,
+      "sha256": "ca623105541998c0bd48a0a6987eb2053309334ae70856d0dbe7835c045b8ccb",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/acros_r_filter.lutz",
+      "bytes": 831063,
+      "sha256": "c1e29f244e3f564aa5186e8e6ba3ed9c4af5b2be5170dd8bc831784d140604fe",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/acros_ye_filter.lutz",
+      "bytes": 934117,
+      "sha256": "ac6c87fbedb8d12b96d074ca7e0c623a256c92a4dd5384ec6f8f0d211aec0419",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/astia.lutz",
+      "bytes": 2417426,
+      "sha256": "c8c5332a77c7ce3405ef29c0929116a76bcc6ba25d94131fb48025dbee7d1fd7",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/bleach_bypass.lutz",
+      "bytes": 2805231,
+      "sha256": "68174f4913ece5cf91ab52e136640b5abbc4de928e3233678c842fa084d03ad5",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/bw.lutz",
+      "bytes": 1049740,
+      "sha256": "f747f00c7e99e5c23573d67755b0dacf2fe4d790f83fcbc9877ec815fa2550f5",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/classic_chrome.lutz",
+      "bytes": 2592451,
+      "sha256": "aa454a12b556fc31260aa6c4ca9fe7773b8ba1d1926cb975ff72540c4207e236",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/classic_neg.lutz",
+      "bytes": 2708700,
+      "sha256": "c126b12802ee52e4f1d1df0634f016f1e065db35e02dc821d76ad5efd3c04aa2",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/eterna.lutz",
+      "bytes": 2638612,
+      "sha256": "2a436969dc03d58527c9e68b8be346d65309926d4e01abd60ea694de6480d9ec",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/manifest.json",
+      "bytes": 2875,
+      "sha256": "ff403d671c23f31451ba69a2fa0df8b73e3ab82d2b92be5689561aae607f0032",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/data/gfx100/mono_g_filter.lutz",
+      "bytes": 1054704,
+      "sha256": "a7da4b1599b28b1b7d60735f3dfe4d62127433fdd936919029e6381231da2887",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/mono_r_filter.lutz",
+      "bytes": 877547,
+      "sha256": "d1428a0e955fde927067d376abb564868c387bbb3fef4cf5ad799bfbe9e36aec",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/mono_ye_filter.lutz",
+      "bytes": 952748,
+      "sha256": "661821c1beea7454207ad41454e6a09fc561e9abe673a7c4282995fcf392c5d3",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/pro_neg_hi.lutz",
+      "bytes": 2468713,
+      "sha256": "a02c62b6ff8c0db8aa6ae38d3ee380d92be16a5d0efe957789690a71644bfe9e",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/pro_neg_std.lutz",
+      "bytes": 2518186,
+      "sha256": "5ede0757d6076dfe4cd739584d4b68a965c7ae8a796310a81d7ecd8caa368f94",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/provia.lutz",
+      "bytes": 2443436,
+      "sha256": "fd7b0f76f80beeedeb0a4f45d16e98a5d0c20b10e011f9feef20f65804740f28",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/sepia.lutz",
+      "bytes": 2713249,
+      "sha256": "090ed67519961a41b62979f0cb5e7bc7958efd0b6ff6b8ada5100851d59272b5",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100/velvia.lutz",
+      "bytes": 2333319,
+      "sha256": "c7c2fd4ff4bf7ec911278994fb376c10e5c445b57748c10c80fb3263fa06f812",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100ii/manifest.json",
+      "bytes": 653,
+      "sha256": "18b8bec2e7856b82e614825451fb2cd402b31ad4c905669f75b9c25ea663305c",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/data/gfx100ii/reala_ace.lutz",
+      "bytes": 2718056,
+      "sha256": "ea42fb354a01e11af3a8b82f60e7c220b35d1586f4daf84b4e942f5f2703ff8a",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/gfx100s/manifest.json",
+      "bytes": 658,
+      "sha256": "4a1e794c521686c45827fb6936364646e3c89af38dceb471f5a8ab7cd5cb5737",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/data/gfx100s/nostalgic_neg.lutz",
+      "bytes": 2738525,
+      "sha256": "7dc2f0d4277de827541407573706f4765baa03300b93e98ee0c5934da1f78498",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/icc/ISL-ARGB1998.icc",
+      "bytes": 588,
+      "sha256": "ac1bcf9aa29b4459f33919e07fdd584b70781a5b4205898e8eb99117dcebc34a",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/icc/ISL-sRGB.icc",
+      "bytes": 3140,
+      "sha256": "5ac017f2137114bc2fdb7046371c33725ea6b3829096a084b90f5aea47323ee9",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/reference_validation.json",
+      "bytes": 35347,
+      "sha256": "423c28fa26d1aaf144169f924c7ac3833c027fec5af21cab593e0cae8bab2acf",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/data/xa3/astia.lutz",
+      "bytes": 1370590,
+      "sha256": "e4b898c51ef9b351a28c1b0490301b217837921a78fcd98aeab3f84c01e4a790",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xa3/bw.lutz",
+      "bytes": 544401,
+      "sha256": "0803ab6202424698de535b9153e7f1e15660014e0492e5a937f5580f71110f82",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xa3/classic_chrome.lutz",
+      "bytes": 1354382,
+      "sha256": "b22a0ee37ad0641cbf97dd2612d4bab6b398fcd32bb4804e4b19870f4aadec4b",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xa3/manifest.json",
+      "bytes": 1804,
+      "sha256": "1cff1f94933cd60293d0a82eebac969e91ebc418c4f811be80215333d194f320",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/data/xa3/mono_g_filter.lutz",
+      "bytes": 538091,
+      "sha256": "61e326cd81dba34d0500b4e5777ac8ce41dbbfa96b5f5f9b4efda9a9c88ca698",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xa3/mono_r_filter.lutz",
+      "bytes": 503323,
+      "sha256": "3138aed66dd074e2807f126eb13f7656bbff69dcecd0b0b1237afa8e85a75643",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xa3/mono_ye_filter.lutz",
+      "bytes": 518046,
+      "sha256": "a74209e6ab1b6aefc3230832d637622c57e367cdceeb8a0a520cc2da00e76cd5",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xa3/pro_neg_hi.lutz",
+      "bytes": 1361092,
+      "sha256": "09472f90a4f93b296f5eee06c67ef458b9ddbe4e22dfeb92a3399ff5abce1efc",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xa3/pro_neg_std.lutz",
+      "bytes": 1366190,
+      "sha256": "2fcfa97d660cdf451bec5c2df02406746190be49f31259d335d2b26a8f206c0a",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xa3/provia.lutz",
+      "bytes": 1361185,
+      "sha256": "f69247d6aac6f988869463a7ca5fafaea97112b3ad6ba733b30a6d09325d2b0e",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xa3/sepia.lutz",
+      "bytes": 1321645,
+      "sha256": "439412e3e88244d94d203c014f76960e127d61ffe58eef6794f6fe62bb44076d",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xa3/velvia.lutz",
+      "bytes": 1354838,
+      "sha256": "e84efeb18434d900f3639d6f265527e1561ba89b84b94fa17b11a0960fd75641",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/acros.lutz",
+      "bytes": 1050148,
+      "sha256": "2e3d6d82df6d6ed3e64c5ba003e7858088c97243194dd7e79478546d755b4a8e",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/acros_g_filter.lutz",
+      "bytes": 1046412,
+      "sha256": "f051fd8626ec89a6d464411b3bf7125312a476005d797c9cd24f64dd3865a5c9",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/acros_r_filter.lutz",
+      "bytes": 978026,
+      "sha256": "bd96caf710ccf437e2ca2270e54cc9653d56376cbf6b14690dea5416583f80ef",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/acros_ye_filter.lutz",
+      "bytes": 1003032,
+      "sha256": "a027df6020529bad2f3102072cf14ae99b3135e0c066329440b54520af10d066",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/astia.lutz",
+      "bytes": 2672062,
+      "sha256": "378198892d7f5e73bedada0887b1adc091fe73c466640edefc390a4139e6ec4b",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/bleach_bypass.lutz",
+      "bytes": 2805720,
+      "sha256": "5b8ad31efa461c7f7312901df83134135ad28c253b5ba6493e2e778de22c4561",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/bw.lutz",
+      "bytes": 1051932,
+      "sha256": "68b3b5af726d4263c4610528d13518a06f6fc94173f9e147148968c919051da8",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/classic_chrome.lutz",
+      "bytes": 2744308,
+      "sha256": "6efc19bfe3d2d5b9b39acb8b8d1d742afa72ac1af3816376c459c02802745099",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/classic_neg.lutz",
+      "bytes": 2701193,
+      "sha256": "aa5bb94a6275e3ea532cafc0eb907654d4c4137cfaf62c3929e7f5a068f4ea78",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/eterna.lutz",
+      "bytes": 2776973,
+      "sha256": "735b1fcd4a4d58e133421d82f2482cf6917d43fac7b2a96cca37590590383f5e",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/manifest.json",
+      "bytes": 3018,
+      "sha256": "b7d100e64ec4e93ecb550ac5f482923677bfce0b9af520a7815f00aecc23358d",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/data/xh2s/mono_g_filter.lutz",
+      "bytes": 1046029,
+      "sha256": "305bf630c4cdb9efb6649861186fb8205e24fb65c646e3c508d01808791e79d1",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/mono_r_filter.lutz",
+      "bytes": 975771,
+      "sha256": "b7d39b6b22a7d5ff6d1353d027c18bbaa30737fb69daa319d925d6e8846570f1",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/mono_ye_filter.lutz",
+      "bytes": 1005184,
+      "sha256": "bcdc70ed0580fecbc078934b82c91b7703579616d44118b3893368c34a4fe463",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/nostalgic_neg.lutz",
+      "bytes": 2570732,
+      "sha256": "e3e7d9447e834405c454682cda1deba368f0aecced283cce6b4dd70e346a5865",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/pro_neg_hi.lutz",
+      "bytes": 2686816,
+      "sha256": "5fd6618f719c4c4028c8d3e6859be3f50baff46ddb144743f32bd31c13ef06b0",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/pro_neg_std.lutz",
+      "bytes": 2720232,
+      "sha256": "6adb421cb0f185a71bdaf6eeeb36929af7596b4cd171b065a5582f486fd81e3c",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/provia.lutz",
+      "bytes": 2688051,
+      "sha256": "35cd11c9c9f5653a68d9059378b7b22fe8ef574765c99bfaa6f6e2c3fe79b69c",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/sepia.lutz",
+      "bytes": 2712985,
+      "sha256": "ae87d2b19ef7cb91aece17d7623e6d8dffe1657cfcb4607de8c4484c56f731e4",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/data/xh2s/velvia.lutz",
+      "bytes": 2605860,
+      "sha256": "04f226f7be8fe4eb2770bbde6e2ead17d84c6b24185a323f5e06a04807751841",
+      "classification": "required runtime asset"
+    },
+    {
+      "path": "ffcs/effects.py",
+      "bytes": 4146,
+      "sha256": "83b4d8ca04e17f56492b68d250f046977744bc1490eb565c85baa55a797cd0b0",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/icc.py",
+      "bytes": 4563,
+      "sha256": "636d51ecc911cef5dd63d6670721b591dfd36e67113bc88668bf3a58583699e2",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/io.py",
+      "bytes": 9494,
+      "sha256": "edac39f07df71a609978665da44cfe5d0844133c4c32deb13684699438996696",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/lutdata.py",
+      "bytes": 5507,
+      "sha256": "ee8ef3b090283dcdfbdc43428d58ea4c15fbc0e13894b1aa2a74a43934890d6c",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/metrics.py",
+      "bytes": 14932,
+      "sha256": "c709772bb95b1274d2ee0c542ec2ef430a11dab5685929544b8188dbaf267c56",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/models.py",
+      "bytes": 9057,
+      "sha256": "174fc9c21d9e2c1878e5ee022cd7fa583bcb42e6152b3a77445492c000b3ef29",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/pipeline.py",
+      "bytes": 22365,
+      "sha256": "7073f79f1991f34b7e053b52337554d93bcaa7c100ceef3dd17d986606f8c343",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/raw.py",
+      "bytes": 18946,
+      "sha256": "16a0151190739758a89a71f094cdb6d1737de7358e8d2e3c0aeae97ff1b56845",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "ffcs/validation.py",
+      "bytes": 1593,
+      "sha256": "e79d5754eda4cfcfee39252b9c9a4500dc9cd63f8b424eb2b735cff4a4adcd1c",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "pyproject.toml",
+      "bytes": 703,
+      "sha256": "e0289f9c214af8fb7d3080c8903f68a5f862270a27b963a65d8800b29d6c2b1a",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "reference_core_validation.json",
+      "bytes": 473,
+      "sha256": "10baf68cb6c591e71e5e028b3d60a270e8beafd26e69d3ddf46ffd5500d2acc3",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "tests/fixtures/ciede2000_reference.txt",
+      "bytes": 1830,
+      "sha256": "44aebb39107128328add54fbef5ac8ee89909e50508f448a1580adea2058a4b8",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "tests/test_pipeline.py",
+      "bytes": 4132,
+      "sha256": "8332cc1251b60c1fce58835a584ae14a67e3032374c6688d2ebf3f8df5d91004",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "tests/test_regressions.py",
+      "bytes": 15537,
+      "sha256": "f3ef40c3793360241348ec58ed77dde390352d3f67e215828937687140ca4d24",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "tools/extract_reference_luts.py",
+      "bytes": 3041,
+      "sha256": "80dae077c1b6608d7ce33448a0785ad6d77818784b113814e4677270562abfaa",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "tools/native_probe.cpp",
+      "bytes": 3425,
+      "sha256": "8055743490837aed4e7aebc0deed6dbada32511ed1765b72579616a7f1030955",
+      "classification": "source, documentation, configuration or tests"
+    },
+    {
+      "path": "tools/verify_native_luts.py",
+      "bytes": 4174,
+      "sha256": "562dffcfffaa934c574485d7a1ea161b3179705330f2dd8dc0f3ed25ff4ae0da",
+      "classification": "source, documentation, configuration or tests"
+    }
+  ]
+}

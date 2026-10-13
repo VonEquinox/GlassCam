@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Verify additive FFCS effect switches, legacy bytes and C ABI memory safety.
+"""Verify FFCS 0.2 effect switches, explicit default migration and C ABI safety.
 
 The recorded pre-switch hashes are immutable verification fixtures, captured
 from the original constructor and APIs before editing core/ffcs.cpp. This tool
-never regenerates them. Linux host evidence does not establish Apple runtime
+never regenerates them. The old byte fixture is only a historical change witness;
+current correctness is established by hash-matched independent v0.2 goldens.
+Linux host evidence does not establish Apple runtime
 behavior or cross-platform bit identity.
 """
 import argparse
@@ -73,6 +75,11 @@ def run(sanitize=False):
               'compiler': subprocess.check_output(['g++', '--version'], text=True).splitlines()[0]}
     fixture_path = ROOT / 'validation/ffcs-effect-defaults-before.json'
     fixture = json.loads(fixture_path.read_text())
+    current_evidence_path = ROOT / 'validation/ffcs-v020-native.json'
+    current_evidence = json.loads(current_evidence_path.read_text())
+    assert current_evidence['status'] == 'pass'
+    assert current_evidence['native_source_sha256'] == hashlib.sha256((ROOT / 'core/ffcs.cpp').read_bytes()).hexdigest(), 'Run verify_ffcs_v020.py --compare first for current source'
+    report['independent_v020_correctness'] = {'report': str(current_evidence_path.relative_to(ROOT)), 'report_sha256': hashlib.sha256(current_evidence_path.read_bytes()).hexdigest(), 'stage_comparisons': current_evidence['stage_comparisons'], 'maximum_absolute_stage_error': current_evidence['maximum_absolute_stage_error']}
     with tempfile.TemporaryDirectory(prefix='ffcs-effect-switches-') as temp:
         temp = Path(temp)
         library = temp / 'libffcs_effect_switches.so'
@@ -80,8 +87,9 @@ def run(sanitize=False):
                           str(ROOT / 'core/ffcs.cpp'), '-lz', '-o', str(library)]
         subprocess.run(shared_command, check=True)
         current = legacy_snapshot(library)
-        assert current['sha256_per_look'] == fixture['snapshot']['sha256_per_look'], 'Default FFCS bytes changed'
-        report['legacy_prechange_bytes'] = dict(current, bit_exact=True,
+        assert current['sha256_per_look'] != fixture['snapshot']['sha256_per_look'], 'v0.2 neutral-default migration unexpectedly kept historical overlay bytes'
+        report['v020_neutral_default_bytes'] = dict(current, historical_v01_bit_exact=False,
+            intentional_change='0.2 neutral native LUT defaults replace 0.1 overlay defaults; independent numerical goldens are in ffcs-v020-native.json',
             original_source_sha256=fixture['original_source_sha256'],
             fixture_sha256=hashlib.sha256(fixture_path.read_bytes()).hexdigest())
         for label, extra_flags in [('optimized', ['-O3'])] + ([('asan_ubsan', [
@@ -98,13 +106,14 @@ def run(sanitize=False):
                 raise RuntimeError(f'{label} failed ({result.returncode}):\n{result.stdout}\n{result.stderr}')
             report[label] = dict(json.loads(result.stdout), compile_command=command,
                                  sanitizer_stderr=result.stderr)
+        report['native_harness_default_cases_meaning'] = 'The inherited legacy_default_cases counter compares explicit-overlay both-on contexts, not historical v0.1 output bytes.'
         report['sanitizers_requested'] = sanitize
         report['leak_sanitizer'] = 'not run successfully: sandbox ptrace incompatibility'
     report['current_source_sha256'] = hashlib.sha256((ROOT / 'core/ffcs.cpp').read_bytes()).hexdigest()
     report['limitations'] = ['Linux host-only numerical and sanitizer evidence.',
         'No iPhone compile/runtime, UI, HEIF export, latency, or memory claim.',
-        'All existing FFCS looks have positive grain and sharpness; zero-coefficient behavior is tested with private context copies.',
-        'The strip halo contract stays unchanged with sharpening disabled.',
+        'Explicit-overlay XH2S profiles have positive grain and sharpness; v0.2 native defaults are neutral. Additional zero-coefficient behavior is tested with private context copies.',
+        'FFCS 0.2 inactive sharpening needs zero halo; active Gaussian radius requires context-reported halo.',
         'LeakSanitizer is disabled because this sandbox reports that it cannot run under ptrace; AddressSanitizer and UndefinedBehaviorSanitizer remain enabled.']
     return report
 
@@ -112,7 +121,7 @@ def run(sanitize=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--sanitize', action='store_true')
-    parser.add_argument('--output', type=Path, default=ROOT / 'validation/ffcs-effect-switches.json')
+    parser.add_argument('--output', type=Path, default=ROOT / 'validation/ffcs-v020-effect-switches.json')
     args = parser.parse_args()
     report = run(args.sanitize)
     args.output.write_text(json.dumps(report, indent=2) + '\n')

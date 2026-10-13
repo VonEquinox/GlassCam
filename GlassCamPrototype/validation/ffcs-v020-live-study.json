@@ -1,0 +1,487 @@
+{
+  "status": "measured",
+  "reference_revision": "c4b3383",
+  "contract": "FFCS 0.2; XH2S native neutral PROVIA/ACROS only; EV=0; finite linear-sRGB [0,1]; sRGB-shaped 65^3; R-fast RGBA Float32 nodes; Float32 trilinear; final RGBA16Float",
+  "method": {
+    "seed": 20261013,
+    "probe_counts": {
+      "random_linear": 200000,
+      "random_encoded": 100000,
+      "boundary": 40000,
+      "saturated": 40000,
+      "dark": 40000,
+      "gray": 8193,
+      "axes": 24579,
+      "corners": 8
+    },
+    "total_samples": 452780,
+    "metrics": "Normalized encoded sRGB max/channel RMSE; Lab D65 DeltaE76 p99/max, not CIEDE2000.",
+    "oracle": "Public ffcs_process_linear_rgb_color_only; independent new Python FFCS.apply and full public native API checked",
+    "shaper": "Node EOTF evaluated in double then Float32; lookup Float32 OETF, position*(N-1); R-fast index=((B*N+G)*N+R)*4",
+    "node_alpha": 1,
+    "axis_identity_check": true,
+    "nodal_samples": 274625,
+    "limit": "Synthetic CPU holdouts, not a formal uniform bound or camera-JPEG match. Apple GPU arithmetic, CI color handling, actual video, device performance and photographic match untested. No overlay, other family, other look, nonzero EV or HNCS chain admitted."
+  },
+  "environment": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "command": [
+      "g++",
+      "-std=c++17",
+      "-O3",
+      "-ffp-contract=off",
+      "-fno-fast-math",
+      "-pthread",
+      "-shared",
+      "-fPIC",
+      "core/ffcs.cpp",
+      "-lz",
+      "-o",
+      "build/ffcs_v020_live.so"
+    ]
+  },
+  "source_sha256": {
+    "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+    "core/ffcs_c.h": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
+    "tools/ffcs_v020_live_study.py": "d86118fe077133b0bac9dedd8474532a850f10fc19859e8422d4d0f4b47a4101",
+    "reference_ffcs/implementation/ffcs/pipeline.py": "7073f79f1991f34b7e053b52337554d93bcaa7c100ceef3dd17d986606f8c343",
+    "reference_ffcs/implementation/ffcs/data/xh2s/provia.lutz": "35cd11c9c9f5653a68d9059378b7b22fe8ef574765c99bfaa6f6e2c3fe79b69c",
+    "reference_ffcs/implementation/ffcs/data/xh2s/acros.lutz": "2e3d6d82df6d6ed3e64c5ba003e7858088c97243194dd7e79478546d755b4a8e"
+  },
+  "results": [
+    {
+      "recipe": {
+        "camera_family": "XH2S",
+        "simulation": "PROVIA",
+        "simulation_index": 0,
+        "apply_reference_adjustments": false,
+        "sharpen_radius": 1.0,
+        "exposure_ev": 0,
+        "grain_enabled": true,
+        "sharpness_enabled": true
+      },
+      "cube_sha256": "c25ae8a13a2fbae1fb142868d90367b7fd7db671699993d5f9ba6eba48504895",
+      "cube_bytes": 4394000,
+      "python_comparison": {
+        "samples": 3977,
+        "metrics": {
+          "encoded_max": 1.9333736167581606e-08,
+          "encoded_rmse": 6.205477180536979e-09,
+          "encoded_pixel_max_p99": 1.7410171468945633e-08,
+          "linear_max": 2.9790602762425067e-08,
+          "delta_e76_p99": 3.665484655430454e-06,
+          "delta_e76_max": 5.384489370303056e-06
+        }
+      },
+      "full_api_bit_exact": true,
+      "nodal_bit_exact": true,
+      "neutral_toggle_equivalence": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "invalid_rejected_before_output": [
+        "nan",
+        "inf",
+        "-inf",
+        "-0.0001",
+        "1.0001"
+      ],
+      "metrics": {
+        "all": {
+          "float32_output": {
+            "encoded_max": 0.01806026102521574,
+            "encoded_rmse": 0.0008511949646845257,
+            "encoded_pixel_max_p99": 0.005412305640063005,
+            "linear_max": 0.033709943294525146,
+            "delta_e76_p99": 0.6101417561423311,
+            "delta_e76_max": 2.531571071554161
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.018150402611988303,
+            "encoded_rmse": 0.000852833193972506,
+            "encoded_pixel_max_p99": 0.005420527644362301,
+            "linear_max": 0.033880531787872314,
+            "delta_e76_p99": 0.6111595015670157,
+            "delta_e76_max": 2.5327230520837394
+          }
+        },
+        "random_linear": {
+          "float32_output": {
+            "encoded_max": 0.01806026102521574,
+            "encoded_rmse": 0.0008695694159355422,
+            "encoded_pixel_max_p99": 0.005265748394388717,
+            "linear_max": 0.033709943294525146,
+            "delta_e76_p99": 0.6423651727695718,
+            "delta_e76_max": 2.531571071554161
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.018150402611988303,
+            "encoded_rmse": 0.0008716590591272951,
+            "encoded_pixel_max_p99": 0.005274621796080696,
+            "linear_max": 0.033880531787872314,
+            "delta_e76_p99": 0.6434456848888475,
+            "delta_e76_max": 2.5327230520837394
+          }
+        },
+        "random_encoded": {
+          "float32_output": {
+            "encoded_max": 0.01542229852995236,
+            "encoded_rmse": 0.0008184717281487481,
+            "encoded_pixel_max_p99": 0.005372737065833822,
+            "linear_max": 0.02954632043838501,
+            "delta_e76_p99": 0.6024025554718992,
+            "delta_e76_max": 2.0396947874286497
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.015422483063858627,
+            "encoded_rmse": 0.0008202343058725305,
+            "encoded_pixel_max_p99": 0.005373502789506197,
+            "linear_max": 0.029546678066253662,
+            "delta_e76_p99": 0.6044089044705971,
+            "delta_e76_max": 2.030085295588155
+          }
+        },
+        "boundary": {
+          "float32_output": {
+            "encoded_max": 0.01582814841495983,
+            "encoded_rmse": 0.000499303576634125,
+            "encoded_pixel_max_p99": 0.0035037150946494707,
+            "linear_max": 0.027651548385620117,
+            "delta_e76_p99": 0.3966484232556188,
+            "delta_e76_max": 1.7211002882615596
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.015906112276998452,
+            "encoded_rmse": 0.0005017586286216472,
+            "encoded_pixel_max_p99": 0.003503694480279618,
+            "linear_max": 0.0277860164642334,
+            "delta_e76_p99": 0.3973807208413851,
+            "delta_e76_max": 1.7309910982887595
+          }
+        },
+        "saturated": {
+          "float32_output": {
+            "encoded_max": 0.01264266027676058,
+            "encoded_rmse": 0.0001458766111836915,
+            "encoded_pixel_max_p99": 0.0009076060503196945,
+            "linear_max": 0.003870368003845215,
+            "delta_e76_p99": 0.11320253068700975,
+            "delta_e76_max": 0.3256619311192208
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.012637499757838669,
+            "encoded_rmse": 0.00015269916456549153,
+            "encoded_pixel_max_p99": 0.0008590507919385981,
+            "linear_max": 0.004028201103210449,
+            "delta_e76_p99": 0.11965283232593536,
+            "delta_e76_max": 0.32214888070647507
+          }
+        },
+        "dark": {
+          "float32_output": {
+            "encoded_max": 0.009875127496197816,
+            "encoded_rmse": 0.0014799419337202422,
+            "encoded_pixel_max_p99": 0.007668884939141573,
+            "linear_max": 0.0007643287535756826,
+            "delta_e76_p99": 0.765833365421036,
+            "delta_e76_max": 1.4263453108488464
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.009872462255880236,
+            "encoded_rmse": 0.0014799557931502506,
+            "encoded_pixel_max_p99": 0.0076663184571079904,
+            "linear_max": 0.0007641224656254053,
+            "delta_e76_p99": 0.7655725534415818,
+            "delta_e76_max": 1.4235017896148818
+          }
+        },
+        "gray": {
+          "float32_output": {
+            "encoded_max": 0.013228830071166157,
+            "encoded_rmse": 0.0010659888625058796,
+            "encoded_pixel_max_p99": 0.004903719262333971,
+            "linear_max": 0.01082533597946167,
+            "delta_e76_p99": 0.6164606863067333,
+            "delta_e76_max": 0.8683394558453316
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.013226182879880071,
+            "encoded_rmse": 0.001067675841746139,
+            "encoded_pixel_max_p99": 0.004903771204818009,
+            "linear_max": 0.01101595163345337,
+            "delta_e76_p99": 0.6194689160962705,
+            "delta_e76_max": 0.889515705776941
+          }
+        },
+        "axes": {
+          "float32_output": {
+            "encoded_max": 0.009879257716238498,
+            "encoded_rmse": 0.00029172399953129353,
+            "encoded_pixel_max_p99": 0.002040449672560978,
+            "linear_max": 0.00927644968032837,
+            "delta_e76_p99": 0.2688014206478848,
+            "delta_e76_max": 0.9972652290065137
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.009878114610910416,
+            "encoded_rmse": 0.0002942582614189479,
+            "encoded_pixel_max_p99": 0.0020431233958691105,
+            "linear_max": 0.009292960166931152,
+            "delta_e76_p99": 0.26826902873027936,
+            "delta_e76_max": 0.9978875066064736
+          }
+        },
+        "corners": {
+          "float32_output": {
+            "encoded_max": 8.359628256293661e-08,
+            "encoded_rmse": 2.395486990987727e-08,
+            "encoded_pixel_max_p99": 8.142981723135988e-08,
+            "linear_max": 1.7881393432617188e-07,
+            "delta_e76_p99": 1.1486051145018225e-05,
+            "delta_e76_max": 1.1851595330061636e-05
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.00014375258342791408,
+            "encoded_rmse": 3.795390498976423e-05,
+            "encoded_pixel_max_p99": 0.00013849320100211226,
+            "linear_max": 0.0002372264862060547,
+            "delta_e76_p99": 0.018134272329346172,
+            "delta_e76_max": 0.018525029190062686
+          }
+        }
+      },
+      "worst_encoded_input": [
+        0.6634630560874939,
+        0.22053253650665283,
+        0.6685810089111328
+      ]
+    },
+    {
+      "recipe": {
+        "camera_family": "XH2S",
+        "simulation": "ACROS",
+        "simulation_index": 8,
+        "apply_reference_adjustments": false,
+        "sharpen_radius": 1.0,
+        "exposure_ev": 0,
+        "grain_enabled": true,
+        "sharpness_enabled": true
+      },
+      "cube_sha256": "a54bb3ef348bb13f975256cff9b5eac34fb08685e4d7904580690d338b7c718f",
+      "cube_bytes": 4394000,
+      "python_comparison": {
+        "samples": 3977,
+        "metrics": {
+          "encoded_max": 1.9253535543661826e-08,
+          "encoded_rmse": 7.090470288992742e-09,
+          "encoded_pixel_max_p99": 1.7151127016390425e-08,
+          "linear_max": 2.978179147739013e-08,
+          "delta_e76_p99": 1.5869616862574067e-06,
+          "delta_e76_max": 1.7935325473672742e-06
+        }
+      },
+      "full_api_bit_exact": true,
+      "nodal_bit_exact": true,
+      "neutral_toggle_equivalence": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "invalid_rejected_before_output": [
+        "nan",
+        "inf",
+        "-inf",
+        "-0.0001",
+        "1.0001"
+      ],
+      "metrics": {
+        "all": {
+          "float32_output": {
+            "encoded_max": 0.01575994653161615,
+            "encoded_rmse": 0.000492761390272778,
+            "encoded_pixel_max_p99": 0.002423583835316833,
+            "linear_max": 0.010127201676368713,
+            "delta_e76_p99": 0.18951372296931013,
+            "delta_e76_max": 1.101850058469674
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.015761682246811688,
+            "encoded_rmse": 0.0004959988729184828,
+            "encoded_pixel_max_p99": 0.0024242310855882732,
+            "linear_max": 0.01017288863658905,
+            "delta_e76_p99": 0.18949470911230756,
+            "delta_e76_max": 1.1019714102703178
+          }
+        },
+        "random_linear": {
+          "float32_output": {
+            "encoded_max": 0.010415572502573855,
+            "encoded_rmse": 0.0004102953020038246,
+            "encoded_pixel_max_p99": 0.0017308347421287444,
+            "linear_max": 0.010127201676368713,
+            "delta_e76_p99": 0.16670368492126106,
+            "delta_e76_max": 1.0344670105340708
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.010461968630654517,
+            "encoded_rmse": 0.00041521612262769765,
+            "encoded_pixel_max_p99": 0.0017350139140583712,
+            "linear_max": 0.01017288863658905,
+            "delta_e76_p99": 0.16707228390968593,
+            "delta_e76_max": 1.0390666842005754
+          }
+        },
+        "random_encoded": {
+          "float32_output": {
+            "encoded_max": 0.006613195655597259,
+            "encoded_rmse": 0.00031678142871005457,
+            "encoded_pixel_max_p99": 0.0013780307463655535,
+            "linear_max": 0.008238077163696289,
+            "delta_e76_p99": 0.1361787147059757,
+            "delta_e76_max": 0.6603918721811725
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.006571785414214326,
+            "encoded_rmse": 0.0003210524381705946,
+            "encoded_pixel_max_p99": 0.0013886108980507266,
+            "linear_max": 0.008356809616088867,
+            "delta_e76_p99": 0.13619024853956918,
+            "delta_e76_max": 0.6578386471208011
+          }
+        },
+        "boundary": {
+          "float32_output": {
+            "encoded_max": 0.006861034383480513,
+            "encoded_rmse": 0.00021301206095384104,
+            "encoded_pixel_max_p99": 0.0009042680687738755,
+            "linear_max": 0.007856816053390503,
+            "delta_e76_p99": 0.08657827795929084,
+            "delta_e76_max": 0.6656895663185987
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.006806290502189727,
+            "encoded_rmse": 0.00022094660262593165,
+            "encoded_pixel_max_p99": 0.0009077758903243653,
+            "linear_max": 0.007794588804244995,
+            "delta_e76_p99": 0.08635159952725427,
+            "delta_e76_max": 0.6603724527093328
+          }
+        },
+        "saturated": {
+          "float32_output": {
+            "encoded_max": 0.0002205745423183303,
+            "encoded_rmse": 2.3176084245088983e-05,
+            "encoded_pixel_max_p99": 8.347654065143494e-05,
+            "linear_max": 0.00017535686492919922,
+            "delta_e76_p99": 0.007858964632647295,
+            "delta_e76_max": 0.02271128659896276
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.0002812801281514288,
+            "encoded_rmse": 6.939393606699686e-05,
+            "encoded_pixel_max_p99": 0.00016928319380469793,
+            "linear_max": 0.00039380788803100586,
+            "delta_e76_p99": 0.015673563979907552,
+            "delta_e76_max": 0.02896142396152647
+          }
+        },
+        "dark": {
+          "float32_output": {
+            "encoded_max": 0.01104458892252296,
+            "encoded_rmse": 0.0012449733159590115,
+            "encoded_pixel_max_p99": 0.004383673776034279,
+            "linear_max": 0.0008548443438485265,
+            "delta_e76_p99": 0.30727337804279775,
+            "delta_e76_max": 0.7721778069260681
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.011054434669204057,
+            "encoded_rmse": 0.001244981614676157,
+            "encoded_pixel_max_p99": 0.0043886565270368025,
+            "linear_max": 0.0008556063985452056,
+            "delta_e76_p99": 0.3074561386918174,
+            "delta_e76_max": 0.772866168179993
+          }
+        },
+        "gray": {
+          "float32_output": {
+            "encoded_max": 0.01575994653161615,
+            "encoded_rmse": 0.00046576857231302106,
+            "encoded_pixel_max_p99": 0.0014791189148089855,
+            "linear_max": 0.003556370735168457,
+            "delta_e76_p99": 0.13497203817606182,
+            "delta_e76_max": 1.101850058469674
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.015761682246811688,
+            "encoded_rmse": 0.0004697073841694361,
+            "encoded_pixel_max_p99": 0.0014925048194605406,
+            "linear_max": 0.0037496089935302734,
+            "delta_e76_p99": 0.13558471875163305,
+            "delta_e76_max": 1.1019714102703178
+          }
+        },
+        "axes": {
+          "float32_output": {
+            "encoded_max": 0.005620954227633774,
+            "encoded_rmse": 0.0001595320260044677,
+            "encoded_pixel_max_p99": 0.0006041852068998628,
+            "linear_max": 0.000658869743347168,
+            "delta_e76_p99": 0.06149933979076702,
+            "delta_e76_max": 0.39298665969132046
+          },
+          "rgba16float_output": {
+            "encoded_max": 0.005626475727185606,
+            "encoded_rmse": 0.00016264324705834998,
+            "encoded_pixel_max_p99": 0.0006049124570709067,
+            "linear_max": 0.0007095932960510254,
+            "delta_e76_p99": 0.06158815139643199,
+            "delta_e76_max": 0.39337269301902444
+          }
+        },
+        "corners": {
+          "float32_output": {
+            "encoded_max": 6.376091676862927e-08,
+            "encoded_rmse": 3.423985995583726e-08,
+            "encoded_pixel_max_p99": 6.262410082058523e-08,
+            "linear_max": 1.1920928955078125e-07,
+            "delta_e76_p99": 5.682775945956623e-06,
+            "delta_e76_max": 5.767956466229467e-06
+          },
+          "rgba16float_output": {
+            "encoded_max": 9.98887246634883e-05,
+            "encoded_rmse": 4.3691533101496275e-05,
+            "encoded_pixel_max_p99": 9.739957505857765e-05,
+            "linear_max": 0.00010961294174194336,
+            "delta_e76_p99": 0.009511063435789962,
+            "delta_e76_max": 0.00978308589256483
+          }
+        }
+      },
+      "worst_encoded_input": [
+        0.0009765625,
+        0.0009765625,
+        0.0009765625
+      ]
+    }
+  ]
+}

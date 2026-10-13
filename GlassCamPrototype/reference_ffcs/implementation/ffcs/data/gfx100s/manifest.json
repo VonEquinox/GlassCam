@@ -1,0 +1,18 @@
+{
+  "camera": "GFX100S",
+  "format": "FFCSLUT2",
+  "nodes_per_axis": 80,
+  "tables": [
+    {
+      "file": "nostalgic_neg.lutz",
+      "size": 2738525,
+      "sha256": "7dc2f0d4277de827541407573706f4765baa03300b93e98ee0c5934da1f78498",
+      "native_file": "CAM_GFX100S_NOSTALGIC_NEG_ISLRGB.s3d",
+      "native_sha256": "2cc0c69c3c772afd3fbeafeb8e064ade136620271504cc7a795b7beb7ea8b32c",
+      "native_library_sha256": "a0bdc416748549eada3086c4fa92015912ca6acc4b07b721f38bd2aa95af61b9",
+      "header_gamma": 2.2001953125,
+      "working_scale": 20000,
+      "method": "uniform encoded RGB grid, native TransFormTrilinear, explicit header Gamma"
+    }
+  ]
+}

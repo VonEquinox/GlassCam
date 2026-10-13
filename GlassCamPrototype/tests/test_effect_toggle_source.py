@@ -164,13 +164,13 @@ class EffectToggleSourceContracts(unittest.TestCase):
         self.assertIn('cached.key == key', hncs_cache)
         ffcs_cache = compact(body(self.ffcs, 'private final class ContextCache:'))
         self.assertIn('cached.effects == effects', ffcs_cache)
-        self.assertIn('ffcs_create_options(path, simulationIndex, effects.applyGrain ? 1 : 0, effects.applySharpness ? 1 : 0', ffcs_cache)
-        self.assertIn('simulationIndex: simulationIndex, effects: effects)', ffcs_cache)
+        self.assertIn('ffcs_create_family_config(path, family, simulationIndex, effects.applyGrain ? 1 : 0, effects.applySharpness ? 1 : 0', ffcs_cache)
+        self.assertIn('simulationIndex: simulationIndex, effects: effects, settings: settings)', ffcs_cache)
         self.assertEqual(stored_members(self.ffcs, 'private final class ContextOwner:')['effects'],
                          ('let', 'EffectToggles', ''))
         for marker in ('static func exportLinearRGBStrip(', 'private static func render('):
             method = compact(body(self.ffcs, marker))
-            self.assertIn('contextCache.context(directory: directory, simulationIndex: simulationIndex, effects: effects)', method)
+            self.assertIn('contextCache.context(directory: directory, simulationIndex: simulationIndex, effects: effects, settings: settings)', method)
             self.assertIn('withExtendedLifetime(context)', method)
 
     def test_ffcs_preview_and_float_paths_forward_effects_without_adding_crop(self):
@@ -209,7 +209,7 @@ class EffectToggleSourceContracts(unittest.TestCase):
         self.assertIn('ffcs_process_linear_rgb_color_only(', bake)
         self.assertNotIn('ffcs_process_linear_rgb_optimized(', bake)
         self.assertNotIn('applySpatial', bake)
-        self.assertIn('!["PROVIA", "ACROS"].contains', body(self.live, 'var unsupportedReason:'))
+        self.assertIn('[0, 8].contains(simulationIndex)', body(self.live, 'var unsupportedReason:'))
 
     def test_crop_switch_drives_camera_before_after_and_final_output_from_same_recipe(self):
         self.assertIn('cropToSquare: colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare', self.camera)

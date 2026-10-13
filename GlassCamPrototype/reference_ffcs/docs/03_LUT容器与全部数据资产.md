@@ -1,161 +1,81 @@
-# LUT 容器与全部数据资产
+# 03 LUT 容器与全部数据资产（0.2.0）
 
-## 1. 必须随实现交付的颜色数据
+FFCSLUT2 头部为小端结构 `<8sHHf9fB3xI`，共 60 字节。旧 FFCSLUT1 头为 56 字节，不含 flags。
 
-内置表是完整的离散颜色函数。外观名称、几个参数或插值公式不能推导出这 48 个表的每个节点，因此本交付包含实际二进制数据及 SHA-256，而不是仅提供说明。XH2S 19 张、GFX100 18 张、XA3 11 张。XH2S/GFX100 的 N=80；XA3 的 N=64。GFX100S 选择 GFX100；X-T5、X100V、GENERIC 和未知机身没有内置相机家族。
+| 偏移 | 字段 |
+|---:|---|
+| 0 | 8 字节 magic：FFCSLUT1 / FFCSLUT2 |
+| 8 | uint16 N；uint16 channels（必须为 3） |
+| 12 | float32 scale（有限、正数，当前为 20,000） |
+| 16 | 9 个 float32 矩阵，按行；当前均为恒等 |
+| 52 | V2 flags：bit0=1 表示 RGB 通道，0 表示 BGR；其余位须为 0 |
+| 53 | V2 3 字节保留 |
+| 56 | V2 uint32 压缩长度；V1 在偏移 52 |
+| 60 | V2 zlib 载荷；V1 从 56 开始 |
 
-## 2. FFCSLUT2 字节布局
+载荷恰为 `N³*3*2` 字节 little-endian uint16。加载器校验 magic、头部、scale、矩阵、flags、压缩长度、zlib EOF/尾随内容和解压尺寸；按本机字节序转换。`PackedLUT` 用紧凑数组保存，节点除 scale；三线性每次只读八角，文件缓存只避免重复解压。
 
-所有多字节标量是小端序。偏移从 0 开始。
+表轴 BGR（具体为输入 x=B、y=G、z=R，x 最快），通道 RGB；flags 管输出通道顺序。原生 BGR 接口与封装轴序转换见提取脚本。封装表已包含原生最终矩阵处理，运行时不重复施加。
 
-| 偏移 | 字节数 | 类型 | 含义 |
-|---|---|---|---|
-| 0 | 8 | ASCII | FFCSLUT2 |
-| 8 | 2 | uint16 | N，每轴节点数，>=2 |
-| 10 | 2 | uint16 | 通道数，必须 3 |
-| 12 | 4 | float32 | scale，必须 >0 |
-| 16 | 36 | 9×float32 | 行主序 3×3 模型矩阵 |
-| 52 | 1 | uint8 | flags，bit0 决定输出通道顺序 |
-| 53 | 3 | 保留 | 当前读取器不解释 |
-| 56 | 4 | uint32 | zlib 压缩数据的字节数 |
-| 60 | payload_len | 字节流 | zlib payload |
+选择规则：XH2S→xh2s，XA3→xa3，GFX100→gfx100；GFX100S→gfx100s 后 gfx100；GFX100II→gfx100ii 后 gfx100。专用新增表各 1 张；其余机型替代状态为 `unquantified`。找不到表使用解析预设，不制造原生测量证据。
 
-FFCSLUT1 同样从 16 存放矩阵，但没有 flags/保留区：payload_len 在 52、压缩内容在 56；默认输出通道 BGR。当前交付数据为版本 2。
+每目录 manifest 保存表文件名、大小及 SHA-256。完整容器矩阵、量程、轴序和当前测量位于 [asset_inventory.json](../validation/asset_inventory.json)；`delivery_manifest.json` 仅保存交付文件路径、大小、hash，不包含矩阵字段。
 
-解压后长度必须恰好 `N*N*N*3*2` 字节。使用小端无符号 uint16，节点 i 的分量为 `values[3*i+c]/scale`。大端机器读 array('H') 后 byteswap。scale 是节点解码除数，不能再次乘进像素。FilmSimulation.lut_scale 是元参数；实际除法发生于 PackedLUT.__getitem__。
+| 文件 | 节点 | 字节 | 通道/轴 |
+|---|---:|---:|---|
+| [gfx100/acros.lutz](../implementation/ffcs/data/gfx100/acros.lutz) | 80³ | 1046567 | RGB/BGR |
+| [gfx100/acros_g_filter.lutz](../implementation/ffcs/data/gfx100/acros_g_filter.lutz) | 80³ | 1057790 | RGB/BGR |
+| [gfx100/acros_r_filter.lutz](../implementation/ffcs/data/gfx100/acros_r_filter.lutz) | 80³ | 831063 | RGB/BGR |
+| [gfx100/acros_ye_filter.lutz](../implementation/ffcs/data/gfx100/acros_ye_filter.lutz) | 80³ | 934117 | RGB/BGR |
+| [gfx100/astia.lutz](../implementation/ffcs/data/gfx100/astia.lutz) | 80³ | 2417426 | RGB/BGR |
+| [gfx100/bleach_bypass.lutz](../implementation/ffcs/data/gfx100/bleach_bypass.lutz) | 80³ | 2805231 | RGB/BGR |
+| [gfx100/bw.lutz](../implementation/ffcs/data/gfx100/bw.lutz) | 80³ | 1049740 | RGB/BGR |
+| [gfx100/classic_chrome.lutz](../implementation/ffcs/data/gfx100/classic_chrome.lutz) | 80³ | 2592451 | RGB/BGR |
+| [gfx100/classic_neg.lutz](../implementation/ffcs/data/gfx100/classic_neg.lutz) | 80³ | 2708700 | RGB/BGR |
+| [gfx100/eterna.lutz](../implementation/ffcs/data/gfx100/eterna.lutz) | 80³ | 2638612 | RGB/BGR |
+| [gfx100/mono_g_filter.lutz](../implementation/ffcs/data/gfx100/mono_g_filter.lutz) | 80³ | 1054704 | RGB/BGR |
+| [gfx100/mono_r_filter.lutz](../implementation/ffcs/data/gfx100/mono_r_filter.lutz) | 80³ | 877547 | RGB/BGR |
+| [gfx100/mono_ye_filter.lutz](../implementation/ffcs/data/gfx100/mono_ye_filter.lutz) | 80³ | 952748 | RGB/BGR |
+| [gfx100/pro_neg_hi.lutz](../implementation/ffcs/data/gfx100/pro_neg_hi.lutz) | 80³ | 2468713 | RGB/BGR |
+| [gfx100/pro_neg_std.lutz](../implementation/ffcs/data/gfx100/pro_neg_std.lutz) | 80³ | 2518186 | RGB/BGR |
+| [gfx100/provia.lutz](../implementation/ffcs/data/gfx100/provia.lutz) | 80³ | 2443436 | RGB/BGR |
+| [gfx100/sepia.lutz](../implementation/ffcs/data/gfx100/sepia.lutz) | 80³ | 2713249 | RGB/BGR |
+| [gfx100/velvia.lutz](../implementation/ffcs/data/gfx100/velvia.lutz) | 80³ | 2333319 | RGB/BGR |
+| [gfx100ii/reala_ace.lutz](../implementation/ffcs/data/gfx100ii/reala_ace.lutz) | 80³ | 2718056 | RGB/BGR |
+| [gfx100s/nostalgic_neg.lutz](../implementation/ffcs/data/gfx100s/nostalgic_neg.lutz) | 80³ | 2738525 | RGB/BGR |
+| [xa3/astia.lutz](../implementation/ffcs/data/xa3/astia.lutz) | 64³ | 1370590 | RGB/BGR |
+| [xa3/bw.lutz](../implementation/ffcs/data/xa3/bw.lutz) | 64³ | 544401 | RGB/BGR |
+| [xa3/classic_chrome.lutz](../implementation/ffcs/data/xa3/classic_chrome.lutz) | 64³ | 1354382 | RGB/BGR |
+| [xa3/mono_g_filter.lutz](../implementation/ffcs/data/xa3/mono_g_filter.lutz) | 64³ | 538091 | RGB/BGR |
+| [xa3/mono_r_filter.lutz](../implementation/ffcs/data/xa3/mono_r_filter.lutz) | 64³ | 503323 | RGB/BGR |
+| [xa3/mono_ye_filter.lutz](../implementation/ffcs/data/xa3/mono_ye_filter.lutz) | 64³ | 518046 | RGB/BGR |
+| [xa3/pro_neg_hi.lutz](../implementation/ffcs/data/xa3/pro_neg_hi.lutz) | 64³ | 1361092 | RGB/BGR |
+| [xa3/pro_neg_std.lutz](../implementation/ffcs/data/xa3/pro_neg_std.lutz) | 64³ | 1366190 | RGB/BGR |
+| [xa3/provia.lutz](../implementation/ffcs/data/xa3/provia.lutz) | 64³ | 1361185 | RGB/BGR |
+| [xa3/sepia.lutz](../implementation/ffcs/data/xa3/sepia.lutz) | 64³ | 1321645 | RGB/BGR |
+| [xa3/velvia.lutz](../implementation/ffcs/data/xa3/velvia.lutz) | 64³ | 1354838 | RGB/BGR |
+| [xh2s/acros.lutz](../implementation/ffcs/data/xh2s/acros.lutz) | 80³ | 1050148 | RGB/BGR |
+| [xh2s/acros_g_filter.lutz](../implementation/ffcs/data/xh2s/acros_g_filter.lutz) | 80³ | 1046412 | RGB/BGR |
+| [xh2s/acros_r_filter.lutz](../implementation/ffcs/data/xh2s/acros_r_filter.lutz) | 80³ | 978026 | RGB/BGR |
+| [xh2s/acros_ye_filter.lutz](../implementation/ffcs/data/xh2s/acros_ye_filter.lutz) | 80³ | 1003032 | RGB/BGR |
+| [xh2s/astia.lutz](../implementation/ffcs/data/xh2s/astia.lutz) | 80³ | 2672062 | RGB/BGR |
+| [xh2s/bleach_bypass.lutz](../implementation/ffcs/data/xh2s/bleach_bypass.lutz) | 80³ | 2805720 | RGB/BGR |
+| [xh2s/bw.lutz](../implementation/ffcs/data/xh2s/bw.lutz) | 80³ | 1051932 | RGB/BGR |
+| [xh2s/classic_chrome.lutz](../implementation/ffcs/data/xh2s/classic_chrome.lutz) | 80³ | 2744308 | RGB/BGR |
+| [xh2s/classic_neg.lutz](../implementation/ffcs/data/xh2s/classic_neg.lutz) | 80³ | 2701193 | RGB/BGR |
+| [xh2s/eterna.lutz](../implementation/ffcs/data/xh2s/eterna.lutz) | 80³ | 2776973 | RGB/BGR |
+| [xh2s/mono_g_filter.lutz](../implementation/ffcs/data/xh2s/mono_g_filter.lutz) | 80³ | 1046029 | RGB/BGR |
+| [xh2s/mono_r_filter.lutz](../implementation/ffcs/data/xh2s/mono_r_filter.lutz) | 80³ | 975771 | RGB/BGR |
+| [xh2s/mono_ye_filter.lutz](../implementation/ffcs/data/xh2s/mono_ye_filter.lutz) | 80³ | 1005184 | RGB/BGR |
+| [xh2s/nostalgic_neg.lutz](../implementation/ffcs/data/xh2s/nostalgic_neg.lutz) | 80³ | 2570732 | RGB/BGR |
+| [xh2s/pro_neg_hi.lutz](../implementation/ffcs/data/xh2s/pro_neg_hi.lutz) | 80³ | 2686816 | RGB/BGR |
+| [xh2s/pro_neg_std.lutz](../implementation/ffcs/data/xh2s/pro_neg_std.lutz) | 80³ | 2720232 | RGB/BGR |
+| [xh2s/provia.lutz](../implementation/ffcs/data/xh2s/provia.lutz) | 80³ | 2688051 | RGB/BGR |
+| [xh2s/sepia.lutz](../implementation/ffcs/data/xh2s/sepia.lutz) | 80³ | 2712985 | RGB/BGR |
+| [xh2s/velvia.lutz](../implementation/ffcs/data/xh2s/velvia.lutz) | 80³ | 2605860 | RGB/BGR |
 
-当前读取器检验 magic、N、channels、scale 和解压长度，但没有完整的文件截断、NaN、尾随数据及所有 flags 合法性验证。SHA-256 提供了交付文件的完整性验证。
+两个 ICC 位于 `implementation/ffcs/data/icc/`。运行时无需 vendor 二进制。每表原生核对结果在 [native_reference_validation.json](../validation/native_reference_validation.json)，包括 native/packed/library hash、Gamma、2,000 样本的平均/P95/最大误差。默认预设调整关闭；该证据仅用于 sigma=1 核心 LUT。
 
-## 3. 索引约定与使用顺序
+从原生库提取/验证的脚本位于 `implementation/tools/`。C++ 探针在 macOS 使用 `clang++ -std=c++17 -arch x86_64` 构建；提取程序显式解码输入 Gamma、调用原生三线性、编码输出 Gamma，采样 80³ 均匀编码网格。本次两张新表完整来源均在各自 manifest。
 
-PackedLUT.axis_order 恒为 BGR。插值前输入 (R,G,B) 改为 (B,G,R)，平坦地址仍用 z*N²+y*N+x。flags&1 为真时 channel_order=RGB，否则 BGR。BGR 输出需在插值后将首尾通道交换。
-
-各相机表使用 encoded 输入域：颜色链先 sRGB 解码、应用头矩阵、sRGB 编码，然后访问此表。不要对 encoded 表输出再做 E 编码。三线性插值结果逐通道夹取 [0,1]，即使 uint16/scale 表节点本身可能超出 1。
-
-读取内置数据后，Pipeline 替换 simulation 的 lut/size/matrix/domain/scale/source；**没有清零 contrast、saturation、hue、grain、sharpness**。这些后处理仍然执行，完整输出会与单纯查表不同。
-
-## 4. 相机和名称选择
-
-相机名称去非字母数字并大写：X-H2S、XH2S 命中相同家族；GFX100S 映射 gfx100。模拟名称先由 models 解析，CC 是 CLASSIC CHROME，NC 是 CLASSIC NEG.。内置文件键映射：CLASSICCHROME→classic_chrome、CLASSICNEG→classic_neg、NOSTALGICNEG→nostalgic_neg、ETERNABLEACHBYPASS→bleach_bypass、PRONEGHI/STD→pro_neg_hi/std、MONOCHROME→bw。滤镜单独映射到 acros_g/r/ye_filter 和 mono_g/r/ye_filter。
-
-REALA ACE 没有交付 LUT；XA3 没有 ACROS、ETERNA、CLASSIC NEG.、NOSTALGIC NEG. 等文件，GFX100 没有 NOSTALGIC NEG.。缺表返回 None 并使用解析模型；不会自动借其他相机的表（GFX100S 规则除外）。缓存键是完整路径，保存 (lut,matrix)；修改同路径文件后应重启进程才能重载。
-
-## 5. 外部 cube 文件支持范围
-
-按 UTF-8 文本逐行读取；跳过空行、以 # 开始的注释、TITLE、DOMAIN_MIN、DOMAIN_MAX、LUT_1D_SIZE。读取 LUT_3D_SIZE，后续可解析的三数行夹取后存为平坦表。要求 N>=2 且数量=N³。红色坐标最快、绿色其次、蓝色最慢。
-
-DOMAIN_MIN/MAX 被忽略，所以输入范围只能按 [0,1] 使用。1D shaper 声明被忽略，但其数值行可能仍被计入并导致节点数量错误；不支持组合 1D+3D LUT。没有 HDR 节点保留。标准大小为 2 的 identity cube 示例由 examples/reproduce.py 生成。
-
-CLI `--lut-domain encoded` 使 encoded 分支生效；默认是模型的 linear。encoded 外部 cube 也跳过 camera.matrix，因此 identity cube 在 XH2S 上与 linear identity cube 不等价。matrix_fused_into_lut 元信息对外部表为 False。
-
-## 6. 全部 LUT 资产
-
-完整 SHA-256 与矩阵数据同时保存在 `validation/asset_inventory.json` 和 `delivery_manifest.json`。
-
-| 文件 | 节点 | scale | 输出通道 | flags | 字节数 |
-|---|---|---|---|---|---|
-| `gfx100/acros.lutz` | 80³ | 20000 | RGB | 1 | 1046567 |
-| `gfx100/acros_g_filter.lutz` | 80³ | 20000 | RGB | 1 | 1057790 |
-| `gfx100/acros_r_filter.lutz` | 80³ | 20000 | RGB | 1 | 831063 |
-| `gfx100/acros_ye_filter.lutz` | 80³ | 20000 | RGB | 1 | 934117 |
-| `gfx100/astia.lutz` | 80³ | 20000 | RGB | 1 | 2417426 |
-| `gfx100/bleach_bypass.lutz` | 80³ | 20000 | RGB | 1 | 2805231 |
-| `gfx100/bw.lutz` | 80³ | 20000 | RGB | 1 | 1049740 |
-| `gfx100/classic_chrome.lutz` | 80³ | 20000 | RGB | 1 | 2592451 |
-| `gfx100/classic_neg.lutz` | 80³ | 20000 | RGB | 1 | 2708700 |
-| `gfx100/eterna.lutz` | 80³ | 20000 | RGB | 1 | 2638612 |
-| `gfx100/mono_g_filter.lutz` | 80³ | 20000 | RGB | 1 | 1054704 |
-| `gfx100/mono_r_filter.lutz` | 80³ | 20000 | RGB | 1 | 877547 |
-| `gfx100/mono_ye_filter.lutz` | 80³ | 20000 | RGB | 1 | 952748 |
-| `gfx100/pro_neg_hi.lutz` | 80³ | 20000 | RGB | 1 | 2468713 |
-| `gfx100/pro_neg_std.lutz` | 80³ | 20000 | RGB | 1 | 2518186 |
-| `gfx100/provia.lutz` | 80³ | 20000 | RGB | 1 | 2443436 |
-| `gfx100/sepia.lutz` | 80³ | 20000 | RGB | 1 | 2713249 |
-| `gfx100/velvia.lutz` | 80³ | 20000 | RGB | 1 | 2333319 |
-| `xa3/astia.lutz` | 64³ | 20000 | RGB | 1 | 1370590 |
-| `xa3/bw.lutz` | 64³ | 20000 | RGB | 1 | 544401 |
-| `xa3/classic_chrome.lutz` | 64³ | 20000 | RGB | 1 | 1354382 |
-| `xa3/mono_g_filter.lutz` | 64³ | 20000 | RGB | 1 | 538091 |
-| `xa3/mono_r_filter.lutz` | 64³ | 20000 | RGB | 1 | 503323 |
-| `xa3/mono_ye_filter.lutz` | 64³ | 20000 | RGB | 1 | 518046 |
-| `xa3/pro_neg_hi.lutz` | 64³ | 20000 | RGB | 1 | 1361092 |
-| `xa3/pro_neg_std.lutz` | 64³ | 20000 | RGB | 1 | 1366190 |
-| `xa3/provia.lutz` | 64³ | 20000 | RGB | 1 | 1361185 |
-| `xa3/sepia.lutz` | 64³ | 20000 | RGB | 1 | 1321645 |
-| `xa3/velvia.lutz` | 64³ | 20000 | RGB | 1 | 1354838 |
-| `xh2s/acros.lutz` | 80³ | 20000 | RGB | 1 | 1050148 |
-| `xh2s/acros_g_filter.lutz` | 80³ | 20000 | RGB | 1 | 1046412 |
-| `xh2s/acros_r_filter.lutz` | 80³ | 20000 | RGB | 1 | 978026 |
-| `xh2s/acros_ye_filter.lutz` | 80³ | 20000 | RGB | 1 | 1003032 |
-| `xh2s/astia.lutz` | 80³ | 20000 | RGB | 1 | 2672062 |
-| `xh2s/bleach_bypass.lutz` | 80³ | 20000 | RGB | 1 | 2805720 |
-| `xh2s/bw.lutz` | 80³ | 20000 | RGB | 1 | 1051932 |
-| `xh2s/classic_chrome.lutz` | 80³ | 20000 | RGB | 1 | 2744308 |
-| `xh2s/classic_neg.lutz` | 80³ | 20000 | RGB | 1 | 2701193 |
-| `xh2s/eterna.lutz` | 80³ | 20000 | RGB | 1 | 2776973 |
-| `xh2s/mono_g_filter.lutz` | 80³ | 20000 | RGB | 1 | 1046029 |
-| `xh2s/mono_r_filter.lutz` | 80³ | 20000 | RGB | 1 | 975771 |
-| `xh2s/mono_ye_filter.lutz` | 80³ | 20000 | RGB | 1 | 1005184 |
-| `xh2s/nostalgic_neg.lutz` | 80³ | 20000 | RGB | 1 | 2570732 |
-| `xh2s/pro_neg_hi.lutz` | 80³ | 20000 | RGB | 1 | 2686816 |
-| `xh2s/pro_neg_std.lutz` | 80³ | 20000 | RGB | 1 | 2720232 |
-| `xh2s/provia.lutz` | 80³ | 20000 | RGB | 1 | 2688051 |
-| `xh2s/sepia.lutz` | 80³ | 20000 | RGB | 1 | 2712985 |
-| `xh2s/velvia.lutz` | 80³ | 20000 | RGB | 1 | 2605860 |
-
-## 7. 每张表的头部矩阵
-
-以下按行主序列出九个元素；不得用相机模型矩阵替代。
-
-- `gfx100/acros.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/acros_g_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/acros_r_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/acros_ye_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/astia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/bleach_bypass.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/bw.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/classic_chrome.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/classic_neg.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/eterna.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/mono_g_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/mono_r_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/mono_ye_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/pro_neg_hi.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/pro_neg_std.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/provia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/sepia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `gfx100/velvia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/astia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/bw.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/classic_chrome.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/mono_g_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/mono_r_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/mono_ye_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/pro_neg_hi.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/pro_neg_std.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/provia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/sepia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xa3/velvia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/acros.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/acros_g_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/acros_r_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/acros_ye_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/astia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/bleach_bypass.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/bw.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/classic_chrome.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/classic_neg.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/eterna.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/mono_g_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/mono_r_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/mono_ye_filter.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/nostalgic_neg.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/pro_neg_hi.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/pro_neg_std.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/provia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/sepia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-- `xh2s/velvia.lutz`：`[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]`
-
-## 8. ICC 数据
-
-`ISL-sRGB.icc` 和 `ISL-ARGB1998.icc` 原样交付。输出优先使用这里的字节，其次系统 ColorSync 配置，再尝试 Pillow ImageCms 创建 profile；失败则没有标签。完整像素转换由 color.py 执行，不由这些文件隐式承担。DMG 材料不参与运行期表读取，独立交付无需该材料即可计算。
+[源码](../implementation/ffcs/lutdata.py) · [指标](07_验证指标与复现边界.md)

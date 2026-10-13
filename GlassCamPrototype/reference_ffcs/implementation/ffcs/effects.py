@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import math
-import random
 from typing import List, Sequence, Tuple
 
 from PIL import Image, ImageFilter
@@ -82,15 +81,19 @@ def apply_sharpen_pixels(pixels: Sequence[Sequence[RGB]], amount: float, radius:
         return [list(map(tuple, row)) for row in pixels]
     h, w = len(pixels), len(pixels[0]) if pixels else 0
     strength = max(0.0, min(3.0, amount)) * 0.35
+    radius = max(0.1, float(radius))
+    reach = max(1, math.ceil(3*radius))
     out: List[List[RGB]] = []
     for y in range(h):
         row: List[RGB] = []
         for x in range(w):
             neigh = []
-            for yy in range(max(0, y-1), min(h, y+2)):
-                for xx in range(max(0, x-1), min(w, x+2)):
-                    neigh.append(pixels[yy][xx])
-            blur = tuple(sum(v[c] for v in neigh) / len(neigh) for c in range(3))
+            for yy in range(max(0, y-reach), min(h, y+reach+1)):
+                for xx in range(max(0, x-reach), min(w, x+reach+1)):
+                    weight = math.exp(-((xx-x)**2+(yy-y)**2)/(2*radius*radius))
+                    neigh.append((pixels[yy][xx], weight))
+            total = sum(weight for _,weight in neigh)
+            blur = tuple(sum(v[c]*weight for v,weight in neigh) / total for c in range(3))
             row.append(tuple(clamp(pixels[y][x][c] + strength * (pixels[y][x][c] - blur[c])) for c in range(3)))
         out.append(row)
     return out

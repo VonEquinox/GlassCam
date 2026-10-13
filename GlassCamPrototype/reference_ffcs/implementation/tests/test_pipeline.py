@@ -75,7 +75,7 @@ def test_preview_backed_raf_keeps_raw_stage_contract(tmp_path):
 def test_raw_psnr_gate_uses_resize_stage_and_minimum_threshold(tmp_path):
     stage = Image.new("RGB", (2, 2), (64, 80, 96))
     raw_stages = {name: stage for name in REQUIRED_RAW_STAGES}
-    result = FFCS(PipelineConfig(use_reference_luts=False)).apply(stage, raw_stages=raw_stages)
+    result = FFCS(PipelineConfig(use_reference_luts=False)).apply(stage, raw_stages=raw_stages,raw_metadata={"decoder":"rawpy-sensor"})
     directory = tmp_path / "stages"
     result.save_stages(directory)
     report = compare_stage_directories(directory, directory)

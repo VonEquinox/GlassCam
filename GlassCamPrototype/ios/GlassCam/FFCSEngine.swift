@@ -1,7 +1,7 @@
 import Foundation
 
 /// Ownership and layout bridge only. The portable C++ FFCS backend loads the
-/// original bundled XH2S LUTs and executes the supplied research pipeline.
+/// original bundled native-family LUTs and executes the supplied research pipeline.
 enum FFCSEngine {
     struct Simulation: Identifiable, Sendable {
         let id: Int
@@ -18,12 +18,52 @@ enum FFCSEngine {
         return String(cString: name)
     }
 
+    static func simulations(for family: FFCSCameraFamily) -> [Simulation] {
+        simulations.filter { isSimulationAvailable($0.id, family: family) }
+    }
+
+    static func isSimulationAvailable(_ index: Int, family: FFCSCameraFamily) -> Bool {
+        guard index >= 0, index < Int(ffcs_simulation_count()),
+              let directory = try? resourceDirectory() else { return false }
+        return directory.path.withCString { root in
+            family.rawValue.withCString { ffcs_simulation_available(root, $0, index) == 1 }
+        }
+    }
+
+    static func resolvedAssetFamily(_ index: Int, family: FFCSCameraFamily) -> String? {
+        guard index >= 0, index < Int(ffcs_simulation_count()),
+              let directory = try? resourceDirectory() else { return nil }
+        return directory.path.withCString { root in
+            family.rawValue.withCString { camera in
+                guard let actual = ffcs_resolved_asset_family(root, camera, index) else { return nil }
+                return String(cString: actual).uppercased()
+            }
+        }
+    }
+
+    private static func resourceDirectory() throws -> URL {
+        guard let resources = Bundle.main.resourceURL else { throw Error.missingResources }
+        let directory = resources.appendingPathComponent("FFCS", isDirectory: true)
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory),
+              isDirectory.boolValue else { throw Error.missingResources }
+        return directory
+    }
+
+    static func requiredHalo(simulationIndex: Int, effects: EffectToggles,
+                             settings: FFCSSettings) throws -> Int {
+        guard settings.isValid else { throw Error.invalidInput }
+        let context = try contextCache.context(directory: resourceDirectory(), simulationIndex: simulationIndex,
+                                               effects: effects, settings: settings)
+        return Int(ffcs_required_halo(context.pointer))
+    }
+
     enum Error: LocalizedError {
         case invalidInput, missingResources, backend(String)
         var errorDescription: String? {
             switch self {
             case .invalidInput: return "The FFCS image dimensions, settings, or RGB buffer are invalid."
-            case .missingResources: return "The bundled FFCS XH2S reference LUTs are missing."
+            case .missingResources: return "The bundled FFCS native reference LUTs are missing."
             case .backend(let message): return "FFCS: \(message)"
             }
         }
@@ -36,11 +76,13 @@ enum FFCSEngine {
         let directory: String
         let simulationIndex: Int
         let effects: EffectToggles
-        init(pointer: OpaquePointer, directory: String, simulationIndex: Int, effects: EffectToggles) {
+        let settings: FFCSSettings
+        init(pointer: OpaquePointer, directory: String, simulationIndex: Int, effects: EffectToggles, settings: FFCSSettings) {
             self.pointer = pointer
             self.directory = directory
             self.simulationIndex = simulationIndex
             self.effects = effects
+            self.settings = settings
         }
         deinit { ffcs_destroy(pointer) }
     }
@@ -49,21 +91,24 @@ enum FFCSEngine {
         private let lock = NSLock()
         private var cached: ContextOwner?
 
-        func context(directory: URL, simulationIndex: Int, effects: EffectToggles) throws -> ContextOwner {
+        func context(directory: URL, simulationIndex: Int, effects: EffectToggles, settings: FFCSSettings) throws -> ContextOwner {
             lock.lock()
             defer { lock.unlock() }
             if let cached, cached.directory == directory.path,
-               cached.simulationIndex == simulationIndex, cached.effects == effects { return cached }
+               cached.simulationIndex == simulationIndex, cached.effects == effects, cached.settings == settings { return cached }
             var message = [CChar](repeating: 0, count: 1024)
             let pointer = directory.path.withCString { path in
-                message.withUnsafeMutableBufferPointer { error in
-                    ffcs_create_options(path, simulationIndex, effects.applyGrain ? 1 : 0,
-                                        effects.applySharpness ? 1 : 0, error.baseAddress, error.count)
+                settings.cameraFamily.rawValue.withCString { family in
+                    message.withUnsafeMutableBufferPointer { error in
+                        ffcs_create_family_config(path, family, simulationIndex, effects.applyGrain ? 1 : 0,
+                            effects.applySharpness ? 1 : 0, settings.applyReferenceAdjustments ? 1 : 0,
+                            settings.sharpenRadius, error.baseAddress, error.count)
+                    }
                 }
             }
             guard let pointer else { throw Error.backend(String(cString: message)) }
             let owner = ContextOwner(pointer: pointer, directory: directory.path,
-                                     simulationIndex: simulationIndex, effects: effects)
+                                     simulationIndex: simulationIndex, effects: effects, settings: settings)
             cached = owner
             return owner
         }
@@ -75,17 +120,17 @@ enum FFCSEngine {
     private static let workerCount: UInt32 = 1
 
     static func process(linearSRGB: [Float], width: Int, height: Int,
-                        exposureEV: Double, simulationIndex: Int, seed: UInt32, effects: EffectToggles = .standard) throws -> [UInt8] {
+                        exposureEV: Double, simulationIndex: Int, seed: UInt32, effects: EffectToggles = .standard, settings: FFCSSettings = .standard) throws -> [UInt8] {
         try render(linearSRGB: linearSRGB, width: width, height: height,
                    exposureEV: exposureEV, simulationIndex: simulationIndex,
-                   seed: seed, effects: effects, includePreview: true).preview
+                   seed: seed, effects: effects, settings: settings, includePreview: true).preview
     }
 
     static func exportLinearRGBA(linearSRGB: [Float], width: Int, height: Int,
-                                 exposureEV: Double, simulationIndex: Int, seed: UInt32, effects: EffectToggles = .standard) throws -> [Float] {
+                                 exposureEV: Double, simulationIndex: Int, seed: UInt32, effects: EffectToggles = .standard, settings: FFCSSettings = .standard) throws -> [Float] {
         let result = try render(linearSRGB: linearSRGB, width: width, height: height,
                                 exposureEV: exposureEV, simulationIndex: simulationIndex,
-                                seed: seed, effects: effects, includePreview: false)
+                                seed: seed, effects: effects, settings: settings, includePreview: false)
         // Expand the backend's packed Float32 RGB without an 8-bit intermediate.
         let count = width * height
         var rgba = [Float](repeating: 1, count: count * 4)
@@ -98,14 +143,14 @@ enum FFCSEngine {
         return rgba
     }
 
-    /// Process only requested full-image rows, including one input halo row
+    /// Process only requested full-image rows, including the context-reported halo
     /// above/below except at image edges. Row order must match the full-image
     /// bitmap supplied to the ordinary renderer; no implicit orientation flip.
     static func exportLinearRGBStrip(linearSRGB: [Float], fullWidth: Int, fullHeight: Int,
                                       inputOriginY: Int, inputRows: Int,
                                       outputOriginY: Int, outputRows: Int,
                                       exposureEV: Double, simulationIndex: Int,
-                                      seed: UInt32, effects: EffectToggles = .standard) throws -> [Float] {
+                                      seed: UInt32, effects: EffectToggles = .standard, settings: FFCSSettings = .standard) throws -> [Float] {
         guard fullWidth > 0, fullHeight > 0, fullWidth <= 100_000, fullHeight <= 100_000,
               fullWidth <= Int.max / fullHeight,
               inputOriginY >= 0, inputOriginY < fullHeight,
@@ -118,18 +163,16 @@ enum FFCSEngine {
         }
         let pixels = fullWidth * fullHeight
         guard pixels <= Int.max / MemoryLayout<Float>.stride / 3,
-              linearSRGB.count == fullWidth * inputRows * 3,
-              inputOriginY <= max(0, outputOriginY - 1),
-              inputOriginY + inputRows >= min(fullHeight, outputOriginY + outputRows + 1) else {
+              linearSRGB.count == fullWidth * inputRows * 3, settings.isValid else {
             throw Error.invalidInput
         }
-        guard let resources = Bundle.main.resourceURL else { throw Error.missingResources }
-        let directory = resources.appendingPathComponent("FFCS", isDirectory: true)
-            .appendingPathComponent("xh2s", isDirectory: true)
-        var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory),
-              isDirectory.boolValue else { throw Error.missingResources }
-        let context = try contextCache.context(directory: directory, simulationIndex: simulationIndex, effects: effects)
+        let directory = try resourceDirectory()
+        let context = try contextCache.context(directory: directory, simulationIndex: simulationIndex, effects: effects, settings: settings)
+        let halo = Int(ffcs_required_halo(context.pointer))
+        guard inputOriginY <= max(0, outputOriginY - halo),
+              inputOriginY + inputRows >= min(fullHeight, outputOriginY + outputRows + halo) else {
+            throw Error.invalidInput
+        }
         var output = [Float](repeating: 0, count: fullWidth * outputRows * 3)
         var message = [CChar](repeating: 0, count: 1024)
         let status = withExtendedLifetime(context) {
@@ -150,8 +193,8 @@ enum FFCSEngine {
 
     private static func render(linearSRGB: [Float], width: Int, height: Int,
                                exposureEV: Double, simulationIndex: Int, seed: UInt32,
-                               effects: EffectToggles, includePreview: Bool) throws -> (linearRGB: [Float], preview: [UInt8]) {
-        guard width > 0, height > 0, width <= Int.max / height,
+                               effects: EffectToggles, settings: FFCSSettings, includePreview: Bool) throws -> (linearRGB: [Float], preview: [UInt8]) {
+        guard settings.isValid, width > 0, height > 0, width <= Int.max / height,
               exposureEV.isFinite, Float(exposureEV).isFinite,
               simulationIndex >= 0, simulationIndex < Int(ffcs_simulation_count()) else {
             throw Error.invalidInput
@@ -159,13 +202,8 @@ enum FFCSEngine {
         let count = width * height
         guard count <= Int.max / MemoryLayout<Float>.stride / 4,
               linearSRGB.count == count * 3 else { throw Error.invalidInput }
-        guard let resources = Bundle.main.resourceURL else { throw Error.missingResources }
-        let directory = resources.appendingPathComponent("FFCS", isDirectory: true)
-            .appendingPathComponent("xh2s", isDirectory: true)
-        var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory),
-              isDirectory.boolValue else { throw Error.missingResources }
-        let context = try contextCache.context(directory: directory, simulationIndex: simulationIndex, effects: effects)
+        let directory = try resourceDirectory()
+        let context = try contextCache.context(directory: directory, simulationIndex: simulationIndex, effects: effects, settings: settings)
         var message = [CChar](repeating: 0, count: 1024)
         // Each call requests just one output. Preview never allocates an unused
         // full-image Float32 buffer; export never allocates a byte preview.

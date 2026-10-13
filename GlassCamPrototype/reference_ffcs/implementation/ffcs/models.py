@@ -96,6 +96,11 @@ CAMERA_PROFILES: Dict[str, CameraProfile] = {
         lens_shading=0.10, cfa="RGGB", cfa_period=(2, 2),
         matrix=_matrix(((1.16, -0.11, -0.05), (-0.04, 1.09, -0.05), (-0.03, -0.10, 1.13))),
     ),
+    "GFX100II": CameraProfile(
+        "GFX100II", black_level=512, white_level=65535, wb=(1.9,1.0,1.45),
+        lens_shading=0.10, cfa="RGGB", cfa_period=(2,2),
+        matrix=_matrix(((1.16,-0.11,-0.05),(-0.04,1.09,-0.05),(-0.03,-0.10,1.13))),
+    ),
     "XA3": CameraProfile(
         "XA3", black_level=256, white_level=16383, wb=(1.96, 1.0, 1.50),
         lens_shading=0.13, cfa="RGGB", cfa_period=(2, 2),

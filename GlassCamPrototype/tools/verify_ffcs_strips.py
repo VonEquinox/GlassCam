@@ -10,14 +10,16 @@ def main():
     lib=c.CDLL(a.library);sz=c.c_size_t;fp=c.POINTER(c.c_float);bp=c.POINTER(c.c_uint8);sp=c.c_char_p;vp=c.c_void_p
     lib.ffcs_create.argtypes=[sp,sz,sp,sz];lib.ffcs_create.restype=vp
     lib.ffcs_destroy.argtypes=[vp];lib.ffcs_simulation_count.restype=sz
+    lib.ffcs_create_config.argtypes=[sp,sz,c.c_int,c.c_int,c.c_int,c.c_double,sp,sz];lib.ffcs_create_config.restype=vp
+    lib.ffcs_required_halo.argtypes=[vp];lib.ffcs_required_halo.restype=sz
     full=lib.ffcs_process_linear_rgb_optimized
     full.argtypes=[vp,fp,sz,sz,sz,c.c_float,c.c_uint32,fp,sz,bp,sz,c.c_uint,sp,sz]
     strip=lib.ffcs_process_linear_rgb_strip
     strip.argtypes=[vp,fp,sz,sz,sz,sz,sz,sz,sz,c.c_float,c.c_uint32,fp,sz,c.c_uint,sp,sz]
     err=c.create_string_buffer(1024);calls=images=pixels=0
     sizes=[(1,1),(1,2),(1,13),(7,1),(11,3),(19,17),(131,19)]
-    for index in range(lib.ffcs_simulation_count()):
-        ctx=lib.ffcs_create(a.assets.encode(),index,err,len(err));assert ctx,err.value
+    for index in range(19):
+        ctx=lib.ffcs_create_config(a.assets.encode(),index,1,1,1,1.5,err,len(err));assert ctx,err.value
         try:
             for w,h in sizes:
                 for seed,ev in [(0,-2),(37,.7),(0xffffffff,2)]:
@@ -32,7 +34,7 @@ def main():
                         y=0
                         while y<h:
                             rows=1 if workers==1 else min(h-y,rng.randint(1,7))
-                            first=max(0,y-1-rng.randint(0,2));last=min(h,y+rows+1+rng.randint(0,2))
+                            halo=lib.ffcs_required_halo(ctx);first=max(0,y-halo-rng.randint(0,2));last=min(h,y+rows+halo+rng.randint(0,2))
                             ni=w*(last-first)*3;no=w*rows*3
                             inp=(c.c_float*ni).from_buffer_copy(bytes(data)[first*w*12:last*w*12])
                             out=(c.c_float*no)()
@@ -41,7 +43,7 @@ def main():
                             assert bytes(out)==expected,(index,w,h,seed,ev,workers,y,rows)
                             calls+=1;pixels+=w*rows;y+=rows
         finally:lib.ffcs_destroy(ctx)
-    ctx=lib.ffcs_create(a.assets.encode(),0,err,len(err));inp=(c.c_float*90)(*[.2]*90);out=(c.c_float*90)(*[.123]*90)
+    ctx=lib.ffcs_create_config(a.assets.encode(),0,1,1,1,1.5,err,len(err));inp=(c.c_float*90)(*[.2]*90);out=(c.c_float*90)(*[.123]*90)
     valid=[ctx,inp,90,3,10,0,10,2,3,0,0,out,90,1,err,len(err)]
     invalid=[]
     def bad(k,v): q=valid.copy();q[k]=v;invalid.append(q)

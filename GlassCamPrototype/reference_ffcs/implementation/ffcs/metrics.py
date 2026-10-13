@@ -6,7 +6,8 @@ import math
 from pathlib import Path
 from typing import Iterable, Sequence, Tuple
 
-from .color import adobe_rgb_to_srgb, rgb_to_lab, srgb_encode
+from .color import domain_to_lab, domain_to_xyz
+from .validation import matching_shapes, pixel_shape
 
 
 def load_stage_directory(directory: str | Path) -> dict:
@@ -18,7 +19,7 @@ def load_stage_directory(directory: str | Path) -> dict:
         raise FileNotFoundError(f"Stage directory does not exist: {directory}")
     result = {}
     for path in sorted(directory.glob("*.tif")):
-        result[path.stem] = load_pixels(path)
+        result[path.stem] = load_pixels(path, colour_manage=False)
     if not result:
         raise ValueError(f"No stage TIFFs found in {directory}")
     return result
@@ -42,10 +43,9 @@ def compare_stage_directories(candidate: str | Path, reference: str | Path, stri
     reference_maps = load_stage_directory(reference)
     candidate_meta = load_stage_metadata(candidate)
     reference_meta = load_stage_metadata(reference)
-    stage_domains = {}
-    stage_domains.update(reference_meta.get("stage_domains", {}))
-    stage_domains.update(candidate_meta.get("stage_domains", {}))
-    report = compare_stage_maps(reference_maps, candidate_maps, stride=stride, stage_domains=stage_domains)
+    report = compare_stage_maps(reference_maps, candidate_maps, stride=stride,
+                                reference_domains=reference_meta.get("stage_domains", {}),
+                                candidate_domains=candidate_meta.get("stage_domains", {}))
     numeric = [v["delta_e2000_mean"] for v in report.values() if "delta_e2000_mean" in v]
     lut_metric = report.get("lut_3d", {})
     output_metric = report.get("output_icc", report.get("sharpen", {}))
@@ -58,35 +58,44 @@ def compare_stage_directories(candidate: str | Path, reference: str | Path, stri
         rvar = rgrain.get("flat_region", {}).get("variance")
         cs = cgrain.get("radial_power_spectrum", [])
         rs = rgrain.get("radial_power_spectrum", [])
-        n = min(len(cs), len(rs))
+        compatible = (len(cs) == len(rs) and len(cs)>0 and
+                      cgrain.get("method") == rgrain.get("method") and
+                      cgrain.get("image_shape") == rgrain.get("image_shape"))
+        n = len(cs) if compatible else 0
         spectrum_rmse = (sum((cs[i] - rs[i]) ** 2 for i in range(n)) / n) ** 0.5 if n else None
         variance_abs_error = abs(cvar - rvar) if cvar is not None and rvar is not None else None
         grain_report = {
             # Grain matching is a statistical equality gate.  Without a
             # declared tolerance, only an exact reproduction is a pass; the
             # raw errors remain visible for later fixture-specific analysis.
-            "status": "pass" if variance_abs_error == 0.0 and spectrum_rmse == 0.0 else "fail" if variance_abs_error is not None and spectrum_rmse is not None else "unverified",
+            "status": "fail" if not compatible else "pass" if variance_abs_error == 0.0 and spectrum_rmse == 0.0 else "fail" if variance_abs_error is not None and spectrum_rmse is not None else "unverified",
             "candidate_variance": cvar,
             "reference_variance": rvar,
             "variance_abs_error": variance_abs_error,
             "spectrum_rmse": spectrum_rmse,
+            "spectrum_compatible": compatible,
         }
     def gate(metric: dict, target: float, key: str = "delta_e2000_mean", *, minimum: bool = False) -> dict:
         value = metric.get(key)
-        if value is None:
+        if value is None or (isinstance(value, float) and math.isnan(value)):
             status = "unverified"
         else:
             status = "pass" if (value > target if minimum else value < target) else "fail"
         return {"value": value, "target": target, "comparison": ">" if minimum else "<", "status": status}
+    problems = [k for k,v in report.items() if v.get("status") in {"missing", "shape_mismatch", "invalid"}]
+    coverage = {}
+    for side, meta, maps in (("candidate",candidate_meta,candidate_maps),("reference",reference_meta,reference_maps)):
+        declared = meta.get("stage_coverage", {})
+        required = set(declared.get("required_color", ())) | set(declared.get("required_raw", ()))
+        missing = sorted(required-set(maps))
+        coverage[side] = {**declared, "missing": missing, "status": "fail" if missing else "pass" if required else "unverified"}
     report["_summary"] = {
         "candidate": str(candidate), "reference": str(reference),
         "stages_compared": len(numeric),
         "max_delta_e2000_mean": max(numeric) if numeric else None,
-        "unexplained_residual_stages": [k for k, v in report.items() if isinstance(v, dict) and v.get("status") in {"missing", "shape_mismatch"}],
-        "stage_coverage": {
-            "candidate": candidate_meta.get("stage_coverage", {"status": "unverified"}),
-            "reference": reference_meta.get("stage_coverage", {"status": "unverified"}),
-        },
+        "unexplained_residual_stages": problems,
+        "nonzero_residual_stages": [k for k,v in report.items() if v.get("delta_e2000_mean",0)>1e-8 or v.get("max_absolute_error",0)>1e-12],
+        "stage_coverage": coverage,
         "acceptance": {
             "color_transform_delta_e2000_mean": gate(lut_metric, 1.0),
             "end_to_end_delta_e2000_mean": gate(output_metric, 2.0),
@@ -94,6 +103,13 @@ def compare_stage_directories(candidate: str | Path, reference: str | Path, stri
             "grain_statistics": grain_report,
         },
     }
+    acceptance = report["_summary"]["acceptance"]
+    if "resize_lanczos" not in candidate_maps and "resize_lanczos" not in reference_maps:
+        acceptance["raw_psnr_db"]["status"] = "not_applicable"
+    elif any(meta.get("raw",{}).get("decoder")!="rawpy-sensor" for meta in (candidate_meta,reference_meta)):
+        acceptance["raw_psnr_db"].update({"status":"unverified","reason":"Sensor RAW PSNR requires two sensor-domain results; embedded previews do not verify this gate"})
+    statuses = [v["status"] for v in acceptance.values()]
+    report["_summary"]["status"] = "fail" if problems or "fail" in statuses or any(v["status"]=="fail" for v in coverage.values()) else "unverified" if "unverified" in statuses or any(v["status"]=="unverified" for v in coverage.values()) else "pass"
     return report
 
 
@@ -136,27 +152,20 @@ def mean_delta_e2000(
     pixels_b: Sequence[Sequence[Sequence[float]]],
     stride: int = 1,
     domain: str = "encoded",
+    *, reference_domain: str | None = None, candidate_domain: str | None = None,
 ) -> float:
     """Return mean CIEDE2000, converting linear working values for Lab."""
 
-    def to_lab(rgb: Sequence[float]):
-        normalized_domain = str(domain).lower().replace(" ", "")
-        if normalized_domain in {"linear", "linear-rgb", "linearcamera/workrgb", "linear-sensor"}:
-            rgb = tuple(srgb_encode(float(v)) for v in rgb)
-        elif normalized_domain in {"adobergb", "adobe-rgb", "adobergb1998"}:
-            rgb = adobe_rgb_to_srgb(rgb)
-        return rgb_to_lab(rgb)
-
+    h,w = matching_shapes(pixels_a, pixels_b)
+    if stride<1: raise ValueError("stride must be positive")
     values = []
-    h = min(len(pixels_a), len(pixels_b))
-    for y in range(0, h, max(1, stride)):
-        w = min(len(pixels_a[y]), len(pixels_b[y]))
-        for x in range(0, w, max(1, stride)):
-            values.append(delta_e_2000(to_lab(pixels_a[y][x]), to_lab(pixels_b[y][x])))
-    return sum(values)/len(values) if values else 0.0
+    for y in range(0, h, stride):
+        for x in range(0, w, stride):
+            values.append(delta_e_2000(domain_to_lab(pixels_a[y][x], reference_domain or domain), domain_to_lab(pixels_b[y][x], candidate_domain or domain)))
+    return sum(values)/len(values)
 
 
-def colorchecker24_delta_e2000(candidate: Sequence[Sequence[Sequence[float]]], reference: Sequence[Sequence[Sequence[float]]], boxes: Sequence[Tuple[int, int, int, int]]) -> dict:
+def colorchecker24_delta_e2000(candidate: Sequence[Sequence[Sequence[float]]], reference: Sequence[Sequence[Sequence[float]]], boxes: Sequence[Tuple[int, int, int, int]], *, candidate_domain="encoded", reference_domain="encoded") -> dict:
     """Report mean/max CIEDE2000 for 24 ColorChecker swatch boxes.
 
     Boxes are supplied in image pixel coordinates, allowing charts with a
@@ -165,27 +174,39 @@ def colorchecker24_delta_e2000(candidate: Sequence[Sequence[Sequence[float]]], r
 
     if len(boxes) != 24:
         raise ValueError(f"ColorChecker requires 24 boxes, got {len(boxes)}")
+    h,w = matching_shapes(candidate, reference)
+    seen = []
+    for box in boxes:
+        if len(box)!=4 or any(not isinstance(v,int) for v in box):
+            raise ValueError("Each ColorChecker box must contain four integer coordinates")
+        x0,y0,x1,y1 = box
+        if not (0<=x0<x1<=w and 0<=y0<y1<=h):
+            raise ValueError(f"Empty or out-of-bounds ColorChecker box: {box}")
+        if any(max(x0,a)<min(x1,c) and max(y0,b)<min(y1,d) for a,b,c,d in seen):
+            raise ValueError("ColorChecker swatches must be distinct and non-overlapping")
+        seen.append(box)
     values = []
     for x0, y0, x1, y1 in boxes:
         samples = []
         for y in range(max(0, y0), min(len(candidate), y1)):
             for x in range(max(0, x0), min(len(candidate[y]), x1)):
                 if y < len(reference) and x < len(reference[y]):
-                    samples.append(delta_e_2000(rgb_to_lab(candidate[y][x]), rgb_to_lab(reference[y][x])))
-        values.append(sum(samples) / len(samples) if samples else float("nan"))
-    finite = [v for v in values if math.isfinite(v)]
+                    samples.append(delta_e_2000(domain_to_lab(candidate[y][x],candidate_domain), domain_to_lab(reference[y][x],reference_domain)))
+        values.append(sum(samples) / len(samples))
     candidate_shape = (len(candidate), len(candidate[0]) if candidate else 0)
     reference_shape = (len(reference), len(reference[0]) if reference else 0)
-    return {"mean": sum(finite)/len(finite) if finite else float("nan"), "max": max(finite) if finite else float("nan"), "swatches": values, "candidate_shape": candidate_shape, "reference_shape": reference_shape, "shape_mismatch": candidate_shape != reference_shape}
+    return {"mean": sum(values)/24, "max": max(values), "swatches": values, "valid_swatches": 24, "candidate_shape": candidate_shape, "reference_shape": reference_shape, "shape_mismatch": False}
 
 
-def psnr(pixels_a: Sequence[Sequence[Sequence[float]]], pixels_b: Sequence[Sequence[Sequence[float]]]) -> float:
+def psnr(pixels_a: Sequence[Sequence[Sequence[float]]], pixels_b: Sequence[Sequence[Sequence[float]]], peak: float = 1.0) -> float:
+    matching_shapes(pixels_a, pixels_b)
+    if not math.isfinite(peak) or peak<=0: raise ValueError("PSNR peak must be finite and positive")
     values = []
     for row_a, row_b in zip(pixels_a, pixels_b):
         for a, b in zip(row_a, row_b):
             values.extend((float(a[i])-float(b[i]))**2 for i in range(3))
     mse = sum(values)/len(values) if values else 0.0
-    return float("inf") if mse <= 1e-20 else 10.0 * math.log10(1.0/mse)
+    return float("inf") if mse <= 1e-20 else 10.0 * math.log10(peak*peak/mse)
 
 
 def flat_region_stats(pixels: Sequence[Sequence[Sequence[float]]], box: Tuple[int, int, int, int] | None = None) -> dict:
@@ -200,47 +221,61 @@ def flat_region_stats(pixels: Sequence[Sequence[Sequence[float]]], box: Tuple[in
 def grain_spectrum(pixels: Sequence[Sequence[Sequence[float]]], bins: int = 8) -> list[float]:
     """Return a compact radial power spectrum for grain validation.
 
-    A small direct DFT keeps this helper dependency-free.  It samples an
-    evenly spaced grid (at most 32×32) so reports stay fast on large images.
+    NumPy FFT uses an evenly spaced grid (at most 32×32). Frequencies fold
+    through fftfreq so positive and negative bins have the same radius.
     """
 
+    import numpy as np
+    if bins<1: raise ValueError("bins must be positive")
     h, w = len(pixels), len(pixels[0]) if pixels else 0
     if not h or not w:
         return [0.0] * bins
     n = min(32, h, w)
     sample = [[sum(pixels[min(h-1, round(y*(h-1)/(n-1)))][min(w-1, round(x*(w-1)/(n-1)))])/3 for x in range(n)] for y in range(n)] if n > 1 else [[sum(pixels[0][0])/3]]
     mean = sum(v for row in sample for v in row) / (n*n)
-    out = [0.0] * bins
-    counts = [0] * bins
-    for ky in range(n):
-        for kx in range(n):
-            real = imag = 0.0
-            for y in range(n):
-                for x in range(n):
-                    angle = -2*math.pi*(kx*x + ky*y)/n
-                    value = sample[y][x]-mean
-                    real += value * math.cos(angle)
-                    imag += value * math.sin(angle)
-            power = real*real + imag*imag
-            radius = math.sqrt(kx*kx + ky*ky) / max(1.0, math.sqrt(2)*n)
-            idx = min(bins-1, int(radius*bins))
-            out[idx] += power
-            counts[idx] += 1
+    out = [0.0]*bins; counts = [0]*bins
+    spectrum = np.abs(np.fft.fft2(np.asarray(sample)-mean))**2/(n*n)**2
+    frequencies = np.fft.fftfreq(n)
+    for ky,fy in enumerate(frequencies):
+        for kx,fx in enumerate(frequencies):
+            radius = math.hypot(float(fx),float(fy))/math.sqrt(0.5)
+            idx = min(bins-1,int(radius*bins))
+            out[idx] += float(spectrum[ky,kx]); counts[idx]+=1
     return [out[i]/counts[i] if counts[i] else 0.0 for i in range(bins)]
 
 
-def compare_stage_maps(reference: dict, candidate: dict, stride: int = 1, stage_domains: dict | None = None) -> dict:
+def compare_stage_maps(reference: dict, candidate: dict, stride: int = 1, stage_domains: dict | None = None, *, reference_domains: dict | None = None, candidate_domains: dict | None = None) -> dict:
     names = sorted(set(reference) | set(candidate))
     out = {}
     for name in names:
         if name not in reference or name not in candidate:
             out[name] = {"status": "missing"}
         else:
-            ref_shape = (len(reference[name]), len(reference[name][0]) if reference[name] else 0)
-            cand_shape = (len(candidate[name]), len(candidate[name][0]) if candidate[name] else 0)
+            try:
+                ref_shape = pixel_shape(reference[name]); cand_shape = pixel_shape(candidate[name])
+            except ValueError as exc:
+                out[name] = {"status":"invalid","reason":str(exc)}
+                continue
             if ref_shape != cand_shape:
                 out[name] = {"status": "shape_mismatch", "reference_shape": ref_shape, "candidate_shape": cand_shape}
                 continue
-            domain = (stage_domains or {}).get(name, "encoded")
-            out[name] = {"delta_e2000_mean": mean_delta_e2000(reference[name], candidate[name], stride, domain), "psnr_db": psnr(reference[name], candidate[name])}
+            rd = (reference_domains or stage_domains or {}).get(name,"encoded")
+            cd = (candidate_domains or stage_domains or {}).get(name,"encoded")
+            ra,ca = reference[name],candidate[name]
+            metric = {"reference_domain":rd,"candidate_domain":cd}
+            if rd in {"sensor-code","cfa-linear"} or cd in {"sensor-code","cfa-linear"}:
+                if rd!=cd:
+                    out[name] = {"status":"invalid","reason":"Sensor stage domains differ"}
+                    continue
+                metric["status"]="numeric_only"
+            else:
+                metric["delta_e2000_mean"] = mean_delta_e2000(ra,ca,stride,reference_domain=rd,candidate_domain=cd)
+                if rd!=cd:
+                    ra = [[domain_to_xyz(rgb,rd) for rgb in row] for row in ra]
+                    ca = [[domain_to_xyz(rgb,cd) for rgb in row] for row in ca]
+                    metric["psnr_domain"] = "XYZ"
+            peak = max(1.0,max(v for row in ra for rgb in row for v in rgb)) if rd=="sensor-code" else 1.0
+            metric["psnr_db"] = psnr(ra,ca,peak)
+            metric["max_absolute_error"] = max(abs(a-b) for rowa,rowb in zip(ra,ca) for a_rgb,b_rgb in zip(rowa,rowb) for a,b in zip(a_rgb,b_rgb))
+            out[name] = metric
     return out

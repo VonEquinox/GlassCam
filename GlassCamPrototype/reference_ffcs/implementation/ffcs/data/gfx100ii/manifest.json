@@ -1,0 +1,18 @@
+{
+  "camera": "GFX100II",
+  "format": "FFCSLUT2",
+  "nodes_per_axis": 80,
+  "tables": [
+    {
+      "file": "reala_ace.lutz",
+      "size": 2718056,
+      "sha256": "ea42fb354a01e11af3a8b82f60e7c220b35d1586f4daf84b4e942f5f2703ff8a",
+      "native_file": "CAM_GFX100_II_REALA_ACE_ISLRGB.s3d",
+      "native_sha256": "aae55d2e212ee3a53ae51b7b35da2231c155e9e352582db8164e20c4c491436b",
+      "native_library_sha256": "a0bdc416748549eada3086c4fa92015912ca6acc4b07b721f38bd2aa95af61b9",
+      "header_gamma": 2.2001953125,
+      "working_scale": 20000,
+      "method": "uniform encoded RGB grid, native TransFormTrilinear, explicit header Gamma"
+    }
+  ]
+}

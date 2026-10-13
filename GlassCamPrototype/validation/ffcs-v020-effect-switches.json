@@ -1,0 +1,153 @@
+{
+  "status": "pass",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+  "independent_v020_correctness": {
+    "report": "validation/ffcs-v020-native.json",
+    "report_sha256": "7a0a96a669350764f3b822f8048dc55d3c8dee489813596676393bdd3f8a533d",
+    "stage_comparisons": 1206,
+    "maximum_absolute_stage_error": 5.5164206536062466e-15
+  },
+  "v020_neutral_default_bytes": {
+    "looks": 19,
+    "linear_float_and_preview_cases": 285,
+    "encoded_nine_stage_cases": 95,
+    "dimensions_width_height": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        7
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        131,
+        19
+      ]
+    ],
+    "sha256_per_look": {
+      "0": "0dadfab9dff5a8664c757c0ac4932cdf1ff823cc800325f802f4509e459f7456",
+      "1": "8a95fd03ed5677b28f48969d5d8586b30cfa51adcee9490e3f8d0e2e1d237572",
+      "2": "1639ff1d9bb65f0a72b03b91aa1b4d4326a348fec1688fde21c18ad74e6ded5c",
+      "3": "cf0dcc37d1ea86712e26092d9e11f13d31c30eb7b8388d066d636d7fc070455f",
+      "4": "3d77a505501b160d822a7e475a803fda9509c1fe80aa6e89159dd7f0403ddb48",
+      "5": "f61d93e38b2103d3651782b67124ad28a77ca171ded2ef2220c6c40d49c3c85d",
+      "6": "612c15e9eb49f8c5e2bbbf03417f5aca8830ce49f9a8cf8c1ede688a2fa7b9a9",
+      "7": "2550a0d4414001d27bedf53ddcb763f39769ad61dd1237a4d3ef2a0f6cddb426",
+      "8": "f55883a4bd3451be69a1600944813b3eb583a9d7ab24ab2f9458051b9dbcddd9",
+      "9": "5db0e84a9dcb10fd4dc3775f073872e9c37b470b80f5c48f84163f1da475499b",
+      "10": "cd4c7f9d1bfa61644d166948bc368fd00220e50b6b120946b86175ef82dde9b4",
+      "11": "d4ceff6d5d719a565debdae54d2c95034c2374c3cbafed7708a163dc5eba2eed",
+      "12": "49650d3a738d6a66022074cbae3196ee8ab214908d56c1f790d2e0772462240b",
+      "13": "a2e9588f80a8543ca3ad86332d3b3ad303e3920e3a94ec032febb751ef835f53",
+      "14": "181435e872db8fab14339eab16e9b69b3d2f9b1d62fd8383ca8f0d677e747c20",
+      "15": "8aa607f3a6980abd3dfcf9218f783c27a7de2ec6fad1482cfe0a2cb82b526ee2",
+      "16": "9446a27f63baf70b5d2370d906467e91b877659e354336610114d263f5b1ce65",
+      "17": "941a2e58b73196c20a5cac6d9bef11826c5e6e0da7ea11f16ae8038d8eb4f0d6",
+      "18": "556618764531525b87192696e757499ec0dc8f2b3ee14d418ba19ebb06a6b543"
+    },
+    "historical_v01_bit_exact": false,
+    "intentional_change": "0.2 neutral native LUT defaults replace 0.1 overlay defaults; independent numerical goldens are in ffcs-v020-native.json",
+    "original_source_sha256": "f26e824093bd31a680d87c7cbb4c5fb1f47b62d939bc5276b3758a1b65bd26cd",
+    "fixture_sha256": "3262b99cec902d5b89d6ab6f178ecffc74b87a354b17b9cb7dd43b1d0c3af27c"
+  },
+  "optimized": {
+    "status": "pass",
+    "looks": 19,
+    "flag_combinations": 4,
+    "reference_float_cases": 1140,
+    "strip_calls": 13224,
+    "encoded_nine_stage_cases": 380,
+    "legacy_default_cases": 285,
+    "color_only_invariance_cases": 76,
+    "invalid_calls": 615,
+    "workers": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "max_float_error": 0,
+    "bit_exact": true,
+    "zero_coefficients_remain_inactive": true,
+    "grain_off_seed_independent": true,
+    "concurrent_contexts": true,
+    "compile_command": [
+      "g++",
+      "-std=c++17",
+      "-fno-fast-math",
+      "-ffp-contract=off",
+      "-pthread",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "/workspace/shared/glasscam-prototype/tests/ffcs_effect_switches_test.cpp",
+      "-lz",
+      "-o",
+      "/tmp/ffcs-effect-switches-fz4icejy/optimized"
+    ],
+    "sanitizer_stderr": ""
+  },
+  "asan_ubsan": {
+    "status": "pass",
+    "looks": 19,
+    "flag_combinations": 4,
+    "reference_float_cases": 1140,
+    "strip_calls": 13224,
+    "encoded_nine_stage_cases": 380,
+    "legacy_default_cases": 285,
+    "color_only_invariance_cases": 76,
+    "invalid_calls": 615,
+    "workers": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "max_float_error": 0,
+    "bit_exact": true,
+    "zero_coefficients_remain_inactive": true,
+    "grain_off_seed_independent": true,
+    "concurrent_contexts": true,
+    "compile_command": [
+      "g++",
+      "-std=c++17",
+      "-fno-fast-math",
+      "-ffp-contract=off",
+      "-pthread",
+      "-O1",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "/workspace/shared/glasscam-prototype/tests/ffcs_effect_switches_test.cpp",
+      "-lz",
+      "-o",
+      "/tmp/ffcs-effect-switches-fz4icejy/asan_ubsan"
+    ],
+    "sanitizer_stderr": ""
+  },
+  "sanitizers_requested": true,
+  "leak_sanitizer": "not run successfully: sandbox ptrace incompatibility",
+  "current_source_sha256": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+  "limitations": [
+    "Linux host-only numerical and sanitizer evidence.",
+    "No iPhone compile/runtime, UI, HEIF export, latency, or memory claim.",
+    "Explicit-overlay XH2S profiles have positive grain and sharpness; v0.2 native defaults are neutral. Additional zero-coefficient behavior is tested with private context copies.",
+    "FFCS 0.2 inactive sharpening needs zero halo; active Gaussian radius requires context-reported halo.",
+    "LeakSanitizer is disabled because this sandbox reports that it cannot run under ptrace; AddressSanitizer and UndefinedBehaviorSanitizer remain enabled."
+  ],
+  "native_harness_default_cases_meaning": "The inherited legacy_default_cases counter compares explicit-overlay both-on contexts, not historical v0.1 output bytes."
+}

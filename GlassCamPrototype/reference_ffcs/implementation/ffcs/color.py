@@ -1,8 +1,7 @@
 """Colour science primitives used by the FFCS renderer.
 
-All functions operate on Python sequences so FFCS works in a minimal Python
-installation.  If a caller has NumPy it can still use the same API by
-converting arrays to nested sequences at the pipeline boundary.
+Colour primitives operate on Python sequences. Image IO and FFT diagnostics
+use NumPy, tifffile and imagecodecs; arrays can be passed as nested sequences.
 """
 
 from __future__ import annotations
@@ -24,38 +23,78 @@ def clamp_rgb(rgb: Sequence[float]) -> RGB:
     return (clamp(float(rgb[0])), clamp(float(rgb[1])), clamp(float(rgb[2])))
 
 
-def load_cube_lut(path: str | Path) -> Tuple[int, list[tuple[float, float, float]]]:
-    """Read a standard ``.cube`` 3D LUT.
+class CubeLUT(list):
+    """Flat red-fastest cube, with optional 1D shaper and input ranges."""
 
-    The returned flat list is ordered ``z, y, x`` (blue, green, red), matching
-    :func:`_trilinear`.  Values are clamped to the display domain and comments
-    or one-dimensional shaper records are ignored.
-    """
+    def __init__(self, rows, domain_min, domain_max, shaper=(), cube_range=None):
+        super().__init__(rows)
+        self.domain_min, self.domain_max = domain_min, domain_max
+        self.shaper, self.cube_range = shaper, cube_range
 
-    size = None
-    rows: list[tuple[float, float, float]] = []
-    for raw in Path(path).read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#"):
+    def map_input(self, rgb):
+        values = [clamp((float(rgb[c])-self.domain_min[c])/(self.domain_max[c]-self.domain_min[c])) for c in range(3)]
+        if self.shaper:
+            mapped = []
+            for c, v in enumerate(values):
+                x = v*(len(self.shaper)-1)
+                i = int(x); j = min(i+1, len(self.shaper)-1)
+                mapped.append(self.shaper[i][c]*(1-(x-i))+self.shaper[j][c]*(x-i))
+            values = mapped
+            if self.cube_range:
+                lo, hi = self.cube_range
+                values = [(v-lo)/(hi-lo) for v in values]
+        return tuple(values)
+
+
+def load_cube_lut(path: str | Path) -> Tuple[int, CubeLUT]:
+    """Read IRIDAS/Resolve cubes, retaining domains, shapers and node values."""
+    size = shaper_size = None
+    lo, hi = (0.0,)*3, (1.0,)*3
+    ranges, rows = {}, []
+    for number, raw in enumerate(Path(path).read_text(encoding="utf-8-sig").splitlines(), 1):
+        line = raw.split("#", 1)[0].strip()
+        if not line:
             continue
-        fields = line.split()
-        key = fields[0].upper()
-        if key == "LUT_3D_SIZE" and len(fields) >= 2:
-            size = int(fields[1])
-            continue
-        if key in {"TITLE", "DOMAIN_MIN", "DOMAIN_MAX", "LUT_1D_SIZE"}:
-            continue
-        if len(fields) >= 3:
-            try:
-                rows.append((clamp(float(fields[0])), clamp(float(fields[1])), clamp(float(fields[2]))))
-            except ValueError:
+        fields = line.split(); key = fields[0].upper()
+        try:
+            if key == "TITLE":
                 continue
-    if size is None or size < 2:
-        raise ValueError(f"{path}: missing valid LUT_3D_SIZE")
-    expected = size ** 3
+            if key in {"LUT_3D_SIZE", "LUT_1D_SIZE"}:
+                if len(fields) != 2 or int(fields[1]) < 2:
+                    raise ValueError("invalid LUT size")
+                if key == "LUT_3D_SIZE": size = int(fields[1])
+                else: shaper_size = int(fields[1])
+                continue
+            if key in {"DOMAIN_MIN", "DOMAIN_MAX"}:
+                if len(fields) != 4: raise ValueError("domain requires three values")
+                values = tuple(map(float, fields[1:]))
+                if key == "DOMAIN_MIN": lo = values
+                else: hi = values
+                continue
+            if key in {"LUT_1D_INPUT_RANGE", "LUT_3D_INPUT_RANGE"}:
+                if len(fields) != 3: raise ValueError("range requires two values")
+                ranges[key] = tuple(map(float, fields[1:]))
+                continue
+            if len(fields) != 3: raise ValueError("unsupported directive or malformed RGB row")
+            values = tuple(map(float, fields))
+            if not all(math.isfinite(v) for v in values): raise ValueError("non-finite node")
+            rows.append(values)
+        except ValueError as exc:
+            raise ValueError(f"{path}:{number}: {exc}") from exc
+    if size is None:
+        raise ValueError(f"{path}: a 3D LUT is required")
+    expected = size**3 + (shaper_size or 0)
     if len(rows) != expected:
         raise ValueError(f"{path}: expected {expected} RGB entries, found {len(rows)}")
-    return size, rows
+    input_range = ranges.get("LUT_1D_INPUT_RANGE" if shaper_size else "LUT_3D_INPUT_RANGE")
+    if input_range:
+        lo, hi = (input_range[0],)*3, (input_range[1],)*3
+    if not all(math.isfinite(a) and math.isfinite(b) and b>a for a,b in zip(lo,hi)):
+        raise ValueError(f"{path}: invalid input domain")
+    cube_range = ranges.get("LUT_3D_INPUT_RANGE") if shaper_size else None
+    if cube_range and not (all(map(math.isfinite, cube_range)) and cube_range[1]>cube_range[0]):
+        raise ValueError(f"{path}: invalid 3D input range")
+    return size, CubeLUT(rows[shaper_size or 0:], lo, hi, rows[:shaper_size or 0], cube_range)
 
 
 def srgb_decode(x: float) -> float:
@@ -149,21 +188,14 @@ def _hsv_to_rgb(h: float, s: float, v: float) -> RGB:
 
 
 def _analytic_lut(rgb: Sequence[float], spec: FilmSimulation) -> RGB:
-    """Deterministic analytic fallback for a missing measured camera LUT."""
-
-    r, g, b = clamp_rgb(rgb)
-    # Contrast pivot in linear working space.  A small toe lift preserves
-    # texture in shadows while the shoulder limits highlight clipping.
-    pivot = 0.5
-    c = ((r - pivot) * spec.contrast + pivot, (g - pivot) * spec.contrast + pivot, (b - pivot) * spec.contrast + pivot)
-    c = tuple(clamp(v + spec.shadow_lift * (1.0 - v) - spec.highlight_rolloff * max(0.0, v - 0.72) ** 2) for v in c)
-    h, s, v = _rgb_to_hsv(c)
-    c = _hsv_to_rgb(h + spec.hue_shift, clamp(s * spec.saturation), v)
-    return clamp_rgb(c)
+    """Identity core; fallback controls act once in Lab/tone/filter stages."""
+    return clamp_rgb(rgb)
 
 
 def apply_3d_lut(rgb: Sequence[float], spec: FilmSimulation) -> RGB:
     lut_input = rgb
+    if isinstance(spec.lut, CubeLUT):
+        lut_input = spec.lut.map_input(rgb)
     if spec.lut is not None and getattr(spec.lut, "axis_order", "RGB") == "BGR":
         lut_input = (rgb[2], rgb[1], rgb[0])
     if spec.lut is not None:
@@ -202,8 +234,29 @@ def _finv_lab(t: float) -> float:
 
 def rgb_to_lab(rgb: Sequence[float]) -> Tuple[float, float, float]:
     xyz = _mul3(tuple(srgb_decode(clamp(v)) for v in rgb), _M_RGB_XYZ)
+    return xyz_to_lab(xyz)
+
+
+def xyz_to_lab(xyz: Sequence[float]) -> Tuple[float, float, float]:
     x, y, z = (_f_lab(xyz[i] / _WHITE[i]) for i in range(3))
     return (116*y - 16, 500*(x-y), 200*(y-z))
+
+
+def domain_to_lab(rgb: Sequence[float], domain: str = "encoded"):
+    """Calculate colour differences in XYZ/Lab without a display gamut clip."""
+    if str(domain).lower()=="lab": return tuple(map(float,rgb))
+    return xyz_to_lab(domain_to_xyz(rgb, domain))
+
+
+def domain_to_xyz(rgb: Sequence[float], domain: str = "encoded"):
+    key = "".join(ch for ch in str(domain).lower() if ch.isalnum())
+    if key in {"adobergb", "adobergb1998"}:
+        return _mul3(tuple(math.copysign(abs(float(v))**2.19921875, v) for v in rgb), _M_RGB_XYZ_ADOBE)
+    if key in {"linear", "linearrgb", "linearcameraworkrgb", "linearsensor"}:
+        return _mul3(rgb, _M_RGB_XYZ)
+    if key not in {"encoded", "srgb"}:
+        raise ValueError(f"No colourimetric Lab conversion defined for domain {domain}")
+    return _mul3(tuple(srgb_decode(v) for v in rgb), _M_RGB_XYZ)
 
 
 def lab_to_rgb(lab: Sequence[float]) -> RGB:
@@ -227,7 +280,7 @@ def adjust_lab(rgb: Sequence[float], contrast: float = 1.0, saturation: float = 
 def rgb_to_ucs(rgb: Sequence[float]) -> Tuple[float, float, float]:
     """Convert sRGB to the compact OKLab uniform colour space.
 
-    OKLab is a practical UCS for a dependency-free renderer: its LMS cube-root
+    OKLab is a practical UCS: its LMS cube-root
     construction is smooth, invertible, and behaves well around neutrals.
     """
 
@@ -262,6 +315,7 @@ def adjust_ucs(rgb: Sequence[float], contrast: float = 1.0, saturation: float = 
 def tone_curve(rgb: Sequence[float], contrast: float = 1.0, shoulder: float = 0.0, toe: float = 0.0) -> RGB:
     """Apply a smooth toe/shoulder curve with continuous first derivative."""
 
+    if contrast==1 and shoulder==0 and toe==0: return clamp_rgb(rgb)
     def one(x: float) -> float:
         x = clamp(x)
         # Contrast is anchored at one: a neutral curve is exactly identity.

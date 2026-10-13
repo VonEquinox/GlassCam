@@ -1,0 +1,90 @@
+{
+  "status": "pass",
+  "scope": "Linux cloud CPU only; no iPhone latency claim. Neutral and overlay compute intentionally different pixels, not equivalent optimizations.",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "processor": "",
+  "source_sha256": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+  "compile_command": [
+    "g++",
+    "-std=c++17",
+    "-O3",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "-shared",
+    "-fPIC",
+    "-pthread",
+    "/workspace/shared/glasscam-prototype/core/ffcs.cpp",
+    "-lz",
+    "-o",
+    "/workspace/shared/glasscam-prototype/build/libffcs_v020_verify.so"
+  ],
+  "warmups": 1,
+  "samples": 3,
+  "output": "full float32 linear RGB",
+  "measurements": [
+    {
+      "width": 256,
+      "height": 144,
+      "overlay": false,
+      "grain_enabled": true,
+      "sharpen_enabled": true,
+      "radius": 1,
+      "workers": 1,
+      "samples_seconds": [
+        0.006994747993303463,
+        0.006878265994600952,
+        0.007100574002834037
+      ],
+      "median_seconds": 0.006994747993303463,
+      "output_sha256": "bc2675f1e0adbf2e865f43f50851d18bcf058e110c12140e1aade32d9be933a6"
+    },
+    {
+      "width": 256,
+      "height": 144,
+      "overlay": true,
+      "grain_enabled": true,
+      "sharpen_enabled": true,
+      "radius": 1,
+      "workers": 1,
+      "samples_seconds": [
+        0.031078824002179317,
+        0.032083564990898594,
+        0.03089861800253857
+      ],
+      "median_seconds": 0.031078824002179317,
+      "output_sha256": "fdb3486ab36d9a1723e5113d60f58051124103e1140f3be370f3612fcc156c27"
+    },
+    {
+      "width": 1024,
+      "height": 1024,
+      "overlay": false,
+      "grain_enabled": true,
+      "sharpen_enabled": true,
+      "radius": 1,
+      "workers": 1,
+      "samples_seconds": [
+        0.23530718800611794,
+        0.24400089200935327,
+        0.22409848400275223
+      ],
+      "median_seconds": 0.23530718800611794,
+      "output_sha256": "2e26e9ffb807657870d96b844fe37056d82c34d5a7bb1123ade5d27fb9efa28a"
+    },
+    {
+      "width": 1024,
+      "height": 1024,
+      "overlay": true,
+      "grain_enabled": true,
+      "sharpen_enabled": true,
+      "radius": 1,
+      "workers": 1,
+      "samples_seconds": [
+        1.0001306030026171,
+        1.0316091499989852,
+        0.9691126270045061
+      ],
+      "median_seconds": 1.0001306030026171,
+      "output_sha256": "a6ac99bb4402baca312431c91720076a57f7ae56df9065d32b520bf517b0858d"
+    }
+  ]
+}

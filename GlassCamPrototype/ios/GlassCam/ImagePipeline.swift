@@ -57,6 +57,41 @@ struct EffectToggles: Codable, Equatable, Sendable {
     }
 }
 
+/// FFCS 0.2 native asset defaults. Missing fields deliberately adopt the corrected
+/// neutral reference behavior; the independent user stage gates remain intact.
+enum FFCSCameraFamily: String, Codable, CaseIterable, Identifiable, Sendable {
+    case xh2s = "XH2S", xa3 = "XA3", gfx100 = "GFX100", gfx100s = "GFX100S", gfx100ii = "GFX100II"
+    var id: String { rawValue }
+}
+
+struct FFCSSettings: Codable, Equatable, Sendable {
+    static let currentRenderRevision = 2 // FFCS reference 0.2.0 native-default contract.
+    var renderRevision = currentRenderRevision
+    var cameraFamily: FFCSCameraFamily = .xh2s
+    var applyReferenceAdjustments = false
+    var sharpenRadius = 1.0
+    static let standard = FFCSSettings()
+    var isValid: Bool {
+        renderRevision == Self.currentRenderRevision &&
+        sharpenRadius.isFinite && (0.1...5.0).contains(sharpenRadius)
+    }
+
+    init(cameraFamily: FFCSCameraFamily = .xh2s, applyReferenceAdjustments: Bool = false,
+         sharpenRadius: Double = 1.0) {
+        self.cameraFamily = cameraFamily
+        self.applyReferenceAdjustments = applyReferenceAdjustments
+        self.sharpenRadius = sharpenRadius
+    }
+    private enum CodingKeys: String, CodingKey { case renderRevision, cameraFamily, applyReferenceAdjustments, sharpenRadius }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        renderRevision = try values.decodeIfPresent(Int.self, forKey: .renderRevision) ?? Self.currentRenderRevision
+        cameraFamily = try values.decodeIfPresent(FFCSCameraFamily.self, forKey: .cameraFamily) ?? .xh2s
+        applyReferenceAdjustments = try values.decodeIfPresent(Bool.self, forKey: .applyReferenceAdjustments) ?? false
+        sharpenRadius = try values.decodeIfPresent(Double.self, forKey: .sharpenRadius) ?? 1.0
+    }
+}
+
 /// Immutable settings captured before background work starts. Export must use
 /// the rendered recipe, including every stage gate, rather than current controls.
 struct ProcessingRecipe: Codable, Equatable, Sendable {
@@ -67,19 +102,20 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
     let seed: UInt32
     let hncs: HNCSSettings
     let effects: EffectToggles
+    let ffcs: FFCSSettings
     // Only the HNCS square preset defines a crop. FFCS has no extra-crop stage.
     var crop: ImageCrop { mode == .hncs ? hncs.crop(effects: effects) : .none }
 
     init(mode: ColorMode, exposureEV: Double, illuminantKelvin: Double,
          simulationIndex: Int, seed: UInt32, hncs: HNCSSettings,
-         effects: EffectToggles = .standard) {
+         effects: EffectToggles = .standard, ffcs: FFCSSettings = .standard) {
         self.mode = mode; self.exposureEV = exposureEV; self.illuminantKelvin = illuminantKelvin
         self.simulationIndex = simulationIndex; self.seed = seed; self.hncs = hncs
-        self.effects = effects
+        self.effects = effects; self.ffcs = ffcs
     }
 
     private enum CodingKeys: String, CodingKey {
-        case mode, exposureEV, illuminantKelvin, simulationIndex, seed, hncs, effects
+        case mode, exposureEV, illuminantKelvin, simulationIndex, seed, hncs, effects, ffcs
     }
     private enum LegacyEffectKeys: String, CodingKey { case applyGrain, applySharpness }
     init(from decoder: Decoder) throws {
@@ -90,12 +126,14 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
         simulationIndex = try values.decodeIfPresent(Int.self, forKey: .simulationIndex) ?? 0
         seed = try values.decodeIfPresent(UInt32.self, forKey: .seed) ?? 0
         hncs = try values.decodeIfPresent(HNCSSettings.self, forKey: .hncs) ?? .standard
+        ffcs = try values.decodeIfPresent(FFCSSettings.self, forKey: .ffcs) ?? .standard
         if let savedEffects = try values.decodeIfPresent(EffectToggles.self, forKey: .effects) {
             effects = savedEffects
         } else if mode == .hncs, values.contains(.hncs), try !values.decodeNil(forKey: .hncs) {
             // revision8.v1 stored the two old switches inside HNCS. Preserve
             // explicit false choices for the active HNCS render. Old FFCS always
-            // applied both stages, so its active rendering defaults stay enabled.
+            // applied both stages, so its saved stage gates stay enabled. The
+            // separate FFCS 0.2 setting now defaults to neutral native LUT output.
             let legacy = try values.nestedContainer(keyedBy: LegacyEffectKeys.self, forKey: .hncs)
             effects = EffectToggles(
                 applyGrain: try legacy.decodeIfPresent(Bool.self, forKey: .applyGrain) ?? true,
@@ -111,11 +149,15 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
     var isValid: Bool {
         exposureEV.isFinite && (-2...2).contains(exposureEV) &&
         illuminantKelvin.isFinite && (2000...10000).contains(illuminantKelvin) &&
-        (0..<Int(ffcs_simulation_count())).contains(simulationIndex) && hncs.isValid
+        (0..<Int(ffcs_simulation_count())).contains(simulationIndex) && hncs.isValid && ffcs.isValid
     }
 
     var displayName: String {
-        mode == .ffcs ? "FFCS · \(FFCSEngine.simulationName(at: simulationIndex))" : "HNCS · \(hncs.presetTitle) · \(hncs.filmCurve.title)"
+        guard mode == .ffcs else { return "HNCS · \(hncs.presetTitle) · \(hncs.filmCurve.title)" }
+        let actual = FFCSEngine.resolvedAssetFamily(simulationIndex, family: ffcs.cameraFamily)
+        let family = actual.map { $0 == ffcs.cameraFamily.rawValue ? $0 : "\(ffcs.cameraFamily.rawValue) / \($0) asset" }
+            ?? "\(ffcs.cameraFamily.rawValue) / asset unavailable"
+        return "FFCS · \(family) · \(FFCSEngine.simulationName(at: simulationIndex))"
     }
 }
 
@@ -268,7 +310,7 @@ enum ImagePipeline {
         case .ffcs:
             rgba = try FFCSEngine.exportLinearRGBA(linearSRGB: rgb, width: crop.width,
                                                    height: crop.height, exposureEV: recipe.exposureEV,
-                                                   simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects)
+                                                   simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects, settings: recipe.ffcs)
         }
         let image = try PreviewRaster(linearRGBA: rgba, width: crop.width, height: crop.height)
         return ProcessedImage(image: image, comparisonSource: comparisonSource, source: input, recipe: recipe)
@@ -360,11 +402,15 @@ enum ImagePipeline {
         let raster = try ExportRasterFile()
         let spatialWork = needsSpatial ? try HNCSPresetWorkFile(width: width, height: height) : nil
         let stripRows = 64
+        let halo: Int
+        if recipe.mode == .ffcs {
+            halo = try FFCSEngine.requiredHalo(simulationIndex: recipe.simulationIndex,
+                                               effects: recipe.effects, settings: recipe.ffcs)
+        } else { halo = 0 }
         for start in stride(from: 0, to: height, by: stripRows) {
             try checkExportCancellation(isCancelled)
             try autoreleasepool {
                 let rows = min(stripRows, height - start)
-                let halo = recipe.mode == .ffcs ? 1 : 0
                 let inputStart = max(0, start - halo)
                 let inputEnd = min(height, start + rows + halo)
                 let inputRows = inputEnd - inputStart
@@ -396,7 +442,7 @@ enum ImagePipeline {
                         linearSRGB: rgb, fullWidth: width, fullHeight: height,
                         inputOriginY: inputStart, inputRows: inputRows,
                         outputOriginY: start, outputRows: rows,
-                        exposureEV: recipe.exposureEV, simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects)
+                        exposureEV: recipe.exposureEV, simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects, settings: recipe.ffcs)
                     var expanded = [Float](repeating: 1, count: width * rows * 4)
                     for pixel in 0..<(width * rows) {
                         for channel in 0..<3 { expanded[pixel * 4 + channel] = rendered[pixel * 3 + channel] }

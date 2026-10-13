@@ -16,7 +16,7 @@ experimental source adapter, not a calibrated iPhone native-camera profile.
 
 The immutable processed recipe selects the exact existing HNCS float route or
 the FFCS exact strip route. Color processing runs at the full decoded source
-size before any requested reduction. FFCS strips include the one-row sharpening
+size before any requested reduction. FFCS strips include the backend-reported Gaussian sharpening
 halo and supply original full dimensions and global row indices for grain;
 there is no grain restart at stripe boundaries. RGB and RGBA scratch arrays
 contain at most 66 source-width rows (64 output plus two halos).

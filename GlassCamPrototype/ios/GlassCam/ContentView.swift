@@ -53,6 +53,7 @@ final class EditorModel: ObservableObject {
     @Published var kelvin = 6500.0 { didSet { persistRecipe() } }
     @Published var hncs = HNCSSettings.standard { didSet { persistRecipe() } }
     @Published var effects = EffectToggles.standard { didSet { persistRecipe() } }
+    @Published var ffcs = FFCSSettings.standard { didSet { persistRecipe() } }
     private let defaults: UserDefaults
     private static let recipeKey = "editor.processingRecipe.revision8.v1"
 
@@ -62,7 +63,7 @@ final class EditorModel: ObservableObject {
            let saved = try? JSONDecoder().decode(ProcessingRecipe.self, from: data), saved.isValid {
             colorMode = saved.mode; simulationIndex = saved.simulationIndex
             exposure = saved.exposureEV; kelvin = saved.illuminantKelvin; hncs = saved.hncs
-            effects = saved.effects
+            effects = saved.effects; ffcs = saved.ffcs
         }
         // Normalize migrated legacy switches once every property is initialized.
         persistRecipe()
@@ -86,7 +87,7 @@ final class EditorModel: ObservableObject {
 
     private var recipe: ProcessingRecipe {
         ProcessingRecipe(mode: colorMode, exposureEV: exposure, illuminantKelvin: kelvin,
-                         simulationIndex: simulationIndex, seed: 0, hncs: hncs, effects: effects)
+                         simulationIndex: simulationIndex, seed: 0, hncs: hncs, effects: effects, ffcs: ffcs)
     }
 
     @Published var canCancelImageWork = false
@@ -177,7 +178,7 @@ final class EditorModel: ObservableObject {
     private func adoptRecipeSnapshot(_ snapshot: ProcessingRecipe) {
         colorMode = snapshot.mode; simulationIndex = snapshot.simulationIndex
         exposure = snapshot.exposureEV; kelvin = snapshot.illuminantKelvin; hncs = snapshot.hncs
-        effects = snapshot.effects
+        effects = snapshot.effects; ffcs = snapshot.ffcs
     }
 
     /// The token guards every suspension point: an older provider transfer or decode
@@ -416,7 +417,7 @@ struct ContentView: View {
                         .font(.caption2.weight(.semibold)).tracking(1.8).foregroundStyle(.orange)
                     Text(model.colorMode == .hncs
                          ? "Imported images are adapted from linear sRGB into the target camera color space. This is an effect preview, not a calibrated camera match. Virtual capture CCT defines a synthetic baseline for Apple-decoded linear RGB. A white-balance preset separately replaces virtual-camera target gains and selects factory interpolation; it does not recover scene white balance."
-                         : "FFCS uses the supplied XH2S reference LUTs and research rendering pipeline with fixed grain seed 0. Imported images enter as linear sRGB. This is an experimental effect, not a calibrated Fujifilm camera match.")
+                         : "FFCS uses the selected native reference LUT family and the FFCS 0.2 research pipeline. Optional reference grain uses fixed seed 0. Imported images enter as linear sRGB. This is an experimental effect, not a calibrated Fujifilm camera match.")
                         .font(.footnote).foregroundStyle(.secondary)
                     Text("Preview: up to 2048 px / high-precision SDR Float → RGBA16F • export: full source or selected lens output / 10-bit SDR HEIF")
                         .font(.caption).foregroundStyle(.secondary)
@@ -445,6 +446,9 @@ struct ContentView: View {
         .onChange(of: model.hncs) { _, _ in
             if !cameraPresented { Task { await model.render() } }
         }
+        .onChange(of: model.ffcs) { _, _ in
+            if !cameraPresented { Task { await model.render() } }
+        }
         .onChange(of: model.effects) { _, _ in
             if !cameraPresented { Task { await model.render() } }
         }
@@ -455,7 +459,7 @@ struct ContentView: View {
         }) {
             let sessionTicket = cameraTicket
             CameraView(colorMode: $model.colorMode, simulationIndex: $model.simulationIndex,
-                       exposureEV: $model.exposure, illuminantKelvin: $model.kelvin, hncs: $model.hncs, effects: $model.effects,
+                       exposureEV: $model.exposure, illuminantKelvin: $model.kelvin, hncs: $model.hncs, effects: $model.effects, ffcs: $model.ffcs,
                        thumbnail: model.processed?.image ?? model.imported?.original,
                        captureSlotAvailable: model.captureSlotAvailable,
                        reserveCapture: { model.reserveCaptureDelivery(ticket: sessionTicket) },
@@ -556,7 +560,7 @@ struct ContentView: View {
 
     private var controls: some View {
         VStack(alignment: .leading, spacing: 18) {
-            HStack { Text("Develop").font(.headline); Spacer(); Text(model.colorMode == .hncs ? "FACTORY PROFILE" : "XH2S REFERENCE LUT").font(.caption2).tracking(1).foregroundStyle(.secondary) }
+            HStack { Text("Develop").font(.headline); Spacer(); Text(model.colorMode == .hncs ? "FACTORY PROFILE" : "NATIVE REFERENCE LUT").font(.caption2).tracking(1).foregroundStyle(.secondary) }
             if ColorMode.allCases.count > 1 {
                 Picker("Color engine", selection: $model.colorMode) {
                     ForEach(ColorMode.allCases) { mode in
@@ -565,11 +569,7 @@ struct ContentView: View {
                 }.pickerStyle(.segmented)
             }
             if model.colorMode == .ffcs {
-                Picker("Simulation", selection: $model.simulationIndex) {
-                    ForEach(FFCSEngine.simulations) { simulation in
-                        Text(simulation.name).tag(simulation.id)
-                    }
-                }.pickerStyle(.menu)
+                FFCSReferenceControls(settings: $model.ffcs, simulationIndex: $model.simulationIndex)
             }
             HStack { Text("Exposure"); Spacer(); Text(String(format: "%+.2f EV", model.exposure)).monospacedDigit().foregroundStyle(.secondary) }.font(.subheadline)
             Slider(value: $model.exposure, in: -2...2, step: 0.05) { editing in
@@ -645,7 +645,7 @@ struct EffectToggleControls: View {
         Text("Each switch uses only the current preset's parameters. Your choices stay saved when you change presets or engines.")
             .font(.caption).foregroundStyle(.secondary)
         if mode == .ffcs {
-            Text("FFCS uses its reference 3×3 sharpening filter, not HNCS USM. These simulations have no extra-crop stage; this crop choice stays saved for HNCS.")
+            Text("FFCS 0.2 native LUTs have neutral postprocessing: enabling grain or sharpening alone adds nothing. Reference analytic adjustments are a separate opt-in. FFCS has no extra crop; this crop choice stays saved for HNCS.")
                 .font(.caption).foregroundStyle(.secondary)
         } else {
             if hncs.presetKey == "standard" {
@@ -710,4 +710,47 @@ private struct ShareSheet: UIViewControllerRepresentable {
         return controller
     }
     func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
+}
+
+/// Native research asset selection, separate from the physical capture camera.
+struct FFCSReferenceControls: View {
+    @Binding var settings: FFCSSettings
+    @Binding var simulationIndex: Int
+
+    var body: some View {
+        Picker("Reference LUT camera family", selection: $settings.cameraFamily) {
+            ForEach(FFCSCameraFamily.allCases) { family in Text(family.rawValue).tag(family) }
+        }.accessibilityIdentifier("ffcs.cameraFamily")
+        .onChange(of: settings.cameraFamily) { _, family in
+            if !FFCSEngine.isSimulationAvailable(simulationIndex, family: family) {
+                simulationIndex = FFCSEngine.simulations(for: family).first?.id ?? 0
+            }
+        }
+        Picker("Film simulation", selection: $simulationIndex) {
+            ForEach(FFCSEngine.simulations(for: settings.cameraFamily)) { simulation in
+                Text(simulation.name).tag(simulation.id)
+            }
+        }.pickerStyle(.menu).accessibilityIdentifier("ffcs.simulation")
+        Text("Research LUT asset family, not the iPhone capture camera. Only native available looks are listed; no analytic fallback.")
+            .font(.caption).foregroundStyle(.secondary)
+        if let actualFamily = FFCSEngine.resolvedAssetFamily(simulationIndex, family: settings.cameraFamily) {
+            Text(actualFamily == settings.cameraFamily.rawValue
+                 ? "Actual LUT asset family: \(actualFamily)"
+                 : "Actual LUT asset family: \(actualFamily). The source-defined native GFX fallback is active for this look.")
+                .font(.caption).foregroundStyle(.secondary)
+                .accessibilityIdentifier("ffcs.actualAssetFamily")
+        } else {
+            Text("This native LUT asset is unavailable. Choose another look or family.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        Toggle("Reference analytic adjustments (approx.)", isOn: $settings.applyReferenceAdjustments)
+            .accessibilityIdentifier("ffcs.referenceAdjustments")
+        Text("FFCS 0.2 corrects the previous default: native LUT rendering is neutral after the LUT. Existing grain, sharpening and crop switches stay saved. Opt in to approximate reference tone/color, grain and Gaussian sharpening; grain and sharpening still obey their own switches.")
+            .font(.caption).foregroundStyle(.secondary)
+        if settings.applyReferenceAdjustments {
+            Stepper("Reference sharpening radius: \(settings.sharpenRadius, specifier: "%.1f") px",
+                    value: $settings.sharpenRadius, in: 0.1...5.0, step: 0.1)
+                .accessibilityIdentifier("ffcs.sharpenRadius")
+        }
+    }
 }

@@ -3,19 +3,21 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Dict, List, Mapping, Sequence, Tuple
 
 from PIL import Image
 
-from .color import adjust_lab, adjust_ucs, apply_3d_lut, apply_matrix, clamp, grayscale, load_cube_lut, srgb_decode, srgb_encode, srgb_to_adobe_rgb, tone_curve
+from .color import adobe_rgb_to_srgb, adjust_lab, adjust_ucs, apply_3d_lut, apply_matrix, clamp, grayscale, load_cube_lut, srgb_decode, srgb_encode, srgb_to_adobe_rgb, tone_curve
 from .effects import apply_grain, apply_sharpen_pixels
-from .io import image_from_pixels, load_image, load_pixels, pixels_from_image, save_image
-from .lutdata import REFERENCE_PACKING_VALIDATION, load_reference_lut
+from .io import _icc_bytes, image_from_pixels, load_pixels, pixels_from_image, save_image, write_float_tiff
+from .lutdata import load_reference_lut, reference_validation
 from .metrics import compare_stage_maps, flat_region_stats, grain_spectrum, mean_delta_e2000, psnr
 from .models import CameraProfile, FilmSimulation, get_camera, get_simulation
 from .raw import RawDevelopment, develop_raf, is_raf
+from .validation import canonical_space, json_safe, matching_shapes, pixel_shape
 
 RGB = Tuple[float, float, float]
 
@@ -38,6 +40,15 @@ class PipelineConfig:
     lut_domain: str | None = None
     sigma: float | None = None
     use_reference_luts: bool = True
+    apply_reference_adjustments: bool = False
+
+    def __post_init__(self):
+        self.output_space = canonical_space(self.output_space)
+        if self.output_bits not in {8,16}: raise ValueError("output_bits must be 8 or 16")
+        if not math.isfinite(self.sharpen_radius) or self.sharpen_radius<=0:
+            raise ValueError("sharpen_radius must be finite and positive")
+        if self.sigma is not None and (not math.isfinite(self.sigma) or not 0.05<=self.sigma<=8):
+            raise ValueError("sigma must be finite and in [0.05,8]")
 
     def resolved_simulation(self) -> FilmSimulation:
         if isinstance(self.simulation, FilmSimulation):
@@ -61,17 +72,43 @@ class PipelineResult:
     def save(self, path: str | Path, bits: int | None = None, output_space: str | None = None) -> None:
         resolved_bits = bits if bits is not None else int(self.metadata.get("output_bits", 16))
         resolved_space = output_space or str(self.metadata.get("output_space", "sRGB"))
-        save_image(path, self.image, self.pixels, bits=resolved_bits, colour_space=resolved_space)
+        resolved_space = canonical_space(resolved_space)
+        original = canonical_space(self.metadata.get("output_space","sRGB"))
+        pixels = self.pixels
+        image = self.image
+        if resolved_space!=original:
+            convert = srgb_to_adobe_rgb if resolved_space=="AdobeRGB" else adobe_rgb_to_srgb
+            pixels = [[convert(rgb) for rgb in row] for row in pixels]
+            image = image_from_pixels(pixels)
+        save_image(path, image, pixels, bits=resolved_bits, colour_space=resolved_space)
+        with Image.open(path) as file:
+            embedded = bool(file.info.get("icc_profile"))
+        self.metadata.setdefault("output_files",[]).append({"path":str(path),"space":resolved_space,"icc_embedded":embedded})
 
-    def save_stages(self, directory: str | Path, bits: int = 16, output_space: str = "sRGB") -> None:
+    def save_stages(self, directory: str | Path, bits: int | None = None, output_space: str | None = None) -> None:
+        bits = int(self.metadata.get("output_bits",16)) if bits is None else bits
+        space = canonical_space(self.metadata.get("output_space","sRGB"))
+        if output_space and canonical_space(output_space)!=space:
+            raise ValueError("Stage output space must match the rendered result")
+        files = {}
         directory = Path(directory)
         directory.mkdir(parents=True, exist_ok=True)
         for name, image in self.stages.items():
             safe = "".join(ch if ch.isalnum() or ch in "_-" else "_" for ch in name)
             pixels = self.stage_pixels.get(name)
-            stage_space = output_space if name == "output_icc" else "sRGB"
-            save_image(directory / f"{safe}.tif", image, pixels, bits=bits, colour_space=stage_space)
-        (directory / "pipeline.json").write_text(json.dumps(self.metadata, indent=2, default=str), encoding="utf-8")
+            domain = self.metadata.get("stage_domains",{}).get(name,"encoded")
+            path = directory / f"{safe}.tif"
+            if domain in {"linear","sensor-code","cfa-linear"}:
+                write_float_tiff(path,pixels)
+                files[name] = {"bits":32,"sample_format":"float","icc_embedded":False,"domain":domain}
+            else:
+                stage_space = space if name=="output_icc" else "sRGB"
+                save_image(path,image,pixels,bits=bits,colour_space=stage_space)
+                with Image.open(path) as saved:
+                    embedded = bool(saved.info.get("icc_profile"))
+                files[name] = {"bits":bits,"sample_format":"uint","space":stage_space,"icc_embedded":embedded,"domain":domain}
+        self.metadata["stage_files"] = files
+        (directory / "pipeline.json").write_text(json.dumps(json_safe(self.metadata), indent=2, allow_nan=False, default=str), encoding="utf-8")
 
     def compare(self, reference: "PipelineResult", stride: int = 1) -> dict:
         """Compare this result with a reference stage by stage.
@@ -80,15 +117,11 @@ class PipelineResult:
         end-to-end ΔE2000 and PSNR so unexplained residuals remain visible.
         """
 
-        stage_domains = {}
-        stage_domains.update(reference.metadata.get("stage_domains", {}))
-        stage_domains.update(self.metadata.get("stage_domains", {}))
-        stage_metrics = compare_stage_maps(reference.stage_pixels, self.stage_pixels, stride=stride, stage_domains=stage_domains)
-        output_domain = str(self.metadata.get("output_space", reference.metadata.get("output_space", "sRGB")))
-        stage_metrics["__output__"] = {
-            "delta_e2000_mean": mean_delta_e2000(reference.pixels, self.pixels, stride, output_domain),
-            "psnr_db": psnr(reference.pixels, self.pixels),
-        }
+        rd,cd = reference.metadata.get("stage_domains",{}),self.metadata.get("stage_domains",{})
+        stage_metrics = compare_stage_maps(reference.stage_pixels,self.stage_pixels,stride,reference_domains=rd,candidate_domains=cd)
+        stage_metrics["__output__"] = compare_stage_maps({"output":reference.pixels},{"output":self.pixels},stride,
+            reference_domains={"output":reference.metadata.get("output_space","sRGB")},
+            candidate_domains={"output":self.metadata.get("output_space","sRGB")})["output"]
         return stage_metrics
 
     def validate_contract(self, raw: bool = False) -> dict:
@@ -96,7 +129,7 @@ class PipelineResult:
         if raw:
             required.update(REQUIRED_RAW_STAGES)
         present = set(self.stages)
-        return {"required": sorted(required), "present": sorted(present), "missing": sorted(required - present), "status": "pass" if required <= present else "fail"}
+        return {"required": sorted(required), "present": sorted(present), "missing": sorted(required - present), "status": "pass" if required <= present else "fail", "scope":"stage names only; not reference equivalence"}
 
 
 def _linear_to_encoded(pixels: Sequence[Sequence[RGB]]) -> List[List[RGB]]:
@@ -149,18 +182,20 @@ class FFCS:
         raw_stages: Mapping[str, Image.Image] | None = None,
         raw_stage_pixels: Mapping[str, Sequence[Sequence[RGB]]] | None = None,
         raw_metadata: Mapping[str, object] | None = None,
+        input_is_linear: bool | None = None,
     ) -> PipelineResult:
         cfg = self.config
         sim = cfg.resolved_simulation()
         camera = cfg.resolved_camera()
         reference_lut_path = None
+        supplied_lut = sim.lut is not None
         if cfg.lut_path:
             size, lut = load_cube_lut(cfg.lut_path)
             requested_domain = (cfg.lut_domain or sim.lut_domain).strip().lower()
             if requested_domain not in {"linear", "encoded"}:
                 raise ValueError("lut_domain must be 'linear' or 'encoded'")
             sim = replace(sim, lut=lut, lut_size=size, lut_domain=requested_domain, lut_source=str(cfg.lut_path))
-        elif cfg.use_reference_luts:
+        elif cfg.use_reference_luts and not supplied_lut:
             loaded = load_reference_lut(camera.name, sim.name)
             if loaded is not None:
                 lut, matrix, reference_lut_path = loaded
@@ -168,26 +203,36 @@ class FFCS:
                     sim, lut=lut, lut_size=lut.size, matrix=tuple(tuple(matrix[r*3+c] for c in range(3)) for r in range(3)),
                     lut_domain="encoded", lut_scale=lut.scale, lut_source=str(reference_lut_path),
                 )
+        if sim.lut is not None and not cfg.apply_reference_adjustments and not isinstance(cfg.simulation,FilmSimulation):
+            sim = replace(sim,contrast=1,saturation=1,hue_shift=0,highlight_rolloff=0,shadow_lift=0,grain_strength=0,sharpness=0)
         if cfg.sigma is not None:
             sim = replace(sim, sigma=float(cfg.sigma))
+        if not math.isfinite(sim.sigma) or not 0.05<=sim.sigma<=8:
+            raise ValueError("Simulation sigma must be finite and in [0.05,8]")
+        linear_input = input_is_linear if input_is_linear is not None else bool((raw_metadata or {}).get("decoder")=="rawpy-sensor" or cfg.input_is_linear)
         stages: Dict[str, Image.Image] = {}
         stage_pixels: Dict[str, List[List[RGB]]] = {}
         metadata: Dict[str, object] = {
             "simulation": sim.name, "camera": camera.name, "output_space": cfg.output_space,
             "output_bits": cfg.output_bits, "seed": cfg.seed, "sigma": sim.sigma,
-            "lut_source": sim.lut_source or (str(cfg.lut_path) if cfg.lut_path else "analytic"),
+            "version":"0.2.0", "input_domain":"linear" if linear_input else "encoded",
+            "lut_source": sim.lut_source or ("custom-lut" if sim.lut is not None else "analytic"),
             "lut_domain": sim.lut_domain,
             "matrix_fused_into_lut": bool(reference_lut_path),
             "approximations": [
                 "Built-in looks use analytic profiles when no measured/reference LUT is available.",
                 "RAF decoding uses rawpy when installed, otherwise the largest embedded JPEG preview.",
                 "Camera-specific RAW calibration and demosaic coefficients require a reference RAF fixture for quantitative validation.",
-                "A non-default --sigma override uses the portable bounded transition model; native SilkyPix normal-distribution mode is retained only where the reference table is already sampled.",
+                "Non-default sigma is an explicit portable tanh adjustment, not native normal-distribution mode.",
             ],
             "approximation_metrics": {
-                "analytic_look": {"status": "unquantified", "reason": "no matching native camera LUT/reference output supplied"},
+                "analytic_look": {"status": "unquantified", "reason": "no bundled native table for the requested camera/look"},
                 "raw_calibration": {"status": "unquantified", "reason": "no matching RAF reference stages supplied"},
-                "sigma_override": {"status": "unquantified", "reason": "native normal-distribution fixture not available"},
+                "sigma_override": {"status":"not_used" if sim.sigma==1 else "unquantified","reason":"portable adjustment has no matching native reference"},
+                "lab_ucs":{"status":"not_used" if sim.saturation==1 and sim.hue_shift==0 else "unquantified"},
+                "tone_curve":{"status":"not_used" if sim.contrast==1 and sim.highlight_rolloff==0 and sim.shadow_lift==0 else "unquantified"},
+                "film_grain":{"status":"not_used" if sim.grain_strength<=0 else "unquantified"},
+                "sharpen":{"status":"not_used" if sim.sharpness<=0 else "unquantified"},
             },
             "stage_contract": [
                 {"name": "input_normalized", "domain": "sRGB-normalized [0,1]"},
@@ -210,19 +255,24 @@ class FFCS:
             metadata["raw"] = dict(raw_metadata)
         elif not raw_stages:
             metadata["approximation_metrics"]["raw_calibration"] = {"status": "not_applicable"}
-        if cfg.lut_path:
+        if sim.lut is not None:
             metadata["approximation_metrics"]["analytic_look"] = {"status": "not_used"}
         if reference_lut_path:
             metadata["reference_camera_asset"] = reference_lut_path.parent.name.upper()
+            requested = "".join(c for c in camera.name.lower() if c.isalnum())
+            substitute = requested!=reference_lut_path.parent.name
+            metadata["approximation_metrics"]["camera_asset_substitution"] = {
+                "status":"unquantified" if substitute else "not_used",
+                "requested_camera":camera.name,"asset_family":reference_lut_path.parent.name}
             metadata["approximation_metrics"]["analytic_look"] = {"status": "not_used"}
             if abs(float(sim.sigma) - 1.0) < 1e-7:
                 metadata["approximation_metrics"]["sigma_override"] = {"status": "not_used"}
-            quantified = sim.name == "PROVIA" and reference_lut_path.parent.name.lower() == "xh2s"
-            metadata["reference_lut_validation"] = dict(REFERENCE_PACKING_VALIDATION) if quantified else {
-                "status": "unquantified",
-                "method": "native SilkyPix mapping versus FFCSLUT2 80^3 trilinear interpolation",
-                "source": str(reference_lut_path),
-            }
+            metadata["reference_lut_validation"] = reference_validation(reference_lut_path)
+            metadata["reference_lut_validation"]["applies_to_current_lut_stage"] = sim.sigma==1
+        metadata["resolved_simulation"] = {key:value for key,value in sim.__dict__.items() if key!="lut"}
+        metadata["resolved_camera"] = dict(camera.__dict__)
+        metadata["reference_adjustments_enabled"] = cfg.apply_reference_adjustments or isinstance(cfg.simulation,FilmSimulation)
+        metadata["end_to_end_reference_validation"] = {"status":"unverified","reason":"No paired real RAF/GUI/ColorChecker reference fixture is bundled"}
         if raw_stages:
             for key, val in raw_stages.items():
                 stages[key] = val.copy()
@@ -232,13 +282,14 @@ class FFCS:
                     stage_pixels[key] = pixels_from_image(val)
 
         pixels = [list(map(tuple, row)) for row in input_pixels] if input_pixels is not None else pixels_from_image(image)
+        pixel_shape(pixels)
         def put(name: str, p: Sequence[Sequence[RGB]]) -> None:
             q = [list(map(tuple, row)) for row in p]
             stage_pixels[name] = q
             stages[name] = _stage_image(q)
 
         put("input_normalized", pixels)
-        if cfg.input_is_linear:
+        if linear_input:
             linear = pixels
         else:
             linear = _encoded_to_linear(pixels)
@@ -262,9 +313,13 @@ class FFCS:
             encoded = _linear_to_encoded(lut_pixels)
         # LAB/UCS fine tuning is kept separate from the tone curve so residuals
         # can be attributed to one stage during reference comparisons.
-        lab_pixels = [[adjust_ucs(adjust_lab(rgb, contrast=1.0, saturation=sim.saturation, hue_shift=sim.hue_shift), contrast=1.0, saturation=1.0, hue_shift=0.0) for rgb in row] for row in encoded]
         if sim.lut_domain != "encoded" and (sim.acros or sim.saturation == 0 or sim.sepia):
-            lab_pixels = _apply_monochrome(lab_pixels, sim)
+            # Filter the coloured values before any desaturation removes them.
+            lab_pixels = _apply_monochrome(encoded,sim)
+        elif sim.saturation==1 and sim.hue_shift==0:
+            lab_pixels = encoded
+        else:
+            lab_pixels = [[adjust_ucs(adjust_lab(rgb,contrast=1,saturation=sim.saturation,hue_shift=sim.hue_shift)) for rgb in row] for row in encoded]
         put("lab_ucs", lab_pixels)
 
         tone_pixels = [[tone_curve(rgb, contrast=sim.contrast, shoulder=sim.highlight_rolloff, toe=sim.shadow_lift) for rgb in row] for row in lab_pixels]
@@ -272,9 +327,11 @@ class FFCS:
 
         grain_pixels = apply_grain(tone_pixels, sim, seed=cfg.seed)
         put("film_grain", grain_pixels)
+        grain_noise = [[tuple(a-b for a,b in zip(g,t)) for g,t in zip(grow,trow)] for grow,trow in zip(grain_pixels,tone_pixels)]
         metadata["grain_statistics"] = {
-            "flat_region": flat_region_stats(grain_pixels),
-            "radial_power_spectrum": grain_spectrum(grain_pixels),
+            "method":"grain-residual-fft-v1","image_shape":[len(pixels),len(pixels[0])],
+            "flat_region": flat_region_stats(grain_noise),
+            "radial_power_spectrum": grain_spectrum(grain_noise),
         }
 
         sharpen_pixels = apply_sharpen_pixels(grain_pixels, sim.sharpness, cfg.sharpen_radius)
@@ -294,6 +351,7 @@ class FFCS:
         missing_raw = [name for name in REQUIRED_RAW_STAGES if name not in stages] if has_raw_stages else []
         metadata["stage_order"] = present_stages
         metadata["stage_coverage"] = {
+            "scope": "stage names only; not reference equivalence",
             "required_color": list(REQUIRED_COLOR_STAGES),
             "required_raw": list(REQUIRED_RAW_STAGES) if has_raw_stages else [],
             "present": present_stages,
@@ -301,7 +359,7 @@ class FFCS:
             "status": "pass" if not (missing_color or missing_raw) else "fail",
         }
         stage_domains = {
-            "input_normalized": "encoded",
+            "input_normalized": "linear" if linear_input else "encoded",
             "gamma_pre": "linear",
             "matrix_3x3": "linear",
             "lut_3d": "encoded" if sim.lut_domain == "encoded" else "linear",
@@ -314,8 +372,13 @@ class FFCS:
         if raw_stages:
             raw_domain = "linear" if str((raw_metadata or {}).get("decoder", "")).lower() == "rawpy-sensor" else "encoded"
             stage_domains.update({name: raw_domain for name in raw_stages})
+            if raw_domain=="linear":
+                stage_domains["raw_input"]="sensor-code"
+                for name in ("black_level","bad_pixel_repair","lens_shading","band_preprocess","white_balance"):
+                    if name in raw_stages: stage_domains[name]="cfa-linear"
         metadata["stage_domains"] = stage_domains
-        metadata["colour_management"] = {"profile": cfg.output_space, "embedded": True}
+        metadata["stage_contract"][0]["domain"] = stage_domains["input_normalized"]
+        metadata["colour_management"] = {"profile": cfg.output_space, "profile_available": bool(_icc_bytes(cfg.output_space))}
         result = PipelineResult(output, output_pixels, stages, stage_pixels, metadata)
         if cfg.stage_dir:
             result.save_stages(cfg.stage_dir, bits=cfg.output_bits, output_space=cfg.output_space)
@@ -330,8 +393,10 @@ class FFCS:
                 raw_stages=developed.stages,
                 raw_stage_pixels=developed.stage_pixels,
                 raw_metadata=developed.metadata,
+                input_is_linear=developed.metadata.get("decoder")=="rawpy-sensor",
             )
-        return self.apply(load_image(path), input_pixels=load_pixels(path))
+        pixels = load_pixels(path,colour_manage=not self.config.input_is_linear)
+        return self.apply(image_from_pixels(pixels),input_pixels=pixels)
 
 
 def apply_image(path: str | Path, output: str | Path, config: PipelineConfig | None = None) -> PipelineResult:

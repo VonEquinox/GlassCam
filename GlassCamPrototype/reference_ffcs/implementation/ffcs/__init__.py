@@ -12,4 +12,4 @@ __all__ = [
     "develop_raf", "RawDevelopment", "RawSensor", "demosaic_bayer", "demosaic_cfa", "demosaic_xtrans",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

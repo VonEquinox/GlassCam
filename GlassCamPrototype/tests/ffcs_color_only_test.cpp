@@ -45,10 +45,10 @@ int main(int argc,char **argv) {
  const size_t pixels=input.size()/3;
  const size_t output_n=pixels*4;
  size_t compared=0,invalid_calls=0;
- CHECK(ffcs_simulation_count()==19);
- for(size_t look=0;look<ffcs_simulation_count();++look) {
+ CHECK(ffcs_simulation_count()==20);
+ for(size_t look=0;look<19;++look) {
   std::unique_ptr<FFCSContext,decltype(&ffcs_destroy)> context(
-   ffcs_create(argv[1],look,error.data(),error.size()),ffcs_destroy);
+   ffcs_create_config(argv[1],look,1,1,1,1,error.data(),error.size()),ffcs_destroy);
   CHECK(context);
   const auto *ctx=context.get();
   const double originalGrain=ctx->look.grain,originalSharp=ctx->look.sharp;

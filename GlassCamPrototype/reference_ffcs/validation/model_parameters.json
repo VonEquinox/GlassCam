@@ -1,19 +1,7 @@
 {
-  "pipeline_defaults": {
-    "simulation": "PROVIA",
-    "camera": "GENERIC",
-    "output_space": "sRGB",
-    "output_bits": 16,
-    "seed": 0,
-    "filter_colour": null,
-    "stage_dir": null,
-    "sharpen_radius": 1.0,
-    "input_is_linear": false,
-    "lut_path": null,
-    "lut_domain": null,
-    "sigma": null,
-    "use_reference_luts": true
-  },
+  "version": "0.2.0",
+  "date": "2026-10-13",
+  "note": "Analytic defaults are uncalibrated; LUTs neutralize preset adjustments by default. RAW parameters are provisional.",
   "simulations": [
     {
       "name": "PROVIA",
@@ -730,6 +718,40 @@
     },
     "GFX100": {
       "name": "GFX100",
+      "black_level": 512,
+      "white_level": 65535,
+      "wb": [
+        1.9,
+        1.0,
+        1.45
+      ],
+      "lens_shading": 0.1,
+      "cfa": "RGGB",
+      "cfa_period": [
+        2,
+        2
+      ],
+      "matrix": [
+        [
+          1.16,
+          -0.11,
+          -0.05
+        ],
+        [
+          -0.04,
+          1.09,
+          -0.05
+        ],
+        [
+          -0.03,
+          -0.1,
+          1.13
+        ]
+      ],
+      "resize_factor": 1.0
+    },
+    "GFX100II": {
+      "name": "GFX100II",
       "black_level": 512,
       "white_level": 65535,
       "wb": [

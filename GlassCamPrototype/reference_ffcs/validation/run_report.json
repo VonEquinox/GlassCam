@@ -1,58 +1,115 @@
 {
-  "date": "2026-10-11",
+  "date": "2026-10-13",
+  "version": "0.2.0",
   "timezone": "Asia/Shanghai",
   "python": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
   "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
   "environment_packages": [
+    "imagecodecs==2026.10.10",
     "iniconfig==2.3.1",
+    "numpy==2.5.4",
     "packaging==26.3",
-    "pillow==12.2.0",
+    "pillow==12.3.0",
     "pluggy==1.6.0",
     "Pygments==2.21.0",
     "pytest==9.1.1",
-    "setuptools==84.0.0",
-    "wheel==0.48.0"
+    "tifffile==2026.9.20"
   ],
-  "installed_package": {
-    "module": "/private/tmp/ffcs-delivery-check/lib/python3.14/site-packages/ffcs/__init__.py",
-    "luts": 48
+  "root_test_environment": {
+    "Pillow": "12.2.0",
+    "python": "3.14.6"
   },
-  "wheel_build_and_install": "pass",
-  "source_and_lut_icc_identity_to_original": "pass",
-  "original_tests": {
+  "installed_package": {
+    "version": "0.2.0",
+    "module": "/private/tmp/ffcs-wheel-check-20261013/lib/python3.14/site-packages/ffcs/__init__.py",
+    "luts": 50,
+    "icc": 2,
+    "hash_matched_measurements": 50,
+    "new_camera_selection": "pass"
+  },
+  "wheel_build_and_install": {
     "status": "pass",
-    "count": 9,
-    "output": "pytest_output.txt"
+    "bytes": 88353037,
+    "sha256": "8ec06aa0f13582d958614ca3594b5b8b151430d3a53028e0569077a2627d6081"
+  },
+  "source_test_asset_identity_to_workspace": {
+    "status": "pass",
+    "files_checked": 78
+  },
+  "root_default_pytest": {
+    "status": "pass",
+    "count": 61,
+    "output": "root_pytest_output.txt"
+  },
+  "installed_package_tests": {
+    "status": "pass",
+    "count": 61,
+    "output": "pytest_output.txt",
+    "source_directory_on_import_path": false
   },
   "reproduction": {
+    "version": "0.2.0",
     "status": "pass",
-    "cases": 14,
-    "stage_maps": 153,
+    "cases": 19,
+    "stage_maps": 198,
     "maximum_absolute_stage_error": 0.0,
     "stage_tolerance": 1e-12,
     "tiff16_roundtrip": "pass",
-    "synthetic_sensor_is_real_raf_test": false
+    "sensor_input_domains_verified": true,
+    "synthetic_sensor_is_real_raf_test": false,
+    "case_names": [
+      "adobergb_output",
+      "analytic_classic_neg",
+      "analytic_mono_g",
+      "analytic_mono_r",
+      "cube_encoded_sigma",
+      "cube_linear",
+      "cube_shaper",
+      "gfx100ii_reala",
+      "gfx100s_acros_ye",
+      "gfx100s_nostalgic",
+      "linear_input",
+      "missing_table_reala",
+      "preview_raf",
+      "synthetic_sensor_bayer",
+      "synthetic_sensor_xtrans",
+      "xa3_chrome",
+      "xh2s_explicit_preset",
+      "xh2s_provia",
+      "xh2s_sepia"
+    ]
   },
-  "historical_reference_measurement_reexecuted": false,
+  "native_mapping": {
+    "status": "pass",
+    "tables": 50,
+    "samples": 100000,
+    "max_table_mean_delta_e2000": 0.05402142509851029,
+    "failed_tables": [],
+    "scope": "LUT mapping only; sigma=1; no GUI/RAW/end-to-end equivalence claim",
+    "evidence": "native_reference_validation.json"
+  },
   "real_sensor_raf_decoder_verified": false,
   "independent_colorchecker_reference_verified": false,
-  "note": "This verifies the packaged FFCS implementation, not equivalence to all camera or third-party outputs.",
-  "all_luts_parsed_and_original_asset_hashes_verified": {
+  "complete_native_gui_equivalence_verified": false,
+  "documentation_links": {
     "status": "pass",
-    "count": 48
+    "local_links_checked": 117,
+    "broken_links": 0
   },
   "delivery_hash_check": {
     "status": "pass",
-    "files_checked": 92
-  },
-  "documentation_links": {
-    "status": "pass",
-    "broken_links": 0
+    "files_checked": 115,
+    "luts_checked": 50,
+    "output": "delivery_check_output.txt"
   },
   "upload_content_policy": {
     "installers_included": false,
+    "vendor_executables_included": false,
     "images_included": false,
+    "raf_included": false,
     "generated_fixtures_included": false,
+    "caches_included": false,
     "required_lut_and_icc_included": true
-  }
+  },
+  "note": "Synthetic implementation reproduction and default native mapping are separate evidence; full native RAW/GUI equivalence is unverified."
 }

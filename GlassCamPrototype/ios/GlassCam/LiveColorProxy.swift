@@ -19,9 +19,10 @@ struct LiveColorRecipe: Equatable {
     // Snapshot/cache identity includes the photo stage choices. The cube still
     // renders color only and never bakes grain, sharpening or a geometric crop.
     let effects: EffectToggles
+    let ffcs: FFCSSettings
     static let dimension = 65
     // A recipe/cache identity must change if an asset, engine or domain changes.
-    let contract = "v2:hncs-revision8-legacy-identity-only/ffcs-xh2s:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"
+    let contract = "v4:hncs-revision8-legacy-identity-only/ffcs-0.2-neutral-verified-xh2s-provia-acros-radius1:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"
 
     var unsupportedReason: String? {
         if mode == .hncs && !hncs.isLegacyLiveCompatible {
@@ -31,11 +32,19 @@ struct LiveColorRecipe: Equatable {
         if mode == .hncs && ![5500.0, 6500.0].contains(illuminantKelvin) {
             return "Experimental HNCS live color needs virtual capture CCT 5500 or 6500 K. Showing system preview."
         }
-        if mode == .ffcs && !(0..<Int(ffcs_simulation_count())).contains(simulationIndex) {
-            return "This FFCS look is unavailable. Showing system preview."
-        }
-        if mode == .ffcs && !["PROVIA", "ACROS"].contains(FFCSEngine.simulationName(at: simulationIndex)) {
-            return "This FFCS look has no measured live-color cube yet. Showing system preview."
+        if mode == .ffcs {
+            guard ffcs.isValid,
+                  (0..<Int(ffcs_simulation_count())).contains(simulationIndex),
+                  FFCSEngine.isSimulationAvailable(simulationIndex, family: ffcs.cameraFamily) else {
+                return "This FFCS recipe or native LUT asset is unavailable. Showing system preview."
+            }
+            guard ffcs.cameraFamily == .xh2s, !ffcs.applyReferenceAdjustments,
+                  ffcs.sharpenRadius == 1.0, [0, 8].contains(simulationIndex) else {
+                return "Experimental FFCS live color is measured only for XH2S PROVIA and ACROS, with neutral native LUT rendering and radius 1. Showing system preview."
+            }
+            // FFCS 0.2 CPU study: 452,780 held-out colors per look, Float32
+            // trilinear cube + RGBA16F display. Still approximate; Apple GPU
+            // and device-camera validation remain pending. No spatial stages.
         }
         return nil
     }
@@ -196,10 +205,14 @@ private final class LiveColorCubeStore {
                 throw LiveProxyFailure.unavailable("Original FFCS resources are unavailable.")
             }
             let directory = resources.appendingPathComponent("FFCS", isDirectory: true)
-                .appendingPathComponent("xh2s", isDirectory: true)
             ffcs = directory.path.withCString { path in
-                message.withUnsafeMutableBufferPointer { error in
-                    ffcs_create(path, recipe.simulationIndex, error.baseAddress, error.count)
+                recipe.ffcs.cameraFamily.rawValue.withCString { family in
+                    message.withUnsafeMutableBufferPointer { error in
+                        ffcs_create_family_config(path, family, recipe.simulationIndex,
+                            recipe.effects.applyGrain ? 1 : 0, recipe.effects.applySharpness ? 1 : 0,
+                            recipe.ffcs.applyReferenceAdjustments ? 1 : 0, recipe.ffcs.sharpenRadius,
+                            error.baseAddress, error.count)
+                    }
                 }
             }
             guard ffcs != nil else { throw LiveProxyFailure.unavailable(String(cString: message)) }

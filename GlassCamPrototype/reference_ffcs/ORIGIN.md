@@ -1,21 +1,43 @@
-# Original FFCS source and asset materialization
+# FFCS reference provenance
 
-Source: user-supplied `FFCS_技术实现完整交付.zip` on private `VonEquinox/GlassCam`, branch `ffcs-technical-delivery-20261011`, commit `3c0a85eeb3893764ae92fc0fe52ebb62fd9f6ac5`.
+Current reference: user-supplied **FFCS 0.2.0**, private `VonEquinox/GlassCam`,
+`ffcs-technical-delivery-20261011`, pinned commit
+`c4b3383da838ea607bcc37d2776b90c8770795f6`.
 
-- Archive Git blob: `ecc0ebc69b94d10f8b3f63cac5659d58886efeea`
-- Size: 82,996,719 bytes
-- SHA256: `bc8c9b4d7691f3ecef03a79e3b1a7ddd8364647e97877ee02ceefa8e50e2ea02`
+- Original ZIP Git blob: `4efa7a4e3eceaf3dae19939e90474a1b6fcc1820`
+- ZIP size: 88,509,373 bytes
+- ZIP SHA256: `ebc7a783280aeeea73791cdd40fcccb30c2b9648061616c96d4a1f9b1decff6c`
+- All 115 manifest files, 50 native LUTs, and two ICC profiles verified.
 
-`source.zip` references that existing Git object; it is an ordinary Git ZIP, not an LFS pointer. No binary archive was invented or re-packed. The original research branch remains unchanged. All 92 delivered files, all 48 LUTs and both ICCs were checked against the original manifest after download.
+`source.zip` is the original ordinary Git ZIP, reused by Git object identity;
+it is not an LFS pointer or a reconstructed archive. The source research branch
+is unchanged. Readable source, tests, examples, documents, and supplied validation
+are retained verbatim. Local verification lives under the app's `validation/`;
+supplied reports inside this reference are upstream evidence, not local execution.
 
-Readable source, tests, examples, documents and numerical evidence are retained unmodified here. To materialize all original binary assets and the mobile subset, run from the prototype root:
+Run `python tools/materialize_ffcs_reference.py` from the prototype root to restore
+the complete reference and bundle all 50 native tables. The offline Xcode build
+phase verifies the archive and every table's SHA256, extracting only exact paths
+from the checked-in checksum list. No Python, package install, or network is
+required by that build phase. Generated binary resources are ignored by Git.
 
-```sh
-python tools/materialize_ffcs_reference.py
-```
+The previous 0.1.0 archive remains recoverable from development commit
+`d5145c5e8f59522ed6e3905c7d42a41d0e144994` at this same path (Git blob
+`ecc0ebc69b94d10f8b3f63cac5659d58886efeea`, SHA256
+`bc8c9b4d7691f3ecef03a79e3b1a7ddd8364647e97877ee02ceefa8e50e2ea02`).
+Historical app reports retain their original version scope; old goldens do not
+serve as acceptance targets for the intentionally corrected 0.2.0 defaults.
 
-The iOS build phase independently verifies the archive SHA256, extracts only the 19 XH2S `.lutz` files with fixed path flattening, verifies all 19 per-file SHA256 values, and bundles those original resources. It does not need Python, a package manager or network access. The generated resource folder is ignored by Git; the full pinned archive is tracked.
+Apple imports enter as profile-managed, already-developed linear sRGB. The app
+uses Core Image RAW decoding, not this Python sensor-CFA/RAF decoder. Python RAW,
+ICC, custom-Cube and analytical-only utilities are preserved as reference; their
+presence does not claim those separate paths are exposed in the app. Native
+asset-family selection describes research table provenance, not the physical
+Apple camera. Missing native tables fail explicitly rather than selecting an
+analytical substitute. GFX100S/II common GFX100-table fallback is identified as
+such, according to the supplied resolver.
 
-REALA ACE is absent from the supplied XH2S reference tables and is not exposed as a table-backed mobile look. The preserved Python reference retains its analytic fallback for original reproduction tests; the mobile C++ renderer never silently selects it. Supplied RAW development and other camera families are retained for research, not claimed as implemented mobile RAW decoders.
-
-Reproducing this research pipeline is not proof of exact Fujifilm camera JPEG rendering. The original documents disclose approximations and measured residuals. Factory/vendor data rights still require review before public/App Store distribution; this private development copy grants no new rights.
+The supplied native table measurements do not prove full camera JPEG/SilkyPix
+or Apple sensor equivalence. Real RAF/GUI/ColorChecker paired validation remains
+absent. Factory/vendor data rights require review before public/App Store
+redistribution; this private development copy grants no new rights.

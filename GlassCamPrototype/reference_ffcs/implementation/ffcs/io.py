@@ -1,214 +1,200 @@
-"""Image IO helpers, including a dependency-free 16-bit RGB TIFF writer."""
-
+"""RGB image IO, explicit ICC management, and precise TIFF diagnostics."""
 from __future__ import annotations
 
 import io
-import struct
+from functools import lru_cache
 from pathlib import Path
-from typing import Iterable, List, Sequence, Tuple
 
+import numpy as np
+import tifffile
 from PIL import Image, ImageCms, ImageOps
 
 from .color import clamp
+from .validation import canonical_space, pixel_shape
 
-RGB = Tuple[float, float, float]
 
-
-def _pixel_data(image: Image.Image):
-    getter = getattr(image, "get_flattened_data", None)
+def _pixel_data(image):
+    getter = getattr(image,"get_flattened_data",None)
     return list(getter()) if getter is not None else list(image.getdata())
 
 
-def load_image(path: str | Path) -> Image.Image:
-    with Image.open(path) as source:
-        corrected = ImageOps.exif_transpose(source)
-        # Preserve scalar 16-bit/float modes until normalisation; converting
-        # them to RGB first would quantise to 8 bits.
-        if corrected.mode in {"I;16", "I", "F"}:
-            return corrected.copy()
-        return corrected.convert("RGB")
+def _icc_bytes(space: str | None) -> bytes | None:
+    if space is None: return None
+    space = canonical_space(space)
+    name = "ISL-ARGB1998.icc" if space == "AdobeRGB" else "ISL-sRGB.icc"
+    profile = Path(__file__).with_name("data") / "icc" / name
+    if profile.is_file(): return profile.read_bytes()
+    if space == "sRGB":
+        return ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes()
+    raise RuntimeError("AdobeRGB output requires its packaged ICC profile")
 
 
-def pixels_from_image(image: Image.Image) -> List[List[RGB]]:
-    w, h = image.size
-    if image.mode == "I;16":
+def _manage_pixels(pixels, profile, colour_manage):
+    if not colour_manage or not profile: return pixels
+    if profile==_icc_bytes("sRGB"): return pixels
+    from .icc import transform_rgb
+    return transform_rgb(pixels,profile,_working_srgb_profile(),target_srgb=True)
+
+
+@lru_cache(maxsize=1)
+def _working_srgb_profile():
+    # A parametric TRC keeps float input precision. The vendor's sampled
+    # 1024-point TRC is retained as an output asset, not used as this inverse.
+    return ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes()
+
+
+def pixels_from_image(image):
+    w,h = image.size
+    if image.mode.startswith("I;16"):
+        raw = _pixel_data(image); values = [float(v)/65535 for v in raw]
+        return [[(v,)*3 for v in values[y*w:(y+1)*w]] for y in range(h)]
+    if image.mode in {"I","F"}:
+        scale = 65535 if image.mode == "I" else 1
         raw = _pixel_data(image)
-        return [[(v/65535.0, v/65535.0, v/65535.0) for v in raw[y*w:(y+1)*w]] for y in range(h)]
-    if image.mode == "I":
-        raw = _pixel_data(image)
-        return [[(max(0, min(65535, v))/65535.0,)*3 for v in raw[y*w:(y+1)*w]] for y in range(h)]
-    if image.mode == "F":
-        raw = _pixel_data(image)
-        return [[(max(0.0, min(1.0, v)),)*3 for v in raw[y*w:(y+1)*w]] for y in range(h)]
-    im = image.convert("RGB")
-    raw = _pixel_data(im)
-    return [[(r/255.0, g/255.0, b/255.0) for r, g, b in raw[y*w:(y+1)*w]] for y in range(h)]
+        return [[(clamp(float(v)/scale),)*3 for v in raw[y*w:(y+1)*w]] for y in range(h)]
+    rgb = image.convert("RGB"); raw = _pixel_data(rgb)
+    return [[(r/255,g/255,b/255) for r,g,b in raw[y*w:(y+1)*w]] for y in range(h)]
 
 
-def read_tiff16_pixels(path: str | Path) -> List[List[RGB]] | None:
-    """Read uncompressed contiguous 16-bit RGB TIFF samples losslessly.
-
-    This covers FFCS exports and common simple TIFF fixtures.  Pillow remains
-    the fallback for tiled, compressed, planar, or non-RGB TIFF variants.
-    """
-
-    import struct
-    data = Path(path).read_bytes()
-    if len(data) < 10 or data[:2] not in {b"II", b"MM"}:
-        return None
-    endian = "<" if data[:2] == b"II" else ">"
-    if struct.unpack_from(endian + "H", data, 2)[0] != 42:
-        return None
-    ifd = struct.unpack_from(endian + "I", data, 4)[0]
-    if ifd + 2 > len(data): return None
-    count = struct.unpack_from(endian + "H", data, ifd)[0]
-    entries = {}
-    sizes = {1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1}
-    for i in range(count):
-        off = ifd + 2 + i*12
-        if off + 12 > len(data): return None
-        tag, typ, n = struct.unpack_from(endian + "HHI", data, off)
-        if typ not in sizes: continue
-        total = sizes[typ] * n
-        raw = data[off+8:off+12] if total <= 4 else data[struct.unpack_from(endian + "I", data, off+8)[0]:struct.unpack_from(endian + "I", data, off+8)[0] + total]
-        if len(raw) < total: return None
-        if typ == 3: vals = list(struct.unpack(endian + f"{n}H", raw[:2*n]))
-        elif typ == 4: vals = list(struct.unpack(endian + f"{n}I", raw[:4*n]))
-        elif typ in {1, 7}: vals = list(raw[:n])
-        else: continue
-        entries[tag] = vals
-    width = (entries.get(256) or [0])[0]; height = (entries.get(257) or [0])[0]
-    bits = entries.get(258) or []; strips = entries.get(273) or []; counts = entries.get(279) or []
-    if width <= 0 or height <= 0 or bits != [16, 16, 16] or entries.get(259, [1])[0] != 1 or entries.get(277, [3])[0] != 3 or not strips:
-        return None
-    blob = b"".join(data[o:o+c] for o, c in zip(strips, counts or [len(data)-strips[0]]))
-    expected = width * height * 6
-    if len(blob) < expected: return None
-    values = struct.unpack(endian + f"{width*height*3}H", blob[:expected])
-    return [[tuple(values[(y*width+x)*3+c] / 65535.0 for c in range(3)) for x in range(width)] for y in range(height)]
+def _orient_array(array, orientation):
+    if orientation == 1: return array
+    if orientation == 2: return array[:,::-1]
+    if orientation == 3: return array[::-1,::-1]
+    if orientation == 4: return array[::-1]
+    if orientation == 5: return np.swapaxes(array,0,1)
+    if orientation == 6: return np.rot90(array,-1,axes=(0,1))
+    if orientation == 7: return np.swapaxes(array,0,1)[::-1,::-1]
+    if orientation == 8: return np.rot90(array,1,axes=(0,1))
+    raise ValueError(f"Invalid TIFF orientation {orientation}")
 
 
-def load_pixels(path: str | Path) -> List[List[RGB]]:
-    """Load an image into normalised pixels without avoidable 16-bit loss."""
-
-    path = Path(path)
-    if path.suffix.lower() in {".tif", ".tiff"}:
-        precise = read_tiff16_pixels(path)
-        if precise is not None:
-            return precise
-    return pixels_from_image(load_image(path))
-
-
-def image_from_pixels(pixels: Sequence[Sequence[Sequence[float]]], bits: int = 8) -> Image.Image:
-    h = len(pixels); w = len(pixels[0]) if h else 0
-    if bits <= 8:
-        data = bytearray()
-        for row in pixels:
-            for rgb in row:
-                data.extend(int(round(clamp(float(v))*255.0)) for v in rgb[:3])
-        return Image.frombytes("RGB", (w, h), bytes(data))
-    # Pillow has no packed RGB; keep an 8-bit display image for preview while
-    # save_tiff16 writes the source pixels at full precision.
-    data = bytearray()
-    for row in pixels:
-        for rgb in row:
-            data.extend(int(round(clamp(float(v))*255.0)) for v in rgb[:3])
-    return Image.frombytes("RGB", (w, h), bytes(data))
-
-
-def _icc_bytes(space: str) -> bytes | None:
+def _read_tiff(path, *, colour_manage=True):
     try:
-        requested = str(space).lower().replace(" ", "")
-        bundled = Path(__file__).with_name("data") / "icc"
-        bundled_profile = bundled / ("ISL-ARGB1998.icc" if requested in {"adobergb", "adobe-rgb", "adobergb1998"} else "ISL-sRGB.icc")
-        if bundled_profile.exists():
-            return bundled_profile.read_bytes()
-        candidates = []
-        if requested in {"adobergb", "adobe-rgb", "adobergb1998"}:
-            candidates = [
-                "/System/Library/ColorSync/Profiles/AdobeRGB1998.icc",
-                "/Library/ColorSync/Profiles/AdobeRGB1998.icc",
-            ]
-        else:
-            candidates = [
-                "/System/Library/ColorSync/Profiles/sRGB Profile.icc",
-                "/Library/ColorSync/Profiles/sRGB Profile.icc",
-            ]
-        for candidate in candidates:
-            p = Path(candidate)
-            if p.exists():
-                return p.read_bytes()
-        name = "sRGB" if str(space).lower() in {"srgb", "s-rgb"} else "Adobe RGB (1998)"
-        return ImageCms.ImageCmsProfile(ImageCms.createProfile(name)).tobytes()
-    except Exception:
-        return None
+        with tifffile.TiffFile(path) as file:
+            page = file.pages[0]
+            photo = int(page.photometric)
+            if photo not in {0,1,2}:
+                raise ValueError(f"Unsupported TIFF photometric interpretation {photo}; RGB or grayscale is required")
+            array = page.asarray()
+            if array.ndim==3 and int(page.planarconfig)==2:
+                array = np.moveaxis(array,0,-1)
+            if array.ndim==2: array = np.repeat(array[...,None],3,axis=2)
+            if array.ndim!=3 or array.shape[-1] not in {3,4}:
+                raise ValueError("Unsupported TIFF sample layout")
+            bits = page.bitspersample
+            if not isinstance(bits,int):
+                if len(set(bits))!=1: raise ValueError("Mixed TIFF channel depths are unsupported")
+                bits = bits[0]
+            if array.dtype.kind == "u": array = array.astype(np.float64)/((1<<bits)-1)
+            elif array.dtype.kind == "f": array = array.astype(np.float64)
+            else: raise ValueError("TIFF samples must be unsigned integers or floats")
+            if photo==0: array = 1-array
+            if array.shape[-1]==4:
+                if page.extrasamples and int(page.extrasamples[0])==1:
+                    alpha = array[...,3:4]
+                    array[...,:3] = np.divide(array[...,:3],alpha,out=np.zeros_like(array[...,:3]),where=alpha>0)
+                array = array[...,:3]
+            if not np.isfinite(array).all(): raise ValueError("TIFF contains non-finite samples")
+            orientation = int(page.tags[274].value) if 274 in page.tags else 1
+            array = _orient_array(array,orientation)
+            profile = bytes(page.tags[34675].value) if 34675 in page.tags else None
+            pixels = [[tuple(rgb) for rgb in row] for row in array.tolist()]
+            return _manage_pixels(pixels,profile,colour_manage)
+    except (tifffile.TiffFileError,IndexError) as exc:
+        raise ValueError(f"Invalid TIFF: {path}") from exc
 
 
-def write_tiff16(path: str | Path, pixels: Sequence[Sequence[Sequence[float]]], colour_space: str = "sRGB") -> None:
-    """Write contiguous little-endian RGB 16-bit TIFF (uncompressed)."""
+def read_tiff16_pixels(path, *, colour_manage=True):
+    """Read RGB/grayscale TIFF at source precision, including planar/tiled data."""
+    return _read_tiff(path,colour_manage=colour_manage)
 
+
+def load_pixels(path, *, colour_manage=True):
     path = Path(path)
-    h = len(pixels); w = len(pixels[0]) if h else 0
-    samples = bytearray()
-    for row in pixels:
-        if len(row) != w:
-            raise ValueError("Rows have different widths")
-        for rgb in row:
-            for v in rgb[:3]:
-                samples.extend(struct.pack("<H", int(round(clamp(float(v))*65535.0))))
-
-    # IFD entries are kept sorted by tag.  Extra arrays and ICC data are placed
-    # after the directory so all offsets remain stable and easy to inspect.
-    # Reserve room for the optional ICC directory entry as well.  Leaving a
-    # few bytes of padding before the auxiliary arrays is valid TIFF and keeps
-    # offsets independent of the selected profile.
-    bits_off = 8 + 2 + 12 * 12 + 4
-    sample_format_off = bits_off + 6
-    icc = _icc_bytes(colour_space)
-    icc_off = sample_format_off + 6
-    pixel_off = icc_off + (len(icc) if icc else 0)
-    if pixel_off % 2:
-        pixel_off += 1
-    entries = [
-        (256, 4, 1, w), (257, 4, 1, h), (258, 3, 3, bits_off),
-        (259, 3, 1, 1), (262, 3, 1, 2), (273, 4, 1, pixel_off),
-        (277, 3, 1, 3), (278, 4, 1, h), (279, 4, 1, len(samples)),
-        (284, 3, 1, 1), (339, 3, 3, sample_format_off),
-    ]
-    if icc:
-        entries.append((34675, 7, len(icc), icc_off))
-    entries.sort(key=lambda x: x[0])
-    out = bytearray(b"II" + struct.pack("<H", 42) + struct.pack("<I", 8))
-    out.extend(struct.pack("<H", len(entries)))
-    for tag, typ, count, value in entries:
-        out.extend(struct.pack("<HHI", tag, typ, count))
-        if typ == 3 and count == 1:
-            out.extend(struct.pack("<H", value)); out.extend(b"\x00\x00")
-        else:
-            out.extend(struct.pack("<I", value))
-    out.extend(struct.pack("<I", 0))
-    while len(out) < bits_off: out.append(0)
-    out.extend(struct.pack("<HHH", 16, 16, 16))
-    out.extend(struct.pack("<HHH", 1, 1, 1))
-    if icc:
-        out.extend(icc)
-    while len(out) < pixel_off: out.append(0)
-    out.extend(samples)
-    path.write_bytes(bytes(out))
+    if path.suffix.lower() in {".tif",".tiff"}:
+        return _read_tiff(path,colour_manage=colour_manage)
+    with Image.open(path) as source:
+        profile = source.info.get("icc_profile")
+        corrected = ImageOps.exif_transpose(source)
+        if colour_manage and profile and corrected.mode in {"CMYK","LAB","L"}:
+            corrected = ImageCms.profileToProfile(corrected,ImageCms.ImageCmsProfile(io.BytesIO(profile)),ImageCms.ImageCmsProfile(io.BytesIO(_icc_bytes("sRGB"))),outputMode="RGB")
+            profile = _icc_bytes("sRGB")
+        pixels = pixels_from_image(corrected)
+        return _manage_pixels(pixels,profile,colour_manage)
 
 
-def save_image(path: str | Path, image: Image.Image, pixels: Sequence[Sequence[Sequence[float]]] | None = None, bits: int = 16, colour_space: str = "sRGB", quality: int = 95) -> None:
-    path = Path(path)
-    suffix = path.suffix.lower()
-    if suffix in {".tif", ".tiff"} and bits > 8 and pixels is not None:
-        write_tiff16(path, pixels, colour_space)
-        return
-    icc = _icc_bytes(colour_space)
-    if suffix in {".jpg", ".jpeg"}:
-        image.convert("RGB").save(path, format="JPEG", quality=quality, icc_profile=icc)
-    elif suffix in {".tif", ".tiff"}:
-        image.convert("RGB").save(path, format="TIFF", compression="tiff_lzw", icc_profile=icc)
-    elif suffix == ".png":
-        image.convert("RGB").save(path, format="PNG", icc_profile=icc)
+def load_image(path, *, colour_manage=True):
+    """Return an oriented, managed RGB preview of precisely loaded pixels."""
+    return image_from_pixels(load_pixels(path,colour_manage=colour_manage))
+
+
+def load_lab_pixels(path):
+    """Read chart colours directly into D65 Lab without an sRGB gamut clip."""
+    from .color import domain_to_lab,xyz_to_lab
+    from .validation import pixel_shape
+    pixels = load_pixels(path,colour_manage=False)
+    pixel_shape(pixels)
+    if any(not 0<=v<=1 for row in pixels for rgb in row for v in rgb):
+        raise ValueError("ColorChecker input requires normalized display RGB values")
+    if Path(path).suffix.lower() in {".tif",".tiff"}:
+        with tifffile.TiffFile(path) as source:
+            profile = bytes(source.pages[0].tags[34675].value) if 34675 in source.pages[0].tags else None
     else:
-        image.convert("RGB").save(path, quality=quality, icc_profile=icc)
+        with Image.open(path) as source:
+            profile = source.info.get("icc_profile")
+    if not profile or profile==_icc_bytes("sRGB"):
+        return [[domain_to_lab(rgb,"sRGB") for rgb in row] for row in pixels]
+    if profile==_icc_bytes("AdobeRGB"):
+        return [[domain_to_lab(rgb,"AdobeRGB") for rgb in row] for row in pixels]
+    import imagecodecs
+    if not getattr(imagecodecs.CMS,"available",False):
+        raise RuntimeError("Colorimetric comparison of this profile requires imagecodecs with LittleCMS")
+    xyz_profile = ImageCms.ImageCmsProfile(ImageCms.createProfile("XYZ")).tobytes()
+    xyz = imagecodecs.cms_transform(np.asarray(pixels,dtype=np.float64),profile,xyz_profile,
+                                   colorspace="RGB",outcolorspace="XYZ",outdtype="float64",intent=1)
+    # Bradford adaptation from ICC PCS D50 to the renderer's D65 Lab white.
+    adapt = np.array(((.9555766,-.0230393,.0631636),(-.0282895,1.0099416,.0210077),(.0122982,-.0204830,1.3299098)))
+    xyz = xyz@adapt.T
+    if not np.isfinite(xyz).all(): raise ValueError("ICC conversion produced non-finite XYZ")
+    return [[xyz_to_lab(rgb) for rgb in row] for row in xyz.tolist()]
+
+
+def image_from_pixels(pixels, bits=8):
+    h,w = pixel_shape(pixels)
+    data = bytes(round(clamp(float(v))*255) for row in pixels for rgb in row for v in rgb)
+    return Image.frombytes("RGB",(w,h),data)
+
+
+def _write_tiff(path,pixels,colour_space,dtype):
+    pixel_shape(pixels)
+    array = np.asarray(pixels,dtype=np.float64)
+    if dtype==np.uint16: array = np.rint(np.clip(array,0,1)*65535).astype(np.uint16)
+    else: array = array.astype(np.float32)
+    profile = _icc_bytes(colour_space)
+    tags = [(34675,"B",len(profile),profile,False)] if profile else []
+    path = Path(path); path.parent.mkdir(parents=True,exist_ok=True)
+    tifffile.imwrite(path,array,photometric="rgb",planarconfig="contig",byteorder="<",metadata=None,extratags=tags)
+
+
+def write_tiff16(path,pixels,colour_space="sRGB"):
+    _write_tiff(path,pixels,colour_space,np.uint16)
+
+
+def write_float_tiff(path,pixels):
+    """Preserve linear/sensor diagnostics as untagged IEEE float32 TIFF."""
+    _write_tiff(path,pixels,None,np.float32)
+
+
+def save_image(path,image,pixels=None,bits=16,colour_space="sRGB",quality=95):
+    if bits not in {8,16}: raise ValueError("Output depth must be 8 or 16")
+    path = Path(path); path.parent.mkdir(parents=True,exist_ok=True)
+    suffix = path.suffix.lower()
+    if suffix in {".tif",".tiff"} and bits==16 and pixels is not None:
+        write_tiff16(path,pixels,colour_space); return
+    icc = _icc_bytes(colour_space)
+    if suffix in {".jpg",".jpeg"}:
+        image.convert("RGB").save(path,format="JPEG",quality=quality,icc_profile=icc)
+    elif suffix in {".tif",".tiff"}:
+        image.convert("RGB").save(path,format="TIFF",compression="tiff_lzw",icc_profile=icc)
+    elif suffix==".png": image.convert("RGB").save(path,format="PNG",icc_profile=icc)
+    else: image.convert("RGB").save(path,quality=quality,icc_profile=icc)

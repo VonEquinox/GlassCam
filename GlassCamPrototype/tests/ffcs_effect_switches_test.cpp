@@ -1,4 +1,5 @@
-// Test-only access to unchanged reference stages and private coefficient-zero
+// FFCS 0.2 explicit-overlay tests: historical v0.1 defaults intentionally changed.
+// Test-only access to reference stages and private coefficient-zero
 // contexts. Public callers use opaque immutable FFCSContext instances.
 #include "../core/ffcs.cpp"
 #include <climits>
@@ -25,13 +26,13 @@ int main(int argc,char **argv) {
  if(argc!=2) return 2;
  std::array<char,1024> error{};
  size_t frames=0,strips=0,encoded=0,defaults=0,colorOnly=0,invalid=0;
- CHECK(ffcs_simulation_count()==19);
- for(size_t look=0;look<ffcs_simulation_count();++look) {
-  Context legacy(ffcs_create(argv[1],look,error.data(),error.size()),ffcs_destroy);
+ CHECK(ffcs_simulation_count()==20);
+ for(size_t look=0;look<19;++look) {
+  Context legacy(ffcs_create_config(argv[1],look,1,1,1,1,error.data(),error.size()),ffcs_destroy);
   CHECK(legacy);
   CHECK(legacy->grainEnabled && legacy->sharpenEnabled);
   for(int grain:{0,1}) for(int sharp:{0,1}) {
-   Context ctx(ffcs_create_options(argv[1],look,grain,sharp,error.data(),error.size()),ffcs_destroy);
+   Context ctx(ffcs_create_config(argv[1],look,grain,sharp,1,1,error.data(),error.size()),ffcs_destroy);
    CHECK(ctx && error[0]=='\0');
    CHECK(ctx->grainEnabled==bool(grain) && ctx->sharpenEnabled==bool(sharp));
    CHECK(ctx->look.grain==legacy->look.grain && ctx->look.sharp==legacy->look.sharp);
@@ -71,7 +72,8 @@ int main(int argc,char **argv) {
       CHECK(exact(preview,optimizedPreview));
       for(size_t y=0;y<h;) {
        const size_t rows=std::min(h-y,workers==1?size_t(1):size_t(5));
-       const size_t first=y?y-1:0,last=std::min(h,y+rows+1);
+       const size_t halo=ffcs_required_halo(ctx.get());
+       const size_t first=y>halo?y-halo:0,last=std::min(h,y+rows+halo);
        const size_t ni=(last-first)*w*3,no=rows*w*3;
        std::vector<float> stripInput(input.begin()+first*w*3,input.begin()+last*w*3);
        std::vector<float> output(no+8,-7.f);
@@ -160,7 +162,8 @@ int main(int argc,char **argv) {
    };
    CHECK(reject(0,h,n,n,0));CHECK(reject(0,h,n,n,5));
    CHECK(reject(0,h,n-1,n,1));CHECK(reject(0,h,n,3*w*3-1,1));
-   CHECK(reject(2,h-2,n,n,1));CHECK(reject(0,5,n,n,1));
+   if(sharp) { CHECK(reject(2,h-2,n,n,1));CHECK(reject(0,5,n,n,1)); }
+   else { CHECK(reject(3,h-3,n,n,1));CHECK(reject(0,4,n,n,1)); }
   }
   for(int bad:{-1,2,INT_MIN,INT_MAX}) for(int which:{0,1}) {
    error.fill('x');

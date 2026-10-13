@@ -1,0 +1,13 @@
+In file included from /workspace/shared/glasscam-prototype/tests/ffcs_color_only_test.cpp:3:
+/workspace/shared/glasscam-prototype/tests/../core/ffcs.cpp:97:8: warning: ‘FFCSContext’ has a field ‘{anonymous}::Look FFCSContext::look’ whose type uses the anonymous namespace [-Wsubobject-linkage]
+   97 | struct FFCSContext {Look look;bool grainEnabled,sharpenEnabled;double radius=1;std::vector<double> kernel;size_t reach=0;std::string family;size_t size;double scale;double matrix[9];bool rgbChannels;std::vector<uint16_t> lut;};
+      |        ^~~~~~~~~~~
+.In file included from /workspace/shared/glasscam-prototype/tests/ffcs_effect_switches_test.cpp:4:
+/workspace/shared/glasscam-prototype/tests/../core/ffcs.cpp:97:8: warning: ‘FFCSContext’ has a field ‘{anonymous}::Look FFCSContext::look’ whose type uses the anonymous namespace [-Wsubobject-linkage]
+   97 | struct FFCSContext {Look look;bool grainEnabled,sharpenEnabled;double radius=1;std::vector<double> kernel;size_t reach=0;std::string family;size_t size;double scale;double matrix[9];bool rgbChannels;std::vector<uint16_t> lut;};
+      |        ^~~~~~~~~~~
+...............
+----------------------------------------------------------------------
+Ran 16 tests in 28.759s
+
+OK

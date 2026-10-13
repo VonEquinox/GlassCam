@@ -7,7 +7,8 @@ xcuserdata/
 *.xcuserstate
 validation/preview/*.png
 # Original FFCS binary assets are materialized from the pinned source archive.
-ios/GlassCam/Resources/FFCS/xh2s/
+ios/GlassCam/Resources/FFCS/*/
+ios/GlassCam/Resources/FFCS/.verified
 reference_ffcs/implementation/ffcs/data/**/*.lutz
 reference_ffcs/implementation/ffcs/data/**/*.icc
 reference_ffcs/examples/generated/

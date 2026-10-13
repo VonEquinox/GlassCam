@@ -12,6 +12,7 @@ struct CameraView: View {
     @Binding var illuminantKelvin: Double
     @Binding var hncs: HNCSSettings
     @Binding var effects: EffectToggles
+    @Binding var ffcs: FFCSSettings
     let thumbnail: PreviewRaster?
     let captureSlotAvailable: Bool
     let reserveCapture: () -> Bool
@@ -370,7 +371,8 @@ struct CameraView: View {
     private var liveRecipe: LiveColorRecipe {
         LiveColorRecipe(mode: colorMode, simulationIndex: colorMode == .ffcs ? simulationIndex : 0,
                         exposureEV: exposureEV, illuminantKelvin: colorMode == .hncs ? illuminantKelvin : 5500,
-                        hncs: colorMode == .hncs ? hncs : .standard, effects: effects)
+                        hncs: colorMode == .hncs ? hncs : .standard, effects: effects,
+                        ffcs: colorMode == .ffcs ? ffcs : .standard)
     }
 
     private func cameraPanel(_ panel: CameraPanel, framing: CameraFraming) -> some View {
@@ -424,11 +426,7 @@ struct CameraView: View {
                         ForEach(ColorMode.allCases) { mode in Text(mode.title).tag(mode) }
                     }
                     if colorMode == .ffcs {
-                        Picker("Film simulation", selection: $simulationIndex) {
-                            ForEach(FFCSEngine.simulations) { simulation in
-                                Text(simulation.name).tag(simulation.id)
-                            }
-                        }
+                        FFCSReferenceControls(settings: $ffcs, simulationIndex: $simulationIndex)
                     }
                     LabeledContent("Exposure", value: String(format: "%+.2f EV", exposureEV))
                     Slider(value: $exposureEV, in: -2...2, step: 0.05)
@@ -581,7 +579,7 @@ struct CameraView: View {
             let export = ExportSettings(targetWidth: portrait ? output.height : output.width,
                                         targetHeight: portrait ? output.width : output.height)
             let capturedRecipe = ProcessingRecipe(mode: colorMode, exposureEV: exposureEV,
-                illuminantKelvin: illuminantKelvin, simulationIndex: simulationIndex, seed: 0, hncs: hncs, effects: effects)
+                illuminantKelvin: illuminantKelvin, simulationIndex: simulationIndex, seed: 0, hncs: hncs, effects: effects, ffcs: ffcs)
             guard reserveCapture() else { return }
             camera.captureProRAW { [capturedRecipe, export] result in
                 switch result {

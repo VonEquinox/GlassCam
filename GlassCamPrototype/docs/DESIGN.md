@@ -18,11 +18,11 @@ SwiftUI 管理导入、相机、比较、设置与交付；Apple 层负责解码
 
 ## FFCS：独立完整阶段
 
-linear-sRGB 对应原 FFCS 的 linear 输入路线，不经过 HNCS。19 款真实 XH2S 表，原矩阵、80³ LUT 轴/通道规则、Lab/OKLab、tone、全图坐标/种子 grain 与 sharpen 均保留。CCT 只用于 HNCS。见 [FFCS](FFCS.md)。
+linear-sRGB 对应原 FFCS 的 linear 输入路线，不经过 HNCS。0.2.0五表族50张真实资产；原矩阵、LUT轴/通道规则保留。中性默认直接旁路Lab/OKLab，不叠加grain/sharp；显式参考解析叠加后按原look参数和用户开关运行tone、全图坐标grain及Gaussian锐化。CCT 只用于 HNCS。见 [FFCS](FFCS.md)。
 
 ## 精确导出与有界暂存
 
-源文件由共享不可变所有者保留。Square Crop先以实际源像素居中裁切，再选择输出尺寸；比较两侧同裁切。HNCS空间预设先将Float32工作码流写为top-left全图RGB临时文件，运行与全图shape绑定的颗粒/可选USM，再按64行转换至显示RGBAf；不能逐条带各自归一化。导出每块 64 输出行，FFCS 带一行 halo 和原全图坐标，保证锐化邻域与颗粒在条带间连续。处理后 RGBAf 顺序写临时文件，再只读映射给 Core Image；需要缩小时在线性光 Lanczos 后 clamp，再请求 HEIF10 SDR。没有 8 位回退、PQ/HLG 或 gain map。
+源文件由共享不可变所有者保留。Square Crop先以实际源像素居中裁切，再选择输出尺寸；比较两侧同裁切。HNCS空间预设先将Float32工作码流写为top-left全图RGB临时文件，运行与全图shape绑定的颗粒/可选USM，再按64行转换至显示RGBAf；不能逐条带各自归一化。导出每块 64 输出行，FFCS 按活动Gaussian阶段查询所需halo并保留原全图坐标（默认中性为0，半径1活动锐化为3行），保证锐化邻域与颗粒在条带间连续。处理后 RGBAf 顺序写临时文件，再只读映射给 Core Image；需要缩小时在线性光 Lanczos 后 clamp，再请求 HEIF10 SDR。没有 8 位回退、PQ/HLG 或 gain map。
 
 这只约束应用处理暂存，不保证总 RSS：Apple 解码、过滤、编码、mmap 常驻页和页缓存可能是全图。48.8MP RGBAf 磁盘中间图约 781MB，另有源、编码文件和安全余量；详见 [全源导出](FULL_RESOLUTION_EXPORT.md)。
 
@@ -48,7 +48,7 @@ MultiCam仅用于主摄/长焦双路video预览。快门事务保留冻结画面
 
 ## 优化与验证界限
 
-HNCS 上下文预计算与精确解码表不改变核；fast 路径只在最终 8 位预览 OETF 允许最多 1 码差，支持至多四线程。Float 导出不经过 fast 字节编码。FFCS 三行环形缓冲是精确路径，默认一线程，避免把不稳定云计时当提速证明。
+HNCS 上下文预计算与精确解码表不改变核；fast 路径只在最终 8 位预览 OETF 允许最多 1 码差，支持至多四线程。Float 导出不经过 fast 字节编码。FFCS 动态Gaussian邻域环形缓冲是精确路径，默认一线程，避免把不稳定云计时当提速证明。
 
 原核、阶段及条带回归已在云端验证；Apple 编译、光学对齐、HEIF 位流/标签、手机峰值内存/热状态和接收方选择仍未验证。参考测试不替代视觉审美或相机标定。
 

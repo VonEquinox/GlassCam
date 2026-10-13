@@ -53,8 +53,11 @@ class LiveProxySourceContracts(unittest.TestCase):
         gate = section(PROXY, 'var unsupportedReason:', '/// Retains the original tagged buffer')
         self.assertIn('guard exposureEV == 0', gate)
         self.assertIn('![5500.0, 6500.0].contains(illuminantKelvin)', gate)
-        self.assertIn('!(0..<Int(ffcs_simulation_count())).contains(simulationIndex)', gate)
-        self.assertIn('!["PROVIA", "ACROS"].contains', gate)
+        self.assertIn('(0..<Int(ffcs_simulation_count())).contains(simulationIndex)', gate)
+        self.assertIn('[0, 8].contains(simulationIndex)', gate)
+        self.assertIn('ffcs.cameraFamily == .xh2s, !ffcs.applyReferenceAdjustments', gate)
+        self.assertIn('ffcs.sharpenRadius == 1.0', gate)
+        self.assertIn('FFCSEngine.isSimulationAvailable', gate)
         self.assertIn('static let dimension = 65', PROXY)
         self.assertIn('exposureEV: $model.exposure, illuminantKelvin: $model.kelvin', CONTENT)
         self.assertIn('simulationIndex: colorMode == .ffcs ? simulationIndex : 0', VIEW)
@@ -62,7 +65,7 @@ class LiveProxySourceContracts(unittest.TestCase):
     def test_cube_is_baked_from_actual_pointwise_cores(self):
         bake = section(PROXY, 'private func bake(', 'private enum LiveSourceValidation')
         for token in ('hncs_create(recipe.exposureEV, recipe.illuminantKelvin)',
-                      'hncs_process_linear_rgba(', 'ffcs_create(',
+                      'hncs_process_linear_rgba(', 'ffcs_create_family_config(',
                       'ffcs_process_linear_rgb_color_only(', 'hncs_destroy(hncs)',
                       'ffcs_destroy(ffcs)', 'slabPixels * 4', 'source.count',
                       'rgba.allSatisfy({ $0.isFinite && (0...1).contains($0) })',

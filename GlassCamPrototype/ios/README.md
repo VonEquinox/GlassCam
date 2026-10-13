@@ -7,7 +7,7 @@ SwiftUI UI, Apple decoding/capture/encoding, and independent standard C++17 HNCS
 **Not compiled or run with Apple SDKs in this cloud environment.** Portable numerical and source-contract tests do not establish a working iOS build, camera configuration or HEIF file.
 
 1. Open `GlassCam.xcodeproj` in Xcode 16 or later. Keep `../core`, `../reference_ffcs/source.zip` and `../tools` in the supplied layout.
-2. The first build phase verifies the bundled archive and extracts 19 original FFCS assets offline. Missing/corrupt assets fail the build; there is no approximate substitute.
+2. The first build phase verifies the bundled archive and extracts all 50 original FFCS 0.2 assets offline. Missing/corrupt assets fail the build; there is no approximate substitute.
 3. Select shared scheme `GlassCam`, iOS 17+ simulator. For hardware, set your development team and a unique bundle identifier.
 4. Native SwiftUI `glassEffect` requires Xcode 26+ and iOS 26+. The Plan A camera scene uses Glass.clear on iOS26; older camera configurations use a plain transparent perimeter, not imitation frosted glass. Existing editor compatibility styling is separate.
 
@@ -22,7 +22,7 @@ xcodebuild -project GlassCam.xcodeproj -scheme GlassCam \
 
 PhotosPicker / Files accepts JPEG, PNG, HEIC and supported DNG. The complete input is retained in an owned, protected temporary file for this editing session. Default import preview is capped at a 2048px long edge: ImageIO thumbnails for rendered inputs, requested RAW scale for DNG. Embedded profiles and orientation feed Apple conversion to extended linear sRGB. DNG support and all Apple color/orientation behavior need device validation. ProRAW is not unprocessed CFA, and the HNCS virtual-native source bridge is not iPhone calibration.
 
-Select HNCS or one of 19 actual FFCS XH2S looks; the engines are not chained. Exposure is −2…+2 EV. HNCS factory CCT 2000…10000K selects profile interpolation, not measured scene white balance. FFCS does not use this CCT. Comparison shows processed left and original right. Effect comparison now uses exact Float32 outputs and a single Metal RGBA16Float SDR drawable, without UIImage/UInt8 intermediates. The legacy8-bit fast API remains available for diagnostics, not the current editor preview. See [high-precision preview](../docs/HIGH_PRECISION_PREVIEW.md).
+Select HNCS or an available native FFCS look in one of five research asset families; the engines are not chained. Dedicated GFX100S/II tables take priority and common GFX100 fallback is identified. FFCS 0.2 defaults to neutral postprocessing; analytic reference adjustments require explicit opt-in. Exposure is −2…+2 EV. HNCS factory CCT 2000…10000K selects profile interpolation, not measured scene white balance. FFCS does not use this CCT. Comparison shows processed left and original right. Effect comparison now uses exact Float32 outputs and a single Metal RGBA16Float SDR drawable, without UIImage/UInt8 intermediates. The legacy8-bit fast API remains available for diagnostics, not the current editor preview. See [high-precision preview](../docs/HIGH_PRECISION_PREVIEW.md).
 
 Export reopens the full source, processes exact color/spatial stages before downsizing, and uses 64-row output strips with FFCS halo/global grain coordinates. A disk-backed RGBAf raster feeds linear-light Lanczos when a smaller output is requested. Dedicated `writeHEIF10Representation` requests 10-bit SDR sRGB: no UInt8 preview input, HDR/gain map, or 8-bit fallback. Dimension/component-depth metadata checks are implemented, but actual HEVC coded depth still needs independent inspection. Source metadata including location is omitted; transparency flattens onto black.
 
@@ -80,7 +80,7 @@ Live video is the system preview, not live HNCS/FFCS; captured ProRAW runs throu
 
 ## Experimental color-only live preview
 
-Default off. Center-only 65³ shaped GPU cube; full-photo C++ processing and 10-bit HEIF remain independent. Currently admitted: EV 0, HNCS 5500/6500 K or FFCS PROVIA/ACROS. Other recipes use the unchanged system layer with an explicit status; peripheral video remains system color. Source is still 8-bit NV12, processing/display is Float/RGBA16Float SDR. See [scope and measured approximation](../docs/LIVE_COLOR_PROXY.md). Device acceptance must cover source-age timeout, unavailable drawable, off-window/background, orientation, rapid look/lens changes, cancellation and GPU failure. No device FPS/energy result has been measured.
+Default off. Center-only 65³ shaped GPU cube; full-photo C++ processing and 10-bit HEIF remain independent. Currently admitted: EV 0, HNCS 5500/6500 K or remeasured FFCS 0.2 XH2S neutral PROVIA/ACROS (overlay off, radius 1). Other recipes use the unchanged system layer with an explicit status; peripheral video remains system color. Source is still 8-bit NV12, processing/display is Float/RGBA16Float SDR. See [scope and measured approximation](../docs/LIVE_COLOR_PROXY.md). Device acceptance must cover source-age timeout, unavailable drawable, off-window/background, orientation, rapid look/lens changes, cancellation and GPU failure. No device FPS/energy result has been measured.
 
 ## Plan A reference camera UI
 
@@ -99,4 +99,4 @@ C++/Python黄金及源码模型测试通过不意味着以上Apple SDK/设备项
 
 ## 三个独立开关验收
 
-编辑器和相机共用颗粒、锐化、预设额外裁切三个设置；默认true，切换preset/引擎与Reset均保留用户值。确认旧HNCS显式false与旧FFCS默认全开的迁移；关闭Square Crop后中心边界、比较与HEIF恢复源比例。无对应效果时开关可设置未来偏好，但不添加新处理。切换期间拍摄/关闭/晚到成功必须保留快门三项值。App recipe JSON已包含三项；未新增HEIF内嵌Exif配方。Apple编译与实际操作仍未执行。
+编辑器和相机共用颗粒、锐化、预设额外裁切三个设置；默认true，切换preset/引擎与Reset均保留用户值。确认旧HNCS显式false与旧FFCS开关默认全开的迁移（0.2数学仍采用新版中性默认，不保留旧错误解析叠加）；关闭Square Crop后中心边界、比较与HEIF恢复源比例。无对应效果时开关可设置未来偏好，但不添加新处理。切换期间拍摄/关闭/晚到成功必须保留快门三项值。App recipe JSON已包含三项；未新增HEIF内嵌Exif配方。Apple编译与实际操作仍未执行。

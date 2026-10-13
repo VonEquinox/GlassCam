@@ -1,6 +1,6 @@
 # Portable HNCS + FFCS backends
 
-Standard C++17, C ABI, no runtime third-party dependencies. HNCS and FFCS are independent engines; neither is a substitute for measured iPhone source calibration. Swift only owns UI,
+C++17, C ABI; FFCS links the platform zlib decoder. HNCS and FFCS are independent engines; neither is a substitute for measured iPhone source calibration. Swift only owns UI,
 image decoding via Apple frameworks, buffers, and export. `HNCSEngine.swift` is a
 thin bridge. The immutable context is thread-safe for nonoverlapping output
 buffers, so a caller may split rows or tiles across workers.
@@ -69,11 +69,9 @@ Current separated core timing is recorded in [COLOR_PERFORMANCE](../docs/COLOR_P
 
 ## FFCS exact stages and strip processing
 
-`ffcs.cpp` / `ffcs_c.h` implement the 19 actual XH2S reference assets. The linear-sRGB input branch retains matrix, original 80³ LUT channel/axis conventions, Lab/OKLab, tone, coordinate-seeded grain and neighborhood sharpening. Missing or corrupt resources fail explicitly; REALA ACE is not invented. See [FFCS asset preparation and stage evidence](../docs/FFCS.md).
+`ffcs.cpp` / `ffcs_c.h` implement FFCS 0.2 native tables across five supplied families (50 assets, 20 named looks, family-specific availability). Neutral default postprocessing bypasses Lab/UCS exactly. Explicit analytic overlay retains source coefficients and Gaussian radius; spatial gates never activate a zero coefficient. Dedicated family tables and declared GFX100 fallback match the reference resolver; absent native tables fail closed. See [source and validation](../docs/FFCS.md).
 
-The reference full-frame route remains an oracle. The exact optimized route uses three RGB-double rows per worker, with 1–4 workers supported and one used by the app pending device profiling. The full-source strip API receives global dimensions/row coordinates and sharpening halo; it does not restart grain at each strip. The Apple caller uses 64 output rows at a time, writes a disk-backed Float raster, then downsizes in linear light only after exact source-resolution processing. Threading or bounded scratch does not itself establish an iPhone speedup or bounded total RSS.
-
-[Stage evidence](../validation/ffcs_cpp_report.json) and [strip evidence](../validation/ffcs_strips.json) cover reference parity; [strip sanitizer results](../validation/ffcs_strip_sanitizer.txt) cover the tested C ABI calls. Apple compile/runtime, Core Image strip orientation, HEIF bitstream and real-device memory/thermal behavior remain untested.
+Full/reference, optimized and strip APIs share the same math, global grain coordinates and Gaussian summation order. `ffcs_required_halo` determines strip input and row-ring extent; native defaults have no spatial halo. The app uses 64 output rows and one worker pending Apple profiling; C ABI permits 1–4 workers. Full-source effects precede linear-light downsizing. Strict flags, bounded inflate and complete zlib-stream checks reject corrupt assets. These bounds do not establish total Apple RSS or device speed.
 
 ## Delivery boundary
 
@@ -91,4 +89,4 @@ Reproduction: `python core/generate_preset_assets.py`; `python tools/generate_hn
 
 ## Independent effect switches
 
-FFCS `ffcs_create_options` adds immutable grain/sharpen booleans (strict0/1). Old construction remains both-on and bit-identical. Full/reference/optimized/strip routes gate only existing stages; color-only ignores both. There is no FFCS crop stage. HNCS uses its existing frame-aware grain/USM flags; extra crop is resolved in the source-image recipe before processing. Reproduce the dedicated audits with `python tools/verify_ffcs_effect_switches.py --sanitize` and `python tools/verify_effect_toggle_hncs.py`. See [switch contract](../docs/EFFECT_TOGGLES.md).
+FFCS `ffcs_create_options` adds immutable grain/sharpen booleans (strict0/1). Old construction keeps both gates on but now uses the corrected 0.2 neutral default; source-revision changes intentionally alter prior rendered pixels. Full/reference/optimized/strip routes gate only existing stages; color-only ignores both. There is no FFCS crop stage. HNCS uses its existing frame-aware grain/USM flags; extra crop is resolved in the source-image recipe before processing. The earlier FFCS switch audit is historical 0.1 evidence; current 0.2 audits are listed in TEST_STATUS. HNCS switch evidence remains applicable. See [switch contract](../docs/EFFECT_TOGGLES.md).

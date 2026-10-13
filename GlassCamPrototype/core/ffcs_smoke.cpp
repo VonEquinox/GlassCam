@@ -10,9 +10,9 @@
 int main(int argc, char **argv) {
     if (argc != 2) { std::cerr << "Usage: ffcs_smoke /path/to/xh2s\n"; return 2; }
     std::array<char,1024> error{};
-    CHECK(ffcs_simulation_count() == 19);
-    CHECK(ffcs_simulation_name(19) == nullptr);
-    CHECK(ffcs_simulation_asset(19) == nullptr);
+    CHECK(ffcs_simulation_count() == 20);
+    CHECK(ffcs_simulation_name(20) == nullptr);
+    CHECK(ffcs_simulation_asset(20) == nullptr);
     CHECK(ffcs_create(argv[1],19,error.data(),error.size()) == nullptr);
     CHECK(ffcs_create(nullptr,0,error.data(),error.size()) == nullptr);
     const std::array<std::array<size_t,2>,5> shapes{{{{1,1}},{{1,9}},{{9,1}},{{7,3}},{{131,9}}}};

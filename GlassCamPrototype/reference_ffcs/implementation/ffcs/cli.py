@@ -7,10 +7,11 @@ import json
 import sys
 from pathlib import Path
 
-from .io import load_pixels
+from .io import load_lab_pixels
 from .metrics import colorchecker24_delta_e2000, compare_stage_directories
 from .models import get_simulation, list_cameras, list_simulations
 from .pipeline import FFCS, PipelineConfig
+from .validation import json_safe
 
 
 def _common(parser: argparse.ArgumentParser) -> None:
@@ -25,6 +26,9 @@ def _common(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--lut-domain", choices=("linear", "encoded"), help="Input domain of --lut (.cube): linear working RGB or encoded sRGB")
     parser.add_argument("--sigma", type=float, help="LUT sigma transition parameter")
     parser.add_argument("--analytic", action="store_true", help="Disable bundled camera reference LUTs")
+    parser.add_argument("--preset-adjustments", action="store_true", help="Apply analytic preset adjustments after a loaded LUT")
+    parser.add_argument("--linear-input", action="store_true", help="Treat RGB input values as linear; sensor RAW is detected automatically")
+    parser.add_argument("--sharpen-radius",type=float,default=1.0,help="Gaussian sharpening radius")
     parser.add_argument("--stages", metavar="DIR", help="Export every intermediate stage to DIR")
     parser.add_argument("--json", action="store_true", help="Print pipeline metadata as JSON")
 
@@ -63,28 +67,28 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "compare":
         try:
             report = compare_stage_directories(args.candidate, args.reference, stride=args.stride)
-            encoded = json.dumps(report, indent=2)
+            encoded = json.dumps(json_safe(report), indent=2, allow_nan=False)
             if args.out:
                 Path(args.out).write_text(encoded + "\n", encoding="utf-8")
             print(encoded)
-            return 0
+            return 1 if report["_summary"]["status"]=="fail" else 0 if report["_summary"]["status"]=="pass" else 3
         except (OSError, ValueError) as exc:
             print(f"ffcs: error: {exc}", file=sys.stderr)
             return 2
     if args.command == "colorchecker":
         try:
             boxes = json.loads(Path(args.boxes).read_text(encoding="utf-8"))
-            candidate = load_pixels(args.candidate)
-            reference = load_pixels(args.reference)
-            report = colorchecker24_delta_e2000(candidate, reference, [tuple(map(int, box)) for box in boxes])
+            candidate = load_lab_pixels(args.candidate)
+            reference = load_lab_pixels(args.reference)
+            report = colorchecker24_delta_e2000(candidate, reference, [tuple(box) for box in boxes],candidate_domain="Lab",reference_domain="Lab")
             report["target_mean_delta_e2000"] = 2.0
             report["status"] = "pass" if not report.get("shape_mismatch") and report["mean"] < 2.0 else "fail"
-            encoded = json.dumps(report, indent=2)
+            encoded = json.dumps(json_safe(report), indent=2, allow_nan=False)
             if args.out:
                 Path(args.out).write_text(encoded + "\n", encoding="utf-8")
             print(encoded)
             return 0 if report["status"] == "pass" else 1
-        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+        except (OSError, ValueError, TypeError, RuntimeError, json.JSONDecodeError) as exc:
             print(f"ffcs: error: {exc}", file=sys.stderr)
             return 2
     try:
@@ -95,13 +99,14 @@ def main(argv: list[str] | None = None) -> int:
             output_bits=args.bits, seed=args.seed, filter_colour=args.filter_colour,
             stage_dir=args.stages, lut_path=args.lut_path, lut_domain=args.lut_domain, sigma=args.sigma,
             use_reference_luts=not args.analytic,
+            apply_reference_adjustments=args.preset_adjustments,input_is_linear=args.linear_input,sharpen_radius=args.sharpen_radius,
         )
         source = args.image if args.command == "apply" else args.raw
         renderer = FFCS(config)
         result = renderer.apply_path(source)
         result.save(args.out, bits=args.bits, output_space=args.space)
         if args.json:
-            print(json.dumps(result.metadata, indent=2, default=str))
+            print(json.dumps(json_safe(result.metadata), indent=2, allow_nan=False, default=str))
         else:
             effective_bits = args.bits if Path(args.out).suffix.lower() in {".tif", ".tiff"} else 8
             print(f"Wrote {args.out} ({result.image.width}x{result.image.height}, {effective_bits}-bit {args.space})")

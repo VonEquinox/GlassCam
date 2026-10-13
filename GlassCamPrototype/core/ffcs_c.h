@@ -6,27 +6,53 @@
 extern "C" {
 #endif
 typedef struct FFCSContext FFCSContext;
-/* Immutable, thread-safe context. asset_directory contains original XH2S .lutz
- * files. Missing/corrupt resources fail explicitly; never analytic fallback. */
+/* Immutable, thread-safe FFCS 0.2.0 context. Missing/corrupt native LUTs
+ * fail explicitly; there is no implicit analytic fallback. Stable legacy look
+ * indices 0..18; REALA ACE is appended at index 19. */
 size_t ffcs_simulation_count(void);
 const char *ffcs_simulation_name(size_t index);
 const char *ffcs_simulation_asset(size_t index);
+/* Direct family directory (contains .lutz files). Default is native LUT with
+ * neutral postprocessing, exactly the 0.2.0 reference default. */
 FFCSContext *ffcs_create(const char *asset_directory, size_t simulation_index,
                         char *error, size_t error_size);
-/* Additive constructor with independent immutable spatial-effect switches.
- * Each flag must be exactly 0 or 1. Enabled uses only the selected look's
- * original coefficient; it never adds an effect absent from that look.
- * ffcs_create is equivalent to this constructor with both flags set to 1.
- * All full-photo/reference/strip APIs honor these switches. The color-only
- * preview API always omits grain/sharpening, regardless of these flags.
- * FFCS has no preset-crop stage. On failure returns NULL and sets error. */
+/* Flags remain independent gates. Enabled never invents an absent coefficient.
+ * Old constructors default to analytic_overlay=0, sharpen_radius=1.0, so both
+ * spatial gates are inert until an explicit overlay is selected. */
 FFCSContext *ffcs_create_options(const char *asset_directory, size_t simulation_index,
     int grain_enabled, int sharpen_enabled, char *error, size_t error_size);
+/* Explicit analytic overlay matches Python apply_reference_adjustments=True:
+ * Lab/OKLab + tone + selected look's grain/sharpen coefficients. Every flag
+ * is exactly 0 or 1. Radius is finite (0,64], evaluated as max(0.1,radius).
+ * This resource limit is a portable API bound, not a reference-model change.
+ * Grain/sharpen gates never disable the overlay's pointwise color stages. */
+FFCSContext *ffcs_create_config(const char *asset_directory, size_t simulation_index,
+    int grain_enabled, int sharpen_enabled, int analytic_overlay,
+    double sharpen_radius, char *error, size_t error_size);
+/* data_root contains xh2s/, xa3/, gfx100/, gfx100s/, gfx100ii/. Camera names
+ * are case-insensitive. Dedicated GFX100S/II assets take priority; remaining
+ * looks resolve to GFX100 exactly as the reference. No other substitutions.
+ * Availability only checks a resolved file exists; creation validates it. */
+FFCSContext *ffcs_create_family_config(const char *data_root, const char *camera,
+    size_t simulation_index, int grain_enabled, int sharpen_enabled,
+    int analytic_overlay, double sharpen_radius, char *error, size_t error_size);
+int ffcs_simulation_available(const char *data_root, const char *camera,
+    size_t simulation_index);
+/* Existence-only resolver; static string lifetime, NULL when unavailable. */
+const char *ffcs_resolved_asset_family(const char *data_root, const char *camera,
+    size_t simulation_index);
+/* Actual lower-case asset family for family constructors; empty for the legacy
+ * direct-directory constructor. Pointer lifetime is the context lifetime. */
+const char *ffcs_asset_family(const FFCSContext *context);
+/* Required strip halo rows; 0 for native default/sharpen disabled, otherwise
+ * ceil(3*max(0.1,radius)). NULL yields 0; processing still rejects NULL. */
+size_t ffcs_required_halo(const FFCSContext *context);
 void ffcs_destroy(FFCSContext *context);
 /* Experimental preview / runtime LUT baking only. This is the genuine FFCS
  * pointwise color transform, retaining the original matrix, LUT, Lab/OKLab,
- * tone curve and clipping, while omitting spatial grain and sharpening.
- * It does not replace any full-photo API below. No blur stage is present.
+ * tone curve and clipping when the overlay is enabled, while omitting spatial
+ * grain and sharpening. Native default preserves LUT values without analytic
+ * adjustments. It does not replace any full-photo API below.
  * Input: dense interleaved RGB Float32, finite linear-sRGB in [0,1].
  * Output: dense DISPLAY-LINEAR sRGB RGBA Float32, alpha exactly 1.
  * Exposure is not applied here; the caller applies it before cube lookup.
@@ -52,7 +78,7 @@ int ffcs_process_linear_rgb(const FFCSContext *context, const float *input,
     uint32_t seed, float *output_linear, size_t output_float_count,
     uint8_t *preview_rgba, size_t preview_byte_count, char *error, size_t error_size);
 /* Exact fused/row-ring mobile path. workers must be 1..4; each worker uses
- * three RGB-double rows plus one halo on each side of its output tile. Grain
+ * at most min(height, 2*ffcs_required_halo(context)+1) RGB-double rows. Grain
  * always uses global image coordinates/width. Either output may be NULL, but
  * not both; its corresponding count is ignored when NULL. Buffers must not
  * overlap. Context is immutable and shared safely. No full-image temporaries.
@@ -68,14 +94,14 @@ int ffcs_process_linear_rgb_optimized(const FFCSContext *context, const float *i
  * input bitmap (no implicit orientation flip). input covers input_rows
  * starting at input_origin_y; output stores only output_rows starting at
  * output_origin_y. Width is always the full image width (no horizontal crop).
- * The input strip must contain the output rows plus one original-image row
- * above/below, except at the full image edges. Extra input rows are accepted.
+ * The input strip must contain the output rows plus ffcs_required_halo(context)
+ * original-image rows above/below, except at full image edges. Extra rows accepted.
  * Grain uses global coordinates and full image width; sharpening truncates
  * only at full image edges, never at strip/tile boundaries. Output equals the
  * full-frame optimized result without allocating a full-frame intermediate.
  * workers is 1..4. Caller owns nonoverlapping buffers; counts are float counts.
  * Returns 1 on success; 0 with error on failure. Discard output on failure.
- * Each worker allocates just three full-width RGB-double rows. */
+ * Each worker allocates min(full_height,2*halo+1) full-width RGB-double rows. */
 int ffcs_process_linear_rgb_strip(const FFCSContext *context, const float *input,
     size_t input_float_count, size_t full_width, size_t full_height,
     size_t input_origin_y, size_t input_rows, size_t output_origin_y,

@@ -5,5 +5,9 @@
   "p95_channel_error": 0.0025950488678522232,
   "delta_e2000_mean": 0.03841874831475669,
   "delta_e2000_max": 1.5311062042479262,
-  "delta_e2000_p95": 0.156291986301568
+  "delta_e2000_p95": 0.156291986301568,
+  "historical": true,
+  "implementation_version": "0.1.0",
+  "superseded_by": "ffcs/data/reference_validation.json",
+  "scope": "historical core mapping only; not current verification"
 }

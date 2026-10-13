@@ -10,7 +10,7 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[1]
 REFERENCE=ROOT/'reference_ffcs'
 ARCHIVE=REFERENCE/'source.zip'
-EXPECTED='bc8c9b4d7691f3ecef03a79e3b1a7ddd8364647e97877ee02ceefa8e50e2ea02'
+EXPECTED='ebc7a783280aeeea73791cdd40fcccb30c2b9648061616c96d4a1f9b1decff6c'
 PREFIX='FFCS_技术实现完整交付/'
 
 def main():
@@ -27,7 +27,7 @@ def main():
             destination=REFERENCE.joinpath(*relative.parts)
             destination.parent.mkdir(parents=True,exist_ok=True)
             with source.open(entry) as src,destination.open('wb') as dst:shutil.copyfileobj(src,dst)
-    subprocess.run(['bash',str(ROOT/'tools/prepare_ffcs_resources.sh'),str(ARCHIVE),str(ROOT/'ios/GlassCam/Resources/FFCS/xh2s')],check=True)
-    print('Original FFCS reference delivery and 19 mobile LUTs materialized.')
+    subprocess.run(['bash',str(ROOT/'tools/prepare_ffcs_resources.sh'),str(ARCHIVE),str(ROOT/'ios/GlassCam/Resources/FFCS')],check=True)
+    print('Original FFCS reference delivery and 50 mobile LUTs materialized.')
 
 if __name__=='__main__':main()

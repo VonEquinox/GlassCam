@@ -2,12 +2,12 @@
 
 SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。沿用现有技术交付，不新增色卡拟合。当前具备导入、原生 ProRAW 拍摄、比较、全源处理、HEIF 保存与兼容分享的源码；**尚未通过 Apple 编译、装机或真机验收**。
 
-三个独立开关控制锐化、颗粒和预设额外裁切，默认保留参考效果，切换预设不重置选择。HNCS/FFCS各自只开关原本存在的阶段，详见[开关与旧配方迁移](docs/EFFECT_TOGGLES.md)。
+三个独立开关控制锐化、颗粒和预设额外裁切，默认保留开关选择，实际效果遵循当前参考参数，切换预设不重置选择。HNCS/FFCS各自只开关原本存在的阶段，FFCS0.2原生表默认无额外颗粒/锐化，须显式开启参考解析叠加才有对应系数。详见[开关与旧配方迁移](docs/EFFECT_TOGGLES.md)。
 
 ## 当前路径
 
 - Photos/Files 导入，或能力门控后的物理镜头 ProRAW 捕获；完整输入保留为本次编辑的临时文件。
-- HNCS 与 FFCS 独立选择。HNCS已接入render revision8真实预设后曲线、film curve、完整目标WB、方裁切及便携颗粒/锐化；linear-sRGB → virtual native RGB 源域桥仍是实验适配。FFCS使用19款实际XH2S参考资产，不声称iPhone传感器标定。详见[revision8合同与验证](docs/HNCS_REVISION8.md)。
+- HNCS 与 FFCS 独立选择。HNCS已接入render revision8真实预设后曲线、film curve、完整目标WB、方裁切及便携颗粒/锐化；linear-sRGB → virtual native RGB 源域桥仍是实验适配。FFCS已同步0.2.0，提供5个研究表族的50张真实资产及中性默认/显式解析叠加，不声称iPhone传感器标定。详见[revision8合同与验证](docs/HNCS_REVISION8.md)。
 - 导入/拍后效果预览走 Float32 → Metal RGBA16Float 高精度 SDR 显示，不经过8位UIImage；不声称屏幕面板原生10bit。导入预览默认最长边 2048px。相机中心与外围视频输出独立缩放，预览像素不决定原始捕获或最终输出大小。
 - 最终图从完整源重新解码，裁切后按64行处理；HNCS空间预设额外经过磁盘暂存的全图统计/滤波，再写RGBAf；颜色/空间处理后才在线性光中 Lanczos 缩小，使用专用 HEIF10 writer 请求 10-bit SDR sRGB HEIF。
 - 用户保存仅有 HEIF：独立保存到 Photos / Files。分享先注册原始 HEIC，再提供按需、从最终 HEIF 转出的同尺寸 JPEG 兼容表示；没有 JPEG 导出选项。接收方选择哪种表示、微信能否发送和查看仍未验证。
@@ -55,3 +55,5 @@ python tools/render_preview.py --synthetic
 ## 验证边界
 
 现有核的数值一致性不证明完整 Phocus RAW pipeline、富士机内 JPEG 等价性、iPhone 标定或真实照片审美。10-bit 编码 API 请求不证明实际位流。原始 RAW/配方长期资料库、Apple 性能与内存/热状态、微信兼容和商业权利清理尚未完成。原始交付及证据保持不变。
+
+最新FFCS0.2同步：225项整合测试通过，50资产/1,206阶段对新参考最大误差5.52e-15；独立审查通过。Apple编译和设备仍未执行，详见[测试状态](docs/TEST_STATUS.md)。

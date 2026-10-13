@@ -207,7 +207,7 @@ class ClearGlassSourceContracts(unittest.TestCase):
     def test_settings_keep_effect_output_preview_and_editor_access(self):
         settings = section(VIEW, 'private func cameraPanel(', 'private var orientedPeripheralAspectRatio:')
         for token in ('Picker("Color engine", selection: $colorMode)',
-                      'Picker("Film simulation", selection: $simulationIndex)',
+                      'FFCSReferenceControls(settings: $ffcs, simulationIndex: $simulationIndex)',
                       'Slider(value: $exposureEV, in: -2...2, step: 0.05)',
                       'Slider(value: $illuminantKelvin, in: 2000...10000, step: 50)',
                       'camera.supportedOutputOptions', 'selection: outputSelection',

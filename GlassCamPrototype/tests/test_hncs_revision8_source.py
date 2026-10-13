@@ -84,7 +84,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertEqual(members['rawFilmCurveType'][2], '2')
         self.assertEqual(members['factoryKelvinOverride'][2], 'nil')
         recipe = stored_members(self.pipeline, 'struct ProcessingRecipe:')
-        self.assertEqual(set(recipe), {'mode', 'exposureEV', 'illuminantKelvin', 'simulationIndex', 'seed', 'hncs', 'effects'})
+        self.assertEqual(set(recipe), {'mode', 'exposureEV', 'illuminantKelvin', 'simulationIndex', 'seed', 'hncs', 'effects', 'ffcs'})
         self.assertTrue(all(member[0] == 'let' for member in recipe.values()))
         self.assertEqual(recipe['hncs'][1], 'HNCSSettings')
         self.assertEqual(recipe['effects'][1], 'EffectToggles')

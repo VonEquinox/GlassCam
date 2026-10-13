@@ -1,3 +1,5 @@
+> FFCS部分为0.1历史数学/性能证据；0.2中性默认与Gaussian算法已变更，不能直接外推。当前实现及新证据见[FFCS](FFCS.md)。HNCS部分依其自身版本说明。
+
 # FFCS CPU stage attribution and neutral-UCS experiment
 
 ## Result

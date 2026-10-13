@@ -1,5 +1,5 @@
 // Portable adaptation of supplied FFCS implementation/{pipeline,color,effects,lutdata,models}.py.
-// XH2S reference-asset path only. Preserve stage order, constants, clipping,
+// FFCS 0.2.0 native LUT path and explicit analytic modes. Preserve clipping,
 // BGR axes, header matrix, all look parameters, grain and float sharpening.
 #include "ffcs_c.h"
 #include <algorithm>
@@ -35,7 +35,8 @@ const Look looks[] = {
  {"ACROS+Ye","acros_ye_filter.lutz",1.15,0,.052,.28,.02,.035,1.15,.12,.25,true},
  {"MONOCHROME+G","mono_g_filter.lutz",1.08,0,-.025,.18,.01,.022,1.1,.10,.20,false},
  {"MONOCHROME+R","mono_r_filter.lutz",1.08,0,.032,.18,.01,.022,1.1,.10,.20,false},
- {"MONOCHROME+Ye","mono_ye_filter.lutz",1.08,0,.052,.18,.01,.022,1.1,.10,.20,false}
+ {"MONOCHROME+Ye","mono_ye_filter.lutz",1.08,0,.052,.18,.01,.022,1.1,.10,.20,false},
+ {"REALA ACE","reala_ace.lutz",1.02,1.07,-.005,.10,.004,.015,1,.09,.18,false}
 };
 using RGB=std::array<double,3>;
 double clip(double x) { return x<0?0:x>1?1:x; }
@@ -93,7 +94,7 @@ uint16_t u16(const unsigned char *p){return uint16_t(p[0])|uint16_t(p[1])<<8;}
 uint32_t u32(const unsigned char *p){return uint32_t(p[0])|uint32_t(p[1])<<8|uint32_t(p[2])<<16|uint32_t(p[3])<<24;}
 float f32(const unsigned char *p){uint32_t x=u32(p);float f;std::memcpy(&f,&x,4);return f;}
 }
-struct FFCSContext {Look look;bool grainEnabled,sharpenEnabled;size_t size;double scale;double matrix[9];bool rgbChannels;std::vector<uint16_t> lut;};
+struct FFCSContext {Look look;bool grainEnabled,sharpenEnabled;double radius=1;std::vector<double> kernel;size_t reach=0;std::string family;size_t size;double scale;double matrix[9];bool rgbChannels;std::vector<uint16_t> lut;};
 namespace {
 RGB mapLUT(const FFCSContext &c,RGB v) {
  double p[]={clip(v[2])*(c.size-1),clip(v[1])*(c.size-1),clip(v[0])*(c.size-1)};size_t lo[3],hi[3];double f[3];
@@ -103,22 +104,41 @@ RGB mapLUT(const FFCSContext &c,RGB v) {
  if(!c.rgbChannels) { std::swap(o[0],o[2]); }
  return o;
 }
-// Separate preview entry point intentionally leaves the established full-photo
-// render/mobilePixel implementations untouched. Keep this exact pointwise stage
-// extraction covered against render's tone_curve snapshot and a spatial-zero
-// private context. No image-sized scratch or one-pixel spatial rendering.
+// Reference native LUTs already contain MONO/filter/sepia transforms. The
+// 0.2.0 pre-desaturation weighted analytic fallback is intentionally not exposed.
+RGB perceptual(const FFCSContext &ctx,RGB v) {
+ const auto &s=ctx.look;
+ return s.saturation==1 && s.hue==0?v:ucs(lab(v,s));
+}
+RGB tone(RGB v,const Look &s) {
+ if(s.contrast==1 && s.toe==0 && s.shoulder==0) return v;
+ for(auto &q:v) {double t=.5+(clip(q)-.5)*std::max(.05,s.contrast);
+  if(s.toe)t+=s.toe*(1-t)*(.18-.18*t);
+  if(s.shoulder)t-=s.shoulder*t*t*.22;
+  q=clip(t);}
+ return v;
+}
+// Preserve Python's y-major, x-major Gaussian summation order, including
+// truncation and renormalization at the actual image edges.
+template<class Pixel> RGB sharpenPixel(const FFCSContext &c,size_t x,size_t y,size_t w,size_t h,Pixel pixel) {
+ RGB v=pixel(x,y);if(!c.reach)return v;
+ RGB sum{};double total=0;
+ for(size_t yy=y>c.reach?y-c.reach:0;yy<std::min(h,y+c.reach+1);++yy)
+  for(size_t xx=x>c.reach?x-c.reach:0;xx<std::min(w,x+c.reach+1);++xx) {
+   const size_t dx=xx>x?xx-x:x-xx,dy=yy>y?yy-y:y-yy;
+   double weight=c.kernel[dy*(c.reach+1)+dx];
+   total+=weight;RGB q=pixel(xx,yy);for(int ch=0;ch<3;++ch)sum[ch]+=q[ch]*weight;
+  }
+ double strength=std::max(0.,std::min(3.,c.look.sharp))*.35;
+ for(int ch=0;ch<3;++ch)v[ch]=clip(v[ch]+strength*(v[ch]-sum[ch]/total));
+ return v;
+}
 RGB colorOnlyPixel(const FFCSContext &ctx,const float *in) {
  RGB v={double(in[0]),double(in[1]),double(in[2])};
  v=mul(v,ctx.matrix);
  for(auto &q:v) q=encode(clip(q));
- v=ucs(lab(mapLUT(ctx,v),ctx.look));
- const auto &s=ctx.look;
- for(auto &q:v) {
-  double t=.5+(clip(q)-.5)*std::max(.05,s.contrast);
-  if(s.toe) t+=s.toe*(1-t)*(.18-.18*t);
-  if(s.shoulder) t-=s.shoulder*t*t*.22;
-  q=clip(t);
- }
+ v=perceptual(ctx,mapLUT(ctx,v));
+ v=tone(v,ctx.look);
  return v;
 }
 void render(const FFCSContext &ctx,std::vector<double> &p,size_t w,size_t h,uint32_t seed,bool linear,FFCSStageCallback cb,void *user){
@@ -127,27 +147,22 @@ void render(const FFCSContext &ctx,std::vector<double> &p,size_t w,size_t h,uint
  put("input_normalized");if(!linear)for(auto &v:p)v=decode(v);put("gamma_pre");
  transform([&](RGB v){v=mul(v,ctx.matrix);for(auto &x:v)x=clip(x);return v;});put("matrix_3x3");
  transform([&](RGB v){for(auto &x:v)x=encode(x);return mapLUT(ctx,v);});put("lut_3d");
- transform([&](RGB v){return ucs(lab(v,ctx.look));});put("lab_ucs");
- const auto &s=ctx.look;for(auto &x:p){double y=.5+(clip(x)-.5)*std::max(.05,s.contrast);if(s.toe)y+=s.toe*(1-y)*(.18-.18*y);if(s.shoulder)y-=s.shoulder*y*y*.22;x=clip(y);}put("tone_curve");
+ transform([&](RGB v){return perceptual(ctx,v);});put("lab_ucs");
+ const auto &s=ctx.look;transform([&](RGB v){return tone(v,s);});put("tone_curve");
  if(ctx.grainEnabled && s.grain>0){for(size_t y=0;y<h;++y)for(size_t x=0;x<w;++x){size_t i=(y*w+x)*3;double n=.72*noise(uint32_t(x),uint32_t(y),seed)+.28*smooth(size_t(x/s.size),size_t(y/s.size),std::max(size_t(1),size_t(w/s.size)),seed+17u);double lum=.2126*p[i]+.7152*p[i+1]+.0722*p[i+2];double delta=n*(s.grain*.035)*(.35+.9*std::sqrt(std::max(0.,lum*(1-.45*lum))));if(s.acros||s.saturation==0){double g=clip(clip(lum)+delta);p[i]=p[i+1]=p[i+2]=g;}else{double c=n*(s.grain*.035)*s.chroma*.45;p[i]=clip(p[i]+delta+c);p[i+1]=clip(p[i+1]+delta);p[i+2]=clip(p[i+2]+delta-c);}}}put("film_grain");
- if(ctx.sharpenEnabled && s.sharp>0){std::vector<double> out(p.size());double strength=std::max(0.,std::min(3.,s.sharp))*.35;for(size_t y=0;y<h;++y)for(size_t x=0;x<w;++x){RGB sum{};size_t n=0;for(size_t yy=(y?y-1:0);yy<std::min(h,y+2);++yy)for(size_t xx=(x?x-1:0);xx<std::min(w,x+2);++xx){++n;for(int c=0;c<3;++c)sum[c]+=p[(yy*w+xx)*3+c];}for(int c=0;c<3;++c){size_t i=(y*w+x)*3+c;out[i]=clip(p[i]+strength*(p[i]-sum[c]/n));}}p.swap(out);}put("sharpen");put("output_icc");
+ if(ctx.reach){std::vector<double> out(p.size());
+ auto pixel=[&](size_t x,size_t y){size_t i=(y*w+x)*3;return RGB{p[i],p[i+1],p[i+2]};};
+ for(size_t y=0;y<h;++y)for(size_t x=0;x<w;++x){RGB v=sharpenPixel(ctx,x,y,w,h,pixel);for(int ch=0;ch<3;++ch)out[(y*w+x)*3+ch]=v[ch];}
+ p.swap(out);}put("sharpen");put("output_icc");
 }
-// Mobile render keeps only three post-grain rows in double precision. The
-// original stages before sharpen are pointwise (grain depends on coordinates,
-// width and seed), so this is numerically identical without full-frame doubles.
+// Pointwise stages use full-image coordinates for reproducible grain.
 RGB mobilePixel(const FFCSContext &ctx, const float *in, size_t x, size_t y,
                 size_t w, double gain, uint32_t seed) {
  RGB v={clip(double(in[0])*gain),clip(double(in[1])*gain),clip(double(in[2])*gain)};
  v=mul(v,ctx.matrix);
  for(auto &q:v) { q=encode(clip(q)); }
- v=ucs(lab(mapLUT(ctx,v),ctx.look));
- const auto &s=ctx.look;
- for(auto &q:v) {
-  double t=.5+(clip(q)-.5)*std::max(.05,s.contrast);
-  if(s.toe) t+=s.toe*(1-t)*(.18-.18*t);
-  if(s.shoulder) t-=s.shoulder*t*t*.22;
-  q=clip(t);
- }
+ v=perceptual(ctx,mapLUT(ctx,v));
+ const auto &s=ctx.look;v=tone(v,s);
  if(ctx.grainEnabled && s.grain>0) {
   double n=.72*noise(uint32_t(x),uint32_t(y),seed)+.28*smooth(size_t(x/s.size),size_t(y/s.size),std::max(size_t(1),size_t(w/s.size)),seed+17u);
   double lum=.2126*v[0]+.7152*v[1]+.0722*v[2];
@@ -170,12 +185,59 @@ const char *ffcs_simulation_asset(size_t i){return i<ffcs_simulation_count()?loo
 FFCSContext *ffcs_create(const char *dir,size_t index,char *err,size_t en){
  return ffcs_create_options(dir,index,1,1,err,en);
 }
-FFCSContext *ffcs_create_options(const char *dir,size_t index,int grain_enabled,int sharpen_enabled,char *err,size_t en){
- try {if((grain_enabled!=0 && grain_enabled!=1) || (sharpen_enabled!=0 && sharpen_enabled!=1))throw std::runtime_error("FFCS effect flags must be 0 or 1");if(!dir||!*dir||index>=ffcs_simulation_count())throw std::runtime_error("Invalid FFCS asset directory or simulation index");
- std::string path=std::string(dir)+"/"+looks[index].asset;std::ifstream in(path,std::ios::binary|std::ios::ate);if(!in)throw std::runtime_error("Missing FFCS reference LUT: "+path);auto len=in.tellg();if(len<60||len>64*1024*1024)throw std::runtime_error("Invalid FFCS LUT file size");std::vector<unsigned char> b(static_cast<size_t>(len));in.seekg(0);if(!in.read(reinterpret_cast<char*>(b.data()),len))throw std::runtime_error("Cannot read FFCS LUT");
- bool v2=std::memcmp(b.data(),"FFCSLUT2",8)==0,v1=std::memcmp(b.data(),"FFCSLUT1",8)==0;if(!v1&&!v2)throw std::runtime_error("Unsupported FFCS LUT container");size_t size=u16(b.data()+8);double scale=f32(b.data()+12);if(size<2||size>256||u16(b.data()+10)!=3||!std::isfinite(scale)||scale<=0)throw std::runtime_error("Invalid FFCS LUT header");size_t start=v2?60:56;uint32_t packed=u32(b.data()+(v2?56:52));if(packed!=b.size()-start)throw std::runtime_error("FFCS LUT compressed length mismatch");size_t expected=size*size*size*6;std::vector<unsigned char> raw(expected);uLongf dest=expected;if(uncompress(raw.data(),&dest,b.data()+start,packed)!=Z_OK||dest!=expected)throw std::runtime_error("Corrupt FFCS LUT payload");
- FFCSContext ctx{looks[index],grain_enabled!=0,sharpen_enabled!=0,size,scale,{},v2&&(b[52]&1),{}};for(int i=0;i<9;++i){ctx.matrix[i]=f32(b.data()+16+4*i);if(!std::isfinite(ctx.matrix[i]))throw std::runtime_error("Nonfinite FFCS matrix");}ctx.lut.resize(expected/2);for(size_t i=0;i<ctx.lut.size();++i)ctx.lut[i]=u16(raw.data()+i*2);errorText(err,en,"");return new FFCSContext(std::move(ctx));
- }catch(const std::exception &e){errorText(err,en,e.what());return nullptr;}catch(...){errorText(err,en,"Unknown FFCS initialization failure");return nullptr;}}
+FFCSContext *ffcs_create_options(const char *dir,size_t index,int grain,int sharpen,char *err,size_t en){
+ return ffcs_create_config(dir,index,grain,sharpen,0,1.0,err,en);
+}
+FFCSContext *ffcs_create_config(const char *dir,size_t index,int grain,int sharpen,int overlay,double radius,char *err,size_t en){
+ try {
+ if((grain!=0&&grain!=1)||(sharpen!=0&&sharpen!=1)||(overlay!=0&&overlay!=1))throw std::runtime_error("FFCS flags must be 0 or 1");
+ if(!std::isfinite(radius)||radius<=0||radius>64)throw std::runtime_error("FFCS sharpen radius must be finite in (0,64]");
+ if(!dir||!*dir||index>=ffcs_simulation_count())throw std::runtime_error("Invalid FFCS asset directory or simulation index");
+ std::string path=std::string(dir)+"/"+looks[index].asset;std::ifstream in(path,std::ios::binary|std::ios::ate);if(!in)throw std::runtime_error("Missing FFCS reference LUT: "+path);auto len=in.tellg();if(len<56||len>64*1024*1024)throw std::runtime_error("Invalid FFCS LUT file size");std::vector<unsigned char> b(static_cast<size_t>(len));in.seekg(0);if(!in.read(reinterpret_cast<char*>(b.data()),len))throw std::runtime_error("Cannot read FFCS LUT");
+ bool v2=std::memcmp(b.data(),"FFCSLUT2",8)==0,v1=std::memcmp(b.data(),"FFCSLUT1",8)==0;if(!v1&&!v2)throw std::runtime_error("Unsupported FFCS LUT container");
+ size_t start=v2?60:56;if(b.size()<start)throw std::runtime_error("Truncated FFCS LUT header");
+ size_t size=u16(b.data()+8);double scale=f32(b.data()+12);if(size<2||size>256||u16(b.data()+10)!=3||!std::isfinite(scale)||scale<=0)throw std::runtime_error("Invalid FFCS LUT header");
+ if(v2&&(b[52]&~1))throw std::runtime_error("Invalid FFCS LUT flags");
+ uint32_t packed=u32(b.data()+(v2?56:52));if(packed!=b.size()-start)throw std::runtime_error("FFCS LUT compressed length mismatch");
+ size_t expected=size*size*size*6;std::vector<unsigned char> raw(expected+1);
+ z_stream z{};z.next_in=b.data()+start;z.avail_in=packed;z.next_out=raw.data();z.avail_out=static_cast<uInt>(raw.size());
+ if(inflateInit(&z)!=Z_OK)throw std::runtime_error("Cannot initialize FFCS LUT decoder");
+ int status=inflate(&z,Z_FINISH);bool valid=status==Z_STREAM_END&&z.total_out==expected&&z.total_in==packed;inflateEnd(&z);
+ if(!valid)throw std::runtime_error("Corrupt, truncated or trailing FFCS LUT payload");
+ FFCSContext ctx{};ctx.look=looks[index];ctx.grainEnabled=grain!=0;ctx.sharpenEnabled=sharpen!=0;ctx.radius=std::max(.1,radius);ctx.size=size;ctx.scale=scale;ctx.rgbChannels=v2&&(b[52]&1);
+ if(!overlay){ctx.look.contrast=ctx.look.saturation=1;ctx.look.hue=ctx.look.shoulder=ctx.look.toe=ctx.look.grain=ctx.look.sharp=0;}
+ ctx.reach=ctx.sharpenEnabled&&ctx.look.sharp>0?size_t(std::ceil(3*ctx.radius)):0;
+ ctx.kernel.resize((ctx.reach+1)*(ctx.reach+1));
+ for(size_t y=0;y<=ctx.reach;++y)for(size_t x=0;x<=ctx.reach;++x)ctx.kernel[y*(ctx.reach+1)+x]=std::exp(-double(x*x+y*y)/(2*ctx.radius*ctx.radius));
+ for(int i=0;i<9;++i){ctx.matrix[i]=f32(b.data()+16+4*i);if(!std::isfinite(ctx.matrix[i]))throw std::runtime_error("Nonfinite FFCS matrix");}
+ ctx.lut.resize(expected/2);for(size_t i=0;i<ctx.lut.size();++i)ctx.lut[i]=u16(raw.data()+i*2);errorText(err,en,"");return new FFCSContext(std::move(ctx));
+ }catch(const std::exception &e){errorText(err,en,e.what());return nullptr;}catch(...){errorText(err,en,"Unknown FFCS initialization failure");return nullptr;}
+}
+size_t ffcs_required_halo(const FFCSContext *c){return c?c->reach:0;}
+const char *ffcs_resolved_asset_family(const char *root,const char *camera,size_t index){
+ try {
+  if(!root||!*root||!camera||index>=ffcs_simulation_count())return nullptr;
+  std::string requested=camera;for(auto &ch:requested)if(ch>='A'&&ch<='Z')ch=char(ch-'A'+'a');
+  const char *family=nullptr;
+  for(const char *candidate:{"xh2s","xa3","gfx100","gfx100s","gfx100ii"})if(requested==candidate)family=candidate;
+  if(!family)return nullptr;
+  if(std::ifstream(std::string(root)+"/"+family+"/"+looks[index].asset,std::ios::binary).good())return family;
+  if((requested=="gfx100s"||requested=="gfx100ii")&&std::ifstream(std::string(root)+"/gfx100/"+looks[index].asset,std::ios::binary).good())return "gfx100";
+  return nullptr;
+ }catch(...){return nullptr;}
+}
+int ffcs_simulation_available(const char *root,const char *camera,size_t index){
+ return ffcs_resolved_asset_family(root,camera,index)!=nullptr;
+}
+FFCSContext *ffcs_create_family_config(const char *root,const char *camera,size_t index,int grain,int sharpen,int overlay,double radius,char *err,size_t en){
+ try {
+  const char *family=ffcs_resolved_asset_family(root,camera,index);
+  if(!family)throw std::runtime_error("Unsupported or missing FFCS camera/look native asset");
+  std::string dir=std::string(root)+"/"+family;
+  auto *ctx=ffcs_create_config(dir.c_str(),index,grain,sharpen,overlay,radius,err,en);if(ctx)ctx->family=family;return ctx;
+ }catch(const std::exception &e){errorText(err,en,e.what());return nullptr;}catch(...){errorText(err,en,"Unknown FFCS family initialization failure");return nullptr;}
+}
+const char *ffcs_asset_family(const FFCSContext *c){return c?c->family.c_str():nullptr;}
 void ffcs_destroy(FFCSContext *c){delete c;}
 int ffcs_process_linear_rgb_color_only(const FFCSContext *c,const float *in,
  size_t ni,size_t pixels,float *out,size_t no,char *err,size_t en) {
@@ -231,35 +293,15 @@ int ffcs_process_linear_rgb_optimized(const FFCSContext *c,const float *in,size_
   if(!std::isfinite(in[i])) throw std::runtime_error("Nonfinite FFCS input");
  }
  auto tile=[&](size_t first,size_t last) {
- std::array<std::vector<RGB>,3> rows;
- for(auto &row:rows) row.resize(w);
- auto fill=[&](size_t y) {
-  auto &row=rows[y%3];
-  for(size_t x=0;x<w;++x) row[x]=mobilePixel(*c,in+(y*w+x)*3,x,y,w,gain,seed);
- };
- if(first>0) fill(first-1);
- fill(first); if(first+1<h) fill(first+1);
- double strength=std::max(0.,std::min(3.,c->look.sharp))*.35;
+ const size_t ringSize=std::min(h,2*c->reach+1);
+ std::vector<std::vector<RGB>> rows(ringSize,std::vector<RGB>(w));
+ auto fill=[&](size_t y) {auto &row=rows[y%ringSize];for(size_t x=0;x<w;++x)row[x]=mobilePixel(*c,in+(y*w+x)*3,x,y,w,gain,seed);};
+ size_t loaded=first>c->reach?first-c->reach:0;
+ auto pixel=[&](size_t x,size_t y){return rows[y%ringSize][x];};
  for(size_t y=first;y<last;++y) {
-  if(y+1<h && y>first) fill(y+1);
-  for(size_t x=0;x<w;++x) {
-   RGB v=rows[y%3][x];
-   if(c->sharpenEnabled && c->look.sharp>0) {
-    RGB sum{};size_t neighbors=0;
-    for(size_t yy=(y?y-1:0);yy<std::min(h,y+2);++yy) {
-     for(size_t xx=(x?x-1:0);xx<std::min(w,x+2);++xx) {
-      ++neighbors;
-      for(int ch=0;ch<3;++ch) sum[ch]+=rows[yy%3][xx][ch];
-     }
-    }
-    for(int ch=0;ch<3;++ch) v[ch]=clip(v[ch]+strength*(v[ch]-sum[ch]/neighbors));
-   }
-   size_t pixel=y*w+x;
-   for(int ch=0;ch<3;++ch) {
-    if(out) out[pixel*3+ch]=float(decode(v[ch]));
-    if(rgba) rgba[pixel*4+ch]=quantize(v[ch]);
-   }
-   if(rgba) rgba[pixel*4+3]=255;
+  const size_t end=std::min(h,y+c->reach+1);while(loaded<end)fill(loaded++);
+  for(size_t x=0;x<w;++x) {RGB v=sharpenPixel(*c,x,y,w,h,pixel);size_t pixelIndex=y*w+x;
+   for(int ch=0;ch<3;++ch){if(out)out[pixelIndex*3+ch]=float(decode(v[ch]));if(rgba)rgba[pixelIndex*4+ch]=quantize(v[ch]);}if(rgba)rgba[pixelIndex*4+3]=255;
   }
  }
  };
@@ -296,8 +338,8 @@ int ffcs_process_linear_rgb_strip(const FFCSContext *c, const float *in,
      !input_rows || input_rows>h-input_y || !output_rows || output_rows>h-output_y ||
      workers<1 || workers>4 || !std::isfinite(ev) || ev < -32 || ev > 32)
    throw std::runtime_error("Invalid FFCS strip arguments");
-  const size_t first_needed=output_y ? output_y-1 : 0;
-  const size_t last_needed=std::min(h,output_y+output_rows+1);
+  const size_t first_needed=output_y>c->reach ? output_y-c->reach : 0;
+  const size_t last_needed=std::min(h,output_y+output_rows+c->reach);
   if(input_y>first_needed || input_y+input_rows<last_needed)
    throw std::runtime_error("FFCS strip is missing the required sharpening halo");
   const size_t input_n=count(w,input_rows), output_n=count(w,output_rows);
@@ -310,33 +352,15 @@ int ffcs_process_linear_rgb_strip(const FFCSContext *c, const float *in,
   if(!std::isfinite(in[i])) throw std::runtime_error("Nonfinite FFCS input");
  }
  auto tile=[&](size_t first,size_t last) {
- std::array<std::vector<RGB>,3> rows;
- for(auto &row:rows) row.resize(w);
- auto fill=[&](size_t y) {
-  auto &row=rows[y%3];
-  for(size_t x=0;x<w;++x) row[x]=mobilePixel(*c,in+((y-input_y)*w+x)*3,x,y,w,gain,seed);
- };
- if(first>0) fill(first-1);
- fill(first); if(first+1<h) fill(first+1);
- double strength=std::max(0.,std::min(3.,c->look.sharp))*.35;
+ const size_t ringSize=std::min(h,2*c->reach+1);
+ std::vector<std::vector<RGB>> rows(ringSize,std::vector<RGB>(w));
+ auto fill=[&](size_t y) {auto &row=rows[y%ringSize];for(size_t x=0;x<w;++x)row[x]=mobilePixel(*c,in+((y-input_y)*w+x)*3,x,y,w,gain,seed);};
+ size_t loaded=first>c->reach?first-c->reach:0;
+ auto pixel=[&](size_t x,size_t y){return rows[y%ringSize][x];};
  for(size_t y=first;y<last;++y) {
-  if(y+1<h && y>first) fill(y+1);
-  for(size_t x=0;x<w;++x) {
-   RGB v=rows[y%3][x];
-   if(c->sharpenEnabled && c->look.sharp>0) {
-    RGB sum{};size_t neighbors=0;
-    for(size_t yy=(y?y-1:0);yy<std::min(h,y+2);++yy) {
-     for(size_t xx=(x?x-1:0);xx<std::min(w,x+2);++xx) {
-      ++neighbors;
-      for(int ch=0;ch<3;++ch) sum[ch]+=rows[yy%3][xx][ch];
-     }
-    }
-    for(int ch=0;ch<3;++ch) v[ch]=clip(v[ch]+strength*(v[ch]-sum[ch]/neighbors));
-   }
-   size_t pixel=(y-output_y)*w+x;
-   for(int ch=0;ch<3;++ch) {
-    out[pixel*3+ch]=float(decode(v[ch]));
-   }
+  const size_t end=std::min(h,y+c->reach+1);while(loaded<end)fill(loaded++);
+  for(size_t x=0;x<w;++x) {RGB v=sharpenPixel(*c,x,y,w,h,pixel);size_t pixelIndex=(y-output_y)*w+x;
+   for(int ch=0;ch<3;++ch)out[pixelIndex*3+ch]=float(decode(v[ch]));
   }
  }
  };

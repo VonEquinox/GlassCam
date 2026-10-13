@@ -1,6 +1,18 @@
 # 测试与性能状态
 
-更新：2026-10-13。当前最新整合为216/216项通过，三个独立效果开关、旧配方迁移及HNCS/FFCS阶段旁路已完成；独立源码审查无剩余阻断项，Apple编译/设备验收仍未执行。以下保留各历史阶段证据，旧计数不是当前总数。
+更新：2026-10-13。当前整合225/225通过；FFCS0.2本轮结果见下节。此前三个独立效果开关216/216通过是历史阶段，Apple编译/设备验收仍未执行。以下保留各历史阶段证据，旧计数不是当前总数。
+
+## FFCS 0.2.0 新参考同步（2026-10-13）
+
+最终整合 **225/225通过，30.090秒**；288个源码/资源/参考文件测试前后摘要一致。见[完整日志](../validation/ffcs-v020-integration-tests.txt)、[冻结清单](../validation/ffcs-v020-integration-manifest.json)和[独立审阅源快照](../validation/ffcs-v020-reviewed-source-sha256.json)。
+
+- 来源c4b3383：115份交付文件、50原生表、2ICC、ZIP/Gitblob摘要核验。上游61项测试全过；19案例/198阶段复现，原baseline未改，见[上游运行](../validation/ffcs-v020-upstream.json)。
+- 新参考86个表族/外观组合覆盖50资产；134 encoded案例、1,206阶段最大误差5.5164e-15（阈值1e-12），48 linear参考案例最大Float误差0；576优化输出和900全局条带逐位一致，见[核心报告](../validation/ffcs-v020-native.json)。
+- 另有160全图/线程/动态halo配置与163非法容器测试通过ASan/UBSan；LSan在ptrace环境不可用，见[命令与源摘要](../validation/ffcs-v020-sanitizers.json)。旧开关专项也迁移到显式解析叠加后验证独立阶段，保留0.1历史报告。
+- 旧FFCS实时cube失效，0.2重测每look452,780个holdout，仅XH2S中性PROVIA/ACROS、EV0、半径1回到实验准入。其他表族/解析叠加/参数原画回退，见[实时误差](FFCS_V020_LIVE.md)。
+- 单线程完整Float输出云CPU中位数（预热+3次）：256×144中性6.99ms/解析叠加31.08ms；1024²中性235.31ms/叠加1000.13ms。二者数学和像素有意不同，不能称为无损优化；不含Apple解码/编码/屏幕，也不是iPhone速度。见[benchmark](../validation/ffcs-v020-benchmark.json)。
+- 独立源码审查通过；Apple Swift编译、实际ICC/RAW、HEIF位流、行方向、内存、设备性能及微信未执行。JSON/生命周期测试是便携模型及源码契约。
+
 
 早期保存/分享合并运行 [43 项测试通过，26.105s](../validation/final-source-tests.txt)，随后精确 Float 并行集成 [43 项通过，19.088s](../validation/performance-integration-tests.txt)，包含保存/分享、显式跨队列取消 token、render 完成竞态 guard 与已解码源 Retry 的源码契约。Apple 代码仍只做静态验证。
 
@@ -70,7 +82,7 @@
 
 “极限优化”是持续目标，不是这次已经完成的标签。下一轮优先验证 Apple 编译与真实输入，再测 decode、核心、encode、内存峰值分段成本；根据瓶颈选择 SIMD/Metal，不盲目把小矩阵搬到 ANE。
 
-## FFCS 独立验证
+## FFCS 0.1 历史独立验证
 
 详见 [FFCS 实现和性能边界](FFCS.md)：原始 9 测试、14 案例/153 阶段；19 种移植模式/513 阶段图最大误差 2.51e-14；1,368 个分块组合逐值一致。三行缓冲明显降低暂存内存，但云端线程计时不稳定，不承诺加速。App 暂用单线程，保留 1–4 核心接口。
 

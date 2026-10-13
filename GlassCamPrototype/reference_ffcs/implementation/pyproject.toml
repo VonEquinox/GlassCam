@@ -4,13 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ffcs"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deterministic Fujifilm film simulation colour pipeline"
-requires-python = ">=3.9"
-dependencies = ["Pillow>=9.0"]
+requires-python = ">=3.10"
+dependencies = ["Pillow>=9.1", "numpy>=1.23", "tifffile>=2022.8.12", "imagecodecs>=2022.9.26"]
 
 [project.optional-dependencies]
 raw = ["rawpy>=0.19"]
+test = ["pytest>=7"]
 
 [project.scripts]
 ffcs = "ffcs.cli:main"
@@ -19,4 +20,8 @@ ffcs = "ffcs.cli:main"
 include = ["ffcs*"]
 
 [tool.setuptools.package-data]
-ffcs = ["data/**/*.lutz", "data/**/*.icc", "data/**/*.json", "data/README.md"]
+ffcs = ["data/**/*.lutz", "data/**/*.icc", "data/**/*.json", "data/*.json", "data/README.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"

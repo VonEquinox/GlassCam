@@ -1,51 +1,42 @@
-# FFCS 技术实现完整交付
+# FFCS 技术实现完整交付 0.2.0
 
-本文件夹是 2026-10-11 本地 FFCS 的独立交付快照。包含全部运行代码、48 个 LUT 文件、2 个 ICC 文件、配置、测试、逐阶段技术说明和确定性复现示例。复制整个文件夹后，无需原项目路径即可安装运行。
+2026-10-13 修复后的独立可安装交付：50 张 LUT、2 个 ICC、全部代码、61 项回归测试、10 篇技术文档、合成数值复现和 SHA-256 校验。补齐 GFX100S NOSTALGIC Neg. 与 GFX100 II REALA ACE。
 
-**复现对象是本文件夹内的 FFCS 实现及其颜色处理结果。** 给定相同输入、参数、数据和依赖环境，可以重建相同处理链并比较每个阶段的数值。现有材料尚不足以证明完整输出与所有机身 JPEG 或其他软件逐像素一致。此边界明确记录于验证说明，不能把阶段覆盖或历史 LUT 误差当成全链一致性证明。
-
-## 目录和阅读顺序
-
-| 路径 | 内容 |
-|---|---|
-| `docs/01_系统与完整Pipeline.md` | 总体结构、所有分支、阶段域、调用关系 |
-| `docs/02_颜色变换数学与数值约定.md` | Gamma、矩阵、LUT、Lab、OKLab、色调曲线、输出空间 |
-| `docs/03_LUT容器与全部数据资产.md` | 字节格式、轴顺序、数据选择、完整资产表 |
-| `docs/04_RAW双路径实现.md` | 传感器路径、预览路径、每一阶段公式及实际限制 |
-| `docs/05_颗粒锐化与图像IO.md` | 确定性噪声、空间算子、TIFF 与 ICC |
-| `docs/06_参数API与CLI.md` | 完整参数表、所有模型参数、命令与退出码 |
-| `docs/07_验证指标与复现边界.md` | 指标实现、证据、误差与复现范围 |
-| `docs/08_文件清单与交付检查.md` | 本地文件分类、交付规则、校验方法 |
-| `docs/09_全部源码逐模块索引.md` | 全部代码逐函数索引、行号与源码链接 |
-| `docs/10_独立重建实施规格.md` | 其他语言重建顺序、运算顺序、分支与边界检查 |
-| `implementation/` | 独立可安装工程及原有全部测试 |
-| `examples/reproduce.py` | 运行时生成夹具的复现程序 |
-| `examples/verify_delivery.py` | 全文件 SHA-256 与资产完整性检查 |
-| `validation/` | 历史指标、本次测试、确定性像素和环境记录 |
+修复说明见 [FIXES_20261013.md](FIXES_20261013.md)。原生核心 LUT 对照共 100,000 样本，最高单表平均 ΔE2000 0.0540214251；全部满足平均 <1。真实 RAF/原生 GUI/独立色卡配对尚缺，完整流程等价仍未验证。
 
 ## 从零运行
 
-在本文件夹内执行：
+Python >=3.10，安装 Pillow>=9.1、NumPy、tifffile、imagecodecs。以下命令让 pip 按当前 Python 解析兼容依赖：
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install -r validation/requirements-verified.txt
-.venv/bin/python -m pip install ./implementation --no-deps
+.venv/bin/python -m pip install './implementation[test]'
 .venv/bin/python examples/verify_delivery.py
 .venv/bin/python examples/reproduce.py
 .venv/bin/python -m pytest implementation/tests -q
+.venv/bin/python -m ffcs apply input.tif --sim NC --camera XH2S --out output.tif --stages stages
 ```
 
-Windows 使用 `.venv\Scripts\python.exe` 替代 `.venv/bin/python`。配置声明 Python >=3.9；本次实测版本及其范围见 `validation/run_report.json`。如果需要传感器 RAF 解码，另执行 `python -m pip install './implementation[raw]'` 并记录 rawpy、NumPy、LibRaw 版本。RAW 可选依赖未包含在 RGB 实测锁定环境里。
+Windows 使用 `.venv\Scripts\python.exe`。本次 Python3.14.6 的实测环境记录在 `validation/requirements-verified.txt`；仅在兼容该锁定版本的环境中使用 `pip install -r ...`。传感器 RAF 另装 `'./implementation[raw]'`。
 
-```sh
-.venv/bin/python -m ffcs apply input.tif --sim NC --camera XH2S --seed 0 --bits 16 --space sRGB --out output.tif --stages stages
-.venv/bin/python -m ffcs apply input.tif --sim CC --camera XA3 --out chrome.tif
-.venv/bin/python -m ffcs develop input.raf --sim ACROS --filter Ye --camera XH2S --out acros.tif --stages raw_stages
-```
+已载入 LUT 默认关闭额外解析调整，`--preset-adjustments` 可主动启用。传感器 RAW 自动保留线性；解码失败时预览保留已有显影、记录原因与不适用传感器阶段。TIFF16/方向/ICC 保持精度；编码阶段按实际空间标记，线性诊断保存无 ICC float32。
 
-示例输出写入 `examples/generated/`，可重复运行。复现程序会检查既有浮点阶段基准，而不是只生成一张看起来相似的图。校验程序忽略安装缓存和示例生成物，读取 `validation/delivery_manifest.json` 中明确列出的交付文件。
+## 文档与目录
 
-## 上传内容范围
+| 入口 | 内容 |
+|---|---|
+| [01 系统](docs/01_系统与完整Pipeline.md) | 全部分支、阶段域、默认处理 |
+| [02 数学](docs/02_颜色变换数学与数值约定.md) | Gamma、矩阵、LUT、Lab/OKLab、tone与输出 |
+| [03 数据](docs/03_LUT容器与全部数据资产.md) | 字节结构、全部50表与机型选择 |
+| [04 RAW](docs/04_RAW双路径实现.md) | 同CFA运算、双绿、线性与预览 |
+| [05 IO与效果](docs/05_颗粒锐化与图像IO.md) | 残差频谱、Gaussian半径、TIFF/ICC |
+| [06 API](docs/06_参数API与CLI.md) | 完整参数与命令/退出码 |
+| [07 验证](docs/07_验证指标与复现边界.md) | 测量、测试与未验证范围 |
+| [08 文件](docs/08_文件清单与交付检查.md) | 清单/资产区分和独立校验 |
+| [09 源码](docs/09_全部源码逐模块索引.md) | 当前所有模块/符号索引 |
+| [10 重建](docs/10_独立重建实施规格.md) | 运算顺序、边界输入和验收 |
+| `implementation/` | 全部源码、依赖、测试与原生诊断源码 |
+| `examples/` | 从文本生成夹具并核对baseline；检查交付hash |
+| `validation/` | 本次原生测量、环境、测试/复现/安装结果 |
 
-压缩包仅包含技术文档、源码、测试、文本数值基准、校验记录与运行必需的 LUT/ICC 数据。安装包、输入/输出图片、RAF 文件、测试生成物和缓存均不随包上传。示例程序运行时会在本地生成测试图片，这些生成物不属于交付压缩包。
+`examples/generated/` 是运行时生成物，不包含在 ZIP。交付清单明确定义包内容；不包含安装器、vendor可执行文件、输入/输出图像、RAF和缓存。独立复现与原生匹配是不同证据，所有尚未定量标定的部分在元数据和验证文档里明确记录。
