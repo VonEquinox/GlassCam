@@ -30,7 +30,7 @@ class LiveProxySourceContracts(unittest.TestCase):
         self.assertIn('enabled: experimentalLiveColor && scenePhase == .active', VIEW)
         self.assertLess(VIEW.index('CameraPreview(layer: layer, gravity: .resizeAspect)'),
                         VIEW.index('LiveColorProxy(source:'))
-        self.assertIn('Periphery stays unprocessed', VIEW)
+        self.assertIn('Viewfinder color only', VIEW)
         self.assertIn('Apple GPU validation pending', VIEW)
         self.assertIn('visible color errors possible', VIEW)
 
@@ -44,7 +44,7 @@ class LiveProxySourceContracts(unittest.TestCase):
         capture = section(CONTROLLER, 'func captureProRAW(', 'deinit')
         self.assertNotIn('liveSource', capture)
         self.assertNotIn('LiveColor', capture)
-        shutter = section(VIEW, 'private func shutter(', 'private struct CameraPaneGlass')
+        shutter = section(VIEW, 'private func shutter(', 'private enum CameraPanel')
         self.assertNotIn('experimentalLiveColor', shutter)
         self.assertNotIn('liveProxyStatus', shutter)
         self.assertIn('camera.captureProRAW', shutter)

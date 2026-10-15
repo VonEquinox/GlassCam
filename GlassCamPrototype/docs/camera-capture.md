@@ -1,3 +1,5 @@
+> 本分支的当前实现见[单主摄黑边版本](SINGLE_CAMERA.md)。以下多摄和玻璃取景内容属于之前版本的历史合同。
+
 # Native camera capture contract
 
 Release builds have passed with Xcode 27.0. On 2026-10-15, preview negotiation and visible main-camera preview were checked on an iPhone 18 Pro Max running iOS 27.0.1. The production controller also completed the main-camera handoff with an 8064×6048 Apple ProRAW buffer and nonempty DNG file representation. A subsequent user shutter in the full app delivered the same dimensions, retained the source and returned to the editor. Saved/exported file validation, optical alignment, other lens combinations and preview performance still require the device validation below. Source-contract tests do not establish those results.

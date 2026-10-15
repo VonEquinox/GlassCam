@@ -9,7 +9,7 @@ SwiftUI UI, Apple decoding/capture/encoding, and independent standard C++17 HNCS
 1. Open `GlassCam.xcodeproj` in Xcode 16 or later. Keep `../core`, `../reference_ffcs/source.zip` and `../tools` in the supplied layout.
 2. The first build phase verifies the bundled archive and extracts all 50 original FFCS 0.2 assets offline. Missing/corrupt assets fail the build; there is no approximate substitute.
 3. Select shared scheme `GlassCam`, iOS 17+ simulator. For hardware, set your development team and a unique bundle identifier.
-4. Native SwiftUI `glassEffect` requires Xcode 26+ and iOS 26+. The Plan A camera scene uses Glass.clear on iOS26; older camera configurations use a plain transparent perimeter, not imitation frosted glass. Existing editor compatibility styling is separate.
+4. This branch launches directly into a single-main-camera viewfinder with opaque black spare regions. Custom camera and editor surfaces use solid colors, with no Liquid Glass or material fallback. See [single-camera variant](../docs/SINGLE_CAMERA.md).
 
 ```sh
 xcodebuild -project GlassCam.xcodeproj -scheme GlassCam \

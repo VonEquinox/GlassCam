@@ -6,17 +6,12 @@ struct CameraFraming {
     let window: CGRect
     let photo: CGRect
     // Uncropped sensor view at exactly the same scale as the final photo crop.
-    // Center clips this rect; peripheral FOV mapping uses its full sensor span.
+    // The photo frame clips this rect when the selected recipe crops to square.
     let sourcePhoto: CGRect
     let perimeter: [CGRect]
     let usesVerticalControls: Bool
-    let peripheral: CGRect?
-    let hasPeripheralCoverage: Bool
 
-    init(size: CGSize, photoAspectRatio: CGFloat, cropToSquare: Bool = false,
-         centerHorizontalFieldOfView: Float? = nil,
-         peripheralHorizontalFieldOfView: Float? = nil,
-         peripheralAspectRatio: CGFloat? = nil) {
+    init(size: CGSize, photoAspectRatio: CGFloat, cropToSquare: Bool = false) {
         let width = size.width.isFinite ? max(0, size.width) : 0
         let height = size.height.isFinite ? max(0, size.height) : 0
         window = CGRect(x: 0, y: 0, width: width, height: height)
@@ -42,40 +37,5 @@ struct CameraFraming {
             CGRect(x: 0, y: photo.minY, width: photo.minX, height: photo.height),
             CGRect(x: photo.maxX, y: photo.minY, width: width - photo.maxX, height: photo.height)
         ].filter { $0.width > 0 && $0.height > 0 }
-        // First-order pinhole mapping only, NOT calibrated cross-camera alignment.
-        // The lenses have distinct optical centers, distortion and parallax. FOV
-        // scales a genuine wider image without inventing or stretching pixels.
-        if let centerFOV = centerHorizontalFieldOfView,
-           let widerFOV = peripheralHorizontalFieldOfView,
-           let widerAspect = peripheralAspectRatio,
-           centerFOV.isFinite, widerFOV.isFinite,
-           centerFOV > 0, widerFOV > centerFOV, widerFOV < 180,
-           widerAspect.isFinite, widerAspect > 0, photoWidth > 0, photoHeight > 0 {
-            let ratio = CGFloat(tan(Double(widerFOV) * .pi / 360) /
-                                tan(Double(centerFOV) * .pi / 360))
-            // AVFoundation's horizontal FOV is in the unrotated sensor axes:
-            // in portrait that sensor-horizontal extent is the displayed height.
-            let extent: CGSize
-            if aspect < 1 {
-                let sensorHorizontalExtent = sourcePhoto.height * ratio
-                extent = CGSize(width: sensorHorizontalExtent * widerAspect,
-                                height: sensorHorizontalExtent)
-            } else {
-                let sensorHorizontalExtent = sourcePhoto.width * ratio
-                extent = CGSize(width: sensorHorizontalExtent,
-                                height: sensorHorizontalExtent / widerAspect)
-            }
-            let rect = CGRect(x: (width - extent.width) / 2,
-                              y: (height - extent.height) / 2,
-                              width: extent.width, height: extent.height)
-            peripheral = rect
-            // No fill-cropping, scaling-to-cover, mirroring, or synthetic margins.
-            // A finite real lens cannot cover every arbitrary window aspect.
-            hasPeripheralCoverage = extent.width.isFinite && extent.height.isFinite &&
-                rect.minX <= 0 && rect.minY <= 0 && rect.maxX >= width && rect.maxY >= height
-        } else {
-            peripheral = nil
-            hasPeripheralCoverage = false
-        }
     }
 }

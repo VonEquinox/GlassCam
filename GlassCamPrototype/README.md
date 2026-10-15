@@ -1,6 +1,6 @@
 # GlassCam — HNCS + FFCS 原生效果原型
 
-SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。沿用现有技术交付，不新增色卡拟合。当前具备导入、原生 ProRAW 拍摄、比较、全源处理、HEIF 保存与兼容分享；**已通过 Xcode 27.0 / iOS 27 模拟器 Debug、Release 构建和本机 Apple 图像回归，尚未进行 iPhone 真机验收**。
+SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。沿用现有技术交付，不新增色卡拟合。当前具备导入、原生 ProRAW 拍摄、比较、全源处理、HEIF 保存与兼容分享；**当前分支为单主摄黑边版本：启动直接进入相机，已通过 Xcode 27.0 Release 构建及 iPhone 18 Pro Max 的 48MP ProRAW 自动拍摄检查**。
 
 三个独立开关控制锐化、颗粒和预设额外裁切，默认保留开关选择，实际效果遵循当前参考参数，切换预设不重置选择。HNCS/FFCS各自只开关原本存在的阶段，FFCS0.2原生表默认无额外颗粒/锐化，须显式开启参考解析叠加才有对应系数。详见[开关与旧配方迁移](docs/EFFECT_TOGGLES.md)。
 
@@ -8,13 +8,13 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 
 - Photos/Files 导入，或能力门控后的物理镜头 ProRAW 捕获；完整输入保留为本次编辑的临时文件。
 - HNCS 与 FFCS 独立选择。HNCS已接入render revision8真实预设后曲线、film curve、完整目标WB、方裁切及便携颗粒/锐化；linear-sRGB → virtual native RGB 源域桥仍是实验适配。FFCS已同步0.2.0，提供5个研究表族的50张真实资产及中性默认/显式解析叠加，不声称iPhone传感器标定。详见[revision8合同与验证](docs/HNCS_REVISION8.md)。
-- 导入/拍后效果预览走 Float32 → Metal RGBA16Float 高精度 SDR 显示，不经过8位UIImage；不声称屏幕面板原生10bit。导入预览默认最长边 2048px。相机中心与外围视频输出独立缩放，预览像素不决定原始捕获或最终输出大小。
+- 导入/拍后效果预览走 Float32 → Metal RGBA16Float 高精度 SDR 显示，不经过8位UIImage；不声称屏幕面板原生10bit。导入预览默认最长边 2048px。主摄预览独立缩放，预览像素不决定原始捕获或最终输出大小。
 - 最终图从完整源重新解码，裁切后按64行处理；HNCS空间预设额外经过磁盘暂存的全图统计/滤波，再写RGBAf；颜色/空间处理后才在线性光中 Lanczos 缩小，使用专用 HEIF10 writer 请求 10-bit SDR sRGB HEIF。
 - 用户保存仅有 HEIF：独立保存到 Photos / Files。分享先注册原始 HEIC，再提供按需、从最终 HEIF 转出的同尺寸 JPEG 兼容表示；没有 JPEG 导出选项。接收方选择哪种表示、微信能否发送和查看仍未验证。
 - 默认关闭的实验性中心实时色彩开关：65³ GPU代理仅省取景空间效果，原始系统取景保留为回退；支持范围与误差见[实现边界](docs/LIVE_COLOR_PROXY.md)。最终照片继续精确处理。
-- 方案A参考布局：外围使用原生iOS26 Glass.clear；中央成片框按完整窗口最大等比显示，不为控件缩小、不覆玻璃。真实网格、缩略图与设置入口保留，详见[clear玻璃UI](docs/CLEAR_GLASS_UI.md)。主摄/长焦外围使用实际更广物理镜头与近似 FOV 映射、覆盖门控；超广无更广镜头时黑边。光学对齐、视差与硬件组合仍需实测。
+- 相机画面按完整窗口最大等比显示，周围为不透明纯黑区域，网格、缩略图和设置入口保留；App 自定义界面不再使用 Liquid Glass 或材质模糊。
 
-每颗物理镜头独立保存实际源能力允许的 12/24/48MP 输出档位。主摄/长焦先双路预览，按快门后明确冻结画面、停止MultiCam，切到同一物理镜头的普通.photo会话拍最高支持ProRAW，再恢复预览。48MP须运行时检测与回调验证；不静默降为12MP，恢复预览失败也不丢已成功照片。见[会话切换](docs/CAPTURE_SESSION_HANDOFF.md)。
+仅使用一颗物理主摄。取景和 Apple ProRAW 拍摄共用普通 `.photo` 会话，没有 MultiCam、外围取景或按快门重建会话。冷启动的拍照准备期保留 2 秒，之后的快门沿用已经运行的会话。处理后的 12/24/48MP 输出选择仍与原始 RAW 分辨率分开，实际 RAW 类型和尺寸必须通过回调校验；拍摄完成进入编辑页，缩略图也可打开编辑/导入。见[单摄版本说明](docs/SINGLE_CAMERA.md)。
 
 ## 文档
 
@@ -25,7 +25,7 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 - [HNCS revision8预设/WB/空间处理](docs/HNCS_REVISION8.md)
 - [FFCS 数值移植与资产准备](docs/FFCS.md)
 - [iOS 构建与设备验收](ios/README.md) / [C++ 核](core/README.md)
-- [相机能力与取景](docs/camera-capture.md) / [方案A透明玻璃UI](docs/CLEAR_GLASS_UI.md) / [全源导出](docs/FULL_RESOLUTION_EXPORT.md)
+- [相机能力与取景](docs/camera-capture.md) / [单摄黑边界面](docs/SINGLE_CAMERA.md) / [全源导出](docs/FULL_RESOLUTION_EXPORT.md)
 - [精确 Float 并行优化](docs/EXACT_FLOAT_PARALLEL.md) / [Apple 精度与加速约束](docs/apple_precision_acceleration.md)
 - [当前颜色核心分段性能](docs/COLOR_PERFORMANCE.md) / [硬件与加速路线](docs/HARDWARE_PERFORMANCE.md)
 - [高精度 SDR 预览](docs/HIGH_PRECISION_PREVIEW.md)

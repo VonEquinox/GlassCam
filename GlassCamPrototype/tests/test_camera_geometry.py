@@ -31,24 +31,6 @@ def frame(width, height, aspect):
     return (x, y, photo_width, photo_height), [p for p in panes if p[2] > 0 and p[3] > 0]
 
 
-def wider_frame(width, height, photo_aspect, center_fov, wider_fov, wider_aspect):
-    width, height = finite_nonnegative(width), finite_nonnegative(height)
-    photo_aspect = valid_aspect(photo_aspect)
-    photo, _ = frame(width, height, photo_aspect)
-    if not (all(math.isfinite(v) for v in [center_fov, wider_fov, wider_aspect]) and
-            0 < center_fov < wider_fov < 180 and wider_aspect > 0 and photo[2] > 0 and photo[3] > 0):
-        return None, False
-    ratio = math.tan(math.radians(wider_fov / 2)) / math.tan(math.radians(center_fov / 2))
-    if photo_aspect < 1:
-        wide_height = photo[3] * ratio
-        wide_width = wide_height * wider_aspect
-    else:
-        wide_width = photo[2] * ratio
-        wide_height = wide_width / wider_aspect
-    result = ((width - wide_width) / 2, (height - wide_height) / 2, wide_width, wide_height)
-    return result, all(math.isfinite(v) for v in result) and wide_width >= width and wide_height >= height
-
-
 def chrome_layout(width, height, aspect, safe_area=(0, 0, 0, 0), accessible=False):
     """Independent chrome spec: safe area is (top, leading, bottom, trailing).
 
@@ -230,7 +212,6 @@ class CameraGeometryTests(unittest.TestCase):
                     self.assertTrue(all(math.isfinite(x) for rect in [photo] + panes for x in rect))
                     self.assertEqual(photo[2] * photo[3], 0)
                     self.assertEqual(panes, [])
-                    self.assertEqual(wider_frame(*size, aspect, 70, 120, .75), (None, False))
 
     def test_invalid_aspect_falls_back_to_maximal_square(self):
         for aspect in [0, -1, math.nan, math.inf, -math.inf]:
@@ -248,9 +229,10 @@ class CameraGeometryTests(unittest.TestCase):
         self.assertNotIn('UIScreen.main.bounds', view)
         self.assertIn('updateOrientation', view)
 
-    def test_real_glass_and_capture_not_a_screenshot(self):
+    def test_black_bands_and_capture_not_a_screenshot(self):
         view = (ROOT / 'ios/GlassCam/CameraView.swift').read_text()
-        self.assertIn('content.glassEffect(.clear, in: Rectangle())', view)
+        self.assertIn('Color.black', view)
+        self.assertNotIn('glassEffect', view)
         self.assertIn('.buttonStyle(.plain)', view)
         self.assertNotIn('.ultraThinMaterial', view)
         self.assertIn('camera.captureProRAW', view)
@@ -270,50 +252,16 @@ class CameraGeometryTests(unittest.TestCase):
         self.assertIn('physicalCameraID: String, mode: String', settings)
         self.assertIn('camera.output.megapixels.byPhysicalLens.v1', settings)
         self.assertIn('centerPreviewLongEdge: settings.centerPreviewLongEdge', view)
-        self.assertIn('peripheralPreviewLongEdge: settings.peripheralPreviewLongEdge', view)
         self.assertNotIn('outputMegapixels:', view[view.index('private func restartCamera'):])
         self.assertIn('let export = ExportSettings', view)
         self.assertIn('choices.first(where: { $0.megapixels == saved })', view)
-        self.assertIn('$0 < settings.centerPreviewLongEdge', view)
         self.assertIn('camera.isCapturing || camera.isConfiguring', view)
         self.assertIn('Button("Retry camera") { restartCamera() }', view)
         self.assertIn('!camera.isReady && !camera.isConfiguring', view)
         self.assertIn('4096', settings)
 
-    def test_wider_fov_matches_pinhole_scale_in_both_orientations(self):
-        ratio = math.tan(math.radians(60)) / math.tan(math.radians(35))
-        for width, height, aspect in [(390, 844, .75), (844, 390, 4/3)]:
-            photo, _ = frame(width, height, aspect)
-            wide, covered = wider_frame(width, height, aspect, 70, 120, aspect)
-            self.assertTrue(covered)
-            self.assertAlmostEqual(wide[2]/photo[2], ratio)
-            self.assertAlmostEqual(wide[3]/photo[3], ratio)
-            self.assertAlmostEqual(wide[2]/wide[3], aspect)
-            self.assertAlmostEqual(wide[0] + wide[2]/2, width/2)
-            self.assertAlmostEqual(wide[1] + wide[3]/2, height/2)
 
-    def test_wider_video_aspect_preserved_and_missing_coverage_rejected(self):
-        wide, _ = wider_frame(844, 390, 4/3, 70, 120, 1.5)
-        self.assertAlmostEqual(wide[2]/wide[3], 1.5)
-        for width, height, aspect in [(1600, 300, 4/3), (300, 1600, .75)]:
-            _, covered = wider_frame(width, height, aspect, 70, 120, aspect)
-            self.assertFalse(covered)
-        for center, wider in [(70, 70), (70, 60), (0, 120), (70, 180), (70, math.nan)]:
-            self.assertEqual(wider_frame(390, 844, .75, center, wider, .75), (None, False))
 
-    def test_live_periphery_never_uses_arbitrary_fill_scaling(self):
-        view = (ROOT / 'ios/GlassCam/CameraView.swift').read_text()
-        geometry = (ROOT / 'ios/GlassCam/CameraFraming.swift').read_text()
-        self.assertNotIn('.resizeAspectFill', view)
-        self.assertIn('AVSampleBufferDisplayLayer', view)
-        self.assertNotIn('AVCaptureVideoPreviewLayer', view)
-        self.assertIn('.frame(width: extent.width, height: extent.height)', view)
-        self.assertIn('framing.hasPeripheralCoverage', view)
-        self.assertIn('selectedLens == .ultraWide || framing.hasPeripheralCoverage', view)
-        self.assertIn('APPROX. ALIGNMENT / PARALLAX', view)
-        self.assertNotIn('exact photograph framing', view)
-        self.assertIn('tan(Double(widerFOV)', geometry)
-        self.assertIn('if aspect < 1', geometry)
 
 
 if __name__ == '__main__':

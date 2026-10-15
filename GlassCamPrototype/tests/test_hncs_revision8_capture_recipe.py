@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 import re
 import unittest
 
-from test_capture_handoff_model import HandoffModel
+from capture_lifecycle_model import CaptureLifecycleModel
 from test_hncs_revision8_source import body, compact, source
 
 
@@ -66,11 +66,10 @@ class EditorRecipeModel:
 
 class LateCaptureRecipeModelTests(unittest.TestCase):
     def committed_shutter(self):
-        camera, editor = HandoffModel(), EditorRecipeModel()
+        camera, editor = CaptureLifecycleModel(), EditorRecipeModel()
         captured_recipe = copy.deepcopy(editor.controls)
         editor.capture_slot_held = True
         ticket = camera.shutter(target=24)
-        camera.advance(); camera.advance()
         camera.did_process_photo(ticket)
         camera.did_finish_capture(ticket)
         return camera, editor, ticket, captured_recipe
@@ -128,9 +127,8 @@ class LateCaptureRecipeModelTests(unittest.TestCase):
 
     def test_close_without_terminal_success_still_rejects_photo_and_recipe(self):
         for has_processed_callback in [False, True]:
-            camera, editor = HandoffModel(), EditorRecipeModel()
+            camera, editor = CaptureLifecycleModel(), EditorRecipeModel()
             ticket = camera.shutter()
-            camera.advance(); camera.advance()
             if has_processed_callback:
                 camera.did_process_photo(ticket)
             camera.stop()
@@ -163,7 +161,7 @@ class LateCaptureRecipeSourceContracts(unittest.TestCase):
         shutter = body(view, 'private func shutter(')
         self.assertIn('let onCapture: (Data, ExportSettings, ProcessingRecipe) -> Void', view)
         self.assertOrdered(shutter,
-                           'guard camera.isReady, !camera.isCapturing, coverageAvailable, let output = selectedOutput',
+                           'guard camera.isReady, !camera.isCapturing, let output = selectedOutput',
                            'let export = ExportSettings(',
                            'let capturedRecipe = ProcessingRecipe(',
                            'camera.captureProRAW { [capturedRecipe, export] result in',

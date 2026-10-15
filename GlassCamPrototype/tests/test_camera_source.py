@@ -6,15 +6,14 @@ SOURCE = (Path(__file__).resolve().parents[1] / 'ios/GlassCam/CameraController.s
 FRAMES = (Path(__file__).resolve().parents[1] / 'ios/GlassCam/CameraFrameDelivery.swift').read_text()
 
 class CameraSourceContracts(unittest.TestCase):
-    def test_physical_lenses_and_simultaneous_gates(self):
-        for token in ['.builtInUltraWideCamera', '.builtInWideAngleCamera', '.builtInTelephotoCamera',
-                      'AVCaptureMultiCamSession.isMultiCamSupported', 'supportedMultiCamDeviceSets',
-                      'format.isMultiCamSupported', 'newSession.hardwareCost', 'newSession.systemPressureCost']:
-            self.assertIn(token, SOURCE)
-        self.assertNotIn('.builtInTripleCamera', SOURCE)
+    def test_single_physical_main_camera(self):
+        self.assertIn('.builtInWideAngleCamera', SOURCE)
+        for forbidden in ('.builtInUltraWideCamera', '.builtInTelephotoCamera',
+                          'AVCaptureMultiCamSession', 'supportedMultiCamDeviceSets'):
+            self.assertNotIn(forbidden, SOURCE)
 
     def test_graph_uses_manual_center_photo_connection(self):
-        for token in ['AVCaptureMultiCamSession()', 'addInputWithNoConnections', 'addOutputWithNoConnections',
+        for token in ['AVCaptureSession()', 'addInputWithNoConnections', 'addOutputWithNoConnections',
                       'AVCaptureConnection(inputPorts: [port], output: output)',
                       'AVCaptureVideoDataOutput()',
                       'AVCaptureConnection(inputPorts: [port], output: video)']:
@@ -39,7 +38,7 @@ class CameraSourceContracts(unittest.TestCase):
 
     def test_output_targets_are_separate_from_source(self):
         for token in ['struct OutputOption', 'supportedOutputOptions', 'physicalCameraID',
-                      'centerPreviewLongEdge', 'peripheralPreviewLongEdge',
+                      'centerPreviewLongEdge',
                       'newSession.sessionPreset = .photo', 'nominal == 12 || nominal == 48',
                       '[12, 24, 48].filter { $0 <= sourceTier }', 'min(divisor, Int(sqrt(',
                       'outputOptions: Self.outputOptions(source: photo.dimensions)']:

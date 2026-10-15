@@ -360,6 +360,7 @@ struct ContentView: View {
     @State private var filesPresented = false
     @State private var cameraSession: CameraSession?
     @State private var comparison = 0.5
+    @State private var initialCameraOpened = false
 
     var body: some View {
         ZStack {
@@ -381,7 +382,7 @@ struct ContentView: View {
                     if model.hasPendingChanges && !model.busy {
                         Text("These settings have not been rendered. Save and share are paused until the preview succeeds.")
                             .font(.footnote).foregroundStyle(.orange)
-                        Button("Retry effect") { Task { await model.render() } }.glassSurface()
+                        Button("Retry effect") { Task { await model.render() } }.plainSurface()
                     }
                     if let notice = model.notice {
                         Text(notice).font(.footnote).foregroundStyle(.secondary)
@@ -402,7 +403,7 @@ struct ContentView: View {
                     } label: {
                         Label("Open ProRAW camera", systemImage: "camera.fill")
                             .frame(maxWidth: .infinity).padding(14)
-                    }.glassSurface().disabled(model.busy)
+                    }.plainSurface().disabled(model.busy)
                     importButtons
                     controls
                     Text("EXPERIMENTAL SOURCE ADAPTER")
@@ -419,6 +420,15 @@ struct ContentView: View {
             }
         }
         .tint(.white)
+        .task {
+            guard !initialCameraOpened else { return }
+            initialCameraOpened = true
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                cameraSession = CameraSession(id: model.beginCameraSession())
+            }
+        }
         .fileImporter(isPresented: $filesPresented, allowedContentTypes: [.image], allowsMultipleSelection: false) { result in
             do {
                 guard let url = try result.get().first else { return }
@@ -490,11 +500,11 @@ struct ContentView: View {
                 Button("Save HEIF to Files", action: model.saveToFiles)
             } label: {
                 Image(systemName: "square.and.arrow.down").font(.title3).frame(width: 48, height: 48)
-            }.glassSurface().disabled(!model.canDeliver)
+            }.plainSurface().disabled(!model.canDeliver)
                 .accessibilityLabel("Save original 10-bit HEIF")
             Button(action: model.share) {
                 Image(systemName: "square.and.arrow.up").font(.title3).frame(width: 48, height: 48)
-            }.glassSurface().disabled(!model.canDeliver)
+            }.plainSurface().disabled(!model.canDeliver)
                 .accessibilityLabel("Export 10-bit SDR HEIF")
         }
     }
@@ -524,7 +534,7 @@ struct ContentView: View {
                     }.frame(maxWidth: .infinity).frame(height: 310).padding(.horizontal)
                 }
                 if model.busy {
-                    ProgressView("Processing image…").padding(22).glassSurface()
+                    ProgressView("Processing image…").padding(22).plainSurface()
                 }
             }.background(.white.opacity(0.035)).clipShape(RoundedRectangle(cornerRadius: 24))
                 .overlay(RoundedRectangle(cornerRadius: 24).stroke(.white.opacity(0.12)))
@@ -545,10 +555,10 @@ struct ContentView: View {
         HStack(spacing: 12) {
             PhotosPicker(selection: $photo, matching: .images, preferredItemEncoding: .current) {
                 Label("Photos", systemImage: "photo.on.rectangle").frame(maxWidth: .infinity).padding(.vertical, 15)
-            }.glassSurface()
+            }.plainSurface()
             Button { filesPresented = true } label: {
                 Label("Files / DNG", systemImage: "folder").frame(maxWidth: .infinity).padding(.vertical, 15)
-            }.glassSurface()
+            }.plainSurface()
         }.font(.subheadline.weight(.medium)).disabled(model.busy)
     }
 
@@ -582,7 +592,7 @@ struct ContentView: View {
                 if model.colorMode == .hncs { model.kelvin = 6500; model.hncs = .standard }
                 Task { await model.render() }
             }.font(.caption).foregroundStyle(.secondary)
-        }.padding(20).glassSurface().disabled(model.busy)
+        }.padding(20).plainSurface().disabled(model.busy)
     }
 }
 
@@ -672,26 +682,15 @@ struct EffectToggleControls: View {
     }
 }
 
-private struct GlassSurface: ViewModifier {
-    @ViewBuilder func body(content: Content) -> some View {
-        #if compiler(>=6.2)
-        if #available(iOS 26.0, *) {
-            content.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 22))
-        } else {
-            fallback(content)
-        }
-        #else
-        fallback(content)
-        #endif
-    }
-    private func fallback(_ content: Content) -> some View {
-        content.background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22))
+private struct PlainSurface: ViewModifier {
+    func body(content: Content) -> some View {
+        content.background(Color(white: 0.09), in: RoundedRectangle(cornerRadius: 22))
             .overlay(RoundedRectangle(cornerRadius: 22).stroke(.white.opacity(0.14), lineWidth: 0.7))
     }
 }
 
 private extension View {
-    func glassSurface() -> some View { modifier(GlassSurface()) }
+    func plainSurface() -> some View { modifier(PlainSurface()) }
 }
 
 private struct ShareSheet: UIViewControllerRepresentable {

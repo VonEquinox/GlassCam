@@ -260,15 +260,13 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         recipe_crop = body(self.pipeline, 'var crop: ImageCrop')
         self.assertEqual(compact(recipe_crop), 'mode == .hncs ? hncs.crop(effects: effects) : .none')
 
-    def test_camera_square_frame_clips_unstretched_source_and_preserves_peripheral_fov(self):
+    def test_camera_square_frame_clips_unstretched_source(self):
         framing = body(self.framing, 'init(size:')
         self.assertOrdered(framing, 'let outputAspect: CGFloat = cropToSquare ? 1 : aspect',
                            'min(width, height * outputAspect)',
                            'photoWidth / outputAspect',
                            'photoWidth * max(1, aspect)', 'photoHeight * max(1, 1 / aspect)',
                            'sourcePhoto = CGRect(')
-        self.assertIn('sourcePhoto.height * ratio', framing)
-        self.assertIn('sourcePhoto.width * ratio', framing)
         self.assertNotIn('photoHeight * ratio', framing)
         self.assertNotIn('photoWidth * ratio', framing)
         center = self.view.split('if let layer = camera.centerPreviewLayer', 1)[1].split('PhotoFrameGuide', 1)[0]

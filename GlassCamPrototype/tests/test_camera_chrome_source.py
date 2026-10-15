@@ -1,8 +1,8 @@
-"""Clear-glass camera source contracts, NOT Swift compilation or visual QA.
+"""Opaque camera chrome source contracts, NOT Swift compilation or visual QA.
 
 Together with the independent model in test_camera_geometry.py these checks
 protect intended layout and integration boundaries. They do not execute SwiftUI,
-prove native Liquid Glass appearance, test camera hardware, or certify hit areas.
+prove rendered appearance, test camera hardware, or certify hit areas.
 Apple SDK/device verification remains required.
 """
 from pathlib import Path
@@ -19,7 +19,7 @@ def section(source, start, end):
     return source.split(start, 1)[1].split(end, 1)[0]
 
 
-class ClearGlassSourceContracts(unittest.TestCase):
+class CameraChromeSourceContracts(unittest.TestCase):
     def test_full_window_geometry_never_reserves_space_for_controls(self):
         self.assertIn('CameraFraming(size: proxy.size,', VIEW)
         self.assertIn('.ignoresSafeArea()', VIEW)
@@ -42,9 +42,9 @@ class ClearGlassSourceContracts(unittest.TestCase):
         self.assertIn('].filter { $0.width > 0 && $0.height > 0 }', FRAMING)
         self.assertEqual(panes.count('CGRect('), 4)
 
-    def test_clear_glass_uses_native_api_without_frosted_or_synthetic_fallback(self):
-        self.assertIn('content.glassEffect(.clear, in: Rectangle())', VIEW)
-        self.assertEqual(VIEW.count('.glassEffect('), 1)
+    def test_opaque_chrome_has_no_glass_or_material(self):
+        self.assertNotIn('.glassEffect(', VIEW)
+        self.assertNotIn('.glassEffect(', CONTENT)
         for forbidden in ('.glassEffect(.regular', '.buttonStyle(.glass)',
                           '.ultraThinMaterial', '.thinMaterial', '.regularMaterial',
                           '.thickMaterial', '.ultraThickMaterial', 'UIBlurEffect',
@@ -54,15 +54,14 @@ class ClearGlassSourceContracts(unittest.TestCase):
                           '.resizeAspectFill', 'scaleEffect(x: -1'):
             self.assertNotIn(forbidden, VIEW)
 
-    def test_native_glass_modifier_is_only_applied_to_perimeter_panes(self):
+    def test_black_perimeter_is_outside_the_photo(self):
         panes = section(VIEW, 'ForEach(Array(framing.perimeter.enumerated())',
                         'if let layer = camera.centerPreviewLayer')
-        self.assertIn('.modifier(CameraPaneGlass())', panes)
+        self.assertIn('Color.black', panes)
         self.assertIn('.frame(width: pane.width, height: pane.height)', panes)
-        self.assertIn('.clipped()', panes)
         self.assertIn('.position(x: pane.midX, y: pane.midY)', panes)
         self.assertIn('.allowsHitTesting(false)', panes)
-        self.assertEqual(VIEW.count('.modifier(CameraPaneGlass())'), 1)
+        self.assertNotIn('CameraPaneGlass', VIEW)
         self.assertLess(VIEW.index('ForEach(Array(framing.perimeter.enumerated())'),
                         VIEW.index('if let layer = camera.centerPreviewLayer'))
 
@@ -70,7 +69,7 @@ class ClearGlassSourceContracts(unittest.TestCase):
         center = section(VIEW, 'if let layer = camera.centerPreviewLayer',
                          'if let source = camera.centerLiveSource')
         proxy = section(VIEW, 'if let source = camera.centerLiveSource',
-                        'if !camera.isCapturing && (!camera.isReady')
+                        'if !camera.isCapturing && !camera.isReady')
         self.assertIn('CameraPreview(layer: layer, gravity: .resizeAspect)', center)
         self.assertIn('.background(.black)', center)
         for source in (center, proxy):
@@ -82,19 +81,6 @@ class ClearGlassSourceContracts(unittest.TestCase):
                 self.assertNotIn(forbidden, source)
         self.assertIn('enabled: experimentalLiveColor && scenePhase == .active && !camera.isPreviewFrozen', proxy)
 
-    def test_physical_periphery_retains_fov_mapping_and_coverage_gate(self):
-        periphery = section(VIEW, 'if let layer = camera.peripheralPreviewLayer',
-                            'ForEach(Array(framing.perimeter.enumerated())')
-        self.assertIn('let extent = framing.peripheral', periphery)
-        self.assertIn('framing.hasPeripheralCoverage', periphery)
-        self.assertIn('CameraPreview(layer: layer, gravity: .resizeAspect)', periphery)
-        self.assertIn('.frame(width: extent.width, height: extent.height)', periphery)
-        self.assertIn('.position(x: extent.midX, y: extent.midY)', periphery)
-        self.assertIn('tan(Double(widerFOV) * .pi / 360)', FRAMING)
-        self.assertIn('tan(Double(centerFOV) * .pi / 360)', FRAMING)
-        self.assertIn('if aspect < 1', FRAMING)
-        self.assertIn('rect.minX <= 0 && rect.minY <= 0 && rect.maxX >= width && rect.maxY >= height', FRAMING)
-        self.assertIn('selectedLens == .ultraWide || framing.hasPeripheralCoverage', VIEW)
 
     def test_reference_style_has_brand_flash_grid_status_and_photo_only(self):
         controls = section(VIEW, 'private func controls(', 'private var wordmark:')
@@ -119,9 +105,8 @@ class ClearGlassSourceContracts(unittest.TestCase):
         self.assertIn('camera.isReady && !camera.isPreviewFrozen', photo_mode)
         self.assertNotRegex(VIEW, r'Text\("(?:Video|Portrait|视频|人像)"\)')
         self.assertIn('camera.geometry?.sensorPhotoDimensions', VIEW)
-        self.assertIn('case .main: return "1×"', VIEW)
-        self.assertIn('case .ultraWide: return "Ultra"', VIEW)
-        self.assertIn('case .telephoto: return "Tele"', VIEW)
+        self.assertIn('Text("1×")', VIEW)
+        self.assertIn('Main camera', VIEW)
         self.assertIn('Text("RAW")', VIEW)
 
     def test_composition_grid_is_real_toggle_scoped_to_photograph(self):
@@ -130,11 +115,11 @@ class ClearGlassSourceContracts(unittest.TestCase):
         self.assertIn('gridVisible.toggle()', button)
         self.assertIn('"Hide composition grid" : "Show composition grid"', button)
         placement = section(VIEW, 'PhotoFrameGuide(gridVisible: gridVisible)',
-                            'if !camera.isCapturing && (!camera.isReady')
+                            'if !camera.isCapturing && !camera.isReady')
         self.assertIn('.frame(width: framing.photo.width, height: framing.photo.height)', placement)
         self.assertIn('.position(x: framing.photo.midX, y: framing.photo.midY)', placement)
         self.assertIn('.allowsHitTesting(false)', placement)
-        guide = section(VIEW, 'private struct PhotoFrameGuide:', 'private struct CameraPaneGlass:')
+        guide = section(VIEW, 'private struct PhotoFrameGuide:', 'private struct CameraPreview:')
         self.assertIn('if gridVisible {', guide)
         self.assertIn('CGFloat(1) / 3, CGFloat(2) / 3', guide)
         self.assertNotIn('glassEffect', guide)
@@ -168,7 +153,7 @@ class ClearGlassSourceContracts(unittest.TestCase):
             self.assertIn(threshold, layout)
         self.assertIn('.sheet(item: $activePanel)', VIEW)
         self.assertIn('.presentationBackground(Color.black)', VIEW)
-        panel = section(VIEW, 'private func cameraPanel(', 'private var orientedPeripheralAspectRatio:')
+        panel = section(VIEW, 'private func cameraPanel(', 'private var selectedOutput:')
         self.assertIn('.scrollContentBackground(.hidden)', panel)
         self.assertIn('.background(Color.black)', panel)
         self.assertIn('tap it to reopen these controls.', panel)
@@ -180,14 +165,14 @@ class ClearGlassSourceContracts(unittest.TestCase):
         self.assertNotIn('captureProRAW', gesture)
 
     def test_compact_error_card_keeps_retry_and_controls_accessible(self):
-        error = section(VIEW, 'if !camera.isCapturing && (!camera.isReady',
+        error = section(VIEW, 'if !camera.isCapturing && !camera.isReady',
                         'if chrome.style == .separate &&')
         self.assertIn('Button("Retry camera") { restartCamera() }', error)
         self.assertIn('if chrome.style == .separate {', error)
         self.assertIn('Button("Open camera controls") { activePanel = .compact }', error)
         gesture = section(VIEW, 'if chrome.style == .separate &&',
                           'controls(framing: framing, chrome: chrome)')
-        self.assertIn('(camera.isCapturing || (camera.isReady && coverageAvailable(framing)))', gesture)
+        self.assertIn('(camera.isCapturing || camera.isReady)', gesture)
         self.assertIn('.onTapGesture { activePanel = .compact }', gesture)
         self.assertNotIn('restartCamera()', gesture)
 
@@ -205,14 +190,13 @@ class ClearGlassSourceContracts(unittest.TestCase):
         self.assertLess(shutter.index('activePanel = nil'), shutter.index('camera.captureProRAW'))
 
     def test_settings_keep_effect_output_preview_and_editor_access(self):
-        settings = section(VIEW, 'private func cameraPanel(', 'private var orientedPeripheralAspectRatio:')
+        settings = section(VIEW, 'private func cameraPanel(', 'private var selectedOutput:')
         for token in ('Picker("Color engine", selection: $colorMode)',
                       'FFCSReferenceControls(settings: $ffcs, simulationIndex: $simulationIndex)',
                       'Slider(value: $exposureEV, in: -2...2, step: 0.05)',
                       'Slider(value: $illuminantKelvin, in: 2000...10000, step: 50)',
                       'camera.supportedOutputOptions', 'selection: outputSelection',
                       'selection: $settings.centerPreviewLongEdge',
-                      'selection: $settings.peripheralPreviewLongEdge',
                       'Toggle("Experimental live color (approx.)", isOn: $experimentalLiveColor)',
                       'Compare, save and share in the editor.',
                       'Button("Close camera", action: closeCamera)'):
@@ -224,10 +208,10 @@ class ClearGlassSourceContracts(unittest.TestCase):
         self.assertIn('Apple GPU validation pending', settings)
         self.assertIn('not measured camera WB', settings)
 
-    def test_chrome_legibility_shadow_is_clipped_to_spare_region(self):
+    def test_controls_are_clipped_to_the_black_spare_regions(self):
         region = section(VIEW, 'private struct CameraChromeRegion:', 'private struct PhotoFrameGuide:')
         tokens = ['.frame(width: rect.width, height: rect.height)',
-                  '.shadow(', '.clipped()', '.position(x: rect.midX, y: rect.midY)']
+                  '.clipped()', '.position(x: rect.midX, y: rect.midY)']
         cursor = -1
         for token in tokens:
             cursor = region.find(token, cursor + 1)
@@ -237,17 +221,9 @@ class ClearGlassSourceContracts(unittest.TestCase):
         self.assertEqual(controls.count('.modifier(CameraChromeRegion(rect: chrome.second))'), 4)
         self.assertNotIn('.glassEffect(', region)
         self.assertNotIn('.background(', region)
-        lens = section(VIEW, 'private var lensMenu:', 'private var thumbnailButton:')
+        lens = section(VIEW, 'private var lensIndicator:', 'private var thumbnailButton:')
         self.assertIn('.frame(minWidth: 44, minHeight: 44)', lens)
 
-    def test_old_sdk_and_os_fallback_is_plain_and_disclosed(self):
-        glass = section(VIEW, 'private struct CameraPaneGlass:', 'private struct CameraPreview:')
-        self.assertIn('#if compiler(>=6.2)', glass)
-        self.assertIn('if #available(iOS 26.0, *)', glass)
-        self.assertIn('#else\n        content\n        #endif', glass)
-        self.assertNotIn('.background(', glass)
-        self.assertIn('Native clear glass requires iOS 26.', VIEW)
-        self.assertIn('Native clear glass requires the iOS 26 SDK.', VIEW)
 
     def test_editor_passes_actual_photo_and_mutable_recipe_to_camera(self):
         camera = section(CONTENT, 'CameraView(', '.sheet(item: $model.fileSave)')

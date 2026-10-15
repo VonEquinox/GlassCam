@@ -1,9 +1,8 @@
-"""Static capture-handoff wiring contracts, NOT an Apple SDK/device test.
+"""Static single-camera capture wiring contracts, NOT an Apple SDK/device test.
 
 These checks guard the intended ownership, cancellation, retained-frame and UI
 boundaries. Tokens and ordering cannot prove an AVCaptureSession works on device,
-that its freeze is visible, or that Apple delivers full-size ProRAW. The portable
-model in test_capture_handoff_model.py is an executable specification only.
+that its freeze is visible, or that Apple delivers full-size ProRAW. Hardware validation is recorded separately.
 """
 from pathlib import Path
 import unittest
@@ -18,31 +17,16 @@ def section(source, start, end):
     return source.split(start, 1)[1].split(end, 1)[0]
 
 
-class CaptureHandoffViewContracts(unittest.TestCase):
-    def test_frozen_is_labeled_and_never_exposed_as_live_color(self):
-        # Frozen status is now visible on the photograph, while detailed preview
-        # diagnostics live in the settings panel. Preserve its priority over the
-        # ordinary system-preview label without coupling to deleted chrome.
-        self.assertIn('if camera.isPreviewFrozen {', VIEW)
-        self.assertIn('Text(camera.isCapturing ? "Preview paused · Capturing RAW" : "Preview paused")', VIEW)
-        label = section(VIEW, 'Section("Diagnostics")', 'if let dimensions = camera.centerPreviewDimensions')
-        self.assertIn('Text(camera.isPreviewFrozen ? "FROZEN PREVIEW"', label)
-        self.assertLess(label.index("camera.isPreviewFrozen"), label.index("SYSTEM PREVIEW"))
-        self.assertIn("enabled: experimentalLiveColor && scenePhase == .active && !camera.isPreviewFrozen", VIEW)
-        self.assertIn("cameraReady: camera.isReady && coverageAvailable(framing)", VIEW)
+class SingleCameraViewContracts(unittest.TestCase):
 
-    def test_handoff_does_not_cover_retained_frame_with_loading_card(self):
-        self.assertIn("if !camera.isCapturing && (!camera.isReady || !coverageAvailable(framing))", VIEW)
-        self.assertIn("if let layer = camera.centerPreviewLayer, camera.geometry != nil", VIEW)
-        self.assertIn("if let layer = camera.peripheralPreviewLayer", VIEW)
 
     def test_shutter_and_restart_are_guarded_and_output_is_snapshotted(self):
         restart = section(VIEW, "private func restartCamera()", "private func shutter(")
         self.assertLess(restart.index("!camera.isCapturing"), restart.index("camera.start("))
         self.assertIn("!isClosing", restart)
         self.assertIn("scenePhase == .active", restart)
-        shutter = section(VIEW, "private func shutter(", "private struct CameraPaneGlass")
-        self.assertIn("guard camera.isReady, !camera.isCapturing, coverageAvailable, let output = selectedOutput", shutter)
+        shutter = section(VIEW, "private func shutter(", "private enum CameraPanel")
+        self.assertIn("guard camera.isReady, !camera.isCapturing, let output = selectedOutput", shutter)
         self.assertLess(shutter.index("let export = ExportSettings"), shutter.index("camera.captureProRAW"))
         self.assertIn("case .success(let data): onCapture(data, export, capturedRecipe)", shutter)
         self.assertIn(".onDisappear { camera.stop() }", VIEW)
@@ -56,7 +40,7 @@ class CaptureHandoffViewContracts(unittest.TestCase):
         self.assertIn('Button("Close camera", action: closeCamera)', VIEW)
         self.assertIn('"Stop capture and open editor"', VIEW)
         self.assertIn('Button(action: closeCamera)', VIEW)
-        shutter = section(VIEW, "private func shutter(", "private struct CameraPaneGlass")
+        shutter = section(VIEW, "private func shutter(", "private enum CameraPanel")
         self.assertIn("case .success(let data): onCapture(data, export, capturedRecipe)", shutter)
         self.assertIn("if !isClosing { captureError = error.localizedDescription }", shutter)
         self.assertIn(".disabled(camera.isCapturing || camera.isConfiguring)", VIEW)
@@ -72,7 +56,7 @@ class CaptureHandoffViewContracts(unittest.TestCase):
         self.assertIn("Single-camera ProRAW source:", VIEW)
 
 
-class CaptureHandoffBackendContracts(unittest.TestCase):
+class SingleCameraBackendContracts(unittest.TestCase):
     def assertOrdered(self, text, *tokens):
         previous = -1
         for token in tokens:
@@ -80,17 +64,6 @@ class CaptureHandoffBackendContracts(unittest.TestCase):
             self.assertGreater(index, previous, token)
             previous = index
 
-    def test_capability_is_probed_before_video_only_multicam_preview(self):
-        configure = section(SOURCE, "func configure(mode: CameraController.Mode", "private func discover(")
-        self.assertOrdered(configure, "buildSinglePhotoGraph(", "capability = photo",
-                           "tearDownGraph(preservingPreview: false)", "try lifetime.check()",
-                           "buildMultiPreview(", "try waitForPreviewFrames()", "phase = .preview")
-        multi = section(SOURCE, "private func buildMultiPreview(", "private func validatePreviewFraming(")
-        self.assertIn("AVCaptureMultiCamSession()", multi)
-        self.assertIn("addPreview(port:", multi)
-        for forbidden in ("AVCapturePhotoOutput()", "isAppleProRAWSupported", "isAppleProRAWEnabled",
-                          "availableRawPhotoPixelFormatTypes", "maxPhotoDimensions ="):
-            self.assertNotIn(forbidden, multi)
 
     def test_highest_source_capability_does_not_use_multicam_or_preview_filter(self):
         capability = section(SOURCE, "private func photoCapability(", "private func validate(")
@@ -109,8 +82,7 @@ class CaptureHandoffBackendContracts(unittest.TestCase):
         self.assertIn("try validate(try photoCapability(center), matches: photo)", photo)
 
     def test_graph_ownership_is_released_before_each_new_graph(self):
-        for start, end in (("private func buildSinglePhotoGraph(", "private func photoCapability("),
-                           ("private func buildMultiPreview(", "private func validatePreviewFraming(")):
+        for start, end in (("private func buildSinglePhotoGraph(", "private func photoCapability("),):
             body = section(SOURCE, start, end)
             self.assertOrdered(body, "try checkLifetime()", "guard session == nil", "let newSession =")
         teardown = section(SOURCE, "private func tearDownGraph(", "    func stop()")
@@ -119,14 +91,6 @@ class CaptureHandoffBackendContracts(unittest.TestCase):
                            "old.removeInput", "old.commitConfiguration()", "session = nil")
         self.assertNotIn("finishRequest(", teardown)
 
-    def test_capture_freezes_before_teardown_then_builds_validated_photo_graph(self):
-        capture = section(SOURCE, "func capture(progress:", "private func waitUntilPhotoReady(")
-        self.assertIn("guard phase == .preview, currentRequest == nil", capture)
-        self.assertOrdered(capture, "currentRequest = request", "try validatePreviewFraming(capability)",
-                           "frameDeliveries.forEach { $0.freeze() }", "tearDownGraph(preservingPreview: true)",
-                           "try request.lifetime.check()", "buildSinglePhotoGraph(", "waitUntilPhotoReady(")
-        self.assertIn("orientation: request.orientation", capture)
-        self.assertIn("expected: capability, includePreview: false", capture)
 
     def test_preview_readiness_requires_real_enqueued_frame_before_freeze(self):
         freeze = section(FRAMES, "func freeze()", "func invalidate()")
@@ -169,7 +133,7 @@ class CaptureHandoffBackendContracts(unittest.TestCase):
     def test_photo_readiness_guards_request_lifetime_orientation_and_ordinary_session(self):
         ready = section(SOURCE, "private func waitUntilPhotoReady(", "private func submitPhoto(")
         self.assertOrdered(ready, "guard currentRequest === request", "try request.lifetime.check()",
-                           "!(session is AVCaptureMultiCamSession)", "session.sessionPreset == .photo",
+                           "session.sessionPreset == .photo",
                            "try validate(try photoCapability(center), matches: request.capability)",
                            "interfaceOrientation == request.orientation", "output.captureReadiness == .ready",
                            "try submitPhoto(request, output: output)")
@@ -207,12 +171,11 @@ class CaptureHandoffBackendContracts(unittest.TestCase):
         self.assertIn("failSession(error.localizedDescription, stopRunning: true)", rotate)
         self.assertIn("throw error", rotate)
 
-    def test_restore_failure_and_stale_ui_do_not_replace_committed_photo(self):
+    def test_preview_failure_and_stale_ui_do_not_replace_committed_photo(self):
         finish = section(SOURCE, "private func finishPhoto(", "private func finishRequest(")
         self.assertOrdered(finish, "guard currentRequest === request", "request.result = result",
                            "if !request.lifetime.isCancelled && !failed && phase != .stopped",
-                           "tearDownGraph(preservingPreview: true)", "try request.lifetime.check()",
-                           "try buildMultiPreview(", "try waitForPreviewFrames()",
+                           "try validateRunningGraph()", "try request.lifetime.check()",
                            "finishRequest(request, result: result")
         self.assertIn("previewError = error.localizedDescription", finish)
         self.assertNotIn("result = .failure", finish)

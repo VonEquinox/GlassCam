@@ -4,7 +4,7 @@ import UIKit
 
 /// Full-window live camera. Exact photo effects run only after DNG capture.
 /// An opt-in approximate GPU color proxy affects the central viewfinder only.
-/// No SwiftUI view, glass overlay, peripheral image, or screenshot enters that DNG.
+/// The photo frame is surrounded by opaque black control bands.
 struct CameraView: View {
     @Binding var colorMode: ColorMode
     @Binding var simulationIndex: Int
@@ -21,7 +21,7 @@ struct CameraView: View {
     let onClose: () -> Void
     @StateObject private var camera = CameraController()
     @StateObject private var settings = CameraSettingsStore()
-    @State private var selectedLens: CameraController.Mode = .main
+    private let selectedLens: CameraController.Mode = .main
     @State private var captureError: String?
     @State private var isClosing = false
     @State private var experimentalLiveColor = false
@@ -36,34 +36,18 @@ struct CameraView: View {
         GeometryReader { proxy in
             let framing = CameraFraming(size: proxy.size,
                                         photoAspectRatio: camera.geometry?.photoAspectRatio ?? 1,
-                                        cropToSquare: colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare,
-                                        centerHorizontalFieldOfView: camera.geometry?.centerHorizontalFieldOfView,
-                                        peripheralHorizontalFieldOfView: camera.geometry?.peripheralHorizontalFieldOfView,
-                                        peripheralAspectRatio: orientedPeripheralAspectRatio)
+                                        cropToSquare: colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare)
             let chrome = CameraChromeLayout(framing: framing, safeArea: proxy.safeAreaInsets,
                                             needsAccessiblePanel: dynamicTypeSize.isAccessibilitySize)
             ZStack(alignment: .topLeading) {
                 Color.black
-                // Only the independently captured wider physical lens appears here.
-                // Ultrawide has no wider lens: its approved perimeter remains black.
-                if let layer = camera.peripheralPreviewLayer, let extent = framing.peripheral,
-                   framing.hasPeripheralCoverage {
-                    CameraPreview(layer: layer, gravity: .resizeAspect)
-                        .frame(width: extent.width, height: extent.height)
-                        .position(x: extent.midX, y: extent.midY)
-                }
-                // One clear native pane per natural spare region. No glass control
-                // backgrounds, merging container, edge copies or simulated frosting.
+                // Opaque black spare regions have hard edges at the photo frame.
                 ForEach(Array(framing.perimeter.enumerated()), id: \.offset) { _, pane in
-                    Color.clear
+                    Color.black
                         .frame(width: pane.width, height: pane.height)
-                        .modifier(CameraPaneGlass())
-                        .clipped()
                         .position(x: pane.midX, y: pane.midY)
                         .allowsHitTesting(false)
                 }
-                // Opaque-backed, maximum aspect-fit photograph above the panes.
-                // There is no glass modifier or rounded clipping on the photograph.
                 if let layer = camera.centerPreviewLayer, camera.geometry != nil {
                     CameraPreview(layer: layer, gravity: .resizeAspect)
                         .frame(width: framing.sourcePhoto.width, height: framing.sourcePhoto.height)
@@ -76,7 +60,7 @@ struct CameraView: View {
                 if let source = camera.centerLiveSource, camera.geometry != nil {
                     LiveColorProxy(source: source, recipe: liveRecipe,
                                    enabled: experimentalLiveColor && scenePhase == .active && !camera.isPreviewFrozen,
-                                   cameraReady: camera.isReady && coverageAvailable(framing)) { status in
+                                   cameraReady: camera.isReady) { status in
                         liveProxyStatus = status
                     }
                     .frame(width: framing.sourcePhoto.width, height: framing.sourcePhoto.height)
@@ -90,12 +74,10 @@ struct CameraView: View {
                     .position(x: framing.photo.midX, y: framing.photo.midY)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
-                if !camera.isCapturing && (!camera.isReady || !coverageAvailable(framing)) {
+                if !camera.isCapturing && !camera.isReady {
                     VStack(spacing: 12) {
                         Image(systemName: "camera.fill").font(.largeTitle)
-                        Text(camera.isReady && !coverageAvailable(framing)
-                             ? "The wider camera can’t cover this window. Rotate or resize the window, or choose Ultra wide in settings."
-                             : camera.status).font(.callout).multilineTextAlignment(.center)
+                        Text(camera.status).font(.callout).multilineTextAlignment(.center)
                         if !camera.isReady && !camera.isConfiguring {
                             Button("Retry camera") { restartCamera() }.padding(10)
                         }
@@ -109,7 +91,7 @@ struct CameraView: View {
                     .background(.black)
                     .position(x: framing.photo.midX, y: framing.photo.midY)
                 }
-                if chrome.style == .separate && (camera.isCapturing || (camera.isReady && coverageAvailable(framing))) {
+                if chrome.style == .separate && (camera.isCapturing || camera.isReady) {
                     // The initial plain control panel explains this genuine gesture.
                     // It never changes the photo rect; no invisible shutter is used.
                     Color.clear.contentShape(Rectangle())
@@ -167,9 +149,7 @@ struct CameraView: View {
             if phase == .background { camera.stop() }
             else if phase == .active { restartCamera() }
         }
-        .onChange(of: selectedLens) { _, _ in restartCamera() }
         .onChange(of: settings.centerPreviewLongEdge) { _, _ in restartCamera() }
-        .onChange(of: settings.peripheralPreviewLongEdge) { _, _ in restartCamera() }
         .alert("Couldn’t capture ProRAW", isPresented: Binding(get: { captureError != nil }, set: { if !$0 { captureError = nil } })) {
             Button("OK", role: .cancel) { captureError = nil }
         } message: { Text(captureError ?? "Unknown capture error") }
@@ -195,7 +175,7 @@ struct CameraView: View {
                 HStack {
                     thumbnailButton
                     Spacer(minLength: 12)
-                    shutter(coverageAvailable: coverageAvailable(framing), diameter: 82)
+                    shutter(diameter: 82)
                     Spacer(minLength: 12)
                     settingsButton
                 }
@@ -207,7 +187,7 @@ struct CameraView: View {
                 Spacer(minLength: 0)
                 flashOff
                 Text(photoAspectLabel).font(.caption.weight(.semibold))
-                lensMenu
+                lensIndicator
                 Text("RAW").font(.caption.weight(.semibold)).tracking(2)
                 gridButton
                 Spacer(minLength: 0)
@@ -217,7 +197,7 @@ struct CameraView: View {
                 photoMode
                 thumbnailButton
                 Spacer(minLength: 0)
-                shutter(coverageAvailable: coverageAvailable(framing), diameter: 82)
+                shutter(diameter: 82)
                 Spacer(minLength: 0)
                 settingsButton
             }
@@ -234,7 +214,7 @@ struct CameraView: View {
             HStack {
                 thumbnailButton
                 Spacer(minLength: 8)
-                shutter(coverageAvailable: coverageAvailable(framing), diameter: 56)
+                shutter(diameter: 56)
                 Spacer(minLength: 8)
                 settingsButton
             }
@@ -242,7 +222,7 @@ struct CameraView: View {
         case .compactVertical:
             VStack(spacing: 8) {
                 flashOff
-                lensMenu
+                lensIndicator
                 Spacer(minLength: 0)
                 gridButton
                 thumbnailButton
@@ -251,7 +231,7 @@ struct CameraView: View {
             VStack(spacing: 8) {
                 photoMode
                 Spacer(minLength: 0)
-                shutter(coverageAvailable: coverageAvailable(framing), diameter: 56)
+                shutter(diameter: 56)
                 Spacer(minLength: 0)
                 settingsButton
             }
@@ -288,7 +268,7 @@ struct CameraView: View {
         HStack(spacing: 14) {
             Text(photoAspectLabel)
             Text("·")
-            lensMenu
+            lensIndicator
             Text("·")
             Text("RAW")
         }
@@ -317,27 +297,10 @@ struct CameraView: View {
         return "\(long / a):\(short / a)"
     }
 
-    private var lensLabel: String {
-        // Main is its physical lens at the backend’s verified 1× zoom. Neither
-        // ultrawide nor tele is assigned an invented device-dependent multiplier.
-        switch selectedLens {
-        case .main: return "1×"
-        case .ultraWide: return "Ultra"
-        case .telephoto: return "Tele"
-        }
-    }
-
-    private var lensMenu: some View {
-        Menu {
-            Picker("Physical camera", selection: $selectedLens) {
-                ForEach(CameraController.Mode.allCases) { mode in Text(mode.title).tag(mode) }
-            }
-        } label: {
-            Text(lensLabel).font(.system(size: 12, weight: .semibold))
-                .lineLimit(1).frame(minWidth: 44, minHeight: 44)
-        }
-        .disabled(camera.isCapturing || camera.isConfiguring)
-        .accessibilityLabel("Physical camera: \(selectedLens.title)")
+    private var lensIndicator: some View {
+        Text("1×").font(.system(size: 12, weight: .semibold))
+            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel("Main camera")
     }
 
     private var thumbnailButton: some View {
@@ -385,7 +348,7 @@ struct CameraView: View {
                         HStack {
                             thumbnailButton
                             Spacer()
-                            shutter(coverageAvailable: coverageAvailable(framing), diameter: 82)
+                            shutter(diameter: 82)
                             Spacer()
                             gridButton
                         }
@@ -395,9 +358,7 @@ struct CameraView: View {
                     } header: { Text("Photo controls") }
                 }
                 Section("Camera") {
-                    Picker("Physical camera", selection: $selectedLens) {
-                        ForEach(CameraController.Mode.allCases) { mode in Text(mode.title).tag(mode) }
-                    }
+                    LabeledContent("Camera", value: "Main · 1×")
                     Toggle("Composition grid", isOn: $gridVisible)
                     LabeledContent("Photo aspect", value: photoAspectLabel)
                     if colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare {
@@ -449,7 +410,7 @@ struct CameraView: View {
                   .disabled(camera.isCapturing)
                 Section {
                     Toggle("Experimental live color (approx.)", isOn: $experimentalLiveColor)
-                    Text("Central color only. Periphery stays unprocessed. No grain, blur or spatial effects.")
+                    Text("Viewfinder color only. No grain, blur or spatial effects.")
                     Text("Experimental 65³ proxy; visible color errors possible. 8-bit input, half-float SDR display.")
                     Text("Domain: linear RGB [0,1]; out-of-range colors clamp. Apple GPU validation pending.")
                     if let reason = liveRecipe.unsupportedReason { Text(reason) }
@@ -457,42 +418,25 @@ struct CameraView: View {
                 } header: { Text("Live color preview") }
                   .font(.footnote).disabled(camera.isCapturing)
                 Section("Live preview resolution") {
-                    Picker("Center long-edge limit", selection: $settings.centerPreviewLongEdge) {
-                        ForEach(CameraSettingsStore.centerPreviewCaps.filter { $0 > settings.peripheralPreviewLongEdge }, id: \.self) { limit in
-                            Text("Up to \(limit) px").tag(limit)
-                        }
-                    }
-                    Picker("Peripheral long-edge limit", selection: $settings.peripheralPreviewLongEdge) {
-                        ForEach(CameraSettingsStore.peripheralPreviewCaps.filter { $0 < settings.centerPreviewLongEdge }, id: \.self) { limit in
+                    Picker("Preview long-edge limit", selection: $settings.centerPreviewLongEdge) {
+                        ForEach(CameraSettingsStore.centerPreviewCaps, id: \.self) { limit in
                             Text("Up to \(limit) px").tag(limit)
                         }
                     }
                 }.disabled(camera.isCapturing || camera.isConfiguring)
                 Section("Diagnostics") {
                     Text(camera.status)
-                    Text(camera.isPreviewFrozen ? "FROZEN PREVIEW"
-                         : selectedLens == .ultraWide ? "SYSTEM PREVIEW · 8-BIT VIDEO · ProRAW PHOTO"
-                         : "8-BIT VIDEO · RAW PERIPHERY · APPROX. ALIGNMENT / PARALLAX")
+                    Text("SYSTEM PREVIEW · SINGLE MAIN CAMERA · ProRAW PHOTO")
                     if let dimensions = camera.centerPreviewDimensions {
                         Text("Center: \(Int(dimensions.width)) × \(Int(dimensions.height)) px")
                         Text(camera.centerPreviewEncoding ?? "Pixel format pending")
                     }
-                    if let dimensions = camera.peripheralPreviewDimensions {
-                        Text("Periphery: \(Int(dimensions.width)) × \(Int(dimensions.height)) px")
-                        Text(camera.peripheralPreviewEncoding ?? "Pixel format pending")
-                    }
                     if let dimensions = camera.sourceCaptureDimensions {
                         Text("Single-camera ProRAW source: \(Int(dimensions.width)) × \(Int(dimensions.height)) px")
                     }
-                    Text("The wider lens uses approximate FOV alignment. Parallax and lens distortion remain; the central frame matches the selected final crop.")
                     if !camera.isReady && !camera.isConfiguring {
                         Button("Retry camera") { restartCamera() }
                     }
-                    #if compiler(>=6.2)
-                    if #unavailable(iOS 26.0) { Text("This OS uses a plain transparent camera perimeter. Native clear glass requires iOS 26.") }
-                    #else
-                    Text("This build uses a plain transparent camera perimeter. Native clear glass requires the iOS 26 SDK.")
-                    #endif
                 }.font(.footnote)
                 Section {
                     Button(camera.isCapturing ? "Stop capture and open editor" : "Open editor / import photo", action: closeCamera)
@@ -510,19 +454,6 @@ struct CameraView: View {
             }
         }
         .tint(.white)
-    }
-
-    private var orientedPeripheralAspectRatio: CGFloat? {
-        guard let dimensions = camera.peripheralPreviewDimensions,
-              dimensions.width > 0, dimensions.height > 0 else { return nil }
-        // Controller publishes unrotated scaled sensor dimensions; delivered
-        // sample buffers themselves are rotated by the output connection.
-        let landscapeAspect = dimensions.width / dimensions.height
-        return (camera.geometry?.photoAspectRatio ?? 1) < 1 ? 1 / landscapeAspect : landscapeAspect
-    }
-
-    private func coverageAvailable(_ framing: CameraFraming) -> Bool {
-        selectedLens == .ultraWide || framing.hasPeripheralCoverage
     }
 
     private var selectedOutput: CameraController.OutputOption? {
@@ -563,14 +494,12 @@ struct CameraView: View {
 
     private func restartCamera() {
         guard !isClosing, scenePhase == .active, !camera.isCapturing else { return }
-        camera.start(mode: selectedLens,
-                     centerPreviewLongEdge: settings.centerPreviewLongEdge,
-                     peripheralPreviewLongEdge: settings.peripheralPreviewLongEdge)
+        camera.start(mode: selectedLens, centerPreviewLongEdge: settings.centerPreviewLongEdge)
     }
 
-    private func shutter(coverageAvailable: Bool, diameter: CGFloat) -> some View {
+    private func shutter(diameter: CGFloat) -> some View {
         Button {
-            guard camera.isReady, !camera.isCapturing, coverageAvailable, let output = selectedOutput else { return }
+            guard camera.isReady, !camera.isCapturing, let output = selectedOutput else { return }
             activePanel = nil
             // Freeze the entire output recipe at shutter time. A successful photo
             // can arrive after Close, when editor controls already show another look.
@@ -603,7 +532,7 @@ struct CameraView: View {
             .frame(width: diameter, height: diameter)
             .contentShape(Circle())
         }
-        .disabled(!camera.isReady || camera.isCapturing || selectedOutput == nil || !coverageAvailable || !captureSlotAvailable)
+        .disabled(!camera.isReady || camera.isCapturing || selectedOutput == nil || !captureSlotAvailable)
         .accessibilityLabel("Capture Apple ProRAW DNG")
         .accessibilityHint(captureSlotAvailable
             ? "Full-resolution photo with the selected effect applied after capture"
@@ -661,14 +590,12 @@ private struct CameraChromeLayout {
     }
 }
 
-/// Clear glass does not adapt contrast. A small glyph/control shadow keeps the
-/// white chrome legible over bright scenes; clipping prevents center-frame spill.
+/// Opaque black bands keep controls legible outside the photograph.
 private struct CameraChromeRegion: ViewModifier {
     let rect: CGRect
     func body(content: Content) -> some View {
         content
             .frame(width: rect.width, height: rect.height)
-            .shadow(color: .black.opacity(0.75), radius: 1.5, x: 0, y: 1)
             .clipped()
             .position(x: rect.midX, y: rect.midY)
     }
@@ -689,29 +616,8 @@ private struct PhotoFrameGuide: View {
                         }
                     }.stroke(.white.opacity(0.24), lineWidth: 0.5)
                 }
-                Path { path in
-                    path.move(to: CGPoint(x: 0, y: 0.5))
-                    path.addLine(to: CGPoint(x: proxy.size.width, y: 0.5))
-                    path.move(to: CGPoint(x: 0, y: max(0, proxy.size.height - 0.5)))
-                    path.addLine(to: CGPoint(x: proxy.size.width, y: max(0, proxy.size.height - 0.5)))
-                }.stroke(.white.opacity(0.9), lineWidth: 1)
             }
         }
-    }
-}
-
-private struct CameraPaneGlass: ViewModifier {
-    @ViewBuilder func body(content: Content) -> some View {
-        #if compiler(>=6.2)
-        if #available(iOS 26.0, *) {
-            content.glassEffect(.clear, in: Rectangle())
-        } else {
-            // Honest compatibility path: a plain transparent perimeter, not glass.
-            content
-        }
-        #else
-        content
-        #endif
     }
 }
 

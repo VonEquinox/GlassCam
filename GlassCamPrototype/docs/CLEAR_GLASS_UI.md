@@ -1,3 +1,5 @@
+> 历史设计：本分支已采用[单主摄黑边版本](SINGLE_CAMERA.md)，以下多摄/玻璃设计保留作历史参考。
+
 # 方案A：参考布局与原生 clear Liquid Glass
 
 2026-10-12。用户明确批准先做A：参考图布局、外围使用系统原生clear Liquid Glass，并保留现有基础双镜头对齐。A是第一轮原生视觉实验；还没有Mac/iPhone上的视觉或GPU成本测量。
