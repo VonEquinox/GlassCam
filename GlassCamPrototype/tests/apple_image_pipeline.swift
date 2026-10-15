@@ -17,6 +17,7 @@ private func require(_ condition: Bool, _ message: String) throws {
 @main struct AppleImageChecks {
     static let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
     static let sRGB = CGColorSpace(name: CGColorSpace.sRGB)!
+    static let pq = CGColorSpace(name: CGColorSpace.itur_2100_PQ)!
     static let context = CIContext(options: [.workingColorSpace: linear,
                                              .workingFormat: CIFormat.RGBAf.rawValue,
                                              .cacheIntermediates: false])
@@ -125,9 +126,9 @@ private func require(_ condition: Bool, _ message: String) throws {
         var marker = [Float](repeating: 1, count: width * height * 4)
         for y in 0..<height { for x in 0..<width {
             let i = (y * width + x) * 4
-            marker[i] = y < height / 2 ? 0 : 1
-            marker[i + 1] = y < height / 2 ? 1 : 0
-            marker[i + 2] = x < width / 2 ? 0 : 1
+            marker[i] = y < height / 2 ? 0 : 2
+            marker[i + 1] = y < height / 2 ? 4 : 0
+            marker[i + 2] = x < width / 2 ? 0 : 8
         } }
         let raster = try PreviewRaster(linearRGBA: marker, width: width, height: height)
         let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rgba16Float,
@@ -156,12 +157,25 @@ private func require(_ condition: Bool, _ message: String) throws {
     static func checkExport(_ input: ImportedImage, recipe: ProcessingRecipe,
                             directory: URL, name: String, scale: Double = 1) throws {
         let processed = try ImagePipeline.process(input, recipe: recipe)
+        // The preview thumbnail and full-source ImageIO/CI decoders can differ,
+        // especially for HDR chroma. The whole-frame oracle must use full pixels.
+        let decoded = CIImage(contentsOf: input.sourceFile.url,
+                              options: [.applyOrientationProperty: true, .expandToHDR: true])!
+        let fullRGBA = pixels(decoded)
+        var fullRGB = [Float]()
+        for i in stride(from: 0, to: fullRGBA.count, by: 4) { fullRGB += fullRGBA[i..<(i + 3)] }
+        let full = ImportedImage(sourceFile: input.sourceFile, exportSettings: input.exportSettings,
+            linearRGB: fullRGB, width: Int(decoded.extent.width), height: Int(decoded.extent.height),
+            original: try PreviewRaster(linearRGBA: fullRGBA, width: Int(decoded.extent.width), height: Int(decoded.extent.height)),
+            sourceDescription: "Full-frame oracle")
+        let oracle = try ImagePipeline.process(full, recipe: recipe)
         let actualURL = directory.appendingPathComponent(name + "-actual.heic")
         let expectedURL = directory.appendingPathComponent(name + "-expected.heic")
         let settings: ExportSettings = scale == 1 ? .native : .init(
             targetWidth: Int(Double(input.width) * scale), targetHeight: Int(Double(input.height) * scale))
         try ImagePipeline.writeHEIF(processed, to: actualURL, settings: settings)
-        var expected = processed.image.image
+        var expected = oracle.image.image
+        if #available(macOS 26, *) { expected = expected.settingContentHeadroom(0) }
         if scale != 1 {
             expected = expected.applyingFilter("CILanczosScaleTransform",
                 parameters: [kCIInputScaleKey: scale, kCIInputAspectRatioKey: 1.0])
@@ -169,19 +183,84 @@ private func require(_ condition: Bool, _ message: String) throws {
                                     height: Double(processed.image.height) * scale))
                 .applyingFilter("CIColorClamp", parameters: [
                     "inputMinComponents": CIVector(x: 0, y: 0, z: 0, w: 1),
-                    "inputMaxComponents": CIVector(x: 1, y: 1, z: 1, w: 1)])
+                    "inputMaxComponents": CIVector(x: CGFloat(ImagePipeline.maximumHDRValue), y: CGFloat(ImagePipeline.maximumHDRValue), z: CGFloat(ImagePipeline.maximumHDRValue), w: 1)])
                 .cropped(to: CGRect(x: 0, y: 0, width: Double(processed.image.width) * scale,
                                     height: Double(processed.image.height) * scale))
         }
+        if #available(macOS 26, *) {
+            let peak = pixels(oracle.image.image).max() ?? 1
+            expected = expected.settingContentHeadroom(max(1, peak))
+        }
         // Compare through the same codec to separate row/effect errors from HEIF loss.
-        try context.writeHEIF10Representation(of: expected, to: expectedURL, colorSpace: sRGB, options: [:])
-        guard let actualImage = CIImage(contentsOf: actualURL), let expectedImage = CIImage(contentsOf: expectedURL) else {
+        try context.writeHEIF10Representation(of: expected, to: expectedURL, colorSpace: pq, options: [:])
+        guard let actualImage = CIImage(contentsOf: actualURL, options: [.expandToHDR: true]),
+              let expectedImage = CIImage(contentsOf: expectedURL, options: [.expandToHDR: true]) else {
             throw CheckFailure(description: "HEIF output cannot be reopened")
         }
         try require(actualImage.extent == expectedImage.extent, "HEIF output dimensions differ")
         let maximum = try error(pixels(actualImage), pixels(expectedImage))
         try require(maximum < 0.02, "Full-source HEIF differs from the whole-frame oracle: \(maximum)")
         print("  \(name): maximum decoded HEIF difference \(maximum)")
+    }
+
+    static func hdrFixture(_ directory: URL) throws -> ImportedImage {
+        let width = 256, height = 384
+        var rgba = [Float](repeating: 1, count: width * height * 4)
+        let levels: [Float] = [0.1, 0.5, 1, 2, 4, 8]
+        for y in 0..<height { for x in 0..<width {
+            let level = levels[y / 64]
+            let i = (y * width + x) * 4
+            rgba[i] = level
+            rgba[i + 1] = level * (0.5 + 0.5 * Float(x) / Float(width - 1))
+            rgba[i + 2] = level * 0.6
+        } }
+        let raster = try PreviewRaster(linearRGBA: rgba, width: width, height: height)
+        let url = directory.appendingPathComponent("hdr-source.heic")
+        try context.writeHEIF10Representation(of: raster.image, to: url, colorSpace: pq, options: [:])
+        let input = try ImagePipeline.load(data: Data(contentsOf: url), fileExtension: "heic", previewMaximumEdge: 4096)
+        try require((input.linearRGB.max() ?? 0) > 7.5, "HDR import discarded source highlights")
+        return input
+    }
+
+    static func checkHDR(_ input: ImportedImage, directory: URL) throws {
+        let processed = try ImagePipeline.process(input, recipe: .standard)
+        let source = input.linearRGB
+        var base = source
+        for i in stride(from: 0, to: base.count, by: 3) {
+            let gain = max(1, source[i], source[i + 1], source[i + 2])
+            for channel in 0..<3 { base[i + channel] /= gain }
+        }
+        var expected = try HNCSEngine.exportLinearRGBA(linearSRGB: base, width: input.width,
+            height: input.height, exposureEV: 0, illuminantKelvin: 6500, settings: .standard)
+        for pixel in 0..<(source.count / 3) {
+            let i = pixel * 3
+            let gain = max(1, source[i], source[i + 1], source[i + 2])
+            for channel in 0..<3 { expected[pixel * 4 + channel] *= gain }
+        }
+        try require(try error(pixels(processed.image.image), expected) < 1e-5,
+                    "HDR preview did not preserve source highlight ratios through the effect")
+        let file = directory.appendingPathComponent("hdr-metadata.heic")
+        try ImagePipeline.writeHEIF(processed, to: file)
+        guard let container = CGImageSourceCreateWithURL(file as CFURL, nil),
+              let metadata = CGImageSourceCopyPropertiesAtIndex(container, 0, nil) as? [String: Any],
+              let decoded = CGImageSourceCreateImageAtIndex(container, 0,
+                  [kCGImageSourceDecodeRequest: kCGImageSourceDecodeToHDR] as CFDictionary),
+              let image = CIImage(contentsOf: file, options: [.expandToHDR: true]) else {
+            throw CheckFailure(description: "HDR HEIF could not be reopened")
+        }
+        try require((metadata[kCGImagePropertyDepth as String] as? NSNumber)?.intValue == 10 &&
+                    decoded.colorSpace?.isHDR() == true, "HDR export lacks 10-bit PQ color encoding")
+        try require((pixels(image).max() ?? 0) > 2, "HDR metadata exists but encoded pixels were clipped to SDR")
+        for preset in ["standard", "square-crop", "film-grain-artistic", "high"] {
+            try checkExport(input, recipe: recipe(preset), directory: directory, name: "hdr-hncs-" + preset)
+        }
+        for overlay in [false, true] {
+            let recipe = ProcessingRecipe(mode: .ffcs, exposureEV: 0, illuminantKelvin: 6500,
+                simulationIndex: 0, seed: 0, hncs: .standard,
+                ffcs: FFCSSettings(applyReferenceAdjustments: overlay, sharpenRadius: 2.3))
+            try checkExport(input, recipe: recipe, directory: directory, name: "hdr-ffcs-\(overlay)")
+        }
+        try checkExport(input, recipe: .standard, directory: directory, name: "hdr-downsample", scale: 0.5)
     }
 
     static func checkCancellation(_ input: ImportedImage, directory: URL) throws {
@@ -227,11 +306,47 @@ private func require(_ condition: Bool, _ message: String) throws {
                     (metadata[kCGImagePropertyPixelHeight as String] as? NSNumber)?.intValue == input.height &&
                     (metadata[kCGImagePropertyDepth as String] as? NSNumber)?.intValue == 8,
                     "Compatibility JPEG changed dimensions or depth")
+        if (input.linearRGB.max() ?? 0) > 1 {
+            let jpegImage = CIImage(data: jpeg)!
+            let decoded = pixels(jpegImage)
+            let last = ((input.height - 32) * input.width + input.width / 2) * 4
+            let middle = ((input.height - 96) * input.width + input.width / 2) * 4
+            print("  JPEG HDR tone-map samples: \(Array(decoded[middle..<(middle + 3)])), \(Array(decoded[last..<(last + 3)]))")
+            // JPEG loss and color conversion can slightly overshoot 1. Reference
+            // white may map to 1; the two source highlights must stay distinct.
+            try require(decoded[middle] < 0.95 && decoded[last] - decoded[middle] > 0.05,
+                        "JPEG compatibility clipped distinct HDR highlights instead of tone mapping")
+        }
+    }
+
+    static func checkRAW(_ source: URL, directory: URL) throws {
+        let input = try ImagePipeline.load(data: Data(contentsOf: source), fileExtension: "dng")
+        let processed = try ImagePipeline.process(input, recipe: .standard)
+        let output = directory.appendingPathComponent("raw-hdr.heic")
+        let started = Date()
+        try ImagePipeline.writeHEIF(processed, to: output) { progress in
+            if progress == 0 || progress == 0.9 { print("  real RAW export progress: \(progress)"); fflush(stdout) }
+        }
+        let raw = CIRAWFilter(imageURL: source)!
+        raw.extendedDynamicRangeAmount = 1
+        let image = CIImage(contentsOf: output, options: [.expandToHDR: true])!
+        let container = CGImageSourceCreateWithURL(output as CFURL, nil)!
+        let metadata = CGImageSourceCopyPropertiesAtIndex(container, 0, nil) as! [String: Any]
+        let native = raw.nativeSize
+        let width = (metadata[kCGImagePropertyPixelWidth as String] as! NSNumber).intValue
+        let height = (metadata[kCGImagePropertyPixelHeight as String] as! NSNumber).intValue
+        try require(min(width, height) == Int(min(native.width, native.height)) &&
+                    max(width, height) == Int(max(native.width, native.height)), "RAW HDR export changed native resolution")
+        try require((metadata[kCGImagePropertyDepth as String] as? NSNumber)?.intValue == 10 &&
+                    image.colorSpace?.isHDR() == true, "RAW export is not 10-bit HDR")
+        let maximum = pixels(image.applyingFilter("CIAreaMaximum", parameters: [kCIInputExtentKey: CIVector(cgRect: image.extent)]))
+        try require(maximum.allSatisfy { $0.isFinite }, "RAW HDR export has invalid pixel values")
+        print("PASS: real RAW \(width)×\(height) → 10-bit PQ HEIF; decoded peak \(maximum.max()!); bytes \((try Data(contentsOf: output)).count); seconds \(Date().timeIntervalSince(started))")
     }
 
     static func main() async {
         do {
-            guard CommandLine.arguments.count == 2 else { throw CheckFailure(description: "Pass a temporary fixture directory") }
+            guard (2...3).contains(CommandLine.arguments.count) else { throw CheckFailure(description: "Pass a temporary fixture directory and optional DNG") }
             let directory = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
             try checkWorkRows()
             print("PASS: Foundation work-file row order and uneven partitions")
@@ -243,7 +358,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             for preset in ["film-grain-artistic", "high"] { try checkSpatial(spatial, preset: preset) }
             print("PASS: Swift spatial file processing matches native grain and sharpening")
             try checkMetal()
-            print("PASS: actual Metal preview destination preserves all quadrant coordinates")
+            print("PASS: actual Metal preview destination preserves quadrant coordinates and 2×/4×/8× HDR pixels")
             let full = try fixture(directory, width: 257, height: 389)
             for preset in ["standard", "square-crop", "film-grain-artistic", "high"] {
                 try checkExport(full, recipe: recipe(preset), directory: directory, name: "hncs-" + preset)
@@ -257,10 +372,17 @@ private func require(_ condition: Bool, _ message: String) throws {
             try checkExport(fixture(directory, width: 256, height: 384), recipe: .standard,
                             directory: directory, name: "hncs-downsample", scale: 0.5)
             print("PASS: 7 real HEIF exports match full-frame processing, including halos and resize")
+            let hdr = try hdrFixture(directory)
+            try checkHDR(hdr, directory: directory)
+            print("PASS: HDR import, highlight ratios, 10-bit PQ metadata, and 7 HDR full-frame/strip/resize exports")
             try checkCancellation(full, directory: directory)
             print("PASS: cancellation discards output while retaining the source")
             try await checkShare(full)
+            try await checkShare(hdr)
             print("PASS: real share provider preserves HEIF and delivers cached full-size JPEG")
+            if CommandLine.arguments.count == 3 {
+                try checkRAW(URL(fileURLWithPath: CommandLine.arguments[2]), directory: directory)
+            }
         } catch {
             FileHandle.standardError.write(Data("FAIL: \(error)\n".utf8))
             exit(1)

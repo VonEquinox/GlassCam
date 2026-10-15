@@ -338,7 +338,7 @@ final class EditorModel: ObservableObject {
                 case .photos:
                     // Photos transactions cannot be cancelled after submission.
                     try await HEIFSaveDelivery.saveToPhotos(file)
-                    notice = "Saved original 10-bit HEIF to Photos."
+                    notice = "Saved original 10-bit HDR HEIF to Photos."
                 }
             } catch is CancellationError {
                 if operationID == id { notice = "Export cancelled. No save was submitted." }
@@ -412,9 +412,9 @@ struct ContentView: View {
                          ? "Imported images are adapted from linear sRGB into the target camera color space. This is an effect preview, not a calibrated camera match. Virtual capture CCT defines a synthetic baseline for Apple-decoded linear RGB. A white-balance preset separately replaces virtual-camera target gains and selects factory interpolation; it does not recover scene white balance."
                          : "FFCS uses the selected native reference LUT family and the FFCS 0.2 research pipeline. Optional reference grain uses fixed seed 0. Imported images enter as linear sRGB. This is an experimental effect, not a calibrated Fujifilm camera match.")
                         .font(.footnote).foregroundStyle(.secondary)
-                    Text("Preview: up to 2048 px / high-precision SDR Float → RGBA16F • export: full source or selected lens output / 10-bit SDR HEIF")
+                    Text("Preview: HDR / up to 2048 px • Export: full-resolution 10-bit HDR HEIF")
                         .font(.caption).foregroundStyle(.secondary)
-                    Text("Save keeps the original 10-bit HEIF. Sharing offers HEIF first and an on-demand compatibility image; receiver behavior still needs device testing.")
+                    Text("Save keeps the original 10-bit HDR HEIF. Sharing offers HDR HEIF first; JPEG-only recipients receive a tone-mapped compatibility image.")
                         .font(.caption).foregroundStyle(.secondary)
                 }.padding(22)
             }
@@ -479,7 +479,7 @@ struct ContentView: View {
         .sheet(item: $model.fileSave) { exported in
             HEIFFileSaveSheet(file: exported.file) { saved in
                 model.fileSave = nil
-                if saved { model.notice = "Saved original 10-bit HEIF to Files." }
+                if saved { model.notice = "Saved original 10-bit HDR HEIF to Files." }
             }
         }
         .sheet(item: $model.export) { export in ShareSheet(file: export.file) }
@@ -501,11 +501,11 @@ struct ContentView: View {
             } label: {
                 Image(systemName: "square.and.arrow.down").font(.title3).frame(width: 48, height: 48)
             }.plainSurface().disabled(!model.canDeliver)
-                .accessibilityLabel("Save original 10-bit HEIF")
+                .accessibilityLabel("Save original 10-bit HDR HEIF")
             Button(action: model.share) {
                 Image(systemName: "square.and.arrow.up").font(.title3).frame(width: 48, height: 48)
             }.plainSurface().disabled(!model.canDeliver)
-                .accessibilityLabel("Export 10-bit SDR HEIF")
+                .accessibilityLabel("Export 10-bit HDR HEIF")
         }
     }
 

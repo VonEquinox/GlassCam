@@ -21,9 +21,15 @@ final class PreviewRaster: @unchecked Sendable {
         self.height = height
         let data = linearRGBA.withUnsafeBytes { Data($0) }
         self.storage = data
-        self.image = CIImage(bitmapData: data, bytesPerRow: width * 16,
+        let image = CIImage(bitmapData: data, bytesPerRow: width * 16,
                              size: CGSize(width: CGFloat(width), height: CGFloat(height)),
                              format: .RGBAf, colorSpace: space)
+        if #available(iOS 26, macOS 26, *) {
+            let peak = stride(from: 0, to: linearRGBA.count, by: 4).reduce(Float(1)) {
+                max($0, linearRGBA[$1], linearRGBA[$1 + 1], linearRGBA[$1 + 2])
+            }
+            self.image = image.settingContentHeadroom(peak)
+        } else { self.image = image }
     }
 
     private init(image: CIImage, width: Int, height: Int, storage: Data) {

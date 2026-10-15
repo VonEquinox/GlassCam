@@ -1,0 +1,44 @@
+PASS: asymmetric 7x131 markers, 64/64/3-row strip ordering and RGBAf reconstruction. Maximum error 0.0
+/Users/vonequinox/.codex/worktrees/single-camera-hard-black/GlassCam/GlassCamPrototype/tests/apple_image_pipeline.swift:327:60: warning: backward matching of the unlabeled trailing closure is deprecated; label the argument with 'progress' to suppress this warning [#TrailingClosureMatching]
+325 |         let output = directory.appendingPathComponent("raw-hdr.heic")
+326 |         let started = Date()
+327 |         try ImagePipeline.writeHEIF(processed, to: output) { progress in
+    |                                                            `- warning: backward matching of the unlabeled trailing closure is deprecated; label the argument with 'progress' to suppress this warning [#TrailingClosureMatching]
+328 |             if progress == 0 || progress == 0.9 { print("  real RAW export progress: \(progress)"); fflush(stdout) }
+329 |         }
+
+/Users/vonequinox/.codex/worktrees/single-camera-hard-black/GlassCam/GlassCamPrototype/ios/GlassCam/ImagePipeline.swift:357:17: note: 'writeHEIF(_:to:settings:isCancelled:progress:)' declared here
+355 |     /// App-owned scratch is O(width * stripRows); Apple RAW/ImageIO/CI/HEIF may
+356 |     /// allocate full-size internal surfaces. Device peak-RSS validation is required.
+357 |     static func writeHEIF(_ processed: ProcessedImage, to url: URL,
+    |                 `- note: 'writeHEIF(_:to:settings:isCancelled:progress:)' declared here
+358 |                           settings: ExportSettings? = nil,
+359 |                           isCancelled: @escaping @Sendable () -> Bool = { false },
+
+[#TrailingClosureMatching]: <https://docs.swift.org/compiler/documentation/diagnostics/trailing-closure-matching>
+PASS: Foundation work-file row order and uneven partitions
+PASS: odd portrait/landscape crops select identical before/after pixels
+PASS: Swift spatial file processing matches native grain and sharpening
+PASS: actual Metal preview destination preserves quadrant coordinates and 2×/4×/8× HDR pixels
+  hncs-standard: maximum decoded HEIF difference 0.0
+  hncs-square-crop: maximum decoded HEIF difference 0.0
+  hncs-film-grain-artistic: maximum decoded HEIF difference 0.0
+  hncs-high: maximum decoded HEIF difference 0.0
+  ffcs-false: maximum decoded HEIF difference 0.0
+  ffcs-true: maximum decoded HEIF difference 0.0
+  hncs-downsample: maximum decoded HEIF difference 0.0
+PASS: 7 real HEIF exports match full-frame processing, including halos and resize
+  hdr-hncs-standard: maximum decoded HEIF difference 0.0
+  hdr-hncs-square-crop: maximum decoded HEIF difference 0.0
+  hdr-hncs-film-grain-artistic: maximum decoded HEIF difference 0.0
+  hdr-hncs-high: maximum decoded HEIF difference 0.0
+  hdr-ffcs-false: maximum decoded HEIF difference 0.0
+  hdr-ffcs-true: maximum decoded HEIF difference 0.0
+  hdr-downsample: maximum decoded HEIF difference 0.0
+PASS: HDR import, highlight ratios, 10-bit PQ metadata, and 7 HDR full-frame/strip/resize exports
+PASS: cancellation discards output while retaining the source
+  JPEG HDR tone-map samples: [0.7895378, 0.7276611, 0.66065705], [1.0092816, 0.9355875, 0.85131556]
+PASS: real share provider preserves HEIF and delivers cached full-size JPEG
+  real RAW export progress: 0.0
+  real RAW export progress: 0.9
+PASS: real RAW 6048×8064 → 10-bit PQ HEIF; decoded peak 20.414772; bytes 3882012; seconds 3.310434103012085

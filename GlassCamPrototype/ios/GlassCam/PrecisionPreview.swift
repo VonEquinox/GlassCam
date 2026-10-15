@@ -5,9 +5,9 @@ import UIKit
 import QuartzCore
 import SwiftUI
 
-/// High-precision SDR preview. Float32 input and working surfaces feed a half-float
+/// High-precision HDR preview. Float32 input and working surfaces feed a half-float
 /// drawable; half precision is final display storage, never engine math. This does
-/// not assert native panel bit depth, HDR presentation, or ten-bit source decoding.
+/// not assert native panel bit depth or ten-bit source decoding.
 /// comparisonFraction controls processed pixels on the left; nil shows the effect
 /// alone. The before/after wipe is a GPU crop/composite of the retained two rasters.
 struct PrecisionPreview: UIViewRepresentable {
@@ -31,7 +31,7 @@ struct PrecisionPreview: UIViewRepresentable {
             // Match render destination and compositor interpretation. Encoding
             // sRGB here as well would apply its transfer curve twice.
             layer.colorspace = context.coordinator.colorSpace
-            layer.wantsExtendedDynamicRangeContent = false
+            layer.wantsExtendedDynamicRangeContent = true
         }
         view.delegate = context.coordinator
         context.coordinator.installStatusOverlay(in: view)
@@ -165,11 +165,10 @@ struct PrecisionPreview: UIViewRepresentable {
                     output = effect
                 }
             }
-            // Source RAW can exceed SDR white. Bound presentation without changing
-            // retained source or processing inputs; no PQ, HLG, or EDR headroom.
+            // Preserve highlight values above reference white for EDR presentation.
             output = output.applyingFilter("CIColorClamp", parameters: [
                 "inputMinComponents": CIVector(x: 0, y: 0, z: 0, w: 1),
-                "inputMaxComponents": CIVector(x: 1, y: 1, z: 1, w: 1)
+                "inputMaxComponents": CIVector(x: CGFloat(ImagePipeline.maximumHDRValue), y: CGFloat(ImagePipeline.maximumHDRValue), z: CGFloat(ImagePipeline.maximumHDRValue), w: 1)
             ]).composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
                 .cropped(to: bounds)
             let renderTask: CIRenderTask

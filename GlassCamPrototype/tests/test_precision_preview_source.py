@@ -16,7 +16,7 @@ class PrecisionPreviewSourceContracts(unittest.TestCase):
         cls.process = cls.pipeline.split('static func process(', 1)[1].split('static func writeHEIF(', 1)[0]
 
     def test_both_engines_use_float_preview_output(self):
-        self.assertIn('let rgba: [Float]', self.process)
+        self.assertIn('var rgba: [Float]', self.process)
         self.assertIn('HNCSEngine.exportLinearRGBA(', self.process)
         self.assertIn('FFCSEngine.exportLinearRGBA(', self.process)
         for forbidden in ('[UInt8]', 'CGImage(', 'UIImage(', '.process(', 'CGDataProvider', '.RGBA8'):
@@ -33,18 +33,20 @@ class PrecisionPreviewSourceContracts(unittest.TestCase):
         self.assertIn('linearRGBA.allSatisfy({ $0.isFinite })', self.preview)
         self.assertIn('width <= Int.max / 16 / height', self.preview)
 
-    def test_float_render_target_and_sdr_transfer_match(self):
+    def test_float_render_target_preserves_hdr(self):
         self.assertIn('view.colorPixelFormat = .rgba16Float', self.preview)
         self.assertIn('view.framebufferOnly = false', self.preview)
         self.assertIn('view.sampleCount = 1', self.preview)
         self.assertIn('layer.colorspace = context.coordinator.colorSpace', self.preview)
-        self.assertIn('layer.wantsExtendedDynamicRangeContent = false', self.preview)
+        self.assertIn('layer.wantsExtendedDynamicRangeContent = true', self.preview)
         self.assertIn('CGColorSpace.extendedLinearSRGB', self.preview)
         self.assertIn('.workingFormat: CIFormat.RGBAf.rawValue', self.preview)
         self.assertIn('PreviewRendering.render(output, with: context, to: drawable.texture,', self.preview)
         self.assertIn('destination.colorSpace = colorSpace', self.preview)
         self.assertIn('destination.isFlipped = true', self.preview)
         self.assertIn('CIColorClamp', self.preview)
+        self.assertIn('ImagePipeline.maximumHDRValue', self.preview)
+        self.assertNotIn('CIVector(x: 1, y: 1, z: 1, w: 1)', self.preview)
         for forbidden in ('UIImage(', 'createCGImage', '.bgra8Unorm', '.RGBA8', '.RGBAh'):
             self.assertNotIn(forbidden, self.preview)
 

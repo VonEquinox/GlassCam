@@ -8,8 +8,8 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 
 - Photos/Files 导入，或能力门控后的物理镜头 ProRAW 捕获；完整输入保留为本次编辑的临时文件。
 - HNCS 与 FFCS 独立选择。HNCS已接入render revision8真实预设后曲线、film curve、完整目标WB、方裁切及便携颗粒/锐化；linear-sRGB → virtual native RGB 源域桥仍是实验适配。FFCS已同步0.2.0，提供5个研究表族的50张真实资产及中性默认/显式解析叠加，不声称iPhone传感器标定。详见[revision8合同与验证](docs/HNCS_REVISION8.md)。
-- 导入/拍后效果预览走 Float32 → Metal RGBA16Float 高精度 SDR 显示，不经过8位UIImage；不声称屏幕面板原生10bit。导入预览默认最长边 2048px。主摄预览独立缩放，预览像素不决定原始捕获或最终输出大小。
-- 最终图从完整源重新解码，裁切后按64行处理；HNCS空间预设额外经过磁盘暂存的全图统计/滤波，再写RGBAf；颜色/空间处理后才在线性光中 Lanczos 缩小，使用专用 HEIF10 writer 请求 10-bit SDR sRGB HEIF。
+- 导入/拍后效果预览走 Float32 → Metal RGBA16Float 高精度 HDR 显示，不经过8位UIImage；不声称屏幕面板原生10bit。导入预览默认最长边 2048px。主摄预览独立缩放，预览像素不决定原始捕获或最终输出大小。
+- 最终图从完整源重新解码，裁切后按64行处理；HNCS空间预设额外经过磁盘暂存的全图统计/滤波，再写RGBAf；颜色/空间处理后才在线性光中 Lanczos 缩小，使用专用 HEIF10 writer 请求 10-bit BT.2020/PQ HDR HEIF。
 - 用户保存仅有 HEIF：独立保存到 Photos / Files。分享先注册原始 HEIC，再提供按需、从最终 HEIF 转出的同尺寸 JPEG 兼容表示；没有 JPEG 导出选项。接收方选择哪种表示、微信能否发送和查看仍未验证。
 - 默认关闭的实验性中心实时色彩开关：65³ GPU代理仅省取景空间效果，原始系统取景保留为回退；支持范围与误差见[实现边界](docs/LIVE_COLOR_PROXY.md)。最终照片继续精确处理。
 - 相机画面按完整窗口最大等比显示，周围为不透明纯黑区域，网格、缩略图和设置入口保留；App 自定义界面不再使用 Liquid Glass 或材质模糊。
@@ -28,7 +28,8 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 - [相机能力与取景](docs/camera-capture.md) / [单摄黑边界面](docs/SINGLE_CAMERA.md) / [全源导出](docs/FULL_RESOLUTION_EXPORT.md)
 - [精确 Float 并行优化](docs/EXACT_FLOAT_PARALLEL.md) / [Apple 精度与加速约束](docs/apple_precision_acceleration.md)
 - [当前颜色核心分段性能](docs/COLOR_PERFORMANCE.md) / [硬件与加速路线](docs/HARDWARE_PERFORMANCE.md)
-- [高精度 SDR 预览](docs/HIGH_PRECISION_PREVIEW.md)
+- [高精度 HDR 预览](docs/HIGH_PRECISION_PREVIEW.md)
+- [默认 HDR 导出与高光保留](docs/HDR_EXPORT.md)
 - [完整实时CPU颜色的成本估计](docs/LOWRES_COLOR_PERFORMANCE.md)（完整实时流水线后置）
 - [实验性仅色彩GPU取景](docs/LIVE_COLOR_PROXY.md) / [LUT误差](docs/lut-proxy-preview.md) / [FFCS阶段热点](docs/FFCS_STAGE_PROFILE.md)
 - [保存、分享与失败恢复](docs/DELIVERY_AND_RECOVERY.md)

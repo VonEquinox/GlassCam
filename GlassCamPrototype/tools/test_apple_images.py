@@ -4,6 +4,7 @@ No Python packages are needed. Build products, LUTs and fixtures live in one
 temporary directory and are removed on exit; the source checkout is unchanged.
 """
 from pathlib import Path
+import argparse
 import platform
 import subprocess
 import tempfile
@@ -16,6 +17,9 @@ def run(*args):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--raw-source', type=Path, help='Also export a local full-resolution DNG fixture')
+    args = parser.parse_args()
     if platform.system() != "Darwin":
         raise SystemExit("Requires macOS with Apple developer tools and Metal.")
     with tempfile.TemporaryDirectory(prefix="glasscam-apple-images-") as directory:
@@ -42,7 +46,7 @@ def main():
             "-Xlinker", "-rpath", "-Xlinker", work, "-o", work / "images")
         fixtures = work / "fixtures"
         fixtures.mkdir()
-        run(work / "images", fixtures)
+        run(work / "images", fixtures, *([args.raw_source.resolve()] if args.raw_source else []))
 
 
 if __name__ == "__main__":

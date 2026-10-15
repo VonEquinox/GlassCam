@@ -115,7 +115,7 @@ private final class ShareRepresentationStorage: @unchecked Sendable {
         let file = ShareCompatibilityFile()
         // Decode the finalized, full-resolution HEIF already delivered to the
         // original representation. Never rerender a recipe or use the UI preview.
-        guard let decoded = CIImage(contentsOf: original.url, options: [.applyOrientationProperty: true]),
+        guard let decoded = CIImage(contentsOf: original.url, options: [.applyOrientationProperty: true, .expandToHDR: true]),
               !decoded.extent.isEmpty, !decoded.extent.isInfinite,
               decoded.extent.width.isFinite, decoded.extent.height.isFinite,
               decoded.extent.width >= 1, decoded.extent.height >= 1,
@@ -129,11 +129,15 @@ private final class ShareRepresentationStorage: @unchecked Sendable {
         guard let sRGB = CGColorSpace(name: CGColorSpace.sRGB) else {
             throw ShareDeliveryError.colorSpace
         }
-        let normalized = decoded.transformed(by: CGAffineTransform(translationX: -decoded.extent.minX,
+        var toneMapParameters: [String: Any] = ["inputTargetHeadroom": 1.0]
+        if #available(iOS 26, macOS 26, *) {
+            toneMapParameters["inputSourceHeadroom"] = max(1, decoded.contentHeadroom)
+        }
+        let normalized = decoded.applyingFilter("CIToneMapHeadroom", parameters: toneMapParameters)
+            .transformed(by: CGAffineTransform(translationX: -decoded.extent.minX,
                                                                      y: -decoded.extent.minY))
-        // The final HEIF is SDR. Normalize orientation in pixels, strip inherited
-        // metadata, composite alpha on black, and encode conventional 8-bit sRGB.
-        // No resize, thumbnail, HDR gain map, PQ, or HLG path is requested.
+        // Only recipients that request JPEG receive a tone-mapped SDR derivative.
+        // Saving and the preferred HEIF representation retain the original HDR.
         let image = normalized.composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
             .cropped(to: bounds)
             .applyingFilter("CIColorClamp", parameters: ["inputMinComponents": CIVector(x: 0, y: 0, z: 0, w: 1),
@@ -141,7 +145,7 @@ private final class ShareRepresentationStorage: @unchecked Sendable {
             // Alpha clamping expands the extent; restore the finite image bounds.
             .cropped(to: bounds)
             .settingProperties([:])
-        let context = CIContext(options: [.workingColorSpace: sRGB,
+        let context = CIContext(options: [.workingColorSpace: CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!,
                                           .workingFormat: CIFormat.RGBAh.rawValue,
                                           .cacheIntermediates: false])
         try Self.checkCancellation(progress)

@@ -1,13 +1,13 @@
-# 高精度 SDR 效果预览
+# 高精度 HDR 效果预览
 
-更新：2026-10-13。Xcode 27模拟器Debug/Release构建与本机Core Image/Metal像素回归已通过；iPhone显示链及面板行为仍待真机验证。
+更新：2026-10-15。Xcode 27模拟器Debug/Release构建与本机Core Image/Metal像素回归已通过；iPhone显示链及面板行为仍待真机验证。
 
 ## 当前实现
 
 - 解码后的原图预览保留 Float32 linear-sRGB RGBA；HNCS/FFCS 处理后的预览也使用精确 Float 输出。HNCS 内部 double / UInt16 核不变，FFCS 原数学不变。
 - before/after 使用同一个按需重绘的 MTKView：CPU 只在配方变化时处理，拖动比较线在 Core Image / Metal 中裁切合成，不重新运行颜色核。
 - 不再将效果输出转成 UInt8、8位 CGImage 或 UIImage 再显示。使用 RGBAf 输入/工作格式，最终 drawable 为 `.rgba16Float`。
-- render destination 与 CAMetalLayer 都标为 extendedLinearSRGB；SDR 显示值限制在0…1，`wantsExtendedDynamicRangeContent=false`。没有增加HDR/PQ/HLG/gain map。
+- render destination 与 CAMetalLayer 都标为 extendedLinearSRGB；保留超白浮点值，`wantsExtendedDynamicRangeContent=true`。RAW 解码开启 EDR，普通图片请求 HDR 解码；效果外层恢复源高光增益，最终导出 BT.2020/PQ HEIF。亮度表现仍取决于屏幕当前可用 EDR headroom。
 - 编辑器与实时代理共用 `PreviewRendering`，用 `CIRenderDestination.isFlipped=true` 对齐Metal的顶部首行；源位图和效果计算保持从上到下，不额外翻转照片。渲染任务与像素所有者保留至GPU完成。
 - 半精度只用于最终显示存储，不把颜色算法改成 half，也不声称面板原生10bit。无法初始化 Metal 或 GPU 命令失败时显示错误，不静默降成8位图。
 - Float 数据由不可变所有者保持，GPU 完成前继续保留；视图销毁或新图替换不提前释放当前命令引用的内存。
@@ -32,14 +32,16 @@
 
 ## 与实验性实时颜色的关系
 
-本文件描述拍后/导入before-after高精度显示。完整CPU实时流水线仍后置；用户随后批准仅颜色的轻量方案，中心新增默认关闭的实验GPU代理，外围保留系统视频。它不逐帧运行完整HNCS/FFCS，也不替换最终图片算法。支持参数、精度与生命周期见 [实验取景](LIVE_COLOR_PROXY.md)；帧率/丢帧/热状态和源格式仍需设备验证。
+本文件描述拍后/导入before-after高精度显示。完整CPU实时流水线仍后置；用户随后批准仅颜色的轻量方案，中心新增默认关闭的实验GPU代理，主摄保留系统视频。它不逐帧运行完整HNCS/FFCS，也不替换最终图片算法。支持参数、精度与生命周期见 [实验取景](LIVE_COLOR_PROXY.md)；帧率/丢帧/热状态和源格式仍需设备验证。
 
 ## Apple 侧待验收
 
 - 真机 Release 运行；检查实际 Metal drawable 和工作格式，确认无隐式8bit中间降级。
 - 不对称方向图、before/after端点与滑线、窗口/旋转尺寸变化；确认一次色彩转换、无上下翻转和暗/亮偏差。
-- 超过256级的真实渐变、负值/超白SDR裁切、sRGB/P3来源、alpha黑底。
+- 超过256级的真实渐变、负值裁切与超白HDR保留、sRGB/P3来源、alpha黑底。
 - 连续拖动、切换配方/图片、视图销毁时GPU在途、无Metal/命令失败状态。
 - 峰值内存与热状态。两份Float32 RGBA预览各需16字节/像素，此外还有输入RGB、CoreImage/Metal资源和解码器；不能将低分辨率预览理解为固定总内存。
 
 官方API与精度限制见 [Apple精度研究](apple_precision_acceleration.md)。
+
+HDR 的编码合同、参考效果的适配范围与回读检查见 [HDR 导出](HDR_EXPORT.md)。上述 binary16 软件量化预算只覆盖 0…1 区间，不声称对整个 HDR 区间保持同一绝对误差。

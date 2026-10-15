@@ -1,4 +1,4 @@
-# Full-source SDR HEIF10 pipeline
+# Full-source HDR HEIF10 pipeline
 
 ## Implemented separation
 
@@ -9,7 +9,7 @@ that file through a shared reference. The selected preview long edge (default
 not read the reduced preview RGB or the display UIImage.
 
 `writeHEIF(_:to:settings:)` reopens the saved original and sets RAW scaleFactor
-to 1. Rendered-image input uses its embedded profile and EXIF orientation. RAW
+to 1 and extendedDynamicRangeAmount to 1. Rendered-image input expands HDR/gain-map content and uses its embedded profile and EXIF orientation. RAW
 orientation is assigned to CIRAWFilter once. Both routes are flattened onto
 black and adapted through extended linear sRGB, as before. This is still an
 experimental source adapter, not a calibrated iPhone native-camera profile.
@@ -36,12 +36,12 @@ source file. writeHEIF defaults to that snapshot, not live camera controls. A ta
 RAW decoder output fails rather than synthesizing detail.
 
 When reducing, CILanczosScaleTransform executes after color processing in
-linear light. A final clamp removes possible negative/over-range ringing.
-Only `writeHEIF10Representation` is used, tagged ordinary SDR sRGB. A fresh
-bitmap does not carry source HDR/gain-map properties. No JPEG, 8-bit fallback,
-PQ/HLG, HDR expansion or gain-map output is requested. The written dimensions
-and ImageIO component-depth metadata must match the requested dimensions and
-10 bits, otherwise the output is discarded.
+linear light. A final clamp removes negative ringing while retaining super-white values up to the PQ ceiling (10,000 nits / 203-nit reference white).
+Only `writeHEIF10Representation` is used, with BT.2020/PQ HDR color space. Written dimensions, 10-bit component depth, and an HDR color space must validate, otherwise the output is discarded.
+
+The existing reference color cores remain SDR. The outer adapter separates each source pixel’s gain `max(1, R, G, B)`, applies the selected effect to RGB divided by that gain, then restores the gain after color and spatial processing. This preserves source highlights without inventing brighter pixels for SDR inputs. The HDR extension is not a calibrated camera profile or a claim of native HDR reference parity. Spatial HNCS presets retain gain values in a separate protected Float32 file until the global spatial pass finishes. HDR RGBAf pixels are materialized before Lanczos so scaling cannot change the order of gain restoration.
+
+Save to Photos/Files and the primary share representation preserve this HDR HEIF. JPEG-only share recipients receive a tone-mapped SDR compatibility derivative. See [HDR behavior](HDR_EXPORT.md).
 
 ## Memory and storage limits
 
@@ -79,7 +79,7 @@ back to finite bounds before encoding. Before distribution, run device tests tha
    indices intentionally use the existing CI bitmap's row convention.
 2. Compare full-source color output to a full-frame reference before reduction;
    compare reduction and actual HEIF bit depth, transfer characteristics,
-   dimensions, visible orientation and absence of gain-map/HDR metadata.
+   dimensions, visible orientation, PQ profile, and decoded highlight values above 1.
 3. Capture all advertised 12/24/48 MP choices on each physical lens, including
    a device with no ProRAW support. Ensure actual capture dimensions suffice;
    do not infer support from the app's marketing resolution labels.
@@ -103,4 +103,4 @@ HNCS now also keeps a one-entry immutable recipe context cache, avoiding LUT/mat
 
 ## HNCS revision8空间预设
 
-Square Crop先按实际源像素居中裁切；输出保持原输出档位的缩小比例，方图实际MP更少。需要grain/USM的HNCS配方先流写12B/像素top-left工作RGB，运行全图统计与滤波（最大16B/像素scratch），再64行finish至RGBAf；不逐条带重设随机种子或方差。Swift额外磁盘预算按32B/像素保守预留，之外仍有RGBAf和编码余量。内核固定RAM小于4MiB不含Apple处理/文件缓存；48MP总磁盘需要数GB，实际设备峰值尚未测量。详见[参考合同](HNCS_REVISION8.md)。
+Square Crop先按实际源像素居中裁切；输出保持原输出档位的缩小比例，方图实际MP更少。需要grain/USM的HNCS配方先流写12B/像素top-left工作RGB，运行全图统计与滤波（最大16B/像素scratch），再64行finish至RGBAf；不逐条带重设随机种子或方差。Swift额外磁盘预算按36B/像素保守预留（含4B/像素HDR高光增益），之外仍有RGBAf和编码余量。内核固定RAM小于4MiB不含Apple处理/文件缓存；48MP总磁盘需要数GB，实际设备峰值尚未测量。详见[参考合同](HNCS_REVISION8.md)。

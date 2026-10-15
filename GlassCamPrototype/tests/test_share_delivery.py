@@ -49,6 +49,8 @@ class ShareDeliveryContracts(unittest.TestCase):
         self.assertIn('CGColorSpace.sRGB', self.source)
         self.assertIn('.settingProperties([:])', self.source)
         self.assertIn('CIColorClamp', self.source)
+        self.assertIn('CIToneMapHeadroom', self.source)
+        self.assertIn('.expandToHDR: true', self.source)
         self.assertIn('kCGImagePropertyDepth as String] as? NSNumber)?.intValue == 8', self.source)
         self.assertIn('kCGImagePropertyPixelWidth as String] as? NSNumber)?.intValue == width', self.source)
         self.assertIn('kCGImagePropertyPixelHeight as String] as? NSNumber)?.intValue == height', self.source)
