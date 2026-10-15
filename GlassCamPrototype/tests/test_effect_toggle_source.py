@@ -42,6 +42,8 @@ class EffectToggleSourceContracts(unittest.TestCase):
         cls.hncs = source('HNCSEngine.swift')
         cls.ffcs = source('FFCSEngine.swift')
         cls.content = source('ContentView.swift')
+        cls.settings = source('CameraSettingsStore.swift')
+        cls.workflow = source('CaptureWorkflow.swift')
         cls.camera = source('CameraView.swift')
         cls.live = source('LiveColorProxy.swift')
 
@@ -88,29 +90,21 @@ class EffectToggleSourceContracts(unittest.TestCase):
         self.assertIn('else { effects = .standard }', decoder)
         self.assertLess(decoder.index('effects = savedEffects'), decoder.index('else if mode == .hncs'))
         # Use the previous key so the migration can actually discover old data.
-        self.assertIn('editor.processingRecipe.revision8.v1', self.content)
+        self.assertIn('editor.processingRecipe.revision8.v1', self.settings)
 
     def test_editor_restore_persist_adopt_and_rerender_include_all_effects(self):
-        self.assertIn('@Published var effects = EffectToggles.standard { didSet { persistRecipe() } }', self.content)
-        self.assertIn('effects = saved.effects', body(self.content, 'init(defaults:'))
-        self.assertIn('effects = snapshot.effects', body(self.content, 'private func adoptRecipeSnapshot('))
-        self.assertIn('effects: effects', body(self.content, 'private var recipe:'))
-        self.assertIn('JSONEncoder().encode(recipe)', body(self.content, 'private func persistRecipe()'))
-        changed = body(self.content, '.onChange(of: model.effects)')
-        self.assertIn('if cameraSession == nil { Task { await model.render() } }', changed)
-        self.assertIn('processed?.recipe != recipe', self.content)
-        self.assertIn('processed != nil && !busy && !hasPendingChanges', self.content)
+        self.assertIn('@Published var effects = EffectToggles.standard { didSet { persistRecipe() } }', self.settings)
+        self.assertIn('effects = saved.effects', body(self.settings, 'init(defaults:'))
+        self.assertIn('effects: effects', body(self.settings, 'var recipe:'))
+        self.assertIn('JSONEncoder().encode(recipe)', body(self.settings, 'private func persistRecipe()'))
+        self.assertNotIn('adoptRecipeSnapshot', self.workflow)
 
     def test_both_surfaces_bind_same_three_controls_and_none_depend_on_current_preset(self):
         controls = body(self.content, 'struct EffectToggleControls:')
         toggles = re.findall(r'Toggle\("([^"]+)", isOn: \$effects\.(\w+)\)', controls)
         self.assertEqual({flag for _, flag in toggles}, set(FLAGS))
-        self.assertEqual(len(toggles), 3)
         self.assertNotIn('.disabled(', controls)
-        self.assertIn('EffectToggleControls(effects: $model.effects, mode: model.colorMode, hncs: model.hncs)', self.content)
-        self.assertIn('EffectToggleControls(effects: $effects, mode: colorMode, hncs: hncs)', self.camera)
-        self.assertIn('effects: $model.effects', self.content)
-        self.assertIn('@Binding var effects: EffectToggles', self.camera)
+        self.assertIn('EffectToggleControls(effects: $settings.effects, mode: settings.colorMode, hncs: settings.hncs)', self.camera)
         for identifier in ('effects.sharpening', 'effects.grain', 'effects.extraCrop'):
             self.assertIn(f'.accessibilityIdentifier("{identifier}")', controls)
 
@@ -118,10 +112,7 @@ class EffectToggleSourceContracts(unittest.TestCase):
         preset_controls = body(self.content, 'struct HNCSPresetControls:')
         self.assertIn('selection: $settings.presetKey', preset_controls)
         self.assertNotIn('effects', preset_controls)
-        for field in ('model.colorMode', 'model.simulationIndex', 'model.hncs'):
-            self.assertNotIn('effects', body(self.content, f'.onChange(of: {field})'))
-        # A reset of a preset/color group must also preserve independent gates.
-        reset = body(self.content, 'Button(model.colorMode == .hncs ? "Reset HNCS effect"')
+        reset = body(self.camera, 'Button("Reset effect adjustments")')
         self.assertNotIn('effects', reset)
         self.assertNotRegex(self.camera, r'effects\s*=\s*\.standard')
 
@@ -185,19 +176,11 @@ class EffectToggleSourceContracts(unittest.TestCase):
 
     def test_shutter_retention_render_and_save_use_complete_immutable_snapshot(self):
         shutter = body(self.camera, 'private func shutter(')
-        snapshots = list(calls(shutter, 'ProcessingRecipe'))
-        self.assertEqual(len(snapshots), 1)
-        self.assertIn('effects: effects', snapshots[0])
-        self.assertLess(shutter.index('effects: effects'), shutter.index('camera.captureProRAW'))
-        self.assertIn('[capturedRecipe, export]', shutter)
-        self.assertEqual(stored_members(self.content, 'struct PendingCapturedPhoto:')['recipe'][:2],
-                         ('let', 'ProcessingRecipe'))
-        self.assertEqual(stored_members(self.pipeline, 'struct ProcessedImage:')['recipe'][:2],
-                         ('let', 'ProcessingRecipe'))
-        importer = body(self.content, 'private func beginImport(')
-        self.assertIn('let settings = explicitRecipe ?? recipe', importer)
-        self.assertIn('ImagePipeline.process(input, recipe: settings)', importer)
-        self.assertIn('ImagePipeline.writeHEIF(processed,', body(self.content, 'private func deliver('))
+        self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export)', shutter)
+        self.assertLess(shutter.index('let snapshot'), shutter.index('camera.captureProRAW'))
+        self.assertIn('let snapshot: CaptureSnapshot', self.workflow)
+        self.assertIn('ImagePipeline.process(input, recipe: snapshot.recipe)', self.workflow)
+        self.assertIn('ImagePipeline.writeHEIF(processed,', self.workflow)
 
     def test_live_cache_identity_changes_for_every_flag_but_stays_pointwise_only(self):
         self.assertEqual(stored_members(self.live, 'struct LiveColorRecipe:')['effects'],

@@ -1,36 +1,66 @@
 import Foundation
 import Combine
 
-/// Output preferences belong to a physical camera, never a virtual zoom position.
-/// Preview bounds are separate, global user preferences and do not resize the RAW.
+/// One persistent source of truth for the settings page and shutter snapshots.
 final class CameraSettingsStore: ObservableObject {
     static let centerPreviewCaps = [1280, 1920, 2560, 3840, 4096]
+    @Published var colorMode: ColorMode = .hncs { didSet { persistRecipe() } }
+    @Published var simulationIndex = 0 { didSet { persistRecipe() } }
+    @Published var exposure = 0.0 { didSet { persistRecipe() } }
+    @Published var kelvin = 6500.0 { didSet { persistRecipe() } }
+    @Published var hncs = HNCSSettings.standard { didSet { persistRecipe() } }
+    @Published var effects = EffectToggles.standard { didSet { persistRecipe() } }
+    @Published var ffcs = FFCSSettings.standard { didSet { persistRecipe() } }
+    @Published var gridVisible: Bool { didSet { defaults.set(gridVisible, forKey: "camera.grid.visible") } }
+    @Published var experimentalLiveColor: Bool { didSet { defaults.set(experimentalLiveColor, forKey: "camera.liveColor.enabled") } }
     @Published var centerPreviewLongEdge: Int {
         didSet { defaults.set(centerPreviewLongEdge, forKey: "camera.preview.center.longEdge") }
     }
     @Published private(set) var outputSelections: [String: Int]
     private let defaults: UserDefaults
     private static let outputsKey = "camera.output.megapixels.byPhysicalLens.v1"
+    // Reuse the existing key and decoder to preserve all previously saved effects.
+    private static let recipeKey = "editor.processingRecipe.revision8.v1"
+
+    var recipe: ProcessingRecipe {
+        ProcessingRecipe(mode: colorMode, exposureEV: exposure, illuminantKelvin: kelvin,
+                         simulationIndex: simulationIndex, seed: 0, hncs: hncs, effects: effects, ffcs: ffcs)
+    }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         let center = defaults.integer(forKey: "camera.preview.center.longEdge")
         centerPreviewLongEdge = Self.centerPreviewCaps.contains(center) ? center : 1920
-        outputSelections = defaults.dictionary(forKey: Self.outputsKey) as? [String: Int] ?? [:]
+        gridVisible = defaults.object(forKey: "camera.grid.visible") as? Bool ?? true
+        experimentalLiveColor = defaults.bool(forKey: "camera.liveColor.enabled")
+        let savedOutputs = defaults.dictionary(forKey: Self.outputsKey) as? [String: Int] ?? [:]
+        outputSelections = savedOutputs.mapValues { $0 == 12 ? 24 : $0 }
+        if let data = defaults.data(forKey: Self.recipeKey),
+           let saved = try? JSONDecoder().decode(ProcessingRecipe.self, from: data), saved.isValid {
+            colorMode = saved.mode; simulationIndex = saved.simulationIndex
+            exposure = saved.exposureEV; kelvin = saved.illuminantKelvin; hncs = saved.hncs
+            effects = saved.effects; ffcs = saved.ffcs
+        }
+        defaults.set(outputSelections, forKey: Self.outputsKey)
+        persistRecipe()
     }
 
-    func outputMegapixels(physicalCameraID: String, mode: String) -> Int? {
-        outputSelections[key(physicalCameraID: physicalCameraID, mode: mode)]
+    private func persistRecipe() {
+        guard recipe.isValid, let data = try? JSONEncoder().encode(recipe) else { return }
+        defaults.set(data, forKey: Self.recipeKey)
+    }
+
+    func outputMegapixels(physicalCameraID: String, mode: String) -> Int {
+        outputSelections[key(physicalCameraID: physicalCameraID, mode: mode)] ?? 24
     }
 
     func setOutputMegapixels(_ value: Int, physicalCameraID: String, mode: String) {
-        guard [12, 24, 48].contains(value) else { return }
+        guard [24, 48].contains(value) else { return }
         outputSelections[key(physicalCameraID: physicalCameraID, mode: mode)] = value
         defaults.set(outputSelections, forKey: Self.outputsKey)
     }
 
     private func key(physicalCameraID: String, mode: String) -> String {
-        // Encoding makes separators in the opaque device identifier unambiguous.
         "\(mode):\(Data(physicalCameraID.utf8).base64EncodedString())"
     }
 }

@@ -2,7 +2,7 @@
 
 更新：2026-10-15，分支 `codex/single-camera-hard-black`。
 
-保存到相册、文件以及分享首选项现在直接使用 10-bit BT.2020/PQ HEIF。没有 SDR 导出开关。编辑页的 Float32 → RGBA16Float 显示开启 EDR，保留超过参考白的数值。实际显示亮度取决于屏幕可用的 HDR 亮度空间。
+保存到相册、文件以及分享首选项现在直接使用 10-bit BT.2020/PQ HEIF。没有 SDR 导出开关。成片页的 Float32 → RGBA16Float 显示开启 EDR，保留超过参考白的数值。实际显示亮度取决于屏幕可用的 HDR 亮度空间。
 
 ## 源图与效果
 

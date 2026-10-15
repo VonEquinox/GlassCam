@@ -324,9 +324,9 @@ private func require(_ condition: Bool, _ message: String) throws {
         let processed = try ImagePipeline.process(input, recipe: .standard)
         let output = directory.appendingPathComponent("raw-hdr.heic")
         let started = Date()
-        try ImagePipeline.writeHEIF(processed, to: output) { progress in
+        try ImagePipeline.writeHEIF(processed, to: output, progress: { progress in
             if progress == 0 || progress == 0.9 { print("  real RAW export progress: \(progress)"); fflush(stdout) }
-        }
+        })
         let raw = CIRAWFilter(imageURL: source)!
         raw.extendedDynamicRangeAmount = 1
         let image = CIImage(contentsOf: output, options: [.expandToHDR: true])!
@@ -360,6 +360,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             try checkMetal()
             print("PASS: actual Metal preview destination preserves quadrant coordinates and 2×/4×/8× HDR pixels")
             let full = try fixture(directory, width: 257, height: 389)
+            try await CaptureWorkflowChecks.run(fixture: full)
             for preset in ["standard", "square-crop", "film-grain-artistic", "high"] {
                 try checkExport(full, recipe: recipe(preset), directory: directory, name: "hncs-" + preset)
             }

@@ -461,7 +461,7 @@ private final class CameraBackend {
         func gcd(_ a: Int, _ b: Int) -> Int { b == 0 ? a : gcd(b, a % b) }
         let width = Int(source.width), height = Int(source.height)
         let divisor = gcd(width, height), unitWidth = width / divisor, unitHeight = height / divisor
-        return [12, 24, 48].filter { $0 <= sourceTier }.map { tier in
+        return [24, 48].filter { $0 <= sourceTier }.map { tier in
             // Preserve native dimensions for its own nominal tier. Smaller exports
             // use integer aspect-ratio units, never crop, stretch, or upscale.
             let units = tier == sourceTier ? divisor : min(divisor, Int(sqrt(Double(tier) * 1_000_000 / Double(unitWidth * unitHeight))))

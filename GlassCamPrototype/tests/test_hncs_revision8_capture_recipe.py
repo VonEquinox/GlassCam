@@ -148,85 +148,21 @@ class LateCaptureRecipeModelTests(unittest.TestCase):
         self.assertFalse(editor.can_deliver)
 
 
-class LateCaptureRecipeSourceContracts(unittest.TestCase):
-    def assertOrdered(self, text, *items):
-        offset = 0
-        for item in items:
-            index = text.find(item, offset)
-            self.assertGreaterEqual(index, 0, f'{item!r} absent after offset {offset}')
-            offset = index + len(item)
+class CaptureRecipeSourceContracts(unittest.TestCase):
+    def test_snapshot_is_forwarded_to_full_source_processing(self):
+        workflow = source('CaptureWorkflow.swift')
+        self.assertIn('let snapshot: CaptureSnapshot', workflow)
+        self.assertIn('ImagePipeline.process(input, recipe: snapshot.recipe)', workflow)
+        self.assertIn('exportSettings: snapshot.output', workflow)
+        self.assertIn('ImagePipeline.writeHEIF(processed,', workflow)
+        self.assertNotIn('UserDefaults', workflow)
 
-    def test_shutter_snapshots_complete_recipe_before_camera_submission(self):
-        view = source('CameraView.swift')
-        shutter = body(view, 'private func shutter(')
-        self.assertIn('let onCapture: (Data, ExportSettings, ProcessingRecipe) -> Void', view)
-        self.assertOrdered(shutter,
-                           'guard camera.isReady, !camera.isCapturing, let output = selectedOutput',
-                           'let export = ExportSettings(',
-                           'let capturedRecipe = ProcessingRecipe(',
-                           'camera.captureProRAW { [capturedRecipe, export] result in',
-                           'case .success(let data): onCapture(data, export, capturedRecipe)')
-        snapshot = compact(shutter.split('let capturedRecipe = ProcessingRecipe(', 1)[1].split('camera.captureProRAW', 1)[0])
-        fields = dict(re.findall(r'(mode|exposureEV|illuminantKelvin|simulationIndex|seed|hncs|effects):\s*(\w+)', snapshot))
-        self.assertEqual(fields, {'mode': 'colorMode', 'exposureEV': 'exposureEV',
-                                  'illuminantKelvin': 'illuminantKelvin',
-                                  'simulationIndex': 'simulationIndex', 'seed': '0', 'hncs': 'hncs', 'effects': 'effects'})
-        callback = body(shutter, 'camera.captureProRAW')
-        self.assertNotIn('ProcessingRecipe(', callback)
-        self.assertNotIn('selectedOutput', callback)
-        self.assertNotIn('if !isClosing { onCapture', callback)
-        self.assertIn('if !isClosing { captureError = error.localizedDescription }', callback)
-
-    def test_late_capture_recipe_is_forwarded_to_import_without_sampling_current_controls(self):
+    def test_root_owns_shared_settings_and_workflow(self):
         content = source('ContentView.swift')
-        capture = body(content, 'func selectCapture(')
-        self.assertOrdered(capture, 'SourceImageFile(data: data, fileExtension: "dng")',
-                           'PendingCapturedPhoto(ticket: ticket, storage: storage,',
-                           'exportSettings: settings, recipe: capturedRecipe, warning: warning)',
-                           'importRetainedCapture(retained)')
-        retained = body(content, 'private func importRetainedCapture(')
-        self.assertIn('beginImport(exportSettings: retained.exportSettings, explicitRecipe: retained.recipe,', retained)
-        importer = body(content, 'private func beginImport(')
-        self.assertOrdered(importer, 'let settings = explicitRecipe ?? recipe',
-                           'importTask = Task', 'ImagePipeline.load(data:',
-                           'exportSettings: exportSettings)',
-                           'ImagePipeline.process(input, recipe: settings)')
-        self.assertNotIn('ImagePipeline.process(input, recipe: recipe)', importer)
-        self.assertGreaterEqual(importer.count('guard operationID == id, !Task.isCancelled else { return }'), 3)
-        # Ordinary imports have no capture snapshot and preserve their current-controls path.
-        self.assertIn('explicitRecipe: ProcessingRecipe? = nil', content)
-        self.assertIn('beginImport {', body(content, 'func selectPhoto('))
-        self.assertIn('beginImport {', body(content, 'func selectFile('))
-
-    def test_busy_and_generation_are_installed_before_publishing_captured_controls(self):
-        content = source('ContentView.swift')
-        importer = body(content, 'private func beginImport(')
-        self.assertOrdered(importer, 'importTask?.cancel()', 'cancelImageWorker?()',
-                           'operationID = id', 'busy = true',
-                           'let settings = explicitRecipe ?? recipe',
-                           'if explicitRecipe != nil { adoptRecipeSnapshot(settings) }',
-                           'importTask = Task')
-        adopted = body(content, 'private func adoptRecipeSnapshot(')
-        assignments = dict(re.findall(r'(colorMode|simulationIndex|exposure|kelvin|hncs|effects)\s*=\s*snapshot\.(\w+)', adopted))
-        self.assertEqual(assignments, {'colorMode': 'mode', 'simulationIndex': 'simulationIndex',
-                                      'exposure': 'exposureEV', 'kelvin': 'illuminantKelvin', 'hncs': 'hncs', 'effects': 'effects'})
-        self.assertIn('guard let input = imported, !busy else { return }', body(content, 'func render() async'))
-        self.assertIn('processed?.recipe != recipe', content)
-        self.assertIn('processed != nil && !busy && !hasPendingChanges', content)
-
-    def test_dismissal_is_session_scoped_and_skips_rerender_while_capture_slot_held(self):
-        content = source('ContentView.swift')
-        callback = body(content, 'onCapture: {')
-        self.assertOrdered(callback,
-                           'model.selectCapture(data, settings: settings, capturedRecipe: capturedRecipe, ticket: sessionTicket)',
-                           'if cameraSession?.id == sessionTicket { cameraSession = nil }')
-        self.assertNotIn('Task', callback)
-        dismissal = body(content, 'onDismiss: {')
-        self.assertIn('if model.captureSlotAvailable { Task { await model.renderIfNeeded() } }', dismissal)
-        self.assertIn('if hasPendingChanges { await render() }', body(content, 'func renderIfNeeded()'))
-        close = body(source('CameraView.swift'), 'private func closeCamera()')
-        self.assertOrdered(close, 'isClosing = true', 'camera.stop()', 'onClose()')
-        self.assertNotIn('capturedRecipe', close)
+        self.assertIn('@StateObject private var settings = CameraSettingsStore()', content)
+        self.assertIn('@StateObject private var workflow = CaptureWorkflow(', content)
+        self.assertIn('CameraView(settings: settings, workflow: workflow)', content)
+        self.assertNotIn('EditorModel', content)
 
 
 if __name__ == '__main__':

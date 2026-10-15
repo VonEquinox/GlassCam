@@ -233,6 +233,17 @@ enum ImagePipeline {
         }
     }
 
+    /// Reuse the retained shutter source instead of writing a second DNG copy.
+    static func load(sourceFile: SourceImageFile, exportSettings: ExportSettings) throws -> ImportedImage {
+        try decodeQueue.sync {
+            try autoreleasepool {
+                let data = try Data(contentsOf: sourceFile.url)
+                return try decode(data: data, fileExtension: sourceFile.fileExtension,
+                                  sourceFile: sourceFile, maximumEdge: maximumEdge, exportSettings: exportSettings)
+            }
+        }
+    }
+
     private static func decode(data: Data, fileExtension: String?, sourceFile: SourceImageFile, maximumEdge: CGFloat, exportSettings: ExportSettings) throws -> ImportedImage {
         let isRAW = ["dng", "raw"].contains(fileExtension?.lowercased() ?? "")
         var source: CIImage?

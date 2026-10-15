@@ -110,7 +110,7 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertIn('Text("RAW")', VIEW)
 
     def test_composition_grid_is_real_toggle_scoped_to_photograph(self):
-        self.assertIn('@State private var gridVisible = true', VIEW)
+        self.assertIn('private var gridVisible: Bool { settings.gridVisible }', VIEW)
         button = section(VIEW, 'private var gridButton:', 'private var captureMetadata:')
         self.assertIn('gridVisible.toggle()', button)
         self.assertIn('"Hide composition grid" : "Show composition grid"', button)
@@ -126,17 +126,14 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertNotIn('CameraPreview', guide)
 
     def test_thumbnail_is_actual_image_with_honest_empty_state_and_editor_action(self):
-        self.assertIn('let thumbnail: PreviewRaster?', VIEW)
+        self.assertIn('workflow.latest?.preview', VIEW)
         thumbnail = section(VIEW, 'private var thumbnailButton:', 'private var settingsButton:')
-        self.assertIn('Button(action: closeCamera)', thumbnail)
-        self.assertIn('if let thumbnail {', thumbnail)
+        self.assertIn('destination = .photo(capture)', thumbnail)
         self.assertIn('PrecisionPreview(source: thumbnail)', thumbnail)
         self.assertIn('Image(systemName: "photo.on.rectangle")', thumbnail)
-        self.assertIn('"Open editor and import a photo"', thumbnail)
-        self.assertIn('"Open photo in editor"', thumbnail)
-        self.assertNotIn('Image("', thumbnail)
-        self.assertNotIn('UIImage(', thumbnail)
-        self.assertNotIn('.disabled(', thumbnail)
+        self.assertIn('.disabled(workflow.latest == nil || workflow.isWorking)', thumbnail)
+        self.assertIn('View latest saved photo', thumbnail)
+        self.assertNotIn('editor', thumbnail)
 
     def test_compact_layout_uses_separate_plain_panel_and_accessible_reopen(self):
         layout = section(VIEW, 'private struct CameraChromeLayout', 'private struct PhotoFrameGuide')
@@ -154,10 +151,9 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertIn('.sheet(item: $activePanel)', VIEW)
         self.assertIn('.presentationBackground(Color.black)', VIEW)
         panel = section(VIEW, 'private func cameraPanel(', 'private var selectedOutput:')
-        self.assertIn('.scrollContentBackground(.hidden)', panel)
         self.assertIn('.background(Color.black)', panel)
-        self.assertIn('tap it to reopen these controls.', panel)
-        self.assertIn('Button(panel == .compact ? "Viewfinder" : "Done") { activePanel = nil }', panel)
+        self.assertIn('Tap it to reopen these controls.', panel)
+        self.assertIn('Button("Viewfinder") { activePanel = nil }', panel)
         gesture = section(VIEW, 'if chrome.style == .separate &&', 'controls(framing: framing, chrome: chrome)')
         self.assertIn('.onTapGesture { activePanel = .compact }', gesture)
         self.assertIn('.accessibilityAction { activePanel = .compact }', gesture)
@@ -177,10 +173,10 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertNotIn('restartCamera()', gesture)
 
     def test_compact_modal_does_not_reopen_on_dismissal_or_during_capture(self):
-        offer = section(VIEW, 'private func offerCompactPanel(', 'private func closeCamera()')
+        offer = section(VIEW, 'private func offerCompactPanel(', 'private func restartCamera()')
         self.assertIn('guard camera.geometry != nil else { return }', offer)
         self.assertIn('guard style == .separate else { compactPanelOffered = false; return }', offer)
-        self.assertIn('!compactPanelOffered, !isClosing, !camera.isCapturing', offer)
+        self.assertIn('!compactPanelOffered, !settingsPresented, reviewedCapture == nil, !camera.isCapturing', offer)
         self.assertIn('!camera.isPreviewFrozen else { return }', offer)
         self.assertLess(offer.index('compactPanelOffered = true'), offer.index('activePanel = .compact'))
         self.assertIn('.onChange(of: camera.geometry?.photoAspectRatio)', VIEW)
@@ -190,23 +186,17 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertLess(shutter.index('activePanel = nil'), shutter.index('camera.captureProRAW'))
 
     def test_settings_keep_effect_output_preview_and_editor_access(self):
-        settings = section(VIEW, 'private func cameraPanel(', 'private var selectedOutput:')
-        for token in ('Picker("Color engine", selection: $colorMode)',
-                      'FFCSReferenceControls(settings: $ffcs, simulationIndex: $simulationIndex)',
-                      'Slider(value: $exposureEV, in: -2...2, step: 0.05)',
-                      'Slider(value: $illuminantKelvin, in: 2000...10000, step: 50)',
-                      'camera.supportedOutputOptions', 'selection: outputSelection',
-                      'selection: $settings.centerPreviewLongEdge',
-                      'Toggle("Experimental live color (approx.)", isOn: $experimentalLiveColor)',
-                      'Compare, save and share in the editor.',
-                      'Button("Close camera", action: closeCamera)'):
+        settings = section(VIEW, 'private struct CameraSettingsView:', 'private struct CaptureReview:')
+        for token in ('Picker("Color engine", selection: $settings.colorMode)',
+                      'FFCSReferenceControls(settings: $settings.ffcs, simulationIndex: $settings.simulationIndex)',
+                      'Slider(value: $settings.exposure, in: -2...2, step: 0.05)',
+                      'Slider(value: $settings.kelvin, in: 2000...10000, step: 50)',
+                      'selection: outputSelection', 'selection: $settings.centerPreviewLongEdge',
+                      'isOn: $settings.experimentalLiveColor', 'Saved dimensions', 'ForEach([24, 48]'):
             self.assertIn(token, settings)
-        for token in ('@Binding var exposureEV: Double', '@Binding var illuminantKelvin: Double'):
-            self.assertIn(token, VIEW)
-        self.assertIn('@State private var experimentalLiveColor = false', VIEW)
-        self.assertIn('liveRecipe.unsupportedReason', settings)
-        self.assertIn('Apple GPU validation pending', settings)
-        self.assertIn('not measured camera WB', settings)
+        self.assertIn('.fullScreenCover(item: $destination', VIEW)
+        self.assertIn('Image(systemName: "gearshape")', VIEW)
+        self.assertNotIn('Open editor', VIEW)
 
     def test_controls_are_clipped_to_the_black_spare_regions(self):
         region = section(VIEW, 'private struct CameraChromeRegion:', 'private struct PhotoFrameGuide:')
@@ -226,16 +216,16 @@ class CameraChromeSourceContracts(unittest.TestCase):
 
 
     def test_editor_passes_actual_photo_and_mutable_recipe_to_camera(self):
-        camera = section(CONTENT, 'CameraView(', '.sheet(item: $model.fileSave)')
-        self.assertIn('colorMode: $model.colorMode', camera)
-        self.assertIn('simulationIndex: $model.simulationIndex', camera)
-        self.assertIn('exposureEV: $model.exposure', camera)
-        self.assertIn('illuminantKelvin: $model.kelvin', camera)
-        self.assertIn('thumbnail: model.processed?.image ?? model.imported?.original', camera)
-        self.assertIn('model.selectCapture(data, settings: settings, capturedRecipe: capturedRecipe, ticket: sessionTicket)', camera)
-        self.assertIn('if cameraSession?.id == sessionTicket { cameraSession = nil }', camera)
-        self.assertIn('Task { await model.renderIfNeeded() }', CONTENT)
-
+        self.assertIn('@StateObject private var settings = CameraSettingsStore()', CONTENT)
+        self.assertIn('@StateObject private var workflow = CaptureWorkflow(', CONTENT)
+        self.assertIn('CameraView(settings: settings, workflow: workflow)', CONTENT)
+        self.assertNotIn('EditorModel', CONTENT)
+        self.assertNotIn('PhotosPicker', CONTENT)
+        review = VIEW.split('private struct CaptureReview:', 1)[1]
+        self.assertIn('PrecisionPreview(source: capture.preview)', review)
+        self.assertIn('ShareSheet(file: capture.file)', review)
+        self.assertIn('MagnificationGesture()', review)
+        self.assertNotIn('ImagePipeline.process', review)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

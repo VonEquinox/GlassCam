@@ -26,6 +26,9 @@ struct PrecisionPreview: UIViewRepresentable {
         view.enableSetNeedsDisplay = true
         view.autoResizeDrawable = true
         view.isOpaque = true
+        // Display-only UIKit surfaces must pass touches to enclosing SwiftUI
+        // buttons/zoom gestures, including the camera's saved-photo thumbnail.
+        view.isUserInteractionEnabled = false
         view.backgroundColor = .black
         if let layer = view.layer as? CAMetalLayer {
             // Match render destination and compositor interpretation. Encoding

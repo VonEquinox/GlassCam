@@ -9,7 +9,7 @@ enum HEIFSaveDelivery {
         case permissionDenied, saveFailed
         var errorDescription: String? {
             switch self {
-            case .permissionDenied: return "Photos permission is needed to save. You can allow adding photos in Settings, or choose Save to Files."
+            case .permissionDenied: return "Allow adding photos in Settings to automatically save your captured HDR photos."
             case .saveFailed: return "Photos could not save this HEIF. The original export was not replaced with another format."
             }
         }

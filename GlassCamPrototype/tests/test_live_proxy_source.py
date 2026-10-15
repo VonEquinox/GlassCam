@@ -23,16 +23,14 @@ def section(source, start, end):
 
 class LiveProxySourceContracts(unittest.TestCase):
     def test_experiment_is_default_off_and_center_only(self):
-        self.assertIn('@State private var experimentalLiveColor = false', VIEW)
+        self.assertIn('defaults.bool(forKey: "camera.liveColor.enabled")', (ROOT / 'ios/GlassCam/CameraSettingsStore.swift').read_text())
         self.assertEqual(VIEW.count('LiveColorProxy(source:'), 1)
         self.assertIn('if let source = camera.centerLiveSource', VIEW)
         self.assertIn('Toggle("Experimental live color (approx.)"', VIEW)
         self.assertIn('enabled: experimentalLiveColor && scenePhase == .active', VIEW)
         self.assertLess(VIEW.index('CameraPreview(layer: layer, gravity: .resizeAspect)'),
                         VIEW.index('LiveColorProxy(source:'))
-        self.assertIn('Viewfinder color only', VIEW)
-        self.assertIn('Apple GPU validation pending', VIEW)
-        self.assertIn('visible color errors possible', VIEW)
+        self.assertIn('Approximate color only', VIEW)
 
     def test_precise_photo_and_export_do_not_depend_on_proxy(self):
         for filename in ('ImagePipeline.swift', 'HNCSEngine.swift', 'FFCSEngine.swift',
@@ -59,8 +57,8 @@ class LiveProxySourceContracts(unittest.TestCase):
         self.assertIn('ffcs.sharpenRadius == 1.0', gate)
         self.assertIn('FFCSEngine.isSimulationAvailable', gate)
         self.assertIn('static let dimension = 65', PROXY)
-        self.assertIn('exposureEV: $model.exposure, illuminantKelvin: $model.kelvin', CONTENT)
-        self.assertIn('simulationIndex: colorMode == .ffcs ? simulationIndex : 0', VIEW)
+        self.assertIn('exposureEV: settings.exposure, illuminantKelvin:', VIEW)
+        self.assertIn('simulationIndex: colorMode == .ffcs ? settings.simulationIndex : 0', VIEW)
 
     def test_cube_is_baked_from_actual_pointwise_cores(self):
         bake = section(PROXY, 'private func bake(', 'private enum LiveSourceValidation')
@@ -204,7 +202,7 @@ class LiveProxySourceContracts(unittest.TestCase):
         for token in ('displayLink?.invalidate()', 'source?.setEnabled(false); source = nil',
                       'cubes.cancel(clearCache: true)', 'cubeFilter = nil', 'onStatus = nil'):
             self.assertIn(token, stop)
-        self.assertIn('.onDisappear { camera.stop() }', VIEW)
+        self.assertIn('destination = .photo(capture)', VIEW)
         self.assertIn('if phase == .background { camera.stop() }', VIEW)
         self.assertIn('weak var renderer: LiveColorProxy.Renderer?', PROXY)
 

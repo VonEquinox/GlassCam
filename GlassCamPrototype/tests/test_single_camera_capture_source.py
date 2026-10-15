@@ -18,42 +18,26 @@ def section(source, start, end):
 
 
 class SingleCameraViewContracts(unittest.TestCase):
+    def test_shutter_snapshots_before_authorization_and_camera_submission(self):
+        shutter = section(VIEW, "private func shutter(", "private enum CaptureUIError")
+        self.assertLess(shutter.index('let snapshot = CaptureSnapshot'), shutter.index('workflow.capture('))
+        self.assertLess(shutter.index('workflow.capture('), shutter.index('camera.captureProRAW'))
+        self.assertIn('!workflow.canCapture', shutter)
+        self.assertIn('scenePhase == .active', shutter)
 
-
-    def test_shutter_and_restart_are_guarded_and_output_is_snapshotted(self):
-        restart = section(VIEW, "private func restartCamera()", "private func shutter(")
-        self.assertLess(restart.index("!camera.isCapturing"), restart.index("camera.start("))
-        self.assertIn("!isClosing", restart)
-        self.assertIn("scenePhase == .active", restart)
-        shutter = section(VIEW, "private func shutter(", "private enum CameraPanel")
-        self.assertIn("guard camera.isReady, !camera.isCapturing, let output = selectedOutput", shutter)
-        self.assertLess(shutter.index("let export = ExportSettings"), shutter.index("camera.captureProRAW"))
-        self.assertIn("case .success(let data): onCapture(data, export, capturedRecipe)", shutter)
-        self.assertIn(".onDisappear { camera.stop() }", VIEW)
-        self.assertIn("if phase == .background { camera.stop() }", VIEW)
-
-    def test_close_cancels_active_request_without_suppressing_committed_photo(self):
-        close = section(VIEW, "private func closeCamera()", "private func restartCamera()")
-        self.assertIn("isClosing = true", close)
-        self.assertLess(close.index("camera.stop()"), close.index("onClose()"))
-        self.assertNotIn(".disabled(", close)
-        self.assertIn('Button("Close camera", action: closeCamera)', VIEW)
-        self.assertIn('"Stop capture and open editor"', VIEW)
-        self.assertIn('Button(action: closeCamera)', VIEW)
-        shutter = section(VIEW, "private func shutter(", "private enum CameraPanel")
-        self.assertIn("case .success(let data): onCapture(data, export, capturedRecipe)", shutter)
-        self.assertIn("if !isClosing { captureError = error.localizedDescription }", shutter)
-        self.assertIn(".disabled(camera.isCapturing || camera.isConfiguring)", VIEW)
+    def test_scene_stop_does_not_own_the_committed_photo(self):
+        self.assertIn('if phase == .background { camera.stop() }', VIEW)
+        workflow = (ROOT / 'ios/GlassCam/CaptureWorkflow.swift').read_text()
+        self.assertIn('guard job?.id == id, phase == .capturing else { return }', workflow)
+        self.assertNotIn('settingsPresented', workflow)
+        self.assertNotIn('scenePhase', workflow)
 
     def test_saved_output_never_silently_retargets_to_lower_resolution(self):
-        selected = section(VIEW, "private var selectedOutput:", "private var outputSelection:")
-        self.assertIn("$0.megapixels == saved", selected)
-        self.assertNotIn("$0.megapixels <= saved", selected)
-        binding = section(VIEW, "private var outputSelection:", "private func closeCamera()")
-        self.assertIn("guard !camera.isCapturing", binding)
-        self.assertIn("camera.supportedOutputOptions.contains", binding)
-        self.assertIn("Saved output is unavailable. Choose a supported size.", VIEW)
-        self.assertIn("Single-camera ProRAW source:", VIEW)
+        selected = section(VIEW, 'private var selectedOutput:', 'private func offerCompactPanel')
+        self.assertIn('$0.megapixels == saved', selected)
+        self.assertNotIn('$0.megapixels <= saved', selected)
+        self.assertIn('Selected output is unavailable.', VIEW)
+        self.assertNotIn('Open editor', VIEW)
 
 
 class SingleCameraBackendContracts(unittest.TestCase):

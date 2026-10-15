@@ -1,5 +1,7 @@
 # 高精度 HDR 效果预览
 
+> 当前界面已改为相机、独立设置和成片查看，旧 before/after 编辑入口不再开放；本文件的底层 Float/Metal 精度约束继续适用。见[自动拍摄](AUTOMATIC_CAPTURE.md)。
+
 更新：2026-10-15。Xcode 27模拟器Debug/Release构建与本机Core Image/Metal像素回归已通过；iPhone显示链及面板行为仍待真机验证。
 
 ## 当前实现

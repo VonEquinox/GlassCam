@@ -41,8 +41,9 @@ def main():
         run(*swift, "-I", core, "-import-objc-header", sources / "GlassCam-Bridging-Header.h",
             *(sources / name for name in ["ExportSettings.swift", "SourceImageStore.swift",
                                           "HNCSEngine.swift", "FFCSEngine.swift",
-                                          "ImagePipeline.swift", "PreviewRaster.swift", "ShareDelivery.swift"]),
-            ROOT / "tests/apple_image_pipeline.swift", "-L", work, "-lglasscam",
+                                          "ImagePipeline.swift", "PreviewRaster.swift", "ShareDelivery.swift",
+                                          "CameraSettingsStore.swift", "CaptureWorkflow.swift"]),
+            ROOT / "tests/apple_image_pipeline.swift", ROOT / "tests/apple_capture_workflow.swift", "-L", work, "-lglasscam",
             "-Xlinker", "-rpath", "-Xlinker", work, "-o", work / "images")
         fixtures = work / "fixtures"
         fixtures.mkdir()

@@ -40,7 +40,7 @@ class CameraSourceContracts(unittest.TestCase):
         for token in ['struct OutputOption', 'supportedOutputOptions', 'physicalCameraID',
                       'centerPreviewLongEdge',
                       'newSession.sessionPreset = .photo', 'nominal == 12 || nominal == 48',
-                      '[12, 24, 48].filter { $0 <= sourceTier }', 'min(divisor, Int(sqrt(',
+                      '[24, 48].filter { $0 <= sourceTier }', 'min(divisor, Int(sqrt(',
                       'outputOptions: Self.outputOptions(source: photo.dimensions)']:
             self.assertIn(token, SOURCE)
         capture = SOURCE.split('private func submitPhoto(', 1)[1].split('private func finishPhoto(', 1)[0]

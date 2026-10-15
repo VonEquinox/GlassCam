@@ -51,6 +51,8 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         cls.engine = source('HNCSEngine.swift')
         cls.pipeline = source('ImagePipeline.swift')
         cls.content = source('ContentView.swift')
+        cls.settings = source('CameraSettingsStore.swift')
+        cls.workflow = source('CaptureWorkflow.swift')
         cls.proxy = source('LiveColorProxy.swift')
         cls.view = source('CameraView.swift')
         cls.export = source('ExportSettings.swift')
@@ -91,7 +93,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertRegex(self.pipeline, r'struct ProcessingRecipe:\s*Codable,\s*Equatable,\s*Sendable')
 
     def test_settings_restore_as_one_validated_recipe_and_all_controls_persist(self):
-        init = body(self.content, 'init(defaults: UserDefaults')
+        init = body(self.settings, 'init(defaults: UserDefaults')
         self.assertOrdered(init, 'defaults.data(forKey: Self.recipeKey)',
                            'JSONDecoder().decode(ProcessingRecipe.self, from: data)',
                            'saved.isValid', 'colorMode = saved.mode')
@@ -99,11 +101,11 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertEqual(assignments, {'colorMode': 'mode', 'simulationIndex': 'simulationIndex',
                                       'exposure': 'exposureEV', 'kelvin': 'illuminantKelvin', 'hncs': 'hncs', 'effects': 'effects'})
         for control in assignments:
-            self.assertRegex(self.content, r'@Published var ' + control + r'[^\n]*\{ didSet \{ persistRecipe\(\) \} \}')
-        persist = body(self.content, 'private func persistRecipe()')
+            self.assertRegex(self.settings, r'@Published var ' + control + r'[^\n]*\{ didSet \{ persistRecipe\(\) \} \}')
+        persist = body(self.settings, 'private func persistRecipe()')
         self.assertOrdered(persist, 'guard recipe.isValid', 'JSONEncoder().encode(recipe)',
                            'defaults.set(data, forKey: Self.recipeKey)')
-        self.assertIn('editor.processingRecipe.revision8.v1', self.content)
+        self.assertIn('editor.processingRecipe.revision8.v1', self.settings)
         valid = body(self.engine, 'var isValid: Bool')
         self.assertIn('renderRevision == Self.currentRenderRevision', valid)
         self.assertIn('rawFilmCurveType == 2', valid)
@@ -141,20 +143,14 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertIn('selection: $settings.presetKey', controls)
         self.assertIn('settings.factoryKelvinOverride = $0', controls)
         self.assertNotIn('model.kelvin', controls)
-        self.assertIn('Text("Virtual capture CCT")', self.content)
+        self.assertIn('LabeledContent("Virtual capture CCT"', self.view)
         self.assertIn('Stepper("Factory CCT:', controls)
 
     def test_import_and_rerender_freeze_recipe_before_background_work(self):
-        for signature, snapshot in [('private func beginImport(', 'let settings = explicitRecipe ?? recipe'),
-                                    ('func render() async', 'let settings = recipe')]:
-            method = body(self.content, signature)
-            self.assertOrdered(method, snapshot, 'Task',
-                               'ImagePipeline.process(input, recipe: settings)')
-            self.assertNotIn('ImagePipeline.process(input, recipe: recipe)', method)
-        processed = stored_members(self.pipeline, 'struct ProcessedImage:')
-        self.assertEqual(processed['recipe'][:2], ('let', 'ProcessingRecipe'))
-        self.assertIn('processed?.recipe != recipe', self.content)
-        self.assertIn('processed != nil && !busy && !hasPendingChanges', self.content)
+        self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export)', self.view)
+        self.assertIn('ImagePipeline.process(input, recipe: snapshot.recipe)', self.workflow)
+        self.assertIn('let snapshot: CaptureSnapshot', self.workflow)
+        self.assertEqual(stored_members(self.pipeline, 'struct ProcessedImage:')['recipe'][:2], ('let', 'ProcessingRecipe'))
 
     def test_preview_and_export_dispatch_the_same_frozen_hncs_recipe(self):
         preview = compact(body(self.pipeline, 'static func process('))
@@ -166,10 +162,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
             self.assertIn('illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs', method)
             self.assertNotIn('settings: .standard', method)
             self.assertNotIn('UserDefaults', method)
-        deliver = body(self.content, 'private func deliver(')
-        self.assertOrdered(deliver, 'guard let processed, canDeliver', 'Task.detached',
-                           'ImagePipeline.writeHEIF(processed,')
-        self.assertNotIn('recipe:', deliver)
+        self.assertIn('ImagePipeline.writeHEIF(processed,', self.workflow)
 
     def test_live_cube_identity_has_full_hncs_settings_and_new_contract(self):
         recipe = stored_members(self.proxy, 'struct LiveColorRecipe:')
@@ -178,7 +171,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertIn('cache.firstIndex { $0.recipe == request.recipe }', self.proxy)
         view = body(self.view, 'private var liveRecipe:')
         self.assertIn('hncs: colorMode == .hncs ? hncs : .standard', view)
-        self.assertIn('illuminantKelvin: colorMode == .hncs ? illuminantKelvin : 5500', view)
+        self.assertIn('illuminantKelvin: colorMode == .hncs ? settings.kelvin : 5500', view)
         self.assertRegex(self.engine, r'var isLegacyLiveCompatible: Bool \{ self == \.standard \}')
         gate = body(self.proxy, 'var unsupportedReason:')
         self.assertIn('mode == .hncs && !hncs.isLegacyLiveCompatible', gate)
@@ -216,15 +209,13 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
                            'PreviewRaster(linearRGBA: rgba, width: crop.width, height: crop.height)',
                            'comparisonSource: comparisonSource')
         self.assertIn('start..<(start + crop.width * 3)', process)
-        self.assertIn('linearSRGB: rgb, width: crop.width', process)
+        self.assertIn('linearSRGB: effectInput, width: crop.width', process)
         original = body(self.preview, 'func cropped(to crop: PixelCrop)')
         self.assertOrdered(original, 'crop.ciY + crop.height <= height',
                            'image.cropped(to: crop.ciRect)',
                            'translationX: -CGFloat(crop.x), y: -CGFloat(crop.ciY)',
                            'width: crop.width, height: crop.height, storage: storage')
-        image_area = body(self.content, 'private var imageArea:')
-        self.assertIn('PrecisionPreview(source: output.comparisonSource, processed: output.image,', image_area)
-        self.assertNotIn('source: processed.source.original', image_area)
+        self.assertIn('PrecisionPreview(source: capture.preview)', self.view)
 
     def test_export_resolves_full_source_crop_before_output_selection_and_processing(self):
         export = body(self.pipeline, 'private static func exportFullSource(')
