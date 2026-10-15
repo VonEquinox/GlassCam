@@ -83,6 +83,20 @@ hncs_context *hncs_create_preset(double exposure_ev, double capture_kelvin,
     int apply_tone_curve, const double *capture_target_wb,
     const double *target_wb_override);
 
+/* Additive automatic-whitepoint adapter for already white-balanced linear sRGB.
+ * xy is the RAW decoder's scene neutral, not camera RGB gains. The reference
+ * virtual response estimates X2D capture gains (G=1) and Robertson kernel CCT.
+ * Bradford reintroduces the scene white before virtual normalization; no second
+ * camera WB is multiplied into the decoded image. Fixed-WB presets replace the
+ * estimated virtual gains. This is a model, not paired iPhone/X2D calibration.
+ * Existing constructors and numerical contracts remain unchanged. */
+int hncs_whitepoint_parameters(double white_x, double white_y,
+                              double *capture_target_wb, double *kelvin);
+hncs_context *hncs_create_preset_whitepoint(double exposure_ev,
+    double white_x, double white_y, double factory_kelvin_override,
+    int lstar_working_space, int reproduction, int film_curve_type,
+    int raw_film_curve_type, const char *preset_key, int apply_tone_curve);
+
 /* Immutable, generated catalog: 43 unique XML payloads; aliases accepted by all
  * key-based calls. Strings remain valid for the lifetime of the process.
  * Flags: 1 pointwise/WB effect, 2 square crop, 4 grain needs spatial route,

@@ -58,7 +58,7 @@ final class CaptureWorkflow: ObservableObject {
                           let width = properties[kCGImagePropertyPixelWidth as String] as? NSNumber,
                           let height = properties[kCGImagePropertyPixelHeight as String] as? NSNumber else { throw PipelineError.encoding }
                     return SavedCapture(file: file, preview: review.original, width: width.intValue,
-                                        height: height.intValue, snapshot: snapshot)
+                                        height: height.intValue, snapshot: CaptureSnapshot(recipe: processed.recipe, output: snapshot.output))
                 }.value
             }, save: save)
         }

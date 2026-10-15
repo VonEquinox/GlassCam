@@ -40,7 +40,7 @@ struct HNCSPresetControls: View {
                 get: { settings.factoryKelvinOverride ?? 6500 },
                 set: { settings.factoryKelvinOverride = $0 }), in: 2000...10000, step: 50)
         }
-        Text("Apple-decoded RGB uses a synthetic virtual-camera bridge, not measured capture WB. WB presets replace target gains; the virtual capture CCT/baseline stays separate. Factory CCT override changes matrix/LUT interpolation only.")
+        Text("Photo white balance is read automatically. WB presets apply their look relative to that photo. Factory CCT override changes the color profile only; it does not change photo white balance.")
             .font(.caption).foregroundStyle(.secondary)
         Text("As Shot uses Standard because Apple inputs have no Phocus curve metadata. Standard, Low and High share the recovered V1 family; Old Standard is distinct only in legacy space. Reproduction uses the pure curve. Grain and sharpening follow the portable reference, not proprietary Phocus kernels.")
             .font(.caption).foregroundStyle(.secondary)

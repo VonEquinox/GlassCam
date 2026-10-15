@@ -190,7 +190,7 @@ class CameraChromeSourceContracts(unittest.TestCase):
         for token in ('Picker("Color engine", selection: $settings.colorMode)',
                       'FFCSReferenceControls(settings: $settings.ffcs, simulationIndex: $settings.simulationIndex)',
                       'Slider(value: $settings.exposure, in: -2...2, step: 0.05)',
-                      'Slider(value: $settings.kelvin, in: 2000...10000, step: 50)',
+                      'LabeledContent("White balance", value: "Automatic from photo")',
                       'selection: outputSelection', 'selection: $settings.centerPreviewLongEdge',
                       'isOn: $settings.experimentalLiveColor', 'Saved dimensions', 'ForEach([24, 48]'):
             self.assertIn(token, settings)

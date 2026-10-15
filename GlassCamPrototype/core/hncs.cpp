@@ -12,6 +12,7 @@
 #include <vector>
 #include "hncs_assets.inc"
 #include "hncs_preset_assets.inc"
+#include "hncs_whitepoint_assets.inc"
 
 namespace {
 using V = std::array<double,3>;
@@ -389,6 +390,55 @@ extern "C" unsigned hncs_preset_flags(const char *key) {
 }
 extern "C" const char *hncs_preset_settings_json(const char *key) {
     try {const auto *p=find_preset(key);return p?p->json:nullptr;} catch(...) {return nullptr;}
+}
+extern "C" int hncs_whitepoint_parameters(double x,double y,double *capture_wb,double *kelvin) {
+    if(!capture_wb||!kelvin||!std::isfinite(x)||!std::isfinite(y)||x<=0.||y<=0.||x+y>=1.)return -1;
+    const V white={x/y,1.,(1.-x-y)/y};
+    // The same virtual sensor response used by the reference GainToTempAndTint.
+    M response=matrix(assets::camera_to_xyz+18);
+    for(int row=0;row<3;++row)for(int col=0;col<3;++col)
+        response[row*3+col]*=preset_assets::factory_wb[3+col];
+    const V neutral=transform(inverse(response),white);
+    if(!finite(neutral)||neutral[0]<=0.||neutral[1]<=0.||neutral[2]<=0.)return -1;
+    for(int i=0;i<3;++i)capture_wb[i]=neutral[1]/neutral[i];
+    const double denominator=1.5-x+6.*y,u=2.*x/denominator,v=3.*y/denominator;
+    double previous=0.;
+    for(int i=1;i<31;++i) {
+        const auto& r=whitepoint_assets::robertson[i];
+        const double distance=((v-r[2])-(u-r[1])*r[3])/std::sqrt(1.+r[3]*r[3]);
+        if(distance<=0.||i==30) {
+            double temperature=50000.;
+            if(i>1) {
+                const double d=std::min(distance,0.),fraction=-d/(previous-d);
+                const double mired=whitepoint_assets::robertson[i-1][0]*fraction+r[0]*(1.-fraction);
+                if(!std::isfinite(mired)||mired<=0.)return -1;
+                temperature=std::floor(1e6/mired+.5);
+            }
+            *kelvin=clamp(temperature,2000.,10000.);return 0;
+        }
+        previous=distance;
+    }
+    return -1;
+}
+
+extern "C" hncs_context *hncs_create_preset_whitepoint(double ev,double x,double y,double factory_override,
+    int lstar,int repro,int film_type,int raw_type,const char *key,int tone) {
+    V baseline{};double kelvin=0.;
+    if(hncs_whitepoint_parameters(x,y,baseline.data(),&kelvin)!=0)return nullptr;
+    hncs_context *context=hncs_create_preset(ev,kelvin,factory_override,lstar,repro,film_type,raw_type,key,tone,baseline.data(),nullptr);
+    if(!context)return nullptr;
+    const V white={x/y,1.,(1.-x-y)/y};
+    M response=matrix(assets::camera_to_xyz+18);
+    for(int row=0;row<3;++row)for(int col=0;col<3;++col)
+        response[row*3+col]*=preset_assets::factory_wb[3+col];
+    const M unbalanced=mul(mul(inverse(response),adaptation(d65,white)),srgb_to_xyz);
+    const V neutral=transform(inverse(response),white);
+    M adapter=unbalanced;
+    for(int row=0;row<3;++row)for(int col=0;col<3;++col)
+        adapter[row*3+col]*=context->target_wb[row]/neutral[1];
+    for(double value:adapter)if(!std::isfinite(value)){delete context;return nullptr;}
+    context->source_to_native=adapter;
+    return context;
 }
 extern "C" hncs_context *hncs_create_preset(double ev,double capture_kelvin,double factory_override,
     int lstar,int repro,int film_type,int raw_type,const char *key,int tone,

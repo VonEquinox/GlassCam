@@ -1,0 +1,33 @@
+2026-10-15 automatic photo white balance / codex/single-camera-hard-black
+
+Portable source/geometry/lifecycle contracts:
+----------------------------------------------------------------------
+Ran 143 tests in 0.065s
+
+OK
+
+Independent NumPy whitepoint oracle:
+test_adapter_neutral_and_absolute_preset_gain_replacement (test_automatic_white_balance.AutomaticWhiteBalance.test_adapter_neutral_and_absolute_preset_gain_replacement) ... ok
+test_gains_and_cct_match_reference_for_temperature_and_tint (test_automatic_white_balance.AutomaticWhiteBalance.test_gains_and_cct_match_reference_for_temperature_and_tint) ... ok
+test_invalid_whitepoints_and_constructor_arguments_fail_closed (test_automatic_white_balance.AutomaticWhiteBalance.test_invalid_whitepoints_and_constructor_arguments_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.067s
+
+OK
+
+Legacy native regression (verify_cpp.verify; benchmark not rerun):
+52 golden groups / 6656 pixels: max code difference 0
+892080 additional random/boundary channel comparisons: max code difference 0
+Display adapter max UInt8 difference 0; tile equivalence bit-exact
+Nonfinite/null/invalid mode checks passed
+
+Apple production Swift/C++/Core Image/Metal/HEIF:
+See automatic-white-balance-apple-tests.txt. Passed, including real 48MP DNG.
+
+Generated Robertson table exactly matches bundled NPZ via generator (cmp passed).
+Release physical-device build: BUILD SUCCEEDED
+Installed GlassCam on connected iPhone, devicectl launch succeeded.
+UI test runner launch was rejected by iOS Developer App Certificate trust check;
+normal app launch succeeds. No new on-device shot acceptance claimed for this run.
+Original checkout manifest: all 32 pre-existing dirty/untracked files unchanged.

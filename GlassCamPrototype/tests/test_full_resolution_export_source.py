@@ -15,7 +15,7 @@ class FullResolutionExportContracts(unittest.TestCase):
         self.assertIn('let exportSettings: ExportSettings', self.pipeline)
         self.assertIn('settings ?? processed.source.exportSettings', self.pipeline)
         self.assertIn('try data.write(to: url', self.store)
-        self.assertIn('fullSourceImage(processed.source.sourceFile)', self.export)
+        self.assertIn('fullSourceImage(processed.source.sourceFile, whiteBalance: processed.source.whiteBalance)', self.export)
         self.assertIn('raw.scaleFactor = 1', self.pipeline)
         self.assertNotIn('source.linearRGB', self.export)
         self.assertNotIn('maximumEdge', self.export)
@@ -45,7 +45,7 @@ class FullResolutionExportContracts(unittest.TestCase):
     def test_hncs_context_is_reused_across_strips(self):
         bridge = (ROOT / 'ios/GlassCam/HNCSEngine.swift').read_text()
         self.assertIn('private static let contextCache = ContextCache()', bridge)
-        self.assertIn('ContextKey(exposure: exposure, captureKelvin: kelvin, settings: settings, effects: effects)', bridge)
+        self.assertIn('ContextKey(exposure: exposure, captureKelvin: kelvin, whiteBalance: whiteBalance, settings: settings, effects: effects)', bridge)
         self.assertIn('cached.key == key', bridge)
         self.assertIn('defer { withExtendedLifetime(owner) {} }', bridge)
         self.assertIn('deinit { hncs_destroy(pointer) }', bridge)

@@ -102,6 +102,7 @@ enum HNCSEngine {
     private struct ContextKey: Equatable {
         let exposure: Double
         let captureKelvin: Double
+        let whiteBalance: PhotoWhiteBalance?
         let settings: HNCSSettings
         let effects: EffectToggles
     }
@@ -127,11 +128,18 @@ enum HNCSEngine {
         init(key: ContextKey) throws {
             guard key.settings.isValid else { throw Error.invalidSettings }
             let settings = key.settings
-            // Decoded linear sRGB has no calibrated sensor WB. The backend's
-            // documented synthetic capture baseline is independent of desired
-            // preset target gains; never multiply those gains into decoded RGB.
             let pointer = settings.presetKey.withCString { preset in
-                hncs_create_preset(key.exposure, key.captureKelvin,
+                if let white = key.whiteBalance {
+                    guard white.isValid else { return OpaquePointer?.none }
+                    return hncs_create_preset_whitepoint(key.exposure, white.x, white.y,
+                        settings.factoryKelvinOverride ?? 0,
+                        settings.workingSpace == .lstar ? 1 : 0,
+                        settings.intent == .reproduction ? 1 : 0,
+                        Int32(settings.filmCurve.rawValue), Int32(settings.rawFilmCurveType),
+                        preset, settings.applyToneCurve ? 1 : 0)
+                }
+                // Legacy reference/test clients retain the original CCT adapter.
+                return hncs_create_preset(key.exposure, key.captureKelvin,
                     settings.factoryKelvinOverride ?? 0,
                     settings.workingSpace == .lstar ? 1 : 0,
                     settings.intent == .reproduction ? 1 : 0,
@@ -146,9 +154,9 @@ enum HNCSEngine {
     private final class ContextCache: @unchecked Sendable {
         private let lock = NSLock()
         private var cached: ContextOwner?
-        func context(exposure: Double, kelvin: Double, settings: HNCSSettings, effects: EffectToggles) throws -> ContextOwner {
+        func context(exposure: Double, kelvin: Double, settings: HNCSSettings, effects: EffectToggles, whiteBalance: PhotoWhiteBalance?) throws -> ContextOwner {
             lock.lock(); defer { lock.unlock() }
-            let key = ContextKey(exposure: exposure, captureKelvin: kelvin, settings: settings, effects: effects)
+            let key = ContextKey(exposure: exposure, captureKelvin: kelvin, whiteBalance: whiteBalance, settings: settings, effects: effects)
             if let cached, cached.key == key { return cached }
             let owner = try ContextOwner(key: key)
             cached = owner
@@ -173,7 +181,7 @@ enum HNCSEngine {
 
     static func process(linearSRGB: [Float], width: Int, height: Int,
                         exposureEV: Double, illuminantKelvin: Double,
-                        settings: HNCSSettings = .standard, effects: EffectToggles = .standard, quality: Quality = .fastPreview) throws -> [UInt8] {
+                        settings: HNCSSettings = .standard, effects: EffectToggles = .standard, quality: Quality = .fastPreview, whiteBalance: PhotoWhiteBalance? = nil) throws -> [UInt8] {
         guard !settings.requiresSpatial(effects: effects) else { throw Error.spatialRequiresFloat }
         guard width > 0, height > 0, width <= Int.max / height else {
             throw Error.invalidDimensions
@@ -182,7 +190,7 @@ enum HNCSEngine {
         guard count <= Int.max / 4, linearSRGB.count == count * 3 else {
             throw Error.invalidDimensions
         }
-        let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings, effects: effects)
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
         let context = owner.pointer
         defer { withExtendedLifetime(owner) {} }
         var rgba = [UInt8](repeating: 0, count: count * 4)
@@ -208,7 +216,7 @@ enum HNCSEngine {
     /// The HEIF encoder applies the output transfer function and quantization.
     static func exportLinearRGBA(linearSRGB: [Float], width: Int, height: Int,
                                  exposureEV: Double, illuminantKelvin: Double,
-                                 settings: HNCSSettings = .standard, effects: EffectToggles = .standard) throws -> [Float] {
+                                 settings: HNCSSettings = .standard, effects: EffectToggles = .standard, whiteBalance: PhotoWhiteBalance? = nil) throws -> [Float] {
         guard width > 0, height > 0, width <= Int.max / height else {
             throw Error.invalidDimensions
         }
@@ -221,15 +229,15 @@ enum HNCSEngine {
         }
         if settings.requiresSpatial(effects: effects) {
             let work = try presetWork(linearSRGB: linearSRGB, width: width, height: height,
-                                      exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects)
+                                      exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
             let file = try HNCSPresetWorkFile(width: width, height: height)
             try file.writeTopDownRows(work, originY: 0, rows: height)
             try applySpatial(to: file, settings: settings, effects: effects, isCancelled: { Task.isCancelled })
             let adjusted = try file.readTopDownRows(originY: 0, rows: height)
             return try finishPresetWork(adjusted, width: width, height: height,
-                                        exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects)
+                                        exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
         }
-        let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings, effects: effects)
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
         let context = owner.pointer
         defer { withExtendedLifetime(owner) {} }
         var rgba = [Float](repeating: 0, count: count * 4)
@@ -246,10 +254,10 @@ enum HNCSEngine {
     /// Top-to-bottom bitmap rows pass unchanged to the temporary-file owner and
     /// NumPy spatial reference, so grain coordinates do not depend on strip size.
     static func presetWork(linearSRGB: [Float], width: Int, height: Int,
-                           exposureEV: Double, captureKelvin: Double, settings: HNCSSettings, effects: EffectToggles = .standard) throws -> [Float] {
+                           exposureEV: Double, captureKelvin: Double, settings: HNCSSettings, effects: EffectToggles = .standard, whiteBalance: PhotoWhiteBalance? = nil) throws -> [Float] {
         guard width > 0, height > 0, width <= Int.max / 16 / height,
               linearSRGB.count == width * height * 3 else { throw Error.invalidDimensions }
-        let owner = try contextCache.context(exposure: exposureEV, kelvin: captureKelvin, settings: settings, effects: effects)
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: captureKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
         defer { withExtendedLifetime(owner) {} }
         var result = [Float](repeating: 0, count: width * height * 3)
         let status = linearSRGB.withUnsafeBufferPointer { source in
@@ -262,10 +270,10 @@ enum HNCSEngine {
     }
 
     static func finishPresetWork(_ work: [Float], width: Int, height: Int,
-                                 exposureEV: Double, captureKelvin: Double, settings: HNCSSettings, effects: EffectToggles = .standard) throws -> [Float] {
+                                 exposureEV: Double, captureKelvin: Double, settings: HNCSSettings, effects: EffectToggles = .standard, whiteBalance: PhotoWhiteBalance? = nil) throws -> [Float] {
         guard width > 0, height > 0, width <= Int.max / 16 / height,
               work.count == width * height * 3 else { throw Error.invalidDimensions }
-        let owner = try contextCache.context(exposure: exposureEV, kelvin: captureKelvin, settings: settings, effects: effects)
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: captureKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
         defer { withExtendedLifetime(owner) {} }
         var result = [Float](repeating: 0, count: width * height * 4)
         let status = work.withUnsafeBufferPointer { source in

@@ -113,11 +113,17 @@ enum CaptureWorkflowChecks {
             defer { defaults.removePersistentDomain(forName: suite) }
             let legacyKey = "main:\(Data("physical-main".utf8).base64EncodedString())"
             defaults.set([legacyKey: 12], forKey: "camera.output.megapixels.byPhysicalLens.v1")
+            let legacyRecipe = ProcessingRecipe(mode: .hncs, exposureEV: 0.25, illuminantKelvin: 2850,
+                simulationIndex: 0, seed: 0, hncs: .standard)
+            defaults.set(try JSONEncoder().encode(legacyRecipe), forKey: "editor.processingRecipe.revision8.v1")
             let settings = CameraSettingsStore(defaults: defaults)
+            try WorkflowHarness(data: data).check(settings.recipe.photoWhiteBalance == nil &&
+                settings.recipe.illuminantKelvin == 6500 && settings.exposure == 0.25,
+                "Legacy manual WB survived automatic migration or reset unrelated effects")
             try WorkflowHarness(data: data).check(settings.outputMegapixels(physicalCameraID: "physical-main", mode: "main") == 24,
                                                   "12MP migration did not select 24MP")
             settings.hncs.presetKey = "square-crop"; settings.effects.applyGrain = false
-            settings.exposure = 0.5; settings.kelvin = 5500; settings.gridVisible = false
+            settings.exposure = 0.5; settings.gridVisible = false
             settings.experimentalLiveColor = true; settings.centerPreviewLongEdge = 2560
             settings.setOutputMegapixels(48, physicalCameraID: "physical-main", mode: "main")
             let frozen = CaptureSnapshot(recipe: settings.recipe, output: .init(targetWidth: 8064, targetHeight: 6048))

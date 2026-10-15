@@ -86,7 +86,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertEqual(members['rawFilmCurveType'][2], '2')
         self.assertEqual(members['factoryKelvinOverride'][2], 'nil')
         recipe = stored_members(self.pipeline, 'struct ProcessingRecipe:')
-        self.assertEqual(set(recipe), {'mode', 'exposureEV', 'illuminantKelvin', 'simulationIndex', 'seed', 'hncs', 'effects', 'ffcs'})
+        self.assertEqual(set(recipe), {'mode', 'exposureEV', 'illuminantKelvin', 'simulationIndex', 'seed', 'hncs', 'effects', 'ffcs', 'photoWhiteBalance'})
         self.assertTrue(all(member[0] == 'let' for member in recipe.values()))
         self.assertEqual(recipe['hncs'][1], 'HNCSSettings')
         self.assertEqual(recipe['effects'][1], 'EffectToggles')
@@ -99,7 +99,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
                            'saved.isValid', 'colorMode = saved.mode')
         assignments = dict(re.findall(r'(colorMode|simulationIndex|exposure|kelvin|hncs|effects)\s*=\s*saved\.(\w+)', init))
         self.assertEqual(assignments, {'colorMode': 'mode', 'simulationIndex': 'simulationIndex',
-                                      'exposure': 'exposureEV', 'kelvin': 'illuminantKelvin', 'hncs': 'hncs', 'effects': 'effects'})
+                                      'exposure': 'exposureEV', 'hncs': 'hncs', 'effects': 'effects'})
         for control in assignments:
             self.assertRegex(self.settings, r'@Published var ' + control + r'[^\n]*\{ didSet \{ persistRecipe\(\) \} \}')
         persist = body(self.settings, 'private func persistRecipe()')
@@ -114,15 +114,15 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
     def test_context_cache_matches_complete_settings_and_retains_inflight_owner(self):
         members = stored_members(self.engine, 'private struct ContextKey:')
         self.assertEqual({key: value[1] for key, value in members.items()},
-                         {'exposure': 'Double', 'captureKelvin': 'Double', 'settings': 'HNCSSettings', 'effects': 'EffectToggles'})
+                         {'exposure': 'Double', 'captureKelvin': 'Double', 'whiteBalance': 'PhotoWhiteBalance?', 'settings': 'HNCSSettings', 'effects': 'EffectToggles'})
         cache = body(self.engine, 'private final class ContextCache:')
         self.assertOrdered(cache, 'lock.lock()',
-                           'ContextKey(exposure: exposure, captureKelvin: kelvin, settings: settings, effects: effects)',
+                           'ContextKey(exposure: exposure, captureKelvin: kelvin, whiteBalance: whiteBalance, settings: settings, effects: effects)',
                            'cached.key == key', 'ContextOwner(key: key)', 'cached = owner')
         self.assertNotRegex(cache, r'cached\.(?:exposure|kelvin)\s*==')
         for signature in ['static func process(', 'static func exportLinearRGBA(']:
             method = body(self.engine, signature)
-            self.assertOrdered(method, 'contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings, effects: effects)',
+            self.assertOrdered(method, 'contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)',
                                'let context = owner.pointer', 'withExtendedLifetime(owner)', 'withUnsafeBufferPointer')
         self.assertIn('deinit { hncs_destroy(pointer) }', self.engine)
 
@@ -143,7 +143,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertIn('selection: $settings.presetKey', controls)
         self.assertIn('settings.factoryKelvinOverride = $0', controls)
         self.assertNotIn('model.kelvin', controls)
-        self.assertIn('LabeledContent("Virtual capture CCT"', self.view)
+        self.assertIn('LabeledContent("White balance", value: "Automatic from photo"', self.view)
         self.assertIn('Stepper("Factory CCT:', controls)
 
     def test_import_and_rerender_freeze_recipe_before_background_work(self):
@@ -171,10 +171,10 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertIn('cache.firstIndex { $0.recipe == request.recipe }', self.proxy)
         view = body(self.view, 'private var liveRecipe:')
         self.assertIn('hncs: colorMode == .hncs ? hncs : .standard', view)
-        self.assertIn('illuminantKelvin: colorMode == .hncs ? settings.kelvin : 5500', view)
+        self.assertIn('illuminantKelvin: 5500', view)
         self.assertRegex(self.engine, r'var isLegacyLiveCompatible: Bool \{ self == \.standard \}')
         gate = body(self.proxy, 'var unsupportedReason:')
-        self.assertIn('mode == .hncs && !hncs.isLegacyLiveCompatible', gate)
+        self.assertIn('if mode == .hncs {', gate)
         self.assertIn('Showing system preview.', gate)
         # Full-struct equality also excludes a changed tone/WB/revision even if
         # the preset's display name still says Standard.
@@ -219,7 +219,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
 
     def test_export_resolves_full_source_crop_before_output_selection_and_processing(self):
         export = body(self.pipeline, 'private static func exportFullSource(')
-        self.assertOrdered(export, 'fullSourceImage(processed.source.sourceFile)',
+        self.assertOrdered(export, 'fullSourceImage(processed.source.sourceFile, whiteBalance: processed.source.whiteBalance)',
                            'let sourceWidth = Int(decoded.extent.width.rounded(.down))',
                            'let sourceHeight = Int(decoded.extent.height.rounded(.down))',
                            'let recipe = processed.recipe',

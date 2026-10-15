@@ -96,7 +96,8 @@ private func require(_ condition: Bool, _ message: String) throws {
         } }
         let processed = try ImagePipeline.process(input, recipe: recipe)
         let expected = try HNCSEngine.exportLinearRGBA(linearSRGB: rgb, width: side, height: side,
-            exposureEV: 0, illuminantKelvin: 6500, settings: settings, effects: effects)
+            exposureEV: 0, illuminantKelvin: processed.recipe.illuminantKelvin, settings: settings, effects: effects,
+            whiteBalance: processed.recipe.photoWhiteBalance)
         try require(try error(pixels(processed.comparisonSource.image), originalRGBA) < 1e-6,
                     "Comparison source does not use the declared top-left crop")
         try require(try error(pixels(processed.image.image), expected) < 1e-6,
@@ -231,7 +232,8 @@ private func require(_ condition: Bool, _ message: String) throws {
             for channel in 0..<3 { base[i + channel] /= gain }
         }
         var expected = try HNCSEngine.exportLinearRGBA(linearSRGB: base, width: input.width,
-            height: input.height, exposureEV: 0, illuminantKelvin: 6500, settings: .standard)
+            height: input.height, exposureEV: 0, illuminantKelvin: processed.recipe.illuminantKelvin, settings: .standard,
+            whiteBalance: processed.recipe.photoWhiteBalance)
         for pixel in 0..<(source.count / 3) {
             let i = pixel * 3
             let gain = max(1, source[i], source[i + 1], source[i + 2])
@@ -319,9 +321,39 @@ private func require(_ condition: Bool, _ message: String) throws {
         }
     }
 
+    static func checkAutomaticWhiteBalance(_ input: ImportedImage) throws {
+        let warm = PhotoWhiteBalance(origin: .appleRAW, temperature: 2850, tint: 4,
+                                     x: 0.44757, y: 0.40745)
+        let tinted = PhotoWhiteBalance(origin: .appleRAW, temperature: 5200, tint: 25,
+                                       x: 0.34, y: 0.38)
+        let frozen = ProcessingRecipe.standard.resolvingWhiteBalance(warm)
+        try require(frozen.photoWhiteBalance == warm && frozen.illuminantKelvin != 6500,
+                    "Automatic photo WB was replaced by fixed 6500K")
+        try require(frozen.resolvingWhiteBalance(tinted) == frozen, "Retry retargeted frozen WB")
+        let decoded = try JSONDecoder().decode(ProcessingRecipe.self, from: JSONEncoder().encode(frozen))
+        try require(decoded == frozen, "Temperature/tint/xy did not survive recipe round-trip")
+        let invalid = PhotoWhiteBalance(origin: .appleRAW, temperature: 5000, tint: 0, x: .nan, y: 0.3)
+        try require(!invalid.isValid, "Invalid white point accepted")
+        let a = try HNCSEngine.exportLinearRGBA(linearSRGB: input.linearRGB, width: input.width,
+            height: input.height, exposureEV: 0, illuminantKelvin: 6500, whiteBalance: warm)
+        let b = try HNCSEngine.exportLinearRGBA(linearSRGB: input.linearRGB, width: input.width,
+            height: input.height, exposureEV: 0, illuminantKelvin: 6500, whiteBalance: tinted)
+        let again = try HNCSEngine.exportLinearRGBA(linearSRGB: input.linearRGB, width: input.width,
+            height: input.height, exposureEV: 0, illuminantKelvin: 6500, whiteBalance: warm)
+        try require(try error(a, b) > 0.001, "Changed white point reused stale context")
+        try require(a == again, "Returning to frozen white point changed render")
+        let direct = try ImagePipeline.process(input, recipe: .standard)
+        try require(direct.recipe.photoWhiteBalance == input.whiteBalance,
+                    "Pipeline failed to bind the photo's white point")
+    }
+
     static func checkRAW(_ source: URL, directory: URL) throws {
         let input = try ImagePipeline.load(data: Data(contentsOf: source), fileExtension: "dng")
         let processed = try ImagePipeline.process(input, recipe: .standard)
+        let asShot = PhotoWhiteBalance.asShot(CIRAWFilter(imageURL: source)!)
+        try require(asShot.origin == .appleRAW && asShot == input.whiteBalance &&
+                    processed.recipe.photoWhiteBalance == asShot, "RAW as-shot WB was not frozen")
+        print("PASS: RAW \(asShot.description); xy (\(asShot.x), \(asShot.y)); virtual model CCT \(processed.recipe.illuminantKelvin)")
         let output = directory.appendingPathComponent("raw-hdr.heic")
         let started = Date()
         try ImagePipeline.writeHEIF(processed, to: output, progress: { progress in
@@ -340,7 +372,7 @@ private func require(_ condition: Bool, _ message: String) throws {
         try require((metadata[kCGImagePropertyDepth as String] as? NSNumber)?.intValue == 10 &&
                     image.colorSpace?.isHDR() == true, "RAW export is not 10-bit HDR")
         let maximum = pixels(image.applyingFilter("CIAreaMaximum", parameters: [kCIInputExtentKey: CIVector(cgRect: image.extent)]))
-        try require(maximum.allSatisfy { $0.isFinite }, "RAW HDR export has invalid pixel values")
+        try require(maximum.allSatisfy { $0.isFinite } && maximum.max()! > 1, "RAW HDR export lost superwhite pixels")
         print("PASS: real RAW \(width)×\(height) → 10-bit PQ HEIF; decoded peak \(maximum.max()!); bytes \((try Data(contentsOf: output)).count); seconds \(Date().timeIntervalSince(started))")
     }
 
@@ -360,6 +392,8 @@ private func require(_ condition: Bool, _ message: String) throws {
             try checkMetal()
             print("PASS: actual Metal preview destination preserves quadrant coordinates and 2×/4×/8× HDR pixels")
             let full = try fixture(directory, width: 257, height: 389)
+            try checkAutomaticWhiteBalance(full)
+            print("PASS: production automatic WB snapshot, Codable, cache invalidation and per-photo binding")
             try await CaptureWorkflowChecks.run(fixture: full)
             for preset in ["standard", "square-crop", "film-grain-artistic", "high"] {
                 try checkExport(full, recipe: recipe(preset), directory: directory, name: "hncs-" + preset)

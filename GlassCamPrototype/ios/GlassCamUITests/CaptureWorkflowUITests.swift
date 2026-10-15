@@ -65,6 +65,10 @@ final class CaptureWorkflowUITests: XCTestCase {
         guard review else { return }
         tap(app.buttons["camera.thumbnail"])
         XCTAssertTrue(app.buttons["Share saved HDR photo"].waitForExistence(timeout: 10), app.debugDescription)
+        let whiteBalance = app.staticTexts["review.whiteBalance"]
+        XCTAssertTrue(whiteBalance.waitForExistence(timeout: 10))
+        XCTAssertTrue(whiteBalance.label.hasPrefix("Auto WB ·"), whiteBalance.label)
+        print("GLASSCAM-AUTO-WB \(whiteBalance.label)")
         tap(app.buttons["Camera"])
         app.terminate(); app.launch()
         XCTAssertTrue(app.buttons["camera.settings"].waitForExistence(timeout: 30))

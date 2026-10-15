@@ -25,13 +25,10 @@ struct LiveColorRecipe: Equatable {
     let contract = "v4:hncs-revision8-legacy-identity-only/ffcs-0.2-neutral-verified-xh2s-provia-acros-radius1:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"
 
     var unsupportedReason: String? {
-        if mode == .hncs && !hncs.isLegacyLiveCompatible {
-            return "This HNCS preset, film curve, working space, tone or WB setting has no measured live-color cube. Showing system preview."
+        if mode == .hncs {
+            return "HNCS uses each captured RAW photo's white balance. Showing system preview."
         }
         guard exposureEV == 0 else { return "Experimental live color needs photo exposure 0 EV. Showing system preview." }
-        if mode == .hncs && ![5500.0, 6500.0].contains(illuminantKelvin) {
-            return "Experimental HNCS live color needs virtual capture CCT 5500 or 6500 K. Showing system preview."
-        }
         if mode == .ffcs {
             guard ffcs.isValid,
                   (0..<Int(ffcs_simulation_count())).contains(simulationIndex),

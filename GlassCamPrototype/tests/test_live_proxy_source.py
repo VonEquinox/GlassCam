@@ -50,7 +50,8 @@ class LiveProxySourceContracts(unittest.TestCase):
     def test_only_measured_recipe_allowlist_is_enabled(self):
         gate = section(PROXY, 'var unsupportedReason:', '/// Retains the original tagged buffer')
         self.assertIn('guard exposureEV == 0', gate)
-        self.assertIn('![5500.0, 6500.0].contains(illuminantKelvin)', gate)
+        self.assertIn('if mode == .hncs {', gate)
+        self.assertIn("each captured RAW photo's white balance", gate)
         self.assertIn('(0..<Int(ffcs_simulation_count())).contains(simulationIndex)', gate)
         self.assertIn('[0, 8].contains(simulationIndex)', gate)
         self.assertIn('ffcs.cameraFamily == .xh2s, !ffcs.applyReferenceAdjustments', gate)

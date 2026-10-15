@@ -19,6 +19,15 @@ struct ImportedImage: @unchecked Sendable {
     let height: Int
     let original: PreviewRaster
     let sourceDescription: String
+    let whiteBalance: PhotoWhiteBalance
+
+    init(sourceFile: SourceImageFile, exportSettings: ExportSettings, linearRGB: [Float],
+         width: Int, height: Int, original: PreviewRaster, sourceDescription: String,
+         whiteBalance: PhotoWhiteBalance = .renderedD65) {
+        self.sourceFile = sourceFile; self.exportSettings = exportSettings; self.linearRGB = linearRGB
+        self.width = width; self.height = height; self.original = original
+        self.sourceDescription = sourceDescription; self.whiteBalance = whiteBalance
+    }
 }
 
 /// Only implemented, audited backends belong in this list. Adding a mode must
@@ -103,19 +112,21 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
     let hncs: HNCSSettings
     let effects: EffectToggles
     let ffcs: FFCSSettings
+    let photoWhiteBalance: PhotoWhiteBalance?
     // Only the HNCS square preset defines a crop. FFCS has no extra-crop stage.
     var crop: ImageCrop { mode == .hncs ? hncs.crop(effects: effects) : .none }
 
     init(mode: ColorMode, exposureEV: Double, illuminantKelvin: Double,
          simulationIndex: Int, seed: UInt32, hncs: HNCSSettings,
-         effects: EffectToggles = .standard, ffcs: FFCSSettings = .standard) {
+         effects: EffectToggles = .standard, ffcs: FFCSSettings = .standard,
+         photoWhiteBalance: PhotoWhiteBalance? = nil) {
         self.mode = mode; self.exposureEV = exposureEV; self.illuminantKelvin = illuminantKelvin
         self.simulationIndex = simulationIndex; self.seed = seed; self.hncs = hncs
-        self.effects = effects; self.ffcs = ffcs
+        self.effects = effects; self.ffcs = ffcs; self.photoWhiteBalance = photoWhiteBalance
     }
 
     private enum CodingKeys: String, CodingKey {
-        case mode, exposureEV, illuminantKelvin, simulationIndex, seed, hncs, effects, ffcs
+        case mode, exposureEV, illuminantKelvin, simulationIndex, seed, hncs, effects, ffcs, photoWhiteBalance
     }
     private enum LegacyEffectKeys: String, CodingKey { case applyGrain, applySharpness }
     init(from decoder: Decoder) throws {
@@ -126,6 +137,7 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
         simulationIndex = try values.decodeIfPresent(Int.self, forKey: .simulationIndex) ?? 0
         seed = try values.decodeIfPresent(UInt32.self, forKey: .seed) ?? 0
         hncs = try values.decodeIfPresent(HNCSSettings.self, forKey: .hncs) ?? .standard
+        photoWhiteBalance = try values.decodeIfPresent(PhotoWhiteBalance.self, forKey: .photoWhiteBalance)
         ffcs = try values.decodeIfPresent(FFCSSettings.self, forKey: .ffcs) ?? .standard
         if let savedEffects = try values.decodeIfPresent(EffectToggles.self, forKey: .effects) {
             effects = savedEffects
@@ -144,11 +156,20 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
         }
     }
 
+    func resolvingWhiteBalance(_ value: PhotoWhiteBalance) -> ProcessingRecipe {
+        // An already resolved render/retry keeps the original photo white point.
+        guard photoWhiteBalance == nil else { return self }
+        return ProcessingRecipe(mode: mode, exposureEV: exposureEV,
+            illuminantKelvin: value.modelKelvin ?? 6500, simulationIndex: simulationIndex,
+            seed: seed, hncs: hncs, effects: effects, ffcs: ffcs, photoWhiteBalance: value)
+    }
+
     static let standard = ProcessingRecipe(mode: .hncs, exposureEV: 0, illuminantKelvin: 6500,
                                             simulationIndex: 0, seed: 0, hncs: .standard)
     var isValid: Bool {
         exposureEV.isFinite && (-2...2).contains(exposureEV) &&
         illuminantKelvin.isFinite && (2000...10000).contains(illuminantKelvin) &&
+        (photoWhiteBalance == nil || photoWhiteBalance!.isValid) &&
         (0..<Int(ffcs_simulation_count())).contains(simulationIndex) && hncs.isValid && ffcs.isValid
     }
 
@@ -247,6 +268,7 @@ enum ImagePipeline {
     private static func decode(data: Data, fileExtension: String?, sourceFile: SourceImageFile, maximumEdge: CGFloat, exportSettings: ExportSettings) throws -> ImportedImage {
         let isRAW = ["dng", "raw"].contains(fileExtension?.lowercased() ?? "")
         var source: CIImage?
+        var whiteBalance = PhotoWhiteBalance.renderedD65
         var decodePrecisionDescription = "Float32 RAW decode · not sensor-native bit depth"
         if isRAW {
             if let raw = CIRAWFilter(imageData: data, identifierHint: "com.adobe.raw-image") {
@@ -258,6 +280,7 @@ enum ImagePipeline {
                    let orientation = CGImagePropertyOrientation(rawValue: exif.uint32Value) {
                     raw.orientation = orientation
                 }
+                whiteBalance = .asShot(raw)
                 let native = raw.nativeSize
                 let longEdge = max(native.width, native.height)
                 guard longEdge.isFinite, longEdge > 0 else { throw PipelineError.invalidImage }
@@ -321,10 +344,12 @@ enum ImagePipeline {
         }
         return ImportedImage(sourceFile: sourceFile, exportSettings: exportSettings, linearRGB: rgb, width: width, height: height,
                              original: original,
-                             sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter • \(decodePrecisionDescription)" : "Rendered image • embedded profile → linear sRGB • \(decodePrecisionDescription)")
+                             sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter • \(decodePrecisionDescription)" : "Rendered image • embedded profile → linear sRGB • \(decodePrecisionDescription)",
+                             whiteBalance: whiteBalance)
     }
 
     static func process(_ input: ImportedImage, recipe: ProcessingRecipe) throws -> ProcessedImage {
+        let recipe = recipe.resolvingWhiteBalance(input.whiteBalance)
         guard recipe.isValid else { throw HNCSEngine.Error.invalidSettings }
         let crop = try recipe.crop.resolve(width: input.width, height: input.height)
         let comparisonSource = try input.original.cropped(to: crop)
@@ -350,7 +375,7 @@ enum ImagePipeline {
         case .hncs:
             rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: effectInput, width: crop.width,
                                                    height: crop.height, exposureEV: recipe.exposureEV,
-                                                   illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects)
+                                                   illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
         case .ffcs:
             rgba = try FFCSEngine.exportLinearRGBA(linearSRGB: effectInput, width: crop.width,
                                                    height: crop.height, exposureEV: recipe.exposureEV,
@@ -376,7 +401,7 @@ enum ImagePipeline {
         }
     }
 
-    private static func fullSourceImage(_ source: SourceImageFile) throws -> CIImage {
+    private static func fullSourceImage(_ source: SourceImageFile, whiteBalance: PhotoWhiteBalance) throws -> CIImage {
         let isRAW = ["dng", "raw"].contains(source.fileExtension?.lowercased() ?? "")
         var decoded: CIImage?
         if isRAW {
@@ -386,6 +411,9 @@ enum ImagePipeline {
                    let exif = properties[kCGImagePropertyOrientation as String] as? NSNumber,
                    let orientation = CGImagePropertyOrientation(rawValue: exif.uint32Value) {
                     raw.orientation = orientation
+                }
+                if whiteBalance.origin == .appleRAW {
+                    raw.neutralChromaticity = CGPoint(x: whiteBalance.x, y: whiteBalance.y)
                 }
                 raw.scaleFactor = 1 // Genuine decoder output, never the preview scale.
                 raw.extendedDynamicRangeAmount = 1
@@ -412,7 +440,7 @@ enum ImagePipeline {
                                           progress: @escaping @Sendable (Double) -> Void) throws {
         try checkExportCancellation(isCancelled)
         progress(0)
-        let decoded = try fullSourceImage(processed.source.sourceFile)
+        let decoded = try fullSourceImage(processed.source.sourceFile, whiteBalance: processed.source.whiteBalance)
         try checkExportCancellation(isCancelled)
         // Protect all byte-count arithmetic before allocating or creating a file.
         guard decoded.extent.width < CGFloat(Int.max / 16),
@@ -481,7 +509,7 @@ enum ImagePipeline {
                 if let spatialWork {
                     try highlightWork!.append(gains)
                     let work = try HNCSEngine.presetWork(linearSRGB: rgb, width: width, height: rows,
-                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects)
+                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
                     try spatialWork.writeTopDownRows(work, originY: start, rows: rows)
                     progress(0.1 + 0.35 * Double(start + rows) / Double(height))
                     return
@@ -491,7 +519,7 @@ enum ImagePipeline {
                 case .hncs:
                     rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: rgb, width: width, height: rows,
                                                            exposureEV: recipe.exposureEV,
-                                                           illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects)
+                                                           illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
                 case .ffcs:
                     let rendered = try FFCSEngine.exportLinearRGBStrip(
                         linearSRGB: rgb, fullWidth: width, fullHeight: height,
@@ -525,7 +553,7 @@ enum ImagePipeline {
                     let rows = min(stripRows, height - start)
                     let work = try spatialWork.readTopDownRows(originY: start, rows: rows)
                     var rgba = try HNCSEngine.finishPresetWork(work, width: width, height: rows,
-                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects)
+                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
                     guard rgba.count == width * rows * 4,
                           rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
                     let gains = gainData.withUnsafeBytes { bytes in

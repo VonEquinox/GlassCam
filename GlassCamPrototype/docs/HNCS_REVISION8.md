@@ -14,9 +14,9 @@
 
 原生参考的 capture WB 先决定传感器响应/光源插值，再以完整 configured X2D 目标增益替换目标 WB。固定 WB 预设不能仅改变工厂 CCT，也不能仅套 tint multiplier。显式工厂 CCT 只选择原厂核表。
 
-App 的 Apple 图像入口已经是解码后的 linear-sRGB，当前没有校准的 iPhone sensor→X2D 响应或可靠原始 capture-WB 合同。因此采用独立、明确的实验桥：以用户选择的虚拟 capture CCT 建立旧源域矩阵，在该 CCT 对 factory WB 插值并按绿色归一化，作为虚拟 capture-neutral 基线 B；固定预设完整目标增益 D 通过 diag(D/B) 左乘 native 桥，然后独立选择工厂核 CCT。
+2026-10-15：App 的 Apple RAW 入口自动读取 `CIRAWFilter` 的 as-shot 色温、Tint 和 xy 白点。Apple 负责源图白平衡；完整 xy 经虚拟 X2D 响应逆变换得到捕获基线，白平衡预设再替换目标增益。默认不再依赖手动捕获 CCT。数学、来源和验证见 [自动白平衡](AUTOMATIC_WHITE_BALANCE.md)。
 
-这让目标 WB 真正进入 pre-core 变换，并保留 source/target 的区别，但不证明 iPhone 物理白平衡或 Phocus RAW 解码等价。原生显式 baseline/target 增益的数学一致性与 App 源域假设分别测试、分别披露。
+原 `hncs_create_preset` 的 CCT/显式增益合同保持原数值，供旧参考测试调用；App 使用新增的 `hncs_create_preset_whitepoint`。二者属于不同源域适配合同，均不证明 iPhone→X2D 的实测传感器标定。
 
 ## 方形裁切与配方
 
@@ -24,7 +24,7 @@ Square Crop 对实际源尺寸取居中 min(width,height) 正方形；奇数剩�
 
 43个原始XML payload及已知别名均保留在后端catalog；UI展示29个有实际效果的预设（含Standard），不把原参考的无效果工具项伪装成处理模式。C ABI接受canonical/已列别名，并只剥离空格、tab、CR/LF；不会完整复刻Python对所有Unicode空白的str.strip。
 
-预设、film curve、tone 开关、源域虚拟 CCT、工厂 CCT/目标 WB、空间阶段设置均属于不可变处理配方。预览、导出和缓存不得分别读取不断变化的 UI 值。实验65³实时代理只继续接受已验证的原 Standard 配方，新增预设/目标WB等颜色参数不继承旧误差预算，退回系统取景。独立颗粒/锐化/预设裁切开关不向cube加入空间处理，完整身份仍进入缓存；见[三个开关](EFFECT_TOGGLES.md)。
+预设、film curve、tone 开关、每张源图的完整白点、工厂 CCT/目标 WB、空间阶段设置均属于不可变处理配方。预览、导出和缓存不得分别读取不断变化的 UI 值。HNCS 的自动白点不继承旧65³代理误差预算，因此使用系统取景；已验证的 FFCS 实验代理继续保留。独立颗粒/锐化/预设裁切开关不向cube加入空间处理，完整身份仍进入缓存；见[三个开关](EFFECT_TOGGLES.md)。
 
 ## 空间阶段边界
 

@@ -40,7 +40,7 @@ def main():
         sources = ROOT / "ios/GlassCam"
         run(*swift, "-I", core, "-import-objc-header", sources / "GlassCam-Bridging-Header.h",
             *(sources / name for name in ["ExportSettings.swift", "SourceImageStore.swift",
-                                          "HNCSEngine.swift", "FFCSEngine.swift",
+                                          "PhotoWhiteBalance.swift", "HNCSEngine.swift", "FFCSEngine.swift",
                                           "ImagePipeline.swift", "PreviewRaster.swift", "ShareDelivery.swift",
                                           "CameraSettingsStore.swift", "CaptureWorkflow.swift"]),
             ROOT / "tests/apple_image_pipeline.swift", ROOT / "tests/apple_capture_workflow.swift", "-L", work, "-lglasscam",

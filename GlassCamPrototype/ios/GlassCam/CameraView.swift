@@ -376,7 +376,7 @@ struct CameraView: View {
 
     private var liveRecipe: LiveColorRecipe {
         LiveColorRecipe(mode: colorMode, simulationIndex: colorMode == .ffcs ? settings.simulationIndex : 0,
-                        exposureEV: settings.exposure, illuminantKelvin: colorMode == .hncs ? settings.kelvin : 5500,
+                        exposureEV: settings.exposure, illuminantKelvin: 5500,
                         hncs: colorMode == .hncs ? hncs : .standard, effects: effects,
                         ffcs: colorMode == .ffcs ? settings.ffcs : .standard)
     }
@@ -671,14 +671,15 @@ private struct CameraSettingsView: View {
                         .accessibilityLabel("Photo effect exposure")
                     if settings.colorMode == .hncs {
                         HNCSPresetControls(settings: $settings.hncs)
-                        LabeledContent("Virtual capture CCT", value: "\(Int(settings.kelvin)) K")
-                        Slider(value: $settings.kelvin, in: 2000...10000, step: 50)
-                            .accessibilityLabel("Virtual capture correlated color temperature")
+                        LabeledContent("White balance", value: "Automatic from photo")
+                            .accessibilityIdentifier("settings.whiteBalance")
+                        Text("Each photo uses its own RAW white balance, including temperature and tint.")
+                            .font(.footnote).foregroundStyle(.secondary)
                     }
                     EffectToggleControls(effects: $settings.effects, mode: settings.colorMode, hncs: settings.hncs)
                     Button("Reset effect adjustments") {
                         settings.exposure = 0
-                        if settings.colorMode == .hncs { settings.kelvin = 6500; settings.hncs = .standard }
+                        if settings.colorMode == .hncs { settings.hncs = .standard }
                     }
                 }
                 Section("Viewfinder") {
@@ -740,6 +741,13 @@ private struct CaptureReview: View {
                     .accessibilityAction(named: "Zoom in") { zoom = min(5, zoom + 1) }
                     .accessibilityAction(named: "Reset zoom") { zoom = 1; pan = .zero }
             }.clipped().background(Color.black)
+            .safeAreaInset(edge: .bottom) {
+                if let white = capture.snapshot.recipe.photoWhiteBalance {
+                    Text(white.description).font(.caption).foregroundStyle(.secondary)
+                        .padding(8).frame(maxWidth: .infinity).background(Color.black)
+                        .accessibilityIdentifier("review.whiteBalance")
+                }
+            }
             .navigationTitle("\(capture.width) × \(capture.height) · HDR")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
