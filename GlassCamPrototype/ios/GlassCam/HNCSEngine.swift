@@ -223,9 +223,9 @@ enum HNCSEngine {
             let work = try presetWork(linearSRGB: linearSRGB, width: width, height: height,
                                       exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects)
             let file = try HNCSPresetWorkFile(width: width, height: height)
-            try file.writeBottomUpRows(work, originY: 0, rows: height)
+            try file.writeTopDownRows(work, originY: 0, rows: height)
             try applySpatial(to: file, settings: settings, effects: effects, isCancelled: { Task.isCancelled })
-            let adjusted = try file.readBottomUpRows(originY: 0, rows: height)
+            let adjusted = try file.readTopDownRows(originY: 0, rows: height)
             return try finishPresetWork(adjusted, width: width, height: height,
                                         exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects)
         }
@@ -243,8 +243,8 @@ enum HNCSEngine {
     }
 
     /// Unquantized working-space Float32 boundary, before grain and USM.
-    /// CI bottom-up row ordering is preserved here; the temporary-file owner
-    /// performs the single row reversal required by the NumPy spatial reference.
+    /// Top-to-bottom bitmap rows pass unchanged to the temporary-file owner and
+    /// NumPy spatial reference, so grain coordinates do not depend on strip size.
     static func presetWork(linearSRGB: [Float], width: Int, height: Int,
                            exposureEV: Double, captureKelvin: Double, settings: HNCSSettings, effects: EffectToggles = .standard) throws -> [Float] {
         guard width > 0, height > 0, width <= Int.max / 16 / height,

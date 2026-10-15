@@ -68,8 +68,11 @@ full-frame backend, including global grain and boundaries. Python source
 contract tests verify architectural separation, ordering and format calls;
 they do not compile Swift or prove any encoded result.
 
-This environment has no Apple SDK. Before distribution, build on the target
-Xcode/iOS SDK and run device tests that:
+The 2026-10-13 macOS run of `python3 -B tools/test_apple_images.py` passes real
+Core Image, Foundation, Metal and HEIF checks; Xcode 27 simulator Debug/Release
+builds also pass. Bitmap and native-backend rows now count from the top, with
+explicit conversion to the lower-left CI rectangle. Alpha clamps are cropped
+back to finite bounds before encoding. Before distribution, run device tests that:
 
 1. Compare concatenated Core Image rendered stripe bytes against a single
    full-frame render for asymmetric images and all EXIF orientations. Row
@@ -94,7 +97,7 @@ promise bounded internal decoder/encoder allocation.
 
 ## Precision and display checks
 
-Output dimensions must have the exact source aspect ratio (tolerance only for floating arithmetic); Lanczos aspectRatio stays1, so the exporter does not stretch to fit. Full-source FFCS grain/sharpen followed by reduction can differ visibly from a low-resolution effect preview, even with the same recipe. That preview is approximate. Run `swift tests/apple_ci_strip_roundtrip.swift` on macOS with Apple frameworks before accepting stripe orientation: this asymmetric diagnostic compares64/64/3 row segments and bitmap roundtrip. It has not run in the Linux workspace.
+Output dimensions must have the exact source aspect ratio (tolerance only for floating arithmetic); Lanczos aspectRatio stays1, so the exporter does not stretch to fit. Full-source FFCS grain/sharpen followed by reduction can differ visibly from a low-resolution effect preview, even with the same recipe. That preview is approximate. `swift tests/apple_ci_strip_roundtrip.swift` now passes on macOS: asymmetric64/64/3 row segments and bitmap roundtrip have maximum error0. The production-pipeline regression also compares real full-source and reduced HEIF exports with whole-frame processing through the same codec.
 
 HNCS now also keeps a one-entry immutable recipe context cache, avoiding LUT/matrix preparation for every64-row strip. On the cloud CPU,96 repeated native context constructions alone cost median0.538s across5 samples (`validation/hncs_context_cache.json`); the cache removes repeated setup, but this is not an Apple end-to-end export benchmark. In-flight calls retain ownership while a new recipe replaces the cached entry.
 

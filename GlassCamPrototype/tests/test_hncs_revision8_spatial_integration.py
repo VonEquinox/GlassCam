@@ -14,27 +14,21 @@ import unittest
 from test_hncs_revision8_source import body, compact, source
 
 
-def write_bottom_up(file, rgb, width, height, origin, rows):
+def write_top_down(file, rgb, width, height, origin, rows):
     if origin < 0 or rows <= 0 or origin > height - rows or len(rgb) != width * rows * 3:
         raise ValueError('invalid strip')
-    file.seek((height - origin - rows) * width * 12)
-    for row in reversed(range(rows)):
-        start = row * width * 3
-        file.write(struct.pack('<' + 'f' * width * 3, *rgb[start:start + width * 3]))
+    file.seek(origin * width * 12)
+    file.write(struct.pack('<' + 'f' * len(rgb), *rgb))
 
 
-def read_bottom_up(file, width, height, origin, rows):
+def read_top_down(file, width, height, origin, rows):
     if origin < 0 or rows <= 0 or origin > height - rows:
         raise ValueError('invalid strip')
-    file.seek((height - origin - rows) * width * 12)
+    file.seek(origin * width * 12)
     data = file.read(width * rows * 12)
     if len(data) != width * rows * 12:
         raise ValueError('incomplete strip')
-    result = []
-    for row in reversed(range(rows)):
-        start = row * width * 12
-        result.extend(struct.unpack('<' + 'f' * width * 3, data[start:start + width * 12]))
-    return result
+    return list(struct.unpack('<' + 'f' * (width * rows * 3), data))
 
 
 class SpatialRowStorageModelTests(unittest.TestCase):
@@ -43,12 +37,12 @@ class SpatialRowStorageModelTests(unittest.TestCase):
             full = [float(i) for i in range(width * height * 3)]
             expected = b''.join(struct.pack('<' + 'f' * width * 3,
                                            *full[y * width * 3:(y + 1) * width * 3])
-                                for y in reversed(range(height)))
+                                for y in range(height))
             for strip in [1, 2, 3, 16, 64, height]:
                 work = io.BytesIO()
                 for origin in range(0, height, strip):
                     rows = min(strip, height - origin)
-                    write_bottom_up(work, full[origin * width * 3:(origin + rows) * width * 3],
+                    write_top_down(work, full[origin * width * 3:(origin + rows) * width * 3],
                                     width, height, origin, rows)
                 self.assertEqual(work.getvalue(), expected)
                 self.assertEqual(len(work.getvalue()), width * height * 12)
@@ -61,18 +55,18 @@ class SpatialRowStorageModelTests(unittest.TestCase):
             origin = 0
             while origin < height:
                 rows = min(rng.randrange(1, 65), height - origin)
-                write_bottom_up(work, pixels[origin * width * 3:(origin + rows) * width * 3],
+                write_top_down(work, pixels[origin * width * 3:(origin + rows) * width * 3],
                                 width, height, origin, rows)
                 origin += rows
             output = []
             origin = 0
             while origin < height:
                 rows = min(rng.randrange(1, 65), height - origin)
-                output.extend(read_bottom_up(work, width, height, origin, rows))
+                output.extend(read_top_down(work, width, height, origin, rows))
                 origin += rows
             self.assertEqual(output, pixels)
 
-    def test_spatial_output_top_down_coordinates_survive_reverse_read(self):
+    def test_spatial_output_top_down_coordinates_survive_partitioned_read(self):
         width, height = 3, 67
         # A stand-in whole-image spatial operation identifies each top-left
         # coordinate. It would expose accidental per-strip coordinate resets.
@@ -81,22 +75,20 @@ class SpatialRowStorageModelTests(unittest.TestCase):
         work = io.BytesIO(struct.pack('<' + 'f' * len(top_down), *top_down))
         actual = []
         for origin in range(0, height, 64):
-            actual.extend(read_bottom_up(work, width, height, origin, min(64, height - origin)))
-        expected = [float(10000 * y + 100 * x + channel)
-                    for y in reversed(range(height)) for x in range(width) for channel in range(3)]
-        self.assertEqual(actual, expected)
+            actual.extend(read_top_down(work, width, height, origin, min(64, height - origin)))
+        self.assertEqual(actual, top_down)
 
     def test_invalid_or_short_strips_fail_instead_of_leaking_partial_image(self):
         for origin, rows in [(-1, 1), (0, 0), (0, -1), (3, 2), (5, 1)]:
             with self.subTest(origin=origin, rows=rows):
                 with self.assertRaises(ValueError):
-                    write_bottom_up(io.BytesIO(), [], 3, 4, origin, rows)
+                    write_top_down(io.BytesIO(), [], 3, 4, origin, rows)
                 with self.assertRaises(ValueError):
-                    read_bottom_up(io.BytesIO(), 3, 4, origin, rows)
+                    read_top_down(io.BytesIO(), 3, 4, origin, rows)
         with self.assertRaises(ValueError):
-            write_bottom_up(io.BytesIO(), [0] * 8, 3, 4, 0, 1)
+            write_top_down(io.BytesIO(), [0] * 8, 3, 4, 0, 1)
         with self.assertRaisesRegex(ValueError, 'incomplete strip'):
-            read_bottom_up(io.BytesIO(b'\0' * 35), 3, 4, 3, 1)
+            read_top_down(io.BytesIO(b'\0' * 35), 3, 4, 3, 1)
 
 
 class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
@@ -137,14 +129,12 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
     def test_spatial_work_file_matches_model_byte_offsets_and_releases_scratch(self):
         file = body(source('SourceImageStore.swift'), 'final class HNCSPresetWorkFile')
         self.assertIn('width <= Int.max / 12 / height', file)
-        write = body(file, 'func writeBottomUpRows(')
+        write = body(file, 'func writeTopDownRows(')
         self.assertOrdered(write, 'originY <= height - rows', 'rgb.count == width * rows * 3',
-                           '(height - originY - rows) * width * 12', '(0..<rows).reversed()',
-                           'row * width * 12', 'start..<(start + width * 12)')
-        read = body(file, 'func readBottomUpRows(')
-        self.assertOrdered(read, '(height - originY - rows) * width * 12',
-                           'data.count == count', 'row * width * 12',
-                           '(rows - 1 - row) * width * 12', 'byteCount: width * 12')
+                           'originY * width * 12', 'handle.write(contentsOf: Data($0))')
+        read = body(file, 'func readTopDownRows(')
+        self.assertOrdered(read, 'originY * width * 12', 'data.count == count', 'data.copyBytes(to: $0)')
+        self.assertNotIn('reversed()', write + read)
         prepare = body(file, 'func prepareForSpatialPass()')
         self.assertOrdered(prepare, 'handle.synchronize()', 'handle.seekToEnd() == UInt64(byteCount)')
         self.assertOrdered(body(file, 'deinit'), 'handle.close()', 'removeItem(at: url)')
@@ -155,15 +145,15 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
         preview = body(engine, 'static func exportLinearRGBA(')
         self.assertOrdered(preview, 'if settings.requiresSpatial(effects: effects)', 'presetWork(linearSRGB:',
                            'HNCSPresetWorkFile(width: width, height: height)',
-                           'writeBottomUpRows(work, originY: 0, rows: height)',
+                           'writeTopDownRows(work, originY: 0, rows: height)',
                            'applySpatial(to: file, settings: settings',
-                           'readBottomUpRows(originY: 0, rows: height)',
+                           'readTopDownRows(originY: 0, rows: height)',
                            'finishPresetWork(adjusted,')
         export = body(source('ImagePipeline.swift'), 'private static func exportFullSource(')
         self.assertOrdered(export, 'recipe.hncs.requiresSpatial(effects: recipe.effects)', 'HNCSPresetWorkFile(width: width, height: height)',
-                           'HNCSEngine.presetWork(', 'spatialWork.writeBottomUpRows(',
+                           'HNCSEngine.presetWork(', 'spatialWork.writeTopDownRows(',
                            'HNCSEngine.applySpatial(to: spatialWork, settings: recipe.hncs',
-                           'spatialWork.readBottomUpRows(', 'HNCSEngine.finishPresetWork(',
+                           'spatialWork.readTopDownRows(', 'HNCSEngine.finishPresetWork(',
                            'CILanczosScaleTransform', 'writeHEIF10Representation')
         self.assertEqual(export.count('HNCSEngine.applySpatial('), 1)
         self.assertEqual(preview.count('applySpatial('), 1)

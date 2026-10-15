@@ -97,7 +97,7 @@ class EffectToggleSourceContracts(unittest.TestCase):
         self.assertIn('effects: effects', body(self.content, 'private var recipe:'))
         self.assertIn('JSONEncoder().encode(recipe)', body(self.content, 'private func persistRecipe()'))
         changed = body(self.content, '.onChange(of: model.effects)')
-        self.assertIn('if !cameraPresented { Task { await model.render() } }', changed)
+        self.assertIn('if cameraSession == nil { Task { await model.render() } }', changed)
         self.assertIn('processed?.recipe != recipe', self.content)
         self.assertIn('processed != nil && !busy && !hasPendingChanges', self.content)
 

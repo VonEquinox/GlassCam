@@ -2,6 +2,19 @@ import Foundation
 import ImageIO
 import Darwin
 
+/// Providers retain this owner through outstanding file requests, so dismissing
+/// a sheet cannot delete a HEIF that is still being handed to a recipient.
+final class TemporaryHEIFFile: @unchecked Sendable {
+    let url = FileManager.default.temporaryDirectory
+        .appendingPathComponent("GlassCam-\(UUID().uuidString).heic")
+    deinit { try? FileManager.default.removeItem(at: url) }
+}
+
+struct ExportFile: Identifiable {
+    let id = UUID()
+    let file: TemporaryHEIFFile
+}
+
 /// Owns an immutable copy of the genuine capture/import bytes. Previews never
 /// replace this file. Shared recipes retain this owner until exports finish.
 final class SourceImageFile: @unchecked Sendable {
@@ -69,8 +82,8 @@ final class ExportRasterFile {
     }
 }
 
-/// Mutable intermediate only: top-left-row Float32 RGB matches NumPy grain
-/// seeding/spatial coordinates. CI rendering/bitmap presentation stays bottom-up.
+/// Mutable intermediate only: top-to-bottom Float32 RGB matches decoded bitmaps
+/// and NumPy grain/spatial coordinates. originY always counts rows from the top.
 /// Incomplete or cancelled passes are discarded automatically with this owner.
 final class HNCSPresetWorkFile {
     let url: URL
@@ -93,17 +106,11 @@ final class HNCSPresetWorkFile {
         catch { try? FileManager.default.removeItem(at: url); throw error }
     }
 
-    func writeBottomUpRows(_ rgb: [Float], originY: Int, rows: Int) throws {
+    func writeTopDownRows(_ rgb: [Float], originY: Int, rows: Int) throws {
         guard originY >= 0, rows > 0, originY <= height - rows,
               rgb.count == width * rows * 3 else { throw PipelineError.rendering }
-        try handle.seek(toOffset: UInt64((height - originY - rows) * width * 12))
-        // Reverse rows only. Channel order, orientation and horizontal pixels stay fixed.
-        for row in (0..<rows).reversed() {
-            try rgb.withUnsafeBytes { bytes in
-                let start = row * width * 12
-                try handle.write(contentsOf: Data(bytes[start..<(start + width * 12)]))
-            }
-        }
+        try handle.seek(toOffset: UInt64(originY * width * 12))
+        try rgb.withUnsafeBytes { try handle.write(contentsOf: Data($0)) }
     }
 
     func prepareForSpatialPass() throws {
@@ -111,23 +118,15 @@ final class HNCSPresetWorkFile {
         guard try handle.seekToEnd() == UInt64(byteCount) else { throw PipelineError.rendering }
     }
 
-    func readBottomUpRows(originY: Int, rows: Int) throws -> [Float] {
+    func readTopDownRows(originY: Int, rows: Int) throws -> [Float] {
         guard originY >= 0, rows > 0, originY <= height - rows else { throw PipelineError.rendering }
-        try handle.seek(toOffset: UInt64((height - originY - rows) * width * 12))
+        try handle.seek(toOffset: UInt64(originY * width * 12))
         let count = width * rows * 12
         guard let data = try handle.read(upToCount: count), data.count == count else {
             throw PipelineError.rendering
         }
         var rgb = [Float](repeating: 0, count: width * rows * 3)
-        rgb.withUnsafeMutableBytes { destination in
-            data.withUnsafeBytes { source in
-                for row in 0..<rows {
-                    destination.baseAddress!.advanced(by: row * width * 12).copyMemory(
-                        from: source.baseAddress!.advanced(by: (rows - 1 - row) * width * 12),
-                        byteCount: width * 12)
-                }
-            }
-        }
+        _ = rgb.withUnsafeMutableBytes { data.copyBytes(to: $0) }
         return rgb
     }
 

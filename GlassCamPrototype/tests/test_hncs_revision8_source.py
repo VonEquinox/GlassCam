@@ -54,7 +54,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         cls.proxy = source('LiveColorProxy.swift')
         cls.view = source('CameraView.swift')
         cls.export = source('ExportSettings.swift')
-        cls.preview = source('PrecisionPreview.swift')
+        cls.preview = source('PreviewRaster.swift') + source('PrecisionPreview.swift')
         cls.framing = source('CameraFraming.swift')
 
     def assertOrdered(self, text, *items):
@@ -211,7 +211,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
     def test_preview_crop_and_before_after_share_exact_pixel_rectangle(self):
         process = body(self.pipeline, 'static func process(')
         self.assertOrdered(process, 'recipe.crop.resolve(width: input.width, height: input.height)',
-                           'input.original.cropped(to: crop)', 'for row in crop.ciY..<(crop.ciY + crop.height)',
+                           'input.original.cropped(to: crop)', 'for row in crop.top..<(crop.top + crop.height)',
                            '(row * input.width + crop.x) * 3', 'switch recipe.mode',
                            'PreviewRaster(linearRGBA: rgba, width: crop.width, height: crop.height)',
                            'comparisonSource: comparisonSource')

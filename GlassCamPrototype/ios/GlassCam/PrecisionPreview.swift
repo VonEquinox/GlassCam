@@ -4,52 +4,6 @@ import MetalKit
 import UIKit
 import QuartzCore
 import SwiftUI
-import UIKit
-
-/// Immutable owned Float32 storage, shared by SwiftUI and the renderer. CIImage's
-/// deferred evaluation never refers to temporary array pointers. This is a display
-/// raster only; full-resolution export still reloads the retained source file.
-final class PreviewRaster: @unchecked Sendable {
-    let width: Int
-    let height: Int
-    let image: CIImage
-    private let storage: Data
-
-    init(linearRGBA: [Float], width: Int, height: Int) throws {
-        guard width > 0, height > 0, width <= Int.max / 16 / height,
-              linearRGBA.count == width * height * 4,
-              linearRGBA.allSatisfy({ $0.isFinite }),
-              let space = CGColorSpace(name: CGColorSpace.extendedLinearSRGB) else {
-            throw PipelineError.rendering
-        }
-        self.width = width
-        self.height = height
-        let data = linearRGBA.withUnsafeBytes { Data($0) }
-        self.storage = data
-        // Same row convention as CIContext.render(toBitmap:), used during decode.
-        // EXIF orientation is applied by the decoder, never a second time here.
-        self.image = CIImage(bitmapData: data, bytesPerRow: width * 16,
-                             size: CGSize(width: CGFloat(width), height: CGFloat(height)),
-                             format: .RGBAf, colorSpace: space)
-    }
-
-    private init(image: CIImage, width: Int, height: Int, storage: Data) {
-        self.image = image; self.width = width; self.height = height; self.storage = storage
-    }
-
-    func cropped(to crop: PixelCrop) throws -> PreviewRaster {
-        guard crop.x >= 0, crop.ciY >= 0, crop.width > 0, crop.height > 0,
-              crop.x + crop.width <= width, crop.ciY + crop.height <= height else {
-            throw PipelineError.rendering
-        }
-        if crop.x == 0 && crop.ciY == 0 && crop.width == width && crop.height == height { return self }
-        let cropped = image.cropped(to: crop.ciRect)
-            .transformed(by: CGAffineTransform(translationX: -CGFloat(crop.x), y: -CGFloat(crop.ciY)))
-        // Data is copy-on-write; the crop owns the same immutable Float storage.
-        return PreviewRaster(image: cropped, width: crop.width, height: crop.height, storage: storage)
-    }
-
-}
 
 /// High-precision SDR preview. Float32 input and working surfaces feed a half-float
 /// drawable; half precision is final display storage, never engine math. This does
@@ -218,15 +172,19 @@ struct PrecisionPreview: UIViewRepresentable {
                 "inputMaxComponents": CIVector(x: 1, y: 1, z: 1, w: 1)
             ]).composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
                 .cropped(to: bounds)
-            // Core Image handles resampling and Metal destination orientation.
-            // Do not add a UIKit-style vertical flip to these CI-native images.
-            context.render(output, to: drawable.texture, commandBuffer: commandBuffer,
-                           bounds: bounds, colorSpace: colorSpace)
+            let renderTask: CIRenderTask
+            do {
+                renderTask = try PreviewRendering.render(output, with: context, to: drawable.texture,
+                                                         commandBuffer: commandBuffer, colorSpace: colorSpace)
+            } catch {
+                showStatus("High-precision preview could not prepare a GPU render. Change the view to retry.")
+                return
+            }
             // Hold bitmap ownership through GPU completion, including a SwiftUI
             // replacement or teardown while this command buffer remains in flight.
             let owners = [source, processed].compactMap { $0 }
-            commandBuffer.addCompletedHandler { [weak self] buffer in
-                withExtendedLifetime(owners) {}
+            commandBuffer.addCompletedHandler { [weak self, renderTask] buffer in
+                withExtendedLifetime((owners, renderTask)) {}
                 let failed = buffer.status == .error
                 DispatchQueue.main.async { [weak self] in
                     guard let self, self.renderSequence == sequence else { return }

@@ -181,7 +181,8 @@ class CaptureHandoffBackendContracts(unittest.TestCase):
         self.assertIn("settings.photoQualityPrioritization = .quality", submit)
         self.assertIn("self.phase == .capturing", submit)
         self.assertIn("Photo capture timed out", submit)
-        for forbidden in ("OutputOption", "outputMegapixels", "previewLongEdge"):
+        for forbidden in ("OutputOption", "outputMegapixels", "previewLongEdge",
+                          "settings.isAutoStillImageStabilizationEnabled"):
             self.assertNotIn(forbidden, submit)
 
     def test_orientation_is_immutable_until_terminal_completion_and_restoration(self):

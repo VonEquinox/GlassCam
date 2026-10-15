@@ -221,7 +221,7 @@ class LateCaptureRecipeSourceContracts(unittest.TestCase):
         callback = body(content, 'onCapture: {')
         self.assertOrdered(callback,
                            'model.selectCapture(data, settings: settings, capturedRecipe: capturedRecipe, ticket: sessionTicket)',
-                           'if cameraTicket == sessionTicket { cameraPresented = false }')
+                           'if cameraSession?.id == sessionTicket { cameraSession = nil }')
         self.assertNotIn('Task', callback)
         dismissal = body(content, 'onDismiss: {')
         self.assertIn('if model.captureSlotAvailable { Task { await model.renderIfNeeded() } }', dismissal)

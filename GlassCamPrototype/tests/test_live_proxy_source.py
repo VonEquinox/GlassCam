@@ -135,8 +135,8 @@ class LiveProxySourceContracts(unittest.TestCase):
                       '.workingFormat: CIFormat.RGBAf.rawValue',
                       'layer.wantsExtendedDynamicRangeContent = false',
                       'layer.colorspace = renderer.colorSpace',
-                      'context.render(output, to: drawable.texture, commandBuffer: commandBuffer,',
-                      'bounds: bounds, colorSpace: colorSpace'):
+                      'PreviewRendering.render(output, with: context, to: drawable.texture,',
+                      'commandBuffer: commandBuffer, colorSpace: colorSpace'):
             self.assertIn(token, PROXY)
         draw = section(PROXY, 'func draw(in view:', 'private func report(')
         self.assertLess(draw.index('let bounded = input.applyingFilter("CIColorClamp"'),
@@ -169,7 +169,7 @@ class LiveProxySourceContracts(unittest.TestCase):
         self.assertEqual(PROXY.count('alpha = 1'), 1)
         self.assertIn('view.alpha = 0', PROXY)
         completion = section(PROXY, 'commandBuffer.addCompletedHandler', 'commandBuffer.present(drawable)')
-        for token in ('[weak self, frame, cube]', 'withExtendedLifetime(frame)',
+        for token in ('[weak self, frame, cube, renderTask]', 'withExtendedLifetime(frame)',
                       'withExtendedLifetime(cube)', 'DispatchQueue.main.async',
                       'self.revision == ticket', 'self.presentationRevision == presentationTicket',
                       'source.isCurrent(frame.generation)', 'self.hasWindow',
@@ -248,13 +248,16 @@ class LiveProxySourceContracts(unittest.TestCase):
         self.assertLess(init.index('self.device ='), init.index('super.init()'))
 
     def test_xcode_project_compiles_the_new_source_once(self):
-        ref = re.search(r'(\w+) = \{isa = PBXFileReference;[^\n]*path = LiveColorProxy.swift;', PROJECT)
+        # Xcode inserts object comments and expands source lists when saving
+        # signing settings. Check the references independently of that layout.
+        project = re.sub(r'\s+', ' ', re.sub(r'/\*.*?\*/', '', PROJECT, flags=re.S))
+        ref = re.search(r'(\w+) = \{isa = PBXFileReference;[^}]*path = LiveColorProxy.swift;', project)
         self.assertIsNotNone(ref)
         ref_id = ref.group(1)
-        build = re.search(r'(\w+) = \{isa = PBXBuildFile; fileRef = ' + ref_id + r';', PROJECT)
+        build = re.search(r'(\w+) = \{isa = PBXBuildFile; fileRef = ' + ref_id + r'\s*;', project)
         self.assertIsNotNone(build)
         build_id = build.group(1)
-        sources = re.search(r'isa = PBXSourcesBuildPhase;[^\n]*files = \(([^)]*)\)', PROJECT).group(1)
+        sources = re.search(r'isa = PBXSourcesBuildPhase;[^}]*files = \(([^)]*)\)', project).group(1)
         self.assertEqual(sources.count(build_id), 1)
         self.assertEqual(PROJECT.count('path = LiveColorProxy.swift;'), 1)
         self.assertIn('IPHONEOS_DEPLOYMENT_TARGET = 17.0', PROJECT)

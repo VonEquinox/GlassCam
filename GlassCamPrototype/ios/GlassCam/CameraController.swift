@@ -1,5 +1,6 @@
 import AVFoundation
 import Combine
+import OSLog
 import UIKit
 
 /// Physical-lens capture only. Public methods and published state belong to main.
@@ -234,6 +235,7 @@ private struct CapturedProRAW {
 }
 
 private final class CameraBackend {
+    private static let logger = Logger(subsystem: "dev.glasscam.prototype", category: "Camera")
     struct Bundle {
         let center: AVSampleBufferDisplayLayer
         let liveSource: LiveCameraFrameSource
@@ -289,6 +291,7 @@ private final class CameraBackend {
     private var capability: PhotoCapability?
     private var session: AVCaptureSession?
     private var photoOutput: AVCapturePhotoOutput?
+    private var photoWarmupDeadline: DispatchTime?
     private var devices: [AVCaptureDevice] = []
     private var dimensions = CMVideoDimensions(width: 0, height: 0)
     private var orientation: AVCaptureVideoOrientation = .portrait
@@ -379,8 +382,9 @@ private final class CameraBackend {
             throw CameraFailure("The single-camera photo graph exposes no Apple ProRAW pixel format.")
         }
         if includePreview { try addPreview(port: port, device: center, cap: plan.centerPreviewLongEdge, to: newSession) }
-        applyOrientation(value, configurationOpen: true)
         newSession.commitConfiguration(); committed = true
+        try negotiatePreviewPixelFormats()
+        applyOrientation(value)
         try checkLifetime()
         installObservers(newSession)
         newSession.startRunning()
@@ -390,6 +394,10 @@ private final class CameraBackend {
             throw CameraFailure("Starting the photo graph changed its source configuration. No lower-resolution capture was substituted.")
         }
         try validate(try photoCapability(center), matches: photo)
+        // On iOS 27, captureReadiness can report ready immediately after the
+        // MultiCam handoff while a 48MP request still resolves to a 12MP RAW.
+        // Allow the new photo graph to settle; delivery still verifies full size.
+        photoWarmupDeadline = .now() + 2
         return photo
     }
     private func photoCapability(_ center: AVCaptureDevice) throws -> PhotoCapability {
@@ -443,8 +451,9 @@ private final class CameraBackend {
             let port = try addInput(device, to: newSession)
             try addPreview(port: port, device: device, cap: cap, to: newSession)
         }
-        applyOrientation(value, configurationOpen: true)
         newSession.commitConfiguration(); committed = true
+        try negotiatePreviewPixelFormats()
+        applyOrientation(value)
         guard newSession.hardwareCost <= 1, newSession.systemPressureCost <= 1 else {
             throw CameraFailure("This preview pair exceeds the device capture budget. Choose another lens or preview limit.")
         }
@@ -511,16 +520,31 @@ private final class CameraBackend {
         guard session.canAddConnection(connection) else { throw CameraFailure("A physical-lens video preview connection is unavailable.") }
         session.addConnection(connection)
         guard connection.isVideoOrientationSupported else { throw CameraFailure("This preview cannot match photo orientation.") }
-        let supported = video.availableVideoPixelFormatTypes
-        guard let pixelFormat = [kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
-                                 kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange].first(where: { supported.contains($0) }) else {
-            throw CameraFailure("The preview exposes no supported 8-bit YCbCr format.")
-        }
         let size = try Self.scaledPreviewDimensions(source: CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription), cap: cap)
         let delivery = CameraFrameDelivery.makeOnMainThread()
         video.setSampleBufferDelegate(delivery, queue: delivery.callbackQueue)
         previewOutputs.append(video); frameDeliveries.append(delivery)
-        previewSizes.append(size); previewPixelFormats.append(pixelFormat)
+        previewSizes.append(size)
+    }
+    private func negotiatePreviewPixelFormats() throws {
+        // Manual connections only become part of the effective graph when its
+        // topology is committed. Before then the supported format list can be
+        // empty even though this physical camera supports YCbCr output.
+        previewPixelFormats = try previewOutputs.enumerated().map { index, video in
+            let supported = video.availableVideoPixelFormatTypes
+            let formats = supported.map { String(format: "0x%08X", $0) }.joined(separator: ", ")
+            Self.logger.info("Preview output \(index) supported formats: \(formats, privacy: .public)")
+            // Some native camera formats expose only 10-bit YCbCr. The system
+            // display layer accepts those buffers directly; the experimental
+            // live-color path independently checks its narrower source support.
+            guard let pixelFormat = [kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
+                                     kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
+                                     kCVPixelFormatType_420YpCbCr10BiPlanarFullRange,
+                                     kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange].first(where: { supported.contains($0) }) else {
+                throw CameraFailure("The preview exposes no supported YCbCr format.")
+            }
+            return pixelFormat
+        }
     }
     private static func nominalMegapixels(_ pixels: Int64) -> Int? {
         [12, 24, 48].first { abs(Double(pixels) / (Double($0) * 1_000_000) - 1) <= 0.08 }
@@ -620,12 +644,16 @@ private final class CameraBackend {
             }
         }
         try validateRunningGraph()
+        let encodings = previewPixelFormats.map(Self.previewEncoding).joined(separator: ", ")
+        Self.logger.info("Preview ready after matching frames: \(encodings, privacy: .public)")
     }
     private static func previewEncoding(_ format: OSType) -> String {
         // Published only after the first frame matches the requested OSType.
         switch format {
         case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange: return "8-bit YCbCr420 (420f)"
         case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: return "8-bit YCbCr420 (420v)"
+        case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange: return "10-bit YCbCr420 (xf20)"
+        case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange: return "10-bit YCbCr420 (x420)"
         default: return String(format: "Pixel format 0x%08X", format)
         }
     }
@@ -707,7 +735,8 @@ private final class CameraBackend {
                   output.connection(with: .video)?.videoOrientation == orientation else {
                 throw CameraFailure("Photo orientation changed during the shutter handoff.")
             }
-            if output.captureReadiness == .ready {
+            guard let photoWarmupDeadline else { throw CameraFailure("The photo session has not started.") }
+            if DispatchTime.now() >= photoWarmupDeadline, output.captureReadiness == .ready {
                 try submitPhoto(request, output: output)
             } else if DispatchTime.now() >= deadline {
                 throw CameraFailure("The full-resolution photo output did not become ready within 8 seconds. No lower-resolution capture was substituted.")
@@ -726,8 +755,9 @@ private final class CameraBackend {
         }
         let settings = AVCapturePhotoSettings(rawPixelFormatType: raw)
         settings.maxPhotoDimensions = request.capability.dimensions
+        // The deprecated stabilization setter also rewrites prioritization to
+        // .speed when false, which makes 48MP captures resolve to 12MP.
         settings.photoQualityPrioritization = .quality
-        settings.isAutoStillImageStabilizationEnabled = false
         settings.isAutoContentAwareDistortionCorrectionEnabled = false
         let delegate = ProRAWCapture(expectedDimensions: request.capability.dimensions) { [weak self, weak request] result in
             guard let self, let request else { return }
@@ -856,7 +886,7 @@ private final class CameraBackend {
             old.commitConfiguration()
         }
         previewOutputs.removeAll(); frameDeliveries.removeAll(); previewSizes.removeAll(); previewPixelFormats.removeAll()
-        session = nil; photoOutput = nil; devices = []
+        session = nil; photoOutput = nil; photoWarmupDeadline = nil; devices = []
     }
     func stop() {
         dispatchPrecondition(condition: .onQueue(queue))
@@ -875,6 +905,7 @@ private final class CameraBackend {
 /// didFinishCaptureFor succeeds. A stop preserves that terminal result, including
 /// when its backend-queue callback has not run yet; late callbacks cannot restore.
 private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
+    private static let logger = Logger(subsystem: "dev.glasscam.prototype", category: "Capture")
     private let lock = NSLock()
     private var completion: ((Result<CapturedProRAW, Error>) -> Void)?
     private var result: Result<CapturedProRAW, Error>?
@@ -894,6 +925,7 @@ private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
         }
         let actual = photo.resolvedSettings.rawPhotoDimensions
         let bufferWidth = CVPixelBufferGetWidth(buffer), bufferHeight = CVPixelBufferGetHeight(buffer)
+        Self.logger.notice("ProRAW dimensions: requested=\(self.expectedDimensions.width)x\(self.expectedDimensions.height), resolved=\(actual.width)x\(actual.height), buffer=\(bufferWidth)x\(bufferHeight)")
         guard min(actual.width, actual.height) == min(expectedDimensions.width, expectedDimensions.height),
               max(actual.width, actual.height) == max(expectedDimensions.width, expectedDimensions.height),
               min(bufferWidth, bufferHeight) == Int(min(actual.width, actual.height)),

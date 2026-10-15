@@ -1,6 +1,35 @@
 # 测试与性能状态
 
-更新：2026-10-13。当前整合225/225通过；FFCS0.2本轮结果见下节。此前三个独立效果开关216/216通过是历史阶段，Apple编译/设备验收仍未执行。以下保留各历史阶段证据，旧计数不是当前总数。
+更新：2026-10-15。本机 Apple 验证结果见本节；后续云端章节保留上游历史证据，其计数和“未执行”描述对应当时的环境，不代表本次已重跑全部历史测试。
+
+## 2026-10-15：真机快门与高分辨率请求修复
+
+- 真机点击日志确认旧版快门收到操作，但预约检查为 `available=true, currentSession=false`，随后静默返回。相机改为由同一个可识别会话项驱动 `fullScreenCover(item:)`，弹层直接使用传入项的票据；修复后日志为 `currentSession=true`。旧回调仍只能关闭匹配的相机页，预约拒绝会显示错误。
+- 第一次进入实际拍摄后，请求 8064×6048，返回 RAW 元数据和像素缓冲区均为 4032×3024，因此原有严格尺寸校验拒收。没有放宽校验来接收较小照片。
+- iOS 27 模拟器中直接运行 AVFoundation API 证实：设置 `.quality` 后调用旧版 `isAutoStillImageStabilizationEnabled = false`，`photoQualityPrioritization.rawValue` 从 3（quality）变为 1（speed）。已移除该弃用 setter。Apple [高分辨率拍摄说明](https://developer.apple.com/videos/play/wwdc2026/304/)规定 48MP 支持 balanced / quality，不支持 speed。
+- 仅移除弃用 setter 仍返回 12MP。最小普通 `.photo` 会话在相同光线下可返回 48MP；原控制器中，恢复默认帧率、预分配 RAW 资源或重新应用 `.photo` 预设都未单独解决。实际差异是新会话刚启动时 `captureReadiness` 已为 ready，但立即拍摄仍返回 12MP；等待 2 秒后两次返回 8064×6048。
+- 拍照图启动后增加 2 秒最短准备期，并继续受原 8 秒就绪期限、请求身份和取消校验约束；释放图时清除准备期限。最终生产控制器在新的进程中再次自动测试，通过完整双摄→单摄→拍摄路径，RAW 元数据和缓冲区均为 8064×6048，`fileDataRepresentation()` 返回 21,314,292 字节。此等待是该设备/iOS 上的实测缓解措施，其他设备/状态仍可能拒收，严格尺寸校验保留。
+- 更新后 120 项相机、切换状态、预约/配方和界面相关检查通过；真机 Release 编译、签名校验、安装与启动通过。自动诊断程序已由完整 GlassCam 替换。13:55:30 的用户实际快门再次返回 8064×6048 RAW；只读设备截图显示已回到编辑器，App 容器保留约 52MB 原始源文件，编辑页显示 RAW 解码信息。未执行此次照片的 Photos/Files 保存、分享或完整导出验收。
+
+## 2026-10-15：iPhone 预览格式修复与本机取景
+
+- Xcode 27.0 真机 Release 构建、签名、安装与启动通过；设备为 iPhone 18 Pro Max，iOS 27.0.1。
+- 真实主摄预览仅公布 10 位 YCbCr 格式，旧版只接受 8 位，触发启动错误。协商移到连接提交后，系统取景新增 `x420` / `xf20` 支持并保留实际帧格式、尺寸校验。
+- 主摄/外围分别以 `x420`（10 位）和 `420f`（8 位）收到匹配帧。Device Hub 远程交互会让两个 App 收到空视频；退出后，用户在 iPhone 本机确认 GlassCam 取景正常。临时像素/图层诊断代码已移除。
+- 68 项相机、几何、拍摄切换、状态规格和实验色彩源码检查通过。使用 Python 3.14 运行 `PYTHONPATH=tests python3.14 -B -m unittest test_camera_source test_camera_geometry test_capture_handoff_source test_capture_handoff_model test_live_proxy_source -q`。工程引用检查兼容 Xcode 保存时插入的注释和换行。
+- 该预览检查阶段没有拍摄或保存照片；随后快门实测见上一节。超广/长焦、旋转矩阵、导出、光学对齐或性能仍未验收。10 位系统预览不代表实验实时色彩覆盖范围扩大。
+
+## 本机 Apple 验证与行序修复（2026-10-13）
+
+- Xcode 27.0（27A266a）、iOS 27.0 Simulator SDK、arm64：Debug / Release 构建通过；应用已安装并启动于 iPhone 18 Pro Max 模拟器。现有相机旧 API 仍有弃用警告。
+- 修复 CI 坐标与从上到下位图行序混用，统一导出分块、HNCS 工作文件、奇数尺寸方裁切；两个 Metal 预览共用显式翻转的渲染目标。
+- 实际编码回归发现 alpha clamp 会扩大图像范围，已在缩小 HEIF 和兼容 JPEG 编码前恢复有限边界。
+- 77 项相关便携检查通过，覆盖裁切、空间文件、预览、保存/分享及其状态约束；不是重新运行上游全部 225 项数值测试。
+- `python3 -B tools/test_apple_images.py` 通过：64/64/3 行重建误差 0；Foundation 文件以不同分块读写仍保持像素和通道；奇数竖图/横图比较与效果裁切一致；Swift 文件空间处理与原生颗粒、锐化 oracle 一致；真实 Metal 纹理的四象限方向一致。
+- 7 个真实 HEIF 案例覆盖 HNCS Standard、Square Crop、Artistic Grain、High Sharpness，FFCS 中性/带 halo 的解析叠加，以及缩小输出。和全帧处理经同一编码器产生的结果比较，解码像素最大差均为 0；ImageIO 检查输出尺寸和 10-bit 深度。
+- 取消导出保留输入且不发布文件；真实 `NSItemProvider` 回调返回不变的 HEIF 字节，并成功生成、缓存同尺寸 8-bit JPEG。
+
+尚未验证：iPhone ProRAW / 多摄硬件、真机显示与功耗/内存/热状态、完整 EXIF/RAW 格式矩阵、独立 HEVC 位流检查、Photos/Files 真机保存与微信等接收端行为。上述合成图与本机提供者测试不证明这些结果。
 
 ## FFCS 0.2.0 新参考同步（2026-10-13）
 
@@ -57,7 +86,7 @@
 
 显示近似的边界：最近 16 位 linear 采样误差 ≤0.5/65535；sRGB 最大斜率约 12.92，连续字节尺度误差约 ≤0.0252，因此量化输出最多差 1 码。原始 HNCS UInt16 核仍需 bit-exact。精确 API 与 Swift `exactReference` 选项保留，便于比较或重新导出。该有界近似仅保留在旧8位诊断/预览API；当前App已改用精确Float高精度效果显示。HEIF 导出走独立 Float display-linear 路径，不通过 fast 字节编码；实际 HEIF10 编码器仍未在此环境执行，不能把已通过的 Float 测试称为已验证的 HEIF bitstream。当前 HNCS Float 导出已新增 1–4 线程精确并行，336 组对串行 oracle 逐位一致；真实8064×64条带及12MP计时见 [精确 Float 并行](EXACT_FLOAT_PARALLEL.md)。前表的旧8位预览速度仍不适用于端到端 HEIF 导出。
 
-## 未执行 / 不能宣称通过
+## 云端阶段未执行（历史记录）
 
 - Xcode/Swift/Apple SDK 编译、模拟器或 iPhone 安装。
 - 实际 JPEG/HEIC/DNG/Apple ProRAW 导入、portrait 方向与 Core Image bitmap 行方向一致性。

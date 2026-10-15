@@ -561,14 +561,20 @@ struct LiveColorProxy: UIViewRepresentable {
                 .composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
                 .cropped(to: bounds)
             let ticket = revision, presentationTicket = presentationRevision
+            let renderTask: CIRenderTask
+            do {
+                renderTask = try PreviewRendering.render(output, with: context, to: drawable.texture,
+                                                         commandBuffer: commandBuffer, colorSpace: colorSpace)
+            } catch {
+                fail("Live color could not prepare a GPU render. Showing system preview."); return
+            }
             inFlight = true
-            context.render(output, to: drawable.texture, commandBuffer: commandBuffer,
-                           bounds: bounds, colorSpace: colorSpace)
-            commandBuffer.addCompletedHandler { [weak self, frame, cube] buffer in
+            commandBuffer.addCompletedHandler { [weak self, frame, cube, renderTask] buffer in
                 // CI's deferred evaluation may still read this CVPixelBuffer and
                 // cube when the view/recipe/session is replaced. Own both to here.
                 withExtendedLifetime(frame) {}
                 withExtendedLifetime(cube) {}
+                withExtendedLifetime(renderTask) {}
                 let failed = buffer.status == .error
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }

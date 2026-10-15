@@ -8,6 +8,7 @@ class HEIFSourceContracts(unittest.TestCase):
     def setUpClass(cls):
         cls.pipeline=(ROOT/'ios/GlassCam/ImagePipeline.swift').read_text()
         cls.view=(ROOT/'ios/GlassCam/ContentView.swift').read_text()
+        cls.store=(ROOT/'ios/GlassCam/SourceImageStore.swift').read_text()
         cls.bridge=(ROOT/'ios/GlassCam/HNCSEngine.swift').read_text()
         cls.share=(ROOT/'ios/GlassCam/ShareDelivery.swift').read_text()
         cls.core=(ROOT/'core/hncs.cpp').read_text()
@@ -29,7 +30,7 @@ class HEIFSourceContracts(unittest.TestCase):
             self.assertNotIn('jpegData(',source)
             self.assertNotIn('.png"',source)
             self.assertNotIn('.jpg"',source)
-        self.assertIn('.heic"',self.view)
+        self.assertIn('.heic"',self.store)
         self.assertIn('UTType.heic',self.share)
         self.assertIn('registerFileRepresentation',self.share)
         self.assertIn('registerDataRepresentation',self.share)

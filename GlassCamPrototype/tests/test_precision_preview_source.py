@@ -11,7 +11,8 @@ class PrecisionPreviewSourceContracts(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.pipeline = (ROOT / 'ios/GlassCam/ImagePipeline.swift').read_text()
-        cls.preview = (ROOT / 'ios/GlassCam/PrecisionPreview.swift').read_text()
+        cls.preview = ((ROOT / 'ios/GlassCam/PreviewRaster.swift').read_text() + '\n' +
+                       (ROOT / 'ios/GlassCam/PrecisionPreview.swift').read_text())
         cls.process = cls.pipeline.split('static func process(', 1)[1].split('static func writeHEIF(', 1)[0]
 
     def test_both_engines_use_float_preview_output(self):
@@ -40,8 +41,9 @@ class PrecisionPreviewSourceContracts(unittest.TestCase):
         self.assertIn('layer.wantsExtendedDynamicRangeContent = false', self.preview)
         self.assertIn('CGColorSpace.extendedLinearSRGB', self.preview)
         self.assertIn('.workingFormat: CIFormat.RGBAf.rawValue', self.preview)
-        self.assertIn('context.render(output, to: drawable.texture, commandBuffer: commandBuffer,', self.preview)
-        self.assertIn('bounds: bounds, colorSpace: colorSpace', self.preview)
+        self.assertIn('PreviewRendering.render(output, with: context, to: drawable.texture,', self.preview)
+        self.assertIn('destination.colorSpace = colorSpace', self.preview)
+        self.assertIn('destination.isFlipped = true', self.preview)
         self.assertIn('CIColorClamp', self.preview)
         for forbidden in ('UIImage(', 'createCGImage', '.bgra8Unorm', '.RGBA8', '.RGBAh'):
             self.assertNotIn(forbidden, self.preview)
@@ -54,7 +56,7 @@ class PrecisionPreviewSourceContracts(unittest.TestCase):
         self.assertIn('processed.width == source.width', self.preview)
         self.assertIn('commandBuffer.present(drawable)', self.preview)
         self.assertIn('commandBuffer.commit()', self.preview)
-        self.assertIn('withExtendedLifetime(owners)', self.preview)
+        self.assertIn('withExtendedLifetime((owners, renderTask))', self.preview)
         self.assertNotIn('HNCSEngine.', self.preview)
         self.assertNotIn('FFCSEngine.', self.preview)
         self.assertNotIn('toBitmap:', self.preview.split('func draw(in', 1)[1])

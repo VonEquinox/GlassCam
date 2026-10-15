@@ -292,8 +292,8 @@ enum ImagePipeline {
         } else {
             var pixels = [Float]()
             pixels.reserveCapacity(crop.width * crop.height * 3)
-            // CIContext bitmap and PreviewRaster share lower-left row ordering.
-            for row in crop.ciY..<(crop.ciY + crop.height) {
+            // Decoded bitmaps use top-to-bottom rows; ciY is only for CI rectangles.
+            for row in crop.top..<(crop.top + crop.height) {
                 let start = (row * input.width + crop.x) * 3
                 pixels.append(contentsOf: input.linearRGB[start..<(start + crop.width * 3)])
             }
@@ -416,8 +416,11 @@ enum ImagePipeline {
                 let inputRows = inputEnd - inputStart
                 var decodedRGBA = [Float](repeating: 0, count: width * inputRows * 4)
                 decodedRGBA.withUnsafeMutableBytes { buffer in
+                    // The strip and native backends count rows from the top.
+                    // CI bounds count from the bottom, while render(toBitmap:)
+                    // returns the selected rectangle in top-to-bottom order.
                     context.render(source, toBitmap: buffer.baseAddress!, rowBytes: width * 16,
-                                   bounds: CGRect(x: 0, y: CGFloat(inputStart), width: CGFloat(width), height: CGFloat(inputRows)),
+                                   bounds: CGRect(x: 0, y: CGFloat(height - inputEnd), width: CGFloat(width), height: CGFloat(inputRows)),
                                    format: .RGBAf, colorSpace: linear)
                 }
                 var rgb = [Float](repeating: 0, count: width * inputRows * 3)
@@ -427,7 +430,7 @@ enum ImagePipeline {
                 if let spatialWork {
                     let work = try HNCSEngine.presetWork(linearSRGB: rgb, width: width, height: rows,
                         exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects)
-                    try spatialWork.writeBottomUpRows(work, originY: start, rows: rows)
+                    try spatialWork.writeTopDownRows(work, originY: start, rows: rows)
                     progress(0.1 + 0.35 * Double(start + rows) / Double(height))
                     return
                 }
@@ -466,7 +469,7 @@ enum ImagePipeline {
                 try checkExportCancellation(isCancelled)
                 try autoreleasepool {
                     let rows = min(stripRows, height - start)
-                    let work = try spatialWork.readBottomUpRows(originY: start, rows: rows)
+                    let work = try spatialWork.readTopDownRows(originY: start, rows: rows)
                     let rgba = try HNCSEngine.finishPresetWork(work, width: width, height: rows,
                         exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects)
                     guard rgba.count == width * rows * 4,
@@ -490,6 +493,9 @@ enum ImagePipeline {
             // Lanczos ringing can leave [0,1]; SDR encoder input must stay bounded.
             image = image.applyingFilter("CIColorClamp", parameters: ["inputMinComponents": CIVector(x: 0, y: 0, z: 0, w: 1),
                                                                      "inputMaxComponents": CIVector(x: 1, y: 1, z: 1, w: 1)])
+                // Clamping transparent pixels to alpha 1 creates an infinite field.
+                // The encoder needs the finite output rectangle after the clamp.
+                .cropped(to: CGRect(x: 0, y: 0, width: CGFloat(output.width), height: CGFloat(output.height)))
         }
         do {
             // Fresh untagged raster: no source gain map, HDR metadata, PQ or HLG.

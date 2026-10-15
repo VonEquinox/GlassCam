@@ -1,6 +1,6 @@
 # GlassCam — HNCS + FFCS 原生效果原型
 
-SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。沿用现有技术交付，不新增色卡拟合。当前具备导入、原生 ProRAW 拍摄、比较、全源处理、HEIF 保存与兼容分享的源码；**尚未通过 Apple 编译、装机或真机验收**。
+SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。沿用现有技术交付，不新增色卡拟合。当前具备导入、原生 ProRAW 拍摄、比较、全源处理、HEIF 保存与兼容分享；**已通过 Xcode 27.0 / iOS 27 模拟器 Debug、Release 构建和本机 Apple 图像回归，尚未进行 iPhone 真机验收**。
 
 三个独立开关控制锐化、颗粒和预设额外裁切，默认保留开关选择，实际效果遵循当前参考参数，切换预设不重置选择。HNCS/FFCS各自只开关原本存在的阶段，FFCS0.2原生表默认无额外颗粒/锐化，须显式开启参考解析叠加才有对应系数。详见[开关与旧配方迁移](docs/EFFECT_TOGGLES.md)。
 
@@ -52,8 +52,10 @@ python tools/render_preview.py --synthetic
 
 依赖见 `requirements.txt`；使用系统 g++ 编译 C++，不需要 Apple SDK。Python 诊断 PNG 不属于 App 导出选项。具体通过记录见测试状态，不能把静态源码测试算成 Swift 编译或真实 HEIF 验收。
 
+macOS 上另运行 `python3 -B tools/test_apple_images.py`：直接编译生产 Swift/C++，检查 Core Image 分块行序、奇数尺寸裁切、HNCS 空间文件、Metal 预览、实际 HEIF 和分享提供者。仅需 Apple 开发工具与 Metal，不需要 Python 第三方包；验证文件在退出时清理。
+
 ## 验证边界
 
 现有核的数值一致性不证明完整 Phocus RAW pipeline、富士机内 JPEG 等价性、iPhone 标定或真实照片审美。10-bit 编码 API 请求不证明实际位流。原始 RAW/配方长期资料库、Apple 性能与内存/热状态、微信兼容和商业权利清理尚未完成。原始交付及证据保持不变。
 
-最新FFCS0.2同步：225项整合测试通过，50资产/1,206阶段对新参考最大误差5.52e-15；独立审查通过。Apple编译和设备仍未执行，详见[测试状态](docs/TEST_STATUS.md)。
+上游FFCS0.2同步保留225项整合测试及50资产/1,206阶段的历史证据。本机已修复位图行序、Metal方向及编码前图像范围问题，77项相关便携检查和Apple图像回归通过；真机与接收端验证范围见[测试状态](docs/TEST_STATUS.md)。

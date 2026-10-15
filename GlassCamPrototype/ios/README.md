@@ -4,7 +4,7 @@ SwiftUI UI, Apple decoding/capture/encoding, and independent standard C++17 HNCS
 
 ## Build status and setup
 
-**Not compiled or run with Apple SDKs in this cloud environment.** Portable numerical and source-contract tests do not establish a working iOS build, camera configuration or HEIF file.
+**Verified on 2026-10-13 with Xcode 27.0 and the iOS 27.0 simulator SDK: Debug and Release builds pass.** The app installs and launches in the iPhone 18 Pro Max simulator. Native macOS image regressions exercise the production Core Image/Metal pipeline, real HEIF output and the share provider. Physical-camera configuration, iPhone performance and receiving-app compatibility still require device testing.
 
 1. Open `GlassCam.xcodeproj` in Xcode 16 or later. Keep `../core`, `../reference_ffcs/source.zip` and `../tools` in the supplied layout.
 2. The first build phase verifies the bundled archive and extracts all 50 original FFCS 0.2 assets offline. Missing/corrupt assets fail the build; there is no approximate substitute.
@@ -17,6 +17,8 @@ xcodebuild -project GlassCam.xcodeproj -scheme GlassCam \
   -destination 'generic/platform=iOS Simulator' \
   CODE_SIGNING_ALLOWED=NO build
 ```
+
+From `GlassCamPrototype/`, run `python3 -B tools/test_apple_images.py` for the Apple image regressions. If command-line tools still select a different installation, prefix the command with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`. Test build products, LUT copies and synthetic images are kept in a temporary directory and removed on exit.
 
 ## Import, effects and full-source output
 

@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#endif
 import UniformTypeIdentifiers
 import CoreImage
 import ImageIO
@@ -12,9 +14,11 @@ import ImageIO
 /// public.image or a UIImage object: concrete types describe the payload honestly.
 /// Real recipient extensions (including WeChat) still require device validation.
 enum ShareDelivery {
+    #if canImport(UIKit)
     static func makeConfiguration(for file: TemporaryHEIFFile) -> UIActivityItemsConfiguration {
         UIActivityItemsConfiguration(itemProviders: [makeProvider(for: file)])
     }
+    #endif
 
     static func makeProvider(for file: TemporaryHEIFFile) -> NSItemProvider {
         let storage = ShareRepresentationStorage(original: file)
@@ -134,6 +138,8 @@ private final class ShareRepresentationStorage: @unchecked Sendable {
             .cropped(to: bounds)
             .applyingFilter("CIColorClamp", parameters: ["inputMinComponents": CIVector(x: 0, y: 0, z: 0, w: 1),
                                                        "inputMaxComponents": CIVector(x: 1, y: 1, z: 1, w: 1)])
+            // Alpha clamping expands the extent; restore the finite image bounds.
+            .cropped(to: bounds)
             .settingProperties([:])
         let context = CIContext(options: [.workingColorSpace: sRGB,
                                           .workingFormat: CIFormat.RGBAh.rawValue,

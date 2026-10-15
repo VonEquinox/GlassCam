@@ -2,8 +2,8 @@ import Foundation
 import CoreGraphics
 
 /// Crop coordinates are resolved in oriented source pixels, never UI points.
-/// The reference chooses floor offsets from the top-left. CI bitmap row zero
-/// is lower-left, so ciY preserves that same odd-pixel bias on both routes.
+/// The reference and decoded bitmaps use floor offsets from the top-left.
+/// CI rectangles use a lower-left origin; ciY converts only those coordinates.
 enum ImageCrop: String, Codable, Equatable, Sendable {
     case none, centeredSquare
 

@@ -2,6 +2,7 @@ import SwiftUI
 import PhotosUI
 import UniformTypeIdentifiers
 import UIKit
+import OSLog
 
 /// One retained, committed camera result. The delivery reservation prevents
 /// another shutter while this owner is being written or awaits an explicit Open.
@@ -20,6 +21,7 @@ struct PendingCapturedPhoto: Identifiable {
 
 @MainActor
 final class EditorModel: ObservableObject {
+    private static let logger = Logger(subsystem: "dev.glasscam.prototype", category: "Capture")
     @Published private(set) var pendingCapture: PendingCapturedPhoto?
     @Published private(set) var isRetainingCapture = false
     @Published private(set) var captureSlotAvailable = true
@@ -33,6 +35,7 @@ final class EditorModel: ObservableObject {
     }
 
     func reserveCaptureDelivery(ticket: UUID) -> Bool {
+        Self.logger.notice("Shutter reservation: available=\(self.captureSlotAvailable), currentSession=\(ticket == self.captureAdmissionGeneration)")
         guard captureSlotAvailable, ticket == captureAdmissionGeneration else { return false }
         captureReservation = ticket
         captureSlotAvailable = false
@@ -347,25 +350,15 @@ final class EditorModel: ObservableObject {
 
 }
 
-/// Providers retain this owner through any outstanding file request, so dismissing
-/// the sheet cannot eagerly delete a file that is still being handed to a recipient.
-final class TemporaryHEIFFile: @unchecked Sendable {
-    let url = FileManager.default.temporaryDirectory
-        .appendingPathComponent("GlassCam-\(UUID().uuidString).heic")
-    deinit { try? FileManager.default.removeItem(at: url) }
-}
-
-struct ExportFile: Identifiable {
-    let id = UUID()
-    let file: TemporaryHEIFFile
-}
-
 struct ContentView: View {
+    private struct CameraSession: Identifiable {
+        let id: UUID
+    }
+
     @StateObject private var model = EditorModel()
     @State private var photo: PhotosPickerItem?
     @State private var filesPresented = false
-    @State private var cameraPresented = false
-    @State private var cameraTicket = UUID()
+    @State private var cameraSession: CameraSession?
     @State private var comparison = 0.5
 
     var body: some View {
@@ -405,8 +398,7 @@ struct ContentView: View {
                     }
                     imageArea
                     Button {
-                        cameraTicket = model.beginCameraSession()
-                        cameraPresented = true
+                        cameraSession = CameraSession(id: model.beginCameraSession())
                     } label: {
                         Label("Open ProRAW camera", systemImage: "camera.fill")
                             .frame(maxWidth: .infinity).padding(14)
@@ -438,26 +430,28 @@ struct ContentView: View {
             model.selectPhoto(selected)
         }
         .onChange(of: model.colorMode) { _, _ in
-            if !cameraPresented { Task { await model.render() } }
+            if cameraSession == nil { Task { await model.render() } }
         }
         .onChange(of: model.simulationIndex) { _, _ in
-            if !cameraPresented { Task { await model.render() } }
+            if cameraSession == nil { Task { await model.render() } }
         }
         .onChange(of: model.hncs) { _, _ in
-            if !cameraPresented { Task { await model.render() } }
+            if cameraSession == nil { Task { await model.render() } }
         }
         .onChange(of: model.ffcs) { _, _ in
-            if !cameraPresented { Task { await model.render() } }
+            if cameraSession == nil { Task { await model.render() } }
         }
         .onChange(of: model.effects) { _, _ in
-            if !cameraPresented { Task { await model.render() } }
+            if cameraSession == nil { Task { await model.render() } }
         }
-        .fullScreenCover(isPresented: $cameraPresented, onDismiss: {
+        .fullScreenCover(item: $cameraSession, onDismiss: {
             // Camera controls may change the selected recipe even without a shot.
             // Restore editor control/preview coherence after returning.
             if model.captureSlotAvailable { Task { await model.renderIfNeeded() } }
-        }) {
-            let sessionTicket = cameraTicket
+        }) { session in
+            // The presented item owns its ticket, including the first opening.
+            // A separate Boolean can present with an older State snapshot.
+            let sessionTicket = session.id
             CameraView(colorMode: $model.colorMode, simulationIndex: $model.simulationIndex,
                        exposureEV: $model.exposure, illuminantKelvin: $model.kelvin, hncs: $model.hncs, effects: $model.effects, ffcs: $model.ffcs,
                        thumbnail: model.processed?.image ?? model.imported?.original,
@@ -467,9 +461,9 @@ struct ContentView: View {
                        onCapture: { data, settings, capturedRecipe in
                            model.selectCapture(data, settings: settings, capturedRecipe: capturedRecipe, ticket: sessionTicket)
                            // An old session's late success must not dismiss a new camera.
-                           if cameraTicket == sessionTicket { cameraPresented = false }
+                           if cameraSession?.id == sessionTicket { cameraSession = nil }
                        }, onClose: {
-                           if cameraTicket == sessionTicket { cameraPresented = false }
+                           if cameraSession?.id == sessionTicket { cameraSession = nil }
                        })
         }
         .sheet(item: $model.fileSave) { exported in

@@ -1,6 +1,6 @@
 # Native camera capture contract
 
-This source implementation has **not been compiled with the Apple SDK or run on an iPhone**. Linux source-contract tests cannot establish capture availability, DNG validity, field-of-view alignment, or preview performance. Treat device validation below as a release gate.
+Release builds have passed with Xcode 27.0. On 2026-10-15, preview negotiation and visible main-camera preview were checked on an iPhone 18 Pro Max running iOS 27.0.1. The production controller also completed the main-camera handoff with an 8064×6048 Apple ProRAW buffer and nonempty DNG file representation. A subsequent user shutter in the full app delivered the same dimensions, retained the source and returned to the editor. Saved/exported file validation, optical alignment, other lens combinations and preview performance still require the device validation below. Source-contract tests do not establish those results.
 
 ## Physical cameras and fail-closed behavior
 
@@ -13,6 +13,10 @@ This source implementation has **not been compiled with the Apple SDK or run on 
 ## Framing and preview
 
 Each scaled video-data output has an explicit connection to its own physical video input. Its delegate delivers frames to its own sample-buffer display layer. The MultiCam preview has no PhotoOutput. During capture, a separate ordinary session connects PhotoOutput only to the selected center lens. There is no peripheral photo output and no peripheral data enters the saved photograph. Each output discards late frames. The app retains at most one pending sample/main-queue delivery per physical lens; it does not accumulate a frame history. Display-immediately sample attachments avoid playback-timebase delays, and renderer backpressure discards frames rather than building a backlog.
+
+Pixel-format negotiation runs after the graph connections are committed. The system preview accepts supported 8-bit or 10-bit bi-planar YCbCr420 buffers, with an exact format/dimension check on delivered frames. The tested main-camera graph requires `x420` for its center output and uses `420f` for its wider output. The experimental color overlay still requires its separately validated 8-bit NV12 source and falls back to system preview for 10-bit input.
+
+Quit Device Hub screen interaction before testing the physical camera. Apple documents that physical-device interaction prevents camera/microphone access and can produce empty video even in the system Camera app. See [Device Hub camera access conflicts](https://developer.apple.com/documentation/xcode/interacting-with-your-app-in-device-hub). During this test, quitting Device Hub restored visible preview on the phone, as confirmed by the user.
 
 Digital zoom and connection crop are 1; video stabilization and optional content-aware still distortion correction are disabled. The selected center format must have the same aspect ratio as its maximum supported still dimensions. Center layout uses aspect fit and receives the actual oriented photo aspect ratio. Interface orientation updates apply on the camera serial queue. During a capture transaction the shutter orientation is fixed; a newer orientation is deferred until preview restoration. DNG orientation is subsequently interpreted by the existing `ImagePipeline` RAW decoder.
 
@@ -28,7 +32,11 @@ Center and peripheral preview long-edge limits remain independent (UI defaults19
 
 For main/tele, shutter freezes the last displayed real video layers, stops and tears down MultiCam, builds the ordinary `.photo` capture graph, and revalidates lens identity, framing and ProRAW settings. There is no concurrent camera ownership. Ultra-wide already uses a single-camera `.photo` graph and does not need this transition. A higher-resolution setting is only a request: actual returned Apple RAW type and dimensions must match or the photo is rejected. Native24MP processed fusion is not treated as a24MP ProRAW source.
 
+On the tested iOS 27.0.1 device, `captureReadiness == .ready` immediately after building the photo graph still allowed a 48MP request to resolve to 12MP. The photo graph therefore receives a minimum two-second settling period within the existing eight-second preparation deadline. Request cancellation and graph disposal revoke that wait, and actual RAW dimensions remain mandatory. The deprecated still-stabilization setter is omitted because setting it to false changes quality prioritization to speed; captures retain `.quality`.
+
 The capture result and restored preview are independent outcomes. A completed, validated DNG remains deliverable even if preview restoration fails. Request/session identities exclude stale callbacks before any restoration work. Stop/background/interruption cancels unfinished work and prevents an old transaction rebuilding over a newer session. Reconfiguration, capture and restoration are serialized; repeated shutters and configuration changes are blocked. A frozen indicator remains visible while the original video layers are retained, with no opaque error card covering them.
+
+The editor presents the camera using one identifiable session item. The presentation closure takes its immutable admission ticket from that item, so the first opening cannot capture an older ticket from separate Boolean/UUID state. Late callbacks only dismiss a matching presentation. A rejected shutter reservation displays an error instead of silently returning.
 
 Source/preview orientation and framing are checked again during the transition. These checks do not establish optical alignment; true video-to-ProRAW crop, correction and edge correspondence require device tests. See [detailed handoff requirements and limits](CAPTURE_SESSION_HANDOFF.md).
 
@@ -65,7 +73,7 @@ The wider source is now positioned using a first-order pinhole FOV ratio, tan(wi
 
 ## 实时视频像素格式
 
-当前选择8bit NV12（420f/420v），每路首帧除尺寸还验证CVPixelBuffer实际OSType，界面显示该格式。独立高精度Float效果预览不能反推实时视频也有10bit源精度。后续10bit视频选择须同时验证activeFormat、输出类型、SDR颜色空间和显示链。
+在提交连接后查询每路实际可用格式，依次选择8位NV12（420f/420v）或10位双平面YCbCr（xf20/x420）；每路首帧验证CVPixelBuffer实际OSType和尺寸。2026-10-15真机主摄使用x420、外围使用420f，本机取景已确认。该协商仅覆盖系统预览；实验实时色彩仍只准入8位NV12，10位输入回退到系统预览。预览位深不代表最终效果或导出精度已经过真机验收。
 
 
 ## Experimental center color preview

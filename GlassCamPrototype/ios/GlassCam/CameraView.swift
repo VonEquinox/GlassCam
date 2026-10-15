@@ -580,7 +580,10 @@ struct CameraView: View {
                                         targetHeight: portrait ? output.width : output.height)
             let capturedRecipe = ProcessingRecipe(mode: colorMode, exposureEV: exposureEV,
                 illuminantKelvin: illuminantKelvin, simulationIndex: simulationIndex, seed: 0, hncs: hncs, effects: effects, ffcs: ffcs)
-            guard reserveCapture() else { return }
+            guard reserveCapture() else {
+                captureError = "Couldn’t start this photo. Close the camera and reopen it, then try again."
+                return
+            }
             camera.captureProRAW { [capturedRecipe, export] result in
                 switch result {
                 case .success(let data): onCapture(data, export, capturedRecipe)

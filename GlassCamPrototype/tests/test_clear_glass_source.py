@@ -257,7 +257,7 @@ class ClearGlassSourceContracts(unittest.TestCase):
         self.assertIn('illuminantKelvin: $model.kelvin', camera)
         self.assertIn('thumbnail: model.processed?.image ?? model.imported?.original', camera)
         self.assertIn('model.selectCapture(data, settings: settings, capturedRecipe: capturedRecipe, ticket: sessionTicket)', camera)
-        self.assertIn('if cameraTicket == sessionTicket { cameraPresented = false }', camera)
+        self.assertIn('if cameraSession?.id == sessionTicket { cameraSession = nil }', camera)
         self.assertIn('Task { await model.renderIfNeeded() }', CONTENT)
 
 

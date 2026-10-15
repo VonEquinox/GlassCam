@@ -1,5 +1,5 @@
 // Apple-host executable diagnostic: swift tests/apple_ci_strip_roundtrip.swift
-// Tests the exact render-toBitmap / ascending-y strip / CIImage(bitmapData:)
+// Tests the exact render-toBitmap / top-down strip / CIImage(bitmapData:)
 // contract used by full-resolution export. No camera, photo access or encoding.
 import Foundation
 import CoreImage
@@ -32,9 +32,11 @@ func render(_ image: CIImage, y: Int, rows: Int) -> [Float] {
 let full = render(source, y: 0, rows: height)
 var concatenated = [Float]()
 for start in stride(from: 0, to: height, by: 64) {
-    concatenated.append(contentsOf: render(source, y: start, rows: min(64, height - start)))
+    let rows = min(64, height - start)
+    concatenated.append(contentsOf: render(source, y: height - start - rows, rows: rows))
 }
-precondition(full == concatenated, "Ascending-y bitmap strips differ from one full bitmap: row orientation mismatch")
+precondition(full == marker, "The decoded bitmap must preserve the top-down marker coordinates")
+precondition(full == concatenated, "Top-down bitmap strips differ from one full bitmap: row orientation mismatch")
 let rebuiltData = concatenated.withUnsafeBytes { Data($0) }
 let rebuilt = CIImage(bitmapData: rebuiltData, bytesPerRow: width * 16,
                       size: CGSize(width: CGFloat(width), height: CGFloat(height)), format: .RGBAf, colorSpace: space)

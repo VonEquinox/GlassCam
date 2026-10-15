@@ -261,7 +261,8 @@ class CaptureAdmissionSourceContracts(unittest.TestCase):
                            'captureReservation = ticket', 'captureSlotAvailable = false', 'return true')
         shutter = body(view, 'private func shutter(')
         self.assertOrdered(shutter, 'let capturedRecipe = ProcessingRecipe(',
-                           'guard reserveCapture() else { return }',
+                           'guard reserveCapture() else {',
+                           'captureError = "Couldn’t start this photo.', 'return',
                            'camera.captureProRAW', 'case .failure(let error):',
                            'onCaptureFailure()', 'if !isClosing { captureError = error.localizedDescription }')
         self.assertIn('|| !captureSlotAvailable)', shutter)
@@ -341,14 +342,20 @@ class CaptureAdmissionSourceContracts(unittest.TestCase):
     def test_old_session_callbacks_cannot_dismiss_new_camera_or_reuse_its_ticket(self):
         content = source('ContentView.swift')
         cover = content.split('.fullScreenCover(', 1)[1].split('.sheet(item: $model.fileSave)', 1)[0]
-        self.assertIn('let sessionTicket = cameraTicket', cover)
+        self.assertIn('@State private var cameraSession: CameraSession?', content)
+        self.assertIn('cameraSession = CameraSession(id: model.beginCameraSession())', content)
+        self.assertIn('item: $cameraSession', cover)
+        self.assertIn('}) { session in', cover)
+        self.assertIn('let sessionTicket = session.id', cover)
+        self.assertNotIn('cameraTicket', content)
+        self.assertNotIn('cameraPresented', content)
         self.assertIn('reserveCapture: { model.reserveCaptureDelivery(ticket: sessionTicket) }', cover)
         self.assertIn('onCaptureFailure: { model.releaseCaptureDelivery(ticket: sessionTicket) }', cover)
         self.assertIn('capturedRecipe: capturedRecipe, ticket: sessionTicket)', cover)
         callback = body(cover, 'onCapture: {')
         close = body(cover, 'onClose: {')
-        self.assertIn('if cameraTicket == sessionTicket { cameraPresented = false }', callback)
-        self.assertEqual(compact(close), 'if cameraTicket == sessionTicket { cameraPresented = false }')
+        self.assertIn('if cameraSession?.id == sessionTicket { cameraSession = nil }', callback)
+        self.assertEqual(compact(close), 'if cameraSession?.id == sessionTicket { cameraSession = nil }')
         self.assertIn('captureSlotAvailable: model.captureSlotAvailable', cover)
         self.assertIn('if model.captureSlotAvailable { Task { await model.renderIfNeeded() } }', cover)
 
