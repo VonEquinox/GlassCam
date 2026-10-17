@@ -1,0 +1,604 @@
+{
+  "status": "pass",
+  "source": {
+    "version": "0.2.0",
+    "manifest_sha256": "2a2023b1f001af7b81112714c91a999077fa30f9c23934735e1802c93057e5f9",
+    "verified_manifest_files": 115,
+    "implementation_sha256": {
+      "implementation/ffcs/__init__.py": "cabb965fea0d980477d90164ba4f0af886f7e75277d4d5a0be15a459d0985b25",
+      "implementation/ffcs/__main__.py": "76fa916e93e0ae1a6c1bb51dcc0bcf289c014e9f760a47165f8a84401ccf41d7",
+      "implementation/ffcs/cli.py": "cdb5babed88a45dd68d753322dc102183ff3973edce2bfd9b63890ee3ccc13f6",
+      "implementation/ffcs/color.py": "84e0c675a9f7507f71d6cd952842b90354b23226f34b31e47a0c51dd981c3db5",
+      "implementation/ffcs/effects.py": "83b4d8ca04e17f56492b68d250f046977744bc1490eb565c85baa55a797cd0b0",
+      "implementation/ffcs/icc.py": "636d51ecc911cef5dd63d6670721b591dfd36e67113bc88668bf3a58583699e2",
+      "implementation/ffcs/io.py": "edac39f07df71a609978665da44cfe5d0844133c4c32deb13684699438996696",
+      "implementation/ffcs/lutdata.py": "ee8ef3b090283dcdfbdc43428d58ea4c15fbc0e13894b1aa2a74a43934890d6c",
+      "implementation/ffcs/metrics.py": "c709772bb95b1274d2ee0c542ec2ef430a11dab5685929544b8188dbaf267c56",
+      "implementation/ffcs/models.py": "174fc9c21d9e2c1878e5ee022cd7fa583bcb42e6152b3a77445492c000b3ef29",
+      "implementation/ffcs/pipeline.py": "7073f79f1991f34b7e053b52337554d93bcaa7c100ceef3dd17d986606f8c343",
+      "implementation/ffcs/raw.py": "16a0151190739758a89a71f094cdb6d1737de7358e8d2e3c0aeae97ff1b56845",
+      "implementation/ffcs/validation.py": "e79d5754eda4cfcfee39252b9c9a4500dc9cd63f8b424eb2b735cff4a4adcd1c"
+    }
+  },
+  "native_source_sha256": "131434f2d20a43f0b3dce6eac4da02d890afc7dea5cb01bc21b8beb0424b048f",
+  "header_sha256": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
+  "compile_command": [
+    "g++",
+    "-std=c++17",
+    "-O3",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "-shared",
+    "-fPIC",
+    "-pthread",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/ffcs.cpp",
+    "-lz",
+    "-o",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/build/libffcs_v020_verify.so"
+  ],
+  "configured_family_cases": 86,
+  "unique_native_assets": 50,
+  "stage_comparisons": 1206,
+  "encoded_cases": 134,
+  "linear_reference_cases": 48,
+  "optimized_bit_exact_cases": 576,
+  "strip_bit_exact_calls": 900,
+  "invalid_calls": 30,
+  "maximum_absolute_stage_error": 6.751543768501733e-15,
+  "stage_tolerance": 1e-12,
+  "linear_mobile_max_error": 0.0,
+  "linear_mobile_tolerance": 2e-07,
+  "workers": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "checks": [
+    {
+      "case": "XH2S/PROVIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/VELVIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/ASTIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/CLASSIC CHROME/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/CLASSIC NEG./default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/NOSTALGIC NEG./default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/ETERNA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/ETERNA BLEACH BYPASS/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/ACROS/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/MONOCHROME/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/PRO NEG. HI/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/PRO NEG. STD/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/SEPIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/ACROS+G/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/ACROS+R/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/ACROS+Ye/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/MONOCHROME+G/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/MONOCHROME+R/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/MONOCHROME+Ye/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/PROVIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/VELVIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/ASTIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/CLASSIC CHROME/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/MONOCHROME/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/PRO NEG. HI/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/PRO NEG. STD/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/SEPIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/MONOCHROME+G/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/MONOCHROME+R/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/MONOCHROME+Ye/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/PROVIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/VELVIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ASTIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/CLASSIC CHROME/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/CLASSIC NEG./default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ETERNA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ETERNA BLEACH BYPASS/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ACROS/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/MONOCHROME/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/PRO NEG. HI/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/PRO NEG. STD/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/SEPIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ACROS+G/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ACROS+R/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ACROS+Ye/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/MONOCHROME+G/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/MONOCHROME+R/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/MONOCHROME+Ye/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/PROVIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/VELVIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/ASTIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/CLASSIC CHROME/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/CLASSIC NEG./default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/NOSTALGIC NEG./default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/ETERNA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/ETERNA BLEACH BYPASS/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/ACROS/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/MONOCHROME/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/PRO NEG. HI/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/PRO NEG. STD/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/SEPIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/ACROS+G/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/ACROS+R/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/ACROS+Ye/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/MONOCHROME+G/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/MONOCHROME+R/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/MONOCHROME+Ye/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/PROVIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/VELVIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/ASTIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/CLASSIC CHROME/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/CLASSIC NEG./default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/ETERNA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/ETERNA BLEACH BYPASS/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/ACROS/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/MONOCHROME/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/PRO NEG. HI/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/PRO NEG. STD/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/SEPIA/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/ACROS+G/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/ACROS+R/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/ACROS+Ye/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/MONOCHROME+G/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/MONOCHROME+R/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/MONOCHROME+Ye/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/REALA ACE/default",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/PROVIA/overlay=False/flags=00/radius=0.1",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/PROVIA/overlay=False/flags=01/radius=0.1",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/PROVIA/overlay=False/flags=10/radius=0.1",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/PROVIA/overlay=False/flags=11/radius=0.1",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/PROVIA/overlay=True/flags=00/radius=0.1",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/PROVIA/overlay=True/flags=01/radius=0.1",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/PROVIA/overlay=True/flags=10/radius=0.1",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XH2S/PROVIA/overlay=True/flags=11/radius=0.1",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/SEPIA/overlay=False/flags=00/radius=0.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/SEPIA/overlay=False/flags=01/radius=0.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/SEPIA/overlay=False/flags=10/radius=0.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/SEPIA/overlay=False/flags=11/radius=0.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/SEPIA/overlay=True/flags=00/radius=0.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/SEPIA/overlay=True/flags=01/radius=0.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/SEPIA/overlay=True/flags=10/radius=0.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "XA3/SEPIA/overlay=True/flags=11/radius=0.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ACROS+G/overlay=False/flags=00/radius=1.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ACROS+G/overlay=False/flags=01/radius=1.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ACROS+G/overlay=False/flags=10/radius=1.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ACROS+G/overlay=False/flags=11/radius=1.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100/ACROS+G/overlay=True/flags=00/radius=1.0",
+      "max_stage_error": 9.43689570931383e-16
+    },
+    {
+      "case": "GFX100/ACROS+G/overlay=True/flags=01/radius=1.0",
+      "max_stage_error": 9.992007221626409e-16
+    },
+    {
+      "case": "GFX100/ACROS+G/overlay=True/flags=10/radius=1.0",
+      "max_stage_error": 9.43689570931383e-16
+    },
+    {
+      "case": "GFX100/ACROS+G/overlay=True/flags=11/radius=1.0",
+      "max_stage_error": 9.43689570931383e-16
+    },
+    {
+      "case": "GFX100S/NOSTALGIC NEG./overlay=False/flags=00/radius=1.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/NOSTALGIC NEG./overlay=False/flags=01/radius=1.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/NOSTALGIC NEG./overlay=False/flags=10/radius=1.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/NOSTALGIC NEG./overlay=False/flags=11/radius=1.5",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100S/NOSTALGIC NEG./overlay=True/flags=00/radius=1.5",
+      "max_stage_error": 5.468681082605606e-15
+    },
+    {
+      "case": "GFX100S/NOSTALGIC NEG./overlay=True/flags=01/radius=1.5",
+      "max_stage_error": 5.468681082605606e-15
+    },
+    {
+      "case": "GFX100S/NOSTALGIC NEG./overlay=True/flags=10/radius=1.5",
+      "max_stage_error": 5.468681082605606e-15
+    },
+    {
+      "case": "GFX100S/NOSTALGIC NEG./overlay=True/flags=11/radius=1.5",
+      "max_stage_error": 5.468681082605606e-15
+    },
+    {
+      "case": "GFX100II/REALA ACE/overlay=False/flags=00/radius=2.25",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/REALA ACE/overlay=False/flags=01/radius=2.25",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/REALA ACE/overlay=False/flags=10/radius=2.25",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/REALA ACE/overlay=False/flags=11/radius=2.25",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/REALA ACE/overlay=True/flags=00/radius=2.25",
+      "max_stage_error": 6.369904603786836e-15
+    },
+    {
+      "case": "GFX100II/REALA ACE/overlay=True/flags=01/radius=2.25",
+      "max_stage_error": 6.7307270867900115e-15
+    },
+    {
+      "case": "GFX100II/REALA ACE/overlay=True/flags=10/radius=2.25",
+      "max_stage_error": 6.369904603786836e-15
+    },
+    {
+      "case": "GFX100II/REALA ACE/overlay=True/flags=11/radius=2.25",
+      "max_stage_error": 6.751543768501733e-15
+    },
+    {
+      "case": "GFX100II/CLASSIC CHROME/overlay=False/flags=00/radius=3.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/CLASSIC CHROME/overlay=False/flags=01/radius=3.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/CLASSIC CHROME/overlay=False/flags=10/radius=3.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/CLASSIC CHROME/overlay=False/flags=11/radius=3.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/CLASSIC CHROME/overlay=True/flags=00/radius=3.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/CLASSIC CHROME/overlay=True/flags=01/radius=3.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/CLASSIC CHROME/overlay=True/flags=10/radius=3.0",
+      "max_stage_error": 0.0
+    },
+    {
+      "case": "GFX100II/CLASSIC CHROME/overlay=True/flags=11/radius=3.0",
+      "max_stage_error": 0.0
+    }
+  ],
+  "supersedes": [
+    "v0.1 default overlay bytes intentionally replaced by v0.2 neutral LUT defaults",
+    "v0.1 box blur intentionally replaced by reference Gaussian radius kernel",
+    "fixed one-row halo replaced by context-specific zero or ceil(3*max(.1,radius))"
+  ],
+  "limitations": [
+    "Linux host numerical evidence only; no Apple build/runtime or real sensor/native renderer equivalence claim.",
+    "Only native bundled tables and documented same-look family fallback are implemented; analytic-only and custom cube remain outside mobile scope."
+  ]
+}

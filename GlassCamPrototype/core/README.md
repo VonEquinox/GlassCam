@@ -15,8 +15,9 @@ g++ -std=c++17 -pthread -O3 -fno-fast-math -ffp-contract=off \
 
 CMake is also supported (`cmake -S core -B build && cmake --build build`). The
 binary harness uses host-endian packed RGB triplets. It supports `legacy` or
-`lstar`, and `standard` or `reproduction`. The app intentionally selects legacy,
-standard, V1 gamma. Reproduction selects its original pure curve.
+`lstar`, and `standard` or `reproduction`. The simplest `hncs_create` constructor
+selects legacy/standard/V1; preset contexts honor their explicit settings.
+Reproduction selects its original pure curve.
 
 `generate_assets.py` reproducibly emits `hncs_assets.inc` from the original NPZ
 using round-trip-safe double literals and exact uint16 curve entries. NumPy is
@@ -71,7 +72,29 @@ Current separated core timing is recorded in [COLOR_PERFORMANCE](../docs/COLOR_P
 
 `ffcs.cpp` / `ffcs_c.h` implement FFCS 0.2 native tables across five supplied families (50 assets, 20 named looks, family-specific availability). Neutral default postprocessing bypasses Lab/UCS exactly. Explicit analytic overlay retains source coefficients and Gaussian radius; spatial gates never activate a zero coefficient. Dedicated family tables and declared GFX100 fallback match the reference resolver; absent native tables fail closed. See [source and validation](../docs/FFCS.md).
 
-Full/reference, optimized and strip APIs share the same math, global grain coordinates and Gaussian summation order. `ffcs_required_halo` determines strip input and row-ring extent; native defaults have no spatial halo. The app uses 64 output rows and one worker pending Apple profiling; C ABI permits 1–4 workers. Full-source effects precede linear-light downsizing. Strict flags, bounded inflate and complete zlib-stream checks reject corrupt assets. These bounds do not establish total Apple RSS or device speed.
+Full/reference, optimized and strip APIs share the same math, global grain coordinates and Gaussian summation order. `ffcs_required_halo` determines strip input and row-ring extent; native defaults have no spatial halo. The app uses 64 output rows and one worker; C ABI permits 1–4 workers. Full-source effects precede linear-light downsizing. Strict flags, bounded inflate and complete zlib-stream checks reject corrupt assets. These bounds do not establish total Apple RSS or device speed.
+
+The 2026-10-18 strict optimization caches exact Double normalization of every
+UInt16 code (512 KiB/context) and uses synchronous GCD for Apple calls with more
+than one worker. Swift still selects one FFCS worker. Same-input full HEIF
+measurements and rejected GPU/Core ML candidates are documented in the
+[current performance report](../docs/COLOR_PERFORMANCE_20261018.md).
+
+## Prepared X2D II HDR stages
+
+`hncs_clone_with_native_gain` configures the ordinary color kernel's native
+processing scale without multiplying input pixels again. HDR uses a separate
+sequence: `hncs_render_x2d_hdr_color`, `hncs_render_x2d_hdr_post`,
+`hncs_apply_x2d_hdr_gradation`, then `hncs_render_x2d_hdr_sharpness`.
+The last two support Standard/Nature factory settings and full-resolution
+pixels. Their RGB16 values are native HDR working codes, not display-linear
+sRGB. The caller still needs the appropriate HDR output ICC transform.
+
+The HDR film/highlight/gamma/sharpness equations and original finite gradation
+tables have same-input native comparisons. RAW preparation remains separate;
+these APIs do not add a proprietary RAW decoder to the Apple app. Exact scope,
+buffer contracts, reproducible probes and native goldens are in
+[the X2D report](../docs/X2D_COLOR_PIPELINE_20261018.md).
 
 ## Delivery boundary
 

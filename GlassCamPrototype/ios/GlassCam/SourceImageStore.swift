@@ -2,6 +2,18 @@ import Foundation
 import ImageIO
 import Darwin
 
+private enum ImageFileProtection {
+    // Mac command-line validation cannot request the iOS data-protection class.
+    // Ordinary atomic writes work there; iOS capture files keep full protection.
+#if os(macOS)
+    static let writeOptions: Data.WritingOptions = [.atomic]
+    static let attributes: [FileAttributeKey: Any]? = nil
+#else
+    static let writeOptions: Data.WritingOptions = [.atomic, .completeFileProtection]
+    static let attributes: [FileAttributeKey: Any]? = [.protectionKey: FileProtectionType.complete]
+#endif
+}
+
 /// Providers retain this owner through outstanding file requests, so dismissing
 /// a sheet cannot delete a HEIF that is still being handed to a recipient.
 final class TemporaryHEIFFile: @unchecked Sendable {
@@ -35,7 +47,7 @@ final class SourceImageFile: @unchecked Sendable {
         self.fileExtension = fileExtension
         // Do not derive any path component from an untrusted imported name.
         url = FileManager.default.temporaryDirectory.appendingPathComponent("glasscam-source-\(UUID().uuidString)")
-        try data.write(to: url, options: [.atomic, .completeFileProtection])
+        try data.write(to: url, options: ImageFileProtection.writeOptions)
     }
 
     deinit { try? FileManager.default.removeItem(at: url) }
@@ -50,7 +62,7 @@ final class ExportRasterFile {
     init() throws {
         url = FileManager.default.temporaryDirectory.appendingPathComponent("glasscam-raster-\(UUID().uuidString)")
         guard FileManager.default.createFile(atPath: url.path, contents: nil,
-                                             attributes: [.protectionKey: FileProtectionType.complete]) else {
+                                             attributes: ImageFileProtection.attributes) else {
             throw PipelineError.rendering
         }
         do { handle = try FileHandle(forWritingTo: url) }
@@ -99,7 +111,7 @@ final class HNCSPresetWorkFile {
         self.width = width; self.height = height; byteCount = width * height * 12
         url = FileManager.default.temporaryDirectory.appendingPathComponent("glasscam-hncs-work-\(UUID().uuidString)")
         guard FileManager.default.createFile(atPath: url.path, contents: nil,
-                                             attributes: [.protectionKey: FileProtectionType.complete]) else {
+                                             attributes: ImageFileProtection.attributes) else {
             throw PipelineError.rendering
         }
         do { handle = try FileHandle(forUpdating: url) }

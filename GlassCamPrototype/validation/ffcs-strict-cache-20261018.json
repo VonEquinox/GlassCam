@@ -1,0 +1,661 @@
+{
+  "status": "passed",
+  "cases": [
+    {
+      "asset": "gfx100/acros.lutz",
+      "asset_sha256": "51335969caa840ecca737ac6fa0d6407c4229f16bea972cf714cb078f1955634",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/acros_g_filter.lutz",
+      "asset_sha256": "ca623105541998c0bd48a0a6987eb2053309334ae70856d0dbe7835c045b8ccb",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/acros_r_filter.lutz",
+      "asset_sha256": "c1e29f244e3f564aa5186e8e6ba3ed9c4af5b2be5170dd8bc831784d140604fe",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/acros_ye_filter.lutz",
+      "asset_sha256": "ac6c87fbedb8d12b96d074ca7e0c623a256c92a4dd5384ec6f8f0d211aec0419",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/astia.lutz",
+      "asset_sha256": "c8c5332a77c7ce3405ef29c0929116a76bcc6ba25d94131fb48025dbee7d1fd7",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/bleach_bypass.lutz",
+      "asset_sha256": "68174f4913ece5cf91ab52e136640b5abbc4de928e3233678c842fa084d03ad5",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/bw.lutz",
+      "asset_sha256": "f747f00c7e99e5c23573d67755b0dacf2fe4d790f83fcbc9877ec815fa2550f5",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/classic_chrome.lutz",
+      "asset_sha256": "aa454a12b556fc31260aa6c4ca9fe7773b8ba1d1926cb975ff72540c4207e236",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/classic_neg.lutz",
+      "asset_sha256": "c126b12802ee52e4f1d1df0634f016f1e065db35e02dc821d76ad5efd3c04aa2",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/eterna.lutz",
+      "asset_sha256": "2a436969dc03d58527c9e68b8be346d65309926d4e01abd60ea694de6480d9ec",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/mono_g_filter.lutz",
+      "asset_sha256": "a7da4b1599b28b1b7d60735f3dfe4d62127433fdd936919029e6381231da2887",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/mono_r_filter.lutz",
+      "asset_sha256": "d1428a0e955fde927067d376abb564868c387bbb3fef4cf5ad799bfbe9e36aec",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/mono_ye_filter.lutz",
+      "asset_sha256": "661821c1beea7454207ad41454e6a09fc561e9abe673a7c4282995fcf392c5d3",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/pro_neg_hi.lutz",
+      "asset_sha256": "a02c62b6ff8c0db8aa6ae38d3ee380d92be16a5d0efe957789690a71644bfe9e",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/pro_neg_std.lutz",
+      "asset_sha256": "5ede0757d6076dfe4cd739584d4b68a965c7ae8a796310a81d7ecd8caa368f94",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/provia.lutz",
+      "asset_sha256": "fd7b0f76f80beeedeb0a4f45d16e98a5d0c20b10e011f9feef20f65804740f28",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/sepia.lutz",
+      "asset_sha256": "090ed67519961a41b62979f0cb5e7bc7958efd0b6ff6b8ada5100851d59272b5",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100/velvia.lutz",
+      "asset_sha256": "c7c2fd4ff4bf7ec911278994fb376c10e5c445b57748c10c80fb3263fa06f812",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100ii/reala_ace.lutz",
+      "asset_sha256": "ea42fb354a01e11af3a8b82f60e7c220b35d1586f4daf84b4e942f5f2703ff8a",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "gfx100s/nostalgic_neg.lutz",
+      "asset_sha256": "7dc2f0d4277de827541407573706f4765baa03300b93e98ee0c5934da1f78498",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/astia.lutz",
+      "asset_sha256": "e4b898c51ef9b351a28c1b0490301b217837921a78fcd98aeab3f84c01e4a790",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/bw.lutz",
+      "asset_sha256": "0803ab6202424698de535b9153e7f1e15660014e0492e5a937f5580f71110f82",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/classic_chrome.lutz",
+      "asset_sha256": "b22a0ee37ad0641cbf97dd2612d4bab6b398fcd32bb4804e4b19870f4aadec4b",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/mono_g_filter.lutz",
+      "asset_sha256": "61e326cd81dba34d0500b4e5777ac8ce41dbbfa96b5f5f9b4efda9a9c88ca698",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/mono_r_filter.lutz",
+      "asset_sha256": "3138aed66dd074e2807f126eb13f7656bbff69dcecd0b0b1237afa8e85a75643",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/mono_ye_filter.lutz",
+      "asset_sha256": "a74209e6ab1b6aefc3230832d637622c57e367cdceeb8a0a520cc2da00e76cd5",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/pro_neg_hi.lutz",
+      "asset_sha256": "09472f90a4f93b296f5eee06c67ef458b9ddbe4e22dfeb92a3399ff5abce1efc",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/pro_neg_std.lutz",
+      "asset_sha256": "2fcfa97d660cdf451bec5c2df02406746190be49f31259d335d2b26a8f206c0a",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/provia.lutz",
+      "asset_sha256": "f69247d6aac6f988869463a7ca5fafaea97112b3ad6ba733b30a6d09325d2b0e",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/sepia.lutz",
+      "asset_sha256": "439412e3e88244d94d203c014f76960e127d61ffe58eef6794f6fe62bb44076d",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xa3/velvia.lutz",
+      "asset_sha256": "e84efeb18434d900f3639d6f265527e1561ba89b84b94fa17b11a0960fd75641",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/acros.lutz",
+      "asset_sha256": "2e3d6d82df6d6ed3e64c5ba003e7858088c97243194dd7e79478546d755b4a8e",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/acros_g_filter.lutz",
+      "asset_sha256": "f051fd8626ec89a6d464411b3bf7125312a476005d797c9cd24f64dd3865a5c9",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/acros_r_filter.lutz",
+      "asset_sha256": "bd96caf710ccf437e2ca2270e54cc9653d56376cbf6b14690dea5416583f80ef",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/acros_ye_filter.lutz",
+      "asset_sha256": "a027df6020529bad2f3102072cf14ae99b3135e0c066329440b54520af10d066",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/astia.lutz",
+      "asset_sha256": "378198892d7f5e73bedada0887b1adc091fe73c466640edefc390a4139e6ec4b",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/bleach_bypass.lutz",
+      "asset_sha256": "5b8ad31efa461c7f7312901df83134135ad28c253b5ba6493e2e778de22c4561",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/bw.lutz",
+      "asset_sha256": "68b3b5af726d4263c4610528d13518a06f6fc94173f9e147148968c919051da8",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/classic_chrome.lutz",
+      "asset_sha256": "6efc19bfe3d2d5b9b39acb8b8d1d742afa72ac1af3816376c459c02802745099",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/classic_neg.lutz",
+      "asset_sha256": "aa5bb94a6275e3ea532cafc0eb907654d4c4137cfaf62c3929e7f5a068f4ea78",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/eterna.lutz",
+      "asset_sha256": "735b1fcd4a4d58e133421d82f2482cf6917d43fac7b2a96cca37590590383f5e",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/mono_g_filter.lutz",
+      "asset_sha256": "305bf630c4cdb9efb6649861186fb8205e24fb65c646e3c508d01808791e79d1",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/mono_r_filter.lutz",
+      "asset_sha256": "b7d39b6b22a7d5ff6d1353d027c18bbaa30737fb69daa319d925d6e8846570f1",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/mono_ye_filter.lutz",
+      "asset_sha256": "bcdc70ed0580fecbc078934b82c91b7703579616d44118b3893368c34a4fe463",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/nostalgic_neg.lutz",
+      "asset_sha256": "e3e7d9447e834405c454682cda1deba368f0aecced283cce6b4dd70e346a5865",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/pro_neg_hi.lutz",
+      "asset_sha256": "5fd6618f719c4c4028c8d3e6859be3f50baff46ddb144743f32bd31c13ef06b0",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/pro_neg_std.lutz",
+      "asset_sha256": "6adb421cb0f185a71bdaf6eeeb36929af7596b4cd171b065a5582f486fd81e3c",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/provia.lutz",
+      "asset_sha256": "35cd11c9c9f5653a68d9059378b7b22fe8ef574765c99bfaa6f6e2c3fe79b69c",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/sepia.lutz",
+      "asset_sha256": "ae87d2b19ef7cb91aece17d7623e6d8dffe1657cfcb4607de8c4484c56f731e4",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    },
+    {
+      "asset": "xh2s/velvia.lutz",
+      "asset_sha256": "04f226f7be8fe4eb2770bbde6e2ead17d84c6b24185a323f5e06a04807751841",
+      "pixels": 29010,
+      "double_bits_different": 0,
+      "float_and_preview_bits_different": 0,
+      "linear_exposures": [
+        -2.0,
+        0.7,
+        2.0
+      ],
+      "workers": 4
+    }
+  ],
+  "libraries_sha256": {
+    "baseline": "5776e52e9134d42aa9ccfc5a4a762b2a38bf535b5931afa63a6cdd5fb13f5294",
+    "candidate": "51c9f14321eb64e8188be089e22e356439028466080c0902baa86e02ad0bd0fe"
+  },
+  "tool_sha256": "62db07ad6698cd917fb6f62dcc903bd7e6c20303e7cbd27aaefef4ed8fd1bde9",
+  "scope": "Default neutral FFCS 0.2 recipes, same Double/Float32/preview inputs and four workers; frozen old C++ vs strict cache/GCD C++. Not vendor equivalence or performance timing."
+}

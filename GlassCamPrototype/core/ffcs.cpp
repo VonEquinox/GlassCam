@@ -14,6 +14,9 @@
 #include <string>
 #include <vector>
 #include <zlib.h>
+#if defined(__APPLE__)
+#include <dispatch/dispatch.h>
+#endif
 namespace {
 struct Look { const char *name,*asset; double contrast,saturation,hue,shoulder,toe,grain,size,chroma,sharp; bool acros; };
 const Look looks[] = {
@@ -93,13 +96,44 @@ bool overlaps(const void *a, size_t an, const void *b, size_t bn) {
 uint16_t u16(const unsigned char *p){return uint16_t(p[0])|uint16_t(p[1])<<8;}
 uint32_t u32(const unsigned char *p){return uint32_t(p[0])|uint32_t(p[1])<<8|uint32_t(p[2])<<16|uint32_t(p[3])<<24;}
 float f32(const unsigned char *p){uint32_t x=u32(p);float f;std::memcpy(&f,&x,4);return f;}
+template<class Tile> void parallelRows(size_t first,size_t rows,unsigned workers,Tile& tile) {
+ if(workers==1){tile(first,first+rows);return;}
+ std::array<std::exception_ptr,4> failures{};
+#if defined(__APPLE__)
+ struct Task {Tile* tile;size_t first,rows;unsigned workers;std::exception_ptr* failures;};
+ Task task{&tile,first,rows,workers,failures.data()};
+ dispatch_apply_f(workers,dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0),&task,
+  [](void* opaque,size_t index) {
+   auto& job=*static_cast<Task*>(opaque);
+   try {(*job.tile)(job.first+job.rows*index/job.workers,job.first+job.rows*(index+1)/job.workers);}
+   catch(...){job.failures[index]=std::current_exception();}
+  });
+#else
+ std::array<std::thread,4> threads;
+ unsigned launched=0;
+ try {
+  for(unsigned t=0;t<workers;++t) {
+   threads[t]=std::thread([&,t] {
+    try {tile(first+rows*t/workers,first+rows*(t+1)/workers);}
+    catch(...){failures[t]=std::current_exception();}
+   });
+   ++launched;
+  }
+ } catch(...) {
+  for(unsigned t=0;t<launched;++t)threads[t].join();
+  throw;
+ }
+ for(unsigned t=0;t<launched;++t)threads[t].join();
+#endif
+ for(unsigned t=0;t<workers;++t)if(failures[t])std::rethrow_exception(failures[t]);
 }
-struct FFCSContext {Look look;bool grainEnabled,sharpenEnabled;double radius=1;std::vector<double> kernel;size_t reach=0;std::string family;size_t size;double scale;double matrix[9];bool rgbChannels;std::vector<uint16_t> lut;};
+}
+struct FFCSContext {Look look;bool grainEnabled,sharpenEnabled;double radius=1;std::vector<double> kernel;size_t reach=0;std::string family;size_t size;double scale;double matrix[9];bool rgbChannels;std::vector<uint16_t> lut;std::vector<double> normalized_codes;};
 namespace {
 RGB mapLUT(const FFCSContext &c,RGB v) {
  double p[]={clip(v[2])*(c.size-1),clip(v[1])*(c.size-1),clip(v[0])*(c.size-1)};size_t lo[3],hi[3];double f[3];
  for(int i=0;i<3;++i){lo[i]=size_t(std::floor(p[i]));hi[i]=std::min(lo[i]+1,c.size-1);f[i]=p[i]-lo[i];}
- auto at=[&](size_t x,size_t y,size_t z,int ch){return c.lut[((z*c.size+y)*c.size+x)*3+ch]/c.scale;};RGB o{};
+ auto at=[&](size_t x,size_t y,size_t z,int ch){return c.normalized_codes[c.lut[((z*c.size+y)*c.size+x)*3+ch]];};RGB o{};
  for(int ch=0;ch<3;++ch){double a=at(lo[0],lo[1],lo[2],ch)*(1-f[0])+at(hi[0],lo[1],lo[2],ch)*f[0];double b=at(lo[0],hi[1],lo[2],ch)*(1-f[0])+at(hi[0],hi[1],lo[2],ch)*f[0];double c0=a*(1-f[1])+b*f[1];a=at(lo[0],lo[1],hi[2],ch)*(1-f[0])+at(hi[0],lo[1],hi[2],ch)*f[0];b=at(lo[0],hi[1],hi[2],ch)*(1-f[0])+at(hi[0],hi[1],hi[2],ch)*f[0];double c1=a*(1-f[1])+b*f[1];o[ch]=clip(c0*(1-f[2])+c1*f[2]);}
  if(!c.rgbChannels) { std::swap(o[0],o[2]); }
  return o;
@@ -210,6 +244,10 @@ FFCSContext *ffcs_create_config(const char *dir,size_t index,int grain,int sharp
  ctx.kernel.resize((ctx.reach+1)*(ctx.reach+1));
  for(size_t y=0;y<=ctx.reach;++y)for(size_t x=0;x<=ctx.reach;++x)ctx.kernel[y*(ctx.reach+1)+x]=std::exp(-double(x*x+y*y)/(2*ctx.radius*ctx.radius));
  for(int i=0;i<9;++i){ctx.matrix[i]=f32(b.data()+16+4*i);if(!std::isfinite(ctx.matrix[i]))throw std::runtime_error("Nonfinite FFCS matrix");}
+ // Cache the same binary64 division for each possible UInt16 code. Keeping
+ // the packed 3D nodes bounds additional memory to 512 KiB per live context.
+ // Corner interpolation and all subsequent arithmetic retain their order.
+ ctx.normalized_codes.resize(65536);for(size_t i=0;i<ctx.normalized_codes.size();++i)ctx.normalized_codes[i]=double(i)/ctx.scale;
  ctx.lut.resize(expected/2);for(size_t i=0;i<ctx.lut.size();++i)ctx.lut[i]=u16(raw.data()+i*2);errorText(err,en,"");return new FFCSContext(std::move(ctx));
  }catch(const std::exception &e){errorText(err,en,e.what());return nullptr;}catch(...){errorText(err,en,"Unknown FFCS initialization failure");return nullptr;}
 }
@@ -306,26 +344,7 @@ int ffcs_process_linear_rgb_optimized(const FFCSContext *c,const float *in,size_
  }
  };
  unsigned actual=unsigned(std::min(size_t(workers),h));
- if(actual==1) tile(0,h);
- else {
-  std::array<std::thread,4> threads;
-  std::array<std::exception_ptr,4> failures{};
-  unsigned launched=0;
-  try {
-   for(unsigned t=0;t<actual;++t) {
-    threads[t]=std::thread([&,t] {
-     try { tile(h*t/actual,h*(t+1)/actual); }
-     catch(...) { failures[t]=std::current_exception(); }
-    });
-    ++launched;
-   }
-  } catch(...) {
-   for(unsigned t=0;t<launched;++t) threads[t].join();
-   throw;
-  }
-  for(unsigned t=0;t<launched;++t) threads[t].join();
-  for(unsigned t=0;t<actual;++t) if(failures[t]) std::rethrow_exception(failures[t]);
- }
+ parallelRows(0,h,actual,tile);
  errorText(err,en,"");return 1;}catch(const std::exception &e){errorText(err,en,e.what());return 0;}catch(...){errorText(err,en,"Unknown FFCS rendering failure");return 0;}}
 int ffcs_process_linear_rgb_strip(const FFCSContext *c, const float *in,
  size_t input_count, size_t w, size_t h, size_t input_y, size_t input_rows,
@@ -365,25 +384,6 @@ int ffcs_process_linear_rgb_strip(const FFCSContext *c, const float *in,
  }
  };
  unsigned actual=unsigned(std::min(size_t(workers),output_rows));
- if(actual==1) tile(output_y,output_y+output_rows);
- else {
-  std::array<std::thread,4> threads;
-  std::array<std::exception_ptr,4> failures{};
-  unsigned launched=0;
-  try {
-   for(unsigned t=0;t<actual;++t) {
-    threads[t]=std::thread([&,t] {
-     try { tile(output_y+output_rows*t/actual,output_y+output_rows*(t+1)/actual); }
-     catch(...) { failures[t]=std::current_exception(); }
-    });
-    ++launched;
-   }
-  } catch(...) {
-   for(unsigned t=0;t<launched;++t) threads[t].join();
-   throw;
-  }
-  for(unsigned t=0;t<launched;++t) threads[t].join();
-  for(unsigned t=0;t<actual;++t) if(failures[t]) std::rethrow_exception(failures[t]);
- }
+ parallelRows(output_y,output_rows,actual,tile);
  errorText(err,en,"");return 1;}catch(const std::exception &e){errorText(err,en,e.what());return 0;}catch(...){errorText(err,en,"Unknown FFCS rendering failure");return 0;}}
 }

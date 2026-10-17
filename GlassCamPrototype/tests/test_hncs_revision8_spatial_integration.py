@@ -144,7 +144,11 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
         prepare = body(file, 'func prepareForSpatialPass()')
         self.assertOrdered(prepare, 'handle.synchronize()', 'handle.seekToEnd() == UInt64(byteCount)')
         self.assertOrdered(body(file, 'deinit'), 'handle.close()', 'removeItem(at: url)')
-        self.assertIn('FileProtectionType.complete', file)
+        self.assertIn('attributes: ImageFileProtection.attributes', file)
+        protection = body(source('SourceImageStore.swift'), 'private enum ImageFileProtection')
+        ios_protection = protection.split('#else', 1)[1].split('#endif', 1)[0]
+        self.assertIn('FileProtectionType.complete', ios_protection)
+        self.assertIn('.completeFileProtection', ios_protection)
 
     def test_preview_and_full_export_use_same_pointwise_spatial_final_sequence(self):
         engine = source('HNCSEngine.swift')

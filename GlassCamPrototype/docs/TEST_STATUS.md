@@ -1,6 +1,19 @@
 # 测试与性能状态
 
-更新：2026-10-18。最新版本为 render revision 10。后续日期章节保留历史证据，其中“当前源码”“已安装”和手机计时均指对应当时构建。
+更新：2026-10-18。应用配方版本仍为 render revision 10，新增独立 X2D HDR 阶段 API 和严格 FFCS 缓存优化。后续日期章节保留历史证据，其中“当前源码”“已安装”和手机计时均指对应当时构建。
+
+## 2026-10-18：X2D HDR、原始 FFCS 审计与受控加速
+
+- 普通 X2D 有效处理增益修复、HDR film curve／颜色核，以及原版导出工厂和机型／RAW 身份检查已形成独立报告。HDR 后置的 42 组比较共 8,707,059 通道为零差；HDR 锐化的 293 组参数／46 组模式、9,601,024 表项与 1,668,417 像素通道一致。
+- HDR 使用独立 gradation 表，不能复用 SDR 表。Standard／Nature 的 471,846 个合成通道及三个真实 HDR 串联案例通过；真实锐化比较排除未保存邻域的四像素边界，最终内部区域 28,224 通道零差。RAW 前处理和最终 ICC 未被扩大声明为完整独立移植。
+- 原始 SILKYPIX 50 表、1,450,500 输入像素的两种固定点映射逐项零差；当前 FFCS 再采样资产的最大 ΔE00 为 3.502497，不能声称富士机内 JPEG 等价。39 个 V2 文件头在读取前的矩阵替换补测也通过，原文件哈希不变。
+- 完整 Python 回归 **206 项通过（25.541 s）**。首次失败为文件保护封装后的旧源码定位断言；已改为检查共享配置中的 iOS 完整保护分支，没有改变数值预期。
+- 实际 Apple 运行回归通过：预览／Metal HDR headroom、14 组 SDR/HDR HEIF、真实 6048×8064 DNG 到 10-bit PQ、工作文件行序、设置迁移、取消、保存失败重试与分享 provider。相机及 Photos 使用测试替身，没有操作手机。
+- ASan/UBSan：FFCS 19 个外观／760 次条带调用、HNCS 106 组阶段／空间检查通过，含 HDR 新接口和异常参数；本次没有启用 LeakSanitizer。
+- iOS Release、`generic/platform=iOS`、`CODE_SIGNING_ALLOWED=NO` 构建成功。保留现有弃用和界面方向警告，未签名、安装或真机测试。
+- 严格 FFCS 缓存使 Mac 完整耗时降低约 0.8%–2.1%，64 个旧新 HEIF 逐字节一致；额外缓存 512 KiB／上下文。Metal 候选的完整 HDR 质量失败，Core ML FP16 失败，FP32 仅通过合成筛查且计划优先 CPU，均未替换默认路径。
+
+证据：[统一验收](../validation/color-research-final-20261018.json)、[X2D](X2D_COLOR_PIPELINE_20261018.md)、[FFCS](FFCS_ORIGINAL_AUDIT_20261018.md)、[性能](COLOR_PERFORMANCE_20261018.md)、[逐项工作记录](COLOR_PIPELINE_WORK_20261018.md)。
 
 ## 2026-10-18：原版锐化、后置颜色及本地完整验收
 

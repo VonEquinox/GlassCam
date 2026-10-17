@@ -2,6 +2,8 @@
 
 SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。当前为单主摄黑边版本，使用 ProRAW、全源处理、HDR HEIF 自动保存与兼容分享。HNCS render revision 10 已完成 Phocus 二进制数值核查、Mac 图像运行验证及 iOS Release 编译；本轮按要求未进行真机实测，历史手机结果对应其各自版本。
 
+2026-10-18 补充：[X2D II 必要颜色阶段](docs/X2D_COLOR_PIPELINE_20261018.md)、[原始 SILKYPIX／FFCS 审计](docs/FFCS_ORIGINAL_AUDIT_20261018.md)与[受控加速报告](docs/COLOR_PERFORMANCE_20261018.md)。独立 X2D HDR 接口要求原生准备输入；不等于完整 RAW 到成片复刻。默认采用逐位一致的 FFCS 缓存优化，Metal／Core ML 近似候选未启用。最新 206 项回归、Apple 图像检查、ASan/UBSan 和未签名 iOS Release 编译通过。
+
 三个独立开关控制锐化、颗粒和预设额外裁切，默认保留开关选择，实际效果遵循当前参考参数，切换预设不重置选择。HNCS/FFCS各自只开关原本存在的阶段，FFCS0.2原生表默认无额外颗粒/锐化，须显式开启参考解析叠加才有对应系数。详见[开关与旧配方迁移](docs/EFFECT_TOGGLES.md)。
 
 ## 当前路径
@@ -63,4 +65,4 @@ macOS 上另运行 `python3 -B tools/test_apple_images.py`：直接编译生产 
 
 现有核的数值一致性不证明完整 Phocus RAW pipeline、富士机内 JPEG 等价性、iPhone 标定或真实照片审美。10-bit 编码 API 请求不证明实际位流。原始 RAW/配方长期资料库、Apple 性能与内存/热状态、微信兼容和商业权利清理尚未完成。原始交付及证据保持不变。
 
-上游 FFCS 0.2 的历史证据保留。本轮本地 198 项测试、Apple 图像回归、已有 48MP RAW 的 Standard/Nature 与 24/48MP 双路径导出，以及 iOS Release 编译通过；各阶段的数值证据和真机边界见[测试状态](docs/TEST_STATUS.md)。
+上游 FFCS 0.2 的历史证据保留。最新本地 206 项测试、Apple 图像回归、48MP RAW 导出、ASan/UBSan 与 iOS Release 编译通过；当前与历史构建的数值证据、24/48MP 测量及真机边界见[测试状态](docs/TEST_STATUS.md)。

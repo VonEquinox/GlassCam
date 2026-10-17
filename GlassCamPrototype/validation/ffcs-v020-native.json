@@ -20,7 +20,7 @@
       "implementation/ffcs/validation.py": "e79d5754eda4cfcfee39252b9c9a4500dc9cd63f8b424eb2b735cff4a4adcd1c"
     }
   },
-  "native_source_sha256": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+  "native_source_sha256": "131434f2d20a43f0b3dce6eac4da02d890afc7dea5cb01bc21b8beb0424b048f",
   "header_sha256": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
   "compile_command": [
     "g++",
@@ -31,10 +31,10 @@
     "-shared",
     "-fPIC",
     "-pthread",
-    "/workspace/shared/glasscam-prototype/core/ffcs.cpp",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/ffcs.cpp",
     "-lz",
     "-o",
-    "/workspace/shared/glasscam-prototype/build/libffcs_v020_verify.so"
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/build/libffcs_v020_verify.so"
   ],
   "configured_family_cases": 86,
   "unique_native_assets": 50,
@@ -44,7 +44,7 @@
   "optimized_bit_exact_cases": 576,
   "strip_bit_exact_calls": 900,
   "invalid_calls": 30,
-  "maximum_absolute_stage_error": 5.5164206536062466e-15,
+  "maximum_absolute_stage_error": 6.751543768501733e-15,
   "stage_tolerance": 1e-12,
   "linear_mobile_max_error": 0.0,
   "linear_mobile_tolerance": 2e-07,
@@ -545,19 +545,19 @@
     },
     {
       "case": "GFX100II/REALA ACE/overlay=True/flags=00/radius=2.25",
-      "max_stage_error": 5.190292640122607e-15
+      "max_stage_error": 6.369904603786836e-15
     },
     {
       "case": "GFX100II/REALA ACE/overlay=True/flags=01/radius=2.25",
-      "max_stage_error": 5.5164206536062466e-15
+      "max_stage_error": 6.7307270867900115e-15
     },
     {
       "case": "GFX100II/REALA ACE/overlay=True/flags=10/radius=2.25",
-      "max_stage_error": 5.190292640122607e-15
+      "max_stage_error": 6.369904603786836e-15
     },
     {
       "case": "GFX100II/REALA ACE/overlay=True/flags=11/radius=2.25",
-      "max_stage_error": 5.4817261840867104e-15
+      "max_stage_error": 6.751543768501733e-15
     },
     {
       "case": "GFX100II/CLASSIC CHROME/overlay=False/flags=00/radius=3.0",
