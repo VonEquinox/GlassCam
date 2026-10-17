@@ -25,7 +25,9 @@ void save(const std::string& path,const void* data,std::size_t size) {
     if(!file)throw std::runtime_error("Cannot write probe output");
 }
 int main(int argc,char** argv) {
-    if(argc!=5)return 2;
+    if(argc!=5 && argc!=6)return 2;
+    const bool identity_header=argc==6 && std::strcmp(argv[5],"--identity-header")==0;
+    if(argc==6 && !identity_header)return 2;
     try {
         void* library=dlopen(argv[1],RTLD_NOW|RTLD_LOCAL);
         if(!library)throw std::runtime_error(dlerror());
@@ -45,6 +47,14 @@ int main(int argc,char** argv) {
         std::ifstream source(argv[2],std::ios::binary);
         std::vector<char> data((std::istreambuf_iterator<char>(source)),{});
         if(data.empty())throw std::runtime_error("Empty original mapping resource");
+        // Process-local copy only: test whether ReadMappingData bakes the V2
+        // header matrix into the decompressed LUT. Never edit vendor resources.
+        if(identity_header) {
+            if(data.size()<64 || std::memcmp(data.data(),"ISL_3DMAP_V2",12)!=0)
+                throw std::runtime_error("Header mutation requires a V2 resource");
+            const std::int32_t matrix[9]={1024,0,0,0,1024,0,0,0,1024};
+            std::memcpy(data.data()+28,matrix,sizeof matrix);
+        }
         storage_ctor(storage,data.data(),unsigned(data.size()));
         const int read_status=read(mapping,storage);
         if(read_status)throw std::runtime_error("Original mapping read failed");
@@ -83,6 +93,7 @@ int main(int argc,char** argv) {
         save(prefix+".matrix-identity-dispatch",result.data(),result.size()*sizeof(Pixel));
         int sigma_status[3]{};const double sigmas[]={.5,1.,2.};
         for(unsigned i=0;i<3;++i) {
+            if(identity_header){sigma_status[i]=-1;continue;}
             set_sigma(mapping,sigmas[i]);
             sigma_status[i]=fixed(mapping,pixels.data(),result.data(),int(pixels.size()));
             if(!sigma_status[i])save(prefix+".normal-"+std::to_string(i),result.data(),result.size()*sizeof(Pixel));

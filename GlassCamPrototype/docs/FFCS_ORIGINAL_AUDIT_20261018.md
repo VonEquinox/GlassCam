@@ -31,6 +31,8 @@
 
 原始交付 `REFERENCE_ANALYSIS.md` 声称“三线性入口已包含矩阵处理”，这个说法不成立。`ReadMappingData` 解析矩阵但未将它烘入 LUT；`TransFormTrilinear` 和本次默认 `TransForm` 都不读取它。直接改变原版对象矩阵后，50 表输出仍逐位相同。
 
+另以[读取前的独立实验](../tools/verify_ffcs_header_matrix.py)补强 V2 证据：仅在进程内副本中把 offset 28 的九个 int32／1024 矩阵值替换为单位矩阵，再调用原版 `ReadMappingData`。**39 个 V2 资源、1,131,390 像素**的解压 LUT、输入／输出 gamma 和两种映射结果全部与原文件头逐位相同，读取后的矩阵确实为单位矩阵。原资源调用前后哈希不变。11 个 V1 资源没有执行这项 V2 头部替换；不以此实验扩大 V1 证据。[完整记录](../validation/ffcs-header-matrix-20261018.json)保留每张表的检查和命令。
+
 上游 `IslEISFilter3DCM::FilteringLine`（`0x92af56`）另有整数矩阵和限幅阶段，然后调用映射。`Set3DMapping` 还把头部字段拷到该滤镜的 Q8 倍率；不能仅因原探针称它为 `id` 就忽略它在调用者里的作用。矩阵的最终来源与每图 RAW/工作空间绑定尚未建立，不能把该矩阵直接当成 Apple linear-sRGB 的补偿矩阵。
 
 现有包装资产的单位矩阵应理解为“映射分量的输入约定”，不能解释成已包含完整原版输入变换。原始交付快照保留不改；这项审计更正其证据范围，没有凭猜测向生产流程再乘一个矩阵。
@@ -63,5 +65,11 @@ FFCS `.lutz` 是从原版映射再次采样得到的网格，GlassCam 对它执�
 原版 RAW、WB、自动曝光、3DCM 输入矩阵来源及最终 ICC 的整图对照仍缺少真实富士 RAW 和配套原版成片。现有 `.raf` 文件是合成解析夹具，不能当作相机样本。没有任何结论证明富士机内 JPEG 等价。
 
 此次没有发现 GlassCam 对已声明 FFCS 0.2 默认数学顺序的新移植错误；不为制造修复而改写预期结果。后续严格加速必须对当前输出逐位一致，并另列这里已经量化的原版残差；近似加速也不能把残差藏进平均值。
+
+本轮随后采用了逐码 Double 除法缓存和 Apple 同步行调度，原插值顺序不变。完整旧新 HEIF 比较逐字节一致；206 项本地回归、FFCS 19 个外观／760 次条带调用的 ASan/UBSan 及 Apple 图像回归通过。约 1.008–1.022 的 Mac 完整速度比、每上下文 512 KiB 内存成本和既有原版残差分别记录在[性能报告](COLOR_PERFORMANCE_20261018.md)，不构成富士机内或手机性能声明。
+
+[跨版本严格检查](../validation/ffcs-strict-cache-20261018.json)另用冻结旧 C++ 与最终 C++ 对全部 50 个资源比较：4,351,500 个 Double 通道、三组曝光下 13,054,500 个 Float32 通道和 RGBA 预览全部逐位相同；30 行图像使四个工作区间实际执行。[复现工具](../tools/verify_ffcs_strict_cache.py)记录两个库的哈希。0.2 包装回归的既有 576 个优化路径／900 次条带逐位检查也通过；对 Python 分阶段最大误差为 `6.751543768501733e-15`，保持原有 `1e-12` 容限，没有修改黄金值。
+
+现有校验器会更新“当前结果” [ffcs-v020-native.json](../validation/ffcs-v020-native.json)。本轮将更新前内容[逐字节另存](../validation/ffcs-v020-native-before-color-research-20261018.json)，并保存[本轮固定快照](../validation/ffcs-v020-native-20261018.json)，区别当前报告与历史证据。
 
 复现：先运行 `decompile_ffcs_stages.py --library /absolute/path/to/SILKYPIX8 --output-dir /external/readable-c`，再运行 `audit_ffcs_original.py --library /absolute/path/to/SILKYPIX8 --reference-root /absolute/path/to/HNCS --output-dir /external/ffcs-audit`。两个工具均锁定原版哈希。

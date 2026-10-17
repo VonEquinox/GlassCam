@@ -1,0 +1,854 @@
+{
+  "library_sha256": "a0bdc416748549eada3086c4fa92015912ca6acc4b07b721f38bd2aa95af61b9",
+  "source_sha256": "bef7a52c69a0048f0b7ffeab297db31d0a5334d4a4cc152f2f51faaf91c78cad",
+  "tool_sha256": "72cf235001a6c30d5a878f22fd9da967e609956c25838d2a7edc891a80536328",
+  "audit_sha256": "19511a2136b1958ac5ef8e52e9c6ce346cec311bd3f4ffcb845cf40a43752ccc",
+  "input_sha256": "e87a741857dc3997819b0d2dcfbbec9135a3230d2aa2fedba2a078163af00a3d",
+  "command": [
+    "xcrun",
+    "clang++",
+    "-std=c++17",
+    "-O2",
+    "-arch",
+    "x86_64",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/native_ffcs_audit.cpp",
+    "-o",
+    "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe"
+  ],
+  "tables": [
+    {
+      "asset": "gfx100/acros",
+      "resource_sha256": "042f6621b03f20112fe830e439ffa3aaa0c03ecbc398fac28cbf3b836126192d",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_ACROS_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/acros/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/acros_g_filter",
+      "resource_sha256": "fbaa812e77d7a723903dd356545e1150e784ea56c3d3a040b2f0faf6e9762b24",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_ACROS_G_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/acros_g_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/acros_r_filter",
+      "resource_sha256": "0b9a7936f018f9848decd8f8aeafb249e7756fb9b67e5c5c61c96824e6022824",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_ACROS_R_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/acros_r_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/acros_ye_filter",
+      "resource_sha256": "cfd661e6e469478825cccc36989b7e2144b3ba3864ee825b0c3ab4ac09aec852",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_ACROS_YE_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/acros_ye_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/astia",
+      "resource_sha256": "491faae2f09033efc8fc4e4e0cb27eb61e62b6f73ce65e96f8b22611bbd8b718",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_ASTIA_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/astia/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/bleach_bypass",
+      "resource_sha256": "f7dc43e300ae166ba655d99048e61020b4dd771481ed8fcbc4fff06cacd543b5",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_BLEACH_BYPASS_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/bleach_bypass/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/bw",
+      "resource_sha256": "6bf1b0659ca1cd8931836b9af169f8e4259032e0253ef8c4f0f34ef590d9aabc",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_BW_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/bw/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/classic_chrome",
+      "resource_sha256": "6b624f7221f6112530e30e00ea5d630e3f4a720d0decc31be27d60093b34b00b",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_CLASSIC_CHROME_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/classic_chrome/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/classic_neg",
+      "resource_sha256": "293b38b8245e5cf5276e6f042460306669bddbec0272320e0dcd35232bf1bd25",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_CLASSIC_NEG_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/classic_neg/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/eterna",
+      "resource_sha256": "551db88b976d540cfbe7e678f31b364d475e0b198e8a35e6d8b161a984dcb489",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_ETERNA_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/eterna/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/mono_g_filter",
+      "resource_sha256": "445c2def6d2147df0c0da41a0e86456ba9bf8fcdf42f2cbbe00a714cd8f66060",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_MONO_G_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/mono_g_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/mono_r_filter",
+      "resource_sha256": "49b1db2423853217efff1024479b2548600809eca114c02178f25e67483f1f1c",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_MONO_R_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/mono_r_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/mono_ye_filter",
+      "resource_sha256": "49425eed299cc9b94cc3c34ce12456205db4db15cc512b534a01d4556e20fdb2",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_MONO_YE_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/mono_ye_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/pro_neg_hi",
+      "resource_sha256": "97a0a984bda6d84ec9d4b303f6a9a21102cb2bfbd248959827d1d0662b485857",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_PRO_NEG_HI_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/pro_neg_hi/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/pro_neg_std",
+      "resource_sha256": "3b00522d9065345d6f3dcad697ba6de220d1acdbf986fff9293308c636a778a9",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_PRO_NEG_STD_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/pro_neg_std/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/provia",
+      "resource_sha256": "ee909bca681e9c9460a7ad2e72a4ad400bce1e5f0c079e1a1b6cfd23539aca23",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_PROVIA_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/provia/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/sepia",
+      "resource_sha256": "6eb1ece55e3e17240947da1754959d1508ed6bf9d0add4ab819f7a9430bb8faf",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_SEPIA_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/sepia/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100/velvia",
+      "resource_sha256": "5a713a07499dc0d0af650a380b9499e9a3fb69dd4848bc37adbfdff855a61b1b",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX_100_VELVIA_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100/velvia/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100ii/reala_ace",
+      "resource_sha256": "aae55d2e212ee3a53ae51b7b35da2231c155e9e352582db8164e20c4c491436b",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX100_II_REALA_ACE_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100ii/reala_ace/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "gfx100s/nostalgic_neg",
+      "resource_sha256": "2cc0c69c3c772afd3fbeafeb8e064ade136620271504cc7a795b7beb7ea8b32c",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_GFX100S_NOSTALGIC_NEG_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/gfx100s/nostalgic_neg/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/acros",
+      "resource_sha256": "e3270d057ef3351765faf0e1984adb867998e50c17d29b1ae5003ae816fdda39",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_ACROS_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/acros/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/acros_g_filter",
+      "resource_sha256": "f3fd926c19a77b71d174502f3916759d4b96eca9569eb289d280e0e23c84217a",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_ACROS_G_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/acros_g_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/acros_r_filter",
+      "resource_sha256": "9383523bb2b330f3fac957ab78579dea011c635af294a0d9ef9658050c98f5bd",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_ACROS_R_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/acros_r_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/acros_ye_filter",
+      "resource_sha256": "81c82ac5e6cbfb27d20915080607db594d9ef134c84f3a5b19df3917048ebcb1",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_ACROS_YE_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/acros_ye_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/astia",
+      "resource_sha256": "7e7c46d632cd4e11f90080eb91a54a6933aff0fb90caf64357e03b6745c12d2c",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_ASTIA_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/astia/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/bleach_bypass",
+      "resource_sha256": "87f82be581bc632eb5b18b8893801635751bb2a41f605c94f02c2ffed7ab6204",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_BLEACH_BYPASS_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/bleach_bypass/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/bw",
+      "resource_sha256": "da44bf1d2455bd232269bc5d4a6a9595334f9d9dd8affeb957da6fd453713c6e",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_BW_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/bw/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/classic_chrome",
+      "resource_sha256": "bcdd4b4552c5f309428d5e3ceae0c49c30d46d2b6e7d53e48646b76ee080f3ac",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_CLASSIC_CHROME_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/classic_chrome/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/classic_neg",
+      "resource_sha256": "6e3ffbaccae1f7ce69ebfe62ee89310dbdd2713e2c83889118a6a0ca62ae9997",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_CLASSIC_NEG_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/classic_neg/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/eterna",
+      "resource_sha256": "7265016b3dfc415308c6b2605a255a6258649848dd740f807a8181d0b10d9d4e",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_ETERNA_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/eterna/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/mono_g_filter",
+      "resource_sha256": "427897c75e2c686f22decad773b2ab60221bb95059347bd30d2de2ef6d6e52f5",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_MONO_G_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/mono_g_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/mono_r_filter",
+      "resource_sha256": "af36bcccbf8120e51243834d9e3d734d863a08ff278e1c6b2139772972b18290",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_MONO_R_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/mono_r_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/mono_ye_filter",
+      "resource_sha256": "bd66f323c49d9403bc49df78585184e8ae0dd0973999d76f77dc415cb8d9621f",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_MONO_YE_FILTER_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/mono_ye_filter/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/nostalgic_neg",
+      "resource_sha256": "580d17e14de26dad7ad04820bec0c610b4333f1868ffa28c96b4f90cdb11c71a",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_NOSTALGIC_NEG_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/nostalgic_neg/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/pro_neg_hi",
+      "resource_sha256": "b6187d71682e2ea13787350d5e0741201646fe444810567029fd5eb04a46dc0b",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_PRO_NEG_HI_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/pro_neg_hi/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/pro_neg_std",
+      "resource_sha256": "c640fe8d52a6675aa042ddb833b7bcafc12c392b4ebce5145f0de183ff51af0d",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_PRO_NEG_STD_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/pro_neg_std/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/provia",
+      "resource_sha256": "3cbb811bb0e55e9aa1d2c65646bc05bf1ada322c2c04bf457c33322450768d9f",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_PROVIA_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/provia/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/sepia",
+      "resource_sha256": "636a9262d0dd91971176e10d09decaea790f76aff6d1ffa9e14e33d6cf2c71a0",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_SEPIA_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/sepia/native",
+        "--identity-header"
+      ]
+    },
+    {
+      "asset": "xh2s/velvia",
+      "resource_sha256": "d3ac5d4c735efaa1293f0e4244ec5803c0e4cf9c4bec3f13bc7ef78d44203fda",
+      "samples": 29010,
+      "read_matrix_is_identity": true,
+      "identical_to_original_header": {
+        ".lut": true,
+        ".gamma-in": true,
+        ".gamma-out": true,
+        ".trilinear": true,
+        ".dispatch": true
+      },
+      "command": [
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/probe",
+        "/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/SILKYPIX8",
+        "/private/tmp/ffcs-audit-expanded-20261013/Installer.pkg/Payload/RAW FILE CONVERTER EX 3.0 powered by SILKYPIX.app/Contents/Frameworks/SILKYPIX8.framework/Versions/A/Resources/ColorModeData/CAM_FUJI_XH2S_VELVIA_ISLRGB.s3d",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/independent-all/input-bgr16.bin",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/ffcs/header-before-read/xh2s/velvia/native",
+        "--identity-header"
+      ]
+    }
+  ],
+  "skipped_v1": [
+    "xa3/astia",
+    "xa3/bw",
+    "xa3/classic_chrome",
+    "xa3/mono_g_filter",
+    "xa3/mono_r_filter",
+    "xa3/mono_ye_filter",
+    "xa3/pro_neg_hi",
+    "xa3/pro_neg_std",
+    "xa3/provia",
+    "xa3/sepia",
+    "xa3/velvia"
+  ],
+  "status": "passed-v2-header-matrix-isolation",
+  "scope": "Only a process-local V2 byte copy changes: nine int32 matrix entries at offset 28. Original resource hashes remain unchanged."
+}
