@@ -17,6 +17,11 @@ struct EmptyVector {
     void* values[3]{};
     ~EmptyVector() {}
 };
+struct BorrowedShared {
+    void* value = nullptr;
+    void* owner = nullptr;
+    ~BorrowedShared() {}
+};
 }
 
 extern "C" int apply_phocus_filter(
@@ -96,4 +101,13 @@ extern "C" int construct_phocus_saturation(void* filter, int saturation,
     } catch (...) {
         return -2;
     }
+}
+
+extern "C" int construct_phocus_gradation(void* filter,void* curves,bool recover_hue,void* address) {
+    if(!filter||!curves||!address)return -1;
+    try {
+        BorrowedShared shared;shared.value=curves;
+        reinterpret_cast<void(*)(void*,BorrowedShared,bool)>(address)(filter,shared,recover_hue);
+        return 0;
+    }catch(...){return -2;}
 }

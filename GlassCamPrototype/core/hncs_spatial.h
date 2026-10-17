@@ -1,6 +1,7 @@
 #ifndef GLASSCAM_HNCS_SPATIAL_H
 #define GLASSCAM_HNCS_SPATIAL_H
 #include <stddef.h>
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -51,6 +52,16 @@ int hncs_apply_spatial_native_sharpness_file(const char *work_rgb_path,
 /* Factory native USM gate after the Standard/tool overlay: 1 active, 0 bypass,
  * -1 unknown key. Independent of the legacy portable catalog's optional flags. */
 int hncs_native_sharpness_enabled(const char *preset_key);
+/* Prepared X2D II HDR gamma/gradation RGB16 -> original full-resolution USM.
+ * Standard/Nature factory controls and the RAW BaselineSharpness; HDR amount
+ * and noise tables use the original 5.8829245141 work-domain factor.
+ * No pixel exposure multiplier, grain, local layers, lens compensation,
+ * preview radius scaling or output ICC. Image edges are replicated.
+ * Source and output must be disjoint packed RGB16 frames. 0 success, -1 invalid
+ * input, -2 allocation failure (discard the output on any failure).
+ */
+int hncs_render_x2d_hdr_sharpness(const uint16_t *input_rgb, uint16_t *output_rgb,
+    size_t width, size_t height, const char *preset_key, double baseline_sharpness);
 #ifdef __cplusplus
 }
 #endif

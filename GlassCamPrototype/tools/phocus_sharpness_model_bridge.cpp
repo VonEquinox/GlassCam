@@ -5,6 +5,9 @@ using hncs_phocus_sharpness::Context;
 extern "C" void* sharpness_model_create(int nominal, double radius, int noise, int dark, double baseline) {
     try { return new Context(nominal, radius, noise, dark, baseline); } catch (...) { return nullptr; }
 }
+extern "C" void* sharpness_model_create_scaled(int nominal, double radius, int noise, int dark, double baseline, double hdr_scale) {
+    try { return new Context(nominal, radius, noise, dark, baseline, hdr_scale); } catch (...) { return nullptr; }
+}
 extern "C" void sharpness_model_destroy(void* value) { delete static_cast<Context*>(value); }
 extern "C" int sharpness_model_tables(void* value, int32_t* amount, uint8_t* noise, uint32_t* weights) {
     if (!value || !amount || !noise || !weights) return -1;

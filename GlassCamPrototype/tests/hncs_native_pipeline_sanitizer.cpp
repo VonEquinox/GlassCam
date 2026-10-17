@@ -66,5 +66,28 @@ int main() {
         source.back() = std::numeric_limits<float>::infinity();
         assert(hncs_apply_spatial_native_sharpness(source.data(), width, height, "standard", 0, 1, 1.5) == -1);
     }
-    std::printf("PASS: %zu native stage/spatial comparisons, invalid sizes, NaN/Inf and cancellation under ASan/UBSan\n", calls);
+    for(const auto shape : {std::array<size_t,2>{1,1},{1,17},{19,1},{7,131},{8203,5}}) {
+        const size_t width=shape[0],height=shape[1],count=width*height;
+        std::vector<double> source(count*3);
+        std::vector<uint16_t> color(count*3),post(count*3),graded(count*3),sharp(count*3);
+        for(size_t i=0;i<source.size();++i)source[i]=double((i*991)%65536)/65535.;
+        auto* context=hncs_create_mode(0.,5500.,0,0);assert(context);
+        assert(hncs_render_x2d_hdr_color(context,4.643616364582644,source.data(),color.data(),count)==0);
+        hncs_destroy(context);
+        assert(hncs_render_x2d_hdr_post(color.data(),post.data(),count,50.,50.,0)==0);
+        auto inplace=color;
+        assert(hncs_render_x2d_hdr_post(inplace.data(),inplace.data(),count,50.,50.,0)==0);
+        assert(inplace==post);
+        for(const char* key : {"standard","nature"}) {
+            assert(hncs_apply_x2d_hdr_gradation(key,post.data(),graded.data(),count)==0);
+            assert(hncs_render_x2d_hdr_sharpness(graded.data(),sharp.data(),width,height,key,1.5)==0);
+            assert(hncs_render_x2d_hdr_sharpness(graded.data(),graded.data(),width,height,key,1.5)==-1);
+            assert(hncs_render_x2d_hdr_sharpness(graded.data(),sharp.data(),0,height,key,1.5)==-1);
+            ++calls;
+        }
+        assert(hncs_apply_x2d_hdr_gradation("missing",post.data(),graded.data(),count)==-1);
+        assert(hncs_render_x2d_hdr_post(color.data(),post.data(),count,50.,50.,2)==-1);
+        assert(hncs_render_x2d_hdr_post(color.data(),post.data(),std::numeric_limits<size_t>::max(),50.,50.,0)==-1);
+    }
+    std::printf("PASS: %zu native stage/spatial comparisons, HDR stages, invalid sizes, NaN/Inf and cancellation under ASan/UBSan\n", calls);
 }

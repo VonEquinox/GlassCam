@@ -120,16 +120,16 @@ def main():
     params = c.create_string_buffer(0x1000)
     probe.n.fn(probe.n.util, "_ZN9CFileSpecC1Ev", [c.c_void_p])(params)
     fn = adapter.render_x2d_crop
-    fn.argtypes = [c.c_void_p] * 9 + [c.c_int, c.c_bool, c.c_char_p, c.c_bool, c.c_char_p] + [c.c_int] * 6 + [c.c_void_p] * 3
+    fn.argtypes = [c.c_void_p] * 10 + [c.c_int, c.c_bool, c.c_char_p, c.c_bool, c.c_char_p] + [c.c_int] * 6 + [c.c_void_p] * 3
     fn.restype = c.c_int
     left, top, width, height = args.crop
     metadata = (c.c_uint * 4)()
-    color_contract = (c.c_double * 33)()
+    color_contract = (c.c_double * 43)()
     values = probe.metadata()
     source_width = values["description"]["GetRawWidth"]
     source_height = values["description"]["GetRawHeight"]
     output = np.zeros(width * height * 4, dtype=np.uint16)
-    result = fn(probe.n.image._handle, probe.n.util._handle, probe.raw, probe.description,
+    result = fn(probe.n.image._handle, probe.n.util._handle, probe.storage._handle, probe.raw, probe.description,
                 settings.correction, settings.curves, params, image_description, output_preset,
                 int(args.stage == "specific"), args.parameter_builder == "export",
                 args.stop_filter.encode() if args.stop_filter else None, args.before_filter,
@@ -161,6 +161,8 @@ def main():
             "filter_exposure": color_contract[2], "outer_1f8": color_contract[3], "outer_248": color_contract[4],
             "shadow": list(color_contract)[5:9], "incoming": list(color_contract)[9:18],
             "outgoing": list(color_contract)[18:27], "linearization_lengths": list(color_contract)[27:33]},
+        "hdr_post_contract": {"highlight_parameters": list(color_contract)[33:35], "gamma_lstar": bool(color_contract[35])},
+        "sharpness_contract": dict(zip(["effective_amount", "radius", "noise", "dark", "image_scale", "hdr_scale", "extra_lines"], list(color_contract)[36:43])),
         "buffer_metadata": list(metadata), "pixel_sha256": sha(out / "native-crop.npy"),
         "pixel_range": [int(pixels.min()), int(pixels.max())], "factory_xml_sha256": sha(factory)}, indent=2) + "\n")
     print(json.dumps({"metadata": list(metadata), "parameters": scalars, "range": [int(pixels.min()), int(pixels.max())]}))

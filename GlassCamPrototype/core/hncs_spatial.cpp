@@ -402,6 +402,25 @@ extern "C" int hncs_native_sharpness_enabled(const char *key) {
     return -1;
 }
 
+extern "C" int hncs_render_x2d_hdr_sharpness(const uint16_t *input,uint16_t *output,
+                                             size_t w,size_t h,const char *key,double baseline) {
+    try {
+        const size_t n=dimensions(w,h,0,1);
+        if(!input||!output||!key||!std::isfinite(baseline)||baseline<0.||
+           (std::strcmp(key,"standard")!=0&&std::strcmp(key,"nature")!=0))return -1;
+        const auto a=reinterpret_cast<uintptr_t>(input),b=reinterpret_cast<uintptr_t>(output);
+        if((a<b?b-a:a-b)<n*3*sizeof(uint16_t))return -1;
+        for(const auto &cfg:kNativeSharpnessPresets)if(std::strcmp(cfg.key,key)==0) {
+            const hncs_phocus_sharpness::Context kernel(cfg.amount,cfg.radius,cfg.noise,cfg.dark,baseline,5.8829245141);
+            kernel.render(input,output,w,h);
+            return 0;
+        }
+        return -1;
+    }catch(const Failure &e){return e.code;}
+     catch(const std::invalid_argument&){return -1;}
+     catch(...){return -2;}
+}
+
 extern "C" int hncs_apply_spatial_preset(float *work,size_t w,size_t h,const char *key,int grain,int sharp) {
     try{dimensions(w,h,grain,sharp);if(!work)throw Failure{-1};const auto &cfg=preset(key);Memory store(work);process(store,w,h,cfg,grain,sharp,{nullptr,nullptr,nullptr});return 0;}
     catch(const Failure &e){return e.code;}catch(...){return -2;}

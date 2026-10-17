@@ -59,6 +59,8 @@ TARGETS = {
         ("ProfileFromFile", 0x83008),
         ("ProfileFromEnum", 0x82d7c),
         ("SetColorManager", 0x8271c),
+        ("CorrectionInputProfile", 0x148504),
+        ("ManagerInputProfile", 0x830f8),
     ],
     "HBImageProcessing": [
         ("AddBaseFilters", 0xefff0),
@@ -86,8 +88,19 @@ TARGETS = {
         ("ColorSyncConstructor", 0x7b6dc),
         ("GainReduction", 0xff43c),
         ("HighlightStrengthConstructor", 0x1a804),
+        ("HighlightStrengthResult", 0x1a8a0),
         ("HighlightStrengthPixel", 0x1af5c),
         ("GammaConstructor", 0x44c4c),
+        ("GammaResult", 0x44d40),
+        ("HasselbladGamma", 0x44cd8),
+        ("HasselbladLStar", 0x44ce4),
+        ("HDRSharpnessContext", 0x95d20),
+        ("HDRSharpnessAmountTable", 0x95eac),
+        ("HDRSharpnessNoiseTable", 0x9605c),
+        ("CalculatedCurvesConstructor", 0x12d66c),
+        ("CalculateCurveHDR", 0x12d5a0),
+        ("GradationConstructor", 0x474a0),
+        ("GradationResult", 0x47930),
     ],
 }
 

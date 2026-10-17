@@ -1,0 +1,200 @@
+{
+  "status": "passed",
+  "cases": [
+    {
+      "name": "hdr-daylight-standard-white",
+      "preset": "standard",
+      "baseline_sharpness": 1.5,
+      "stages": [
+        {
+          "stage": "color",
+          "excluded_crop_border": 0,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "highlight-and-gamma",
+          "excluded_crop_border": 0,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "gradation",
+          "excluded_crop_border": 0,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "chain-through-sharpness",
+          "excluded_crop_border": 4,
+          "channels": 9408,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "isolated-sharpness",
+          "excluded_crop_border": 4,
+          "channels": 9408,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        }
+      ],
+      "source_sha256": {
+        "input": "6d6b0f3b01933601f00a65530371cdc5cef285c9576c10331719eed2c49d86d5",
+        "color": "faa230bad4258d2075aff39e674c3dd4fe23e3962a8627c7ef0430292f129106",
+        "highlight": "5e0c020aad2ed2742eea5a869a0631369f3d01eb2622bd75c7a1f450d067ce88",
+        "gamma": "2d2ef28a73d32c830db08005954dd59e7b48b16e16adbcbb2a2edf00df642480",
+        "gradation": "0d66bd555e85ced0a3b24450f7e60c9c75b5d9366f4722dc5d1e7015732bf91b",
+        "sharpness": "fedb90139f0ee4ab6bcf857a77157b0490e243d72d5206c93bd1bb882d4ea757"
+      }
+    },
+    {
+      "name": "hdr-daylight-nature-red",
+      "preset": "nature",
+      "baseline_sharpness": 1.5,
+      "stages": [
+        {
+          "stage": "color",
+          "excluded_crop_border": 0,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "highlight-and-gamma",
+          "excluded_crop_border": 0,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "gradation",
+          "excluded_crop_border": 0,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "chain-through-sharpness",
+          "excluded_crop_border": 4,
+          "channels": 9408,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "isolated-sharpness",
+          "excluded_crop_border": 4,
+          "channels": 9408,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        }
+      ],
+      "source_sha256": {
+        "input": "e11043a99a5cbc8d79401d043244aa088835d525abd0b70e2f50fd54f67ef5fb",
+        "color": "f188218f3cd6efb7a4e03169ed19cc134da6818cb2f067828e6366a675f1339d",
+        "highlight": "f188218f3cd6efb7a4e03169ed19cc134da6818cb2f067828e6366a675f1339d",
+        "gamma": "bb8ca720fb8811203176514465c5579700cf791219980e5aaba08f5e52229d64",
+        "gradation": "494ba5eb4ac415e5c72ca109e7fe16ce93e0dd7a242a2e1bbef9478ab6cec23a",
+        "sharpness": "4248ddf79bfb80f62ad3fbc93866f8e47829be49fa27e759cf87925bababa62e"
+      }
+    },
+    {
+      "name": "hdr-lowlight-standard-black",
+      "preset": "standard",
+      "baseline_sharpness": 1.5,
+      "stages": [
+        {
+          "stage": "color",
+          "excluded_crop_border": 0,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "highlight-and-gamma",
+          "excluded_crop_border": 0,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "gradation",
+          "excluded_crop_border": 0,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "chain-through-sharpness",
+          "excluded_crop_border": 4,
+          "channels": 9408,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        },
+        {
+          "stage": "isolated-sharpness",
+          "excluded_crop_border": 4,
+          "channels": 9408,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        }
+      ],
+      "source_sha256": {
+        "input": "9538f3e517214532a44e6c9087a7c890eab30764c4344b2aa98ad1a0c1a5d3d2",
+        "color": "0c7aece4aa40fc075de2e2041f3d9c0bf0be5ba8d715b5a412c90be98ac26166",
+        "highlight": "0c7aece4aa40fc075de2e2041f3d9c0bf0be5ba8d715b5a412c90be98ac26166",
+        "gamma": "b3ea47309808c46b76d5ecf7670779700966740c5e0b49b044abafae2c297021",
+        "gradation": "e713822890f7d31904f5e7e26bc29dff2628a7601a7ab04d374ceb80d0ef1e74",
+        "sharpness": "56f8f953e23a5f2f455d22c24d2e66dc6e17fe6f64eccf094e10c3a3a4964c05"
+      }
+    }
+  ],
+  "compile": [
+    "xcrun",
+    "clang++",
+    "-std=c++17",
+    "-O3",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-dynamiclib",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs.cpp",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_spatial.cpp",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_numpy_rng.cpp",
+    "-o",
+    "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/hdr-chain-correct-tables/core.dylib"
+  ],
+  "manifest_sha256": "20c1994d0dcc7565eb3fb1f535d875207c9c3dc6806b29b416b96715041510a2",
+  "source_sha256": {
+    "tools/verify_x2d_hdr_chain.py": "0e6f9356cbc3bdb75d136cbae677f6fa830c43febb848be23e25bdbe7369c30f",
+    "core/hncs.cpp": "9c10a7805458cc5cf45e770d93701bb6c70217b072b7560bee554a2bc80bccd2",
+    "core/hncs_spatial.cpp": "8366d85071be53ae148211510f7064518f3666879e9a1a55e9f9c46e201bdcc2",
+    "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+    "core/hncs_x2d_hdr_gradation.inc": "42fac9d8b21622dfb236f59f3fd81dc59b0eda28eab51a49c423e9e746a1dbda",
+    "core/hncs_phocus_hdr.hpp": "fc3da76c64106c0e61317471c5622c72821b78fa1260125c466f9ba1e94aeec7",
+    "core/hncs_phocus_hdr_post.hpp": "c8f8d7ec4b6ec67b8e1ae4add8270345ab7385df9f18c5445a7a43127c9130e0",
+    "core/hncs_phocus_post.hpp": "60b9f87c39b8301c6bb04411855d94c2b0448e0771dea0d79ba2fbb05dcdfdb3",
+    "core/hncs_phocus_sharpness.hpp": "79d10d2d8508df14d9519a77d4af140038bed7730fa3f69d45ed81b29fc95d34"
+  },
+  "scope": "Prepared original RAW input through HDR color, default 50/50 highlight, gamma, factory gradation and HDR USM; no independent RAW decoder or final ICC."
+}

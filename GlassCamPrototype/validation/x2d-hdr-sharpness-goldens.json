@@ -1,0 +1,6 @@
+{
+  "vectors": "x2d-hdr-sharpness-goldens.npz",
+  "vectors_sha256": "3ea2744451a9b10adc3133ab418a52ae5c647fe11a507fa8898a80d8daedfe7d",
+  "native_capture": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/hdr-sharpness",
+  "hdr_scale": 5.8829245141
+}

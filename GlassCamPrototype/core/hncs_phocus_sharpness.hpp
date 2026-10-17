@@ -1,6 +1,6 @@
 // Phocus 4.2.2 CPU sharpness equations, reconstructed from the original arm64
-// functions and checked with direct native calls. Non-HDR, full-resolution
-// scale, no local adjustment layers. This header does not load Phocus binaries.
+// functions and checked with direct native calls. Full-resolution scale,
+// no local adjustment layers. This header does not load Phocus binaries.
 #pragma once
 #include <algorithm>
 #include <array>
@@ -31,8 +31,9 @@ struct Context {
     unsigned count = 0;
     int amount = 0;
 
-    Context(int nominal, double radius, int noise, int dark, double baseline = 0.) {
-        if (!std::isfinite(radius) || noise < 0 || noise > 255 || dark < -32768 || dark > 32767)
+    Context(int nominal, double radius, int noise, int dark, double baseline = 0., double hdr_scale = 1.) {
+        if (!std::isfinite(radius) || !std::isfinite(hdr_scale) || hdr_scale <= 0. || hdr_scale > 64. ||
+            noise < 0 || noise > 255 || dark < -32768 || dark > 32767)
             throw std::invalid_argument("Invalid native sharpness parameters");
         const double resolved = effective_amount(nominal, baseline);
         if (!std::isfinite(resolved) || resolved < double(INT32_MIN) || resolved > double(INT32_MAX))
@@ -46,7 +47,9 @@ struct Context {
         // These power-of-two operations appear explicitly in CalcAmountTab.
         knee = (knee * (1.f / 16384.f)) * 16384.f;
         for (unsigned i = 0; i < amount_table.size(); ++i) {
-            const float x = float(i);
+            // Original HDR table addressing converts the domain factor to
+            // Float32 before multiplying; it is not a second pixel exposure.
+            const float x = float(i) * float(hdr_scale);
             float value = a;
             if (amount > 0) {
                 if (x < threshold) {
@@ -69,7 +72,7 @@ struct Context {
             amount_table[i] = int32_t(value);
             const unsigned limit = uint16_t(unsigned(noise) << 6);
             const unsigned transition = std::max(limit >> 2, 128u);
-            float strength = (x - float(int(limit) - int(transition))) / float(transition);
+            float strength = ((x * (1.f / 16384.f)) * 16384.f - float(int(limit) - int(transition))) / float(transition);
             strength = std::max(0.f, std::min(strength, 1.f));
             noise_table[i] = uint8_t(strength * 255.f);
         }

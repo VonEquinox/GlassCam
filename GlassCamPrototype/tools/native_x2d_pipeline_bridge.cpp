@@ -18,6 +18,7 @@ struct Rect { alignas(8) unsigned char bytes[32]{}; ~Rect() {} };
 struct Processor { alignas(8) unsigned char bytes[32]{}; ~Processor() {} };
 struct Pointer { void* value = nullptr; ~Pointer() {} };
 struct Profile { alignas(8) unsigned char bytes[256]{}; ~Profile() {} };
+struct FileSpec { alignas(8) unsigned char bytes[64]{}; ~FileSpec() {} };
 struct Parameters { alignas(8) unsigned char bytes[512]{}; ~Parameters() {} };
 struct ByteSpan { const unsigned char* data; std::size_t size; };
 struct Size { int width, height; };
@@ -69,7 +70,7 @@ extern "C" void* cached_x2d_description(void* storage_library, void* raw) {
 }
 
 extern "C" int render_x2d_crop(
-    void* image_library, void* util_library, void* raw, void* description,
+    void* image_library, void* util_library, void* storage_library, void* raw, void* description,
     void* correction, void* curves, void* parameters, void* image_description,
     void* output_preset, int stage, bool export_parameters,
     const char* stop_filter, bool before_filter,
@@ -119,6 +120,19 @@ extern "C" int render_x2d_crop(
                 while (selected) {
                     auto* bytes = static_cast<unsigned char*>(selected.get());
                     const auto& id = *reinterpret_cast<const std::string*>(bytes + 0x20);
+                    if (id == "HighlightStrength") {
+                        std::memcpy(color_contract + 33, bytes + 0x48, 2 * sizeof(double));
+                    } else if (id == "gamma") {
+                        color_contract[35] = bytes[0x48] ? 1. : 0.;
+                    } else if (id == "sharpness") {
+                        int value=0;
+                        std::memcpy(&value,bytes+0x48,4);color_contract[36]=value;
+                        std::memcpy(color_contract+37,bytes+0x50,8);
+                        std::memcpy(&value,bytes+0x58,4);color_contract[38]=value;
+                        std::memcpy(&value,bytes+0x5c,4);color_contract[39]=value;
+                        std::memcpy(color_contract+40,bytes+0x60,16);
+                        std::memcpy(&value,bytes+0x70,4);color_contract[42]=value;
+                    }
                     if (id == "colorCorrect") {
                         unsigned char* outer = nullptr;
                         std::memcpy(&outer, bytes + 0x48, sizeof outer);
@@ -157,6 +171,22 @@ extern "C" int render_x2d_crop(
             std::fprintf(stderr, "native SetSharedInstance\n"); std::fflush(stderr);
             function<void (*)(Shared)>(image_library,
                 "_ZN13CColorManager17SetSharedInstanceENSt3__110shared_ptrIS_EE")(borrowed(manager));
+            // GetInputProfile is local in hash-locked HBStorage; resolve its
+            // recorded address relative to exported GetProfileInfo (arm64).
+            const auto storage_base=reinterpret_cast<uintptr_t>(function<void(*)()>(storage_library,
+                "_ZN13CColorManager14GetProfileInfoE15SpecialProfiles"))-0x82d7c;
+            FileSpec input_spec=reinterpret_cast<FileSpec(*)(const void*)>(storage_base+0x148504)(correction);
+            const auto* correction_bytes=static_cast<const unsigned char*>(correction);
+            int version=0;std::memcpy(&version,correction_bytes+0x408,4);
+            const bool hdr=version>3&&correction_bytes[0x290];
+            Profile input_profile=function<Profile(*)(void*,bool,FileSpec,bool)>(storage_library,
+                "_ZN13CColorManager15GetInputProfileEb9CFileSpecb")(
+                    manager,correction_bytes[0x91]!=0,input_spec,hdr);
+            int profile_type=0,profile_enum=0;
+            std::memcpy(&profile_type,input_profile.bytes+0x50,4);
+            std::memcpy(&profile_enum,input_profile.bytes+0x54,4);
+            std::fprintf(stderr,"native input ICC: %s; type=%d enum=%d HDR=%d\n",
+                reinterpret_cast<const std::string*>(input_profile.bytes)->c_str(),profile_type,profile_enum,int(hdr));
             std::ifstream profile_file(output_profile, std::ios::binary);
             std::vector<unsigned char> profile_data((std::istreambuf_iterator<char>(profile_file)), {});
             if (profile_data.empty()) throw std::runtime_error("Empty original output ICC profile");

@@ -1,0 +1,238 @@
+{
+  "cases": [
+    {
+      "prefix": "case_0",
+      "stage": 0,
+      "amount": 0.0,
+      "saturation": 0.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_1",
+      "stage": 0,
+      "amount": 0.0,
+      "saturation": 50.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_2",
+      "stage": 0,
+      "amount": 0.0,
+      "saturation": 100.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_3",
+      "stage": 0,
+      "amount": 50.0,
+      "saturation": 0.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_4",
+      "stage": 0,
+      "amount": 50.0,
+      "saturation": 50.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_5",
+      "stage": 0,
+      "amount": 50.0,
+      "saturation": 100.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_6",
+      "stage": 0,
+      "amount": 100.0,
+      "saturation": 0.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_7",
+      "stage": 0,
+      "amount": 100.0,
+      "saturation": 50.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_8",
+      "stage": 0,
+      "amount": 100.0,
+      "saturation": 100.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_9",
+      "stage": 0,
+      "amount": 91.15526119369196,
+      "saturation": 31.376880311905996,
+      "lstar": false
+    },
+    {
+      "prefix": "case_10",
+      "stage": 0,
+      "amount": 65.044056444139,
+      "saturation": 81.27555217820085,
+      "lstar": false
+    },
+    {
+      "prefix": "case_11",
+      "stage": 0,
+      "amount": 10.44641571332674,
+      "saturation": 50.983691140446616,
+      "lstar": false
+    },
+    {
+      "prefix": "case_12",
+      "stage": 0,
+      "amount": 45.49180251326235,
+      "saturation": 12.214739754431847,
+      "lstar": false
+    },
+    {
+      "prefix": "case_13",
+      "stage": 0,
+      "amount": 36.109471013522146,
+      "saturation": 59.64339554964474,
+      "lstar": false
+    },
+    {
+      "prefix": "case_14",
+      "stage": 0,
+      "amount": 70.4262169514924,
+      "saturation": 66.94136670698664,
+      "lstar": false
+    },
+    {
+      "prefix": "case_15",
+      "stage": 0,
+      "amount": 87.20702775489139,
+      "saturation": 52.09838942035564,
+      "lstar": false
+    },
+    {
+      "prefix": "case_16",
+      "stage": 0,
+      "amount": 10.20973774135886,
+      "saturation": 56.395203959245634,
+      "lstar": false
+    },
+    {
+      "prefix": "case_17",
+      "stage": 0,
+      "amount": 81.37839207058944,
+      "saturation": 26.878023369926897,
+      "lstar": false
+    },
+    {
+      "prefix": "case_18",
+      "stage": 0,
+      "amount": 8.53924337094696,
+      "saturation": 33.42431895001593,
+      "lstar": false
+    },
+    {
+      "prefix": "case_19",
+      "stage": 0,
+      "amount": 41.90104059380002,
+      "saturation": 33.2636835134941,
+      "lstar": false
+    },
+    {
+      "prefix": "case_20",
+      "stage": 0,
+      "amount": 32.69871416524472,
+      "saturation": 24.870892005898305,
+      "lstar": false
+    },
+    {
+      "prefix": "case_21",
+      "stage": 0,
+      "amount": 64.41361822871295,
+      "saturation": 60.24127652456826,
+      "lstar": false
+    },
+    {
+      "prefix": "case_22",
+      "stage": 0,
+      "amount": 36.23625843650653,
+      "saturation": 63.69221164048928,
+      "lstar": false
+    },
+    {
+      "prefix": "case_23",
+      "stage": 0,
+      "amount": 83.06414686705375,
+      "saturation": 32.844451571860276,
+      "lstar": false
+    },
+    {
+      "prefix": "case_24",
+      "stage": 0,
+      "amount": 56.69845056516707,
+      "saturation": 46.03086448185674,
+      "lstar": false
+    },
+    {
+      "prefix": "case_25",
+      "stage": 1,
+      "amount": 0.0,
+      "saturation": 0.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_26",
+      "stage": 1,
+      "amount": 0.0,
+      "saturation": 0.0,
+      "lstar": true
+    },
+    {
+      "prefix": "case_27",
+      "stage": 2,
+      "amount": 0.0,
+      "saturation": 0.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_28",
+      "stage": 2,
+      "amount": 0.0,
+      "saturation": 0.0,
+      "lstar": true
+    },
+    {
+      "prefix": "case_29",
+      "stage": 2,
+      "amount": 50.0,
+      "saturation": 50.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_30",
+      "stage": 2,
+      "amount": 50.0,
+      "saturation": 50.0,
+      "lstar": true
+    },
+    {
+      "prefix": "case_31",
+      "stage": 2,
+      "amount": 100.0,
+      "saturation": 100.0,
+      "lstar": false
+    },
+    {
+      "prefix": "case_32",
+      "stage": 2,
+      "amount": 100.0,
+      "saturation": 100.0,
+      "lstar": true
+    }
+  ],
+  "vectors_sha256": "8fc006ff8a87a61d3559d450910dda453c0a369f0180f689407357c21cd533f1",
+  "vectors": "x2d-hdr-post-goldens.npz",
+  "native_capture": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/hdr-post-production"
+}

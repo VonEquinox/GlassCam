@@ -1,0 +1,27 @@
+{
+  "cases": [
+    {
+      "prefix": "case_0",
+      "preset": "standard",
+      "recover_hue": false
+    },
+    {
+      "prefix": "case_1",
+      "preset": "standard",
+      "recover_hue": true
+    },
+    {
+      "prefix": "case_2",
+      "preset": "nature",
+      "recover_hue": false
+    },
+    {
+      "prefix": "case_3",
+      "preset": "nature",
+      "recover_hue": true
+    }
+  ],
+  "vectors_sha256": "97b2bf7b6e61be2ab5683cdb8c80dfc72a2a127fcd0de96bf9b1bcc69354e8f0",
+  "vectors": "x2d-hdr-gradation-goldens.npz",
+  "native_capture": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/hdr-gradation-original"
+}

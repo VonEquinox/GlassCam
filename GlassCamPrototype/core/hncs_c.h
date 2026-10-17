@@ -81,6 +81,26 @@ int hncs_render_native(const hncs_context *context, const double *native_rgb,
 int hncs_render_x2d_hdr_color(const hncs_context *context,
     double native_processing_gain, const double *native_rgb,
     uint16_t *hdr_working_rgb, size_t pixel_count);
+/* Original HDR color-stage codes -> HighlightStrength -> HDR gamma work codes.
+ * The two strength controls are finite values in [0,100], native defaults 50/50.
+ * lstar=0 selects legacy gamma, 1 selects L*; it is NOT an inverse-gamma flag.
+ * This must match the working primaries selected for the HDR color stage.
+ * Preserves native FMA, Float32 HSL boundaries and round-away-from-zero codes.
+ * No gradation, spatial, output ICC or Apple source adaptation is applied.
+ * Exact in-place operation is supported; partial overlap is rejected.
+ * Returns 0 on success, -1 on invalid parameters, with no writes on error. */
+int hncs_render_x2d_hdr_post(const uint16_t *hdr_working_rgb,
+    uint16_t *gamma_working_rgb, size_t pixel_count,
+    double highlight_amount, double highlight_saturation, int lstar);
+/* Original Standard/Nature HDR gradation, after HDR gamma and before USM.
+ * Exact original UInt16 tables for ExpToolVersion 4, default factory tone,
+ * gamma/highlight/shadow controls, and RecoverHue enabled. No user curve edits.
+ * Valid keys are "standard" / "nature"; working codes are not display sRGB.
+ * Source/output may be disjoint or exactly in-place; partial overlap is invalid.
+ * 0 success, -1 invalid/unsupported input, with no writes on argument error. */
+int hncs_apply_x2d_hdr_gradation(const char *preset_key,
+    const uint16_t *gamma_working_rgb, uint16_t *gradation_working_rgb,
+    size_t pixel_count);
 
 /* Revision-8 additive API. Old constructors and their output are unchanged.
  * capture_kelvin chooses the experimental Apple-linear-RGB source bridge.

@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=181019)
     parser.add_argument("--optimization", choices=["O0", "O3"], default="O3")
+    parser.add_argument("--hdr-scale", type=float, choices=[1., 5.8829245141], default=1.)
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     ref, out = args.reference_root.resolve(), args.output_dir.resolve()
@@ -47,8 +48,8 @@ def main():
     native_filters = Filters(n, out / "native.dylib")
     storage = c.CDLL(str(verified_framework("HBStorage")))
     model = c.CDLL(str(out / "model.dylib"))
-    model.sharpness_model_create.argtypes = [c.c_int, c.c_double, c.c_int, c.c_int, c.c_double]
-    model.sharpness_model_create.restype = c.c_void_p
+    model.sharpness_model_create_scaled.argtypes = [c.c_int, c.c_double, c.c_int, c.c_int, c.c_double, c.c_double]
+    model.sharpness_model_create_scaled.restype = c.c_void_p
     model.sharpness_model_destroy.argtypes = [c.c_void_p]
     model.sharpness_model_tables.argtypes = [c.c_void_p] * 4
     model.sharpness_model_render.argtypes = [c.c_void_p] * 3 + [c.c_size_t, c.c_size_t]
@@ -79,12 +80,12 @@ def main():
         c.c_int16.from_buffer(settings.correction, 0x262).value = nominal
         native_amount = resolve(settings.correction, baseline, 0)
         cpp_amount = model.sharpness_model_amount(nominal, baseline)
-        context = model.sharpness_model_create(nominal, radius, noise, dark, baseline)
+        context = model.sharpness_model_create_scaled(nominal, radius, noise, dark, baseline, args.hdr_scale)
         assert context
         inner, native_filter = c.create_string_buffer(0x1000), c.create_string_buffer(0x1000)
         h, w = shapes[index % len(shapes)]
-        inner_ctor(inner, w, int(native_amount), radius, noise, dark, 1., 1., 1.)
-        filter_ctor(native_filter, int(native_amount), radius, noise, dark, w, 1., 1.)
+        inner_ctor(inner, w, int(native_amount), radius, noise, dark, 1., 1., args.hdr_scale)
+        filter_ctor(native_filter, int(native_amount), radius, noise, dark, w, 1., args.hdr_scale)
         try:
             def table(offset, dtype, count):
                 address = c.c_void_p.from_buffer(inner, offset).value
@@ -145,7 +146,7 @@ def main():
     assert source_hashes == {str(p): sha(p) for p in sources}
     np.savez_compressed(out / "native-vectors.npz", **vectors)
     report = {"status": "passed" if not failures else "mismatch", "cases": records,
-              "seed": args.seed, "optimization": args.optimization, "patterns": pattern_records,
+              "seed": args.seed, "optimization": args.optimization, "hdr_scale": args.hdr_scale, "patterns": pattern_records,
               "framework_sha256": {name: sha(verified_framework(name)) for name in FRAMEWORK_HASHES},
               "source_sha256": source_hashes, "vectors_sha256": sha(out / "native-vectors.npz"),
               "summary": {"cases": len(records), "failures": len(failures), "pixel_channels": sum(row["pixels"]["channels"] for row in records),
@@ -153,7 +154,7 @@ def main():
                           "pattern_channels": sum(row["channels"] for row in pattern_records),
                           "maximum_uint16_error": max([row["pixels"]["maximum_uint16_error"] for row in records] + [row["maximum_uint16_error"] for row in pattern_records]),
                           "maximum_effective_amount_error": max(row["effective_amount_error"] for row in records)},
-              "scope": "Original CPU CSharpnessFilter at full-resolution scale 1, non-HDR, original CRepeatMarginFilter RGB boundary, no local layers or lens sharpness compensation. Separate integration checks exercise the production API."}
+              "scope": "Original CPU CSharpnessFilter at full-resolution image scale 1, explicitly recorded HDR domain factor, original CRepeatMarginFilter RGB boundary, no local layers or lens sharpness compensation. Separate integration checks exercise the production API."}
     (out / "report.json").write_text(json.dumps(report, indent=2)+"\n")
     print(json.dumps(report["summary"], indent=2), flush=True)
     if failures: raise SystemExit("Original native sharpness mismatch; inspect report.json")

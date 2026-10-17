@@ -1,0 +1,709 @@
+{
+  "status": "original-output-obtained",
+  "cases": [
+    {
+      "name": "hdr-daylight-standard-white-sharpness",
+      "invocation": {
+        "status": "obtained-native-crop",
+        "returncode": 0,
+        "seconds": 1.347470249980688,
+        "compile": [
+          "xcrun",
+          "clang++",
+          "-std=c++17",
+          "-O2",
+          "-g",
+          "-dynamiclib",
+          "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/native_x2d_pipeline_bridge.cpp",
+          "-o",
+          "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/hdr-output-boundaries-v2/hdr-daylight-standard-white-sharpness/native-x2d-bridge.dylib"
+        ],
+        "probe_sha256": "8478af1a0b9c8240aabb63f31f0edff635637fd4bb34deec0a83bf0ab3fc56d4",
+        "bridge_sha256": "e9e7ffec3cc408b522c8dbdb829d4d642a42cb844c9db6e09c67a70b8c84338d",
+        "raw": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/phocus-reference/working/x2dii-daylight_0001.3fr",
+        "raw_sha256": "4f352195f2823a4100c119db7646a8417d0aab6adbbd4db88bf3c3a06c52d163",
+        "preset": "Standard",
+        "stage": "specific",
+        "crop": [
+          4752,
+          2527,
+          64,
+          64
+        ],
+        "stop_filter": null,
+        "before_filter": false,
+        "requested_backend": "cpu",
+        "parameter_builder": "export",
+        "description_source": "cached",
+        "output_profile": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/reference-adobe-rgb.icc",
+        "output_profile_sha256": "304f569a83c1e5eddaddac54e99ed03339333db013738bb499ab64f049887e28",
+        "settings_file": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/phocus-reference/evidence/daylight-standard.phos",
+        "settings_sha256": "fc4cbc24b0662e47b1c73b9dfacc9f8873162d87c09999f6ac0caeecb836084b",
+        "hdr": true,
+        "exposure_ev": 2.0,
+        "temperature": null,
+        "limits": [
+          "This records an original intermediate, not GlassCam equivalence.",
+          "An unavailable stage remains an explicit gap."
+        ]
+      },
+      "metadata": {
+        "native": {
+          "CCDType": 22,
+          "GetBackModel": 71,
+          "GetModel": 99,
+          "GetIsoGain": 1.0653693159208844,
+          "GetSensitivityGain": 1.0,
+          "GetAnalogGain": 1.0,
+          "GetBlackLevel": 4096,
+          "GetFilmCurveType": 2,
+          "GetBaselineSharpness": 1.5,
+          "GetDNGWhiteLevel": 64763,
+          "neutral_success": true,
+          "neutral_gain": [
+            3.06964111328125,
+            1.0,
+            1.41644287109375
+          ],
+          "neutral_calibration_u14": [
+            16384,
+            16570,
+            16649
+          ],
+          "description": {
+            "sensitivity_gain": 1.0,
+            "iso_gain": 1.0653693159208844,
+            "analog_gain": 1.0,
+            "film_curve": 2,
+            "shots": 1,
+            "components": 1,
+            "black_level": 4096,
+            "correction_bits": 1073800702,
+            "back_model": 71,
+            "ccd": 22,
+            "ir_filter": 6,
+            "working_max": 64763,
+            "preprocessed": false,
+            "GetRawWidth": 11904,
+            "GetRawHeight": 8842
+          }
+        },
+        "parameters": {
+          "wb": [
+            3.0696504063233774,
+            1.0,
+            1.4164528348948053
+          ],
+          "ev_multiplier": 4.0,
+          "color_model": 0,
+          "film_curve": 2,
+          "working_space": 0,
+          "hdr": true
+        },
+        "parameter_builder": "export",
+        "description_source": "cached",
+        "constructed_description_fields": {
+          "sensitivity_gain": 1.0,
+          "iso_gain": 1.0653693159208844,
+          "analog_gain": 1.0,
+          "film_curve": 2,
+          "shots": 1,
+          "components": 1,
+          "black_level": 4096,
+          "correction_bits": 1073800702,
+          "back_model": 71,
+          "ccd": 22,
+          "ir_filter": 6,
+          "working_max": 64763,
+          "preprocessed": false,
+          "GetRawWidth": 11904,
+          "GetRawHeight": 8842
+        },
+        "description_fields_equal": true,
+        "scene_calibration_intensity": 100,
+        "framework_sha256": {
+          "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+          "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+          "HBImageProcessing": "125dd5b0bf0cc1ad00d1cf959eeeea82aa24acee117c2b2bcb55fa44f430d010",
+          "HBStorage": "c311cedfe841f757a3154713f24e08de1601f0ad6a57d601c25e21cd1ce87826"
+        },
+        "backend": {
+          "requested": "cpu",
+          "native_gpu_enabled": false,
+          "control": "process-local original disableGPU debug key; no preferences saved"
+        },
+        "color_contract": {
+          "cct": 7523.0,
+          "icm_method": 0.0,
+          "filter_exposure": 4.0,
+          "outer_1f8": 18.574465458330575,
+          "outer_248": 18.574465458330575,
+          "shadow": [
+            834.4789267164784,
+            -1.7663402434428313e-07,
+            0.0002947947421128594,
+            0.877
+          ],
+          "incoming": [
+            0.3421606729949293,
+            0.7802843172127916,
+            -0.12204470994799071,
+            -0.17531591697565416,
+            -0.6067293054314136,
+            0.7851881780932726,
+            0.6355215439494155,
+            -0.627481322563913,
+            -0.0090624100400452
+          ],
+          "outgoing": [
+            0.9998597879188299,
+            -0.00012188356583593293,
+            1.4022426952670104,
+            1.000106010502679,
+            -0.3456270776971775,
+            -0.7144779490935292,
+            0.9998229138007877,
+            1.7710155002182764,
+            -0.00015350809646445912
+          ],
+          "linearization_lengths": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "hdr_post_contract": {
+          "highlight_parameters": [
+            50.0,
+            50.0
+          ],
+          "gamma_lstar": false
+        },
+        "sharpness_contract": {
+          "effective_amount": 270.0,
+          "radius": 1.0,
+          "noise": 0.0,
+          "dark": 10.0,
+          "image_scale": 1.0,
+          "hdr_scale": 5.8829245141,
+          "extra_lines": 1.0
+        },
+        "buffer_metadata": [
+          64,
+          64,
+          3,
+          192
+        ],
+        "pixel_sha256": "186c11f2b86dfc22325af2a436e94a6cd969d336644744d1163a747ca505ee64",
+        "pixel_range": [
+          65535,
+          65535
+        ],
+        "factory_xml_sha256": "a81a561d271ab35229117e1023ae077d01029605b306af3eeb946fddf7521a9f"
+      },
+      "input_icc_log": [
+        "native input ICC: Hasselblad HDR RGB; type=0 enum=8 HDR=1"
+      ],
+      "final_filter_order_last_to_first": [
+        "icc",
+        "resize",
+        "sharpness",
+        "gradation",
+        "gamma",
+        "HighlightStrength",
+        "colorCorrect",
+        "RGBLensD",
+        "ev_1",
+        "RGBLens",
+        "SceneCalibration",
+        "ev",
+        "dust",
+        "demosaic",
+        "Aberration",
+        "Multi2Bayer",
+        "highlightsimple",
+        "BayerFastInterpolate",
+        "HotPixPlus",
+        "NoiseReductionBayerP2",
+        "NoiseReductionBayer",
+        "HotPix",
+        "Orientation",
+        "neutralisationBayer",
+        "RepeatMargin",
+        "rawprovider"
+      ]
+    },
+    {
+      "name": "hdr-daylight-nature-red-sharpness",
+      "invocation": {
+        "status": "obtained-native-crop",
+        "returncode": 0,
+        "seconds": 0.8859695829451084,
+        "compile": [
+          "xcrun",
+          "clang++",
+          "-std=c++17",
+          "-O2",
+          "-g",
+          "-dynamiclib",
+          "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/native_x2d_pipeline_bridge.cpp",
+          "-o",
+          "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/hdr-output-boundaries-v2/hdr-daylight-nature-red-sharpness/native-x2d-bridge.dylib"
+        ],
+        "probe_sha256": "8478af1a0b9c8240aabb63f31f0edff635637fd4bb34deec0a83bf0ab3fc56d4",
+        "bridge_sha256": "e9e7ffec3cc408b522c8dbdb829d4d642a42cb844c9db6e09c67a70b8c84338d",
+        "raw": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/phocus-reference/working/x2dii-daylight_0001.3fr",
+        "raw_sha256": "4f352195f2823a4100c119db7646a8417d0aab6adbbd4db88bf3c3a06c52d163",
+        "preset": "Nature",
+        "stage": "specific",
+        "crop": [
+          5565,
+          2124,
+          64,
+          64
+        ],
+        "stop_filter": null,
+        "before_filter": false,
+        "requested_backend": "cpu",
+        "parameter_builder": "export",
+        "description_source": "cached",
+        "output_profile": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/reference-adobe-rgb.icc",
+        "output_profile_sha256": "304f569a83c1e5eddaddac54e99ed03339333db013738bb499ab64f049887e28",
+        "settings_file": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/phocus-reference/evidence/daylight-nature.phos",
+        "settings_sha256": "7e1707bd0bbbbc72048b2c47da9cd2e343e0c2055506f17fd62b7369692ab3e1",
+        "hdr": true,
+        "exposure_ev": 0.0,
+        "temperature": null,
+        "limits": [
+          "This records an original intermediate, not GlassCam equivalence.",
+          "An unavailable stage remains an explicit gap."
+        ]
+      },
+      "metadata": {
+        "native": {
+          "CCDType": 22,
+          "GetBackModel": 71,
+          "GetModel": 99,
+          "GetIsoGain": 1.0653693159208844,
+          "GetSensitivityGain": 1.0,
+          "GetAnalogGain": 1.0,
+          "GetBlackLevel": 4096,
+          "GetFilmCurveType": 2,
+          "GetBaselineSharpness": 1.5,
+          "GetDNGWhiteLevel": 64763,
+          "neutral_success": true,
+          "neutral_gain": [
+            3.06964111328125,
+            1.0,
+            1.41644287109375
+          ],
+          "neutral_calibration_u14": [
+            16384,
+            16570,
+            16649
+          ],
+          "description": {
+            "sensitivity_gain": 1.0,
+            "iso_gain": 1.0653693159208844,
+            "analog_gain": 1.0,
+            "film_curve": 2,
+            "shots": 1,
+            "components": 1,
+            "black_level": 4096,
+            "correction_bits": 1073800702,
+            "back_model": 71,
+            "ccd": 22,
+            "ir_filter": 6,
+            "working_max": 64763,
+            "preprocessed": false,
+            "GetRawWidth": 11904,
+            "GetRawHeight": 8842
+          }
+        },
+        "parameters": {
+          "wb": [
+            2.711552043782954,
+            1.0,
+            1.690108149776517
+          ],
+          "ev_multiplier": 1.0,
+          "color_model": 0,
+          "film_curve": 2,
+          "working_space": 0,
+          "hdr": true
+        },
+        "parameter_builder": "export",
+        "description_source": "cached",
+        "constructed_description_fields": {
+          "sensitivity_gain": 1.0,
+          "iso_gain": 1.0653693159208844,
+          "analog_gain": 1.0,
+          "film_curve": 2,
+          "shots": 1,
+          "components": 1,
+          "black_level": 4096,
+          "correction_bits": 1073800702,
+          "back_model": 71,
+          "ccd": 22,
+          "ir_filter": 6,
+          "working_max": 64763,
+          "preprocessed": false,
+          "GetRawWidth": 11904,
+          "GetRawHeight": 8842
+        },
+        "description_fields_equal": true,
+        "scene_calibration_intensity": 100,
+        "framework_sha256": {
+          "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+          "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+          "HBImageProcessing": "125dd5b0bf0cc1ad00d1cf959eeeea82aa24acee117c2b2bcb55fa44f430d010",
+          "HBStorage": "c311cedfe841f757a3154713f24e08de1601f0ad6a57d601c25e21cd1ce87826"
+        },
+        "backend": {
+          "requested": "cpu",
+          "native_gpu_enabled": false,
+          "control": "process-local original disableGPU debug key; no preferences saved"
+        },
+        "color_contract": {
+          "cct": 5500.0,
+          "icm_method": 0.0,
+          "filter_exposure": 1.0,
+          "outer_1f8": 4.101902750225289,
+          "outer_248": 4.101902750225289,
+          "shadow": [
+            3778.7341494502016,
+            -8.614150090295992e-09,
+            6.510116622938201e-05,
+            0.877
+          ],
+          "incoming": [
+            0.2988383462487487,
+            0.8136277321088383,
+            -0.11206699894812225,
+            -0.134428881536432,
+            -0.6667954929540227,
+            0.8043673767869107,
+            0.6078156377681192,
+            -0.5846591356828129,
+            -0.024176164522616974
+          ],
+          "outgoing": [
+            0.9998597879188299,
+            -0.00012188356583593293,
+            1.4022426952670104,
+            1.000106010502679,
+            -0.3456270776971775,
+            -0.7144779490935292,
+            0.9998229138007877,
+            1.7710155002182764,
+            -0.00015350809646445912
+          ],
+          "linearization_lengths": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "hdr_post_contract": {
+          "highlight_parameters": [
+            50.0,
+            50.0
+          ],
+          "gamma_lstar": false
+        },
+        "sharpness_contract": {
+          "effective_amount": 334.0,
+          "radius": 0.8,
+          "noise": 0.0,
+          "dark": 10.0,
+          "image_scale": 1.0,
+          "hdr_scale": 5.8829245141,
+          "extra_lines": 1.0
+        },
+        "buffer_metadata": [
+          64,
+          64,
+          3,
+          192
+        ],
+        "pixel_sha256": "3b0be78c5f9dd76c023594cde8f88ddff25922c28f6c94ce8262de4072175a8b",
+        "pixel_range": [
+          0,
+          34360
+        ],
+        "factory_xml_sha256": "1233eb4082921ae5dd9b2074bfd34bb2a9f19e6938cbf4f13c72cc71ed8f3cae"
+      },
+      "input_icc_log": [
+        "native input ICC: Hasselblad HDR RGB; type=0 enum=8 HDR=1"
+      ],
+      "final_filter_order_last_to_first": [
+        "icc",
+        "resize",
+        "sharpness",
+        "gradation",
+        "gamma",
+        "HighlightStrength",
+        "colorCorrect",
+        "RGBLensD",
+        "ev_1",
+        "RGBLens",
+        "SceneCalibration",
+        "ev",
+        "dust",
+        "demosaic",
+        "Aberration",
+        "Multi2Bayer",
+        "highlightsimple",
+        "BayerFastInterpolate",
+        "NoiseReductionBayerP2",
+        "NoiseReductionBayer",
+        "HotPix",
+        "Orientation",
+        "neutralisationBayer",
+        "RepeatMargin",
+        "rawprovider"
+      ]
+    },
+    {
+      "name": "hdr-lowlight-standard-black-sharpness",
+      "invocation": {
+        "status": "obtained-native-crop",
+        "returncode": 0,
+        "seconds": 0.888673875015229,
+        "compile": [
+          "xcrun",
+          "clang++",
+          "-std=c++17",
+          "-O2",
+          "-g",
+          "-dynamiclib",
+          "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/native_x2d_pipeline_bridge.cpp",
+          "-o",
+          "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/hdr-output-boundaries-v2/hdr-lowlight-standard-black-sharpness/native-x2d-bridge.dylib"
+        ],
+        "probe_sha256": "8478af1a0b9c8240aabb63f31f0edff635637fd4bb34deec0a83bf0ab3fc56d4",
+        "bridge_sha256": "e9e7ffec3cc408b522c8dbdb829d4d642a42cb844c9db6e09c67a70b8c84338d",
+        "raw": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/phocus-reference/working/x2dii-lowlight_0002.3fr",
+        "raw_sha256": "b59cd9c85eb06386e9feed8f6900c00670c828a15dd7d2caa95c0891e614b2e8",
+        "preset": "Standard",
+        "stage": "specific",
+        "crop": [
+          6786,
+          2527,
+          64,
+          64
+        ],
+        "stop_filter": null,
+        "before_filter": false,
+        "requested_backend": "cpu",
+        "parameter_builder": "export",
+        "description_source": "cached",
+        "output_profile": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/reference-adobe-rgb.icc",
+        "output_profile_sha256": "304f569a83c1e5eddaddac54e99ed03339333db013738bb499ab64f049887e28",
+        "settings_file": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/phocus-reference/evidence/lowlight-standard.phos",
+        "settings_sha256": "ec5f02de431ebdc6de85c06f40df85fb507e76080a54b40fc7fca8d8a281d707",
+        "hdr": true,
+        "exposure_ev": 0.0,
+        "temperature": null,
+        "limits": [
+          "This records an original intermediate, not GlassCam equivalence.",
+          "An unavailable stage remains an explicit gap."
+        ]
+      },
+      "metadata": {
+        "native": {
+          "CCDType": 22,
+          "GetBackModel": 71,
+          "GetModel": 99,
+          "GetIsoGain": 1.0654395642973855,
+          "GetSensitivityGain": 1.0,
+          "GetAnalogGain": 1.0,
+          "GetBlackLevel": 4096,
+          "GetFilmCurveType": 2,
+          "GetBaselineSharpness": 1.5,
+          "GetDNGWhiteLevel": 64759,
+          "neutral_success": true,
+          "neutral_gain": [
+            1.71533203125,
+            1.0,
+            2.5703125
+          ],
+          "neutral_calibration_u14": [
+            16384,
+            16570,
+            16649
+          ],
+          "description": {
+            "sensitivity_gain": 1.0,
+            "iso_gain": 1.0654395642973855,
+            "analog_gain": 1.0,
+            "film_curve": 2,
+            "shots": 1,
+            "components": 1,
+            "black_level": 4096,
+            "correction_bits": 1073800702,
+            "back_model": 71,
+            "ccd": 22,
+            "ir_filter": 6,
+            "working_max": 64759,
+            "preprocessed": false,
+            "GetRawWidth": 11904,
+            "GetRawHeight": 8842
+          }
+        },
+        "parameters": {
+          "wb": [
+            1.7160759734064517,
+            1.0,
+            2.576121858657641
+          ],
+          "ev_multiplier": 1.0,
+          "color_model": 0,
+          "film_curve": 2,
+          "working_space": 0,
+          "hdr": true
+        },
+        "parameter_builder": "export",
+        "description_source": "cached",
+        "constructed_description_fields": {
+          "sensitivity_gain": 1.0,
+          "iso_gain": 1.0654395642973855,
+          "analog_gain": 1.0,
+          "film_curve": 2,
+          "shots": 1,
+          "components": 1,
+          "black_level": 4096,
+          "correction_bits": 1073800702,
+          "back_model": 71,
+          "ccd": 22,
+          "ir_filter": 6,
+          "working_max": 64759,
+          "preprocessed": false,
+          "GetRawWidth": 11904,
+          "GetRawHeight": 8842
+        },
+        "description_fields_equal": true,
+        "scene_calibration_intensity": 100,
+        "framework_sha256": {
+          "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+          "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+          "HBImageProcessing": "125dd5b0bf0cc1ad00d1cf959eeeea82aa24acee117c2b2bcb55fa44f430d010",
+          "HBStorage": "c311cedfe841f757a3154713f24e08de1601f0ad6a57d601c25e21cd1ce87826"
+        },
+        "backend": {
+          "requested": "cpu",
+          "native_gpu_enabled": false,
+          "control": "process-local original disableGPU debug key; no preferences saved"
+        },
+        "color_contract": {
+          "cct": 2993.0,
+          "icm_method": 0.0,
+          "filter_exposure": 1.0,
+          "outer_1f8": 3.897287580612024,
+          "outer_248": 3.897287580612024,
+          "shadow": [
+            3977.125033602448,
+            -7.776185680653922e-09,
+            6.185372547293922e-05,
+            0.877
+          ],
+          "incoming": [
+            0.2003785871375836,
+            0.7835297946993458,
+            0.016490578374639683,
+            -0.05491032913757385,
+            -0.7445233581816706,
+            0.8025758415023525,
+            0.5569800149524896,
+            -0.4347214659776877,
+            -0.12327958235140686
+          ],
+          "outgoing": [
+            0.9998597879188299,
+            -0.00012188356583593293,
+            1.4022426952670104,
+            1.000106010502679,
+            -0.3456270776971775,
+            -0.7144779490935292,
+            0.9998229138007877,
+            1.7710155002182764,
+            -0.00015350809646445912
+          ],
+          "linearization_lengths": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "hdr_post_contract": {
+          "highlight_parameters": [
+            50.0,
+            50.0
+          ],
+          "gamma_lstar": false
+        },
+        "sharpness_contract": {
+          "effective_amount": 270.0,
+          "radius": 1.0,
+          "noise": 0.0,
+          "dark": 10.0,
+          "image_scale": 1.0,
+          "hdr_scale": 5.8829245141,
+          "extra_lines": 1.0
+        },
+        "buffer_metadata": [
+          64,
+          64,
+          3,
+          192
+        ],
+        "pixel_sha256": "1043db28505d880868c34bc329d078905a8378003a2ba565eca4ebae20f4e836",
+        "pixel_range": [
+          5396,
+          8579
+        ],
+        "factory_xml_sha256": "a81a561d271ab35229117e1023ae077d01029605b306af3eeb946fddf7521a9f"
+      },
+      "input_icc_log": [
+        "native input ICC: Hasselblad HDR RGB; type=0 enum=8 HDR=1"
+      ],
+      "final_filter_order_last_to_first": [
+        "icc",
+        "resize",
+        "sharpness",
+        "gradation",
+        "gamma",
+        "HighlightStrength",
+        "colorCorrect",
+        "RGBLensD",
+        "ev_1",
+        "RGBLens",
+        "SceneCalibration",
+        "ev",
+        "dust",
+        "demosaic",
+        "Aberration",
+        "Multi2Bayer",
+        "highlightsimple",
+        "BayerFastInterpolate",
+        "NoiseReductionBayerP2",
+        "NoiseReductionBayer",
+        "HotPix",
+        "Orientation",
+        "neutralisationBayer",
+        "RepeatMargin",
+        "rawprovider"
+      ]
+    }
+  ],
+  "scope": "Original Phocus HDR export boundaries and metadata, not independently reproduced ICC or full-RAW output."
+}

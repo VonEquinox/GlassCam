@@ -15,6 +15,8 @@
 #include <dispatch/dispatch.h>
 #endif
 #include "hncs_phocus_hdr.hpp"
+#include "hncs_phocus_hdr_post.hpp"
+#include "hncs_x2d_hdr_gradation.inc"
 #include "hncs_preset_assets.inc"
 #include "hncs_whitepoint_assets.inc"
 
@@ -130,6 +132,26 @@ Codes post_curves(const preset_assets::Preset& preset,bool tone,const Codes& inp
         out[i]=uint16_t(std::max(0.f,std::min(value,65535.f))); // truncate, never rint
     }
     return out;
+}
+Codes hdr_post_curves(const x2d_hdr_gradation_assets::Preset& preset,const Codes& input) {
+    // Same native gradation arithmetic, with tables generated in the distinct
+    // HDR work domain. The existing SDR assets and entry points stay separate.
+    Codes base{};
+    for(int i=0;i<3;++i)base[i]=x2d_hdr_gradation_assets::tables[preset.table[i]][input[i]];
+    F ratio[2]={{1.f,1.f,1.f},{1.f,1.f,1.f}};
+    for(int stage=0;stage<2;++stage) {
+        if(stage==1&&!preset.luma)continue;
+        Codes mapped{};
+        for(int i=0;i<3;++i)mapped[i]=x2d_hdr_gradation_assets::tables[preset.table[3+stage]][base[i]];
+        const F recovered=recover_hue(base,mapped);
+        for(int i=0;i<3;++i)ratio[stage][i]=base[i]?recovered[i]/float(base[i]):recovered[i];
+    }
+    Codes output{};
+    for(int i=0;i<3;++i) {
+        const float value=(float(base[i])*ratio[0][i])*ratio[1][i];
+        output[i]=uint16_t(std::max(0.f,std::min(value,65535.f)));
+    }
+    return output;
 }
 F preset_work(const preset_assets::Preset *preset,bool tone,const Codes& input) {
     Codes saturation_codes=input;
@@ -340,6 +362,34 @@ extern "C" int hncs_render_x2d_hdr_color(const hncs_context *source,double gain,
         }
         return 0;
     }catch(...) {return -1;}
+}
+extern "C" int hncs_render_x2d_hdr_post(const uint16_t *input,uint16_t *output,size_t count,
+                                        double amount,double saturation,int lstar) {
+    if(!std::isfinite(amount)||amount<0.||amount>100.||
+       !std::isfinite(saturation)||saturation<0.||saturation>100.||
+       (lstar!=0&&lstar!=1)||(!input&&count)||(!output&&count)||
+       count>std::numeric_limits<size_t>::max()/sizeof(uint16_t)/3)return -1;
+    const auto a=reinterpret_cast<uintptr_t>(input),b=reinterpret_cast<uintptr_t>(output);
+    if(a!=b&&(a<b?b-a:a-b)<count*3*sizeof(uint16_t))return -1;
+    for(size_t i=0;i<count;++i) {
+        const hncs_phocus_hdr_post::Codes p={input[i*3],input[i*3+1],input[i*3+2]};
+        const auto q=hncs_phocus_hdr_post::gamma(hncs_phocus_hdr_post::highlight(p,amount,saturation),lstar!=0);
+        std::copy(q.begin(),q.end(),output+i*3);
+    }
+    return 0;
+}
+extern "C" int hncs_apply_x2d_hdr_gradation(const char *key,const uint16_t *input,uint16_t *output,size_t count) {
+    if(!key||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(uint16_t)/3)return -1;
+    const auto a=reinterpret_cast<uintptr_t>(input),b=reinterpret_cast<uintptr_t>(output);
+    if(a!=b&&(a<b?b-a:a-b)<count*3*sizeof(uint16_t))return -1;
+    for(const auto &preset:x2d_hdr_gradation_assets::presets)if(std::strcmp(preset.key,key)==0) {
+        for(size_t i=0;i<count;++i) {
+            const auto result=hdr_post_curves(preset,{input[i*3],input[i*3+1],input[i*3+2]});
+            std::copy(result.begin(),result.end(),output+i*3);
+        }
+        return 0;
+    }
+    return -1;
 }
 extern "C" int hncs_process_srgb(const hncs_context *c,const float *input,uint8_t *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;

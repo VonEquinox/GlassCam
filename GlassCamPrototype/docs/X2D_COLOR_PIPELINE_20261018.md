@@ -90,15 +90,46 @@ weight = Y <= t ? (a * Y) * Y + b * Y + d : 1.0;
 
 [数值报告](../validation/x2d-hdr-20261018.json)、[原版回归向量](../validation/x2d-hdr-goldens.json)、[复现探针](../tools/verify_x2d_hdr.py)和[无原版依赖的回归](../tests/test_x2d_hdr.py)已保存。HDR、增益与既有普通完整链合计六项 unittest 通过。
 
+### 已还原并接入：HDR 高光、gamma、gradation 与锐化
+
+新增 [HDR 后置实现](../core/hncs_phocus_hdr_post.hpp)与 `hncs_render_x2d_hdr_post`，按原版顺序执行 HighlightStrength 和 gamma。实际三个 RAW 配方均使用高光强度／去饱和参数 50／50，gamma 选择 legacy；原生数值验证还覆盖 L*。原探针里的 `gamma_inverse` 已更名为 `gamma_lstar`，因为该位选择 L* 或 legacy，并不表示逆 gamma。
+
+原版高光权重为 `fma(amount*4.5e-5, amount, amount*.01)`；分段二次曲线保留原版 double FMA。HSL 的中间值和亮度混合使用 Float32，饱和度混合保留 double FMA。输出先 `FRINTA`（半值远离零取整），再限幅与转整数。初版直接截断产生大量 1 码误差，随后遗漏 Float32／FMA 边界仍有少量 1 码误差；两轮失败的源码、输出和报告均保留，未改变原版预期值。
+
+gamma 将 HDR 工作码先除以 65535、乘 `49.26108374384236`，执行原版 legacy 幂函数或 L*，再除以 `5.8829245141` 并编码。该流程不能使用普通 SDR 的显示解码函数代替。
+
+串联检查另外发现 **HDR 不能复用 SDR gradation 表**。原版 `CalculateCurve(CCurve*, bool)`（`0x12d5a0`）在 HDR／ExpToolVersion 4 下使用 `5.8829245141` 的曲线工作范围。复用 SDR 表时，Nature 真实区域的 gradation 最大差为 2118 码，锐化后为 2240 码。
+
+[生成工具](../tools/audit_x2d_hdr_gradation.py)从哈希锁定的原版构造器取得 Standard／Nature 的五路完整 UInt16 表，去重为[三张精确表](../core/hncs_x2d_hdr_gradation.inc)，共 393,216 字节数值数据。它们是原版有限数值域的精确结果，不是重新采样的近似，也不是独立重写任意用户曲线的解析器。实际侧车的三组 HDR 表与对应原厂 HDR 表全部一致。新增 `hncs_apply_x2d_hdr_gradation` 保留已验证的 RecoverHue 和逐步取整，只支持已列的现代 HDR 原厂配置；既有 SDR 表和 API 保留。
+
+原版 HDR 锐化把工作域系数先转 Float32，再用于 amount／noise 表的索引数值；它不会再次乘到像素曝光。新增 `hncs_render_x2d_hdr_sharpness` 使用 Standard／Nature 原厂控制、每张 RAW 的 BaselineSharpness、全分辨率像素尺度和复制边缘。实际 RAW 的 Standard／Nature 有效 amount 为 270／334，半径为 1／0.8，noise 0、dark 10，HDR 系数均为 `5.8829245141`。普通锐化继续使用系数 1。
+
+| 对照 | 已验证范围 | 结果 |
+|---|---|---|
+| HighlightStrength／gamma／二者串联 | 33 组合成输入，含全部 65536 中性码、17³ 网格、随机 RGB、16 组非整数控制；另 9 个真实阶段对照 | 合计 8,707,059 通道，最大差 0 |
+| HDR gradation | 两种原厂配置，全部中性码、网格和随机输入；原版 RecoverHue 开启 | 471,846 通道，最大差 0；原版关闭该位的结果另存 |
+| HDR 锐化 | 293 组参数、46 组图像模式 | 9,601,024 表项及 1,668,417 像素通道，全部一致 |
+| 真实 HDR 串联 | 三个原始 HDR 区域：颜色核 → 高光 → gamma → gradation → 锐化 | 前三边界每区 12,288 通道零差；最终锐化内部区域合计 28,224 通道零差 |
+
+真实区域未保存框外邻域，因此最终锐化比较明确排除四像素边界，不能把这个结果表述成完整 64×64 或全图的零差。独立的合成图像验证由原版 `CRepeatMarginFilter` 提供复制边缘，覆盖单像素、单行／列和不规则尺寸。
+
+依据：[后置阶段](../validation/x2d-hdr-post-20261018.json)、[曲线来源](../validation/x2d-hdr-gradation-20261018.json)、[HDR 锐化](../validation/x2d-hdr-sharpness-20261018.json)、[真实串联](../validation/x2d-hdr-chain-20261018.json)。[回归](../tests/test_x2d_hdr_post.py)读取冻结的原版向量，检查各阶段、组合 API、原地处理、参数边界与内存重叠；没有把当前实现输出写成预期值。
+
+### 输出 ICC 的明确边界
+
+三组真实 HDR 配方已补取原版最终 Adobe RGB 输出；原版选择的输入配置是 **Hasselblad HDR RGB，special profile enum 8**，并经 `AddOutputFiltersExport` 加入 ICC 滤镜。[原生参数与输出记录](../validation/x2d-hdr-output-20261018.json)保存 50／50 高光、gamma 类型、实际锐化参数、源文件和输出 ICC 哈希。
+
+这验证了 HDR 工作码应交给独立 HDR 配置处理，不能交给 SDR 显示解码；最终原版 ICC 已可调用，但没有独立移植该 ICC／HDR limit 的全部行为，也没有历史 HDR 成片作为全图 oracle。此处的原版最终输出不冒充 GlassCam 独立 RAW 到成片一致。现有 Swift 的 Apple HDR 幅值分离／恢复仍遵守其既有输入契约，没有凭这次分析删除 sRGB 接口的限幅。
+
 ## 已发现但尚未完整实现或验证
 
-- 原版 HDR 实际链在 `colorCorrect` 后加入 `HighlightStrength` 和 `gamma`；三个实际区域的六个节点已截取。上述 HDR 颜色核和 film curve 已验证，之后的 HighlightStrength、高光恢复、gamma、空间系数和最终输出仍分开分析。
+- 上述默认 HDR 颜色、高光强度、gamma、原厂 gradation 和全分辨率锐化已验证。非零 RAW 高光重建、任意自定义曲线／局部图层、缩小预览的半径补偿及完整 HDR limit／ICC 行为不在这些等价声明内。三个保存配方的 HighlightRecovery／HighlightRecoveryHDR 均为 0；上游仍有原版 `highlightsimple`，没有将它误记为独立移植。
 - 原版 RAW 的校准、噪声处理、去马赛克和场景/镜头校准已获得可调用入口及实际滤镜序列；尚未完成独立算法逐阶段比较或移动端移植。
 - 新增有效增益已进入生产 C++ 核；App 的 Apple 输入适配不属于本轮跨相机研究范围，不能把该增益接口当成已经接通 X2D 专用 RAW 解码。
 - 同 RAW、同原厂 Standard/Nature 设置及原版 Adobe RGB ICC 已完成上述区域比较，尚未证明全图逐位一致。ICC 从既有 16 位原版 TIFF 提取，摘要为 `304f569a83c1e5eddaddac54e99ed03339333db013738bb499ab64f049887e28`。
 
 ## 已知差异与未完成范围
 
-尚不能证明完整 X2D RAW 到成片等价。HDR 独立工作域、最终 ICC/几何一致性、更多曝光/白平衡以及肤色/暗部/高光/高饱和区域，仍需后续原生比较。现有便携颗粒模型保持原范围，本轮不做新的颗粒逆向。当前数据也不能证明 iPhone/哈苏跨相机匹配。
+尚不能证明完整 X2D RAW 到成片等价。已建立上述有限配置的 HDR 工作域与阶段接口；RAW 前处理的独立移植、最终 ICC/几何一致性、完整图像和更多真实 HDR 肤色／白平衡／曝光组合仍有缺口。现有便携颗粒模型保持原范围，本轮不做新的颗粒逆向。当前数据也不能证明 iPhone/哈苏跨相机匹配。
 
-本阶段后续仍须补充必要的 Apple 运行时、设置迁移和 iOS 编译验收；本报告没有新增真机性能、安装或实拍结论。阶段三性能基线必须明确使用已验证的配置和数值域。
+本轮 206 项 Python 回归、实际 Apple 预览／14 组 SDR/HDR HEIF／真实 48MP DNG／设置迁移检查、ASan/UBSan 及 iOS Release 通用目标编译已通过。未执行手机安装或实测。新 X2D 接口明确要求原生准备输入，不改变 App 的 Apple 源域策略；性能数据另见[受控加速报告](COLOR_PERFORMANCE_20261018.md)。

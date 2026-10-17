@@ -1,0 +1,141 @@
+{
+  "tables": [
+    {
+      "preset": "standard",
+      "factory_sha256": "a81a561d271ab35229117e1023ae077d01029605b306af3eeb946fddf7521a9f",
+      "settings": {
+        "gamma": 2.0,
+        "effective_gamma": 1.0,
+        "ev_multiplier": 1.0,
+        "luma_point_count": 2
+      },
+      "table_sha256": {
+        "contrast": "68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+        "luma": "68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+        "red": "9274b62e8b8d4e7609b35d9de34b5594c784ba4447ed3731dc9aa6e8a4868af5",
+        "green": "9274b62e8b8d4e7609b35d9de34b5594c784ba4447ed3731dc9aa6e8a4868af5",
+        "blue": "9274b62e8b8d4e7609b35d9de34b5594c784ba4447ed3731dc9aa6e8a4868af5"
+      }
+    },
+    {
+      "preset": "nature",
+      "factory_sha256": "1233eb4082921ae5dd9b2074bfd34bb2a9f19e6938cbf4f13c72cc71ed8f3cae",
+      "settings": {
+        "gamma": 2.0,
+        "effective_gamma": 1.0,
+        "ev_multiplier": 1.0,
+        "luma_point_count": 2
+      },
+      "table_sha256": {
+        "contrast": "68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+        "luma": "68e419472d25e0b85e9917ccf692fd58245c5e95e9a46f07d1df81d2e9da246b",
+        "red": "32f09b8ceeae94213d851e611825e88e6101d3ebe2da24e35aead7a9b3da68dd",
+        "green": "32f09b8ceeae94213d851e611825e88e6101d3ebe2da24e35aead7a9b3da68dd",
+        "blue": "32f09b8ceeae94213d851e611825e88e6101d3ebe2da24e35aead7a9b3da68dd"
+      }
+    }
+  ],
+  "crops": [
+    {
+      "name": "hdr-daylight-standard-white",
+      "factory_hdr_table_differences": {
+        "contrast": 0,
+        "luma": 0,
+        "red": 0,
+        "green": 0,
+        "blue": 0
+      },
+      "filter_modes": [
+        {
+          "recover_hue": false,
+          "channels": 12288,
+          "different_channels": 1427,
+          "maximum_uint16_error": 1,
+          "mean_absolute_error": 0.11612955729166667
+        },
+        {
+          "recover_hue": true,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        }
+      ]
+    },
+    {
+      "name": "hdr-daylight-nature-red",
+      "factory_hdr_table_differences": {
+        "contrast": 0,
+        "luma": 0,
+        "red": 0,
+        "green": 0,
+        "blue": 0
+      },
+      "filter_modes": [
+        {
+          "recover_hue": false,
+          "channels": 12288,
+          "different_channels": 4616,
+          "maximum_uint16_error": 1,
+          "mean_absolute_error": 0.3756510416666667
+        },
+        {
+          "recover_hue": true,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        }
+      ]
+    },
+    {
+      "name": "hdr-lowlight-standard-black",
+      "factory_hdr_table_differences": {
+        "contrast": 0,
+        "luma": 0,
+        "red": 0,
+        "green": 0,
+        "blue": 0
+      },
+      "filter_modes": [
+        {
+          "recover_hue": false,
+          "channels": 12288,
+          "different_channels": 657,
+          "maximum_uint16_error": 1,
+          "mean_absolute_error": 0.053466796875
+        },
+        {
+          "recover_hue": true,
+          "channels": 12288,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "mean_absolute_error": 0.0
+        }
+      ]
+    }
+  ],
+  "unique_tables": 3,
+  "generated_sha256": "42fac9d8b21622dfb236f59f3fd81dc59b0eda28eab51a49c423e9e746a1dbda",
+  "command": [
+    "xcrun",
+    "clang++",
+    "-std=c++17",
+    "-O2",
+    "-dynamiclib",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/native_phocus_filters_bridge.cpp",
+    "-o",
+    "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/hdr-gradation-original/filters.dylib"
+  ],
+  "framework_sha256": {
+    "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+    "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+    "HBImageProcessing": "125dd5b0bf0cc1ad00d1cf959eeeea82aa24acee117c2b2bcb55fa44f430d010",
+    "HBStorage": "c311cedfe841f757a3154713f24e08de1601f0ad6a57d601c25e21cd1ce87826"
+  },
+  "source_sha256": {
+    "tools/audit_x2d_hdr_gradation.py": "715de142d933ac3bf466cc2f4e19688edcd88127ab9f0105c14a8c667513a64a",
+    "tools/native_phocus_filters_bridge.cpp": "732f68bae7cc47eb67a70d0f8373631fb6cdbcd0c0e59f5b4175987df5efa54c"
+  },
+  "scope": "Original table generation and original filter mode comparison; no independent port validation yet."
+}
