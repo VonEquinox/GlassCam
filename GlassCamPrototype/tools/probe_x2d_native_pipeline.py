@@ -31,6 +31,7 @@ def main():
     parser.add_argument("--output-profile", type=Path, help="Original ICC output profile for AddOutputFiltersExport")
     parser.add_argument("--settings-file", type=Path, help="A retained original .phos sidecar or ImageCorrection plist")
     parser.add_argument("--parameter-builder", choices=["export", "viewer"], default="export")
+    parser.add_argument("--description-source", choices=["cached", "constructed"], default="cached")
     parser.add_argument("--hdr", action="store_true")
     parser.add_argument("--exposure", type=float, default=0.)
     parser.add_argument("--temperature", type=int)
@@ -66,6 +67,7 @@ def main():
                   "stop_filter": args.stop_filter, "before_filter": args.before_filter,
                   "requested_backend": args.backend,
                   "parameter_builder": args.parameter_builder,
+                  "description_source": args.description_source,
                   "output_profile": str(args.output_profile.resolve()) if args.output_profile else None,
                   "output_profile_sha256": sha(args.output_profile) if args.output_profile else None,
                   "settings_file": str(args.settings_file.resolve()) if args.settings_file else None,
@@ -86,6 +88,14 @@ def main():
     # Original provider requires a live cache service; construction only stores
     # limits and empty containers. These are diagnostic process cache limits.
     probe.n.fn(probe.storage, "_ZN19CRawCacheController4InitEmmm", [c.c_ulong] * 3)(512 * 1024 * 1024, 64 * 1024 * 1024, 0)
+    constructed_metadata = probe.metadata()
+    constructed_description = probe.description
+    if args.description_source == "cached":
+        cached = adapter.cached_x2d_description
+        cached.argtypes = [c.c_void_p, c.c_void_p]; cached.restype = c.c_void_p
+        address = cached(probe.storage._handle, probe.raw)
+        if not address: raise RuntimeError("Original cached RAW description is unavailable")
+        probe.description = (c.c_char * 0x400).from_address(address)
     from preset_curves_probe import NativeCurves
     from native_config_probe import FRAMEWORK_HASHES, verified_framework
     factory = Path("/Volumes/Phocus/Phocus.app/Contents/Resources/Settings/Standard") / (args.preset + ".xml")
@@ -140,6 +150,9 @@ def main():
     (out / "native-settings.plist").write_bytes(plistlib.dumps(payload))
     (out / "native-input.json").write_text(json.dumps({"native": values, "parameters": scalars,
         "parameter_builder": args.parameter_builder,
+        "description_source": args.description_source,
+        "constructed_description_fields": constructed_metadata["description"],
+        "description_fields_equal": constructed_metadata["description"] == values["description"],
         "scene_calibration_intensity": c.c_int.from_buffer(params, 0x148).value,
         "framework_sha256": {key: sha(verified_framework(key)) for key in FRAMEWORK_HASHES},
         "backend": {"requested": args.backend, "native_gpu_enabled": bool(gpu_enabled),

@@ -70,12 +70,32 @@ weight = Y <= t ? (a * Y) * Y + b * Y + d : 1.0;
 
 完整导出参数下的 CPU 核前／核后原生截取已经补测，增益修复同样达到零差；[比较工具](../tools/compare_x2d_crops.py)将生产颜色核比较与两次原版执行的 TIFF 比较分别记录。[首轮机器结果](../validation/x2d-export-first-20261018.json)保留修复前最大 74 码、修复后零差，以及独立的历史 TIFF 最大 3 码残差。
 
+### 扩大的导出和颜色核检查
+
+[批量采集工具](../tools/run_x2d_export_audit.py)完成 126 次原版调用，全部成功。30 组普通颜色核同输入比较涵盖 Standard／Nature、两张保存 RAW 与独立 ISO 200 RAW、±2 EV、2850／10000 K，以及色卡黑白、红蓝和两种印刷肤色区域。修复前最大 1172 码；修复后 **368,640 通道零差**。这是原版准备好的输入，不是独立 RAW 解码验证。
+
+另外 24 个区域分别用原版 CPU 和自动后端重算最终 Adobe RGB 输出。自动后端相对历史 TIFF 的平均绝对差为 0.0152656 码、最大 50 码；CPU 为平均 47.0039 码、最大 1289 码。扩大样本后，最大差已经超过首个区域的 3 码，不能继续用首个区域代表全图。原版 CPU/GPU 的前处理及数值边界差异仍需逐节点定位。
+
+探针现使用原始 RAW 的 `GetRawDescription`（`0x4f344`）取得原版共享描述；`GetCachedRawDescription` 只读取已有缓存，在未初始化时会返回空。先前构造描述与共享描述的所测字段相同，同一区域最终输出逐位相同，因而这项改动没有解释 TIFF 的剩余差异。失败的初次缓存调用和批量尝试保留在仓库外。
+
+依据：[完整比较](../validation/x2d-export-matrix-20261018.json)。色卡位置复用既有几何，仅用于取样，不使用其跨相机拟合矩阵；印刷肤色不是实测真人肤色。
+
+### 已还原并接入：原版 HDR 颜色核的 film curve
+
+原版 HDR 曲线从普通 Standard film table 构造：先以原版 ICC 指数 `2.19921875f` 得到线性 Float32 表，按处理增益重新索引，在原始高光区计算切线和二次延伸，并在 `65535/gain` 之后接线性延伸。最后除以 Float32 `10000/203` 再乘 `65535`。线性延伸的截距和逐点计算使用原版的 double FMA；不能把它改成普通乘加，或把二次曲线无限延伸。
+
+[独立实现](../core/hncs_phocus_hdr.hpp)与原版 `GradationApplyGain`、`GradationApplyHighlight`、`GetGradationCurveHDR` 分别比较。40 组增益、**7,864,320 个 Float32 表项逐位一致**；两种工作原色、三个 CCT、十种增益的 **60 组／14,155,380 个颜色通道零差**。另三个真实 HDR 区域涵盖 +2 EV 白色、Nature 红色和弱光黑色，36,864 通道零差。初版遗漏白点后的线性延伸，差异保留在外部诊断记录，未更改原版预期值。
+
+新增共享生产 API `hncs_render_x2d_hdr_color`，支持普通颜色模型、Standard film curve 和处理增益 `[0.25,32]`，显式拒绝超范围、非有限值及不支持的模型。输入必须是准备好的 X2D 原生 HDR 数据；输出是该颜色阶段的线性 HDR 工作码，不能按 SDR ICC 曲线解码。API 不会额外施加一次曝光，也不改变 App 的 Apple 输入策略。
+
+[数值报告](../validation/x2d-hdr-20261018.json)、[原版回归向量](../validation/x2d-hdr-goldens.json)、[复现探针](../tools/verify_x2d_hdr.py)和[无原版依赖的回归](../tests/test_x2d_hdr.py)已保存。HDR、增益与既有普通完整链合计六项 unittest 通过。
+
 ## 已发现但尚未完整实现或验证
 
-- 原版 HDR 实际链在 `colorCorrect` 后加入 `HighlightStrength` 和 `gamma`；已有真实 RAW 的 CPU HDR 核前/核后数值。HDR 核前值、颜色核输出和普通工作域的尺度不同，不能套用上节普通域结论。高光恢复、HDR 曲线和最终输出仍在继续分析。
+- 原版 HDR 实际链在 `colorCorrect` 后加入 `HighlightStrength` 和 `gamma`；三个实际区域的六个节点已截取。上述 HDR 颜色核和 film curve 已验证，之后的 HighlightStrength、高光恢复、gamma、空间系数和最终输出仍分开分析。
 - 原版 RAW 的校准、噪声处理、去马赛克和场景/镜头校准已获得可调用入口及实际滤镜序列；尚未完成独立算法逐阶段比较或移动端移植。
 - 新增有效增益已进入生产 C++ 核；App 的 Apple 输入适配不属于本轮跨相机研究范围，不能把该增益接口当成已经接通 X2D 专用 RAW 解码。
-- 同 RAW、同原厂 Standard/Nature 设置及原版 Adobe RGB ICC 的最终输出检查正在推进。ICC 从既有 16 位原版 TIFF 提取，摘要为 `304f569a83c1e5eddaddac54e99ed03339333db013738bb499ab64f049887e28`。
+- 同 RAW、同原厂 Standard/Nature 设置及原版 Adobe RGB ICC 已完成上述区域比较，尚未证明全图逐位一致。ICC 从既有 16 位原版 TIFF 提取，摘要为 `304f569a83c1e5eddaddac54e99ed03339333db013738bb499ab64f049887e28`。
 
 ## 已知差异与未完成范围
 

@@ -57,6 +57,17 @@ extern "C" int configure_x2d_backend(void* image_library, void* util_library, bo
     } catch (...) { return -1; }
 }
 
+extern "C" void* cached_x2d_description(void* storage_library, void* raw) {
+    if (!raw) return nullptr;
+    try {
+        // This is the shared native description also used by FromCorrection.
+        // Keep its owner for the diagnostic child process's lifetime.
+        auto* owner = new Shared(function<Shared (*)(void*)>(storage_library,
+            "_ZN13CRawImageFile17GetRawDescriptionEv")(raw));
+        return owner->get();
+    } catch (...) { return nullptr; }
+}
+
 extern "C" int render_x2d_crop(
     void* image_library, void* util_library, void* raw, void* description,
     void* correction, void* curves, void* parameters, void* image_description,

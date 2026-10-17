@@ -1,0 +1,66 @@
+{
+  "cases": [
+    {
+      "prefix": "case_0",
+      "space": 0,
+      "cct": 7523.0,
+      "gain": 0.25
+    },
+    {
+      "prefix": "case_1",
+      "space": 0,
+      "cct": 7523.0,
+      "gain": 1.0
+    },
+    {
+      "prefix": "case_2",
+      "space": 0,
+      "cct": 7523.0,
+      "gain": 4.643616364582644
+    },
+    {
+      "prefix": "case_3",
+      "space": 0,
+      "cct": 7523.0,
+      "gain": 18.574465458330575
+    },
+    {
+      "prefix": "case_4",
+      "space": 0,
+      "cct": 7523.0,
+      "gain": 32.0
+    },
+    {
+      "prefix": "case_5",
+      "space": 1,
+      "cct": 7523.0,
+      "gain": 0.25
+    },
+    {
+      "prefix": "case_6",
+      "space": 1,
+      "cct": 7523.0,
+      "gain": 1.0
+    },
+    {
+      "prefix": "case_7",
+      "space": 1,
+      "cct": 7523.0,
+      "gain": 4.643616364582644
+    },
+    {
+      "prefix": "case_8",
+      "space": 1,
+      "cct": 7523.0,
+      "gain": 18.574465458330575
+    },
+    {
+      "prefix": "case_9",
+      "space": 1,
+      "cct": 7523.0,
+      "gain": 32.0
+    }
+  ],
+  "vectors_sha256": "a4cec17236dbc266f4a21ad6342d67b450bf322f2edce3b3345436edecde6be2",
+  "vectors": "x2d-hdr-vectors.npz"
+}

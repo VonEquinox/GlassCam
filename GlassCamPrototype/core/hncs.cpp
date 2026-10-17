@@ -14,7 +14,7 @@
 #if defined(__APPLE__)
 #include <dispatch/dispatch.h>
 #endif
-#include "hncs_assets.inc"
+#include "hncs_phocus_hdr.hpp"
 #include "hncs_preset_assets.inc"
 #include "hncs_whitepoint_assets.inc"
 
@@ -249,7 +249,7 @@ struct hncs_context {
         shadow_threshold=threshold;shadow_a=a;shadow_b=b;shadow_d=d;
         return true;
     }
-    inline std::array<uint16_t,3> render(const V& native) const {
+    inline std::array<uint16_t,3> render(const V& native,const uint16_t* native_curve=nullptr) const {
         V p={round_even(clamp(native[0],0,1)*65535.),round_even(clamp(native[1],0,1)*65535.),round_even(clamp(native[2],0,1)*65535.)};
         V yuv=transform(incoming,p); const double y=yuv[0];
         double x=clamp((y>0?yuv[1]/y:0)*assets::grid[4]-cb0,0,width-1);
@@ -274,7 +274,7 @@ struct hncs_context {
         for(int c=0;c<3;++c) {
             // Native uses Y as baseline; not full inverse-matrix multiplication.
             double linear=y>0?y+(cb*outgoing[c*3+1]+cr*outgoing[c*3+2]):0;
-            result[c]=curve[size_t(clamp(linear,0,65535))];
+            result[c]=(native_curve?native_curve:curve)[size_t(clamp(linear,0,65535))];
         }
         return result;
     }
@@ -317,6 +317,29 @@ extern "C" int hncs_render_native(const hncs_context *c,const double *input,uint
         V p={input[i*3],input[i*3+1],input[i*3+2]}; if(!finite(p))return -1;
         auto codes=c->render(p);for(int j=0;j<3;++j)output[i*3+j]=codes[j];
     }return 0;
+}
+extern "C" int hncs_render_x2d_hdr_color(const hncs_context *source,double gain,const double *input,
+                                         uint16_t *output,size_t count) {
+    if(!source||source->reproduction||
+       (source->curve!=assets::v1_gamma&&source->curve!=assets::v1_lstar)||
+       !std::isfinite(gain)||gain<.25||gain>32.||
+       (!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(double)/3)return -1;
+    for(size_t i=0;i<count*3;++i)if(!std::isfinite(input[i]))return -1;
+    try {
+        auto context=std::make_unique<hncs_context>(*source);
+        if(!context->set_native_processing_gain(gain))return -1;
+        const auto floating=hncs_phocus_hdr::curve(gain);
+        std::vector<uint16_t> curve(floating.size());
+        for(size_t i=0;i<curve.size();++i) {
+            if(!std::isfinite(floating[i])||floating[i]<0.f||floating[i]>65535.f)return -1;
+            curve[i]=uint16_t(floating[i]);
+        }
+        for(size_t i=0;i<count;++i) {
+            const auto result=context->render({input[i*3],input[i*3+1],input[i*3+2]},curve.data());
+            std::copy(result.begin(),result.end(),output+i*3);
+        }
+        return 0;
+    }catch(...) {return -1;}
 }
 extern "C" int hncs_process_srgb(const hncs_context *c,const float *input,uint8_t *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;

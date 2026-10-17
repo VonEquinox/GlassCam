@@ -69,6 +69,18 @@ int hncs_process_srgb_fast_parallel(const hncs_context *context,
  * Input rounds ties to even; linear-code curve indices truncate (not round). */
 int hncs_render_native(const hncs_context *context, const double *native_rgb,
                        uint16_t *output_rgb, size_t pixel_count);
+/* Prepared X2D II HDR input -> linear HDR RGB16 color-stage working codes.
+ * Includes the original gain-aware HDR film curve; no HighlightStrength,
+ * gamma, gradation, spatial stage or output ICC is applied here. This is NOT
+ * display-linear sRGB; do not pass it through the SDR display decoder.
+ * Gain must come from the original input contract. Supported range [0.25,32];
+ * Standard/Nature color model only, not reproduction. Working primaries come
+ * from context. No Apple adaptation or second exposure gain is applied.
+ * Call cost includes HDR table creation. 0 success, -1 invalid/unsupported
+ * input or OOM. Finite input, caller-owned nonoverlapping buffers required. */
+int hncs_render_x2d_hdr_color(const hncs_context *context,
+    double native_processing_gain, const double *native_rgb,
+    uint16_t *hdr_working_rgb, size_t pixel_count);
 
 /* Revision-8 additive API. Old constructors and their output are unchanged.
  * capture_kelvin chooses the experimental Apple-linear-RGB source bridge.
