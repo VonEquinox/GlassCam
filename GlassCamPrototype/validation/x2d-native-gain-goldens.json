@@ -1,0 +1,101 @@
+{
+  "source": "Original Phocus 4.2.2 arm64 factory constructor and CVectorMethods; ordinary work domain",
+  "vectors": "x2d-native-gain-vectors.npz",
+  "sha256": "cc739a7d5d08fb92f3a84db7a2120d8bbca8660e097604307bb5aed645ee8567",
+  "framework_sha256": {
+    "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+    "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+    "HBImageProcessing": "125dd5b0bf0cc1ad00d1cf959eeeea82aa24acee117c2b2bcb55fa44f430d010",
+    "HBStorage": "c311cedfe841f757a3154713f24e08de1601f0ad6a57d601c25e21cd1ce87826"
+  },
+  "cases": [
+    {
+      "space": 0,
+      "model": 0,
+      "cct": 7523.0,
+      "gain": 0.25,
+      "native_shadow": [
+        62000.0,
+        -3.199791883454735e-11,
+        3.967741935483871e-06,
+        0.877
+      ],
+      "channels": 235923,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "mean_absolute_error": 0.0,
+      "golden_prefix": "gain_0"
+    },
+    {
+      "space": 0,
+      "model": 0,
+      "cct": 7523.0,
+      "gain": 1.0,
+      "native_shadow": [
+        15500.0,
+        -5.119667013527575e-10,
+        1.5870967741935485e-05,
+        0.877
+      ],
+      "channels": 235923,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "mean_absolute_error": 0.0,
+      "golden_prefix": "gain_2"
+    },
+    {
+      "space": 0,
+      "model": 0,
+      "cct": 7523.0,
+      "gain": 1.0653693159208844,
+      "native_shadow": [
+        14548.945392332897,
+        -5.810882366476802e-10,
+        1.690844204622823e-05,
+        0.877
+      ],
+      "channels": 235923,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "mean_absolute_error": 0.0,
+      "golden_prefix": "gain_4"
+    },
+    {
+      "space": 0,
+      "model": 0,
+      "cct": 7523.0,
+      "gain": 4.643602306524954,
+      "native_shadow": [
+        3337.925812083474,
+        -1.103955967901418e-08,
+        7.369846241323476e-05,
+        0.877
+      ],
+      "channels": 235923,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "mean_absolute_error": 0.0,
+      "golden_prefix": "gain_6"
+    },
+    {
+      "space": 0,
+      "model": 0,
+      "cct": 7523.0,
+      "gain": 16.0,
+      "native_shadow": [
+        968.75,
+        -1.3106347554630593e-07,
+        0.00025393548387096776,
+        0.877
+      ],
+      "channels": 235923,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "mean_absolute_error": 0.0,
+      "golden_prefix": "gain_8"
+    }
+  ],
+  "limits": [
+    "Synthetic regression inputs only; real RAW crop evidence remains outside the repository."
+  ]
+}

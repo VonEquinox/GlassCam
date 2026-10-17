@@ -17,6 +17,17 @@ hncs_context *hncs_create(double exposure_ev, double illuminant_kelvin);
 hncs_context *hncs_create_mode(double exposure_ev, double illuminant_kelvin,
                                int lstar, int reproduction);
 void hncs_destroy(hncs_context *context);
+/* Clone an immutable context for prepared X2D II native RGB input at a known
+ * Phocus processing gain. This is the effective gain passed to the original
+ * color filter after RAW normalization/WB/lens stages, NOT just ISO gain or EV.
+ * Only the native dark-chroma weighting changes; pixels are not multiplied.
+ * Preset, work-space, curve and output settings are preserved. The caller owns
+ * the returned context; NULL means invalid/nonrepresentable gain or allocation
+ * failure. Original constructors retain unit gain for their existing input
+ * contract. Do not infer this gain from an Apple-decoded RGB image. This API
+ * does not add a RAW decoder or imply equivalence of Phocus's HDR branches. */
+hncs_context *hncs_clone_with_native_gain(const hncs_context *context,
+                                        double native_processing_gain);
 /* Packed linear sRGB RGB float triplets -> encoded sRGB RGBA8 (opaque).
  * Experimental D65-to-camera-white Bradford source adapter precedes true HNCS.
  * 0 success, -1 invalid argument/nonfinite input. Buffers must not overlap.

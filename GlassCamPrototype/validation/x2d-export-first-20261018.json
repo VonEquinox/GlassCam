@@ -1,0 +1,192 @@
+{
+  "status": "passed-color",
+  "color": [
+    {
+      "name": "daylight-standard-export-cpu",
+      "before": {
+        "channels": 12288,
+        "different_channels": 11333,
+        "maximum_uint16_error": 74,
+        "mean_absolute_error": 19.002197265625
+      },
+      "after": {
+        "channels": 12288,
+        "different_channels": 0,
+        "maximum_uint16_error": 0,
+        "mean_absolute_error": 0.0
+      },
+      "contract": {
+        "cct": 7523.0,
+        "icm_method": 0.0,
+        "filter_exposure": 1.0,
+        "outer_1f8": 4.643616364582644,
+        "outer_248": 4.643616364582644,
+        "shadow": [
+          3337.9157068659138,
+          -1.1039626521517696e-08,
+          7.369868552821485e-05,
+          0.877
+        ],
+        "incoming": [
+          0.3421606729949293,
+          0.7802843172127916,
+          -0.12204470994799071,
+          -0.17531591697565416,
+          -0.6067293054314136,
+          0.7851881780932726,
+          0.6355215439494155,
+          -0.627481322563913,
+          -0.0090624100400452
+        ],
+        "outgoing": [
+          0.9998597879188299,
+          -0.00012188356583593293,
+          1.4022426952670104,
+          1.000106010502679,
+          -0.3456270776971775,
+          -0.7144779490935292,
+          0.9998229138007877,
+          1.7710155002182764,
+          -0.00015350809646445912
+        ],
+        "linearization_lengths": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "invocation": {
+        "status": "obtained-native-crop",
+        "returncode": 0,
+        "seconds": 1.415245708078146,
+        "compile": [
+          "xcrun",
+          "clang++",
+          "-std=c++17",
+          "-O2",
+          "-g",
+          "-dynamiclib",
+          "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/native_x2d_pipeline_bridge.cpp",
+          "-o",
+          "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/export-cpu-after-color/native-x2d-bridge.dylib"
+        ],
+        "probe_sha256": "2f7aa2eb4baf2596060cf56b67acec9ef41c56ccd16943c2d93fda7a3625c263",
+        "bridge_sha256": "6f6f4bbeb02bf4999dbdf6f206e48836518646acff696f2962fcdf534ae58821",
+        "raw": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/phocus-reference/working/x2dii-daylight_0001.3fr",
+        "raw_sha256": "4f352195f2823a4100c119db7646a8417d0aab6adbbd4db88bf3c3a06c52d163",
+        "preset": "Standard",
+        "stage": "specific",
+        "crop": [
+          2000,
+          2000,
+          64,
+          64
+        ],
+        "stop_filter": "colorCorrect",
+        "before_filter": false,
+        "requested_backend": "cpu",
+        "parameter_builder": "export",
+        "output_profile": null,
+        "output_profile_sha256": null,
+        "settings_file": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/phocus-reference/evidence/daylight-standard.phos",
+        "settings_sha256": "fc4cbc24b0662e47b1c73b9dfacc9f8873162d87c09999f6ac0caeecb836084b",
+        "hdr": false,
+        "exposure_ev": 0.0,
+        "temperature": null,
+        "limits": [
+          "This records an original intermediate, not GlassCam equivalence.",
+          "An unavailable stage remains an explicit gap."
+        ]
+      },
+      "evidence_sha256": {
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/export-cpu-before-color/native-crop.npy": "a1d3ab05145898e480ac83a812d64020aa59c872c30d14caf3db5588a98318f4",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/export-cpu-before-color/native-input.json": "d705c376660cb904a2ed5d87f912fd03227621968364d082350098ec353c583f",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/export-cpu-after-color/native-crop.npy": "5492ab5d6b9d4fa616fe89aa47cca4ae2e7b8de5297e6c64afbdd5a85590c37f",
+        "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/export-cpu-after-color/native-input.json": "88453e1f5637efff2d0dc1f31746f00714e93dd0f9819d00031343709736d79f"
+      }
+    }
+  ],
+  "vendor_export_comparisons": [
+    {
+      "name": "daylight-standard-auto-original-export-parameters",
+      "native": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/auto-adobe-export-params",
+      "tiff": "/Users/vonequinox/Program/ProgramDev/HNCS/work/hncs-phocus-audit/exports/x2dii-daylight_0001.tif",
+      "invocation": {
+        "status": "obtained-native-crop",
+        "returncode": 0,
+        "seconds": 1.2207444999366999,
+        "compile": [
+          "xcrun",
+          "clang++",
+          "-std=c++17",
+          "-O2",
+          "-g",
+          "-dynamiclib",
+          "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/native_x2d_pipeline_bridge.cpp",
+          "-o",
+          "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/auto-adobe-export-params/native-x2d-bridge.dylib"
+        ],
+        "probe_sha256": "2f7aa2eb4baf2596060cf56b67acec9ef41c56ccd16943c2d93fda7a3625c263",
+        "bridge_sha256": "6f6f4bbeb02bf4999dbdf6f206e48836518646acff696f2962fcdf534ae58821",
+        "raw": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/phocus-reference/working/x2dii-daylight_0001.3fr",
+        "raw_sha256": "4f352195f2823a4100c119db7646a8417d0aab6adbbd4db88bf3c3a06c52d163",
+        "preset": "Standard",
+        "stage": "specific",
+        "crop": [
+          2000,
+          2000,
+          64,
+          64
+        ],
+        "stop_filter": null,
+        "before_filter": false,
+        "requested_backend": "auto",
+        "parameter_builder": "export",
+        "output_profile": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/reference-adobe-rgb.icc",
+        "output_profile_sha256": "304f569a83c1e5eddaddac54e99ed03339333db013738bb499ab64f049887e28",
+        "settings_file": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/phocus-reference/evidence/daylight-standard.phos",
+        "settings_sha256": "fc4cbc24b0662e47b1c73b9dfacc9f8873162d87c09999f6ac0caeecb836084b",
+        "hdr": false,
+        "exposure_ev": 0.0,
+        "temperature": null,
+        "limits": [
+          "This records an original intermediate, not GlassCam equivalence.",
+          "An unavailable stage remains an explicit gap."
+        ]
+      },
+      "channels": 12288,
+      "different_channels": 439,
+      "maximum_uint16_error": 3,
+      "mean_absolute_error": 0.042399088541666664,
+      "crop_sha256": "39c58e2f9cf0e2e76abbb98db48a2f720b60bf293b7158a0bc9e357256eb3aac"
+    }
+  ],
+  "compile": [
+    "xcrun",
+    "clang++",
+    "-std=c++17",
+    "-O3",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-dynamiclib",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs.cpp",
+    "-o",
+    "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14afa-ebe0-7180-be23-7f59ec9cef36/color-research-20261018/x2d/export-first-comparison/color-core.dylib"
+  ],
+  "source_sha256": {
+    "tools/compare_x2d_crops.py": "56bd4409af654e642bfa02588f6262131d8674bbc40e7a6707a8a89713e1c495",
+    "core/hncs.cpp": "7d62b4facaa7e0c150ac43919ce41d5c946e5cc5dea1c4fd05b0a8329b5f6c1e",
+    "core/hncs_c.h": "40bd98dc14fbbd8dc76b8a7446981a9742483e44c5e346c0b258f167c62bac52"
+  },
+  "manifest_sha256": "3c5cbb365a26b32a433e3cfb00bf0ba5cde7676658feed3472c6e44e49ee16af",
+  "limits": [
+    "Color comparisons start with original prepared native pixels, not an independent RAW decoder.",
+    "TIFF comparison is vendor reexecution versus retained vendor export; nonzero differences are retained."
+  ]
+}

@@ -175,7 +175,7 @@ struct hncs_context {
     // the original ICC gamma, not an approximate color correction / RGB LUT.
     std::array<double,65536> gamma_decode{};
     std::array<uint8_t,65536> srgb_encode{};
-    double exposure=1., shadow_a=0., shadow_b=0., shadow_d=1.;
+    double exposure=1., shadow_threshold=0., shadow_a=0., shadow_b=0., shadow_d=1.;
     int width=0,height=0;
     double cb0=0., cr0=0.;
     bool reproduction=false;
@@ -222,9 +222,7 @@ struct hncs_context {
             }
             lut.swap(expanded);width=ew;height=eh;cb0-=left;cr0-=top;
         }
-        double t=assets::shadow_desaturation[0];
-        shadow_a=assets::shadow_desaturation[1]/(t*t);
-        shadow_b=-2*shadow_a*t; shadow_d=shadow_a*t*t+1;
+        set_native_processing_gain(1.);
         exposure=std::exp2(ev);
         source_to_native=mul(mul(inverse(camera),adaptation(d65,transform(camera,{1.,1.,1.}))),srgb_to_xyz);
         display_adaptation=adaptation(transform(legacy_to_xyz,{1.,1.,1.}),d65);
@@ -236,6 +234,20 @@ struct hncs_context {
                 gamma_decode[i]=lstar?(encoded<=.08?encoded/(24389./2700.):std::pow((encoded+.16)/1.16,3.))
                                       :std::pow(encoded,assets::legacy_icc_gamma[0]);
             }
+    }
+    bool set_native_processing_gain(double gain) {
+        if(!std::isfinite(gain)||gain<=0.)return false;
+        const double threshold=assets::shadow_desaturation[0]/gain;
+        const double a=assets::shadow_desaturation[1]/(threshold*threshold);
+        // CRawColorCorrection::CalculateDesatValues (Phocus 4.2.2, 0x15304).
+        // Preserve the native products. Gain describes already prepared input;
+        // it changes the dark-chroma threshold, not the RGB exposure again.
+        const double b=(threshold*a)*-2.;
+        const double d=(threshold*threshold)*a+1.;
+        if(!std::isfinite(threshold)||threshold<=0.||!std::isfinite(a)||
+           !std::isfinite(b)||!std::isfinite(d))return false;
+        shadow_threshold=threshold;shadow_a=a;shadow_b=b;shadow_d=d;
+        return true;
     }
     inline std::array<uint16_t,3> render(const V& native) const {
         V p={round_even(clamp(native[0],0,1)*65535.),round_even(clamp(native[1],0,1)*65535.),round_even(clamp(native[2],0,1)*65535.)};
@@ -255,7 +267,7 @@ struct hncs_context {
             double saturation=mean>0?std::max({std::abs(p[0]-mean),std::abs(p[1]-mean),std::abs(p[2]-mean)})/mean:0;
             weight=clamp((saturation-assets::gray_thresholds[1])/(assets::gray_thresholds[0]-assets::gray_thresholds[1]),0,1);
         }
-        const double shadow=y<=assets::shadow_desaturation[0]?(shadow_a*y)*y+shadow_b*y+shadow_d:1.;
+        const double shadow=y<=shadow_threshold?(shadow_a*y)*y+shadow_b*y+shadow_d:1.;
         if(!reproduction)weight=std::max(0.,std::min(weight,shadow));
         double cb=(y*weight)*mapped[0],cr=(y*weight)*mapped[1];
         std::array<uint16_t,3> result{};
@@ -291,6 +303,14 @@ extern "C" hncs_context *hncs_create_mode(double ev,double kelvin,int lstar,int 
     try {return new hncs_context(ev,kelvin,lstar!=0,reproduction!=0);} catch(...) {return nullptr;}
 }
 extern "C" void hncs_destroy(hncs_context *c) {delete c;}
+extern "C" hncs_context *hncs_clone_with_native_gain(const hncs_context *source,double gain) {
+    if(!source||!std::isfinite(gain)||gain<=0.)return nullptr;
+    try {
+        auto context=std::make_unique<hncs_context>(*source);
+        if(!context->set_native_processing_gain(gain))return nullptr;
+        return context.release();
+    } catch(...) {return nullptr;}
+}
 extern "C" int hncs_render_native(const hncs_context *c,const double *input,uint16_t *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(double)/3)return -1;
     for(size_t i=0;i<count;++i) {
