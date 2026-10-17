@@ -12,7 +12,7 @@ App仍由Apple解码获得已显影、经过色彩管理的linear-sRGB，再独�
 
 “Reference adjustments”是显式选择的研究解析叠加，默认关闭；开启后才使用原look参数。用户独立颗粒、锐化开关仍保留，永远不能自行把零系数变成非零。新版锐化使用真实Gaussian半径、完整邻域归一化与原始求和次序，默认半径1对应3像素halo。App提供有限半径范围，仍是参考算法参数，不是新增物理标定。FFCS没有额外裁切阶段。
 
-阶段顺序保持：输入→gamma_pre→头部矩阵→原生三线性LUT→Lab/UCS或准确旁路→tone→全图坐标grain→Gaussian USM→sRGB输出。输入linear分支不再重复sRGB解码。原生MONO滤镜已包含在LUT中，不能再套解析路径的彩色加权修复。
+研究包装流程的阶段顺序为：输入→gamma_pre→包装容器矩阵→采样LUT的浮点三线性→Lab/UCS或准确旁路→tone→全图坐标grain→Gaussian USM→sRGB输出。输入linear分支不再重复sRGB解码。原生MONO滤镜已包含在LUT中，不能再套解析路径的彩色加权修复。此处的包装容器和插值不等同于原版 `.s3d` 的固定点处理；见下方独立审计。
 
 C++只开放有真实表的路径。新版Python的自定义Cube输入域/shaper、解析无表MONO、sensor RAW/CFA修复、RAF预览挑选、tifffile和Python CMS/AdobeRGB保存等也完整保留在参考里，但App没有这些独立入口。Apple现有ImageIO/Core Image色彩管理与CIRAWFilter承担解码，不把Python传感器校正叠到已经显影的Apple RGB。
 
@@ -38,5 +38,7 @@ Xcode构建阶段离线验证ZIP及`tools/ffcs_native_SHA256SUMS`全部50表。�
 旧FFCS实时cube属于0.1数学，不能带入新版本。缓存合同升级；只有经0.2独立重新测量的窄配方才可再次放行，其他配方明确显示系统取景。取景代理始终仅颜色，空间开关不会让grain/USM进入cube。HNCS的既有独立准入不受影响。当前准入与测量见[LIVE_COLOR_PROXY](LIVE_COLOR_PROXY.md)。
 
 新数值证据与整合测试见[TEST_STATUS](TEST_STATUS.md)。既有`ffcs_*`和阶段性能报告保留为0.1历史，不用旧golden证明新默认正确，也不把旧性能当成新版基准。上游50表原生核对仅覆盖其声明的固定插值/Gamma/BGR量程；不证明完整Apple或富士相机等价。
+
+2026-10-18 的[原始 SILKYPIX 独立审计](FFCS_ORIGINAL_AUDIT_20261018.md)纠正了旧交付“三线性入口已包含矩阵”的说法，区分 encoded 默认分派和显式 gamma 入口，并以 50 表／1,450,500 输入验证固定点数学。当前采样 LUT 仍有残差，本次最大 ΔE00 为 3.502497；低均值不能替代其 P95／P99／极值。原始交付快照与历史结果保留。
 
 Apple编译、实际ICC照片/ProRAW、HEIF位流、条带方向、内存/耗时/热状态、微信兼容仍须Apple环境验证。测试通过只说明所列便携算法与源合同，不代表已经完成真机验收。
