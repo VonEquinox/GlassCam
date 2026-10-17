@@ -152,9 +152,9 @@ class CaptureRecipeSourceContracts(unittest.TestCase):
     def test_snapshot_is_forwarded_to_full_source_processing(self):
         workflow = source('CaptureWorkflow.swift')
         self.assertIn('let snapshot: CaptureSnapshot', workflow)
-        self.assertIn('ImagePipeline.process(input, recipe: snapshot.recipe)', workflow)
-        self.assertIn('exportSettings: snapshot.output', workflow)
-        self.assertIn('ImagePipeline.writeHEIF(processed,', workflow)
+        self.assertIn('ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe', workflow)
+        self.assertIn('settings: snapshot.output', workflow)
+        self.assertIn('settings: snapshot.output', workflow)
         self.assertNotIn('UserDefaults', workflow)
 
     def test_root_owns_shared_settings_and_workflow(self):

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Execute all eight HNCS stage-switch routes against revision-8 Python.
+"""Execute all eight HNCS stage-switch routes with native gradation semantics.
 
 This portable audit composes the real native C++ color/work/spatial/finish APIs,
-with caller-owned crop and Standard bypass. It does not run Swift or Apple APIs.
+with caller-owned crop and Standard spatial bypass. It does not run Swift or Apple APIs.
 """
 import argparse
 import ctypes as c
@@ -18,6 +18,7 @@ import tempfile
 import numpy as np
 
 import reference_runtime as r
+from phocus_binary_reference import presets as binary_presets
 from test_hncs_spatial import reference_apply
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,7 +33,7 @@ def inputs_sha256():
         'core/hncs_numpy_rng.cpp', 'core/hncs_numpy_rng.h',
         'reference/phocus_presets.py', 'reference/hncs_pipeline.py',
         'reference/work/hncs-pipeline/phocus_presets.json',
-        'tools/reference_runtime.py', 'tools/test_hncs_spatial.py',
+        'tools/reference_runtime.py', 'tools/phocus_binary_reference.py', 'tools/test_hncs_spatial.py',
         'tools/verify_effect_toggle_hncs.py', 'tests/test_effect_toggle_native.py')]
     return {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
 
@@ -42,9 +43,9 @@ def verify():
     compiler = os.environ.get('CXX', 'g++')
     report = {
         'passed': False,
-        'scope': 'synthetic white-balanced native RGB; caller crop and Standard bypass; C++ core/work/spatial/finish vs revision-8 Python',
+        'scope': 'synthetic white-balanced native RGB; caller crop and Standard spatial bypass; pinned Python with the explicit binary-verified no-adjustment gradation correction',
         'cases': 0, 'memory_spatial_cases': 0, 'file_spatial_cases': 0,
-        'pointwise_bypass_cases': 0, 'native_code_mismatches': 0, 'final_code_mismatches': 0,
+        'pointwise_route_cases': 0, 'native_code_mismatches': 0, 'final_code_mismatches': 0,
         'spatial_float_bit_mismatches': 0, 'memory_file_bit_mismatches': 0,
         'max_display_absolute_error': 0., 'display_tolerance': 1e-7,
         'cases_detail': [], 'source_sha256': before,
@@ -113,12 +114,9 @@ def verify():
                     np.testing.assert_array_equal(native, expected_native)
                     flags = lib.hncs_preset_flags(key)
                     needs_spatial = preset != 'standard' and ((grain and flags & 4) or (sharp and flags & (8 | 16)))
-                    if preset == 'standard':
-                        expected = expected_native
-                    else:
-                        expected, _ = r.presets.apply_preset(expected_native, preset,
-                                                            apply_grain=grain, apply_sharpness=sharp,
-                                                            apply_tone_curve=True)
+                    expected, _ = binary_presets.apply_preset(expected_native, preset,
+                        apply_grain=grain and preset!='standard', apply_sharpness=sharp and preset!='standard',
+                        apply_tone_curve=True)
                     work = np.empty(source.shape, dtype=np.float32)
                     assert lib.hncs_apply_preset_work_float(key, 1, native.ctypes.data, work.ctypes.data, h * w) == 0
                     initial_work = work.copy()
@@ -135,7 +133,7 @@ def verify():
                         np.testing.assert_array_equal(work.view(np.uint32), disk_work.view(np.uint32))
                         report['file_spatial_cases'] += 1
                     else:
-                        report['pointwise_bypass_cases'] += 1
+                        report['pointwise_route_cases'] += 1
                         direct = np.empty(source.shape, dtype=np.uint16)
                         assert lib.hncs_render_native_preset(ctx, source.ctypes.data, direct.ctypes.data, h * w) == 0
                         np.testing.assert_array_equal(direct, expected)

@@ -7,6 +7,7 @@ The C++ runtime has no dependency on either package.
 import argparse, hashlib, importlib.util, pathlib
 import numpy as np
 from scipy.ndimage._filters import _gaussian_kernel1d
+from phocus_sharpness_settings import preset_sharpness
 
 
 def main():
@@ -44,6 +45,13 @@ def main():
     for key,active,a,c,r,fs,cs,u,rad,t,fk,ck,uk in records:
         def kern(k):return '{'+(k+',sizeof('+k+')/sizeof(double)' if k else 'nullptr,0')+'}'
         out.append('{"'+key+'",'+','.join(['true' if active else 'false',repr(a),repr(c),repr(r),repr(u),repr(t),kern(fk),kern(ck),kern(uk)])+'},')
+    out.append('};')
+    out.append('static constexpr NativeSharpnessPreset kNativeSharpnessPresets[] = {')
+    for key in sorted(set(p.preset_key(k) for k in p.PRESET_CHOICES)):
+        sharp=preset_sharpness(p,key)
+        out.append('{"'+key+'",'+','.join([
+            'true' if sharp['enabled'] else 'false',str(sharp['amount']),
+            repr(sharp['radius']/10.),str(sharp['noise_limit']),str(sharp['dark_limit'])])+'},')
     out.append('};')
     args.output.write_text('\n'.join(out)+'\n')
     print(f'Wrote {len(records)} presets, {len(kernels)} kernels to {args.output}')

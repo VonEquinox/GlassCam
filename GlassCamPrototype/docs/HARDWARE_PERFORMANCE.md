@@ -1,6 +1,8 @@
 # 硬件与性能设计
 
-更新：2026-10-11。本文分别列出官方事实、本原型已测结果和下一步工程方案。尚无 iPhone 实测，不承诺实时帧率、48MP 吞吐、功耗或持续性能。
+2026-10-17 更新：已完成 iPhone 18 Pro Max 的 Standard/Nature、24MP/48MP 单张 RAW 处理实测和精度对照，见 [HNCS 颜色核查与提速](HNCS_AUDIT_AND_SPEED_20261017.md)。该结果不含拍摄和 Photos 事务，也未覆盖持续拍摄、功耗或并发取景。以下 2026-10-11 的硬件分析与测量保留为历史背景；其中“尚无 iPhone 实测”描述的是当时状态。
+
+后续 render revision 9 补回了原版无调整 gradation，Standard 有额外 CPU 成本；上述手机计时属于修正前版本。当前数值验证和 Mac 分段测量见[二进制核查](HNCS_BINARY_AUDIT_20261017.md)，尚无 revision 9 手机端到端计时。
 
 ## 官方已公开的硬件
 

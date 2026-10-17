@@ -1,0 +1,511 @@
+{
+  "date": "2026-10-17",
+  "device": "iPhone 18 Pro Max",
+  "device_model": "iPhone19,7",
+  "method": "Same retained 48MP iPhone ProRAW, foreground isolated Release harness; 3 rounds per 24/48MP target, alternating order. Capture and Photos transactions excluded.",
+  "summary": [
+    {
+      "megapixels": 24,
+      "before_seconds": 3.63245962500514,
+      "after_seconds": 2.7719362499919953,
+      "speedup": 1.310441257447977,
+      "time_reduction_percent": 23.689826284357586,
+      "decoded_float_sha256_equal": true,
+      "all_encoded_files_identical": true
+    },
+    {
+      "megapixels": 48,
+      "before_seconds": 3.74613395833876,
+      "after_seconds": 2.8751943333336385,
+      "speedup": 1.3029150464397696,
+      "time_reduction_percent": 23.249025120055865,
+      "decoded_float_sha256_equal": true,
+      "all_encoded_files_identical": true
+    }
+  ],
+  "before": {
+    "captures": [
+      {
+        "decoded_rgba_sha256": "e1aa4fa1e75c24cc79dc142b2f7228db1a9523e3afa8e4c894f13840181682bc",
+        "encoded_sha256": "91aed64dc9a3591d80170390de298f25e64c4e88fc8f1d9a644232eebf561235",
+        "export_progress_seconds": {
+          "0.0": 1.0208343155682087e-05,
+          "0.9": 2.4416848749970086,
+          "0.85": 2.3466278749983758,
+          "1.0": 2.812455624996801
+        },
+        "megapixels": 48,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 1,
+        "seconds": {
+          "full_export": 2.838197124990984,
+          "preview_effect": 0.08816979166294914,
+          "raw_preview_decode": 0.8015763750008773,
+          "retain": 0.013569458344136365,
+          "review_decode": 0.30730049998965114
+        },
+        "thermal": 0,
+        "total_seconds": 4.048950374999549
+      },
+      {
+        "decoded_rgba_sha256": "0ad3c2ba469cb67fe42c6c2ec99ace7c3e3bc8ea6e142e3d4d7febc82240a6fd",
+        "encoded_sha256": "ea8d80ebc51d2606afb82e7c79e429b200a25b41417b5a943093d0173e25621b",
+        "export_progress_seconds": {
+          "0.0": 6.416652468033135e-06,
+          "0.9": 2.403676291665761,
+          "0.85": 2.3295360833290033,
+          "1.0": 2.6301367499982007
+        },
+        "megapixels": 24,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 1,
+        "seconds": {
+          "full_export": 2.6487447083345614,
+          "preview_effect": 0.08351458332617767,
+          "raw_preview_decode": 0.7503526249929564,
+          "retain": 0.020012000008136965,
+          "review_decode": 0.14702237499295734
+        },
+        "thermal": 0,
+        "total_seconds": 3.649731208337471
+      },
+      {
+        "encoded_sha256": "ea8d80ebc51d2606afb82e7c79e429b200a25b41417b5a943093d0173e25621b",
+        "export_progress_seconds": {
+          "0.0": 4.0000013541430235e-06,
+          "0.9": 2.4016624166688416,
+          "0.85": 2.3328796249988955,
+          "1.0": 2.599944333327585
+        },
+        "megapixels": 24,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 2,
+        "seconds": {
+          "full_export": 2.618563041673042,
+          "preview_effect": 0.08501016667287331,
+          "raw_preview_decode": 0.741827291669324,
+          "retain": 0.01958941666816827,
+          "review_decode": 0.14502912500756793
+        },
+        "thermal": 0,
+        "total_seconds": 3.6100893750117393
+      },
+      {
+        "encoded_sha256": "91aed64dc9a3591d80170390de298f25e64c4e88fc8f1d9a644232eebf561235",
+        "export_progress_seconds": {
+          "0.0": 4.0000013541430235e-06,
+          "0.9": 2.415698083335883,
+          "0.85": 2.346907041675877,
+          "1.0": 2.6678375833434984
+        },
+        "megapixels": 48,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 2,
+        "seconds": {
+          "full_export": 2.68682666667155,
+          "preview_effect": 0.08502512499399018,
+          "raw_preview_decode": 0.7567908333439846,
+          "retain": 0.019592791664763354,
+          "review_decode": 0.19783150000148453
+        },
+        "thermal": 0,
+        "total_seconds": 3.74613395833876
+      },
+      {
+        "encoded_sha256": "91aed64dc9a3591d80170390de298f25e64c4e88fc8f1d9a644232eebf561235",
+        "export_progress_seconds": {
+          "0.0": 3.875000402331352e-06,
+          "0.9": 2.4174686249898514,
+          "0.85": 2.350115666660713,
+          "1.0": 2.6618549583363347
+        },
+        "megapixels": 48,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 3,
+        "seconds": {
+          "full_export": 2.6794688749941997,
+          "preview_effect": 0.08506387499801349,
+          "raw_preview_decode": 0.757046166661894,
+          "retain": 0.013392041670158505,
+          "review_decode": 0.19323404165334068
+        },
+        "thermal": 0,
+        "total_seconds": 3.72826308333606
+      },
+      {
+        "encoded_sha256": "ea8d80ebc51d2606afb82e7c79e429b200a25b41417b5a943093d0173e25621b",
+        "export_progress_seconds": {
+          "0.0": 4.4166663428768516e-06,
+          "0.9": 2.4248158333357424,
+          "0.85": 2.3569049166690093,
+          "1.0": 2.606175083332346
+        },
+        "megapixels": 24,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 3,
+        "seconds": {
+          "full_export": 2.6237309583375463,
+          "preview_effect": 0.08669991667557042,
+          "raw_preview_decode": 0.7612037916696863,
+          "retain": 0.013398083334323019,
+          "review_decode": 0.14734799999860115
+        },
+        "thermal": 0,
+        "total_seconds": 3.63245962500514
+      }
+    ],
+    "cpu_count": 6,
+    "cpu_kernel": [
+      {
+        "all_workers_bit_identical": true,
+        "pixels_per_call": 516096,
+        "preset": "standard",
+        "rgba_sha256": "9a3653222831987ee082cea629ce18d849beea99ebbafa9af3ef69de620a8b13",
+        "seconds_1_worker": [
+          0.01112545833166223,
+          0.011177458334714174,
+          0.011141249997308478,
+          0.01111966666940134,
+          0.01113854166760575
+        ],
+        "seconds_2_workers": [
+          0.005808958332636394,
+          0.005789249989902601,
+          0.005841749996761791,
+          0.00577974999032449,
+          0.005791416668216698
+        ],
+        "seconds_4_workers": [
+          0.0049727916630217806,
+          0.004982875005225651,
+          0.004952624993165955,
+          0.004977458331268281,
+          0.004994916656869464
+        ]
+      },
+      {
+        "all_workers_bit_identical": true,
+        "pixels_per_call": 516096,
+        "preset": "nature",
+        "rgba_sha256": "49a130b529a3c17462a0baedb474470b00091c7e0b88f87444bbec0bd5bc12b7",
+        "seconds_1_worker": [
+          0.03489466666360386,
+          0.03481175001070369,
+          0.03474116665893234,
+          0.03476162499282509,
+          0.03480712500459049
+        ],
+        "seconds_2_workers": [
+          0.0181460000021616,
+          0.018111958328518085,
+          0.01808537499164231,
+          0.018103458336554468,
+          0.018060249989503063
+        ],
+        "seconds_4_workers": [
+          0.01517937499738764,
+          0.015484291667235084,
+          0.014692208322230726,
+          0.015292041658540256,
+          0.015216708328807727
+        ]
+      }
+    ],
+    "gpu": "Apple A20 Pro GPU",
+    "label": "baseline",
+    "low_power": false,
+    "metal_fp64": "program_source:3:25: error: 'double' is not supported in Metal\nkernel void fp64(device double *v [[buffer(0)]], uint i [[thread_position_in_grid]]) { v[i] *= 0.5; }\n                        ^\n",
+    "nature_preview_seconds": 0.3772050833358662,
+    "nature_uses_spatial": true,
+    "os": "Version 27.0.1 (Build 24A446)",
+    "preview_height": 2048,
+    "preview_width": 1536,
+    "scope": "Existing RAW bytes through automatic processing, HEIF and review decode; camera and Photos transaction excluded",
+    "source_bytes": 49513537,
+    "source_hdr_fraction": 0.025239944458007812,
+    "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+    "standard_preview_seconds": 0.08458695834269747,
+    "standard_uses_spatial": false,
+    "status": "complete",
+    "thermal_end": 0,
+    "thermal_start": 0,
+    "white_balance": "Auto WB · 5119 K · Tint +21.4",
+    "white_xy": [
+      0.342873752117157,
+      0.36416757106781006
+    ]
+  },
+  "after": {
+    "captures": [
+      {
+        "decoded_rgba_sha256": "e1aa4fa1e75c24cc79dc142b2f7228db1a9523e3afa8e4c894f13840181682bc",
+        "encoded_sha256": "91aed64dc9a3591d80170390de298f25e64c4e88fc8f1d9a644232eebf561235",
+        "export_progress_seconds": {
+          "0.0": 0.015422708325786516,
+          "0.9": 2.5306905416655354,
+          "0.85": 2.4223886666586623,
+          "1.0": 2.8596904583246214
+        },
+        "megapixels": 48,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 1,
+        "seconds": {
+          "full_export": 2.8841074999945704,
+          "retain": 0.01370774999668356,
+          "review_decode": 0.18568120834243018
+        },
+        "thermal": 0,
+        "total_seconds": 3.083553500007838
+      },
+      {
+        "decoded_rgba_sha256": "0ad3c2ba469cb67fe42c6c2ec99ace7c3e3bc8ea6e142e3d4d7febc82240a6fd",
+        "encoded_sha256": "ea8d80ebc51d2606afb82e7c79e429b200a25b41417b5a943093d0173e25621b",
+        "export_progress_seconds": {
+          "0.0": 0.015569875002256595,
+          "0.9": 2.409307166657527,
+          "0.85": 2.342242416663794,
+          "1.0": 2.6026384583237814
+        },
+        "megapixels": 24,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 1,
+        "seconds": {
+          "full_export": 2.618456458338187,
+          "retain": 0.013816416671033949,
+          "review_decode": 0.14325070832273923
+        },
+        "thermal": 0,
+        "total_seconds": 2.7755731666693464
+      },
+      {
+        "encoded_sha256": "ea8d80ebc51d2606afb82e7c79e429b200a25b41417b5a943093d0173e25621b",
+        "export_progress_seconds": {
+          "0.0": 0.015393291658256203,
+          "0.9": 2.4110427083214745,
+          "0.85": 2.3453396249969956,
+          "1.0": 2.5955562083254335
+        },
+        "megapixels": 24,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 2,
+        "seconds": {
+          "full_export": 2.6133859166729962,
+          "retain": 0.013409666658844799,
+          "review_decode": 0.1450898333278019
+        },
+        "thermal": 0,
+        "total_seconds": 2.7719362499919953
+      },
+      {
+        "encoded_sha256": "91aed64dc9a3591d80170390de298f25e64c4e88fc8f1d9a644232eebf561235",
+        "export_progress_seconds": {
+          "0.0": 0.015432791667990386,
+          "0.9": 2.3921302083326736,
+          "0.85": 2.3261679583374644,
+          "1.0": 2.642563125002198
+        },
+        "megapixels": 48,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 2,
+        "seconds": {
+          "full_export": 2.661139333329629,
+          "retain": 0.019756291672820225,
+          "review_decode": 0.19426112501241732
+        },
+        "thermal": 0,
+        "total_seconds": 2.8751943333336385
+      },
+      {
+        "encoded_sha256": "91aed64dc9a3591d80170390de298f25e64c4e88fc8f1d9a644232eebf561235",
+        "export_progress_seconds": {
+          "0.0": 0.015430291663506068,
+          "0.9": 2.390429333332577,
+          "0.85": 2.3240357083413983,
+          "1.0": 2.629546541662421
+        },
+        "megapixels": 48,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 3,
+        "seconds": {
+          "full_export": 2.6461808333406225,
+          "retain": 0.019694583330419846,
+          "review_decode": 0.19706616665644106
+        },
+        "thermal": 0,
+        "total_seconds": 2.862988333334215
+      },
+      {
+        "encoded_sha256": "ea8d80ebc51d2606afb82e7c79e429b200a25b41417b5a943093d0173e25621b",
+        "export_progress_seconds": {
+          "0.0": 0.015429166654939763,
+          "0.9": 2.414135333325248,
+          "0.85": 2.3462977083254373,
+          "1.0": 2.5946546249906532
+        },
+        "megapixels": 24,
+        "review_dimensions": [
+          1536,
+          2048
+        ],
+        "round": 3,
+        "seconds": {
+          "full_export": 2.6124457499972777,
+          "retain": 0.018173625008785166,
+          "review_decode": 0.13761854167387355
+        },
+        "thermal": 0,
+        "total_seconds": 2.7682853333390085
+      }
+    ],
+    "cpu_count": 6,
+    "cpu_kernel": [
+      {
+        "all_workers_bit_identical": true,
+        "pixels_per_call": 516096,
+        "preset": "standard",
+        "rgba_sha256": "9a3653222831987ee082cea629ce18d849beea99ebbafa9af3ef69de620a8b13",
+        "seconds_1_worker": [
+          0.01163441665994469,
+          0.01148737499897834,
+          0.011783666675910354,
+          0.01178641666774638,
+          0.011655041671474464
+        ],
+        "seconds_2_workers": [
+          0.005905041674850509,
+          0.006257208326132968,
+          0.0060919583338545635,
+          0.005986374992062338,
+          0.005916708323638886
+        ],
+        "seconds_4_workers": [
+          0.004604874993674457,
+          0.0049542916676728055,
+          0.004908041664748453,
+          0.004660999999032356,
+          0.004623749991878867
+        ]
+      },
+      {
+        "all_workers_bit_identical": true,
+        "pixels_per_call": 516096,
+        "preset": "nature",
+        "rgba_sha256": "49a130b529a3c17462a0baedb474470b00091c7e0b88f87444bbec0bd5bc12b7",
+        "seconds_1_worker": [
+          0.03713191667338833,
+          0.03665583333349787,
+          0.03504458333190996,
+          0.03525508333405014,
+          0.036837999999988824
+        ],
+        "seconds_2_workers": [
+          0.019106624997220933,
+          0.018519958335673437,
+          0.018455124998581596,
+          0.019369791669305414,
+          0.018881791664171033
+        ],
+        "seconds_4_workers": [
+          0.01404983333486598,
+          0.013568124995799735,
+          0.013533958335756324,
+          0.0145126249990426,
+          0.014004916665726341
+        ]
+      }
+    ],
+    "export_path": "direct",
+    "gpu": "Apple A20 Pro GPU",
+    "label": "optimized",
+    "low_power": false,
+    "metal_fp64": "program_source:3:25: error: 'double' is not supported in Metal\nkernel void fp64(device double *v [[buffer(0)]], uint i [[thread_position_in_grid]]) { v[i] *= 0.5; }\n                        ^\n",
+    "nature_preview_seconds": 0.2882619583251653,
+    "nature_uses_spatial": true,
+    "os": "Version 27.0.1 (Build 24A446)",
+    "preset": "standard",
+    "preview_height": 2048,
+    "preview_width": 1536,
+    "scope": "Existing RAW bytes through automatic processing, HEIF and review decode; camera and Photos transaction excluded",
+    "source_bytes": 49513537,
+    "source_hdr_fraction": 0.025239944458007812,
+    "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+    "standard_preview_seconds": 0.08515800000168383,
+    "standard_uses_spatial": false,
+    "status": "complete",
+    "thermal_end": 0,
+    "thermal_start": 0,
+    "white_balance": "Auto WB · 5119 K · Tint +21.4",
+    "white_xy": [
+      0.342873752117157,
+      0.36416757106781006
+    ],
+    "working_space": "legacy"
+  },
+  "before_source_sha256": {
+    "ios/GlassCam/ExportSettings.swift": "995224c3489a3ac22c95741a9b3511a7818b381a743bbb5d99c41b1091370dbe",
+    "ios/GlassCam/SourceImageStore.swift": "ce95c7e26eacc4e8c148317db8f1b72073a1438e576d991e00abdafd17e82ab3",
+    "ios/GlassCam/PhotoWhiteBalance.swift": "3d45624d968d87900d51aee77213561410840bf5ba804e5fe2064af739a62236",
+    "ios/GlassCam/HNCSEngine.swift": "2c6a0a74de862e4191eaccce0f2d0b236a8923cc0262b88372f8e7d17c00d77a",
+    "ios/GlassCam/FFCSEngine.swift": "ab08f4825259bd62f8e3eeff12263c9d88754f2637062cb0431ed287eca06ae5",
+    "ios/GlassCam/ImagePipeline.swift": "2aa9a4d5ab6bb53cdeb362934693e4e5ee779eced25f2570d756981e2423909f",
+    "ios/GlassCam/PreviewRaster.swift": "435f18d6676cf9fb71774f6b7e50bfd4e3dc96b7930261547bc851cd0c5fa161",
+    "core/hncs.cpp": "74b440fd944266f755681f105752387bbd6d50c7083bdcb460e336a27b7ef50e",
+    "core/hncs_spatial.cpp": "1618a24f3ee5f3c89d082e82315b5d3c0ead53eb8fd4dd1d11074ae2db4094ad",
+    "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+    "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2"
+  },
+  "after_source_sha256": {
+    "ios/GlassCam/ExportSettings.swift": "995224c3489a3ac22c95741a9b3511a7818b381a743bbb5d99c41b1091370dbe",
+    "ios/GlassCam/SourceImageStore.swift": "ce95c7e26eacc4e8c148317db8f1b72073a1438e576d991e00abdafd17e82ab3",
+    "ios/GlassCam/PhotoWhiteBalance.swift": "3d45624d968d87900d51aee77213561410840bf5ba804e5fe2064af739a62236",
+    "ios/GlassCam/HNCSEngine.swift": "6a05a2c8ae90aa76361b2c0f9635819f08d35fa3a8a421e3013c98170a47851d",
+    "ios/GlassCam/FFCSEngine.swift": "ab08f4825259bd62f8e3eeff12263c9d88754f2637062cb0431ed287eca06ae5",
+    "ios/GlassCam/ImagePipeline.swift": "7351525f9f0d52efeb164b1770a8aefdf8998a701535bca3eae01fac4709d449",
+    "ios/GlassCam/PreviewRaster.swift": "435f18d6676cf9fb71774f6b7e50bfd4e3dc96b7930261547bc851cd0c5fa161",
+    "core/hncs.cpp": "fa924112e1ac83a5193088a2a3e907b490351dcc42be98d02eb30d1dcb42c2fa",
+    "core/hncs_spatial.cpp": "1618a24f3ee5f3c89d082e82315b5d3c0ead53eb8fd4dd1d11074ae2db4094ad",
+    "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+    "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2"
+  },
+  "precision": "Decoded Float32 RGBA SHA-256 and encoded HEIF bytes agree before/after on the tested RAW; therefore Delta E is zero under the same color-space conversion. This is not iPhone-to-Hasselblad calibration.",
+  "limits": [
+    "One real indoor RAW, not a multi-scene benchmark",
+    "Three rounds do not establish p95 or sustained thermal behavior",
+    "No ANE model was deployed",
+    "Color comparison images were processed on macOS using the same RAW",
+    "The isolated benchmark app does not run a live camera preview concurrently; actual camera-app latency can differ."
+  ]
+}

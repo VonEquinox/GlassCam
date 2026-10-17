@@ -41,7 +41,7 @@ class HEIFSourceContracts(unittest.TestCase):
     def test_snapshot_not_live_controls_drives_export(self):
         export=self.pipeline.split('static func writeHEIF(',1)[1]
         self.assertIn('processed.source',export)
-        self.assertIn('let recipe = processed.recipe',export)
+        self.assertIn('recipe: processed.recipe',export)
         self.assertIn('exposureEV: recipe.exposureEV',export)
         self.assertIn('illuminantKelvin: recipe.illuminantKelvin',export)
         self.assertIn('let source: ImportedImage',self.pipeline)
@@ -54,7 +54,7 @@ class HEIFSourceContracts(unittest.TestCase):
         self.assertNotIn('srgb_encode[',export)
         self.assertNotIn('uint8_t(',export)
         self.assertIn('sizeof(float)/4',export)
-        self.assertIn('hncs_process_linear_rgba_parallel(',self.bridge)
+        self.assertIn('hncs_process_phocus_linear_rgba_parallel(',self.bridge)
         self.assertIn('workerCount()',self.bridge)
 
 if __name__=='__main__':unittest.main(verbosity=2)

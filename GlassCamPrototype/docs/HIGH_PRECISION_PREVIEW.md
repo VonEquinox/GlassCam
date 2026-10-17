@@ -2,17 +2,27 @@
 
 > 当前界面已改为相机、独立设置和成片查看，旧 before/after 编辑入口不再开放；本文件的底层 Float/Metal 精度约束继续适用。见[自动拍摄](AUTOMATIC_CAPTURE.md)。
 
-更新：2026-10-15。Xcode 27模拟器Debug/Release构建与本机Core Image/Metal像素回归已通过；iPhone显示链及面板行为仍待真机验证。
+更新：2026-10-17。本轮 Xcode 27 模拟器 Release 构建、31 项相关便携检查及本机 Core Image/Metal/HEIF 回归通过，包含新增显示层 headroom 检查；iPhone 物理屏幕在不同亮度下的表现仍待真机验证。
 
 ## 当前实现
 
 - 解码后的原图预览保留 Float32 linear-sRGB RGBA；HNCS/FFCS 处理后的预览也使用精确 Float 输出。HNCS 内部 double / UInt16 核不变，FFCS 原数学不变。
 - before/after 使用同一个按需重绘的 MTKView：CPU 只在配方变化时处理，拖动比较线在 Core Image / Metal 中裁切合成，不重新运行颜色核。
 - 不再将效果输出转成 UInt8、8位 CGImage 或 UIImage 再显示。使用 RGBAf 输入/工作格式，最终 drawable 为 `.rgba16Float`。
-- render destination 与 CAMetalLayer 都标为 extendedLinearSRGB；保留超白浮点值，`wantsExtendedDynamicRangeContent=true`。RAW 解码开启 EDR，普通图片请求 HDR 解码；效果外层恢复源高光增益，最终导出 BT.2020/PQ HEIF。亮度表现仍取决于屏幕当前可用 EDR headroom。
+- render destination 与 CAMetalLayer 都标为 extendedLinearSRGB；保留超白浮点值。成片查看页和缩略图通过 `PreviewDisplay` 向显示层传递本张照片的 headroom，让 Core Animation 按屏幕当前可用范围做色调映射。RAW 解码开启 EDR，普通图片请求 HDR 解码；效果外层恢复源高光增益，最终导出 BT.2020/PQ HEIF。
 - 编辑器与实时代理共用 `PreviewRendering`，用 `CIRenderDestination.isFlipped=true` 对齐Metal的顶部首行；源位图和效果计算保持从上到下，不额外翻转照片。渲染任务与像素所有者保留至GPU完成。
 - 半精度只用于最终显示存储，不把颜色算法改成 half，也不声称面板原生10bit。无法初始化 Metal 或 GPU 命令失败时显示错误，不静默降成8位图。
 - Float 数据由不可变所有者保持，GPU 完成前继续保留；视图销毁或新图替换不提前释放当前命令引用的内存。
+
+## 2026-10-17：成片显示端的 HDR 适配
+
+`PreviewRaster` 保存实际 RGB 峰值相对参考白的比例，最低为 1；裁切沿用源图的保守上界。`PrecisionPreview` 在请求重绘、取得 drawable 前更新显示配置。iOS/macOS 26 及以上使用 `contentsHeadroom`、`preferredDynamicRange=high` 和 `toneMapMode=ifSupported`，由系统随屏幕亮度和 EDR 能力变化适配；旧系统使用按显示参考白归一化的 HDR10 EDR metadata。
+
+同一个视图从 HDR 换到较低 headroom 的照片或 SDR 时会更新配置。旧比较组件只采用实际显示的图像范围，部分比较时覆盖两侧；尺寸不匹配的旧结果不参与。该配置用于 App 内的成片查看和缩略图，显示映射不写回源像素或导出文件。实时取景继续使用其独立显示路径。
+
+`tools/test_apple_images.py` 增加实际 CAMetalLayer 检查，覆盖 8× → 2× → SDR 的元数据更新、半浮点 drawable、比较端点和源像素保持；现有 Metal 像素与 HEIF 回归继续验证渲染/导出边界。物理屏幕在不同亮度下的观感仍需真机验收。
+
+接口依据：[CAMetalLayer EDR metadata](https://developer.apple.com/documentation/quartzcore/cametallayer/edrmetadata)、[CALayer contentsHeadroom](https://developer.apple.com/documentation/quartzcore/calayer/contentsheadroom)。
 
 ## 来源位深与处理精度分开
 

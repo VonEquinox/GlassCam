@@ -1,0 +1,261 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-17T15:08:59.559762+00:00",
+  "status": "binary_color_core_and_gradation_audit_passed",
+  "branch": "codex/single-camera-hard-black",
+  "render_revision": 9,
+  "method": "Original Phocus 4.2.2 arm64 functions with synthetic RGB16, original factory XML and native-parsed recovered X2D II configuration; no photographic fit, GUI automation, or new calibration.",
+  "binary_summary": {
+    "core_cases": 36,
+    "post_curve_cases": 86,
+    "core_plus_preset_cases": 24,
+    "total_compared_channels": 58797558,
+    "different_channels": 0,
+    "maximum_uint16_error": 0,
+    "maximum_WB_gain_error": 1.3322676295501878e-15,
+    "CCT_all_equal": true,
+    "shadow_weight_cases": 80,
+    "shadow_weight_max_error": 0.0,
+    "film_selection_cases": 60,
+    "film_selection_all_equal": true
+  },
+  "before_correction": {
+    "core_cases": 36,
+    "post_curve_cases": 4,
+    "core_plus_preset_cases": 24,
+    "total_compared_channels": 25774272,
+    "different_channels": 1432354,
+    "maximum_uint16_error": 2,
+    "maximum_WB_gain_error": 1.3322676295501878e-15,
+    "CCT_all_equal": true
+  },
+  "scope": "Non-HDR X2D II native color core, factory gradation, whitepoint/preset WB, shadow weight and film selection. Source bridge and whole-camera image matching remain separate.",
+  "binary_report": {
+    "path": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/binary-audit/report.json",
+    "sha256": "9caac782f2c2b19310ee5da77eaef4582c5cdde6768ee85b5eb78693d07c239d"
+  },
+  "disassembly_manifest": {
+    "path": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/binary-audit/disassembly/manifest.json",
+    "sha256": "34129d70166c34a68bf138326d5777ae5dac560d0523cdfd5f32496c659b54d1"
+  },
+  "selected_functions": {
+    "path": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/binary-audit/selected-functions.json",
+    "sha256": "47b43204c7be95fa3d0d781abf7a1c73944dbe823a420c256c45033a1697fa10"
+  },
+  "native_no_adjustment_filter_enabled": {
+    "standard-tone": {
+      "exposure_tool_version": 4,
+      "filter_enabled": true,
+      "recover_hue": true
+    },
+    "standard-no-tone": {
+      "exposure_tool_version": 4,
+      "filter_enabled": true,
+      "recover_hue": true
+    },
+    "nature-tone": {
+      "exposure_tool_version": 4,
+      "filter_enabled": true,
+      "recover_hue": true
+    },
+    "nature-no-tone": {
+      "exposure_tool_version": 4,
+      "filter_enabled": true,
+      "recover_hue": true
+    }
+  },
+  "portable_tests": {
+    "count": 77,
+    "passed": true
+  },
+  "numerical_reference": {
+    "path": "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/validation/hncs_revision9.json",
+    "sha256": "8fb29cb5834356a30a0784f1d8be2284199dbb2d8756ef183d0daca93498aebd",
+    "pointwise": {
+      "channel_comparisons": 20134896,
+      "max_code_difference": 0,
+      "stages": "Float32 saturation → ties-even UInt16 → native postcurves/hue/truncation → Float32 grayscale → final ties-even UInt16; grain/USM excluded"
+    },
+    "unchanged_core": {
+      "status": "passed",
+      "original_golden_groups": 52,
+      "original_golden_pixels": 6656,
+      "original_max_code_difference": 0,
+      "additional_random_boundary_channel_comparisons": 892080,
+      "additional_native_max_code_difference": 0,
+      "display_adapter_max_uint8_difference": 0,
+      "display_tolerance_uint8": 1,
+      "tile_equivalence": "bit-exact",
+      "nonfinite_null_and_invalid_mode": "passed"
+    }
+  },
+  "dense_check": {
+    "path": "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/validation/hncs_binary_gradation_dense.json",
+    "sha256": "f44ec0caf16af1110dc5b7266c9b284a76bdf2ed3dc4ebb6dd9bcbcb34cb3212",
+    "pixels": 949256,
+    "max_float_error": 2.980231861293703e-08
+  },
+  "apple_runtime": {
+    "passed": true,
+    "checks": [
+      "asymmetric 7x131 markers, 64/64/3-row strip ordering and RGBAf reconstruction. Maximum error 0.0",
+      "native gradation revision migrates saved selections; unknown revisions rejected",
+      "Foundation work-file row order and uneven partitions",
+      "odd portrait/landscape crops select identical before/after pixels",
+      "Swift spatial file processing matches native grain and sharpening",
+      "actual Metal preview destination preserves quadrant coordinates and 2×/4×/8× HDR pixels",
+      "real Metal display layer receives per-photo HDR headroom, enables tone mapping, and resets for SDR",
+      "production automatic WB snapshot, Codable, cache invalidation and per-photo binding",
+      "production capture workflow permission/admission, duplicate/late callbacks, immutable settings, processing/save retry, in-flight Photos ownership, and persisted 24/48MP migration",
+      "7 real HEIF exports match full-frame processing; direct export has identical decoded pixels",
+      "HDR import, highlight ratios, 10-bit PQ metadata, and 7 HDR exports; direct export has identical decoded pixels",
+      "cancellation discards output while retaining the source",
+      "real share provider preserves HEIF and delivers cached full-size JPEG"
+    ]
+  },
+  "installation": {
+    "release_build_succeeded": true,
+    "code_signature_verified": true,
+    "installed": true,
+    "bundle_identifier": "dev.glasscam.prototype",
+    "app_executable_sha256": "a6e7f38ec3cbef13441f44b676dde15f17ca7e62eec074451823fc7655af9306",
+    "preferences_preserved_by_value": true,
+    "preference_key_count": 2,
+    "preferences_before_sha256": "854b78a62113dbe19a826a6da9737319c5eba8d0908a9931d00f0da8399e01cd",
+    "preferences_after_sha256": "854b78a62113dbe19a826a6da9737319c5eba8d0908a9931d00f0da8399e01cd",
+    "app_launched_by_this_audit": false,
+    "phone_capture_and_export_timing_retested": false
+  },
+  "performance": {
+    "host": "macOS-27.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "scope": "Mac CPU kernel-only 1MP synthetic input, not iPhone or end-to-end timing. Candidate includes native no-adjustment gradation and matches original binary vectors.",
+    "source_sha256": "2da3be3e87d51fe8550b07dc5b9fdfa84481daa4a23fb749604676bcb52c7d8c",
+    "cases": [
+      {
+        "preset": "standard",
+        "pixels": 1048576,
+        "workers": 4,
+        "warmups": 2,
+        "alternating_rounds": 7,
+        "samples_seconds": {
+          "before": [
+            0.009283042047172785,
+            0.00936729193199426,
+            0.007913083070889115,
+            0.007363416953012347,
+            0.007970124948769808,
+            0.007316333008930087,
+            0.0073125839699059725
+          ],
+          "candidate": [
+            0.02324808295816183,
+            0.023558833985589445,
+            0.02054045908153057,
+            0.02086608298122883,
+            0.021713958936743438,
+            0.02109137491788715,
+            0.021107875043526292
+          ]
+        },
+        "median_seconds": {
+          "before": 0.007913083070889115,
+          "candidate": 0.021107875043526292
+        },
+        "changed_float_channels": 1643507,
+        "max_linear_output_delta": 9.816884994506836e-05
+      },
+      {
+        "preset": "nature",
+        "pixels": 1048576,
+        "workers": 4,
+        "warmups": 2,
+        "alternating_rounds": 7,
+        "samples_seconds": {
+          "before": [
+            0.020690207951702178,
+            0.020189000060781837,
+            0.02087300003040582,
+            0.020004458026960492,
+            0.02100158401299268,
+            0.020364583935588598,
+            0.02060116594657302
+          ],
+          "candidate": [
+            0.020038750022649765,
+            0.020720832981169224,
+            0.020331499981693923,
+            0.02083233289886266,
+            0.019849083037115633,
+            0.020828082924708724,
+            0.020592582994140685
+          ]
+        },
+        "median_seconds": {
+          "before": 0.02060116594657302,
+          "candidate": 0.020592582994140685
+        },
+        "changed_float_channels": 0,
+        "max_linear_output_delta": 0.0
+      }
+    ]
+  },
+  "unchanged_upstream_reference_sha256": {
+    "hncs_pipeline.py": "db8009a38a3d2948d6e177fee2ef79a24f808f8b2b98c619f9c8041eacaa5a99",
+    "phocus_presets.py": "fd5f33d8f37608ca8974272942882a7149d10edd66bf23cc954914f1f79e5a4c",
+    "tools/reference_color_core.py": "3052ca96671aa51b152987b125ce3a3e1534db7c38aa3440b73daa7414812d6d",
+    "work/hncs-pipeline/assets/x2dii_phocus_422.npz": "3291628ef8787a20082eaebb7e50fccac0a89bbce14dc5619ecf1277d816c1b9",
+    "work/hncs-pipeline/phocus_presets.json": "d99c5a2e09810e2977c7be9230289b23148348b52c92ad05d75f5c87c0d84886",
+    "work/hncs-pipeline/phocus_post_curves.npz": "72d862916aea6ede45897ddf36abae4e6ac2dae2aff942d551c4e94275b4330b"
+  },
+  "current_source_sha256": {
+    "core/hncs.cpp": "63bdf54d57b0c76a896efdc20bab4d5e56ec168bb7ed517414239bd736c99334",
+    "core/hncs_c.h": "a358bbe81b34d0b7af87313f9fe2847c79d6c84e903f9d942f12cd82291c2e78",
+    "ios/GlassCam/HNCSEngine.swift": "9cfd0709ae6f94e57444acc740dcb4a89ef67d937539104c89372aa72dc0fa8a",
+    "ios/GlassCam/LiveColorProxy.swift": "d8a5897ba446a2136ba66fe9b8d4190455c6fd067d05d7df2117148383d9f661",
+    "tools/audit_phocus_binaries.py": "5ce46a5208496dabee8e8461aae739e658dea963b92bcb06d203e4f3963a4e6d",
+    "tools/phocus_binary_reference.py": "693dc28954f3c8a4bd8d6cc813f1613e3cfe5c5b1af821eaa0b86d0e5f796e01",
+    "tools/verify_hncs_revision8.py": "77338150faca8e03e057da2b4522b6b640c1169d12dd0be7a4984aad2f22ef1c",
+    "tools/verify_effect_toggle_hncs.py": "664d99e063149e4bfec77e2af17154066344a37e341c4f29389ed07fc1bbfa9f",
+    "tools/verify_hncs_revision8_live.py": "8dbf859a77793d36d0f395f4fa687eb8b8740f07e59a42a1f75f022a507922a6",
+    "tests/apple_image_pipeline.swift": "0f7e5abbe25ee47a57b1decff3b9e413f46614110df2876f31dfdc602b0fcebf",
+    "tests/test_hncs_revision8_source.py": "27921e30a97f073e7c09020c211e18c301581a1ffce97aefa7a8eb1555f9f538",
+    "tests/test_effect_toggle_native.py": "08479488a9c7abeafd28f176c4a1c1b68dce1b154443a1da1cea7fc8c2cf2ed6"
+  },
+  "logs": {
+    "hncs-binary-portable-20261017.txt": {
+      "path": "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/validation/hncs-binary-portable-20261017.txt",
+      "sha256": "d77bd3e7d3568bdf0ce5ec170c80f9096068888f631d5a9fcff6632fea94828a"
+    },
+    "hncs-binary-apple-20261017.txt": {
+      "path": "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/validation/hncs-binary-apple-20261017.txt",
+      "sha256": "3de7c36c98c9cce263a53dc4f2988a3932df2409667e4c1e0d7958fee9107ffc"
+    },
+    "binary-fix-release.log": {
+      "path": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/binary-audit/binary-fix-release.log",
+      "sha256": "e4c22a3f9d22f7d0919719f61af734f95678e86c9936fd639d266a313345565b"
+    },
+    "binary-fix-install.json": {
+      "path": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/binary-audit/binary-fix-install.json",
+      "sha256": "7f7de65ae0fefd75cd4a024edc8674eae97475a202389809bc1fa3f4634b0e41"
+    },
+    "binary-fix-dense.log": {
+      "path": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/binary-audit/binary-fix-dense.log",
+      "sha256": "4351cbc2a6aeeb35f411444970b6fd78cf3f2381c98ef0dc2cfa51d9e70b1860"
+    },
+    "binary-fix-final-audit.log": {
+      "path": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/binary-audit/binary-fix-final-audit.log",
+      "sha256": "d61b5f9d4dcc34484cbb26854f923dea452d3bea94e3f88694d637c850e93c58"
+    },
+    "verify-hncs-revision9.log": {
+      "path": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a1494a-d01c-7dd1-ada5-f601e033d61e/binary-audit/verify-hncs-revision9.log",
+      "sha256": "f021f3ec11436e61670ecf018e349423668690752e6a506ddcddba9d90d298ee"
+    }
+  },
+  "remaining_color_matching_work": [
+    "Apple RAW development and exposure normalization contract; no new default recipe selected.",
+    "Virtual native source adapter does not establish a physical iPhone/X2D calibration.",
+    "Full Phocus demosaic, HDR, lens/local processing and proprietary spatial sharpening are not reproduced by this audit.",
+    "Original Standard has ApplyUSM=true; current Standard spatial bypass and portable Gaussian USM remain distinct from the native spatial pipeline."
+  ]
+}

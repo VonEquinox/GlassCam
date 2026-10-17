@@ -148,7 +148,8 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
 
     def test_import_and_rerender_freeze_recipe_before_background_work(self):
         self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export)', self.view)
-        self.assertIn('ImagePipeline.process(input, recipe: snapshot.recipe)', self.workflow)
+        self.assertIn('ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe', self.workflow)
+        self.assertIn('settings: snapshot.output', self.workflow)
         self.assertIn('let snapshot: CaptureSnapshot', self.workflow)
         self.assertEqual(stored_members(self.pipeline, 'struct ProcessedImage:')['recipe'][:2], ('let', 'ProcessingRecipe'))
 
@@ -156,23 +157,23 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         preview = compact(body(self.pipeline, 'static func process('))
         export = compact(body(self.pipeline, 'private static func exportFullSource('))
         self.assertIn('recipe: recipe)', preview)
-        self.assertIn('let recipe = processed.recipe', export)
+        self.assertIn('recipe: processed.recipe', self.pipeline)
+        self.assertIn('guard recipe.isValid', export)
         for method in [preview, export]:
             self.assertIn('exposureEV: recipe.exposureEV', method)
             self.assertIn('illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs', method)
             self.assertNotIn('settings: .standard', method)
             self.assertNotIn('UserDefaults', method)
-        self.assertIn('ImagePipeline.writeHEIF(processed,', self.workflow)
+        self.assertIn('ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe', self.workflow)
 
     def test_live_cube_identity_has_full_hncs_settings_and_new_contract(self):
         recipe = stored_members(self.proxy, 'struct LiveColorRecipe:')
         self.assertEqual(recipe['hncs'][:2], ('let', 'HNCSSettings'))
-        self.assertIn('revision8', recipe['contract'][2])
+        self.assertIn('revision10-native-sharpness', recipe['contract'][2])
         self.assertIn('cache.firstIndex { $0.recipe == request.recipe }', self.proxy)
         view = body(self.view, 'private var liveRecipe:')
         self.assertIn('hncs: colorMode == .hncs ? hncs : .standard', view)
         self.assertIn('illuminantKelvin: 5500', view)
-        self.assertRegex(self.engine, r'var isLegacyLiveCompatible: Bool \{ self == \.standard \}')
         gate = body(self.proxy, 'var unsupportedReason:')
         self.assertIn('if mode == .hncs {', gate)
         self.assertIn('Showing system preview.', gate)
@@ -214,15 +215,16 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertOrdered(original, 'crop.ciY + crop.height <= height',
                            'image.cropped(to: crop.ciRect)',
                            'translationX: -CGFloat(crop.x), y: -CGFloat(crop.ciY)',
-                           'width: crop.width, height: crop.height, storage: storage')
+                           'width: crop.width, height: crop.height,',
+                           'headroom: headroom, storage: storage')
         self.assertIn('PrecisionPreview(source: capture.preview)', self.view)
 
     def test_export_resolves_full_source_crop_before_output_selection_and_processing(self):
         export = body(self.pipeline, 'private static func exportFullSource(')
-        self.assertOrdered(export, 'fullSourceImage(processed.source.sourceFile, whiteBalance: processed.source.whiteBalance)',
+        self.assertOrdered(export, 'fullSourceImage(sourceFile, whiteBalance: whiteBalance, rawDecode: rawDecode)',
                            'let sourceWidth = Int(decoded.extent.width.rounded(.down))',
                            'let sourceHeight = Int(decoded.extent.height.rounded(.down))',
-                           'let recipe = processed.recipe',
+                           'guard recipe.isValid',
                            'recipe.crop.resolve(width: sourceWidth, height: sourceHeight)',
                            'let width = crop.width, height = crop.height',
                            'settings.dimensions(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: recipe.crop)',

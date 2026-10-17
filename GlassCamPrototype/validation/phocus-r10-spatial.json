@@ -1,0 +1,2034 @@
+{
+  "status": "passed",
+  "source_sha256": {
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_spatial.cpp": "431f3875e805ceb61b5f7161c7cff9d02014a24318b5db9020e5a17751d8c257",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_spatial.h": "e008d321a6b7cd0f80e5824806169aaf9c0945cf393bc4447230204ba40bc234",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_phocus_sharpness.hpp": "aa964e7cb4d3dcfc402d2d448991599ecb408ac2aa676fca03a75f45f242ce6c",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_spatial_assets.inc": "c3b88181e1501edcaeb0cdeea9c847551306d43ca086e3d4fd9dbea732d17ee9",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/native_phocus_filters_bridge.cpp": "ba089ba1fd9aa490b18c3e3e9ae0c4c64843154a9e9d7967fbba60f781c87f75",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/verify_phocus_spatial_integration.py": "cc74abf0314696c5584c567f8e93948d295ae413a2a18dca1cb8eab5007b1d9a",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/audit_phocus_sharpness_settings.py": "ecf3acba123be07f29347e5e62e742da6f0ad9e7617202a1e3d9f47992d737bd",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/audit_phocus_input_spatial.py": "107aec9e05bd0713c506476bb996a4f782efe2d90792683ca10380e01eb59ccf"
+  },
+  "seed": 314159,
+  "native_sharpness": [
+    {
+      "preset": "adjustment-layers-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "adjustment-layers-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "cloudy",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "cloudy",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "color-corrections-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "color-corrections-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "color-corrections-saturated",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "color-corrections-saturated",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "color-management-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "color-management-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "daylight",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "daylight",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "defringe-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "defringe-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "dust-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "dust-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "exposure-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "exposure-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "exposure-extra-contrast",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "exposure-extra-contrast",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "extra-contrast",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "extra-contrast",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "extra_contrast",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "extra_contrast",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-artistic",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-artistic",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "flash",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "flash",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "fluorescent",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "fluorescent",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "gradation-curves-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "gradation-curves-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "gradation-curves-lighten",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "gradation-curves-lighten",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "grayscale-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "grayscale-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "high",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 350.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "high",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 472.77777777777777,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "histogram-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "histogram-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "keystone-correction-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "keystone-correction-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "lens-corrections-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "lens-corrections-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "lighten",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "lighten",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "medium",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 180.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "medium",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 334.88888888888886,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "nature",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 180.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "nature",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 334.88888888888886,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "noise-filter-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "noise-filter-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "portrait",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 90.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "portrait",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 243.00000000000003,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "product",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 350.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "product",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 472.77777777777777,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "saturated",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "saturated",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "scene-calibration-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "scene-calibration-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "shade",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "shade",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "sharpness-default",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "sharpness-default",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "sharpness-high",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 350.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "sharpness-high",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 472.77777777777777,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "sharpness-medium",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 180.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "sharpness-medium",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 334.88888888888886,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "sharpness-portrait",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 90.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "sharpness-portrait",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 243.00000000000003,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "square-crop",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "square-crop",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "square_crop",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "square_crop",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "standard",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "standard",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "tungsten",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "tungsten",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-cloudy",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-cloudy",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        19,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 57,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-daylight",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-daylight",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        33,
+        37,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3663,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-flash",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-flash",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        5,
+        4099,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 61485,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-fluorescent",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-fluorescent",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        67,
+        7,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 1407,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-shade",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-shade",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 3,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-tungsten",
+      "baseline_sharpness": 0.0,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 100.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    },
+    {
+      "preset": "white-balance-tungsten",
+      "baseline_sharpness": 1.5,
+      "shape": [
+        1,
+        17,
+        3
+      ],
+      "native_effective_amount": 270.0,
+      "channels": 51,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ]
+    }
+  ],
+  "portable_grain_order": [
+    {
+      "preset": "film-grain-artistic",
+      "baseline_sharpness": 0.0,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-artistic",
+      "baseline_sharpness": 1.5,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "baseline_sharpness": 0.0,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "baseline_sharpness": 1.5,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "baseline_sharpness": 0.0,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "baseline_sharpness": 1.5,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "baseline_sharpness": 0.0,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "baseline_sharpness": 1.5,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "baseline_sharpness": 0.0,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "baseline_sharpness": 1.5,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "baseline_sharpness": 0.0,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "baseline_sharpness": 1.5,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "baseline_sharpness": 0.0,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "baseline_sharpness": 1.5,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "baseline_sharpness": 0.0,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "baseline_sharpness": 1.5,
+      "order": "original sharpness then portable grain",
+      "float_bit_mismatches": 0
+    }
+  ],
+  "summary": {
+    "native_cases": 112,
+    "native_channel_comparisons": 1200096,
+    "maximum_uint16_error": 0,
+    "memory_file_bit_mismatches": 0,
+    "grain_order_cases": 16
+  },
+  "invalid_baseline_and_file_size": "rejected",
+  "cancellation_checks": [
+    1,
+    3,
+    15,
+    30
+  ],
+  "scope": "Original CPU sharpness with original factory parameters, BaselineSharpness 0/1.5, full-resolution scale, explicit replicated halo; memory/file/tile boundaries and portable grain order. Apple decoder and full Phocus RAW pipeline are separate."
+}

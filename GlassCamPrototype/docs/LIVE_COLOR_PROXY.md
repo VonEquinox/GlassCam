@@ -1,6 +1,8 @@
 # 实验性仅色彩取景
 
-更新2026-10-13（FFCS0.2）。源码提供默认关闭的 “Experimental live color (approx.)” 开关。它只影响中心取景，不改变照片配方、ProRAW、完整 HNCS/FFCS 处理、HEIF 保存或分享。外围仍显示真实宽镜头的系统色彩。
+当前状态（2026-10-18）：HNCS 随每张 RAW 读取捕获白点和锐化基线，取景使用系统画面；旧固定白点 cube 不再准入。render revision 10 的缓存身份已经更新，不继承旧 cube 误差预算。FFCS 的已验证实验准入保留，详见[本轮核查](PHOCUS_REVISION10_20261018.md)。
+
+以下为 2026-10-13（FFCS0.2）的实现记录。源码提供默认关闭的 “Experimental live color (approx.)” 开关，只影响取景，不改变照片配方、ProRAW、完整处理、HEIF 保存或分享。文中的 HNCS 准入和外围画面描述对应当时版本。
 
 ## 实现边界
 

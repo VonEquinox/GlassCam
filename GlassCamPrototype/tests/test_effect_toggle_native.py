@@ -15,7 +15,7 @@ class HNCSEffectToggleNativeTests(unittest.TestCase):
         self.assertEqual(result['cases'], 80)
         self.assertEqual(result['memory_spatial_cases'], result['file_spatial_cases'])
         self.assertGreater(result['memory_spatial_cases'], 0)
-        self.assertGreater(result['pointwise_bypass_cases'], 0)
+        self.assertGreater(result['pointwise_route_cases'], 0)
         self.assertEqual(result['final_code_mismatches'], 0)
         self.assertLessEqual(result['max_display_absolute_error'], result['display_tolerance'])
 

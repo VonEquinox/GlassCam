@@ -2,6 +2,45 @@ import Foundation
 import CoreImage
 import ImageIO
 
+/// Immutable RAW input policy. The scene-linear candidate is diagnostic-only;
+/// Existing tone/EDR defaults are retained. HNCS disables decoder sharpening
+/// before applying its independently verified native sharpness stage.
+struct RAWDecodeRecipe: Codable, Equatable, Sendable {
+    enum Rendering: String, Codable, Sendable { case appleRendered, sceneLinear }
+    let rendering: Rendering
+    let decoderVersion: String?
+    let linearExposureEV: Double
+    let decoderExposureEV: Float
+    let edrAmount: Float?
+    /// nil keeps the decoder default; HNCS explicitly requests zero before its
+    /// own sharpness stage. BaselineSharpness belongs to this RAW, not a preset.
+    let sharpnessAmount: Float?
+    let baselineSharpness: Double?
+
+    init(rendering: Rendering = .appleRendered, decoderVersion: String? = nil,
+         linearExposureEV: Double = 0, decoderExposureEV: Float = 0, edrAmount: Float? = nil,
+         sharpnessAmount: Float? = nil, baselineSharpness: Double? = nil) {
+        self.rendering = rendering; self.decoderVersion = decoderVersion
+        self.linearExposureEV = linearExposureEV; self.decoderExposureEV = decoderExposureEV
+        self.edrAmount = edrAmount
+        self.sharpnessAmount = sharpnessAmount; self.baselineSharpness = baselineSharpness
+    }
+    static let current = RAWDecodeRecipe()
+    static let sceneLinear = RAWDecodeRecipe(rendering: .sceneLinear)
+    var withoutDecoderSharpness: RAWDecodeRecipe {
+        RAWDecodeRecipe(rendering: rendering, decoderVersion: decoderVersion,
+            linearExposureEV: linearExposureEV, decoderExposureEV: decoderExposureEV,
+            edrAmount: edrAmount, sharpnessAmount: 0, baselineSharpness: baselineSharpness)
+    }
+    var isValid: Bool {
+        linearExposureEV.isFinite && (-10...10).contains(linearExposureEV) &&
+        decoderExposureEV.isFinite && (-10...10).contains(decoderExposureEV) &&
+        (edrAmount == nil || (edrAmount!.isFinite && (0...2).contains(edrAmount!))) &&
+        (sharpnessAmount == nil || (sharpnessAmount!.isFinite && (0...1).contains(sharpnessAmount!))) &&
+        (baselineSharpness == nil || (baselineSharpness!.isFinite && baselineSharpness! >= 0))
+    }
+}
+
 /// Explicit cancellation crosses the GCD decoder queue; it does not depend on
 /// Swift task-local cancellation surviving a synchronous DispatchQueue hop.
 final class ImageOperationCancellation: @unchecked Sendable {
@@ -20,13 +59,14 @@ struct ImportedImage: @unchecked Sendable {
     let original: PreviewRaster
     let sourceDescription: String
     let whiteBalance: PhotoWhiteBalance
+    let rawDecode: RAWDecodeRecipe
 
     init(sourceFile: SourceImageFile, exportSettings: ExportSettings, linearRGB: [Float],
          width: Int, height: Int, original: PreviewRaster, sourceDescription: String,
-         whiteBalance: PhotoWhiteBalance = .renderedD65) {
+         whiteBalance: PhotoWhiteBalance = .renderedD65, rawDecode: RAWDecodeRecipe = .current) {
         self.sourceFile = sourceFile; self.exportSettings = exportSettings; self.linearRGB = linearRGB
         self.width = width; self.height = height; self.original = original
-        self.sourceDescription = sourceDescription; self.whiteBalance = whiteBalance
+        self.sourceDescription = sourceDescription; self.whiteBalance = whiteBalance; self.rawDecode = rawDecode
     }
 }
 
@@ -243,43 +283,124 @@ enum ImagePipeline {
     // complete decode/render stage so superseded RAW decodes never overlap.
     private static let decodeQueue = DispatchQueue(label: "dev.glasscam.decode", qos: .userInitiated)
 
+    static func baselineSharpness(in properties: [AnyHashable: Any]) throws -> Double {
+        let dng = properties[kCGImagePropertyDNGDictionary as String] as? [String: Any]
+        guard let value = dng?[kCGImagePropertyDNGBaselineSharpness as String] else { return 0 }
+        guard let number = value as? NSNumber, number.doubleValue.isFinite, number.doubleValue >= 0 else {
+            throw PipelineError.invalidImage
+        }
+        return number.doubleValue
+    }
+
+    /// Shared by reduced RAW decode, metadata-only capture binding, and full
+    /// source export. Pin the selected decoder before reading the scene neutral.
+    private static func configureRAW(_ raw: CIRAWFilter, recipe: RAWDecodeRecipe,
+                                     whiteBalance: PhotoWhiteBalance? = nil) throws -> RAWDecodeRecipe {
+        guard recipe.isValid else { throw PipelineError.invalidImage }
+        let version = recipe.decoderVersion ?? raw.decoderVersion.rawValue
+        guard raw.supportedDecoderVersions.contains(where: { $0.rawValue == version }) else {
+            throw PipelineError.invalidImage
+        }
+        if raw.decoderVersion.rawValue != version { raw.decoderVersion = CIRAWDecoderVersion(rawValue: version) }
+        // CRawImageFile::GetBaselineSharpness initializes its return value to 0
+        // before reading DNG tag 50732. Missing does not mean a made-up 1.5.
+        let sourceBaseline = try baselineSharpness(in: raw.properties)
+        guard sourceBaseline.isFinite, sourceBaseline >= 0,
+              recipe.baselineSharpness == nil || recipe.baselineSharpness == sourceBaseline else {
+            throw PipelineError.invalidImage
+        }
+        if let amount = recipe.sharpnessAmount, raw.isSharpnessSupported {
+            raw.sharpnessAmount = amount
+            guard raw.sharpnessAmount == amount else { throw PipelineError.rendering }
+        }
+        if let value = raw.properties[kCGImagePropertyOrientation as String] as? NSNumber,
+           let orientation = CGImagePropertyOrientation(rawValue: value.uint32Value) {
+            raw.orientation = orientation
+        }
+        if let whiteBalance, whiteBalance.origin == .appleRAW {
+            raw.neutralChromaticity = CGPoint(x: whiteBalance.x, y: whiteBalance.y)
+        }
+        if recipe.decoderExposureEV != 0 { raw.exposure = recipe.decoderExposureEV }
+        if recipe.rendering == .sceneLinear {
+            // Apple's WWDC21 10160 scene-referred recipe. boostShadowAmount is
+            // inactive at boostAmount=0 and is deliberately left at its default.
+            raw.baselineExposure = 0
+            raw.shadowBias = 0
+            raw.boostAmount = 0
+            if raw.isLocalToneMapSupported { raw.localToneMapAmount = 0 }
+            raw.isGamutMappingEnabled = false
+        }
+        raw.extendedDynamicRangeAmount = recipe.edrAmount ?? (recipe.rendering == .appleRendered ? 1 : 0)
+        return RAWDecodeRecipe(rendering: recipe.rendering, decoderVersion: version,
+            linearExposureEV: recipe.linearExposureEV, decoderExposureEV: recipe.decoderExposureEV,
+            edrAmount: recipe.edrAmount, sharpnessAmount: recipe.sharpnessAmount,
+            baselineSharpness: sourceBaseline)
+    }
+
+    private static func rawOutput(_ raw: CIRAWFilter, recipe: RAWDecodeRecipe) -> CIImage? {
+        guard let image = raw.outputImage else { return nil }
+        // Explicit scalar adjustment in the render context's linear working
+        // space, before HNCS; never per-channel or automatic histogram matching.
+        return recipe.linearExposureEV == 0 ? image : image.applyingFilter("CIExposureAdjust",
+            parameters: [kCIInputEVKey: recipe.linearExposureEV])
+    }
+
+    static func inspectRAW(sourceFile: SourceImageFile, recipe: RAWDecodeRecipe = .current) throws -> [String: Any] {
+        try decodeQueue.sync {
+            guard let raw = CIRAWFilter(imageURL: sourceFile.url) else { throw PipelineError.invalidImage }
+            func parameters() -> [String: Any] {
+                ["decoder_version": raw.decoderVersion.rawValue,
+                 "supported_decoder_versions": raw.supportedDecoderVersions.map(\.rawValue),
+                 "baseline_exposure": raw.baselineExposure, "exposure": raw.exposure,
+                 "shadow_bias": raw.shadowBias, "boost_amount": raw.boostAmount,
+                 "boost_shadow_amount": raw.boostShadowAmount,
+                 "local_tone_map_amount": raw.localToneMapAmount,
+                 "local_tone_map_supported": raw.isLocalToneMapSupported,
+                 "sharpness_amount": raw.sharpnessAmount, "sharpness_supported": raw.isSharpnessSupported,
+                 "gamut_mapping": raw.isGamutMappingEnabled, "edr_amount": raw.extendedDynamicRangeAmount,
+                 "white_xy": [raw.neutralChromaticity.x, raw.neutralChromaticity.y],
+                 "temperature": raw.neutralTemperature, "tint": raw.neutralTint,
+                 "native_width": raw.nativeSize.width, "native_height": raw.nativeSize.height,
+                 "orientation": raw.orientation.rawValue, "draft_mode": raw.isDraftModeEnabled]
+            }
+            let defaults = parameters()
+            let resolved = try configureRAW(raw, recipe: recipe)
+            return ["defaults": defaults, "configured": parameters(),
+                    "recipe": try JSONSerialization.jsonObject(with: JSONEncoder().encode(resolved))]
+        }
+    }
+
     static func load(data: Data, fileExtension: String?, previewMaximumEdge: Int = 2048,
-                     exportSettings: ExportSettings = .native) throws -> ImportedImage {
+                     exportSettings: ExportSettings = .native, rawDecode: RAWDecodeRecipe = .current) throws -> ImportedImage {
         try decodeQueue.sync {
             try autoreleasepool {
                 guard (256...4096).contains(previewMaximumEdge) else { throw PipelineError.invalidImage }
                 let retained = try SourceImageFile(data: data, fileExtension: fileExtension)
-                return try decode(data: data, fileExtension: fileExtension, sourceFile: retained, maximumEdge: CGFloat(previewMaximumEdge), exportSettings: exportSettings)
+                return try decode(data: data, fileExtension: fileExtension, sourceFile: retained, maximumEdge: CGFloat(previewMaximumEdge), exportSettings: exportSettings, rawDecode: rawDecode)
             }
         }
     }
 
     /// Reuse the retained shutter source instead of writing a second DNG copy.
-    static func load(sourceFile: SourceImageFile, exportSettings: ExportSettings) throws -> ImportedImage {
+    static func load(sourceFile: SourceImageFile, exportSettings: ExportSettings, rawDecode: RAWDecodeRecipe = .current) throws -> ImportedImage {
         try decodeQueue.sync {
             try autoreleasepool {
                 let data = try Data(contentsOf: sourceFile.url)
                 return try decode(data: data, fileExtension: sourceFile.fileExtension,
-                                  sourceFile: sourceFile, maximumEdge: maximumEdge, exportSettings: exportSettings)
+                                  sourceFile: sourceFile, maximumEdge: maximumEdge, exportSettings: exportSettings, rawDecode: rawDecode)
             }
         }
     }
 
-    private static func decode(data: Data, fileExtension: String?, sourceFile: SourceImageFile, maximumEdge: CGFloat, exportSettings: ExportSettings) throws -> ImportedImage {
+    private static func decode(data: Data, fileExtension: String?, sourceFile: SourceImageFile, maximumEdge: CGFloat, exportSettings: ExportSettings, rawDecode: RAWDecodeRecipe) throws -> ImportedImage {
         let isRAW = ["dng", "raw"].contains(fileExtension?.lowercased() ?? "")
         var source: CIImage?
         var whiteBalance = PhotoWhiteBalance.renderedD65
+        var resolvedRAWDecode = rawDecode
         var decodePrecisionDescription = "Float32 RAW decode · not sensor-native bit depth"
         if isRAW {
             if let raw = CIRAWFilter(imageData: data, identifierHint: "com.adobe.raw-image") {
-                // Set the decoder orientation explicitly from source metadata. Do not
-                // apply a second CIImage orientation transform to the decoder output.
-                if let imageSource = CGImageSourceCreateWithData(data as CFData, nil),
-                   let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [String: Any],
-                   let exif = properties[kCGImagePropertyOrientation as String] as? NSNumber,
-                   let orientation = CGImagePropertyOrientation(rawValue: exif.uint32Value) {
-                    raw.orientation = orientation
-                }
+                resolvedRAWDecode = try configureRAW(raw, recipe: rawDecode)
                 whiteBalance = .asShot(raw)
                 let native = raw.nativeSize
                 let longEdge = max(native.width, native.height)
@@ -288,8 +409,7 @@ enum ImagePipeline {
                 // This reduces requested output size; Apple may still use full-size
                 // intermediate buffers internally, so it is not a peak-memory guarantee.
                 raw.scaleFactor = Float(min(1, maximumEdge / longEdge))
-                raw.extendedDynamicRangeAmount = 1
-                source = raw.outputImage
+                source = rawOutput(raw, recipe: resolvedRAWDecode)
             }
         } else {
             let sourceOptions = [kCGImageSourceShouldCache as String: false] as CFDictionary
@@ -345,10 +465,25 @@ enum ImagePipeline {
         return ImportedImage(sourceFile: sourceFile, exportSettings: exportSettings, linearRGB: rgb, width: width, height: height,
                              original: original,
                              sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter • \(decodePrecisionDescription)" : "Rendered image • embedded profile → linear sRGB • \(decodePrecisionDescription)",
-                             whiteBalance: whiteBalance)
+                             whiteBalance: whiteBalance, rawDecode: resolvedRAWDecode)
     }
 
     static func process(_ input: ImportedImage, recipe: ProcessingRecipe) throws -> ProcessedImage {
+        var input = input
+        if recipe.mode == .hncs, ["dng", "raw"].contains(input.sourceFile.fileExtension?.lowercased() ?? ""),
+           input.rawDecode.sharpnessAmount != 0 {
+            // A generic import can retain Apple's sharpening. Re-decode for
+            // HNCS and retain that exact input policy in ProcessedImage.source.
+            // Automatic capture binds this policy before any pixel decode.
+            let previous = input
+            input = try decodeQueue.sync {
+                try autoreleasepool {
+                    try decode(data: Data(contentsOf: previous.sourceFile.url), fileExtension: previous.sourceFile.fileExtension,
+                        sourceFile: previous.sourceFile, maximumEdge: CGFloat(max(previous.width, previous.height)),
+                        exportSettings: previous.exportSettings, rawDecode: previous.rawDecode.withoutDecoderSharpness)
+                }
+            }
+        }
         let recipe = recipe.resolvingWhiteBalance(input.whiteBalance)
         guard recipe.isValid else { throw HNCSEngine.Error.invalidSettings }
         let crop = try recipe.crop.resolve(width: input.width, height: input.height)
@@ -375,7 +510,8 @@ enum ImagePipeline {
         case .hncs:
             rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: effectInput, width: crop.width,
                                                    height: crop.height, exposureEV: recipe.exposureEV,
-                                                   illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
+                                                   illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance,
+                                                   baselineSharpness: input.rawDecode.baselineSharpness ?? 0)
         case .ffcs:
             rgba = try FFCSEngine.exportLinearRGBA(linearSRGB: effectInput, width: crop.width,
                                                    height: crop.height, exposureEV: recipe.exposureEV,
@@ -396,28 +532,47 @@ enum ImagePipeline {
                           progress: @escaping @Sendable (Double) -> Void = { _ in }) throws {
         try decodeQueue.sync {
             try autoreleasepool {
-                try exportFullSource(processed, to: url, settings: settings ?? processed.source.exportSettings, isCancelled: isCancelled, progress: progress)
+                try exportFullSource(processed.source.sourceFile, whiteBalance: processed.source.whiteBalance,
+                    recipe: processed.recipe, to: url, settings: settings ?? processed.source.exportSettings, rawDecode: processed.source.rawDecode,
+                    isCancelled: isCancelled, progress: progress)
             }
         }
     }
 
-    private static func fullSourceImage(_ source: SourceImageFile, whiteBalance: PhotoWhiteBalance) throws -> CIImage {
+    /// Automatic capture needs only the final HEIF and its review image. Read
+    /// the as-shot metadata without decoding/processing a discarded RAW preview.
+    @discardableResult
+    static func writeHEIF(sourceFile: SourceImageFile, recipe: ProcessingRecipe, to url: URL,
+                          settings: ExportSettings, rawDecode: RAWDecodeRecipe = .current,
+                          isCancelled: @escaping @Sendable () -> Bool = { false },
+                          progress: @escaping @Sendable (Double) -> Void = { _ in }) throws -> ProcessingRecipe {
+        try decodeQueue.sync {
+            try autoreleasepool {
+                try checkExportCancellation(isCancelled)
+                var whiteBalance = PhotoWhiteBalance.renderedD65
+                var resolvedRAWDecode = rawDecode
+                if ["dng", "raw"].contains(sourceFile.fileExtension?.lowercased() ?? "") {
+                    guard let raw = CIRAWFilter(imageURL: sourceFile.url) else { throw PipelineError.invalidImage }
+                    resolvedRAWDecode = try configureRAW(raw, recipe: recipe.mode == .hncs ? rawDecode.withoutDecoderSharpness : rawDecode)
+                    whiteBalance = .asShot(raw)
+                }
+                let resolved = recipe.resolvingWhiteBalance(whiteBalance)
+                try exportFullSource(sourceFile, whiteBalance: whiteBalance, recipe: resolved,
+                    to: url, settings: settings, rawDecode: resolvedRAWDecode, isCancelled: isCancelled, progress: progress)
+                return resolved
+            }
+        }
+    }
+
+    static func fullSourceImage(_ source: SourceImageFile, whiteBalance: PhotoWhiteBalance,
+                                rawDecode: RAWDecodeRecipe) throws -> CIImage {
         let isRAW = ["dng", "raw"].contains(source.fileExtension?.lowercased() ?? "")
         var decoded: CIImage?
         if isRAW {
             if let raw = CIRAWFilter(imageURL: source.url) {
-                if let container = CGImageSourceCreateWithURL(source.url as CFURL, nil),
-                   let properties = CGImageSourceCopyPropertiesAtIndex(container, 0, nil) as? [String: Any],
-                   let exif = properties[kCGImagePropertyOrientation as String] as? NSNumber,
-                   let orientation = CGImagePropertyOrientation(rawValue: exif.uint32Value) {
-                    raw.orientation = orientation
-                }
-                if whiteBalance.origin == .appleRAW {
-                    raw.neutralChromaticity = CGPoint(x: whiteBalance.x, y: whiteBalance.y)
-                }
+                let resolved = try configureRAW(raw, recipe: rawDecode, whiteBalance: whiteBalance)
                 raw.scaleFactor = 1 // Genuine decoder output, never the preview scale.
-                raw.extendedDynamicRangeAmount = 1
-                decoded = raw.outputImage
+                decoded = rawOutput(raw, recipe: resolved)
             }
         } else {
             decoded = CIImage(contentsOf: source.url, options: [.applyOrientationProperty: true, .expandToHDR: true])
@@ -435,19 +590,19 @@ enum ImagePipeline {
         try Task.checkCancellation()
     }
 
-    private static func exportFullSource(_ processed: ProcessedImage, to url: URL,
-                                          settings: ExportSettings, isCancelled: @escaping @Sendable () -> Bool,
+    private static func exportFullSource(_ sourceFile: SourceImageFile, whiteBalance: PhotoWhiteBalance,
+                                          recipe: ProcessingRecipe, to url: URL,
+                                          settings: ExportSettings, rawDecode: RAWDecodeRecipe, isCancelled: @escaping @Sendable () -> Bool,
                                           progress: @escaping @Sendable (Double) -> Void) throws {
         try checkExportCancellation(isCancelled)
         progress(0)
-        let decoded = try fullSourceImage(processed.source.sourceFile, whiteBalance: processed.source.whiteBalance)
+        let decoded = try fullSourceImage(sourceFile, whiteBalance: whiteBalance, rawDecode: rawDecode)
         try checkExportCancellation(isCancelled)
         // Protect all byte-count arithmetic before allocating or creating a file.
         guard decoded.extent.width < CGFloat(Int.max / 16),
               decoded.extent.height < CGFloat(Int.max / 16) else { throw PipelineError.invalidImage }
         let sourceWidth = Int(decoded.extent.width.rounded(.down))
         let sourceHeight = Int(decoded.extent.height.rounded(.down))
-        let recipe = processed.recipe
         guard recipe.isValid else { throw HNCSEngine.Error.invalidSettings }
         let crop = try recipe.crop.resolve(width: sourceWidth, height: sourceHeight)
         let width = crop.width, height = crop.height
@@ -545,7 +700,8 @@ enum ImagePipeline {
             progress(0.45)
             // Grain normalization and USM see one complete cropped top-down
             // image, never independently seeded 64-row strips.
-            try HNCSEngine.applySpatial(to: spatialWork, settings: recipe.hncs, effects: recipe.effects, isCancelled: isCancelled)
+            try HNCSEngine.applySpatial(to: spatialWork, settings: recipe.hncs, effects: recipe.effects,
+                baselineSharpness: rawDecode.baselineSharpness ?? 0, isCancelled: isCancelled)
             progress(0.65)
             for start in stride(from: 0, to: height, by: stripRows) {
                 try checkExportCancellation(isCancelled)

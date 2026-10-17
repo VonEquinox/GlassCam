@@ -1,0 +1,474 @@
+{
+  "core": {
+    "status": "passed",
+    "original_golden_groups": 52,
+    "original_golden_pixels": 6656,
+    "original_max_code_difference": 0,
+    "additional_random_boundary_channel_comparisons": 892080,
+    "additional_native_max_code_difference": 0,
+    "display_adapter_max_uint8_difference": 0,
+    "display_tolerance_uint8": 1,
+    "tile_equivalence": "bit-exact",
+    "nonfinite_null_and_invalid_mode": "passed",
+    "golden_checks": [
+      {
+        "key": "legacy_standard_1000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_2000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_2400_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_3050_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_4000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_5550_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_7000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_7523_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_7625_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_8543_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_9100_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_10000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_standard_11000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_1000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_2000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_2400_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_3050_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_4000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_5550_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_7000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_7523_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_7625_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_8543_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_9100_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_10000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "legacy_reproduction_11000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_1000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_2000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_2400_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_3050_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_4000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_5550_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_7000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_7523_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_7625_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_8543_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_9100_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_10000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_standard_11000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_1000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_2000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_2400_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_3050_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_4000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_5550_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_7000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_7523_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_7625_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_8543_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_9100_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_10000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      },
+      {
+        "key": "lstar_reproduction_11000_source",
+        "pixels": 128,
+        "max_code_difference": 0
+      }
+    ]
+  },
+  "revision8": {
+    "catalog": {
+      "unique_xml_payloads": 43,
+      "accepted_source_names": 56,
+      "exact_parameters": "passed"
+    },
+    "native_postcurves": {
+      "active_pixels": 278528,
+      "active_max_code_difference": 0,
+      "inactive_bypass_pixels": 278528,
+      "inactive_note": "Revision-8 Python bypasses inactive gradation. Unconditional native filter probe artifacts are intentionally not applied.",
+      "checks": [
+        {
+          "preset": "standard",
+          "tone": false,
+          "group": "source",
+          "pixels": 4096,
+          "active": false,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 2
+        },
+        {
+          "preset": "standard",
+          "tone": false,
+          "group": "ramp",
+          "pixels": 65536,
+          "active": false,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 1
+        },
+        {
+          "preset": "standard",
+          "tone": true,
+          "group": "source",
+          "pixels": 4096,
+          "active": false,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 2
+        },
+        {
+          "preset": "standard",
+          "tone": true,
+          "group": "ramp",
+          "pixels": 65536,
+          "active": false,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 1
+        },
+        {
+          "preset": "nature",
+          "tone": false,
+          "group": "source",
+          "pixels": 4096,
+          "active": false,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 2
+        },
+        {
+          "preset": "nature",
+          "tone": false,
+          "group": "ramp",
+          "pixels": 65536,
+          "active": false,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 1
+        },
+        {
+          "preset": "nature",
+          "tone": true,
+          "group": "source",
+          "pixels": 4096,
+          "active": true,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 0
+        },
+        {
+          "preset": "nature",
+          "tone": true,
+          "group": "ramp",
+          "pixels": 65536,
+          "active": true,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 0
+        },
+        {
+          "preset": "lighten",
+          "tone": false,
+          "group": "source",
+          "pixels": 4096,
+          "active": false,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 2
+        },
+        {
+          "preset": "lighten",
+          "tone": false,
+          "group": "ramp",
+          "pixels": 65536,
+          "active": false,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 1
+        },
+        {
+          "preset": "lighten",
+          "tone": true,
+          "group": "source",
+          "pixels": 4096,
+          "active": true,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 0
+        },
+        {
+          "preset": "lighten",
+          "tone": true,
+          "group": "ramp",
+          "pixels": 65536,
+          "active": true,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 0
+        },
+        {
+          "preset": "extra-contrast",
+          "tone": false,
+          "group": "source",
+          "pixels": 4096,
+          "active": true,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 0
+        },
+        {
+          "preset": "extra-contrast",
+          "tone": false,
+          "group": "ramp",
+          "pixels": 65536,
+          "active": true,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 0
+        },
+        {
+          "preset": "extra-contrast",
+          "tone": true,
+          "group": "source",
+          "pixels": 4096,
+          "active": true,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 0
+        },
+        {
+          "preset": "extra-contrast",
+          "tone": true,
+          "group": "ramp",
+          "pixels": 65536,
+          "active": true,
+          "python_max_code_difference": 0,
+          "native_max_code_difference": 0
+        }
+      ]
+    },
+    "pointwise": {
+      "channel_comparisons": 20134896,
+      "max_code_difference": 0,
+      "stages": "Float32 saturation \u2192 ties-even UInt16 \u2192 native postcurves/hue/truncation \u2192 Float32 grayscale \u2192 final ties-even UInt16; grain/USM excluded"
+    },
+    "film_resolution": {
+      "cases": 120,
+      "max_code_difference": 0,
+      "covered": "all six menu types; as-shot raw0/raw2/raw4/raw7/raw99; both spaces/intents; original gamma distinct only legacy; reproduction pure regardless request"
+    },
+    "native_combined": {
+      "cases": 86,
+      "max_code_difference": 0,
+      "scope": "caller-supplied white-balanced native RGB \u2192 selected kernel CCT/film \u2192 pointwise preset; source bridge/WB replacement excluded"
+    },
+    "old_new_default_equivalence": {
+      "cases": 54,
+      "result": "bit-exact; adapter matrix and UInt8/Float outputs unchanged"
+    },
+    "spatial_boundary": {
+      "catalog_cases": 43,
+      "result": "no-spatial Float32 work/finish split bit-exact to direct pointwise processing",
+      "parallel_workers": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "synthetic_apple_bridge": {
+      "cases": 260,
+      "matrix_ratio_contract": "bit-exact",
+      "baseline": "factory_wb at truncated/clamped capture CCT, interpolation clamped to original WB table endpoints, normalized to green=1",
+      "target": "explicit gains or exact configured preset absolute gains, normalized to green=1",
+      "formula": "diag(desired/baseline) \u00d7 A(capture CCT); factory kernel CCT separate",
+      "calibrated_for_apple": false
+    },
+    "invalid_arguments": "passed"
+  },
+  "scope": "Final optimized C++ build on macOS, original reference vectors and presets; timing measured separately on iPhone"
+}

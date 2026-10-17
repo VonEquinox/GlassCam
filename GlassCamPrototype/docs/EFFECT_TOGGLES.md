@@ -4,13 +4,13 @@
 
 ## 配方与作用范围
 
-- **Sharpening / USM**：HNCS使用交付的portable Gaussian USM；Standard仍遵循原CLI整体绕过preset空间处理。FFCS0.2控制参考Gaussian半径锐化；原生LUT默认sharpness为零，只有显式解析叠加开启后才使用look系数。
+- **Sharpening / USM**：HNCS revision 10 使用经原版二进制验证的亮度锐化；Standard 与局部工具预设使用解析后的原厂参数，每张 RAW 的 BaselineSharpness 随配方冻结。HNCS 解码关闭 Apple 额外锐化，此开关控制后续原版 USM。FFCS 0.2 保持参考 Gaussian 半径锐化；原生 LUT 默认 sharpness 为零，显式解析叠加开启后才使用 look 系数。
 - **Film grain**：分别控制HNCS portable颗粒、FFCS参考颗粒，系数和随机模型不变。
 - **Preset extra crop**：只启用实际存在的预设裁切。关闭HNCS Square Crop的额外裁切后恢复选定源画幅，中央取景、比较两侧和最终输出尺寸一起恢复。FFCS当前无预设额外裁切；该开关不产生虚构FFCS裁切，也不改变源画幅。
 
 三个布尔值作为一个共享`EffectToggles`加入不可变`ProcessingRecipe`，切换preset或色彩引擎不重置新选择。图像颜色核、快门捕获、待打开的迟到照片、预览、全源导出和缓存都使用同一快照。关闭颗粒/锐化确实旁路对应阶段，而不是把最终图透明混合回原图。
 
-实时LUT依然只有颜色，忽略空间开关的数值作用；切换开关不能使未经验证的颜色preset获得实时准入。缓存身份包含配方开关，避免复用错误状态。HEIF仍请求10-bit SDR，未新增8位保存路线。
+实时 LUT 依然只有颜色，切换空间开关不能使未经验证的 preset 获得实时准入。缓存身份包含配方开关。当前 HEIF 请求 10-bit BT.2020/PQ HDR，未新增 8 位保存路线。
 
 ## 旧配方迁移
 
@@ -20,6 +20,7 @@
 2. 旧配方当前为HNCS时，将旧`hncs.applyGrain`和`hncs.applySharpness`迁入共享开关，缺项默认true；新增crop默认true。
 3. 旧配方当前为FFCS时，三个开关默认true，因为旧FFCS从未受潜在HNCS开关影响。这是开关迁移规则；后续FFCS0.2同步有意改用新版中性数学，不能承诺保留旧错误叠加画面。不能同时将旧HNCS潜在false变为新FFCS全局false却声称当前画面不变。
 4. 迁移后的新选择由共享开关持久化，不再有两套同时生效的HNCS/FFCS布尔值。
+5. HNCS render revision 8/9 的选择迁移为 10。原版算法修正有意改变相关输出，保留的是用户选项与开关；不承诺旧近似图像的像素不变。已通过实际 Apple Codable／UserDefaults 检查。
 
 `ProcessingRecipe` JSON是App保存的配方元数据，不是HEIF内嵌Exif配方。现有HEIF writer保持新建、无原始GPS/HDR附件的图像输出；未新增或宣称HEIF配方标签保留功能。
 

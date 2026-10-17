@@ -102,16 +102,22 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
     def test_native_sources_are_built_once_with_strict_float_contract_on_both_targets(self):
         root = Path(__file__).resolve().parents[1]
         project = (root / 'ios/GlassCam.xcodeproj/project.pbxproj').read_text()
+        # Xcode inserts display-name comments and expands build phases across
+        # lines. Neither changes the file references or compiler contracts.
+        project = re.sub(r'/\*.*?\*/', '', project, flags=re.S)
+        project = re.sub(r'[ \t]+', ' ', project)
         cmake = (root / 'core/CMakeLists.txt').read_text()
         native = re.search(r'add_library\(glasscam_hncs STATIC ([^)]+)\)', cmake).group(1).split()
-        phase = re.search(r'isa = PBXSourcesBuildPhase;[^\n]*files = \(([^)]*)\)', project).group(1).split(',')
+        phases = re.findall(r'isa = PBXSourcesBuildPhase;\s*buildActionMask = \d+;\s*files = \(([^)]*)\)', project, flags=re.S)
+        self.assertTrue(phases)
+        phase = [entry for source_phase in phases for entry in source_phase.split(',')]
         phase = [value.strip() for value in phase]
         for filename in ['hncs.cpp', 'hncs_spatial.cpp', 'hncs_numpy_rng.cpp']:
             with self.subTest(filename=filename):
                 self.assertEqual(native.count(filename), 1)
                 references = re.findall(r'(\w+) = \{isa = PBXFileReference;[^\n]*path = ' + re.escape(filename) + r';', project)
                 self.assertEqual(len(references), 1)
-                builds = re.findall(r'(\w+) = \{isa = PBXBuildFile; fileRef = ' + references[0] + r';[^\n]*COMPILER_FLAGS = "([^"]+)"', project)
+                builds = re.findall(r'(\w+) = \{isa = PBXBuildFile; fileRef = ' + references[0] + r'\s*;[^\n]*COMPILER_FLAGS = "([^"]+)"', project)
                 self.assertEqual(len(builds), 1)
                 build_id, flags = builds[0]
                 self.assertEqual(phase.count(build_id), 1)
@@ -163,13 +169,14 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
     def test_spatial_flags_and_cancellation_cross_bridge_without_dropping_recipe(self):
         engine = source('HNCSEngine.swift')
         gate = body(engine, 'func requiresSpatial(effects:')
-        self.assertIn('presetKey != "standard"', gate)
+        self.assertNotIn('presetKey != "standard"', gate)
+        self.assertIn('hncs_native_sharpness_enabled', gate)
         self.assertIn('(effects.applyGrain && flags & 4 != 0)', gate)
-        self.assertIn('(effects.applySharpness && flags & (8 | 16) != 0)', gate)
+        self.assertIn('(effects.applySharpness && nativeSharpness)', gate)
         spatial = body(engine, 'static func applySpatial(')
         self.assertOrdered(spatial, 'file.prepareForSpatialPass()', 'if isCancelled()',
                            'Unmanaged.passUnretained(cancellation).toOpaque()',
-                           'settings.presetKey.withCString', 'hncs_apply_spatial_preset_file(',
+                           'settings.presetKey.withCString', 'hncs_apply_spatial_native_sharpness_file(',
                            'effects.applyGrain ? 1 : 0, effects.applySharpness ? 1 : 0',
                            'withExtendedLifetime(cancellation)',
                            'if status == -3 || isCancelled() { throw CancellationError() }',

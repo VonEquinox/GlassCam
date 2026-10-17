@@ -2,21 +2,21 @@
 // Source phocus_presets.py SHA256: fd5f33d8f37608ca8974272942882a7149d10edd66bf23cc954914f1f79e5a4c
 // Weights: SciPy Gaussian order 0, radius=int(4*sigma+0.5); exact Float64 values.
 static constexpr double kGaussian0[] = {0x1.6296607aa44a4p-13,0x1.4b22ef84a672fp-9,0x1.531c766ef7b93p-6,0x1.7cd3e8c03745bp-4,0x1.d4fe3fb6f3b55p-3,0x1.3caf0bc4e06dcp-2,0x1.d4fe3fb6f3b55p-3,0x1.7cd3e8c03745bp-4,0x1.531c766ef7b93p-6,0x1.4b22ef84a672fp-9,0x1.6296607aa44a4p-13};
-static constexpr double kGaussian1[] = {0x1.61464f81391f6p-16,0x1.b42aa52a5297ep-15,0x1.ff661a24a4f49p-14,0x1.1cb60fdc02eabp-12,0x1.2d0e3cef51f5dp-11,0x1.2e500cb40aa1bp-10,0x1.204ae68aaa9afp-9,0x1.05152752b5001p-8,0x1.c1137a329e958p-8,0x1.6ec64f5e0fae4p-7,0x1.1c79f057fd35ep-6,0x1.a312dbe9108f9p-6,0x1.25235135c3c1dp-5,0x1.857313b4c85b2p-5,0x1.eb5b8ed1a74e1p-5,0x1.265caa504a680p-4,0x1.4eefdf050c32cp-4,0x1.69eb63b155cc3p-4,0x1.736369abb12b9p-4,0x1.69eb63b155cc3p-4,0x1.4eefdf050c32cp-4,0x1.265caa504a680p-4,0x1.eb5b8ed1a74e1p-5,0x1.857313b4c85b2p-5,0x1.25235135c3c1dp-5,0x1.a312dbe9108f9p-6,0x1.1c79f057fd35ep-6,0x1.6ec64f5e0fae4p-7,0x1.c1137a329e958p-8,0x1.05152752b5001p-8,0x1.204ae68aaa9afp-9,0x1.2e500cb40aa1bp-10,0x1.2d0e3cef51f5dp-11,0x1.1cb60fdc02eabp-12,0x1.ff661a24a4f49p-14,0x1.b42aa52a5297ep-15,0x1.61464f81391f6p-16};
-static constexpr double kGaussian2[] = {0x1.28d8ef70e7d39p-16,0x1.e3851804382d5p-5,0x1.c38ab99bbb36cp-1,0x1.e3851804382d5p-5,0x1.28d8ef70e7d39p-16};
+static constexpr double kGaussian1[] = {0x1.61464f81391f6p-16,0x1.b42aa52a5297ep-15,0x1.ff661a24a4f49p-14,0x1.1cb60fdc02eabp-12,0x1.2d0e3cef51f5dp-11,0x1.2e500cb40aa1bp-10,0x1.204ae68aaa9afp-9,0x1.05152752b5001p-8,0x1.c1137a329e958p-8,0x1.6ec64f5e0fae4p-7,0x1.1c79f057fd35ep-6,0x1.a312dbe9108fap-6,0x1.25235135c3c1dp-5,0x1.857313b4c85b2p-5,0x1.eb5b8ed1a74e1p-5,0x1.265caa504a680p-4,0x1.4eefdf050c32cp-4,0x1.69eb63b155cc4p-4,0x1.736369abb12b9p-4,0x1.69eb63b155cc4p-4,0x1.4eefdf050c32cp-4,0x1.265caa504a680p-4,0x1.eb5b8ed1a74e1p-5,0x1.857313b4c85b2p-5,0x1.25235135c3c1dp-5,0x1.a312dbe9108fap-6,0x1.1c79f057fd35ep-6,0x1.6ec64f5e0fae4p-7,0x1.c1137a329e958p-8,0x1.05152752b5001p-8,0x1.204ae68aaa9afp-9,0x1.2e500cb40aa1bp-10,0x1.2d0e3cef51f5dp-11,0x1.1cb60fdc02eabp-12,0x1.ff661a24a4f49p-14,0x1.b42aa52a5297ep-15,0x1.61464f81391f6p-16};
+static constexpr double kGaussian2[] = {0x1.28d8ef70e7d39p-16,0x1.e3851804382d7p-5,0x1.c38ab99bbb36cp-1,0x1.e3851804382d7p-5,0x1.28d8ef70e7d39p-16};
 static constexpr double kGaussian3[] = {0x1.ce2bd2b07f239p-13,0x1.ef2f583313748p-10,0x1.66fe269578b29p-7,0x1.6032dbb3c267cp-5,0x1.d3994cd6cc171p-4,0x1.a40fbc1ff8ce4p-3,0x1.feaa34f28d751p-3,0x1.a40fbc1ff8ce4p-3,0x1.d3994cd6cc171p-4,0x1.6032dbb3c267cp-5,0x1.66fe269578b29p-7,0x1.ef2f583313748p-10,0x1.ce2bd2b07f239p-13};
 static constexpr double kGaussian4[] = {0x1.7dff10d1ee066p-16,0x1.c138a6b624c17p-10,0x1.336a4e8e9e375p-5,0x1.e9aeb020a6f44p-3,0x1.c5e85af5bea50p-2,0x1.e9aeb020a6f44p-3,0x1.336a4e8e9e375p-5,0x1.c138a6b624c17p-10,0x1.7dff10d1ee066p-16};
 static constexpr double kGaussian5[] = {0x1.a979ec6152ec4p-16,0x1.76e83062b9fc6p-14,0x1.2aad8a71caec4p-12,0x1.ae45dae534791p-11,0x1.18362f28e8673p-9,0x1.49fb4c8e3dee0p-8,0x1.5f567031a0fa0p-7,0x1.5236a8c3eb350p-6,0x1.265ddae6dfd65p-5,0x1.cf48c2ee4677ap-5,0x1.499d9a8cec6b1p-4,0x1.a80fe508f6bf4p-4,0x1.ed44759648db4p-4,0x1.03615284cbcd4p-3,0x1.ed44759648db4p-4,0x1.a80fe508f6bf4p-4,0x1.499d9a8cec6b1p-4,0x1.cf48c2ee4677ap-5,0x1.265ddae6dfd65p-5,0x1.5236a8c3eb350p-6,0x1.5f567031a0fa0p-7,0x1.49fb4c8e3dee0p-8,0x1.18362f28e8673p-9,0x1.ae45dae534791p-11,0x1.2aad8a71caec4p-12,0x1.76e83062b9fc6p-14,0x1.a979ec6152ec4p-16};
-static constexpr double kGaussian6[] = {0x1.3c5b0bce496c4p-11,0x1.9723bd18009dep-6,0x1.d9adc9d57623cp-3,0x1.f231637bbb7eep-2,0x1.d9adc9d57623cp-3,0x1.9723bd18009dep-6,0x1.3c5b0bce496c4p-11};
+static constexpr double kGaussian6[] = {0x1.3c5b0bce496c5p-11,0x1.9723bd18009dep-6,0x1.d9adc9d57623cp-3,0x1.f231637bbb7eep-2,0x1.d9adc9d57623cp-3,0x1.9723bd18009dep-6,0x1.3c5b0bce496c5p-11};
 static constexpr double kGaussian7[] = {0x1.55ec37c18c668p-14,0x1.375fd4ab74d8bp-12,0x1.f56ae8b0e75a9p-11,0x1.64f57dc751d6dp-9,0x1.c15d582b05312p-8,0x1.f429aed36532ep-7,0x1.ec37553b46b57p-6,0x1.ac48cc19c536bp-5,0x1.497d1a7344069p-4,0x1.c03d7722af317p-4,0x1.0d93b60a05e2ap-3,0x1.1eb15efaf78b8p-3,0x1.0d93b60a05e2ap-3,0x1.c03d7722af317p-4,0x1.497d1a7344069p-4,0x1.ac48cc19c536bp-5,0x1.ec37553b46b57p-6,0x1.f429aed36532ep-7,0x1.c15d582b05312p-8,0x1.64f57dc751d6dp-9,0x1.f56ae8b0e75a9p-11,0x1.375fd4ab74d8bp-12,0x1.55ec37c18c668p-14};
 static constexpr double kGaussian8[] = {0x1.f1f0065e87fc8p-15,0x1.780b71896ac2ap-9,0x1.771a892c5d704p-5,0x1.ee356d8a58d95p-3,0x1.ae04a36404373p-2,0x1.ee356d8a58d95p-3,0x1.771a892c5d704p-5,0x1.780b71896ac2ap-9,0x1.f1f0065e87fc8p-15};
 static constexpr double kGaussian9[] = {0x1.8b8fb2cd8e5b8p-15,0x1.20a754f4b02a2p-13,0x1.85249eb10bd5ap-12,0x1.e498c725d8d4ep-11,0x1.16b71e1f699efp-9,0x1.28261def8c311p-8,0x1.22ab37565ac64p-7,0x1.078703d1fdbc6p-6,0x1.b963bfd1318c2p-6,0x1.5573485641dc9p-5,0x1.e7fada80d1175p-5,0x1.421894d5603bfp-4,0x1.88c500eef9c59p-4,0x1.ba6a176f51164p-4,0x1.cc51e5deded9dp-4,0x1.ba6a176f51164p-4,0x1.88c500eef9c59p-4,0x1.421894d5603bfp-4,0x1.e7fada80d1175p-5,0x1.5573485641dc9p-5,0x1.b963bfd1318c2p-6,0x1.078703d1fdbc6p-6,0x1.22ab37565ac64p-7,0x1.28261def8c311p-8,0x1.16b71e1f699efp-9,0x1.e498c725d8d4ep-11,0x1.85249eb10bd5ap-12,0x1.20a754f4b02a2p-13,0x1.8b8fb2cd8e5b8p-15};
 static constexpr double kGaussian10[] = {0x1.ff65f12175c9fp-12,0x1.204acf6bed14ep-7,0x1.1c79d98799072p-4,0x1.eb5b6769ebe0ep-3,0x1.73634be2f80f5p-2,0x1.eb5b6769ebe0ep-3,0x1.1c79d98799072p-4,0x1.204acf6bed14ep-7,0x1.ff65f12175c9fp-12};
-static constexpr double kGaussian11[] = {0x1.7bfb54e4fb4bcp-16,0x1.0731ed4aa3963p-14,0x1.556794690aae8p-13,0x1.9eaccd1d70e5bp-12,0x1.d79ef89dcc794p-11,0x1.f6418aeb117eep-10,0x1.f4d881ab93185p-9,0x1.d3a8c7ab41512p-8,0x1.98e2beef21cf6p-7,0x1.4ec01a53f1a0dp-6,0x1.009e327345f1cp-5,0x1.706899ca4d98fp-5,0x1.ef3e78a20b2d7p-5,0x1.37b120acb7f0fp-4,0x1.6f5fc72bd716ap-4,0x1.9573767d3c5f6p-4,0x1.a3003eb5323e4p-4,0x1.9573767d3c5f6p-4,0x1.6f5fc72bd716ap-4,0x1.37b120acb7f0fp-4,0x1.ef3e78a20b2d7p-5,0x1.706899ca4d98fp-5,0x1.009e327345f1cp-5,0x1.4ec01a53f1a0dp-6,0x1.98e2beef21cf6p-7,0x1.d3a8c7ab41512p-8,0x1.f4d881ab93185p-9,0x1.f6418aeb117eep-10,0x1.d79ef89dcc794p-11,0x1.9eaccd1d70e5bp-12,0x1.556794690aae8p-13,0x1.0731ed4aa3963p-14,0x1.7bfb54e4fb4bcp-16};
+static constexpr double kGaussian11[] = {0x1.7bfb54e4fb4bcp-16,0x1.0731ed4aa3963p-14,0x1.556794690aae8p-13,0x1.9eaccd1d70e5bp-12,0x1.d79ef89dcc794p-11,0x1.f6418aeb117eep-10,0x1.f4d881ab93185p-9,0x1.d3a8c7ab41512p-8,0x1.98e2beef21cf6p-7,0x1.4ec01a53f1a0dp-6,0x1.009e327345f1cp-5,0x1.706899ca4d990p-5,0x1.ef3e78a20b2d7p-5,0x1.37b120acb7f0fp-4,0x1.6f5fc72bd716ap-4,0x1.9573767d3c5f6p-4,0x1.a3003eb5323e4p-4,0x1.9573767d3c5f6p-4,0x1.6f5fc72bd716ap-4,0x1.37b120acb7f0fp-4,0x1.ef3e78a20b2d7p-5,0x1.706899ca4d990p-5,0x1.009e327345f1cp-5,0x1.4ec01a53f1a0dp-6,0x1.98e2beef21cf6p-7,0x1.d3a8c7ab41512p-8,0x1.f4d881ab93185p-9,0x1.f6418aeb117eep-10,0x1.d79ef89dcc794p-11,0x1.9eaccd1d70e5bp-12,0x1.556794690aae8p-13,0x1.0731ed4aa3963p-14,0x1.7bfb54e4fb4bcp-16};
 static constexpr double kGaussian12[] = {0x1.9bd7b8e5fc63bp-14,0x1.ec5d72424b517p-9,0x1.9f9894ec9084cp-5,0x1.ef5a1a96e4cadp-3,0x1.a0dacf6dd1273p-2,0x1.ef5a1a96e4cadp-3,0x1.9f9894ec9084cp-5,0x1.ec5d72424b517p-9,0x1.9bd7b8e5fc63bp-14};
-static constexpr double kGaussian13[] = {0x1.01a1d33280232p-15,0x1.9074712bbce55p-14,0x1.1e25abf818c1dp-12,0x1.77fb852ba56b5p-11,0x1.c636276112ee4p-10,0x1.f87ff4cf502e1p-9,0x1.0199a7a45d864p-7,0x1.e3bb158dd1731p-7,0x1.a19570c65e483p-6,0x1.4b6eda87f9d34p-5,0x1.e3b73fbb1c6b6p-5,0x1.448a07af5fb30p-4,0x1.9064916db5740p-4,0x1.c62b59bd890f5p-4,0x1.d9a78bb5f3925p-4,0x1.c62b59bd890f5p-4,0x1.9064916db5740p-4,0x1.448a07af5fb30p-4,0x1.e3b73fbb1c6b6p-5,0x1.4b6eda87f9d34p-5,0x1.a19570c65e483p-6,0x1.e3bb158dd1731p-7,0x1.0199a7a45d864p-7,0x1.f87ff4cf502e1p-9,0x1.c636276112ee4p-10,0x1.77fb852ba56b5p-11,0x1.1e25abf818c1dp-12,0x1.9074712bbce55p-14,0x1.01a1d33280232p-15};
+static constexpr double kGaussian13[] = {0x1.01a1d33280232p-15,0x1.9074712bbce55p-14,0x1.1e25abf818c1dp-12,0x1.77fb852ba56b5p-11,0x1.c636276112ee5p-10,0x1.f87ff4cf502e1p-9,0x1.0199a7a45d864p-7,0x1.e3bb158dd1731p-7,0x1.a19570c65e483p-6,0x1.4b6eda87f9d34p-5,0x1.e3b73fbb1c6b6p-5,0x1.448a07af5fb30p-4,0x1.9064916db5740p-4,0x1.c62b59bd890f5p-4,0x1.d9a78bb5f3925p-4,0x1.c62b59bd890f5p-4,0x1.9064916db5740p-4,0x1.448a07af5fb30p-4,0x1.e3b73fbb1c6b6p-5,0x1.4b6eda87f9d34p-5,0x1.a19570c65e483p-6,0x1.e3bb158dd1731p-7,0x1.0199a7a45d864p-7,0x1.f87ff4cf502e1p-9,0x1.c636276112ee5p-10,0x1.77fb852ba56b5p-11,0x1.1e25abf818c1dp-12,0x1.9074712bbce55p-14,0x1.01a1d33280232p-15};
 static constexpr double kGaussian14[] = {0x1.479d10bf3dfc4p-14,0x1.b3a34dbb543c9p-9,0x1.8cbfac32c71d2p-5,0x1.eef33cf08f8fbp-3,0x1.a6e55729b9705p-2,0x1.eef33cf08f8fbp-3,0x1.8cbfac32c71d2p-5,0x1.b3a34dbb543c9p-9,0x1.479d10bf3dfc4p-14};
-static constexpr double kGaussian15[] = {0x1.f6a75ca3bc948p-15,0x1.6213644699c53p-13,0x1.cdfc50cc0a162p-12,0x1.172126c05d154p-10,0x1.38622aafd7e36p-9,0x1.43c6ca5b98657p-8,0x1.36cc317f76170p-7,0x1.144d7ad531031p-6,0x1.c6fc4153c71e3p-6,0x1.5af0bbd627bf1p-5,0x1.ea061d1792e63p-5,0x1.407f5df088691p-4,0x1.8445e006273a0p-4,0x1.b3a308678533ap-4,0x1.c4acf4d80705bp-4,0x1.b3a308678533ap-4,0x1.8445e006273a0p-4,0x1.407f5df088691p-4,0x1.ea061d1792e63p-5,0x1.5af0bbd627bf1p-5,0x1.c6fc4153c71e3p-6,0x1.144d7ad531031p-6,0x1.36cc317f76170p-7,0x1.43c6ca5b98657p-8,0x1.38622aafd7e36p-9,0x1.172126c05d154p-10,0x1.cdfc50cc0a162p-12,0x1.6213644699c53p-13,0x1.f6a75ca3bc948p-15};
+static constexpr double kGaussian15[] = {0x1.f6a75ca3bc948p-15,0x1.6213644699c53p-13,0x1.cdfc50cc0a162p-12,0x1.172126c05d154p-10,0x1.38622aafd7e36p-9,0x1.43c6ca5b98657p-8,0x1.36cc317f76170p-7,0x1.144d7ad531031p-6,0x1.c6fc4153c71e3p-6,0x1.5af0bbd627bf1p-5,0x1.ea061d1792e65p-5,0x1.407f5df088691p-4,0x1.8445e006273a0p-4,0x1.b3a308678533ap-4,0x1.c4acf4d80705bp-4,0x1.b3a308678533ap-4,0x1.8445e006273a0p-4,0x1.407f5df088691p-4,0x1.ea061d1792e65p-5,0x1.5af0bbd627bf1p-5,0x1.c6fc4153c71e3p-6,0x1.144d7ad531031p-6,0x1.36cc317f76170p-7,0x1.43c6ca5b98657p-8,0x1.38622aafd7e36p-9,0x1.172126c05d154p-10,0x1.cdfc50cc0a162p-12,0x1.6213644699c53p-13,0x1.f6a75ca3bc948p-15};
 static constexpr double kGaussian16[] = {0x1.ce27258cea946p-12,0x1.66fa84b3e9043p-6,0x1.d39491a41f9e1p-3,0x1.fea50a329ccc5p-2,0x1.d39491a41f9e1p-3,0x1.66fa84b3e9043p-6,0x1.ce27258cea946p-12};
 static constexpr double kGaussian17[] = {0x1.18a9c4fd536c6p-13,0x1.22724cb7eb269p-8,0x1.ba4b99d1799abp-5,0x1.ef8eb9ad499bap-3,0x1.9884a307594fbp-2,0x1.ef8eb9ad499bap-3,0x1.ba4b99d1799abp-5,0x1.22724cb7eb269p-8,0x1.18a9c4fd536c6p-13};
 static constexpr SpatialPreset kSpatialPresets[] = {
@@ -76,4 +76,62 @@ static constexpr SpatialPreset kSpatialPresets[] = {
 {"white-balance-fluorescent",false,0.0,0.0,0.0,0.0,0.0,{nullptr,0},{nullptr,0},{nullptr,0}},
 {"white-balance-shade",false,0.0,0.0,0.0,0.0,0.0,{nullptr,0},{nullptr,0},{nullptr,0}},
 {"white-balance-tungsten",false,0.0,0.0,0.0,0.0,0.0,{nullptr,0},{nullptr,0},{nullptr,0}},
+};
+static constexpr NativeSharpnessPreset kNativeSharpnessPresets[] = {
+{"adjustment-layers-default",true,100,1.0,0,10},
+{"cloudy",true,100,1.0,0,10},
+{"color-corrections-default",true,100,1.0,0,10},
+{"color-corrections-saturated",true,100,1.0,0,10},
+{"color-management-default",true,100,1.0,0,10},
+{"daylight",true,100,1.0,0,10},
+{"defringe-default",true,100,1.0,0,10},
+{"dust-default",true,100,1.0,0,10},
+{"exposure-default",true,100,1.0,0,10},
+{"exposure-extra-contrast",true,100,1.0,0,10},
+{"extra-contrast",true,100,1.0,0,10},
+{"extra_contrast",true,100,1.0,0,10},
+{"film-grain-artistic",true,100,1.0,0,10},
+{"film-grain-default",true,100,1.0,0,10},
+{"film-grain-fine-texture",true,100,1.0,0,10},
+{"film-grain-high-iso",true,100,1.0,0,10},
+{"film-grain-medium-iso",true,100,1.0,0,10},
+{"film-grain-rough-color",true,100,1.0,0,10},
+{"film-grain-slide-high-iso",true,100,1.0,0,10},
+{"film-grain-slide-medium-iso",true,100,1.0,0,10},
+{"film-grain-tabular-grain",true,100,1.0,0,10},
+{"flash",true,100,1.0,0,10},
+{"fluorescent",true,100,1.0,0,10},
+{"gradation-curves-default",true,100,1.0,0,10},
+{"gradation-curves-lighten",true,100,1.0,0,10},
+{"grayscale-blue-filter",true,100,1.0,0,10},
+{"grayscale-default",true,100,1.0,0,10},
+{"grayscale-green-filter",true,100,1.0,0,10},
+{"grayscale-red-filter",true,100,1.0,0,10},
+{"high",true,350,0.8,0,10},
+{"histogram-default",true,100,1.0,0,10},
+{"keystone-correction-default",true,100,1.0,0,10},
+{"lens-corrections-default",true,100,1.0,0,10},
+{"lighten",true,100,1.0,0,10},
+{"medium",true,180,0.8,0,10},
+{"nature",true,180,0.8,0,10},
+{"noise-filter-default",true,100,1.0,0,10},
+{"portrait",true,90,0.8,3,10},
+{"product",true,350,0.8,0,10},
+{"saturated",true,100,1.0,0,10},
+{"scene-calibration-default",true,100,1.0,0,10},
+{"shade",true,100,1.0,0,10},
+{"sharpness-default",true,100,1.0,0,10},
+{"sharpness-high",true,350,0.8,0,10},
+{"sharpness-medium",true,180,0.8,0,10},
+{"sharpness-portrait",true,90,0.8,3,10},
+{"square-crop",true,100,1.0,0,10},
+{"square_crop",true,100,1.0,0,10},
+{"standard",true,100,1.0,0,10},
+{"tungsten",true,100,1.0,0,10},
+{"white-balance-cloudy",true,100,1.0,0,10},
+{"white-balance-daylight",true,100,1.0,0,10},
+{"white-balance-flash",true,100,1.0,0,10},
+{"white-balance-fluorescent",true,100,1.0,0,10},
+{"white-balance-shade",true,100,1.0,0,10},
+{"white-balance-tungsten",true,100,1.0,0,10},
 };

@@ -120,9 +120,10 @@ class EffectToggleSourceContracts(unittest.TestCase):
         crop = compact(body(self.hncs, 'func crop(effects:'))
         self.assertEqual(crop, 'effects.applyExtraCrop && presetKey == "square-crop" ? .centeredSquare : .none')
         spatial = compact(body(self.hncs, 'func requiresSpatial(effects:'))
-        self.assertIn('guard presetKey != "standard"', spatial)
+        self.assertNotIn('presetKey != "standard"', spatial)
+        self.assertIn('hncs_native_sharpness_enabled', spatial)
         self.assertIn('(effects.applyGrain && flags & 4 != 0)', spatial)
-        self.assertIn('(effects.applySharpness && flags & (8 | 16) != 0)', spatial)
+        self.assertIn('(effects.applySharpness && nativeSharpness)', spatial)
         self.assertEqual(compact(body(self.pipeline, 'var crop: ImageCrop')),
                          'mode == .hncs ? hncs.crop(effects: effects) : .none')
         bridge = compact(body(self.hncs, 'static func applySpatial('))
@@ -144,7 +145,8 @@ class EffectToggleSourceContracts(unittest.TestCase):
         self.assertEqual(counts['FFCSEngine.exportLinearRGBA'], 1)
         self.assertEqual(counts['FFCSEngine.exportLinearRGBStrip'], 1)
         export = body(self.pipeline, 'private static func exportFullSource(')
-        self.assertIn('let recipe = processed.recipe', export)
+        self.assertIn('recipe: processed.recipe', self.pipeline)
+        self.assertIn('guard recipe.isValid', export)
         self.assertIn('recipe.hncs.requiresSpatial(effects: recipe.effects)', export)
 
     def test_both_backend_caches_include_flags_and_preserve_inflight_owners(self):
@@ -179,8 +181,8 @@ class EffectToggleSourceContracts(unittest.TestCase):
         self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export)', shutter)
         self.assertLess(shutter.index('let snapshot'), shutter.index('camera.captureProRAW'))
         self.assertIn('let snapshot: CaptureSnapshot', self.workflow)
-        self.assertIn('ImagePipeline.process(input, recipe: snapshot.recipe)', self.workflow)
-        self.assertIn('ImagePipeline.writeHEIF(processed,', self.workflow)
+        self.assertIn('ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe', self.workflow)
+        self.assertIn('settings: snapshot.output', self.workflow)
 
     def test_live_cache_identity_changes_for_every_flag_but_stays_pointwise_only(self):
         self.assertEqual(stored_members(self.live, 'struct LiveColorRecipe:')['effects'],

@@ -1,5 +1,7 @@
 # 精确 Float 导出的实测并行改进
 
+> 2026-10-17：Apple 平台现复用有界 libdispatch 工作线程，并并行空间预设前后的独立点处理；自动拍摄移除了重复 RAW 预览。新的 iPhone 实测见 [HNCS 颜色核查与提速](HNCS_AUDIT_AND_SPEED_20261017.md)。下文的线程启动和 Linux 数字保留为历史基线。
+
 更新：2026-10-11。基于 [颜色性能基线](COLOR_PERFORMANCE.md) 的后续修改；基线中“当前单线程 Float 导出”描述的是修改前状态。
 
 ## 已实现

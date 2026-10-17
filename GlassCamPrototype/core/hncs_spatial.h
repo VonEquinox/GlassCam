@@ -31,6 +31,26 @@ int hncs_apply_spatial_preset_file(const char *work_rgb_path,
     size_t width, size_t height, const char *preset_key,
     int apply_grain, int apply_sharpness, const char *scratch_directory,
     hncs_spatial_cancel_fn cancelled, void *cancel_context);
+/* Original Phocus CPU sharpness equations followed by the portable grain model.
+ * Non-HDR work codes, full-resolution pixel scale, replicated image edges;
+ * no Phocus local adjustment layers or lens sharpness compensation.
+ * baseline_sharpness is the RAW's DNG BaselineSharpness, or 0 if absent.
+ * The original filter internally shifts UInt16 work to 14 bits and back.
+ * apply_sharpness=0 bypasses that entire operation. Apple RAW sharpening must
+ * be disabled before using it to avoid applying both decoder and native USM.
+ * Return/error/cancellation/ownership rules match the portable API above.
+ * Native sharpness scratch is 4 bytes/pixel and <1MiB working RAM; portable
+ * grain retains its existing <=16 bytes/pixel / <4MiB bounds.
+ */
+int hncs_apply_spatial_native_sharpness(float *work_rgb, size_t width, size_t height,
+    const char *preset_key, int apply_grain, int apply_sharpness, double baseline_sharpness);
+int hncs_apply_spatial_native_sharpness_file(const char *work_rgb_path,
+    size_t width, size_t height, const char *preset_key, int apply_grain,
+    int apply_sharpness, double baseline_sharpness, const char *scratch_directory,
+    hncs_spatial_cancel_fn cancelled, void *cancel_context);
+/* Factory native USM gate after the Standard/tool overlay: 1 active, 0 bypass,
+ * -1 unknown key. Independent of the legacy portable catalog's optional flags. */
+int hncs_native_sharpness_enabled(const char *preset_key);
 #ifdef __cplusplus
 }
 #endif

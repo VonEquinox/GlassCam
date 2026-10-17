@@ -1,0 +1,941 @@
+{
+  "date": "2026-10-17",
+  "device": "iPhone 18 Pro Max",
+  "device_model": "iPhone19,7",
+  "audit": "Continued the interrupted HNCS audit. Original Standard historical benchmark and source hashes verified against retained reports; current source files match its after-build manifest.",
+  "method": "Current Release build, identical retained 48MP ProRAW, L*RGB, EV -0.05. Interleaved preview_then_export/direct routes, alternating 24/48MP order, three rounds per route and output size.",
+  "scope": "Only the workflow routes differ here. Both use the optimized CPU scheduler. This is not an additional historical-build speedup beyond hncs-iphone-20261017.json.",
+  "summary": [
+    {
+      "preset": "standard",
+      "megapixels": 24,
+      "preview_then_export_seconds": 3.5617245833418565,
+      "direct_seconds": 2.7373909166635713,
+      "time_reduction_percent": 23.144228235211784
+    },
+    {
+      "preset": "standard",
+      "megapixels": 48,
+      "preview_then_export_seconds": 3.6759424166666577,
+      "direct_seconds": 2.853165791661013,
+      "time_reduction_percent": 22.382739764235428
+    },
+    {
+      "preset": "nature",
+      "megapixels": 24,
+      "preview_then_export_seconds": 6.557613083336037,
+      "direct_seconds": 5.43661937500292,
+      "time_reduction_percent": 17.094538730590013
+    },
+    {
+      "preset": "nature",
+      "megapixels": 48,
+      "preview_then_export_seconds": 6.74865249999857,
+      "direct_seconds": 5.68422320834361,
+      "time_reduction_percent": 15.772471491978369
+    }
+  ],
+  "runs": {
+    "standard": {
+      "captures": [
+        {
+          "decoded_rgba_sha256": "2daacc3f24a4c657226ecb22f2e121e9736fdbc3f6039ab9e9cf6fc0432f4039",
+          "encoded_sha256": "e3cbfae9736ef5234e90da5b4a645510007d0aedc058e0f40f9f1f35571a1100",
+          "export_progress_seconds": {
+            "0.0": 0.8280842916719848,
+            "0.9": 3.1673236250062473,
+            "0.85": 3.1039760833373293,
+            "1.0": 3.3948442500113742
+          },
+          "megapixels": 48,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 1,
+          "seconds": {
+            "full_export": 2.5821939583402127,
+            "preview_effect": 0.08318766666343436,
+            "raw_preview_decode": 0.74488829166512,
+            "retain": 0.0198602500022389,
+            "review_decode": 0.20175999999628402
+          },
+          "thermal": 0,
+          "total_seconds": 3.6319725416688016
+        },
+        {
+          "decoded_rgba_sha256": "2daacc3f24a4c657226ecb22f2e121e9736fdbc3f6039ab9e9cf6fc0432f4039",
+          "encoded_sha256": "e3cbfae9736ef5234e90da5b4a645510007d0aedc058e0f40f9f1f35571a1100",
+          "export_progress_seconds": {
+            "0.0": 0.015376333336462267,
+            "0.9": 2.3618615833402146,
+            "0.85": 2.2990733750048093,
+            "1.0": 2.5957769583328627
+          },
+          "megapixels": 48,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 1,
+          "seconds": {
+            "full_export": 2.610345541674178,
+            "retain": 0.01716479165770579,
+            "review_decode": 0.19772625000041444
+          },
+          "thermal": 0,
+          "total_seconds": 2.8252861666551325
+        },
+        {
+          "decoded_rgba_sha256": "0f05e324ade44894d82e6b366617d96f25aed548d099d32cf5623978e87041db",
+          "encoded_sha256": "edf163861aa74f7e060adf42015a3108b0fefafedfe038e6b6014f6e6f5230d2",
+          "export_progress_seconds": {
+            "0.0": 0.8351076249964535,
+            "0.9": 3.1898649999930058,
+            "0.85": 3.1272631249885308,
+            "1.0": 3.368443874991499
+          },
+          "megapixels": 24,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 1,
+          "seconds": {
+            "full_export": 2.547542333326419,
+            "preview_effect": 0.08205329165502917,
+            "raw_preview_decode": 0.7530462083232123,
+            "retain": 0.01664370832440909,
+            "review_decode": 0.14581966666446533
+          },
+          "thermal": 0,
+          "total_seconds": 3.545160375011619
+        },
+        {
+          "decoded_rgba_sha256": "0f05e324ade44894d82e6b366617d96f25aed548d099d32cf5623978e87041db",
+          "encoded_sha256": "edf163861aa74f7e060adf42015a3108b0fefafedfe038e6b6014f6e6f5230d2",
+          "export_progress_seconds": {
+            "0.0": 0.015516416664468125,
+            "0.9": 2.3674770833313232,
+            "0.85": 2.3045592083362862,
+            "1.0": 2.544693958334392
+          },
+          "megapixels": 24,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 1,
+          "seconds": {
+            "full_export": 2.559832541664946,
+            "retain": 0.020192124997265637,
+            "review_decode": 0.14924924999650102
+          },
+          "thermal": 0,
+          "total_seconds": 2.7293232083320618
+        },
+        {
+          "encoded_sha256": "edf163861aa74f7e060adf42015a3108b0fefafedfe038e6b6014f6e6f5230d2",
+          "export_progress_seconds": {
+            "0.0": 0.01550275000045076,
+            "0.9": 2.3734504166641273,
+            "0.85": 2.3093134583323263,
+            "1.0": 2.552880749994074
+          },
+          "megapixels": 24,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 2,
+          "seconds": {
+            "full_export": 2.5677182916697348,
+            "retain": 0.020089249999728054,
+            "review_decode": 0.1495406666654162
+          },
+          "thermal": 0,
+          "total_seconds": 2.7373909166635713
+        },
+        {
+          "encoded_sha256": "edf163861aa74f7e060adf42015a3108b0fefafedfe038e6b6014f6e6f5230d2",
+          "export_progress_seconds": {
+            "0.0": 0.8406447083398234,
+            "0.9": 3.2062288750021253,
+            "0.85": 3.14362025000446,
+            "1.0": 3.384578375000274
+          },
+          "megapixels": 24,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 2,
+          "seconds": {
+            "full_export": 2.5577935416658875,
+            "preview_effect": 0.0835054166673217,
+            "raw_preview_decode": 0.7571305000019493,
+            "retain": 0.01618758332915604,
+            "review_decode": 0.14704458332562353
+          },
+          "thermal": 0,
+          "total_seconds": 3.5617245833418565
+        },
+        {
+          "encoded_sha256": "e3cbfae9736ef5234e90da5b4a645510007d0aedc058e0f40f9f1f35571a1100",
+          "export_progress_seconds": {
+            "0.0": 0.015520791668677703,
+            "0.9": 2.386732333325199,
+            "0.85": 2.323036249988945,
+            "1.0": 2.625141666663694
+          },
+          "megapixels": 48,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 2,
+          "seconds": {
+            "full_export": 2.640750749997096,
+            "retain": 0.018475541670341045,
+            "review_decode": 0.19389600001159124
+          },
+          "thermal": 0,
+          "total_seconds": 2.853165791661013
+        },
+        {
+          "encoded_sha256": "e3cbfae9736ef5234e90da5b4a645510007d0aedc058e0f40f9f1f35571a1100",
+          "export_progress_seconds": {
+            "0.0": 0.8427537499956088,
+            "0.9": 3.2188516666647047,
+            "0.85": 3.1543251249968307,
+            "1.0": 3.450871749999351
+          },
+          "megapixels": 48,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 2,
+          "seconds": {
+            "full_export": 2.6225545416673413,
+            "preview_effect": 0.0841927916626446,
+            "raw_preview_decode": 0.7585511666693492,
+            "retain": 0.019678208336699754,
+            "review_decode": 0.19090299999515992
+          },
+          "thermal": 0,
+          "total_seconds": 3.6759424166666577
+        },
+        {
+          "encoded_sha256": "e3cbfae9736ef5234e90da5b4a645510007d0aedc058e0f40f9f1f35571a1100",
+          "export_progress_seconds": {
+            "0.0": 0.8453681666578632,
+            "0.9": 3.2272602500015637,
+            "0.85": 3.1642494999978226,
+            "1.0": 3.463075874999049
+          },
+          "megapixels": 48,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 3,
+          "seconds": {
+            "full_export": 2.6311281666712603,
+            "preview_effect": 0.08426679165859241,
+            "raw_preview_decode": 0.7610943749896251,
+            "retain": 0.019979875010903925,
+            "review_decode": 0.19307087500055786
+          },
+          "thermal": 0,
+          "total_seconds": 3.6896017499966547
+        },
+        {
+          "encoded_sha256": "e3cbfae9736ef5234e90da5b4a645510007d0aedc058e0f40f9f1f35571a1100",
+          "export_progress_seconds": {
+            "0.0": 0.015510541663388722,
+            "0.9": 2.40057524999429,
+            "0.85": 2.3370052083337214,
+            "1.0": 2.636876000004122
+          },
+          "megapixels": 48,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 3,
+          "seconds": {
+            "full_export": 2.6517032499978086,
+            "retain": 0.01634429166733753,
+            "review_decode": 0.19032141666684765
+          },
+          "thermal": 0,
+          "total_seconds": 2.8584197083400795
+        },
+        {
+          "encoded_sha256": "edf163861aa74f7e060adf42015a3108b0fefafedfe038e6b6014f6e6f5230d2",
+          "export_progress_seconds": {
+            "0.0": 0.8427842083328869,
+            "0.9": 3.2374143750057556,
+            "0.85": 3.173427958332468,
+            "1.0": 3.417168333340669
+          },
+          "megapixels": 24,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 3,
+          "seconds": {
+            "full_export": 2.5880913750006584,
+            "preview_effect": 0.08429774999967776,
+            "raw_preview_decode": 0.7584780833276454,
+            "retain": 0.019792625011177734,
+            "review_decode": 0.1468532500002766
+          },
+          "thermal": 0,
+          "total_seconds": 3.59756875000312
+        },
+        {
+          "encoded_sha256": "edf163861aa74f7e060adf42015a3108b0fefafedfe038e6b6014f6e6f5230d2",
+          "export_progress_seconds": {
+            "0.0": 0.015488416669541039,
+            "0.9": 2.417338250001194,
+            "0.85": 2.3522230416710954,
+            "1.0": 2.597144125000341
+          },
+          "megapixels": 24,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 3,
+          "seconds": {
+            "full_export": 2.612110083340667,
+            "retain": 0.01998658332740888,
+            "review_decode": 0.1479879999969853
+          },
+          "thermal": 0,
+          "total_seconds": 2.7801362083409913
+        }
+      ],
+      "cpu_count": 6,
+      "cpu_kernel": [
+        {
+          "all_workers_bit_identical": true,
+          "pixels_per_call": 516096,
+          "preset": "standard",
+          "rgba_sha256": "9a3653222831987ee082cea629ce18d849beea99ebbafa9af3ef69de620a8b13",
+          "seconds_1_worker": [
+            0.011138583329739049,
+            0.011126458339276724,
+            0.011114916662336327,
+            0.011195833343663253,
+            0.011139750000438653
+          ],
+          "seconds_2_workers": [
+            0.005874249996850267,
+            0.005861541663762182,
+            0.005867625004611909,
+            0.0058566666702972725,
+            0.005864833336090669
+          ],
+          "seconds_4_workers": [
+            0.004579333326546475,
+            0.004570333330775611,
+            0.004577874991809949,
+            0.004604208341334015,
+            0.004576000006636605
+          ]
+        },
+        {
+          "all_workers_bit_identical": true,
+          "pixels_per_call": 516096,
+          "preset": "nature",
+          "rgba_sha256": "49a130b529a3c17462a0baedb474470b00091c7e0b88f87444bbec0bd5bc12b7",
+          "seconds_1_worker": [
+            0.03540820833586622,
+            0.035374916667933576,
+            0.03528120834380388,
+            0.035208541667088866,
+            0.035233958333265036
+          ],
+          "seconds_2_workers": [
+            0.01855249999789521,
+            0.018573499997728504,
+            0.018538124990300275,
+            0.018522625003242865,
+            0.01857479166937992
+          ],
+          "seconds_4_workers": [
+            0.013655624992679805,
+            0.013619708333862945,
+            0.013594166666734964,
+            0.01356816667248495,
+            0.013574833341408521
+          ]
+        }
+      ],
+      "export_path": "paired_current_build",
+      "exposure_ev": -0.05,
+      "gpu": "Apple A20 Pro GPU",
+      "label": "standard-lstar",
+      "live_capture_scope": "Production CaptureWorkflow and live retain/process services; injected existing RAW callback and failing/retried Photos stub. No camera capture or Photos writes.",
+      "live_capture_verification": [
+        {
+          "encoded_sha256": "edf163861aa74f7e060adf42015a3108b0fefafedfe038e6b6014f6e6f5230d2",
+          "height": 5656,
+          "matches_pipeline_export": true,
+          "retry_reused_same_file": true,
+          "save_attempts": 2,
+          "source": "retained_file",
+          "white_balance": "Auto WB · 5119 K · Tint +21.4",
+          "width": 4242
+        },
+        {
+          "encoded_sha256": "edf163861aa74f7e060adf42015a3108b0fefafedfe038e6b6014f6e6f5230d2",
+          "height": 5656,
+          "matches_pipeline_export": true,
+          "retry_reused_same_file": true,
+          "save_attempts": 2,
+          "source": "memory_fallback",
+          "white_balance": "Auto WB · 5119 K · Tint +21.4",
+          "width": 4242
+        }
+      ],
+      "low_power": false,
+      "metal_fp64": "program_source:3:25: error: 'double' is not supported in Metal\nkernel void fp64(device double *v [[buffer(0)]], uint i [[thread_position_in_grid]]) { v[i] *= 0.5; }\n                        ^\n",
+      "nature_preview_seconds": 0.27525408333167434,
+      "nature_uses_spatial": true,
+      "os": "Version 27.0.1 (Build 24A446)",
+      "path_comparison": [
+        {
+          "all_encoded_files_identical": true,
+          "encoded_files": 6,
+          "first_pair_decoded_rgba_identical": true,
+          "megapixels": 24
+        },
+        {
+          "all_encoded_files_identical": true,
+          "encoded_files": 6,
+          "first_pair_decoded_rgba_identical": true,
+          "megapixels": 48
+        }
+      ],
+      "preset": "standard",
+      "preview_height": 2048,
+      "preview_width": 1536,
+      "run_id": "f46bd48a-0253-4e4f-9a1b-6d42dddee71b",
+      "scope": "Existing RAW bytes through automatic processing, HEIF and review decode; camera and Photos transaction excluded",
+      "source_bytes": 49513537,
+      "source_hdr_fraction": 0.025239944458007812,
+      "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+      "standard_preview_seconds": 0.08283691667020321,
+      "standard_uses_spatial": false,
+      "status": "complete",
+      "thermal_end": 0,
+      "thermal_start": 0,
+      "white_balance": "Auto WB · 5119 K · Tint +21.4",
+      "white_xy": [
+        0.342873752117157,
+        0.36416757106781006
+      ],
+      "working_space": "lstar"
+    },
+    "nature": {
+      "captures": [
+        {
+          "decoded_rgba_sha256": "acd4f88fb08fe91aaef6526a05c5954766a3ec1d37cfdcee12e4c864c50350ff",
+          "encoded_sha256": "7e5f2e3dba197e718b1130796f2976f26c60c8c41767e5ac919c0ecff2b3e91f",
+          "export_progress_seconds": {
+            "0.0": 1.0312457500112941,
+            "0.9": 6.004933000003803,
+            "1.0": 6.284826875009458
+          },
+          "megapixels": 48,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 1,
+          "seconds": {
+            "full_export": 5.283001958334353,
+            "preview_effect": 0.28147870833345223,
+            "raw_preview_decode": 0.7497602083312813,
+            "retain": 0.017791833335650153,
+            "review_decode": 0.19177441665669903
+          },
+          "thermal": 0,
+          "total_seconds": 6.52389400001266
+        },
+        {
+          "decoded_rgba_sha256": "acd4f88fb08fe91aaef6526a05c5954766a3ec1d37cfdcee12e4c864c50350ff",
+          "encoded_sha256": "7e5f2e3dba197e718b1130796f2976f26c60c8c41767e5ac919c0ecff2b3e91f",
+          "export_progress_seconds": {
+            "0.0": 0.015389249994768761,
+            "0.9": 5.0620179583347635,
+            "1.0": 5.303435791662196
+          },
+          "megapixels": 48,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 1,
+          "seconds": {
+            "full_export": 5.326599208332482,
+            "retain": 0.019688541666255333,
+            "review_decode": 0.2005628750048345
+          },
+          "thermal": 0,
+          "total_seconds": 5.5469024583435385
+        },
+        {
+          "decoded_rgba_sha256": "75c3f33d9143c24112448db36db329aade1caa11171c7e657bd6b63dbff9ad95",
+          "encoded_sha256": "2ea40a83328b58bd37adc0cb90965a209e484873f57a3b8d37cd6d48a47454d9",
+          "export_progress_seconds": {
+            "0.0": 1.0527629166608676,
+            "0.9": 6.192391958335065,
+            "1.0": 6.372562416669098
+          },
+          "megapixels": 24,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 1,
+          "seconds": {
+            "full_export": 5.337731583334971,
+            "preview_effect": 0.2858421666751383,
+            "raw_preview_decode": 0.7669125833344879,
+            "retain": 0.019597583333961666,
+            "review_decode": 0.14746625001134817
+          },
+          "thermal": 0,
+          "total_seconds": 6.557613083336037
+        },
+        {
+          "decoded_rgba_sha256": "75c3f33d9143c24112448db36db329aade1caa11171c7e657bd6b63dbff9ad95",
+          "encoded_sha256": "2ea40a83328b58bd37adc0cb90965a209e484873f57a3b8d37cd6d48a47454d9",
+          "export_progress_seconds": {
+            "0.0": 0.015454041655175388,
+            "0.9": 5.03644075000193,
+            "1.0": 5.215213499992387
+          },
+          "megapixels": 24,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 1,
+          "seconds": {
+            "full_export": 5.234659083333099,
+            "retain": 0.01959579167305492,
+            "review_decode": 0.15041362500051036
+          },
+          "thermal": 0,
+          "total_seconds": 5.404712833333178
+        },
+        {
+          "encoded_sha256": "2ea40a83328b58bd37adc0cb90965a209e484873f57a3b8d37cd6d48a47454d9",
+          "export_progress_seconds": {
+            "0.0": 0.015532999997958541,
+            "0.9": 5.069539250005619,
+            "1.0": 5.252213875006419
+          },
+          "megapixels": 24,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 2,
+          "seconds": {
+            "full_export": 5.271089000001666,
+            "retain": 0.017682333331322297,
+            "review_decode": 0.14779433333023917
+          },
+          "thermal": 0,
+          "total_seconds": 5.43661937500292
+        },
+        {
+          "encoded_sha256": "2ea40a83328b58bd37adc0cb90965a209e484873f57a3b8d37cd6d48a47454d9",
+          "export_progress_seconds": {
+            "0.0": 1.0521902083419263,
+            "0.9": 6.17840287501167,
+            "1.0": 6.372429666676908
+          },
+          "megapixels": 24,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 2,
+          "seconds": {
+            "full_export": 5.343941791667021,
+            "preview_effect": 0.2845966666645836,
+            "raw_preview_decode": 0.7675846249912865,
+            "retain": 0.02004879165906459,
+            "review_decode": 0.1390395000053104
+          },
+          "thermal": 0,
+          "total_seconds": 6.555272416662774
+        },
+        {
+          "encoded_sha256": "7e5f2e3dba197e718b1130796f2976f26c60c8c41767e5ac919c0ecff2b3e91f",
+          "export_progress_seconds": {
+            "0.0": 0.015576833335217088,
+            "0.9": 5.226798041665461,
+            "1.0": 5.480058541666949
+          },
+          "megapixels": 48,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 2,
+          "seconds": {
+            "full_export": 5.49956283334177,
+            "retain": 0.016905541662708856,
+            "review_decode": 0.20652100000006612
+          },
+          "thermal": 0,
+          "total_seconds": 5.723030958339223
+        },
+        {
+          "encoded_sha256": "7e5f2e3dba197e718b1130796f2976f26c60c8c41767e5ac919c0ecff2b3e91f",
+          "export_progress_seconds": {
+            "0.0": 1.0761752083344618,
+            "0.9": 6.398774916669936,
+            "1.0": 6.638614458337543
+          },
+          "megapixels": 48,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 2,
+          "seconds": {
+            "full_export": 5.5808397916698596,
+            "preview_effect": 0.28907124999386724,
+            "raw_preview_decode": 0.7870960833242862,
+            "retain": 0.019581541666411795,
+            "review_decode": 0.20384324999758974
+          },
+          "thermal": 0,
+          "total_seconds": 6.88049708334438
+        },
+        {
+          "encoded_sha256": "7e5f2e3dba197e718b1130796f2976f26c60c8c41767e5ac919c0ecff2b3e91f",
+          "export_progress_seconds": {
+            "0.0": 1.0806792916700942,
+            "0.9": 6.282482249996974,
+            "1.0": 6.517905541666551
+          },
+          "megapixels": 48,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 3,
+          "seconds": {
+            "full_export": 5.4563315416744445,
+            "preview_effect": 0.2909325416694628,
+            "raw_preview_decode": 0.789738874998875,
+            "retain": 0.016445583329186775,
+            "review_decode": 0.19514520834491123
+          },
+          "thermal": 0,
+          "total_seconds": 6.74865249999857
+        },
+        {
+          "encoded_sha256": "7e5f2e3dba197e718b1130796f2976f26c60c8c41767e5ac919c0ecff2b3e91f",
+          "export_progress_seconds": {
+            "0.0": 0.015543625006102957,
+            "0.9": 5.207246208345168,
+            "1.0": 5.4446617500070715
+          },
+          "megapixels": 48,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 3,
+          "seconds": {
+            "full_export": 5.464537541658501,
+            "retain": 0.019728166662389413,
+            "review_decode": 0.19990512500226032
+          },
+          "thermal": 0,
+          "total_seconds": 5.68422320834361
+        },
+        {
+          "encoded_sha256": "2ea40a83328b58bd37adc0cb90965a209e484873f57a3b8d37cd6d48a47454d9",
+          "export_progress_seconds": {
+            "0.0": 1.0843670000031125,
+            "0.9": 6.308853375012404,
+            "1.0": 6.490475583341322
+          },
+          "megapixels": 24,
+          "path": "preview_then_export",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 3,
+          "seconds": {
+            "full_export": 5.426061333331745,
+            "preview_effect": 0.2936185833386844,
+            "raw_preview_decode": 0.7907404583238531,
+            "retain": 0.016561374999582767,
+            "review_decode": 0.1510063333407743
+          },
+          "thermal": 0,
+          "total_seconds": 6.678052250004839
+        },
+        {
+          "encoded_sha256": "2ea40a83328b58bd37adc0cb90965a209e484873f57a3b8d37cd6d48a47454d9",
+          "export_progress_seconds": {
+            "0.0": 0.01581491666729562,
+            "0.9": 5.306161916669225,
+            "1.0": 5.485872833334724
+          },
+          "megapixels": 24,
+          "path": "direct",
+          "review_dimensions": [
+            1536,
+            2048
+          ],
+          "round": 3,
+          "seconds": {
+            "full_export": 5.5051917916716775,
+            "retain": 0.01988270833680872,
+            "review_decode": 0.14743558333429974
+          },
+          "thermal": 0,
+          "total_seconds": 5.672553416676237
+        }
+      ],
+      "cpu_count": 6,
+      "cpu_kernel": [
+        {
+          "all_workers_bit_identical": true,
+          "pixels_per_call": 516096,
+          "preset": "standard",
+          "rgba_sha256": "9a3653222831987ee082cea629ce18d849beea99ebbafa9af3ef69de620a8b13",
+          "seconds_1_worker": [
+            0.01111575000686571,
+            0.01113312499364838,
+            0.011097541675553657,
+            0.011176208325196058,
+            0.011120083334390074
+          ],
+          "seconds_2_workers": [
+            0.005856166666490026,
+            0.005860000004759058,
+            0.005866708335815929,
+            0.005850375004229136,
+            0.005862124991836026
+          ],
+          "seconds_4_workers": [
+            0.004572708319756202,
+            0.004580916662234813,
+            0.004569958342472091,
+            0.004569833326968364,
+            0.004581375003908761
+          ]
+        },
+        {
+          "all_workers_bit_identical": true,
+          "pixels_per_call": 516096,
+          "preset": "nature",
+          "rgba_sha256": "49a130b529a3c17462a0baedb474470b00091c7e0b88f87444bbec0bd5bc12b7",
+          "seconds_1_worker": [
+            0.03515358333243057,
+            0.03514024999458343,
+            0.03513399999064859,
+            0.03509262501029298,
+            0.03531045833369717
+          ],
+          "seconds_2_workers": [
+            0.018431874996167608,
+            0.018613583335536532,
+            0.018429291667416692,
+            0.01854579166683834,
+            0.018476208337233402
+          ],
+          "seconds_4_workers": [
+            0.013535124991904013,
+            0.013580291662947275,
+            0.013513833328033797,
+            0.013552333330153488,
+            0.013517749990569428
+          ]
+        }
+      ],
+      "export_path": "paired_current_build",
+      "exposure_ev": -0.05,
+      "gpu": "Apple A20 Pro GPU",
+      "label": "nature-lstar",
+      "live_capture_scope": "Production CaptureWorkflow and live retain/process services; injected existing RAW callback and failing/retried Photos stub. No camera capture or Photos writes.",
+      "live_capture_verification": [
+        {
+          "encoded_sha256": "2ea40a83328b58bd37adc0cb90965a209e484873f57a3b8d37cd6d48a47454d9",
+          "height": 5656,
+          "matches_pipeline_export": true,
+          "retry_reused_same_file": true,
+          "save_attempts": 2,
+          "source": "retained_file",
+          "white_balance": "Auto WB · 5119 K · Tint +21.4",
+          "width": 4242
+        },
+        {
+          "encoded_sha256": "2ea40a83328b58bd37adc0cb90965a209e484873f57a3b8d37cd6d48a47454d9",
+          "height": 5656,
+          "matches_pipeline_export": true,
+          "retry_reused_same_file": true,
+          "save_attempts": 2,
+          "source": "memory_fallback",
+          "white_balance": "Auto WB · 5119 K · Tint +21.4",
+          "width": 4242
+        }
+      ],
+      "low_power": false,
+      "metal_fp64": "program_source:3:25: error: 'double' is not supported in Metal\nkernel void fp64(device double *v [[buffer(0)]], uint i [[thread_position_in_grid]]) { v[i] *= 0.5; }\n                        ^\n",
+      "nature_preview_seconds": 0.2756106249871664,
+      "nature_uses_spatial": true,
+      "os": "Version 27.0.1 (Build 24A446)",
+      "path_comparison": [
+        {
+          "all_encoded_files_identical": true,
+          "encoded_files": 6,
+          "first_pair_decoded_rgba_identical": true,
+          "megapixels": 24
+        },
+        {
+          "all_encoded_files_identical": true,
+          "encoded_files": 6,
+          "first_pair_decoded_rgba_identical": true,
+          "megapixels": 48
+        }
+      ],
+      "preset": "nature",
+      "preview_height": 2048,
+      "preview_width": 1536,
+      "run_id": "f2eb0b92-7ee7-4455-bc77-e20b387af5c3",
+      "scope": "Existing RAW bytes through automatic processing, HEIF and review decode; camera and Photos transaction excluded",
+      "source_bytes": 49513537,
+      "source_hdr_fraction": 0.025239944458007812,
+      "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+      "standard_preview_seconds": 0.0826249583333265,
+      "standard_uses_spatial": false,
+      "status": "complete",
+      "thermal_end": 0,
+      "thermal_start": 0,
+      "white_balance": "Auto WB · 5119 K · Tint +21.4",
+      "white_xy": [
+        0.342873752117157,
+        0.36416757106781006
+      ],
+      "working_space": "lstar"
+    }
+  },
+  "source_sha256": {
+    "ios/GlassCam/ExportSettings.swift": "995224c3489a3ac22c95741a9b3511a7818b381a743bbb5d99c41b1091370dbe",
+    "ios/GlassCam/SourceImageStore.swift": "ce95c7e26eacc4e8c148317db8f1b72073a1438e576d991e00abdafd17e82ab3",
+    "ios/GlassCam/PhotoWhiteBalance.swift": "3d45624d968d87900d51aee77213561410840bf5ba804e5fe2064af739a62236",
+    "ios/GlassCam/HNCSEngine.swift": "6a05a2c8ae90aa76361b2c0f9635819f08d35fa3a8a421e3013c98170a47851d",
+    "ios/GlassCam/FFCSEngine.swift": "ab08f4825259bd62f8e3eeff12263c9d88754f2637062cb0431ed287eca06ae5",
+    "ios/GlassCam/ImagePipeline.swift": "7351525f9f0d52efeb164b1770a8aefdf8998a701535bca3eae01fac4709d449",
+    "ios/GlassCam/PreviewRaster.swift": "435f18d6676cf9fb71774f6b7e50bfd4e3dc96b7930261547bc851cd0c5fa161",
+    "ios/GlassCam/CaptureWorkflow.swift": "eb1aa1a104005daf6727ec81ffbc0352bff3833ca9c6c2634c91ec4173ec216b",
+    "core/hncs.cpp": "fa924112e1ac83a5193088a2a3e907b490351dcc42be98d02eb30d1dcb42c2fa",
+    "core/hncs_spatial.cpp": "1618a24f3ee5f3c89d082e82315b5d3c0ead53eb8fd4dd1d11074ae2db4094ad",
+    "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+    "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+    "core/ffcs_c.h": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
+    "core/hncs_c.h": "113a675cbcfb815aaaf7ab573ace81b17b324684664e417e0e73aec70c643b24",
+    "core/hncs_numpy_rng.h": "8b6382698f08a7065e7b05366af6a6a6f043743242723c2e8188e587e5d3fc90",
+    "core/hncs_spatial.h": "00ea26255a508aff9c680fe51e79537d0963ef2aeee033701681ccc76d36a100",
+    "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+    "core/hncs_preset_assets.inc": "7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306",
+    "core/hncs_spatial_assets.inc": "272db813f70645c76b03745f502b376737b572e6e70fb9f7fcde42307b41c814",
+    "core/hncs_whitepoint_assets.inc": "99abe2be28ccafb208ddce592e041f03b0c5b9c40b5ffe610dfcaeee068c536e",
+    "ios/GlassCam/GlassCam-Bridging-Header.h": "7ec513694282e41c577acfd71a51f26ce3847e1b87291aaac7b6bbdab91c07aa",
+    "tools/apple_hncs_study.swift": "ca134cd201bbb5e861aba6ebbe691f2166c3611b9882624c7c763299bc27699a"
+  },
+  "reference_sha256": {
+    "hncs_pipeline.py": {
+      "sha256": "db8009a38a3d2948d6e177fee2ef79a24f808f8b2b98c619f9c8041eacaa5a99",
+      "matches_reference": true
+    },
+    "phocus_presets.py": {
+      "sha256": "fd5f33d8f37608ca8974272942882a7149d10edd66bf23cc954914f1f79e5a4c",
+      "matches_reference": true
+    },
+    "tools/reference_color_core.py": {
+      "sha256": "3052ca96671aa51b152987b125ce3a3e1534db7c38aa3440b73daa7414812d6d",
+      "matches_reference": true
+    },
+    "work/hncs-pipeline/assets/x2dii_phocus_422.npz": {
+      "sha256": "3291628ef8787a20082eaebb7e50fccac0a89bbce14dc5619ecf1277d816c1b9",
+      "matches_reference": true
+    },
+    "work/hncs-pipeline/phocus_presets.json": {
+      "sha256": "d99c5a2e09810e2977c7be9230289b23148348b52c92ad05d75f5c87c0d84886",
+      "matches_reference": true
+    },
+    "work/hncs-pipeline/phocus_post_curves.npz": {
+      "sha256": "72d862916aea6ede45897ddf36abae4e6ac2dae2aff942d551c4e94275b4330b",
+      "matches_reference": true
+    }
+  },
+  "validation": {
+    "portable_tests": 67,
+    "portable_result": "passed",
+    "apple_image_pipeline": "passed; 14 real SDR/HDR HEIF export comparisons, direct/preview routes max decoded error 0",
+    "encoded_file_comparisons": 24,
+    "full_float_decoded_comparisons": "First pair of each preset/output group; identical SHA-256",
+    "live_workflow_cases": 4,
+    "live_workflow": "Both presets, retained file and forced memory fallback. Actual CaptureWorkflow/live processing, failing then retried Photos stub, same HEIF owner and bytes.",
+    "apple_log": "hncs-followup-apple-tests-20261017.txt"
+  },
+  "deployment": {
+    "release_build": "passed",
+    "bundle_identifier": "dev.glasscam.prototype",
+    "installed": true,
+    "launch_succeeded": true,
+    "process_seen_after_launch": true,
+    "settings_preserved_semantically": true,
+    "executable_sha256": "e5c180c3231ae8b066df15c45b0f0f2b676d1e24683e40b1e1f801f06081693f",
+    "temporary_study_app_removed": true
+  },
+  "limits": [
+    "One indoor RAW, three rounds per path/size; no p95, sustained thermal, power, or multi-scene guarantee.",
+    "Camera capture and real Photos transactions are excluded. The benchmark does not run the live viewfinder concurrently.",
+    "CPU kernel microbenchmarks inside each run are independent legacy-space probes; the capture measurements use L*RGB.",
+    "Zero optimization-induced difference is not iPhone-to-Hasselblad color calibration.",
+    "No GPU replacement color kernel or ANE model was deployed."
+  ]
+}

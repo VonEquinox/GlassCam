@@ -1,6 +1,8 @@
 # HNCS render revision 8 同步
 
-来源固定为用户技术交付分支提交 `34fa10f42bc32efea0ca5559f006ebe9a8bf6489`。colour path revision 仍为 2，render path 从 6 升至 8。本页记录当前同步的实现合同和验收边界；测试完成记录在末节补充。
+来源固定为用户技术交付分支提交 `34fa10f42bc32efea0ca5559f006ebe9a8bf6489`。colour path revision 仍为 2，交付 render path 从 6 升至 8。本页保留该次同步的实现合同和验收边界；测试完成记录在末节补充。
+
+2026-10-18：当前应用为 [render revision 10](PHOCUS_REVISION10_20261018.md)，接入原版锐化并修正后置颜色顺序；revision 9 已修复无调整 gradation 旁路。下文是旧 revision-8 参考接口的历史合同，原样保留用于回归，不代表当前应用空间处理顺序。
 
 ## 参考不变与新增阶段
 

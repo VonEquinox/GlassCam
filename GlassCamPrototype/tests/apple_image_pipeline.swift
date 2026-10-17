@@ -4,6 +4,7 @@ import Foundation
 import CoreImage
 import ImageIO
 import Metal
+import QuartzCore
 import UniformTypeIdentifiers
 
 private struct CheckFailure: Error, CustomStringConvertible {
@@ -104,20 +105,21 @@ private func require(_ condition: Bool, _ message: String) throws {
                     "Effect and comparison source select different crop rows")
     }
 
-    static func checkSpatial(_ input: ImportedImage, preset: String) throws {
+    static func checkSpatial(_ input: ImportedImage, preset: String, baselineSharpness: Double) throws {
         let settings = recipe(preset).hncs
         let effects = EffectToggles.standard
         var work = try HNCSEngine.presetWork(linearSRGB: input.linearRGB, width: input.width,
             height: input.height, exposureEV: 0, captureKelvin: 6500, settings: settings)
         let status = work.withUnsafeMutableBufferPointer { buffer in
-            preset.withCString { hncs_apply_spatial_preset(buffer.baseAddress, input.width, input.height, $0, 1, 1) }
+            preset.withCString { hncs_apply_spatial_native_sharpness(buffer.baseAddress, input.width, input.height, $0, 1, 1, baselineSharpness) }
         }
         try require(status == 0, "Native spatial oracle failed")
         let expected = try HNCSEngine.finishPresetWork(work, width: input.width, height: input.height,
             exposureEV: 0, captureKelvin: 6500, settings: settings)
         let actual = try HNCSEngine.exportLinearRGBA(linearSRGB: input.linearRGB, width: input.width,
-            height: input.height, exposureEV: 0, illuminantKelvin: 6500, settings: settings, effects: effects)
-        try require(try error(actual, expected) < 1e-6, "Swift spatial file path differs from the top-down native oracle")
+            height: input.height, exposureEV: 0, illuminantKelvin: 6500, settings: settings, effects: effects,
+            baselineSharpness: baselineSharpness)
+        try require(actual == expected, "Swift spatial file path differs from native memory path or loses BaselineSharpness")
     }
 
     static func checkMetal() throws {
@@ -155,6 +157,49 @@ private func require(_ condition: Bool, _ message: String) throws {
         try require(try error(actual, marker) < 1e-6, "Metal destination reversed or shifted the source")
     }
 
+    static func checkDisplayHeadroom() throws {
+        func raster(_ value: Float, width: Int = 8) throws -> PreviewRaster {
+            var rgba = [Float](repeating: value, count: width * 8 * 4)
+            for alpha in stride(from: 3, to: rgba.count, by: 4) { rgba[alpha] = 1 }
+            return try PreviewRaster(linearRGBA: rgba, width: width, height: 8)
+        }
+        let hdr = try raster(8), lowerHDR = try raster(2), sdr = try raster(0.5)
+        let layer = CAMetalLayer()
+        layer.device = MTLCreateSystemDefaultDevice()
+        layer.pixelFormat = .rgba16Float
+        layer.colorspace = linear
+        layer.drawableSize = CGSize(width: 8, height: 8)
+        // Reuse the same display layer as SwiftUI does when the latest photo
+        // changes. HDR -> lower HDR -> SDR must replace the old display range.
+        for (image, expected) in [(hdr, Float(8)), (lowerHDR, 2), (sdr, 1)] {
+            let originalPixels = pixels(image.image)
+            let peak = PreviewDisplay.headroom(source: image, processed: nil, comparisonFraction: nil)
+            try require(peak == expected, "Display range differs from the actual RGB pixels")
+            PreviewDisplay.configure(layer, headroom: peak)
+            try require(layer.wantsExtendedDynamicRangeContent == (expected > 1), "Stale EDR request after changing photos")
+            if #available(macOS 26, *) {
+                try require(layer.contentsHeadroom == CGFloat(expected), "Photo headroom never reached the display layer")
+                try require(layer.preferredDynamicRange == .high && layer.toneMapMode == .ifSupported,
+                            "The display layer cannot adapt HDR to the screen")
+            } else {
+                try require((layer.edrMetadata != nil) == (expected > 1), "Legacy HDR display metadata missing or stale")
+            }
+            try require(layer.nextDrawable()?.texture.pixelFormat == .rgba16Float,
+                        "Configured HDR layer could not acquire a float drawable")
+            try require(try error(pixels(image.image), originalPixels) == 0, "Display configuration changed the source pixels")
+        }
+        // Hidden or incompatible comparison images must not darken a lone photo
+        // by declaring headroom from content that isn't being displayed.
+        try require(PreviewDisplay.headroom(source: hdr, processed: lowerHDR, comparisonFraction: nil) == 2,
+                    "Effect-only display used hidden original highlights")
+        try require(PreviewDisplay.headroom(source: hdr, processed: lowerHDR, comparisonFraction: 0) == 8 &&
+                    PreviewDisplay.headroom(source: hdr, processed: lowerHDR, comparisonFraction: 1) == 2 &&
+                    PreviewDisplay.headroom(source: hdr, processed: lowerHDR, comparisonFraction: 0.5) == 8,
+                    "Comparison display range does not cover its visible inputs")
+        try require(PreviewDisplay.headroom(source: sdr, processed: try raster(8, width: 4), comparisonFraction: nil) == 1,
+                    "A stale differently sized effect changed display headroom")
+    }
+
     static func checkExport(_ input: ImportedImage, recipe: ProcessingRecipe,
                             directory: URL, name: String, scale: Double = 1) throws {
         let processed = try ImagePipeline.process(input, recipe: recipe)
@@ -175,6 +220,16 @@ private func require(_ condition: Bool, _ message: String) throws {
         let settings: ExportSettings = scale == 1 ? .native : .init(
             targetWidth: Int(Double(input.width) * scale), targetHeight: Int(Double(input.height) * scale))
         try ImagePipeline.writeHEIF(processed, to: actualURL, settings: settings)
+        let directURL = directory.appendingPathComponent(name + "-direct.heic")
+        let directRecipe = try ImagePipeline.writeHEIF(sourceFile: input.sourceFile, recipe: recipe,
+                                                       to: directURL, settings: settings)
+        try require(directRecipe == processed.recipe, "Direct export changed the frozen white balance or recipe")
+        guard let directImage = CIImage(contentsOf: directURL, options: [.expandToHDR: true]),
+              let legacyImage = CIImage(contentsOf: actualURL, options: [.expandToHDR: true]) else {
+            throw CheckFailure(description: "Direct HEIF output cannot be decoded")
+        }
+        try require(try error(pixels(directImage), pixels(legacyImage)) == 0,
+                    "Skipping the RAW effect preview changed encoded image pixels")
         var expected = oracle.image.image
         if #available(macOS 26, *) { expected = expected.settingContentHeadroom(0) }
         if scale != 1 {
@@ -321,6 +376,42 @@ private func require(_ condition: Bool, _ message: String) throws {
         }
     }
 
+    static func checkNativeGradationMigration() throws {
+        var settings = HNCSSettings.standard
+        settings.presetKey = "nature"
+        settings.filmCurve = .linear
+        settings.workingSpace = .lstar
+        settings.intent = .reproduction
+        settings.factoryKelvinOverride = 4000
+        settings.applyToneCurve = false
+        let expected = ProcessingRecipe(mode: .hncs, exposureEV: -0.3, illuminantKelvin: 6500,
+            simulationIndex: 0, seed: 0, hncs: settings,
+            effects: EffectToggles(applyGrain: false, applySharpness: false, applyExtraCrop: false))
+        var payload = try JSONSerialization.jsonObject(with: JSONEncoder().encode(expected)) as! [String: Any]
+        var storedHNCS = payload["hncs"] as! [String: Any]
+        let suite = "glasscam-native-gradation-migration-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        for revision in [8, 9] {
+            storedHNCS["renderRevision"] = revision
+            payload["hncs"] = storedHNCS
+            let oldData = try JSONSerialization.data(withJSONObject: payload)
+            let restored = try JSONDecoder().decode(ProcessingRecipe.self, from: oldData)
+            try require(restored == expected && restored.hncs.renderRevision == 10,
+                        "Native render migration lost existing HNCS selections or effect switches")
+            defaults.set(oldData, forKey: "editor.processingRecipe.revision8.v1")
+            try require(CameraSettingsStore(defaults: defaults).recipe == expected,
+                        "Saved settings were reset instead of migrated")
+        }
+        for unsupported in [7, 11] {
+            storedHNCS["renderRevision"] = unsupported
+            payload["hncs"] = storedHNCS
+            let data = try JSONSerialization.data(withJSONObject: payload)
+            let rejected = try JSONDecoder().decode(ProcessingRecipe.self, from: data)
+            try require(!rejected.isValid, "Unknown HNCS render revision was silently accepted")
+        }
+    }
+
     static func checkAutomaticWhiteBalance(_ input: ImportedImage) throws {
         let warm = PhotoWhiteBalance(origin: .appleRAW, temperature: 2850, tint: 4,
                                      x: 0.44757, y: 0.40745)
@@ -353,6 +444,21 @@ private func require(_ condition: Bool, _ message: String) throws {
         let asShot = PhotoWhiteBalance.asShot(CIRAWFilter(imageURL: source)!)
         try require(asShot.origin == .appleRAW && asShot == input.whiteBalance &&
                     processed.recipe.photoWhiteBalance == asShot, "RAW as-shot WB was not frozen")
+        let rawRecipe = processed.source.rawDecode
+        let sourceBaseline = try ImagePipeline.baselineSharpness(in: CIRAWFilter(imageURL: source)!.properties)
+        try require(rawRecipe.sharpnessAmount == 0 && rawRecipe.baselineSharpness == sourceBaseline,
+                    "HNCS failed to disable decoder sharpness or bind the actual RAW baseline")
+        let snapshot = try ImagePipeline.inspectRAW(sourceFile: input.sourceFile, recipe: rawRecipe)
+        let configured = snapshot["configured"] as! [String: Any]
+        try require((configured["sharpness_supported"] as? Bool) != true ||
+                    (configured["sharpness_amount"] as? NSNumber)?.floatValue == 0,
+                    "Apple sharpness remains active before native USM")
+        let decoded = try JSONDecoder().decode(RAWDecodeRecipe.self, from: JSONEncoder().encode(rawRecipe))
+        try require(decoded == rawRecipe, "Frozen RAW policy did not survive Codable")
+        let again = try ImagePipeline.process(processed.source, recipe: .standard)
+        try require(again.source.rawDecode == rawRecipe && again.source.linearRGB == processed.source.linearRGB,
+                    "Retry reconfigured the decoded RAW or repeated its decoder pass")
+        print("PASS: per-RAW BaselineSharpness \(sourceBaseline), decoder sharpness disabled, policy/retry stable")
         print("PASS: RAW \(asShot.description); xy (\(asShot.x), \(asShot.y)); virtual model CCT \(processed.recipe.illuminantKelvin)")
         let output = directory.appendingPathComponent("raw-hdr.heic")
         let started = Date()
@@ -380,6 +486,22 @@ private func require(_ condition: Bool, _ message: String) throws {
         do {
             guard (2...3).contains(CommandLine.arguments.count) else { throw CheckFailure(description: "Pass a temporary fixture directory and optional DNG") }
             let directory = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
+            try checkNativeGradationMigration()
+            print("PASS: native revision 10 migrates revision 8/9 selections; unknown revisions rejected")
+            try require(try ImagePipeline.baselineSharpness(in: [:]) == 0, "Missing RAW baseline must follow native zero fallback")
+            for baseline in [0.0, 0.5, 1.0, 1.5, 2.0] {
+                let properties: [String: Any] = [kCGImagePropertyDNGDictionary as String:
+                    [kCGImagePropertyDNGBaselineSharpness as String: baseline]]
+                try require(try ImagePipeline.baselineSharpness(in: properties) == baseline, "RAW baseline was hard-coded")
+            }
+            for baseline in [-1.0, Double.nan, Double.infinity, "1.5"] as [Any] {
+                do {
+                    _ = try ImagePipeline.baselineSharpness(in: [kCGImagePropertyDNGDictionary as String:
+                        [kCGImagePropertyDNGBaselineSharpness as String: baseline]])
+                    throw CheckFailure(description: "Malformed RAW baseline accepted")
+                } catch is PipelineError {}
+            }
+            print("PASS: missing, varied and malformed RAW sharpness metadata")
             try checkWorkRows()
             print("PASS: Foundation work-file row order and uneven partitions")
             for (width, height) in [(7, 10), (10, 7), (257, 390)] {
@@ -387,10 +509,14 @@ private func require(_ condition: Bool, _ message: String) throws {
             }
             print("PASS: odd portrait/landscape crops select identical before/after pixels")
             let spatial = try fixture(directory, width: 7, height: 131)
-            for preset in ["film-grain-artistic", "high"] { try checkSpatial(spatial, preset: preset) }
-            print("PASS: Swift spatial file processing matches native grain and sharpening")
+            for preset in ["standard", "nature", "saturated", "grayscale-red-filter", "film-grain-artistic", "high"] {
+                for baseline in [0.0, 1.5] { try checkSpatial(spatial, preset: preset, baselineSharpness: baseline) }
+            }
+            print("PASS: Swift native-USM/portable-grain file route matches memory with per-RAW baseline")
             try checkMetal()
             print("PASS: actual Metal preview destination preserves quadrant coordinates and 2×/4×/8× HDR pixels")
+            try checkDisplayHeadroom()
+            print("PASS: real Metal display layer receives per-photo HDR headroom, enables tone mapping, and resets for SDR")
             let full = try fixture(directory, width: 257, height: 389)
             try checkAutomaticWhiteBalance(full)
             print("PASS: production automatic WB snapshot, Codable, cache invalidation and per-photo binding")
@@ -406,10 +532,10 @@ private func require(_ condition: Bool, _ message: String) throws {
             }
             try checkExport(fixture(directory, width: 256, height: 384), recipe: .standard,
                             directory: directory, name: "hncs-downsample", scale: 0.5)
-            print("PASS: 7 real HEIF exports match full-frame processing, including halos and resize")
+            print("PASS: 7 real HEIF exports match full-frame processing; direct export has identical decoded pixels")
             let hdr = try hdrFixture(directory)
             try checkHDR(hdr, directory: directory)
-            print("PASS: HDR import, highlight ratios, 10-bit PQ metadata, and 7 HDR full-frame/strip/resize exports")
+            print("PASS: HDR import, highlight ratios, 10-bit PQ metadata, and 7 HDR exports; direct export has identical decoded pixels")
             try checkCancellation(full, directory: directory)
             print("PASS: cancellation discards output while retaining the source")
             try await checkShare(full)

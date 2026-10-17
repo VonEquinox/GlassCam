@@ -34,7 +34,6 @@ struct PrecisionPreview: UIViewRepresentable {
             // Match render destination and compositor interpretation. Encoding
             // sRGB here as well would apply its transfer curve twice.
             layer.colorspace = context.coordinator.colorSpace
-            layer.wantsExtendedDynamicRangeContent = true
         }
         view.delegate = context.coordinator
         context.coordinator.installStatusOverlay(in: view)
@@ -119,6 +118,10 @@ struct PrecisionPreview: UIViewRepresentable {
             self.source = source
             self.processed = processed
             fraction = bounded
+            if let layer = view.layer as? CAMetalLayer {
+                PreviewDisplay.configure(layer, headroom: PreviewDisplay.headroom(
+                    source: source, processed: processed, comparisonFraction: bounded))
+            }
             view.setNeedsDisplay()
         }
 

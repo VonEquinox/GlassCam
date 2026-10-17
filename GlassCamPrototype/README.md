@@ -1,13 +1,13 @@
 # GlassCam — HNCS + FFCS 原生效果原型
 
-SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。沿用现有技术交付，不新增色卡拟合。当前使用原生 ProRAW 拍摄、全源处理、HDR HEIF 自动保存与兼容分享；**当前分支为单主摄黑边版本：启动直接进入相机，已通过 Xcode 27.0 Release 构建及 iPhone 18 Pro Max 的 48MP ProRAW 自动拍摄检查**。
+SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。当前为单主摄黑边版本，使用 ProRAW、全源处理、HDR HEIF 自动保存与兼容分享。HNCS render revision 10 已完成 Phocus 二进制数值核查、Mac 图像运行验证及 iOS Release 编译；本轮按要求未进行真机实测，历史手机结果对应其各自版本。
 
 三个独立开关控制锐化、颗粒和预设额外裁切，默认保留开关选择，实际效果遵循当前参考参数，切换预设不重置选择。HNCS/FFCS各自只开关原本存在的阶段，FFCS0.2原生表默认无额外颗粒/锐化，须显式开启参考解析叠加才有对应系数。详见[开关与旧配方迁移](docs/EFFECT_TOGGLES.md)。
 
 ## 当前路径
 
 - 启动即单主摄相机；齿轮打开独立设置页，设置持久化。按快门冻结完整配方及输出，自动处理并保存到系统相册，拍后不进入编辑器。
-- HNCS 与 FFCS 独立选择。HNCS已接入render revision8真实预设后曲线、film curve、完整目标WB、方裁切及便携颗粒/锐化；linear-sRGB → virtual native RGB 源域桥仍是实验适配。FFCS已同步0.2.0，提供5个研究表族的50张真实资产及中性默认/显式解析叠加，不声称iPhone传感器标定。详见[revision8合同与验证](docs/HNCS_REVISION8.md)。
+- HNCS 与 FFCS 独立选择。HNCS revision 10 保留原颜色资产，接入原版亮度锐化、每张 RAW 的 BaselineSharpness，以及原版饱和度／灰度顺序；Standard 也执行其原厂锐化，HNCS 解码明确关闭 Apple 额外锐化。两轮颜色核／曲线检查合计 203,709,420 个通道为 0 差，另有完整串联检查。颗粒仍为便携模型，虚拟源域桥及 HDR 外层适配有独立边界。FFCS 保持 0.2.0 的 5 个研究表族、50 张资产和中性默认。详见[可读反编译分析](docs/PHOCUS_READABLE_ANALYSIS_20261018.md)及[revision 10 验收](docs/PHOCUS_REVISION10_20261018.md)。
 - 导入/拍后效果预览走 Float32 → Metal RGBA16Float 高精度 HDR 显示，不经过8位UIImage；不声称屏幕面板原生10bit。导入预览默认最长边 2048px。主摄预览独立缩放，预览像素不决定原始捕获或最终输出大小。
 - 最终图从完整源重新解码，裁切后按64行处理；HNCS空间预设额外经过磁盘暂存的全图统计/滤波，再写RGBAf；颜色/空间处理后才在线性光中 Lanczos 缩小，使用专用 HEIF10 writer 请求 10-bit BT.2020/PQ HDR HEIF。
 - 设置提供 24MP/48MP 二选一，旧 12MP 迁移到 24MP；完整 RAW 应用效果后再按需缩小。保存失败可重试同一个已编码 HEIF。缩略图只查看最近成片、缩放和分享，分享优先原始 HEIC 并提供按需 JPEG 兼容表示。
@@ -22,7 +22,11 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 - [架构、颜色域与生命周期](docs/DESIGN.md)
 - [有明确替代关系的决策日志](docs/DECISIONS.md)
 - [已执行测试、证据与未验证边界](docs/TEST_STATUS.md)
+- [Phocus 可读 C 反编译、默认参数与处理顺序](docs/PHOCUS_READABLE_ANALYSIS_20261018.md)
+- [HNCS revision 10 锐化与颜色链路验收](docs/PHOCUS_REVISION10_20261018.md)
 - [HNCS revision8预设/WB/空间处理](docs/HNCS_REVISION8.md)
+- [HNCS 颜色核查与 iPhone 保精度提速实测](docs/HNCS_AUDIT_AND_SPEED_20261017.md)
+- [RAW 输入统一、内嵌配置与真机成片对照](docs/RAW_INPUT_STUDY_20261017.md)
 - [FFCS 数值移植与资产准备](docs/FFCS.md)
 - [iOS 构建与设备验收](ios/README.md) / [C++ 核](core/README.md)
 - [相机能力与取景](docs/camera-capture.md) / [单摄黑边界面](docs/SINGLE_CAMERA.md) / [全源导出](docs/FULL_RESOLUTION_EXPORT.md)
@@ -59,4 +63,4 @@ macOS 上另运行 `python3 -B tools/test_apple_images.py`：直接编译生产 
 
 现有核的数值一致性不证明完整 Phocus RAW pipeline、富士机内 JPEG 等价性、iPhone 标定或真实照片审美。10-bit 编码 API 请求不证明实际位流。原始 RAW/配方长期资料库、Apple 性能与内存/热状态、微信兼容和商业权利清理尚未完成。原始交付及证据保持不变。
 
-上游FFCS0.2同步保留225项整合测试及50资产/1,206阶段的历史证据。本机已修复位图行序、Metal方向及编码前图像范围问题，77项相关便携检查和Apple图像回归通过；真机与接收端验证范围见[测试状态](docs/TEST_STATUS.md)。
+上游 FFCS 0.2 的历史证据保留。本轮本地 198 项测试、Apple 图像回归、已有 48MP RAW 的 Standard/Nature 与 24/48MP 双路径导出，以及 iOS Release 编译通过；各阶段的数值证据和真机边界见[测试状态](docs/TEST_STATUS.md)。

@@ -1,0 +1,222 @@
+{
+  "captures" : [
+    {
+      "decoded_rgba_sha256" : "00622acfc89466d05ccd4f8e8a136c6279186da08eda322c7947e3e17047c126",
+      "encoded_sha256" : "64e58ffa4bf35b8a6d321501e4582d140edf736711ceb77a2fc2d00af5a181e5",
+      "export_progress_seconds" : {
+        "0.0" : 1.9825275416951627,
+        "0.9" : 5.8992934999987483,
+        "1.0" : 6.1939696250483394
+      },
+      "megapixels" : 48,
+      "path" : "preview_then_export",
+      "review_dimensions" : [
+        1536,
+        2048
+      ],
+      "round" : 1,
+      "seconds" : {
+        "full_export" : 4.2642045832471922,
+        "preview_effect" : 1.0855199167272076,
+        "raw_preview_decode" : 0.89698162500280887,
+        "retain" : 0.013930166722275317,
+        "review_decode" : 0.26948079164139926
+      },
+      "thermal" : 0,
+      "total_seconds" : 6.530259458348155
+    },
+    {
+      "decoded_rgba_sha256" : "00622acfc89466d05ccd4f8e8a136c6279186da08eda322c7947e3e17047c126",
+      "encoded_sha256" : "64e58ffa4bf35b8a6d321501e4582d140edf736711ceb77a2fc2d00af5a181e5",
+      "export_progress_seconds" : {
+        "0.0" : 0.021750416606664658,
+        "0.9" : 3.8583852499723434,
+        "1.0" : 4.0741338749649003
+      },
+      "megapixels" : 48,
+      "path" : "direct",
+      "review_dimensions" : [
+        1536,
+        2048
+      ],
+      "round" : 1,
+      "seconds" : {
+        "full_export" : 4.1298166250344366,
+        "retain" : 0.014915791689418256,
+        "review_decode" : 0.23079504165798426
+      },
+      "thermal" : 0,
+      "total_seconds" : 4.3760115833720192
+    },
+    {
+      "decoded_rgba_sha256" : "618a6912e972faa1e2d68ed106b56fd5420260559dff6f7fa6970f39aeedc65f",
+      "encoded_sha256" : "a6d3dd77aff1ee2d048e5ff8737f33ebe272334c4ceddff8126c387951ac395d",
+      "export_progress_seconds" : {
+        "0.0" : 1.9636564166285098,
+        "0.9" : 5.783454708289355,
+        "1.0" : 5.9457857917295769
+      },
+      "megapixels" : 24,
+      "path" : "preview_then_export",
+      "review_dimensions" : [
+        1536,
+        2048
+      ],
+      "round" : 1,
+      "seconds" : {
+        "full_export" : 4.0198722083587199,
+        "preview_effect" : 1.0700513750780374,
+        "raw_preview_decode" : 0.89359429164323956,
+        "retain" : 0.014048916636966169,
+        "review_decode" : 0.19366962497588247
+      },
+      "thermal" : 0,
+      "total_seconds" : 6.1917384583503008
+    },
+    {
+      "decoded_rgba_sha256" : "618a6912e972faa1e2d68ed106b56fd5420260559dff6f7fa6970f39aeedc65f",
+      "encoded_sha256" : "a6d3dd77aff1ee2d048e5ff8737f33ebe272334c4ceddff8126c387951ac395d",
+      "export_progress_seconds" : {
+        "0.0" : 0.021956916665658355,
+        "0.9" : 3.8282042499631643,
+        "1.0" : 3.9864486666629091
+      },
+      "megapixels" : 24,
+      "path" : "direct",
+      "review_dimensions" : [
+        1536,
+        2048
+      ],
+      "round" : 1,
+      "seconds" : {
+        "full_export" : 4.0151252500945702,
+        "retain" : 0.01346029166597873,
+        "review_decode" : 0.16722825006581843
+      },
+      "thermal" : 0,
+      "total_seconds" : 4.1958842084277421
+    }
+  ],
+  "cpu_count" : 10,
+  "cpu_kernel" : [
+    {
+      "all_workers_bit_identical" : true,
+      "pixels_per_call" : 516096,
+      "preset" : "standard",
+      "rgba_sha256" : "4e47bd3cb153f8859ba2066fda5f09b4014c2eaf973be6df91bd687f3191078b",
+      "seconds_1_worker" : [
+        0.041163999936543405,
+        0.041102249990217388,
+        0.03988050005864352,
+        0.038797333370894194,
+        0.038539583329111338
+      ],
+      "seconds_2_workers" : [
+        0.020934250089339912,
+        0.020900166709907353,
+        0.020913291722536087,
+        0.019699041615240276,
+        0.019680541707202792
+      ],
+      "seconds_4_workers" : [
+        0.010901166708208621,
+        0.010495791677385569,
+        0.010477541713044047,
+        0.01020712498575449,
+        0.010299041634425521
+      ]
+    },
+    {
+      "all_workers_bit_identical" : true,
+      "pixels_per_call" : 516096,
+      "preset" : "nature",
+      "rgba_sha256" : "49a130b529a3c17462a0baedb474470b00091c7e0b88f87444bbec0bd5bc12b7",
+      "seconds_1_worker" : [
+        0.037367874989286065,
+        0.03695441666059196,
+        0.038132708403281868,
+        0.037709750002250075,
+        0.037299791700206697
+      ],
+      "seconds_2_workers" : [
+        0.019233583356253803,
+        0.019214749918319285,
+        0.019509624922648072,
+        0.019238249980844557,
+        0.019239499932155013
+      ],
+      "seconds_4_workers" : [
+        0.010191666660830379,
+        0.010065791662782431,
+        0.010160624980926514,
+        0.010323916678316891,
+        0.010285166674293578
+      ]
+    }
+  ],
+  "export_path" : "paired_current_build",
+  "exposure_ev" : -0.050000000000000003,
+  "gpu" : "Apple M5",
+  "label" : "revision10",
+  "live_capture_scope" : "Production CaptureWorkflow and live retain\/process services; injected existing RAW callback and failing\/retried Photos stub. No camera capture or Photos writes.",
+  "live_capture_verification" : [
+    {
+      "encoded_sha256" : "a6d3dd77aff1ee2d048e5ff8737f33ebe272334c4ceddff8126c387951ac395d",
+      "height" : 5656,
+      "matches_pipeline_export" : true,
+      "retry_reused_same_file" : true,
+      "save_attempts" : 2,
+      "source" : "retained_file",
+      "white_balance" : "Auto WB · 5119 K · Tint +21.4",
+      "width" : 4242
+    },
+    {
+      "encoded_sha256" : "a6d3dd77aff1ee2d048e5ff8737f33ebe272334c4ceddff8126c387951ac395d",
+      "height" : 5656,
+      "matches_pipeline_export" : true,
+      "retry_reused_same_file" : true,
+      "save_attempts" : 2,
+      "source" : "memory_fallback",
+      "white_balance" : "Auto WB · 5119 K · Tint +21.4",
+      "width" : 4242
+    }
+  ],
+  "low_power" : false,
+  "metal_fp64" : "program_source:3:25: error: 'double' is not supported in Metal\nkernel void fp64(device double *v [[buffer(0)]], uint i [[thread_position_in_grid]]) { v[i] *= 0.5; }\n                        ^\n",
+  "nature_preview_seconds" : 1.0997091666795313,
+  "nature_uses_spatial" : true,
+  "os" : "Version 27.2 (Build 26B5101f)",
+  "path_comparison" : [
+    {
+      "all_encoded_files_identical" : true,
+      "encoded_files" : 2,
+      "first_pair_decoded_rgba_identical" : true,
+      "megapixels" : 24
+    },
+    {
+      "all_encoded_files_identical" : true,
+      "encoded_files" : 2,
+      "first_pair_decoded_rgba_identical" : true,
+      "megapixels" : 48
+    }
+  ],
+  "preset" : "standard",
+  "preview_height" : 2048,
+  "preview_width" : 1536,
+  "run_id" : "e34e9474-223e-4e19-b359-834903dcb0cf",
+  "scope" : "Existing RAW bytes through automatic processing, HEIF and review decode; camera and Photos transaction excluded",
+  "source_bytes" : 49513537,
+  "source_hdr_fraction" : 0.025160471598307293,
+  "source_sha256" : "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+  "standard_preview_seconds" : 1.0744707082631066,
+  "standard_uses_spatial" : true,
+  "status" : "complete",
+  "thermal_end" : 0,
+  "thermal_start" : 0,
+  "white_balance" : "Auto WB · 5119 K · Tint +21.4",
+  "white_xy" : [
+    0.34287375211715698,
+    0.36416757106781006
+  ],
+  "working_space" : "lstar"
+}

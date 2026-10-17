@@ -42,14 +42,14 @@ final class CaptureWorkflow: ObservableObject {
                 }.value
             }, process: { source, snapshot, progress in
                 try await Task.detached(priority: .userInitiated) {
-                    let input: ImportedImage
+                    let input: SourceImageFile
                     switch source {
-                    case .file(let file): input = try ImagePipeline.load(sourceFile: file, exportSettings: snapshot.output)
-                    case .memory(let data): input = try ImagePipeline.load(data: data, fileExtension: "dng", exportSettings: snapshot.output)
+                    case .file(let file): input = file
+                    case .memory(let data): input = try SourceImageFile(data: data, fileExtension: "dng")
                     }
-                    let processed = try ImagePipeline.process(input, recipe: snapshot.recipe)
                     let file = TemporaryHEIFFile()
-                    try ImagePipeline.writeHEIF(processed, to: file.url, progress: progress)
+                    let recipe = try ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe,
+                        to: file.url, settings: snapshot.output, progress: progress)
                     // Review the finalized HEIF, including full-source spatial effects.
                     let data = try Data(contentsOf: file.url)
                     let review = try ImagePipeline.load(data: data, fileExtension: "heic")
@@ -58,7 +58,7 @@ final class CaptureWorkflow: ObservableObject {
                           let width = properties[kCGImagePropertyPixelWidth as String] as? NSNumber,
                           let height = properties[kCGImagePropertyPixelHeight as String] as? NSNumber else { throw PipelineError.encoding }
                     return SavedCapture(file: file, preview: review.original, width: width.intValue,
-                                        height: height.intValue, snapshot: CaptureSnapshot(recipe: processed.recipe, output: snapshot.output))
+                                        height: height.intValue, snapshot: CaptureSnapshot(recipe: recipe, output: snapshot.output))
                 }.value
             }, save: save)
         }

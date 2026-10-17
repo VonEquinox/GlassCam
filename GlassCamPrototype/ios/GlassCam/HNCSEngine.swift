@@ -30,7 +30,7 @@ enum HNCSIntent: String, CaseIterable, Codable, Identifiable, Sendable {
 }
 
 struct HNCSSettings: Codable, Equatable, Sendable {
-    static let currentRenderRevision = 8
+    static let currentRenderRevision = 10
     var renderRevision = currentRenderRevision
     var presetKey = "standard"
     var filmCurve: HNCSFilmCurve = .asShot
@@ -50,7 +50,10 @@ struct HNCSSettings: Codable, Equatable, Sendable {
     }
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        renderRevision = try values.decodeIfPresent(Int.self, forKey: .renderRevision) ?? Self.currentRenderRevision
+        let savedRevision = try values.decodeIfPresent(Int.self, forKey: .renderRevision) ?? Self.currentRenderRevision
+        // Revision 10 adds native sharpness with per-RAW baseline metadata.
+        // Preserve both revision-8 and revision-9 selections and effect gates.
+        renderRevision = [8, 9].contains(savedRevision) ? Self.currentRenderRevision : savedRevision
         presetKey = try values.decodeIfPresent(String.self, forKey: .presetKey) ?? "standard"
         filmCurve = try values.decodeIfPresent(HNCSFilmCurve.self, forKey: .filmCurve) ?? .asShot
         rawFilmCurveType = try values.decodeIfPresent(Int.self, forKey: .rawFilmCurveType) ?? 2
@@ -63,10 +66,10 @@ struct HNCSSettings: Codable, Equatable, Sendable {
     func crop(effects: EffectToggles) -> ImageCrop {
         effects.applyExtraCrop && presetKey == "square-crop" ? .centeredSquare : .none
     }
-    var isLegacyLiveCompatible: Bool { self == .standard }
     func requiresSpatial(effects: EffectToggles) -> Bool {
-        guard presetKey != "standard", let flags = HNCSEngine.presets.first(where: { $0.id == presetKey })?.flags else { return false }
-        return (effects.applyGrain && flags & 4 != 0) || (effects.applySharpness && flags & (8 | 16) != 0)
+        guard let flags = HNCSEngine.presets.first(where: { $0.id == presetKey })?.flags else { return false }
+        let nativeSharpness = presetKey.withCString { hncs_native_sharpness_enabled($0) == 1 }
+        return (effects.applyGrain && flags & 4 != 0) || (effects.applySharpness && nativeSharpness)
     }
     var presetTitle: String { HNCSEngine.presets.first { $0.id == presetKey }?.name ?? "Unavailable preset" }
     var isValid: Bool {
@@ -77,7 +80,7 @@ struct HNCSSettings: Codable, Equatable, Sendable {
 }
 
 /// Thin Swift ownership/buffer bridge. All color processing lives in portable C++17.
-/// Revision-8 presets, film curves and working spaces use an experimental source
+/// Binary-verified presets, film curves and working spaces use an experimental source
 /// adapter. This does not claim a calibrated iPhone/Apple RAW-to-X2D camera profile.
 enum HNCSEngine {
     enum Quality { case exactReference, fastPreview }
@@ -216,7 +219,8 @@ enum HNCSEngine {
     /// The HEIF encoder applies the output transfer function and quantization.
     static func exportLinearRGBA(linearSRGB: [Float], width: Int, height: Int,
                                  exposureEV: Double, illuminantKelvin: Double,
-                                 settings: HNCSSettings = .standard, effects: EffectToggles = .standard, whiteBalance: PhotoWhiteBalance? = nil) throws -> [Float] {
+                                 settings: HNCSSettings = .standard, effects: EffectToggles = .standard, whiteBalance: PhotoWhiteBalance? = nil,
+                                 baselineSharpness: Double = 0) throws -> [Float] {
         guard width > 0, height > 0, width <= Int.max / height else {
             throw Error.invalidDimensions
         }
@@ -232,7 +236,8 @@ enum HNCSEngine {
                                       exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
             let file = try HNCSPresetWorkFile(width: width, height: height)
             try file.writeTopDownRows(work, originY: 0, rows: height)
-            try applySpatial(to: file, settings: settings, effects: effects, isCancelled: { Task.isCancelled })
+            try applySpatial(to: file, settings: settings, effects: effects, baselineSharpness: baselineSharpness,
+                             isCancelled: { Task.isCancelled })
             let adjusted = try file.readTopDownRows(originY: 0, rows: height)
             return try finishPresetWork(adjusted, width: width, height: height,
                                         exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
@@ -243,14 +248,14 @@ enum HNCSEngine {
         var rgba = [Float](repeating: 0, count: count * 4)
         let status = linearSRGB.withUnsafeBufferPointer { source in
             rgba.withUnsafeMutableBufferPointer { destination in
-                hncs_process_linear_rgba_parallel(context, source.baseAddress, destination.baseAddress, count, workerCount())
+                hncs_process_phocus_linear_rgba_parallel(context, source.baseAddress, destination.baseAddress, count, workerCount())
             }
         }
         guard status == 0 else { throw Error.invalidPixels }
         return rgba
     }
 
-    /// Unquantized working-space Float32 boundary, before grain and USM.
+    /// Working-space Float32 boundary, before native USM and portable grain.
     /// Top-to-bottom bitmap rows pass unchanged to the temporary-file owner and
     /// NumPy spatial reference, so grain coordinates do not depend on strip size.
     static func presetWork(linearSRGB: [Float], width: Int, height: Int,
@@ -262,7 +267,7 @@ enum HNCSEngine {
         var result = [Float](repeating: 0, count: width * height * 3)
         let status = linearSRGB.withUnsafeBufferPointer { source in
             result.withUnsafeMutableBufferPointer { output in
-                hncs_process_preset_work_float(owner.pointer, source.baseAddress, output.baseAddress, width * height)
+                hncs_process_phocus_work_float_parallel(owner.pointer, source.baseAddress, output.baseAddress, width * height, workerCount())
             }
         }
         guard status == 0 else { throw Error.invalidPixels }
@@ -278,7 +283,7 @@ enum HNCSEngine {
         var result = [Float](repeating: 0, count: width * height * 4)
         let status = work.withUnsafeBufferPointer { source in
             result.withUnsafeMutableBufferPointer { output in
-                hncs_finish_preset_work_linear(owner.pointer, source.baseAddress, output.baseAddress, width * height)
+                hncs_finish_phocus_work_linear_parallel(owner.pointer, source.baseAddress, output.baseAddress, width * height, workerCount())
             }
         }
         guard status == 0 else { throw Error.invalidPixels }
@@ -291,7 +296,9 @@ enum HNCSEngine {
     }
 
     static func applySpatial(to file: HNCSPresetWorkFile, settings: HNCSSettings, effects: EffectToggles = .standard,
+                             baselineSharpness: Double = 0,
                              isCancelled: @escaping () -> Bool) throws {
+        guard baselineSharpness.isFinite, baselineSharpness >= 0 else { throw Error.invalidSettings }
         try file.prepareForSpatialPass()
         if isCancelled() { throw CancellationError() }
         let cancellation = SpatialCancellation(isCancelled)
@@ -299,9 +306,9 @@ enum HNCSEngine {
         let status = file.url.path.withCString { path in
             settings.presetKey.withCString { key in
                 FileManager.default.temporaryDirectory.path.withCString { scratch in
-                    hncs_apply_spatial_preset_file(path, file.width, file.height, key,
+                    hncs_apply_spatial_native_sharpness_file(path, file.width, file.height, key,
                         effects.applyGrain ? 1 : 0, effects.applySharpness ? 1 : 0,
-                        scratch, { context in
+                        baselineSharpness, scratch, { context in
                             guard let context else { return 0 }
                             return Unmanaged<SpatialCancellation>.fromOpaque(context).takeUnretainedValue().isCancelled() ? 1 : 0
                         }, opaque)

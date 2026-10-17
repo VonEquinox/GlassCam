@@ -18,6 +18,8 @@
 
 根视图持有 `CaptureWorkflow`，相机、设置和成片页不拥有处理任务。
 
+2026-10-17：自动拍摄改为读取 RAW 白平衡元数据后直接做全源导出，省去不会展示的 RAW 效果预览。最终预览仍从 HEIF 解码；真机速度、像素一致性及线程调度验证见 [HNCS 核查与提速](HNCS_AUDIT_AND_SPEED_20261017.md)。
+
 - 流程为 `idle → authorizing → capturing → retaining → processing → saving → idle`；失败进入 `failed`。
 - 快门先创建不可变 `CaptureSnapshot`，再等待 Photos 仅添加权限。拒绝权限不拍摄，提供系统设置入口。
 - 一个任务从授权持有到相册真实完成回调。在此期间禁止第二次快门；旧/重复回调通过任务 ID 与阶段校验拒收。界面打开设置及后续参数变化不能改变本张快照。

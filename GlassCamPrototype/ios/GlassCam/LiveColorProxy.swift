@@ -22,7 +22,7 @@ struct LiveColorRecipe: Equatable {
     let ffcs: FFCSSettings
     static let dimension = 65
     // A recipe/cache identity must change if an asset, engine or domain changes.
-    let contract = "v4:hncs-revision8-legacy-identity-only/ffcs-0.2-neutral-verified-xh2s-provia-acros-radius1:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"
+    let contract = "v6:hncs-revision10-native-sharpness/ffcs-0.2-neutral-verified-xh2s-provia-acros-radius1:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"
 
     var unsupportedReason: String? {
         if mode == .hncs {

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent revision-8 C++ pointwise, film and synthetic-source-bridge audit.
+"""Audit the pinned core plus the binary-verified revision-9 gradation correction.
 
 Native postcurve parity is distinct from the experimental Apple input adapter.
 The old native core/golden suite also runs; no device calibration is implied.
@@ -12,6 +12,7 @@ import subprocess
 from pathlib import Path
 import numpy as np
 import reference_runtime as r
+from phocus_binary_reference import presets as binary_presets
 import verify_cpp
 
 ROOT = r.ROOT
@@ -63,7 +64,7 @@ def bridge(lib,ctx):
     return out
 
 def verify(lib):
-    s=r.presets;a=r.assets();rng=np.random.default_rng(8137)
+    s=binary_presets;a=r.assets();rng=np.random.default_rng(8137)
     report={}
     assert lib.hncs_preset_count()==43
     all_keys=[lib.hncs_preset_key(i).decode() for i in range(lib.hncs_preset_count())]
@@ -80,7 +81,7 @@ def verify(lib):
     vector_path=r.REFERENCE/'work/hncs-pipeline/evidence/native_preset_vectors.npz'
     assert hashlib.sha256(vector_path.read_bytes()).hexdigest()==s.catalog()['binary_evidence']['post_curves']['native_vector_sha256']
     vectors=np.load(vector_path)
-    active_pixels=0;inactive_pixels=0;vector_checks=[]
+    active_pixels=0;unadjusted_pixels=0;vector_checks=[]
     ramp=np.repeat(np.arange(65536,dtype=np.uint16)[:,None],3,axis=1)
     for key in ('standard','nature','lighten','extra-contrast'):
         for tone in (0,1):
@@ -93,12 +94,13 @@ def verify(lib):
                 expected,_=s.apply_post_curves(source,key,apply_tone_curve=bool(tone))
                 actual=preset(lib,'hncs_apply_post_curves',key,tone,source)
                 np.testing.assert_array_equal(actual,expected)
+                np.testing.assert_array_equal(actual,native)
                 if active:
-                    np.testing.assert_array_equal(actual,native);active_pixels+=len(source)
+                    active_pixels+=len(source)
                 else:
-                    np.testing.assert_array_equal(actual,source);inactive_pixels+=len(source)
+                    unadjusted_pixels+=len(source)
                 vector_checks.append(dict(preset=key,tone=bool(tone),group=group,pixels=len(source),active=active,python_max_code_difference=0,native_max_code_difference=int(np.abs(actual.astype(int)-native.astype(int)).max())))
-    report['native_postcurves']={'active_pixels':active_pixels,'active_max_code_difference':0,'inactive_bypass_pixels':inactive_pixels,'inactive_note':'Revision-8 Python bypasses inactive gradation. Unconditional native filter probe artifacts are intentionally not applied.','checks':vector_checks}
+    report['native_postcurves']={'adjusted_pixels':active_pixels,'unadjusted_pixels':unadjusted_pixels,'max_code_difference':0,'note':'Every original native vector is checked, including no-adjustment gradation. The pinned revision-8 bypass is corrected explicitly in phocus_binary_reference.py.','checks':vector_checks}
     x=rng.integers(0,65536,(97,99,3),dtype=np.uint16)
     checks=0
     for key in s.FACTORY_SETTING_FILES:
@@ -140,15 +142,33 @@ def verify(lib):
             lib.hncs_destroy(ctx);native_combined+=1
     report['native_combined']={'cases':native_combined,'max_code_difference':0,'scope':'caller-supplied white-balanced native RGB → selected kernel CCT/film → pointwise preset; source bridge/WB replacement excluded'}
     pixels=rng.uniform(-.1,1.1,(257,259,3)).astype(np.float32)
-    defaults=0
+    defaults=0;display_max=0.;legacy_differences=[]
     for kelvin in (1000,2000,5500,6500,10000,15000):
         for ev in (-2,0,2):
             old=lib.hncs_create_mode(ev,kelvin,0,0);new=create(lib,cct=kelvin,ev=ev)
             np.testing.assert_array_equal(bridge(lib,old),bridge(lib,new))
+            native_input=r.experimental_adapter(pixels,kelvin,a,ev)
+            codes=r.hncs_codes(native_input,kelvin,a,working_space='legacy')
+            codes,_=s.apply_preset(codes,'standard',apply_sharpness=False,apply_grain=False)
+            encoded=r.srgb_from_hncs(codes,a,'legacy')
+            linear=np.where(encoded<=.04045,encoded/12.92,((encoded+.055)/1.055)**2.4)
             for name,dtype in [('hncs_process_srgb',np.uint8),('hncs_process_srgb_fast',np.uint8),('hncs_process_linear_rgba',np.float32)]:
-                np.testing.assert_array_equal(run(lib,name,new,pixels,dtype,4),run(lib,name,old,pixels,dtype,4));defaults+=1
+                actual=run(lib,name,new,pixels,dtype,4)
+                bare=run(lib,name,old,pixels,dtype,4)
+                expected=linear if dtype==np.float32 else np.rint(encoded*255).astype(np.uint8)
+                error=float(np.max(np.abs(actual[...,:3].astype(np.float64)-expected)))
+                # The old optional fast byte encoder has its existing 1-code
+                # bound; the production Float path is checked against double.
+                tolerance=1e-7 if dtype==np.float32 else (1 if name.endswith('_fast') else 0)
+                assert error<=tolerance,(name,kelvin,ev,error)
+                if dtype==np.float32:display_max=max(display_max,error)
+                assert np.all(actual[...,3]==(1 if dtype==np.float32 else 255))
+                legacy_differences.append({'cct':kelvin,'ev':ev,'api':name,'changed_channels':int(np.count_nonzero(actual!=bare)),
+                                           'maximum_change_from_bare_core':float(np.max(abs(actual.astype(float)-bare.astype(float))))})
+                defaults+=1
             lib.hncs_destroy(old);lib.hncs_destroy(new)
-    report['old_new_default_equivalence']={'cases':defaults,'result':'bit-exact; adapter matrix and UInt8/Float outputs unchanged'}
+    report['default_binary_gradation']={'cases':defaults,'adapter_matrix':'unchanged','max_float_error_vs_corrected_double_reference':display_max,
+        'bare_core_differences':legacy_differences,'note':'Standard preset includes native gradation and is deliberately distinct from the bare hncs_create_mode core.'}
     split_cases=0
     for key in all_keys:
         ctx=create(lib,key=key)
@@ -217,8 +237,9 @@ def main():
     report['status']='passed'
     report['environment']={'platform':platform.platform(),'numpy':np.__version__,'compiler':subprocess.check_output(['g++','--version'],text=True).splitlines()[0],'command':command}
     report['assets']={str(path.relative_to(ROOT)):hashlib.sha256(path.read_bytes()).hexdigest() for path in [ROOT/'core/hncs_assets.inc',ROOT/'core/hncs_preset_assets.inc',ROOT/'reference/work/hncs-pipeline/phocus_post_curves.npz',ROOT/'reference/work/hncs-pipeline/evidence/native_preset_vectors.npz']}
-    report['implementation_sha256']={str(path.relative_to(ROOT)):hashlib.sha256(path.read_bytes()).hexdigest() for path in [ROOT/'core/hncs.cpp',ROOT/'core/hncs_c.h',ROOT/'core/generate_preset_assets.py',ROOT/'core/hncs_preset_catalog.json',Path(__file__),ROOT/'tests/hncs_revision8_sanitizer.cpp',ROOT/'tools/reference_runtime.py',ROOT/'reference/hncs_pipeline.py',ROOT/'reference/phocus_presets.py',ROOT/'reference/work/hncs-pipeline/phocus_presets.json']}
-    (ROOT/'validation/hncs_revision8.json').write_text(json.dumps(report,indent=2)+'\n')
+    report['implementation_sha256']={str(path.relative_to(ROOT)):hashlib.sha256(path.read_bytes()).hexdigest() for path in [ROOT/'core/hncs.cpp',ROOT/'core/hncs_c.h',ROOT/'core/generate_preset_assets.py',ROOT/'core/hncs_preset_catalog.json',Path(__file__),ROOT/'tests/hncs_revision8_sanitizer.cpp',ROOT/'tools/reference_runtime.py',ROOT/'tools/phocus_binary_reference.py',ROOT/'reference/hncs_pipeline.py',ROOT/'reference/phocus_presets.py',ROOT/'reference/work/hncs-pipeline/phocus_presets.json']}
+    report['render_revision']=9
+    (ROOT/'validation/hncs_revision9.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps({k:v for k,v in report.items() if k not in ('assets','environment','native_postcurves')},indent=2))
 
 if __name__=='__main__':main()

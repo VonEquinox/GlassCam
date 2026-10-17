@@ -1,0 +1,127 @@
+{
+  "date": "2026-10-17",
+  "source_file": "/tmp/glasscam-hncs-study.SY7mjv/iphone-source.dng",
+  "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+  "source": "Retained ProRAW from the user's iPhone. Read-only TIFF/IFD metadata extraction; no rendering or profile modification.",
+  "extracted": {
+    "IFD0.Make": "Apple",
+    "IFD0.Model": "iPhone 18 Pro Max",
+    "IFD0.DNGVersion": [
+      1,
+      6,
+      0,
+      0
+    ],
+    "IFD0.UniqueCameraModel": "iPhone19,7 back camera",
+    "IFD0.ColorMatrix1": [
+      1.2131552703464423,
+      -0.6019653087205602,
+      -0.20870275791624107,
+      -0.430835723847772,
+      1.4712632895559725,
+      0.015986131511883196,
+      -0.03187632932574193,
+      0.11861854045856628,
+      0.6651271581200817
+    ],
+    "IFD0.ColorMatrix2": [
+      0.8813269737310457,
+      -0.3398612737591208,
+      -0.12243060765191298,
+      -0.41049456599798917,
+      1.2887829533053816,
+      0.09732620418077165,
+      -0.09316003322333714,
+      0.18848702302071602,
+      0.4790190756440076
+    ],
+    "IFD0.AnalogBalance": [
+      2.5781250816442767,
+      1,
+      1.9484863843708242
+    ],
+    "IFD0.AsShotNeutral": [
+      1,
+      1,
+      1
+    ],
+    "IFD0.BaselineExposure": [
+      3.1118054382705624
+    ],
+    "IFD0.CalibrationIlluminant1": [
+      17
+    ],
+    "IFD0.CalibrationIlluminant2": [
+      21
+    ],
+    "IFD0.ProfileName": "Apple Embedded Color Profile",
+    "IFD0.ProfileToneCurve": {
+      "elements": 514,
+      "type": 11
+    },
+    "IFD0.ProfileGainTableMap": {
+      "elements": 197440,
+      "type": 7
+    }
+  },
+  "matrices": {
+    "ColorMatrix1": {
+      "rows": [
+        [
+          1.2131552703464423,
+          -0.6019653087205602,
+          -0.20870275791624107
+        ],
+        [
+          -0.430835723847772,
+          1.4712632895559725,
+          0.015986131511883196
+        ],
+        [
+          -0.03187632932574193,
+          0.11861854045856628,
+          0.6651271581200817
+        ]
+      ],
+      "calibration_illuminant": "Standard Light A (DNG code 17)"
+    },
+    "ColorMatrix2": {
+      "rows": [
+        [
+          0.8813269737310457,
+          -0.3398612737591208,
+          -0.12243060765191298
+        ],
+        [
+          -0.41049456599798917,
+          1.2887829533053816,
+          0.09732620418077165
+        ],
+        [
+          -0.09316003322333714,
+          0.18848702302071602,
+          0.4790190756440076
+        ]
+      ],
+      "calibration_illuminant": "D65 (DNG code 21)"
+    }
+  },
+  "interpretation": [
+    "These are the embedded color-characterization matrices for this DNG's declared reference camera space, not measured sensor spectral-sensitivity functions.",
+    "DNG ColorMatrix describes XYZ to reference camera color coordinates. Interpretation also requires AnalogBalance, camera calibration/white balance, illuminant selection and the rest of the DNG pipeline.",
+    "This file is already a computational ProRAW; its embedded matrices must not be assumed to describe untouched physical sensor values or every capture mode of this phone.",
+    "These matrices are not an iPhone-to-Hasselblad rendering transform and should not simply be applied again to CIRAWFilter's color-managed extended-linear-sRGB output.",
+    "ProfileToneCurve and ProfileGainTableMap presence and element counts are recorded; their full payloads were not extracted here.",
+    "Rational matrix coefficients are shown as Float64 decimal quotients; the original DNG retains the exact rational values."
+  ],
+  "external_profile_candidate": {
+    "repository": "Tony Kuyper Linear Profile Repository",
+    "source_url": "https://goodlight.us/linear-profiles.html",
+    "listing_verified": "2026-10-17",
+    "listing_label": "19,7 back camera (iPhone 18 Pro Max [United States/Puerto Rico])",
+    "matches_source_device_identifier": true,
+    "listing_download_workflow_url": "https://www.e-junkie.com/ecom/gb.php?c=cart&ejc=2&cl=238078&i=1904024",
+    "profile_file_obtained": false,
+    "scope": "Verified the public listing only. The DCP payload, its matrices and applicability to CIRAWFilter output have not been inspected."
+  }
+}

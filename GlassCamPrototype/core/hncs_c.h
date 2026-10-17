@@ -32,8 +32,9 @@ int hncs_process_srgb(const hncs_context *context, const float *input_rgb,
 int hncs_process_linear_rgba(const hncs_context *context, const float *input_rgb,
                              float *output_rgba, size_t pixel_count);
 /* Exact Float export in bounded contiguous tiles; no approximation or changed
- * arithmetic. workers=1..4; count<65536 uses the serial oracle. Thread launch
- * failure falls back safely after joining all started workers. Same buffer,
+ * arithmetic. workers=1..4; count<65536 uses the serial oracle. Apple platforms
+ * reuse bounded libdispatch workers; other platforms retain the safe thread
+ * launch fallback after joining all started workers. Same buffer,
  * error and byte-size contracts as hncs_process_linear_rgba. */
 int hncs_process_linear_rgba_parallel(const hncs_context *context,
     const float *input_rgb, float *output_rgba, size_t pixel_count, unsigned workers);
@@ -68,6 +69,8 @@ int hncs_render_native(const hncs_context *context, const double *native_rgb,
  * raw 4 is not recursively resolved. Unknown requested film types are rejected.
  * Reproduction always resolves type 7; original is distinct only in legacy RGB.
  * apply_tone_curve=0 disables point curves only, retaining gamma and contrast.
+ * Like native Phocus, every preset context still runs gradation/RecoverHue.
+ * Even Standard has small UInt16 rounding changes; it is not the bare core.
  * Optional WB pointers contain three positive finite gains, normalized to G=1.
  * NULL capture_target_wb uses interpolated factory_wb(capture CCT), clamped to
  * its original [3050,9100] table endpoints, a SYNTHETIC
@@ -133,6 +136,33 @@ int hncs_process_preset_work_float(const hncs_context *context,
     const float *linear_srgb_rgb, float *work_rgb, size_t pixel_count);
 int hncs_finish_preset_work_linear(const hncs_context *context,
     const float *work_rgb, float *linear_rgba, size_t pixel_count);
+/* Parallel pointwise boundaries around the unchanged whole-frame spatial pass.
+ * Same arithmetic and errors as the serial functions; workers=1..4. */
+int hncs_process_preset_work_float_parallel(const hncs_context *context,
+    const float *linear_srgb_rgb, float *work_rgb, size_t pixel_count, unsigned workers);
+int hncs_finish_preset_work_linear_parallel(const hncs_context *context,
+    const float *work_rgb, float *linear_rgba, size_t pixel_count, unsigned workers);
+/* Revision-10 production boundaries: core -> native gradation -> work RGB;
+ * caller runs native sharpness, then optional portable grain on the whole frame;
+ * finish quantizes, applies native global saturation/grayscale, then display.
+ * No selective control points, vibrance, lens or local-layer corrections.
+ * The no-spatial combined call uses the same pointwise arithmetic. Contracts,
+ * finite-input validation and worker limits match the older Float APIs above.
+ * Older preset APIs retain their pinned portable-reference behavior. */
+int hncs_apply_phocus_post_spatial(const char *preset_key,
+    const uint16_t *input_rgb, uint16_t *output_rgb, size_t pixel_count);
+int hncs_process_phocus_work_float(const hncs_context *context,
+    const float *linear_srgb_rgb, float *work_rgb, size_t pixel_count);
+int hncs_finish_phocus_work_linear(const hncs_context *context,
+    const float *work_rgb, float *linear_rgba, size_t pixel_count);
+int hncs_process_phocus_linear_rgba(const hncs_context *context,
+    const float *linear_srgb_rgb, float *linear_rgba, size_t pixel_count);
+int hncs_process_phocus_work_float_parallel(const hncs_context *context,
+    const float *linear_srgb_rgb, float *work_rgb, size_t pixel_count, unsigned workers);
+int hncs_finish_phocus_work_linear_parallel(const hncs_context *context,
+    const float *work_rgb, float *linear_rgba, size_t pixel_count, unsigned workers);
+int hncs_process_phocus_linear_rgba_parallel(const hncs_context *context,
+    const float *linear_srgb_rgb, float *linear_rgba, size_t pixel_count, unsigned workers);
 /* Diagnostics for explicit synthetic-bridge verification. Row-major 3x3;
  * exposure is separate. Returns 0/-1. No capture metadata is inferred. */
 int hncs_source_to_native_matrix(const hncs_context *context, double *matrix9);

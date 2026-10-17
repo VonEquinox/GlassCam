@@ -1,0 +1,209 @@
+{
+  "status": "original-binary-vectors",
+  "created_for_render_revision": 10,
+  "vectors": "phocus-native-chain-vectors.npz",
+  "sha256": "3d03dd84f9ee397b9fe5ace56b507f0cca0a9ca965e5ccb4bf3d4eb81ec23b80",
+  "framework_sha256": {
+    "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+    "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+    "HBImageProcessing": "125dd5b0bf0cc1ad00d1cf959eeeea82aa24acee117c2b2bcb55fa44f430d010",
+    "HBStorage": "c311cedfe841f757a3154713f24e08de1601f0ad6a57d601c25e21cd1ce87826"
+  },
+  "cases": [
+    {
+      "preset": "standard",
+      "space": 1,
+      "tone": true,
+      "exposure_ev": 0.0,
+      "capture_cct": 5119.0,
+      "factory_cct": 5119.0,
+      "baseline_sharpness": 1.5,
+      "sharpness": true,
+      "pattern": "color-edge",
+      "shape": [
+        37,
+        53,
+        3
+      ],
+      "channels": 5883,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ],
+      "vector_key": "case0"
+    },
+    {
+      "preset": "nature",
+      "space": 1,
+      "tone": true,
+      "exposure_ev": -0.7,
+      "capture_cct": 7523.0,
+      "factory_cct": 5500.0,
+      "baseline_sharpness": 1.5,
+      "sharpness": true,
+      "pattern": "color-edge",
+      "shape": [
+        37,
+        53,
+        3
+      ],
+      "channels": 5883,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ],
+      "vector_key": "case1"
+    },
+    {
+      "preset": "saturated",
+      "space": 1,
+      "tone": true,
+      "exposure_ev": 0.0,
+      "capture_cct": 2850.0,
+      "factory_cct": 2850.0,
+      "baseline_sharpness": 1.5,
+      "sharpness": true,
+      "pattern": "color-edge",
+      "shape": [
+        37,
+        53,
+        3
+      ],
+      "channels": 5883,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ],
+      "vector_key": "case2"
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "space": 1,
+      "tone": true,
+      "exposure_ev": -0.7,
+      "capture_cct": 5119.0,
+      "factory_cct": 5119.0,
+      "baseline_sharpness": 1.5,
+      "sharpness": true,
+      "pattern": "color-edge",
+      "shape": [
+        37,
+        53,
+        3
+      ],
+      "channels": 5883,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ],
+      "vector_key": "case3"
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "space": 1,
+      "tone": true,
+      "exposure_ev": 0.0,
+      "capture_cct": 7523.0,
+      "factory_cct": 7523.0,
+      "baseline_sharpness": 1.5,
+      "sharpness": true,
+      "pattern": "color-edge",
+      "shape": [
+        37,
+        53,
+        3
+      ],
+      "channels": 5883,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ],
+      "vector_key": "case4"
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "space": 1,
+      "tone": true,
+      "exposure_ev": -0.7,
+      "capture_cct": 2850.0,
+      "factory_cct": 2850.0,
+      "baseline_sharpness": 1.5,
+      "sharpness": true,
+      "pattern": "color-edge",
+      "shape": [
+        37,
+        53,
+        3
+      ],
+      "channels": 5883,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ],
+      "vector_key": "case5"
+    },
+    {
+      "preset": "high",
+      "space": 1,
+      "tone": true,
+      "exposure_ev": 0.0,
+      "capture_cct": 5119.0,
+      "factory_cct": 5119.0,
+      "baseline_sharpness": 1.5,
+      "sharpness": true,
+      "pattern": "color-edge",
+      "shape": [
+        37,
+        53,
+        3
+      ],
+      "channels": 5883,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ],
+      "vector_key": "case6"
+    },
+    {
+      "preset": "film-grain-artistic",
+      "space": 1,
+      "tone": true,
+      "exposure_ev": -0.7,
+      "capture_cct": 7523.0,
+      "factory_cct": 7523.0,
+      "baseline_sharpness": 1.5,
+      "sharpness": true,
+      "pattern": "color-edge",
+      "shape": [
+        37,
+        53,
+        3
+      ],
+      "channels": 5883,
+      "different_channels": 0,
+      "maximum_uint16_error": 0,
+      "signed_range": [
+        0,
+        0
+      ],
+      "vector_key": "case7"
+    }
+  ],
+  "scope": "Original non-HDR color core, gradation, RGB margins, USM, global saturation and grayscale; full-resolution scale and no local layers, selective points, vibrance or lens compensation. Grain disabled here; its portable implementation has separate parity tests. The virtual source adapter and existing C++ display conversion are explicit boundary contracts, not cross-camera or native ICC/HDR equivalence.",
+  "origin_report": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/chain/report.json",
+  "origin_report_sha256": "8ac7ed4a288eea422d6f794d9785470b29a4b741040b6d4f867d0152416436f1"
+}

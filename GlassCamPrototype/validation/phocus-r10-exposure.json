@@ -1,0 +1,876 @@
+{
+  "phocus_version": "4.2.2",
+  "architecture": "arm64",
+  "framework_sha256": {
+    "HBUtil": "0786d740ad4d6455ee5c5a0d53339f960deabc32b931ecff3186719d627dcf1c",
+    "HBRawCorrections": "887d4c3823362c5e89ae3fb14939b85eb5fe85db60913c9d99836ad007c636f0",
+    "HBImageProcessing": "125dd5b0bf0cc1ad00d1cf959eeeea82aa24acee117c2b2bcb55fa44f430d010",
+    "HBStorage": "c311cedfe841f757a3154713f24e08de1601f0ad6a57d601c25e21cd1ce87826"
+  },
+  "source_sha256": {
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/audit_phocus_input_spatial.py": "107aec9e05bd0713c506476bb996a4f782efe2d90792683ca10380e01eb59ccf",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/native_phocus_filters_bridge.cpp": "ba089ba1fd9aa490b18c3e3e9ae0c4c64843154a9e9d7967fbba60f781c87f75",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_spatial.cpp": "431f3875e805ceb61b5f7161c7cff9d02014a24318b5db9020e5a17751d8c257",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_spatial_assets.inc": "c3b88181e1501edcaeb0cdeea9c847551306d43ca086e3d4fd9dbea732d17ee9",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/phocus_sharpness_reference.py": "f090bc4fecb8d7ea8226b508d30ed56ceb8788122d347fa800b209bbb7322f2f"
+  },
+  "color_filter_exposure": [
+    {
+      "exposure_argument": 0.25,
+      "iso_argument": 0.5,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        31000.0,
+        -1.279916753381894e-10,
+        7.935483870967743e-06,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 186782,
+          "maximum_uint16_error": 27659,
+          "signed_range": [
+            -5397,
+            27659
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 182209,
+          "maximum_uint16_error": 14633,
+          "signed_range": [
+            -5027,
+            14633
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 187850,
+          "maximum_uint16_error": 38805,
+          "signed_range": [
+            -5322,
+            38805
+          ]
+        }
+      },
+      "output_sha256": "956a65c4a582744465e914e64fdb2d4c00c56317d73d0f15ca4c21ad5ae464db"
+    },
+    {
+      "exposure_argument": 0.25,
+      "iso_argument": 1.0,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        15500.0,
+        -5.119667013527575e-10,
+        1.5870967741935485e-05,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 182201,
+          "maximum_uint16_error": 27920,
+          "signed_range": [
+            -3655,
+            27920
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 182201,
+          "maximum_uint16_error": 27920,
+          "signed_range": [
+            -3655,
+            27920
+          ]
+        }
+      },
+      "output_sha256": "95e60aa9aef887c06b7893c36a8566b1cc1d2ebbd5d4d9396c32b4723d1e4485"
+    },
+    {
+      "exposure_argument": 0.25,
+      "iso_argument": 2.0,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        7750.0,
+        -2.04786680541103e-09,
+        3.174193548387097e-05,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 180230,
+          "maximum_uint16_error": 28045,
+          "signed_range": [
+            -2556,
+            28045
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 168658,
+          "maximum_uint16_error": 57282,
+          "signed_range": [
+            -57282,
+            9593
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 179660,
+          "maximum_uint16_error": 14918,
+          "signed_range": [
+            -2407,
+            14918
+          ]
+        }
+      },
+      "output_sha256": "a998e3f6e10babf7aae04bb3978fbc2e0e8b627356e67b4bcc429fc867e79498"
+    },
+    {
+      "exposure_argument": 0.5,
+      "iso_argument": 0.5,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        31000.0,
+        -1.279916753381894e-10,
+        7.935483870967743e-06,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 182209,
+          "maximum_uint16_error": 14633,
+          "signed_range": [
+            -5027,
+            14633
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 182209,
+          "maximum_uint16_error": 14633,
+          "signed_range": [
+            -5027,
+            14633
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 186782,
+          "maximum_uint16_error": 27659,
+          "signed_range": [
+            -5397,
+            27659
+          ]
+        }
+      },
+      "output_sha256": "956a65c4a582744465e914e64fdb2d4c00c56317d73d0f15ca4c21ad5ae464db"
+    },
+    {
+      "exposure_argument": 0.5,
+      "iso_argument": 1.0,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        15500.0,
+        -5.119667013527575e-10,
+        1.5870967741935485e-05,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 180231,
+          "maximum_uint16_error": 14800,
+          "signed_range": [
+            -3428,
+            14800
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 180231,
+          "maximum_uint16_error": 14800,
+          "signed_range": [
+            -3428,
+            14800
+          ]
+        }
+      },
+      "output_sha256": "95e60aa9aef887c06b7893c36a8566b1cc1d2ebbd5d4d9396c32b4723d1e4485"
+    },
+    {
+      "exposure_argument": 0.5,
+      "iso_argument": 2.0,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        7750.0,
+        -2.04786680541103e-09,
+        3.174193548387097e-05,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 179660,
+          "maximum_uint16_error": 14918,
+          "signed_range": [
+            -2407,
+            14918
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 168658,
+          "maximum_uint16_error": 57282,
+          "signed_range": [
+            -57282,
+            9593
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        }
+      },
+      "output_sha256": "a998e3f6e10babf7aae04bb3978fbc2e0e8b627356e67b4bcc429fc867e79498"
+    },
+    {
+      "exposure_argument": 1.0,
+      "iso_argument": 0.5,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        31000.0,
+        -1.279916753381894e-10,
+        7.935483870967743e-06,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 182209,
+          "maximum_uint16_error": 14633,
+          "signed_range": [
+            -5027,
+            14633
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 182209,
+          "maximum_uint16_error": 14633,
+          "signed_range": [
+            -5027,
+            14633
+          ]
+        }
+      },
+      "output_sha256": "956a65c4a582744465e914e64fdb2d4c00c56317d73d0f15ca4c21ad5ae464db"
+    },
+    {
+      "exposure_argument": 1.0,
+      "iso_argument": 1.0,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        15500.0,
+        -5.119667013527575e-10,
+        1.5870967741935485e-05,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        }
+      },
+      "output_sha256": "95e60aa9aef887c06b7893c36a8566b1cc1d2ebbd5d4d9396c32b4723d1e4485"
+    },
+    {
+      "exposure_argument": 1.0,
+      "iso_argument": 2.0,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        7750.0,
+        -2.04786680541103e-09,
+        3.174193548387097e-05,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 168658,
+          "maximum_uint16_error": 57282,
+          "signed_range": [
+            -57282,
+            9593
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 168658,
+          "maximum_uint16_error": 57282,
+          "signed_range": [
+            -57282,
+            9593
+          ]
+        }
+      },
+      "output_sha256": "a998e3f6e10babf7aae04bb3978fbc2e0e8b627356e67b4bcc429fc867e79498"
+    },
+    {
+      "exposure_argument": 2.0,
+      "iso_argument": 0.5,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        31000.0,
+        -1.279916753381894e-10,
+        7.935483870967743e-06,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 169279,
+          "maximum_uint16_error": 56299,
+          "signed_range": [
+            -56299,
+            10318
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 182209,
+          "maximum_uint16_error": 14633,
+          "signed_range": [
+            -5027,
+            14633
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        }
+      },
+      "output_sha256": "956a65c4a582744465e914e64fdb2d4c00c56317d73d0f15ca4c21ad5ae464db"
+    },
+    {
+      "exposure_argument": 2.0,
+      "iso_argument": 1.0,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        15500.0,
+        -5.119667013527575e-10,
+        1.5870967741935485e-05,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 168748,
+          "maximum_uint16_error": 56820,
+          "signed_range": [
+            -56820,
+            9593
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 168748,
+          "maximum_uint16_error": 56820,
+          "signed_range": [
+            -56820,
+            9593
+          ]
+        }
+      },
+      "output_sha256": "95e60aa9aef887c06b7893c36a8566b1cc1d2ebbd5d4d9396c32b4723d1e4485"
+    },
+    {
+      "exposure_argument": 2.0,
+      "iso_argument": 2.0,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        7750.0,
+        -2.04786680541103e-09,
+        3.174193548387097e-05,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 168658,
+          "maximum_uint16_error": 57282,
+          "signed_range": [
+            -57282,
+            9593
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 168658,
+          "maximum_uint16_error": 57282,
+          "signed_range": [
+            -57282,
+            9593
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 174868,
+          "maximum_uint16_error": 65535,
+          "signed_range": [
+            -65535,
+            14756
+          ]
+        }
+      },
+      "output_sha256": "a998e3f6e10babf7aae04bb3978fbc2e0e8b627356e67b4bcc429fc867e79498"
+    },
+    {
+      "exposure_argument": 4.0,
+      "iso_argument": 0.5,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        31000.0,
+        -1.279916753381894e-10,
+        7.935483870967743e-06,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 175304,
+          "maximum_uint16_error": 65535,
+          "signed_range": [
+            -65535,
+            15378
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 182209,
+          "maximum_uint16_error": 14633,
+          "signed_range": [
+            -5027,
+            14633
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 169279,
+          "maximum_uint16_error": 56299,
+          "signed_range": [
+            -56299,
+            10318
+          ]
+        }
+      },
+      "output_sha256": "956a65c4a582744465e914e64fdb2d4c00c56317d73d0f15ca4c21ad5ae464db"
+    },
+    {
+      "exposure_argument": 4.0,
+      "iso_argument": 1.0,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        15500.0,
+        -5.119667013527575e-10,
+        1.5870967741935485e-05,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 174921,
+          "maximum_uint16_error": 65535,
+          "signed_range": [
+            -65535,
+            14756
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 174921,
+          "maximum_uint16_error": 65535,
+          "signed_range": [
+            -65535,
+            14756
+          ]
+        }
+      },
+      "output_sha256": "95e60aa9aef887c06b7893c36a8566b1cc1d2ebbd5d4d9396c32b4723d1e4485"
+    },
+    {
+      "exposure_argument": 4.0,
+      "iso_argument": 2.0,
+      "linearization_table_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shadow_parameters": [
+        7750.0,
+        -2.04786680541103e-09,
+        3.174193548387097e-05,
+        0.877
+      ],
+      "comparisons_to_same_native_core": {
+        "unchanged_input": {
+          "channels": 196608,
+          "different_channels": 0,
+          "maximum_uint16_error": 0,
+          "signed_range": [
+            0,
+            0
+          ]
+        },
+        "exposure_before_kernel": {
+          "channels": 196608,
+          "different_channels": 174868,
+          "maximum_uint16_error": 65535,
+          "signed_range": [
+            -65535,
+            14756
+          ]
+        },
+        "iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 168658,
+          "maximum_uint16_error": 57282,
+          "signed_range": [
+            -57282,
+            9593
+          ]
+        },
+        "exposure_times_iso_before_kernel": {
+          "channels": 196608,
+          "different_channels": 178825,
+          "maximum_uint16_error": 65535,
+          "signed_range": [
+            -65535,
+            17050
+          ]
+        }
+      },
+      "output_sha256": "a998e3f6e10babf7aae04bb3978fbc2e0e8b627356e67b4bcc429fc867e79498"
+    }
+  ],
+  "vectors_sha256": "dceb49b696192210ddf0b67802a2c090c1d835ba161d9570b867c3fe29526e00"
+}

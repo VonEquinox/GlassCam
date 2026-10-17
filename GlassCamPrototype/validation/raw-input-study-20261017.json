@@ -1,0 +1,3679 @@
+{
+  "date": "2026-10-17",
+  "scope": "RAW input study: embedded profile, unified decoder recipe, full-source comparison outputs. No new default look or camera calibration was adopted.",
+  "source": {
+    "model": "iPhone19,7 back camera",
+    "sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+    "bytes": 49513537
+  },
+  "embedded_profile": {
+    "matrices": {
+      "IFD0.ColorMatrix1": {
+        "values": [
+          1.2131552703464423,
+          -0.6019653087205602,
+          -0.20870275791624107,
+          -0.430835723847772,
+          1.4712632895559725,
+          0.015986131511883196,
+          -0.03187632932574193,
+          0.11861854045856628,
+          0.6651271581200817
+        ],
+        "exact_rationals": [
+          [
+            27979,
+            23063
+          ],
+          [
+            -15131,
+            25136
+          ],
+          [
+            -5108,
+            24475
+          ],
+          [
+            -56321,
+            130725
+          ],
+          [
+            47051,
+            31980
+          ],
+          [
+            3080,
+            192667
+          ],
+          [
+            -9277,
+            291031
+          ],
+          [
+            34181,
+            288159
+          ],
+          [
+            33555,
+            50449
+          ]
+        ]
+      },
+      "IFD0.ColorMatrix2": {
+        "values": [
+          0.8813269737310457,
+          -0.3398612737591208,
+          -0.12243060765191298,
+          -0.41049456599798917,
+          1.2887829533053816,
+          0.09732620418077165,
+          -0.09316003322333714,
+          0.18848702302071602,
+          0.4790190756440076
+        ],
+        "exact_rationals": [
+          [
+            12380,
+            14047
+          ],
+          [
+            -18864,
+            55505
+          ],
+          [
+            -816,
+            6665
+          ],
+          [
+            -8574,
+            20887
+          ],
+          [
+            22439,
+            17411
+          ],
+          [
+            107067,
+            1100084
+          ],
+          [
+            -4150,
+            44547
+          ],
+          [
+            7197,
+            38183
+          ],
+          [
+            125834,
+            262691
+          ]
+        ]
+      }
+    },
+    "tone_curve_points": 257,
+    "gain_tables": {
+      "IFD0.ProfileGainTableMap": {
+        "byte_order": "big",
+        "shape_v_h_n": [
+          12,
+          16,
+          257
+        ],
+        "spacing_v_h": [
+          0.075396828353405,
+          0.0580357126891613
+        ],
+        "origin_v_h": [
+          0.085317462682724,
+          0.0647321417927742
+        ],
+        "input_weights": [
+          0.012656894512474537,
+          0.04257860407233238,
+          0.004298343323171139,
+          0.0,
+          0.05953384190797806
+        ],
+        "minimum": 0.11890820413827896,
+        "maximum": 7.802796363830566,
+        "mean": 0.4829546685269267,
+        "spatial_gain_samples": [
+          {
+            "table_input": 0,
+            "minimum": 4.360533714294434,
+            "maximum": 7.802796363830566,
+            "mean": 5.888954895238082
+          },
+          {
+            "table_input": 0.01,
+            "minimum": 3.8959952330589296,
+            "maximum": 6.858590626716614,
+            "mean": 5.24349957211564
+          },
+          {
+            "table_input": 0.05,
+            "minimum": 1.3656520962715146,
+            "maximum": 1.9949344515800473,
+            "mean": 1.7166489575989543
+          },
+          {
+            "table_input": 0.18,
+            "minimum": 0.47791228950023656,
+            "maximum": 0.582698872089386,
+            "mean": 0.5422296785966804
+          },
+          {
+            "table_input": 0.5,
+            "minimum": 0.19449902325868607,
+            "maximum": 0.2195471078157425,
+            "mean": 0.21021207612163076
+          },
+          {
+            "table_input": 1,
+            "minimum": 0.11906226724386215,
+            "maximum": 0.11906226724386215,
+            "mean": 0.11906226724386215
+          }
+        ],
+        "float32_little_endian_file": "IFD0-ProfileGainTableMap.f32",
+        "domain": "DNG RIMM RGB after BaselineExposure and image warps; not a LUT for decoded sRGB",
+        "reference": "Adobe DNG 1.7.1, ProfileGainTableMap, pp.71–73"
+      }
+    }
+  },
+  "default_behavior_regression": [
+    {
+      "platform": "mac",
+      "preset": "standard",
+      "megapixels": 48,
+      "encoded_identical": true,
+      "decoded_float_identical": true
+    },
+    {
+      "platform": "mac",
+      "preset": "standard",
+      "megapixels": 24,
+      "encoded_identical": true,
+      "decoded_float_identical": true
+    },
+    {
+      "platform": "mac",
+      "preset": "nature",
+      "megapixels": 48,
+      "encoded_identical": true,
+      "decoded_float_identical": true
+    },
+    {
+      "platform": "mac",
+      "preset": "nature",
+      "megapixels": 24,
+      "encoded_identical": true,
+      "decoded_float_identical": true
+    },
+    {
+      "platform": "iphone",
+      "preset": "standard",
+      "megapixels": 24,
+      "encoded_identical": true
+    },
+    {
+      "platform": "iphone",
+      "preset": "nature",
+      "megapixels": 24,
+      "encoded_identical": true
+    }
+  ],
+  "platforms": {
+    "mac": [
+      {
+        "report": {
+          "baseline_compensation_ev": 3.1118054389953613,
+          "configurations": {
+            "current": {
+              "configured": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 1,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "defaults": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "recipe": {
+                "decoderExposureEV": 0,
+                "decoderVersion": "8.dng",
+                "linearExposureEV": 0,
+                "rendering": "appleRendered"
+              }
+            },
+            "scene": {
+              "configured": {
+                "baseline_exposure": 0,
+                "boost_amount": 0,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": false,
+                "local_tone_map_amount": 0,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "defaults": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "recipe": {
+                "decoderExposureEV": 0,
+                "decoderVersion": "8.dng",
+                "linearExposureEV": 0,
+                "rendering": "sceneLinear"
+              }
+            },
+            "scene-baseline": {
+              "configured": {
+                "baseline_exposure": 0,
+                "boost_amount": 0,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": false,
+                "local_tone_map_amount": 0,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "defaults": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "recipe": {
+                "decoderExposureEV": 0,
+                "decoderVersion": "8.dng",
+                "linearExposureEV": 3.1118054389953613,
+                "rendering": "sceneLinear"
+              }
+            }
+          },
+          "cpu_count": 10,
+          "decoder_exposure_probes": [
+            {
+              "channels": 7133175,
+              "decoder_exposure_ev": -1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            },
+            {
+              "channels": 7133175,
+              "decoder_exposure_ev": 1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            }
+          ],
+          "exposure_ev": -0.05,
+          "gpu": "Apple M5",
+          "label": "input",
+          "neutral_edr0_vs_edr1_max_absolute_error": 0.7500001788139343,
+          "os": "Version 27.2 (Build 26B5101f)",
+          "outputs": [
+            {
+              "bridge": {},
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 3.5230042500188574,
+              "encoded_sha256": "1866f211bfa3106875c39bf39f2754bc613ea76cb93fd268f73f0d676aac0c51",
+              "file": "current-none.heic",
+              "height": 5656,
+              "look": "none",
+              "preview_export_identical": null,
+              "review_height": 2048,
+              "review_rgba_file": "current-none-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 77671,
+                "maximum": 39.289791107177734,
+                "mean_linear_luminance": 0.33087623320588694,
+                "minimum": -0.006948152557015419,
+                "negative_pixels": 1318,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "current",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5119,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.5786950857658528,
+                  0.2912866147573603,
+                  0.13001826251629583,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.947346280103384e-05,
+                  0.25007863580998363,
+                  0.7499508692714367
+                ],
+                "target_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 6.0545849583577365,
+              "encoded_sha256": "8edf0d1b5c590fb8281714c1c3af13ae338ddccd15d311da60c644d7dd017b79",
+              "file": "current-standard.heic",
+              "height": 5656,
+              "look": "standard",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "current-standard-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 91530,
+                "maximum": 39.15297317504883,
+                "mean_linear_luminance": 0.39895057668237954,
+                "minimum": -0.010683320462703705,
+                "negative_pixels": 12775,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "current",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5500,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.586131956759452,
+                  0.29502996946936,
+                  0.1316891407886868,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.68942767530452e-05,
+                  0.22819456563012958,
+                  0.6843236020663768
+                ],
+                "target_wb": [
+                  2.711552043782954,
+                  1,
+                  1.690108149776517
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 11.561457583331503,
+              "encoded_sha256": "adb149387b2523610199dd2ef4defe1a8f455c7e8e48ede2955090e48f14d911",
+              "file": "current-nature.heic",
+              "height": 5656,
+              "look": "nature",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "current-nature-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 109834,
+                "maximum": 38.328529357910156,
+                "mean_linear_luminance": 0.41850773574103645,
+                "minimum": -0.01655522547662258,
+                "negative_pixels": 17897,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "current",
+              "width": 4242
+            },
+            {
+              "bridge": {},
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 1.7713214166578837,
+              "encoded_sha256": "f9b1a966cc712c38dfadab579b006e92cfb5caec5cef709b55c9da30ae4997aa",
+              "file": "scene-none.heic",
+              "height": 5656,
+              "look": "none",
+              "preview_export_identical": null,
+              "review_height": 2048,
+              "review_rgba_file": "scene-none-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 16357,
+                "maximum": 1.7965655326843262,
+                "mean_linear_luminance": 0.020253864797060508,
+                "minimum": -2.8867405490018427e-05,
+                "negative_pixels": 1,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5119,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.5786950857658528,
+                  0.2912866147573603,
+                  0.13001826251629583,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.947346280103384e-05,
+                  0.25007863580998363,
+                  0.7499508692714367
+                ],
+                "target_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 5.8558871249551885,
+              "encoded_sha256": "9159c538c49d48e2a03eebadc836bd78123014a19704e6118a64d0470e84152c",
+              "file": "scene-standard.heic",
+              "height": 5656,
+              "look": "standard",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-standard-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 20369,
+                "maximum": 2.1165249347686768,
+                "mean_linear_luminance": 0.020628308449330928,
+                "minimum": -0.00010696676326915622,
+                "negative_pixels": 10,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5500,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.586131956759452,
+                  0.29502996946936,
+                  0.1316891407886868,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.68942767530452e-05,
+                  0.22819456563012958,
+                  0.6843236020663768
+                ],
+                "target_wb": [
+                  2.711552043782954,
+                  1,
+                  1.690108149776517
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 11.274804541666526,
+              "encoded_sha256": "d98752245507356e673534bf4c637c250f5a10909876ba9667f1b2517160918e",
+              "file": "scene-nature.heic",
+              "height": 5656,
+              "look": "nature",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-nature-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 21202,
+                "maximum": 3.4139721393585205,
+                "mean_linear_luminance": 0.019653293914997403,
+                "minimum": -0.00025455577997490764,
+                "negative_pixels": 308,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene",
+              "width": 4242
+            },
+            {
+              "bridge": {},
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 2.658357208361849,
+              "encoded_sha256": "1e26b5cf905bb78666fa7210438759948a1cf9d8c07bbe4dc80fd9cb24005c32",
+              "file": "scene-baseline-none.heic",
+              "height": 5656,
+              "look": "none",
+              "preview_export_identical": null,
+              "review_height": 2048,
+              "review_rgba_file": "scene-baseline-none-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 79354,
+                "maximum": 17.2153263092041,
+                "mean_linear_luminance": 0.1752948175177763,
+                "minimum": 0.0003843167796730995,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-baseline",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5119,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.5786950857658528,
+                  0.2912866147573603,
+                  0.13001826251629583,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.947346280103384e-05,
+                  0.25007863580998363,
+                  0.7499508692714367
+                ],
+                "target_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 5.94510908331722,
+              "encoded_sha256": "1f9a3faf8e54ffdcf8fee40d7bbce54b1fada0320e8b2dc4c342fdbf64af5666",
+              "file": "scene-baseline-standard.heic",
+              "height": 5656,
+              "look": "standard",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-baseline-standard-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 90784,
+                "maximum": 15.638215065002441,
+                "mean_linear_luminance": 0.19508584033196205,
+                "minimum": -0.003582795849069953,
+                "negative_pixels": 741,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-baseline",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5500,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.586131956759452,
+                  0.29502996946936,
+                  0.1316891407886868,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.68942767530452e-05,
+                  0.22819456563012958,
+                  0.6843236020663768
+                ],
+                "target_wb": [
+                  2.711552043782954,
+                  1,
+                  1.690108149776517
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 11.325070124992635,
+              "encoded_sha256": "d485f533153e6870a86479aa304c3a1e4c174e8df81179a11a0864765e7d3f78",
+              "file": "scene-baseline-nature.heic",
+              "height": 5656,
+              "look": "nature",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-baseline-nature-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 102272,
+                "maximum": 16.330907821655273,
+                "mean_linear_luminance": 0.1955777036681899,
+                "minimum": -0.009679262526333332,
+                "negative_pixels": 2602,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-baseline",
+              "width": 4242
+            }
+          ],
+          "run_id": "e9939d45-4e1f-4323-a651-e3a864d3bbfc",
+          "scope": "One retained RAW, full-source 24MP exports; same decoder version and captured white point. No colorimetric or Hasselblad reference measurement.",
+          "source_bytes": 49513537,
+          "source_samples": {
+            "current": {
+              "height": 2048,
+              "rgba_file": "current-input.rgba32f",
+              "statistics": {
+                "above_reference_white_pixels": 79148,
+                "maximum": 15.683412551879883,
+                "mean_linear_luminance": 0.3397892466792769,
+                "minimum": -0.018265672028064728,
+                "negative_pixels": 2571,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "white_balance": "Auto WB · 5119 K · Tint +21.4",
+              "white_xy": [
+                0.342873752117157,
+                0.36416757106781006
+              ],
+              "width": 1536
+            },
+            "scene": {
+              "height": 2048,
+              "rgba_file": "scene-input.rgba32f",
+              "statistics": {
+                "above_reference_white_pixels": 0,
+                "maximum": 1,
+                "mean_linear_luminance": 0.021562218059605013,
+                "minimum": 3.208114503649995e-05,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "white_balance": "Auto WB · 5119 K · Tint +21.4",
+              "white_xy": [
+                0.342873752117157,
+                0.36416757106781006
+              ],
+              "width": 1536
+            },
+            "scene-baseline": {
+              "height": 2048,
+              "rgba_file": "scene-baseline-input.rgba32f",
+              "statistics": {
+                "above_reference_white_pixels": 80895,
+                "maximum": 8.644638061523438,
+                "mean_linear_luminance": 0.18639755362304447,
+                "minimum": 0.0002773297601379454,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "white_balance": "Auto WB · 5119 K · Tint +21.4",
+              "white_xy": [
+                0.342873752117157,
+                0.36416757106781006
+              ],
+              "width": 1536
+            }
+          },
+          "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+          "status": "complete",
+          "thermal_end": 0,
+          "working_space": "lstar"
+        },
+        "source_sha256": {
+          "ios/GlassCam/ExportSettings.swift": "995224c3489a3ac22c95741a9b3511a7818b381a743bbb5d99c41b1091370dbe",
+          "ios/GlassCam/SourceImageStore.swift": "ce95c7e26eacc4e8c148317db8f1b72073a1438e576d991e00abdafd17e82ab3",
+          "ios/GlassCam/PhotoWhiteBalance.swift": "3d45624d968d87900d51aee77213561410840bf5ba804e5fe2064af739a62236",
+          "ios/GlassCam/HNCSEngine.swift": "6a05a2c8ae90aa76361b2c0f9635819f08d35fa3a8a421e3013c98170a47851d",
+          "ios/GlassCam/FFCSEngine.swift": "ab08f4825259bd62f8e3eeff12263c9d88754f2637062cb0431ed287eca06ae5",
+          "ios/GlassCam/ImagePipeline.swift": "6a12a898a45d95202037face62f1225742b7843fdb135304e57c9e9a2471a27c",
+          "ios/GlassCam/PreviewRaster.swift": "435f18d6676cf9fb71774f6b7e50bfd4e3dc96b7930261547bc851cd0c5fa161",
+          "ios/GlassCam/CaptureWorkflow.swift": "eb1aa1a104005daf6727ec81ffbc0352bff3833ca9c6c2634c91ec4173ec216b",
+          "core/hncs.cpp": "fa924112e1ac83a5193088a2a3e907b490351dcc42be98d02eb30d1dcb42c2fa",
+          "core/hncs_spatial.cpp": "1618a24f3ee5f3c89d082e82315b5d3c0ead53eb8fd4dd1d11074ae2db4094ad",
+          "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+          "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+          "core/ffcs_c.h": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
+          "core/hncs_c.h": "113a675cbcfb815aaaf7ab573ace81b17b324684664e417e0e73aec70c643b24",
+          "core/hncs_numpy_rng.h": "8b6382698f08a7065e7b05366af6a6a6f043743242723c2e8188e587e5d3fc90",
+          "core/hncs_spatial.h": "00ea26255a508aff9c680fe51e79537d0963ef2aeee033701681ccc76d36a100",
+          "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+          "core/hncs_preset_assets.inc": "7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306",
+          "core/hncs_spatial_assets.inc": "272db813f70645c76b03745f502b376737b572e6e70fb9f7fcde42307b41c814",
+          "core/hncs_whitepoint_assets.inc": "99abe2be28ccafb208ddce592e041f03b0c5b9c40b5ffe610dfcaeee068c536e",
+          "ios/GlassCam/GlassCam-Bridging-Header.h": "7ec513694282e41c577acfd71a51f26ce3847e1b87291aaac7b6bbdab91c07aa",
+          "tools/apple_hncs_study.swift": "ca134cd201bbb5e861aba6ebbe691f2166c3611b9882624c7c763299bc27699a",
+          "tools/apple_raw_input_study.swift": "60c1c38d8167151b4de475ef92e2bd43bc894376980cc24ce58270513eda322e"
+        }
+      },
+      {
+        "report": {
+          "baseline_compensation_ev": 3.1118054389953613,
+          "configurations": {
+            "scene-hdr-baseline": {
+              "configured": {
+                "baseline_exposure": 0,
+                "boost_amount": 0,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 1,
+                "exposure": 0,
+                "gamut_mapping": false,
+                "local_tone_map_amount": 0,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "defaults": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "recipe": {
+                "decoderExposureEV": 0,
+                "decoderVersion": "8.dng",
+                "edrAmount": 1,
+                "linearExposureEV": 3.1118054389953613,
+                "rendering": "sceneLinear"
+              }
+            }
+          },
+          "cpu_count": 10,
+          "decoder_exposure_probes": [
+            {
+              "channels": 7133175,
+              "decoder_exposure_ev": -1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            },
+            {
+              "channels": 7133175,
+              "decoder_exposure_ev": 1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            }
+          ],
+          "exposure_ev": -0.05,
+          "gpu": "Apple M5",
+          "label": "hdr-check",
+          "neutral_edr_probe": {
+            "at_or_above_0_9_channels": 74326,
+            "below_0_9_channels": 9362858,
+            "below_0_9_max_absolute_error": 0.4281303882598877,
+            "edr0": {
+              "above_reference_white_pixels": 0,
+              "maximum": 1,
+              "mean_linear_luminance": 0.021562218059605013,
+              "minimum": 3.208114503649995e-05,
+              "negative_pixels": 0,
+              "nonfinite_pixels": 0,
+              "pixels": 3145728
+            },
+            "edr1": {
+              "above_reference_white_pixels": 28873,
+              "maximum": 1.7500001192092896,
+              "mean_linear_luminance": 0.026860153136214423,
+              "minimum": 3.208114503649995e-05,
+              "negative_pixels": 0,
+              "nonfinite_pixels": 0,
+              "pixels": 3145728
+            }
+          },
+          "neutral_edr0_vs_edr1_max_absolute_error": 0.7500001788139343,
+          "os": "Version 27.2 (Build 26B5101f)",
+          "outputs": [
+            {
+              "bridge": {},
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 2.20931195828598,
+              "encoded_sha256": "09b5ff7a2f10b4ee32014b18b9f5af6fc0c5c128f4a73d5f900fdad9c5d30193",
+              "file": "scene-hdr-baseline-none.heic",
+              "height": 5656,
+              "look": "none",
+              "preview_export_identical": null,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-baseline-none-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 79296,
+                "maximum": 35.2944450378418,
+                "mean_linear_luminance": 0.23606184837742486,
+                "minimum": 0.0003843167796730995,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-baseline",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5119,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.5786950857658528,
+                  0.2912866147573603,
+                  0.13001826251629583,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.947346280103384e-05,
+                  0.25007863580998363,
+                  0.7499508692714367
+                ],
+                "target_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 5.922662208322436,
+              "encoded_sha256": "7764b1c7db33bffc9c06c9c8ab41f94d3e548dd65282b4d6377930fab8a033bd",
+              "file": "scene-hdr-baseline-standard.heic",
+              "height": 5656,
+              "look": "standard",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-baseline-standard-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 90730,
+                "maximum": 33.84156799316406,
+                "mean_linear_luminance": 0.25715618776628774,
+                "minimum": -0.003582795849069953,
+                "negative_pixels": 741,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-baseline",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5500,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.586131956759452,
+                  0.29502996946936,
+                  0.1316891407886868,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.68942767530452e-05,
+                  0.22819456563012958,
+                  0.6843236020663768
+                ],
+                "target_wb": [
+                  2.711552043782954,
+                  1,
+                  1.690108149776517
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 11.67856183333788,
+              "encoded_sha256": "71a3c0b55cc62be392f1700608a2212e9980ba845aee16bab8d591a71542856d",
+              "file": "scene-hdr-baseline-nature.heic",
+              "height": 5656,
+              "look": "nature",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-baseline-nature-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 102161,
+                "maximum": 33.791290283203125,
+                "mean_linear_luminance": 0.25797541154983644,
+                "minimum": -0.009679262526333332,
+                "negative_pixels": 2602,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-baseline",
+              "width": 4242
+            }
+          ],
+          "run_id": "cfe0802f-ee4f-439d-bac8-20209b28ec9d",
+          "scope": "One retained RAW, full-source 24MP exports; same decoder version and captured white point. No colorimetric or Hasselblad reference measurement.",
+          "source_bytes": 49513537,
+          "source_samples": {
+            "scene-hdr-baseline": {
+              "height": 2048,
+              "rgba_file": "scene-hdr-baseline-input.rgba32f",
+              "statistics": {
+                "above_reference_white_pixels": 80895,
+                "maximum": 15.1281156539917,
+                "mean_linear_luminance": 0.23219628037590992,
+                "minimum": 0.0002773297601379454,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "white_balance": "Auto WB · 5119 K · Tint +21.4",
+              "white_xy": [
+                0.342873752117157,
+                0.36416757106781006
+              ],
+              "width": 1536
+            }
+          },
+          "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+          "status": "complete",
+          "thermal_end": 0,
+          "working_space": "lstar"
+        },
+        "source_sha256": {
+          "ios/GlassCam/ExportSettings.swift": "995224c3489a3ac22c95741a9b3511a7818b381a743bbb5d99c41b1091370dbe",
+          "ios/GlassCam/SourceImageStore.swift": "ce95c7e26eacc4e8c148317db8f1b72073a1438e576d991e00abdafd17e82ab3",
+          "ios/GlassCam/PhotoWhiteBalance.swift": "3d45624d968d87900d51aee77213561410840bf5ba804e5fe2064af739a62236",
+          "ios/GlassCam/HNCSEngine.swift": "6a05a2c8ae90aa76361b2c0f9635819f08d35fa3a8a421e3013c98170a47851d",
+          "ios/GlassCam/FFCSEngine.swift": "ab08f4825259bd62f8e3eeff12263c9d88754f2637062cb0431ed287eca06ae5",
+          "ios/GlassCam/ImagePipeline.swift": "6a12a898a45d95202037face62f1225742b7843fdb135304e57c9e9a2471a27c",
+          "ios/GlassCam/PreviewRaster.swift": "435f18d6676cf9fb71774f6b7e50bfd4e3dc96b7930261547bc851cd0c5fa161",
+          "ios/GlassCam/CaptureWorkflow.swift": "eb1aa1a104005daf6727ec81ffbc0352bff3833ca9c6c2634c91ec4173ec216b",
+          "core/hncs.cpp": "fa924112e1ac83a5193088a2a3e907b490351dcc42be98d02eb30d1dcb42c2fa",
+          "core/hncs_spatial.cpp": "1618a24f3ee5f3c89d082e82315b5d3c0ead53eb8fd4dd1d11074ae2db4094ad",
+          "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+          "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+          "core/ffcs_c.h": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
+          "core/hncs_c.h": "113a675cbcfb815aaaf7ab573ace81b17b324684664e417e0e73aec70c643b24",
+          "core/hncs_numpy_rng.h": "8b6382698f08a7065e7b05366af6a6a6f043743242723c2e8188e587e5d3fc90",
+          "core/hncs_spatial.h": "00ea26255a508aff9c680fe51e79537d0963ef2aeee033701681ccc76d36a100",
+          "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+          "core/hncs_preset_assets.inc": "7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306",
+          "core/hncs_spatial_assets.inc": "272db813f70645c76b03745f502b376737b572e6e70fb9f7fcde42307b41c814",
+          "core/hncs_whitepoint_assets.inc": "99abe2be28ccafb208ddce592e041f03b0c5b9c40b5ffe610dfcaeee068c536e",
+          "ios/GlassCam/GlassCam-Bridging-Header.h": "7ec513694282e41c577acfd71a51f26ce3847e1b87291aaac7b6bbdab91c07aa",
+          "tools/apple_hncs_study.swift": "ca134cd201bbb5e861aba6ebbe691f2166c3611b9882624c7c763299bc27699a",
+          "tools/apple_raw_input_study.swift": "3bd0f0b7e787925b70f093144788576560390265ded1be255b3a4ed3cccee7d5"
+        }
+      },
+      {
+        "report": {
+          "baseline_compensation_ev": 3.1118054389953613,
+          "configurations": {
+            "scene-hdr-aligned": {
+              "configured": {
+                "baseline_exposure": 0,
+                "boost_amount": 0,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 1,
+                "exposure": 0,
+                "gamut_mapping": false,
+                "local_tone_map_amount": 0,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "defaults": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "recipe": {
+                "decoderExposureEV": 0,
+                "decoderVersion": "8.dng",
+                "edrAmount": 1,
+                "linearExposureEV": 4.703418221391291,
+                "rendering": "sceneLinear"
+              }
+            }
+          },
+          "cpu_count": 10,
+          "decoder_exposure_probes": [
+            {
+              "channels": 7133175,
+              "decoder_exposure_ev": -1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            },
+            {
+              "channels": 7133175,
+              "decoder_exposure_ev": 1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            }
+          ],
+          "exposure_alignment": {
+            "candidate": "scene-hdr-baseline before HNCS",
+            "extra_ev_after_baseline": 1.5916127823959296,
+            "height": 2048,
+            "method": "Median log2(reference Y / candidate Y), linear-sRGB Y; all channels in (0,1), reference Y in [0.02,0.5], candidate Y >= 0.002. One scalar is applied before HNCS to all three looks.",
+            "per_pixel_ev_p10": 1.1796048485639576,
+            "per_pixel_ev_p90": 1.9903418152736359,
+            "reference": "current before HNCS",
+            "sample_pixels": 1950203,
+            "scope": "Relative software midtone alignment for this RAW, not physical exposure calibration or a new camera default.",
+            "total_linear_exposure_ev": 4.703418221391291,
+            "width": 1536
+          },
+          "exposure_ev": -0.05,
+          "gpu": "Apple M5",
+          "label": "aligned",
+          "neutral_edr_probe": {
+            "at_or_above_0_9_channels": 74326,
+            "below_0_9_channels": 9362858,
+            "below_0_9_max_absolute_error": 0.4281303882598877,
+            "edr0": {
+              "above_reference_white_pixels": 0,
+              "maximum": 1,
+              "mean_linear_luminance": 0.021562218059605013,
+              "minimum": 3.208114503649995e-05,
+              "negative_pixels": 0,
+              "nonfinite_pixels": 0,
+              "pixels": 3145728
+            },
+            "edr1": {
+              "above_reference_white_pixels": 28873,
+              "maximum": 1.7500001192092896,
+              "mean_linear_luminance": 0.026860153136214423,
+              "minimum": 3.208114503649995e-05,
+              "negative_pixels": 0,
+              "nonfinite_pixels": 0,
+              "pixels": 3145728
+            }
+          },
+          "neutral_edr0_vs_edr1_max_absolute_error": 0.7500001788139343,
+          "os": "Version 27.2 (Build 26B5101f)",
+          "outputs": [
+            {
+              "bridge": {},
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 3.217397374974098,
+              "encoded_sha256": "2fb84bdd7233972fb9bc07288ffc94e6e4aba5555bb7ec375acbb7b62401b3e1",
+              "file": "scene-hdr-aligned-none.heic",
+              "height": 5656,
+              "look": "none",
+              "preview_export_identical": null,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-aligned-none-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 185596,
+                "maximum": 56.74180221557617,
+                "mean_linear_luminance": 0.6779795352514335,
+                "minimum": 0.0014837244525551796,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-aligned",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5119,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.5786950857658528,
+                  0.2912866147573603,
+                  0.13001826251629583,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.947346280103384e-05,
+                  0.25007863580998363,
+                  0.7499508692714367
+                ],
+                "target_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 6.128927958314307,
+              "encoded_sha256": "90c03a4e32d1d44668cf43c25bd1edb98f1651370b6a91bd0915203b6345ef91",
+              "file": "scene-hdr-aligned-standard.heic",
+              "height": 5656,
+              "look": "standard",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-aligned-standard-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 200689,
+                "maximum": 50.712928771972656,
+                "mean_linear_luminance": 0.7455859611329307,
+                "minimum": -0.00469813821837306,
+                "negative_pixels": 347,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-aligned",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5500,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.586131956759452,
+                  0.29502996946936,
+                  0.1316891407886868,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.68942767530452e-05,
+                  0.22819456563012958,
+                  0.6843236020663768
+                ],
+                "target_wb": [
+                  2.711552043782954,
+                  1,
+                  1.690108149776517
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 11.738155375001952,
+              "encoded_sha256": "a555b8d4b380e3cfe515541c48ea2a1fae96a152624e371a8259b04412e51336",
+              "file": "scene-hdr-aligned-nature.heic",
+              "height": 5656,
+              "look": "nature",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-aligned-nature-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 212729,
+                "maximum": 50.224365234375,
+                "mean_linear_luminance": 0.7603355387950729,
+                "minimum": -0.010476219467818737,
+                "negative_pixels": 3175,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-aligned",
+              "width": 4242
+            }
+          ],
+          "run_id": "0ce973dc-23c2-438a-995d-6174c4892a4f",
+          "scope": "One retained RAW, full-source 24MP exports; same decoder version and captured white point. No colorimetric or Hasselblad reference measurement.",
+          "source_bytes": 49513537,
+          "source_samples": {
+            "scene-hdr-aligned": {
+              "height": 2048,
+              "rgba_file": "scene-hdr-aligned-input.rgba32f",
+              "statistics": {
+                "above_reference_white_pixels": 196451,
+                "maximum": 45.59403610229492,
+                "mean_linear_luminance": 0.6998072721706493,
+                "minimum": 0.0008358337800018489,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "white_balance": "Auto WB · 5119 K · Tint +21.4",
+              "white_xy": [
+                0.342873752117157,
+                0.36416757106781006
+              ],
+              "width": 1536
+            }
+          },
+          "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+          "status": "complete",
+          "thermal_end": 0,
+          "working_space": "lstar"
+        },
+        "source_sha256": {
+          "ios/GlassCam/ExportSettings.swift": "995224c3489a3ac22c95741a9b3511a7818b381a743bbb5d99c41b1091370dbe",
+          "ios/GlassCam/SourceImageStore.swift": "ce95c7e26eacc4e8c148317db8f1b72073a1438e576d991e00abdafd17e82ab3",
+          "ios/GlassCam/PhotoWhiteBalance.swift": "3d45624d968d87900d51aee77213561410840bf5ba804e5fe2064af739a62236",
+          "ios/GlassCam/HNCSEngine.swift": "6a05a2c8ae90aa76361b2c0f9635819f08d35fa3a8a421e3013c98170a47851d",
+          "ios/GlassCam/FFCSEngine.swift": "ab08f4825259bd62f8e3eeff12263c9d88754f2637062cb0431ed287eca06ae5",
+          "ios/GlassCam/ImagePipeline.swift": "6a12a898a45d95202037face62f1225742b7843fdb135304e57c9e9a2471a27c",
+          "ios/GlassCam/PreviewRaster.swift": "435f18d6676cf9fb71774f6b7e50bfd4e3dc96b7930261547bc851cd0c5fa161",
+          "ios/GlassCam/CaptureWorkflow.swift": "eb1aa1a104005daf6727ec81ffbc0352bff3833ca9c6c2634c91ec4173ec216b",
+          "core/hncs.cpp": "fa924112e1ac83a5193088a2a3e907b490351dcc42be98d02eb30d1dcb42c2fa",
+          "core/hncs_spatial.cpp": "1618a24f3ee5f3c89d082e82315b5d3c0ead53eb8fd4dd1d11074ae2db4094ad",
+          "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+          "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+          "core/ffcs_c.h": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
+          "core/hncs_c.h": "113a675cbcfb815aaaf7ab573ace81b17b324684664e417e0e73aec70c643b24",
+          "core/hncs_numpy_rng.h": "8b6382698f08a7065e7b05366af6a6a6f043743242723c2e8188e587e5d3fc90",
+          "core/hncs_spatial.h": "00ea26255a508aff9c680fe51e79537d0963ef2aeee033701681ccc76d36a100",
+          "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+          "core/hncs_preset_assets.inc": "7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306",
+          "core/hncs_spatial_assets.inc": "272db813f70645c76b03745f502b376737b572e6e70fb9f7fcde42307b41c814",
+          "core/hncs_whitepoint_assets.inc": "99abe2be28ccafb208ddce592e041f03b0c5b9c40b5ffe610dfcaeee068c536e",
+          "ios/GlassCam/GlassCam-Bridging-Header.h": "7ec513694282e41c577acfd71a51f26ce3847e1b87291aaac7b6bbdab91c07aa",
+          "tools/apple_hncs_study.swift": "ca134cd201bbb5e861aba6ebbe691f2166c3611b9882624c7c763299bc27699a",
+          "tools/apple_raw_input_study.swift": "4bf5bc31cbd65f350c7053a91c8672c416e722ec99aefaa790fa7e5cdaf65565"
+        }
+      }
+    ],
+    "iphone": [
+      {
+        "report": {
+          "baseline_compensation_ev": 3.1118054389953613,
+          "configurations": {
+            "current": {
+              "configured": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 1,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "defaults": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "recipe": {
+                "decoderExposureEV": 0,
+                "decoderVersion": "8.dng",
+                "linearExposureEV": 0,
+                "rendering": "appleRendered"
+              }
+            },
+            "scene": {
+              "configured": {
+                "baseline_exposure": 0,
+                "boost_amount": 0,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": false,
+                "local_tone_map_amount": 0,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "defaults": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "recipe": {
+                "decoderExposureEV": 0,
+                "decoderVersion": "8.dng",
+                "linearExposureEV": 0,
+                "rendering": "sceneLinear"
+              }
+            },
+            "scene-baseline": {
+              "configured": {
+                "baseline_exposure": 0,
+                "boost_amount": 0,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": false,
+                "local_tone_map_amount": 0,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "defaults": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "recipe": {
+                "decoderExposureEV": 0,
+                "decoderVersion": "8.dng",
+                "linearExposureEV": 3.1118054389953613,
+                "rendering": "sceneLinear"
+              }
+            }
+          },
+          "cpu_count": 6,
+          "decoder_exposure_probes": [
+            {
+              "channels": 7140945,
+              "decoder_exposure_ev": -1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            },
+            {
+              "channels": 7140945,
+              "decoder_exposure_ev": 1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            }
+          ],
+          "exposure_ev": -0.05,
+          "gpu": "Apple A20 Pro GPU",
+          "label": "input",
+          "neutral_edr0_vs_edr1_max_absolute_error": 0.7500001788139343,
+          "os": "Version 27.0.1 (Build 24A446)",
+          "outputs": [
+            {
+              "bridge": {},
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 1.4841623333340976,
+              "encoded_sha256": "edda5cc7e04e9900ec31620020f608b436b5019955b45a0239bc60d3189dfcc3",
+              "file": "current-none.heic",
+              "height": 5656,
+              "look": "none",
+              "preview_export_identical": null,
+              "review_height": 2048,
+              "review_rgba_file": "current-none-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 77823,
+                "maximum": 41.009498596191406,
+                "mean_linear_luminance": 0.3324915187172902,
+                "minimum": -0.00566271273419261,
+                "negative_pixels": 1329,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "current",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5119,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.5786950857658528,
+                  0.2912866147573603,
+                  0.13001826251629583,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.947346280103384e-05,
+                  0.25007863580998363,
+                  0.7499508692714367
+                ],
+                "target_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 5.497471624999889,
+              "encoded_sha256": "edf163861aa74f7e060adf42015a3108b0fefafedfe038e6b6014f6e6f5230d2",
+              "file": "current-standard.heic",
+              "height": 5656,
+              "look": "standard",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "current-standard-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 91846,
+                "maximum": 39.450199127197266,
+                "mean_linear_luminance": 0.40135361999530267,
+                "minimum": -0.012562066316604614,
+                "negative_pixels": 12203,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "current",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5500,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.586131956759452,
+                  0.29502996946936,
+                  0.1316891407886868,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.68942767530452e-05,
+                  0.22819456563012958,
+                  0.6843236020663768
+                ],
+                "target_wb": [
+                  2.711552043782954,
+                  1,
+                  1.690108149776517
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 11.610381041668006,
+              "encoded_sha256": "2ea40a83328b58bd37adc0cb90965a209e484873f57a3b8d37cd6d48a47454d9",
+              "file": "current-nature.heic",
+              "height": 5656,
+              "look": "nature",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "current-nature-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 109958,
+                "maximum": 38.380043029785156,
+                "mean_linear_luminance": 0.4211016698534911,
+                "minimum": -0.01677517406642437,
+                "negative_pixels": 17757,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "current",
+              "width": 4242
+            },
+            {
+              "bridge": {},
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 1.4386300000041956,
+              "encoded_sha256": "c268f63709801164acf3074c45b8ab3c69e285759a51850010ecebc9a433c6fe",
+              "file": "scene-none.heic",
+              "height": 5656,
+              "look": "none",
+              "preview_export_identical": null,
+              "review_height": 2048,
+              "review_rgba_file": "scene-none-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 16547,
+                "maximum": 1.863158941268921,
+                "mean_linear_luminance": 0.020291676736904924,
+                "minimum": 1.8568412997410633e-05,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5119,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.5786950857658528,
+                  0.2912866147573603,
+                  0.13001826251629583,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.947346280103384e-05,
+                  0.25007863580998363,
+                  0.7499508692714367
+                ],
+                "target_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 5.34007200000633,
+              "encoded_sha256": "f276547e3a3a3ad21eafa1fc25ab2019d08a1cf7c2d398524a488b3256cc1679",
+              "file": "scene-standard.heic",
+              "height": 5656,
+              "look": "standard",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-standard-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 20579,
+                "maximum": 2.091719627380371,
+                "mean_linear_luminance": 0.020660596399312454,
+                "minimum": -5.247956869425252e-05,
+                "negative_pixels": 4,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5500,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.586131956759452,
+                  0.29502996946936,
+                  0.1316891407886868,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.68942767530452e-05,
+                  0.22819456563012958,
+                  0.6843236020663768
+                ],
+                "target_wb": [
+                  2.711552043782954,
+                  1,
+                  1.690108149776517
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 11.583730750004179,
+              "encoded_sha256": "2d42d9232cfd145c1722660c5d6e0c45fc85c09805a09884967a6eeb4a431555",
+              "file": "scene-nature.heic",
+              "height": 5656,
+              "look": "nature",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-nature-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 21275,
+                "maximum": 3.337769031524658,
+                "mean_linear_luminance": 0.01968599185849372,
+                "minimum": -0.00019836248247884214,
+                "negative_pixels": 280,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene",
+              "width": 4242
+            },
+            {
+              "bridge": {},
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 1.415245458323625,
+              "encoded_sha256": "fe88d926ec6d3c5919fbb4eab77d61512a72aff79d8e1400a7a0d30e69727836",
+              "file": "scene-baseline-none.heic",
+              "height": 5656,
+              "look": "none",
+              "preview_export_identical": null,
+              "review_height": 2048,
+              "review_rgba_file": "scene-baseline-none-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 79560,
+                "maximum": 17.44055938720703,
+                "mean_linear_luminance": 0.17564447734485047,
+                "minimum": 0.00032315190765075386,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-baseline",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5119,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.5786950857658528,
+                  0.2912866147573603,
+                  0.13001826251629583,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.947346280103384e-05,
+                  0.25007863580998363,
+                  0.7499508692714367
+                ],
+                "target_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 5.711222833342617,
+              "encoded_sha256": "6af864b189a69ecbb756bf664e6ce3a7ac1500ab89bb25ca2ba77f38ce11ae36",
+              "file": "scene-baseline-standard.heic",
+              "height": 5656,
+              "look": "standard",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-baseline-standard-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 90994,
+                "maximum": 15.548273086547852,
+                "mean_linear_luminance": 0.19581238914768306,
+                "minimum": -0.0033095574472099543,
+                "negative_pixels": 677,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-baseline",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5500,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.586131956759452,
+                  0.29502996946936,
+                  0.1316891407886868,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.68942767530452e-05,
+                  0.22819456563012958,
+                  0.6843236020663768
+                ],
+                "target_wb": [
+                  2.711552043782954,
+                  1,
+                  1.690108149776517
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 12.818660000004456,
+              "encoded_sha256": "9b7c64989c56a443dfc4b8282227f08abb11f84dd6de59a52f8190bb9e5eb407",
+              "file": "scene-baseline-nature.heic",
+              "height": 5656,
+              "look": "nature",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-baseline-nature-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 102490,
+                "maximum": 16.98855209350586,
+                "mean_linear_luminance": 0.19638473064491882,
+                "minimum": -0.009683105163276196,
+                "negative_pixels": 2557,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-baseline",
+              "width": 4242
+            }
+          ],
+          "run_id": "aeaf3e5e-c249-41af-ae3e-ea7ae0cfbf6a",
+          "scope": "One retained RAW, full-source 24MP exports; same decoder version and captured white point. No colorimetric or Hasselblad reference measurement.",
+          "source_bytes": 49513537,
+          "source_samples": {
+            "current": {
+              "height": 2048,
+              "rgba_file": "current-input.rgba32f",
+              "statistics": {
+                "above_reference_white_pixels": 79398,
+                "maximum": 15.716683387756348,
+                "mean_linear_luminance": 0.3421818212833445,
+                "minimum": -0.018381135538220406,
+                "negative_pixels": 2551,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "white_balance": "Auto WB · 5119 K · Tint +21.4",
+              "white_xy": [
+                0.342873752117157,
+                0.36416757106781006
+              ],
+              "width": 1536
+            },
+            "scene": {
+              "height": 2048,
+              "rgba_file": "scene-input.rgba32f",
+              "statistics": {
+                "above_reference_white_pixels": 0,
+                "maximum": 1,
+                "mean_linear_luminance": 0.021617272569522655,
+                "minimum": 3.25780529237818e-05,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "white_balance": "Auto WB · 5119 K · Tint +21.4",
+              "white_xy": [
+                0.342873752117157,
+                0.36416757106781006
+              ],
+              "width": 1536
+            },
+            "scene-baseline": {
+              "height": 2048,
+              "rgba_file": "scene-baseline-input.rgba32f",
+              "statistics": {
+                "above_reference_white_pixels": 81102,
+                "maximum": 8.644638061523438,
+                "mean_linear_luminance": 0.18687348012689098,
+                "minimum": 0.0002816253690980375,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "white_balance": "Auto WB · 5119 K · Tint +21.4",
+              "white_xy": [
+                0.342873752117157,
+                0.36416757106781006
+              ],
+              "width": 1536
+            }
+          },
+          "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+          "status": "complete",
+          "thermal_end": 1,
+          "working_space": "lstar"
+        },
+        "source_sha256": {
+          "ios/GlassCam/ExportSettings.swift": "995224c3489a3ac22c95741a9b3511a7818b381a743bbb5d99c41b1091370dbe",
+          "ios/GlassCam/SourceImageStore.swift": "ce95c7e26eacc4e8c148317db8f1b72073a1438e576d991e00abdafd17e82ab3",
+          "ios/GlassCam/PhotoWhiteBalance.swift": "3d45624d968d87900d51aee77213561410840bf5ba804e5fe2064af739a62236",
+          "ios/GlassCam/HNCSEngine.swift": "6a05a2c8ae90aa76361b2c0f9635819f08d35fa3a8a421e3013c98170a47851d",
+          "ios/GlassCam/FFCSEngine.swift": "ab08f4825259bd62f8e3eeff12263c9d88754f2637062cb0431ed287eca06ae5",
+          "ios/GlassCam/ImagePipeline.swift": "6a12a898a45d95202037face62f1225742b7843fdb135304e57c9e9a2471a27c",
+          "ios/GlassCam/PreviewRaster.swift": "435f18d6676cf9fb71774f6b7e50bfd4e3dc96b7930261547bc851cd0c5fa161",
+          "ios/GlassCam/CaptureWorkflow.swift": "eb1aa1a104005daf6727ec81ffbc0352bff3833ca9c6c2634c91ec4173ec216b",
+          "core/hncs.cpp": "fa924112e1ac83a5193088a2a3e907b490351dcc42be98d02eb30d1dcb42c2fa",
+          "core/hncs_spatial.cpp": "1618a24f3ee5f3c89d082e82315b5d3c0ead53eb8fd4dd1d11074ae2db4094ad",
+          "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+          "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+          "core/ffcs_c.h": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
+          "core/hncs_c.h": "113a675cbcfb815aaaf7ab573ace81b17b324684664e417e0e73aec70c643b24",
+          "core/hncs_numpy_rng.h": "8b6382698f08a7065e7b05366af6a6a6f043743242723c2e8188e587e5d3fc90",
+          "core/hncs_spatial.h": "00ea26255a508aff9c680fe51e79537d0963ef2aeee033701681ccc76d36a100",
+          "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+          "core/hncs_preset_assets.inc": "7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306",
+          "core/hncs_spatial_assets.inc": "272db813f70645c76b03745f502b376737b572e6e70fb9f7fcde42307b41c814",
+          "core/hncs_whitepoint_assets.inc": "99abe2be28ccafb208ddce592e041f03b0c5b9c40b5ffe610dfcaeee068c536e",
+          "ios/GlassCam/GlassCam-Bridging-Header.h": "7ec513694282e41c577acfd71a51f26ce3847e1b87291aaac7b6bbdab91c07aa",
+          "tools/apple_hncs_study.swift": "ca134cd201bbb5e861aba6ebbe691f2166c3611b9882624c7c763299bc27699a",
+          "tools/apple_raw_input_study.swift": "60c1c38d8167151b4de475ef92e2bd43bc894376980cc24ce58270513eda322e"
+        }
+      },
+      {
+        "report": {
+          "baseline_compensation_ev": 3.1118054389953613,
+          "configurations": {
+            "scene-hdr-baseline": {
+              "configured": {
+                "baseline_exposure": 0,
+                "boost_amount": 0,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 1,
+                "exposure": 0,
+                "gamut_mapping": false,
+                "local_tone_map_amount": 0,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "defaults": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "recipe": {
+                "decoderExposureEV": 0,
+                "decoderVersion": "8.dng",
+                "edrAmount": 1,
+                "linearExposureEV": 3.1118054389953613,
+                "rendering": "sceneLinear"
+              }
+            }
+          },
+          "cpu_count": 6,
+          "decoder_exposure_probes": [
+            {
+              "channels": 7140945,
+              "decoder_exposure_ev": -1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            },
+            {
+              "channels": 7140945,
+              "decoder_exposure_ev": 1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            }
+          ],
+          "exposure_ev": -0.05,
+          "gpu": "Apple A20 Pro GPU",
+          "label": "hdr-check",
+          "neutral_edr_probe": {
+            "at_or_above_0_9_channels": 74896,
+            "below_0_9_channels": 9362288,
+            "below_0_9_max_absolute_error": 0.6443272233009338,
+            "edr0": {
+              "above_reference_white_pixels": 0,
+              "maximum": 1,
+              "mean_linear_luminance": 0.021617272569522655,
+              "minimum": 3.25780529237818e-05,
+              "negative_pixels": 0,
+              "nonfinite_pixels": 0,
+              "pixels": 3145728
+            },
+            "edr1": {
+              "above_reference_white_pixels": 29729,
+              "maximum": 1.7500001192092896,
+              "mean_linear_luminance": 0.027160628361404815,
+              "minimum": 3.25780529237818e-05,
+              "negative_pixels": 0,
+              "nonfinite_pixels": 0,
+              "pixels": 3145728
+            }
+          },
+          "neutral_edr0_vs_edr1_max_absolute_error": 0.7500001788139343,
+          "os": "Version 27.0.1 (Build 24A446)",
+          "outputs": [
+            {
+              "bridge": {},
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 1.345565166673623,
+              "encoded_sha256": "23a2d7a67df134612de9b05c77c140ae4a7f8f99c5df46ded2cc8da614809997",
+              "file": "scene-hdr-baseline-none.heic",
+              "height": 5656,
+              "look": "none",
+              "preview_export_identical": null,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-baseline-none-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 79469,
+                "maximum": 36.495506286621094,
+                "mean_linear_luminance": 0.23793860494425842,
+                "minimum": 0.00032315190765075386,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-baseline",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5119,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.5786950857658528,
+                  0.2912866147573603,
+                  0.13001826251629583,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.947346280103384e-05,
+                  0.25007863580998363,
+                  0.7499508692714367
+                ],
+                "target_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 5.364438708333182,
+              "encoded_sha256": "3eae0f2481392462a9ad5b395d2c7d6ccf8e6276421646c976c17c12ce882872",
+              "file": "scene-hdr-baseline-standard.heic",
+              "height": 5656,
+              "look": "standard",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-baseline-standard-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 90929,
+                "maximum": 35.7703971862793,
+                "mean_linear_luminance": 0.25960004030204137,
+                "minimum": -0.0033095574472099543,
+                "negative_pixels": 677,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-baseline",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5500,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.586131956759452,
+                  0.29502996946936,
+                  0.1316891407886868,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.68942767530452e-05,
+                  0.22819456563012958,
+                  0.6843236020663768
+                ],
+                "target_wb": [
+                  2.711552043782954,
+                  1,
+                  1.690108149776517
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 11.5111145000119,
+              "encoded_sha256": "49a57581e282f5ef527da0821908317e58770f32809052b969e3b8680b8f1c3c",
+              "file": "scene-hdr-baseline-nature.heic",
+              "height": 5656,
+              "look": "nature",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-baseline-nature-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 102405,
+                "maximum": 35.044864654541016,
+                "mean_linear_luminance": 0.26053254020048344,
+                "minimum": -0.009683105163276196,
+                "negative_pixels": 2557,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-baseline",
+              "width": 4242
+            }
+          ],
+          "run_id": "a1a6b2da-69ca-4cef-a319-50475752b683",
+          "scope": "One retained RAW, full-source 24MP exports; same decoder version and captured white point. No colorimetric or Hasselblad reference measurement.",
+          "source_bytes": 49513537,
+          "source_samples": {
+            "scene-hdr-baseline": {
+              "height": 2048,
+              "rgba_file": "scene-hdr-baseline-input.rgba32f",
+              "statistics": {
+                "above_reference_white_pixels": 81102,
+                "maximum": 15.1281156539917,
+                "mean_linear_luminance": 0.23479378017080207,
+                "minimum": 0.0002816253690980375,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "white_balance": "Auto WB · 5119 K · Tint +21.4",
+              "white_xy": [
+                0.342873752117157,
+                0.36416757106781006
+              ],
+              "width": 1536
+            }
+          },
+          "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+          "status": "complete",
+          "thermal_end": 1,
+          "working_space": "lstar"
+        },
+        "source_sha256": {
+          "ios/GlassCam/ExportSettings.swift": "995224c3489a3ac22c95741a9b3511a7818b381a743bbb5d99c41b1091370dbe",
+          "ios/GlassCam/SourceImageStore.swift": "ce95c7e26eacc4e8c148317db8f1b72073a1438e576d991e00abdafd17e82ab3",
+          "ios/GlassCam/PhotoWhiteBalance.swift": "3d45624d968d87900d51aee77213561410840bf5ba804e5fe2064af739a62236",
+          "ios/GlassCam/HNCSEngine.swift": "6a05a2c8ae90aa76361b2c0f9635819f08d35fa3a8a421e3013c98170a47851d",
+          "ios/GlassCam/FFCSEngine.swift": "ab08f4825259bd62f8e3eeff12263c9d88754f2637062cb0431ed287eca06ae5",
+          "ios/GlassCam/ImagePipeline.swift": "6a12a898a45d95202037face62f1225742b7843fdb135304e57c9e9a2471a27c",
+          "ios/GlassCam/PreviewRaster.swift": "435f18d6676cf9fb71774f6b7e50bfd4e3dc96b7930261547bc851cd0c5fa161",
+          "ios/GlassCam/CaptureWorkflow.swift": "eb1aa1a104005daf6727ec81ffbc0352bff3833ca9c6c2634c91ec4173ec216b",
+          "core/hncs.cpp": "fa924112e1ac83a5193088a2a3e907b490351dcc42be98d02eb30d1dcb42c2fa",
+          "core/hncs_spatial.cpp": "1618a24f3ee5f3c89d082e82315b5d3c0ead53eb8fd4dd1d11074ae2db4094ad",
+          "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+          "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+          "core/ffcs_c.h": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
+          "core/hncs_c.h": "113a675cbcfb815aaaf7ab573ace81b17b324684664e417e0e73aec70c643b24",
+          "core/hncs_numpy_rng.h": "8b6382698f08a7065e7b05366af6a6a6f043743242723c2e8188e587e5d3fc90",
+          "core/hncs_spatial.h": "00ea26255a508aff9c680fe51e79537d0963ef2aeee033701681ccc76d36a100",
+          "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+          "core/hncs_preset_assets.inc": "7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306",
+          "core/hncs_spatial_assets.inc": "272db813f70645c76b03745f502b376737b572e6e70fb9f7fcde42307b41c814",
+          "core/hncs_whitepoint_assets.inc": "99abe2be28ccafb208ddce592e041f03b0c5b9c40b5ffe610dfcaeee068c536e",
+          "ios/GlassCam/GlassCam-Bridging-Header.h": "7ec513694282e41c577acfd71a51f26ce3847e1b87291aaac7b6bbdab91c07aa",
+          "tools/apple_hncs_study.swift": "ca134cd201bbb5e861aba6ebbe691f2166c3611b9882624c7c763299bc27699a",
+          "tools/apple_raw_input_study.swift": "3bd0f0b7e787925b70f093144788576560390265ded1be255b3a4ed3cccee7d5"
+        }
+      },
+      {
+        "report": {
+          "baseline_compensation_ev": 3.1118054389953613,
+          "configurations": {
+            "scene-hdr-aligned": {
+              "configured": {
+                "baseline_exposure": 0,
+                "boost_amount": 0,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 1,
+                "exposure": 0,
+                "gamut_mapping": false,
+                "local_tone_map_amount": 0,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "defaults": {
+                "baseline_exposure": 3.1118054389953613,
+                "boost_amount": 1,
+                "boost_shadow_amount": 0.8999999761581421,
+                "decoder_version": "8.dng",
+                "draft_mode": false,
+                "edr_amount": 0,
+                "exposure": 0,
+                "gamut_mapping": true,
+                "local_tone_map_amount": 1,
+                "local_tone_map_supported": true,
+                "native_height": 6048,
+                "native_width": 8064,
+                "orientation": 6,
+                "shadow_bias": 0,
+                "supported_decoder_versions": [
+                  "6.dng",
+                  "7.dng",
+                  "8.dng",
+                  "9.dng"
+                ],
+                "temperature": 5119.2958984375,
+                "tint": 21.414989471435547,
+                "white_xy": [
+                  0.342873752117157,
+                  0.36416757106781006
+                ]
+              },
+              "recipe": {
+                "decoderExposureEV": 0,
+                "decoderVersion": "8.dng",
+                "edrAmount": 1,
+                "linearExposureEV": 4.703132112306488,
+                "rendering": "sceneLinear"
+              }
+            }
+          },
+          "cpu_count": 6,
+          "decoder_exposure_probes": [
+            {
+              "channels": 7140945,
+              "decoder_exposure_ev": -1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            },
+            {
+              "channels": 7140945,
+              "decoder_exposure_ev": 1,
+              "max_absolute_error_from_expected_gain": 0,
+              "mean_absolute_error": 0,
+              "mean_relative_error": 0
+            }
+          ],
+          "exposure_alignment": {
+            "candidate": "scene-hdr-baseline before HNCS",
+            "extra_ev_after_baseline": 1.5913266733111266,
+            "height": 2048,
+            "method": "Median log2(reference Y / candidate Y), linear-sRGB Y; all channels in (0,1), reference Y in [0.02,0.5], candidate Y >= 0.002. One scalar is applied before HNCS to all three looks.",
+            "per_pixel_ev_p10": 1.1790440504620427,
+            "per_pixel_ev_p90": 1.989993485237935,
+            "reference": "current before HNCS",
+            "sample_pixels": 1952797,
+            "scope": "Relative software midtone alignment for this RAW, not physical exposure calibration or a new camera default.",
+            "total_linear_exposure_ev": 4.703132112306488,
+            "width": 1536
+          },
+          "exposure_ev": -0.05,
+          "gpu": "Apple A20 Pro GPU",
+          "label": "aligned",
+          "neutral_edr_probe": {
+            "at_or_above_0_9_channels": 74896,
+            "below_0_9_channels": 9362288,
+            "below_0_9_max_absolute_error": 0.6443272233009338,
+            "edr0": {
+              "above_reference_white_pixels": 0,
+              "maximum": 1,
+              "mean_linear_luminance": 0.021617272569522655,
+              "minimum": 3.25780529237818e-05,
+              "negative_pixels": 0,
+              "nonfinite_pixels": 0,
+              "pixels": 3145728
+            },
+            "edr1": {
+              "above_reference_white_pixels": 29729,
+              "maximum": 1.7500001192092896,
+              "mean_linear_luminance": 0.027160628361404815,
+              "minimum": 3.25780529237818e-05,
+              "negative_pixels": 0,
+              "nonfinite_pixels": 0,
+              "pixels": 3145728
+            }
+          },
+          "neutral_edr0_vs_edr1_max_absolute_error": 0.7500001788139343,
+          "os": "Version 27.0.1 (Build 24A446)",
+          "outputs": [
+            {
+              "bridge": {},
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 1.3124520833371207,
+              "encoded_sha256": "1d1c9dd25f655116e65631750886408fd191dfb8309811f9425843ca6f913f57",
+              "file": "scene-hdr-aligned-none.heic",
+              "height": 5656,
+              "look": "none",
+              "preview_export_identical": null,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-aligned-none-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 185802,
+                "maximum": 56.55811309814453,
+                "mean_linear_luminance": 0.6800645616778053,
+                "minimum": 0.0015864211600273848,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-aligned",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5119,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.5786950857658528,
+                  0.2912866147573603,
+                  0.13001826251629583,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.947346280103384e-05,
+                  0.25007863580998363,
+                  0.7499508692714367
+                ],
+                "target_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 5.166799875005381,
+              "encoded_sha256": "b5ef8d383ae1d642765db94c2dd35277cebdc4b737c5bb43e40ee2ad68a632b8",
+              "file": "scene-hdr-aligned-standard.heic",
+              "height": 5656,
+              "look": "standard",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-aligned-standard-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 201156,
+                "maximum": 52.89244842529297,
+                "mean_linear_luminance": 0.7487510325209987,
+                "minimum": -0.004131461028009653,
+                "negative_pixels": 329,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-aligned",
+              "width": 4242
+            },
+            {
+              "bridge": {
+                "capture_wb": [
+                  2.677147738558696,
+                  1,
+                  1.8521910865858109
+                ],
+                "exposure_ev": -0.05,
+                "factory_cct": 5500,
+                "scope": "Production virtual-X2D bridge after highlight normalization, before the reference UInt16 clamp",
+                "source_to_native_row_major": [
+                  0.586131956759452,
+                  0.29502996946936,
+                  0.1316891407886868,
+                  0.06015024347919073,
+                  0.7344850715138441,
+                  0.20536480936126658,
+                  -2.68942767530452e-05,
+                  0.22819456563012958,
+                  0.6843236020663768
+                ],
+                "target_wb": [
+                  2.711552043782954,
+                  1,
+                  1.690108149776517
+                ]
+              },
+              "depth": 10,
+              "diagnostic_seconds_including_parity": 10.792834375009988,
+              "encoded_sha256": "f28e5bfff0d6ecb14dc659ab05de87cf8f2889f9a3509ca22439138a0b7a9ee1",
+              "file": "scene-hdr-aligned-nature.heic",
+              "height": 5656,
+              "look": "nature",
+              "preview_export_identical": true,
+              "review_height": 2048,
+              "review_rgba_file": "scene-hdr-aligned-nature-final.rgba32f",
+              "review_width": 1536,
+              "statistics": {
+                "above_reference_white_pixels": 213074,
+                "maximum": 50.1922607421875,
+                "mean_linear_luminance": 0.76373248926032,
+                "minimum": -0.013410029001533985,
+                "negative_pixels": 3158,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "variant": "scene-hdr-aligned",
+              "width": 4242
+            }
+          ],
+          "run_id": "adf15c16-b6c2-4ee7-bda7-3b1d36aeeb0a",
+          "scope": "One retained RAW, full-source 24MP exports; same decoder version and captured white point. No colorimetric or Hasselblad reference measurement.",
+          "source_bytes": 49513537,
+          "source_samples": {
+            "scene-hdr-aligned": {
+              "height": 2048,
+              "rgba_file": "scene-hdr-aligned-input.rgba32f",
+              "statistics": {
+                "above_reference_white_pixels": 196704,
+                "maximum": 45.58499526977539,
+                "mean_linear_luminance": 0.7074954386187372,
+                "minimum": 0.0008486116421408951,
+                "negative_pixels": 0,
+                "nonfinite_pixels": 0,
+                "pixels": 3145728
+              },
+              "white_balance": "Auto WB · 5119 K · Tint +21.4",
+              "white_xy": [
+                0.342873752117157,
+                0.36416757106781006
+              ],
+              "width": 1536
+            }
+          },
+          "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+          "status": "complete",
+          "thermal_end": 0,
+          "working_space": "lstar"
+        },
+        "source_sha256": {
+          "ios/GlassCam/ExportSettings.swift": "995224c3489a3ac22c95741a9b3511a7818b381a743bbb5d99c41b1091370dbe",
+          "ios/GlassCam/SourceImageStore.swift": "ce95c7e26eacc4e8c148317db8f1b72073a1438e576d991e00abdafd17e82ab3",
+          "ios/GlassCam/PhotoWhiteBalance.swift": "3d45624d968d87900d51aee77213561410840bf5ba804e5fe2064af739a62236",
+          "ios/GlassCam/HNCSEngine.swift": "6a05a2c8ae90aa76361b2c0f9635819f08d35fa3a8a421e3013c98170a47851d",
+          "ios/GlassCam/FFCSEngine.swift": "ab08f4825259bd62f8e3eeff12263c9d88754f2637062cb0431ed287eca06ae5",
+          "ios/GlassCam/ImagePipeline.swift": "6a12a898a45d95202037face62f1225742b7843fdb135304e57c9e9a2471a27c",
+          "ios/GlassCam/PreviewRaster.swift": "435f18d6676cf9fb71774f6b7e50bfd4e3dc96b7930261547bc851cd0c5fa161",
+          "ios/GlassCam/CaptureWorkflow.swift": "eb1aa1a104005daf6727ec81ffbc0352bff3833ca9c6c2634c91ec4173ec216b",
+          "core/hncs.cpp": "fa924112e1ac83a5193088a2a3e907b490351dcc42be98d02eb30d1dcb42c2fa",
+          "core/hncs_spatial.cpp": "1618a24f3ee5f3c89d082e82315b5d3c0ead53eb8fd4dd1d11074ae2db4094ad",
+          "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+          "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+          "core/ffcs_c.h": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
+          "core/hncs_c.h": "113a675cbcfb815aaaf7ab573ace81b17b324684664e417e0e73aec70c643b24",
+          "core/hncs_numpy_rng.h": "8b6382698f08a7065e7b05366af6a6a6f043743242723c2e8188e587e5d3fc90",
+          "core/hncs_spatial.h": "00ea26255a508aff9c680fe51e79537d0963ef2aeee033701681ccc76d36a100",
+          "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+          "core/hncs_preset_assets.inc": "7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306",
+          "core/hncs_spatial_assets.inc": "272db813f70645c76b03745f502b376737b572e6e70fb9f7fcde42307b41c814",
+          "core/hncs_whitepoint_assets.inc": "99abe2be28ccafb208ddce592e041f03b0c5b9c40b5ffe610dfcaeee068c536e",
+          "ios/GlassCam/GlassCam-Bridging-Header.h": "7ec513694282e41c577acfd71a51f26ce3847e1b87291aaac7b6bbdab91c07aa",
+          "tools/apple_hncs_study.swift": "ca134cd201bbb5e861aba6ebbe691f2166c3611b9882624c7c763299bc27699a",
+          "tools/apple_raw_input_study.swift": "4bf5bc31cbd65f350c7053a91c8672c416e722ec99aefaa790fa7e5cdaf65565"
+        }
+      }
+    ]
+  },
+  "analysis": {
+    "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+    "source_bytes": 49513537,
+    "display_transform": "Fixed max-channel Reinhard followed by sRGB OETF; no per-image exposure, histogram or white-balance matching",
+    "baseline_compensation_ev": 3.1118054389953613,
+    "configurations": {
+      "current": {
+        "configured": {
+          "baseline_exposure": 3.1118054389953613,
+          "boost_amount": 1,
+          "boost_shadow_amount": 0.8999999761581421,
+          "decoder_version": "8.dng",
+          "draft_mode": false,
+          "edr_amount": 1,
+          "exposure": 0,
+          "gamut_mapping": true,
+          "local_tone_map_amount": 1,
+          "local_tone_map_supported": true,
+          "native_height": 6048,
+          "native_width": 8064,
+          "orientation": 6,
+          "shadow_bias": 0,
+          "supported_decoder_versions": [
+            "6.dng",
+            "7.dng",
+            "8.dng",
+            "9.dng"
+          ],
+          "temperature": 5119.2958984375,
+          "tint": 21.414989471435547,
+          "white_xy": [
+            0.342873752117157,
+            0.36416757106781006
+          ]
+        },
+        "defaults": {
+          "baseline_exposure": 3.1118054389953613,
+          "boost_amount": 1,
+          "boost_shadow_amount": 0.8999999761581421,
+          "decoder_version": "8.dng",
+          "draft_mode": false,
+          "edr_amount": 0,
+          "exposure": 0,
+          "gamut_mapping": true,
+          "local_tone_map_amount": 1,
+          "local_tone_map_supported": true,
+          "native_height": 6048,
+          "native_width": 8064,
+          "orientation": 6,
+          "shadow_bias": 0,
+          "supported_decoder_versions": [
+            "6.dng",
+            "7.dng",
+            "8.dng",
+            "9.dng"
+          ],
+          "temperature": 5119.2958984375,
+          "tint": 21.414989471435547,
+          "white_xy": [
+            0.342873752117157,
+            0.36416757106781006
+          ]
+        },
+        "recipe": {
+          "decoderExposureEV": 0,
+          "decoderVersion": "8.dng",
+          "linearExposureEV": 0,
+          "rendering": "appleRendered"
+        }
+      },
+      "scene": {
+        "configured": {
+          "baseline_exposure": 0,
+          "boost_amount": 0,
+          "boost_shadow_amount": 0.8999999761581421,
+          "decoder_version": "8.dng",
+          "draft_mode": false,
+          "edr_amount": 0,
+          "exposure": 0,
+          "gamut_mapping": false,
+          "local_tone_map_amount": 0,
+          "local_tone_map_supported": true,
+          "native_height": 6048,
+          "native_width": 8064,
+          "orientation": 6,
+          "shadow_bias": 0,
+          "supported_decoder_versions": [
+            "6.dng",
+            "7.dng",
+            "8.dng",
+            "9.dng"
+          ],
+          "temperature": 5119.2958984375,
+          "tint": 21.414989471435547,
+          "white_xy": [
+            0.342873752117157,
+            0.36416757106781006
+          ]
+        },
+        "defaults": {
+          "baseline_exposure": 3.1118054389953613,
+          "boost_amount": 1,
+          "boost_shadow_amount": 0.8999999761581421,
+          "decoder_version": "8.dng",
+          "draft_mode": false,
+          "edr_amount": 0,
+          "exposure": 0,
+          "gamut_mapping": true,
+          "local_tone_map_amount": 1,
+          "local_tone_map_supported": true,
+          "native_height": 6048,
+          "native_width": 8064,
+          "orientation": 6,
+          "shadow_bias": 0,
+          "supported_decoder_versions": [
+            "6.dng",
+            "7.dng",
+            "8.dng",
+            "9.dng"
+          ],
+          "temperature": 5119.2958984375,
+          "tint": 21.414989471435547,
+          "white_xy": [
+            0.342873752117157,
+            0.36416757106781006
+          ]
+        },
+        "recipe": {
+          "decoderExposureEV": 0,
+          "decoderVersion": "8.dng",
+          "linearExposureEV": 0,
+          "rendering": "sceneLinear"
+        }
+      },
+      "scene-baseline": {
+        "configured": {
+          "baseline_exposure": 0,
+          "boost_amount": 0,
+          "boost_shadow_amount": 0.8999999761581421,
+          "decoder_version": "8.dng",
+          "draft_mode": false,
+          "edr_amount": 0,
+          "exposure": 0,
+          "gamut_mapping": false,
+          "local_tone_map_amount": 0,
+          "local_tone_map_supported": true,
+          "native_height": 6048,
+          "native_width": 8064,
+          "orientation": 6,
+          "shadow_bias": 0,
+          "supported_decoder_versions": [
+            "6.dng",
+            "7.dng",
+            "8.dng",
+            "9.dng"
+          ],
+          "temperature": 5119.2958984375,
+          "tint": 21.414989471435547,
+          "white_xy": [
+            0.342873752117157,
+            0.36416757106781006
+          ]
+        },
+        "defaults": {
+          "baseline_exposure": 3.1118054389953613,
+          "boost_amount": 1,
+          "boost_shadow_amount": 0.8999999761581421,
+          "decoder_version": "8.dng",
+          "draft_mode": false,
+          "edr_amount": 0,
+          "exposure": 0,
+          "gamut_mapping": true,
+          "local_tone_map_amount": 1,
+          "local_tone_map_supported": true,
+          "native_height": 6048,
+          "native_width": 8064,
+          "orientation": 6,
+          "shadow_bias": 0,
+          "supported_decoder_versions": [
+            "6.dng",
+            "7.dng",
+            "8.dng",
+            "9.dng"
+          ],
+          "temperature": 5119.2958984375,
+          "tint": 21.414989471435547,
+          "white_xy": [
+            0.342873752117157,
+            0.36416757106781006
+          ]
+        },
+        "recipe": {
+          "decoderExposureEV": 0,
+          "decoderVersion": "8.dng",
+          "linearExposureEV": 3.1118054389953613,
+          "rendering": "sceneLinear"
+        }
+      },
+      "scene-hdr-baseline": {
+        "configured": {
+          "baseline_exposure": 0,
+          "boost_amount": 0,
+          "boost_shadow_amount": 0.8999999761581421,
+          "decoder_version": "8.dng",
+          "draft_mode": false,
+          "edr_amount": 1,
+          "exposure": 0,
+          "gamut_mapping": false,
+          "local_tone_map_amount": 0,
+          "local_tone_map_supported": true,
+          "native_height": 6048,
+          "native_width": 8064,
+          "orientation": 6,
+          "shadow_bias": 0,
+          "supported_decoder_versions": [
+            "6.dng",
+            "7.dng",
+            "8.dng",
+            "9.dng"
+          ],
+          "temperature": 5119.2958984375,
+          "tint": 21.414989471435547,
+          "white_xy": [
+            0.342873752117157,
+            0.36416757106781006
+          ]
+        },
+        "defaults": {
+          "baseline_exposure": 3.1118054389953613,
+          "boost_amount": 1,
+          "boost_shadow_amount": 0.8999999761581421,
+          "decoder_version": "8.dng",
+          "draft_mode": false,
+          "edr_amount": 0,
+          "exposure": 0,
+          "gamut_mapping": true,
+          "local_tone_map_amount": 1,
+          "local_tone_map_supported": true,
+          "native_height": 6048,
+          "native_width": 8064,
+          "orientation": 6,
+          "shadow_bias": 0,
+          "supported_decoder_versions": [
+            "6.dng",
+            "7.dng",
+            "8.dng",
+            "9.dng"
+          ],
+          "temperature": 5119.2958984375,
+          "tint": 21.414989471435547,
+          "white_xy": [
+            0.342873752117157,
+            0.36416757106781006
+          ]
+        },
+        "recipe": {
+          "decoderExposureEV": 0,
+          "decoderVersion": "8.dng",
+          "edrAmount": 1,
+          "linearExposureEV": 3.1118054389953613,
+          "rendering": "sceneLinear"
+        }
+      },
+      "scene-hdr-aligned": {
+        "configured": {
+          "baseline_exposure": 0,
+          "boost_amount": 0,
+          "boost_shadow_amount": 0.8999999761581421,
+          "decoder_version": "8.dng",
+          "draft_mode": false,
+          "edr_amount": 1,
+          "exposure": 0,
+          "gamut_mapping": false,
+          "local_tone_map_amount": 0,
+          "local_tone_map_supported": true,
+          "native_height": 6048,
+          "native_width": 8064,
+          "orientation": 6,
+          "shadow_bias": 0,
+          "supported_decoder_versions": [
+            "6.dng",
+            "7.dng",
+            "8.dng",
+            "9.dng"
+          ],
+          "temperature": 5119.2958984375,
+          "tint": 21.414989471435547,
+          "white_xy": [
+            0.342873752117157,
+            0.36416757106781006
+          ]
+        },
+        "defaults": {
+          "baseline_exposure": 3.1118054389953613,
+          "boost_amount": 1,
+          "boost_shadow_amount": 0.8999999761581421,
+          "decoder_version": "8.dng",
+          "draft_mode": false,
+          "edr_amount": 0,
+          "exposure": 0,
+          "gamut_mapping": true,
+          "local_tone_map_amount": 1,
+          "local_tone_map_supported": true,
+          "native_height": 6048,
+          "native_width": 8064,
+          "orientation": 6,
+          "shadow_bias": 0,
+          "supported_decoder_versions": [
+            "6.dng",
+            "7.dng",
+            "8.dng",
+            "9.dng"
+          ],
+          "temperature": 5119.2958984375,
+          "tint": 21.414989471435547,
+          "white_xy": [
+            0.342873752117157,
+            0.36416757106781006
+          ]
+        },
+        "recipe": {
+          "decoderExposureEV": 0,
+          "decoderVersion": "8.dng",
+          "edrAmount": 1,
+          "linearExposureEV": 4.703132112306488,
+          "rendering": "sceneLinear"
+        }
+      }
+    },
+    "statistics_scope": "Final HEIFs decoded to 2048-edge linear-sRGB review images; not statistics over every full-resolution output pixel.",
+    "studies": [
+      {
+        "report": "/private/tmp/glasscam-raw-input-study.Vti4RJ/phone-frames/input/report.json",
+        "os": "Version 27.0.1 (Build 24A446)",
+        "gpu": "Apple A20 Pro GPU",
+        "decoder_exposure_probes": [
+          {
+            "channels": 7140945,
+            "decoder_exposure_ev": -1,
+            "max_absolute_error_from_expected_gain": 0,
+            "mean_absolute_error": 0,
+            "mean_relative_error": 0
+          },
+          {
+            "channels": 7140945,
+            "decoder_exposure_ev": 1,
+            "max_absolute_error_from_expected_gain": 0,
+            "mean_absolute_error": 0,
+            "mean_relative_error": 0
+          }
+        ],
+        "exposure_alignment": null,
+        "edr_probe": null,
+        "edr_max_difference": 0.7500001788139343
+      },
+      {
+        "report": "/private/tmp/glasscam-raw-input-study.Vti4RJ/phone-frames/hdr-check/report.json",
+        "os": "Version 27.0.1 (Build 24A446)",
+        "gpu": "Apple A20 Pro GPU",
+        "decoder_exposure_probes": [
+          {
+            "channels": 7140945,
+            "decoder_exposure_ev": -1,
+            "max_absolute_error_from_expected_gain": 0,
+            "mean_absolute_error": 0,
+            "mean_relative_error": 0
+          },
+          {
+            "channels": 7140945,
+            "decoder_exposure_ev": 1,
+            "max_absolute_error_from_expected_gain": 0,
+            "mean_absolute_error": 0,
+            "mean_relative_error": 0
+          }
+        ],
+        "exposure_alignment": null,
+        "edr_probe": {
+          "at_or_above_0_9_channels": 74896,
+          "below_0_9_channels": 9362288,
+          "below_0_9_max_absolute_error": 0.6443272233009338,
+          "edr0": {
+            "above_reference_white_pixels": 0,
+            "maximum": 1,
+            "mean_linear_luminance": 0.021617272569522655,
+            "minimum": 3.25780529237818e-05,
+            "negative_pixels": 0,
+            "nonfinite_pixels": 0,
+            "pixels": 3145728
+          },
+          "edr1": {
+            "above_reference_white_pixels": 29729,
+            "maximum": 1.7500001192092896,
+            "mean_linear_luminance": 0.027160628361404815,
+            "minimum": 3.25780529237818e-05,
+            "negative_pixels": 0,
+            "nonfinite_pixels": 0,
+            "pixels": 3145728
+          }
+        },
+        "edr_max_difference": 0.7500001788139343
+      },
+      {
+        "report": "/private/tmp/glasscam-raw-input-study.Vti4RJ/phone-frames/aligned/report.json",
+        "os": "Version 27.0.1 (Build 24A446)",
+        "gpu": "Apple A20 Pro GPU",
+        "decoder_exposure_probes": [
+          {
+            "channels": 7140945,
+            "decoder_exposure_ev": -1,
+            "max_absolute_error_from_expected_gain": 0,
+            "mean_absolute_error": 0,
+            "mean_relative_error": 0
+          },
+          {
+            "channels": 7140945,
+            "decoder_exposure_ev": 1,
+            "max_absolute_error_from_expected_gain": 0,
+            "mean_absolute_error": 0,
+            "mean_relative_error": 0
+          }
+        ],
+        "exposure_alignment": {
+          "candidate": "scene-hdr-baseline before HNCS",
+          "extra_ev_after_baseline": 1.5913266733111266,
+          "height": 2048,
+          "method": "Median log2(reference Y / candidate Y), linear-sRGB Y; all channels in (0,1), reference Y in [0.02,0.5], candidate Y >= 0.002. One scalar is applied before HNCS to all three looks.",
+          "per_pixel_ev_p10": 1.1790440504620427,
+          "per_pixel_ev_p90": 1.989993485237935,
+          "reference": "current before HNCS",
+          "sample_pixels": 1952797,
+          "scope": "Relative software midtone alignment for this RAW, not physical exposure calibration or a new camera default.",
+          "total_linear_exposure_ev": 4.703132112306488,
+          "width": 1536
+        },
+        "edr_probe": {
+          "at_or_above_0_9_channels": 74896,
+          "below_0_9_channels": 9362288,
+          "below_0_9_max_absolute_error": 0.6443272233009338,
+          "edr0": {
+            "above_reference_white_pixels": 0,
+            "maximum": 1,
+            "mean_linear_luminance": 0.021617272569522655,
+            "minimum": 3.25780529237818e-05,
+            "negative_pixels": 0,
+            "nonfinite_pixels": 0,
+            "pixels": 3145728
+          },
+          "edr1": {
+            "above_reference_white_pixels": 29729,
+            "maximum": 1.7500001192092896,
+            "mean_linear_luminance": 0.027160628361404815,
+            "minimum": 3.25780529237818e-05,
+            "negative_pixels": 0,
+            "nonfinite_pixels": 0,
+            "pixels": 3145728
+          }
+        },
+        "edr_max_difference": 0.7500001788139343
+      }
+    ],
+    "outputs": [
+      {
+        "variant": "current",
+        "look": "none",
+        "statistics": {
+          "above_reference_white_pixels": 77823,
+          "maximum": 41.009498596191406,
+          "mean_linear_luminance": 0.3324915187172902,
+          "minimum": -0.00566271273419261,
+          "negative_pixels": 1329,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "edda5cc7e04e9900ec31620020f608b436b5019955b45a0239bc60d3189dfcc3",
+        "preview_export_identical": null
+      },
+      {
+        "variant": "current",
+        "look": "standard",
+        "statistics": {
+          "above_reference_white_pixels": 91846,
+          "maximum": 39.450199127197266,
+          "mean_linear_luminance": 0.40135361999530267,
+          "minimum": -0.012562066316604614,
+          "negative_pixels": 12203,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "edf163861aa74f7e060adf42015a3108b0fefafedfe038e6b6014f6e6f5230d2",
+        "preview_export_identical": true,
+        "native_bridge_preview_range": {
+          "minimum": 0.0001294024228585788,
+          "maximum": 0.9659364490431831,
+          "pixels_with_negative_channel_percent": 0.0,
+          "pixels_above_one_percent": 0.0,
+          "scope": "Input preview samples before the reference native-domain UInt16 clamp; not full-resolution clipping or color accuracy"
+        }
+      },
+      {
+        "variant": "current",
+        "look": "nature",
+        "statistics": {
+          "above_reference_white_pixels": 109958,
+          "maximum": 38.380043029785156,
+          "mean_linear_luminance": 0.4211016698534911,
+          "minimum": -0.01677517406642437,
+          "negative_pixels": 17757,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "2ea40a83328b58bd37adc0cb90965a209e484873f57a3b8d37cd6d48a47454d9",
+        "preview_export_identical": true,
+        "native_bridge_preview_range": {
+          "minimum": 0.00013106538691120217,
+          "maximum": 0.9783496414224955,
+          "pixels_with_negative_channel_percent": 0.0,
+          "pixels_above_one_percent": 0.0,
+          "scope": "Input preview samples before the reference native-domain UInt16 clamp; not full-resolution clipping or color accuracy"
+        }
+      },
+      {
+        "variant": "scene",
+        "look": "none",
+        "statistics": {
+          "above_reference_white_pixels": 16547,
+          "maximum": 1.863158941268921,
+          "mean_linear_luminance": 0.020291676736904924,
+          "minimum": 1.8568412997410633e-05,
+          "negative_pixels": 0,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "c268f63709801164acf3074c45b8ab3c69e285759a51850010ecebc9a433c6fe",
+        "preview_export_identical": null
+      },
+      {
+        "variant": "scene",
+        "look": "standard",
+        "statistics": {
+          "above_reference_white_pixels": 20579,
+          "maximum": 2.091719627380371,
+          "mean_linear_luminance": 0.020660596399312454,
+          "minimum": -5.247956869425252e-05,
+          "negative_pixels": 4,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "f276547e3a3a3ad21eafa1fc25ab2019d08a1cf7c2d398524a488b3256cc1679",
+        "preview_export_identical": true,
+        "native_bridge_preview_range": {
+          "minimum": 0.00011569772208531347,
+          "maximum": 0.9659364455800754,
+          "pixels_with_negative_channel_percent": 0.0,
+          "pixels_above_one_percent": 0.0,
+          "scope": "Input preview samples before the reference native-domain UInt16 clamp; not full-resolution clipping or color accuracy"
+        }
+      },
+      {
+        "variant": "scene",
+        "look": "nature",
+        "statistics": {
+          "above_reference_white_pixels": 21275,
+          "maximum": 3.337769031524658,
+          "mean_linear_luminance": 0.01968599185849372,
+          "minimum": -0.00019836248247884214,
+          "negative_pixels": 280,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "2d42d9232cfd145c1722660c5d6e0c45fc85c09805a09884967a6eeb4a431555",
+        "preview_export_identical": true,
+        "native_bridge_preview_range": {
+          "minimum": 0.00011718456559680285,
+          "maximum": 0.9783496076763633,
+          "pixels_with_negative_channel_percent": 0.0,
+          "pixels_above_one_percent": 0.0,
+          "scope": "Input preview samples before the reference native-domain UInt16 clamp; not full-resolution clipping or color accuracy"
+        }
+      },
+      {
+        "variant": "scene-baseline",
+        "look": "none",
+        "statistics": {
+          "above_reference_white_pixels": 79560,
+          "maximum": 17.44055938720703,
+          "mean_linear_luminance": 0.17564447734485047,
+          "minimum": 0.00032315190765075386,
+          "negative_pixels": 0,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "fe88d926ec6d3c5919fbb4eab77d61512a72aff79d8e1400a7a0d30e69727836",
+        "preview_export_identical": null
+      },
+      {
+        "variant": "scene-baseline",
+        "look": "standard",
+        "statistics": {
+          "above_reference_white_pixels": 90994,
+          "maximum": 15.548273086547852,
+          "mean_linear_luminance": 0.19581238914768306,
+          "minimum": -0.0033095574472099543,
+          "negative_pixels": 677,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "6af864b189a69ecbb756bf664e6ce3a7ac1500ab89bb25ca2ba77f38ce11ae36",
+        "preview_export_identical": true,
+        "native_bridge_preview_range": {
+          "minimum": 0.0010001648067288144,
+          "maximum": 0.9659364490431831,
+          "pixels_with_negative_channel_percent": 0.0,
+          "pixels_above_one_percent": 0.0,
+          "scope": "Input preview samples before the reference native-domain UInt16 clamp; not full-resolution clipping or color accuracy"
+        }
+      },
+      {
+        "variant": "scene-baseline",
+        "look": "nature",
+        "statistics": {
+          "above_reference_white_pixels": 102490,
+          "maximum": 16.98855209350586,
+          "mean_linear_luminance": 0.19638473064491882,
+          "minimum": -0.009683105163276196,
+          "negative_pixels": 2557,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "9b7c64989c56a443dfc4b8282227f08abb11f84dd6de59a52f8190bb9e5eb407",
+        "preview_export_identical": true,
+        "native_bridge_preview_range": {
+          "minimum": 0.001013018029130274,
+          "maximum": 0.9783496414224955,
+          "pixels_with_negative_channel_percent": 0.0,
+          "pixels_above_one_percent": 0.0,
+          "scope": "Input preview samples before the reference native-domain UInt16 clamp; not full-resolution clipping or color accuracy"
+        }
+      },
+      {
+        "variant": "scene-hdr-baseline",
+        "look": "none",
+        "statistics": {
+          "above_reference_white_pixels": 79469,
+          "maximum": 36.495506286621094,
+          "mean_linear_luminance": 0.23793860494425842,
+          "minimum": 0.00032315190765075386,
+          "negative_pixels": 0,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "23a2d7a67df134612de9b05c77c140ae4a7f8f99c5df46ded2cc8da614809997",
+        "preview_export_identical": null
+      },
+      {
+        "variant": "scene-hdr-baseline",
+        "look": "standard",
+        "statistics": {
+          "above_reference_white_pixels": 90929,
+          "maximum": 35.7703971862793,
+          "mean_linear_luminance": 0.25960004030204137,
+          "minimum": -0.0033095574472099543,
+          "negative_pixels": 677,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "3eae0f2481392462a9ad5b395d2c7d6ccf8e6276421646c976c17c12ce882872",
+        "preview_export_identical": true,
+        "native_bridge_preview_range": {
+          "minimum": 0.0010001648067288144,
+          "maximum": 0.9659364490431831,
+          "pixels_with_negative_channel_percent": 0.0,
+          "pixels_above_one_percent": 0.0,
+          "scope": "Input preview samples before the reference native-domain UInt16 clamp; not full-resolution clipping or color accuracy"
+        }
+      },
+      {
+        "variant": "scene-hdr-baseline",
+        "look": "nature",
+        "statistics": {
+          "above_reference_white_pixels": 102405,
+          "maximum": 35.044864654541016,
+          "mean_linear_luminance": 0.26053254020048344,
+          "minimum": -0.009683105163276196,
+          "negative_pixels": 2557,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "49a57581e282f5ef527da0821908317e58770f32809052b969e3b8680b8f1c3c",
+        "preview_export_identical": true,
+        "native_bridge_preview_range": {
+          "minimum": 0.001013018029130274,
+          "maximum": 0.9783496414224955,
+          "pixels_with_negative_channel_percent": 0.0,
+          "pixels_above_one_percent": 0.0,
+          "scope": "Input preview samples before the reference native-domain UInt16 clamp; not full-resolution clipping or color accuracy"
+        }
+      },
+      {
+        "variant": "scene-hdr-aligned",
+        "look": "none",
+        "statistics": {
+          "above_reference_white_pixels": 185802,
+          "maximum": 56.55811309814453,
+          "mean_linear_luminance": 0.6800645616778053,
+          "minimum": 0.0015864211600273848,
+          "negative_pixels": 0,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "1d1c9dd25f655116e65631750886408fd191dfb8309811f9425843ca6f913f57",
+        "preview_export_identical": null
+      },
+      {
+        "variant": "scene-hdr-aligned",
+        "look": "standard",
+        "statistics": {
+          "above_reference_white_pixels": 201156,
+          "maximum": 52.89244842529297,
+          "mean_linear_luminance": 0.7487510325209987,
+          "minimum": -0.004131461028009653,
+          "negative_pixels": 329,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "b5ef8d383ae1d642765db94c2dd35277cebdc4b737c5bb43e40ee2ad68a632b8",
+        "preview_export_identical": true,
+        "native_bridge_preview_range": {
+          "minimum": 0.00301375973258337,
+          "maximum": 0.9659364490431831,
+          "pixels_with_negative_channel_percent": 0.0,
+          "pixels_above_one_percent": 0.0,
+          "scope": "Input preview samples before the reference native-domain UInt16 clamp; not full-resolution clipping or color accuracy"
+        }
+      },
+      {
+        "variant": "scene-hdr-aligned",
+        "look": "nature",
+        "statistics": {
+          "above_reference_white_pixels": 213074,
+          "maximum": 50.1922607421875,
+          "mean_linear_luminance": 0.76373248926032,
+          "minimum": -0.013410029001533985,
+          "negative_pixels": 3158,
+          "nonfinite_pixels": 0,
+          "pixels": 3145728
+        },
+        "encoded_sha256": "f28e5bfff0d6ecb14dc659ab05de87cf8f2889f9a3509ca22439138a0b7a9ee1",
+        "preview_export_identical": true,
+        "native_bridge_preview_range": {
+          "minimum": 0.003052489873702962,
+          "maximum": 0.9783496414224955,
+          "pixels_with_negative_channel_percent": 0.0,
+          "pixels_above_one_percent": 0.0,
+          "scope": "Input preview samples before the reference native-domain UInt16 clamp; not full-resolution clipping or color accuracy"
+        }
+      }
+    ],
+    "limits": [
+      "One indoor RAW; no measured color target or same-scene Hasselblad reference.",
+      "Metadata exposure compensation is not calibrated middle-gray matching.",
+      "Comparison images are SDR diagnostic views of finalized 24MP HDR HEIFs, not HDR screen captures."
+    ]
+  },
+  "validation": {
+    "portable_tests_passed": 65,
+    "apple_image_regression": "passed including real 48MP RAW and 14 SDR/HDR exports",
+    "production_iphone_release_build": "passed",
+    "direct_vs_preview_export_pairs_per_platform": 10,
+    "received_iphone_files_sha256": "all 15 match on-device reports",
+    "interactive_viewer": [
+      {
+        "name": "complete",
+        "variants": 5,
+        "lookSelections": 15,
+        "allImagesLoaded": true,
+        "slider": true,
+        "localLinks": true,
+        "pageErrors": []
+      },
+      {
+        "name": "single-variant",
+        "variants": 1,
+        "lookSelections": 3,
+        "allImagesLoaded": true,
+        "slider": true,
+        "localLinks": true,
+        "pageErrors": []
+      }
+    ],
+    "full_source_24mp_outputs_per_platform": 15,
+    "production_iphone_deployment": {
+      "installed": true,
+      "launched": true,
+      "process_verified": true,
+      "saved_settings_equal_after_JSON_decoding": true,
+      "temporary_study_app_removed": true
+    },
+    "report_consistency_guards": [
+      {
+        "modified_field": "os",
+        "rejected": true
+      },
+      {
+        "modified_field": "working_space",
+        "rejected": true
+      },
+      {
+        "modified_field": "white_xy",
+        "rejected": true
+      },
+      {
+        "modified_field": "decoder_version",
+        "rejected": true
+      }
+    ]
+  },
+  "third_party_dcp": {
+    "listing_verified": true,
+    "file_obtained": false,
+    "source": "https://goodlight.us/linear-profiles.html",
+    "note": "This study uses the RAW embedded profile. The optional DCP download workflow requires email/terms; no checkout or external message was submitted."
+  },
+  "limits": [
+    "One indoor ProRAW; source bridge range statistics use 2048-edge decoded input, not every full-source pixel.",
+    "Exposure probes sample channels between 0.001 and 0.4; they do not prove all-scene physical radiometric linearity.",
+    "EDR amount changes decoded pixel values even when boost/local tone are disabled.",
+    "No controlled color target or native Phocus reference render was used; no absolute color-accuracy or Hasselblad-match Delta E is claimed.",
+    "Outputs are 24MP after full 48MP processing. New candidate 48MP delivery, sustained capture, power and screen-brightness appearance remain outside this study."
+  ],
+  "midtone_alignment_verification": {
+    "mac": {
+      "outputs": 15,
+      "byte_identical_replay_pairs": 10,
+      "all_HEIF_hashes_match": true,
+      "alignment": {
+        "candidate": "scene-hdr-baseline before HNCS",
+        "extra_ev_after_baseline": 1.5916127823959296,
+        "height": 2048,
+        "method": "Median log2(reference Y / candidate Y), linear-sRGB Y; all channels in (0,1), reference Y in [0.02,0.5], candidate Y >= 0.002. One scalar is applied before HNCS to all three looks.",
+        "per_pixel_ev_p10": 1.1796048485639576,
+        "per_pixel_ev_p90": 1.9903418152736359,
+        "reference": "current before HNCS",
+        "sample_pixels": 1950203,
+        "scope": "Relative software midtone alignment for this RAW, not physical exposure calibration or a new camera default.",
+        "total_linear_exposure_ev": 4.703418221391291,
+        "width": 1536
+      },
+      "independent_alignment_ev": 1.5916127823959296,
+      "median_midtone_ev_after_alignment": -5.0514495781860704e-08,
+      "maximum_channel_error_from_single_scalar": 8.698121092720612e-06,
+      "aligned_mean_review_luminance": {
+        "none": 0.6779795352514335,
+        "standard": 0.7455859611329307,
+        "nature": 0.7603355387950729
+      }
+    },
+    "iphone": {
+      "outputs": 15,
+      "byte_identical_replay_pairs": 10,
+      "all_HEIF_hashes_match": true,
+      "alignment": {
+        "candidate": "scene-hdr-baseline before HNCS",
+        "extra_ev_after_baseline": 1.5913266733111266,
+        "height": 2048,
+        "method": "Median log2(reference Y / candidate Y), linear-sRGB Y; all channels in (0,1), reference Y in [0.02,0.5], candidate Y >= 0.002. One scalar is applied before HNCS to all three looks.",
+        "per_pixel_ev_p10": 1.1790440504620427,
+        "per_pixel_ev_p90": 1.989993485237935,
+        "reference": "current before HNCS",
+        "sample_pixels": 1952797,
+        "scope": "Relative software midtone alignment for this RAW, not physical exposure calibration or a new camera default.",
+        "total_linear_exposure_ev": 4.703132112306488,
+        "width": 1536
+      },
+      "independent_alignment_ev": 1.5913266733111266,
+      "median_midtone_ev_after_alignment": -4.623058188516832e-08,
+      "maximum_channel_error_from_single_scalar": 9.459238789588653e-06,
+      "aligned_mean_review_luminance": {
+        "none": 0.6800645616778053,
+        "standard": 0.7487510325209987,
+        "nature": 0.76373248926032
+      }
+    }
+  },
+  "alignment_interpretation": "Exposure alignment uses current Apple rendering as a diagnostic reference, not the Hasselblad style target. One global RGB scalar is applied before HNCS; no shadow-specific brightening was added and no candidate became the camera default."
+}

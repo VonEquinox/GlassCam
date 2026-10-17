@@ -1,4 +1,5 @@
 #include "hncs_c.h"
+#include "hncs_phocus_post.hpp"
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -10,6 +11,9 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#if defined(__APPLE__)
+#include <dispatch/dispatch.h>
+#endif
 #include "hncs_assets.inc"
 #include "hncs_preset_assets.inc"
 #include "hncs_whitepoint_assets.inc"
@@ -107,7 +111,9 @@ F recover_hue(const Codes& original,const Codes& adjusted) {
 }
 Codes post_curves(const preset_assets::Preset& preset,bool tone,const Codes& input) {
     const auto& mode=preset.mode[tone?1:0];
-    if(!mode.active)return input;
+    // Phocus 4.2.2 runs CGradationFilter even with no user curve adjustments.
+    // Its channel tables and RecoverHue have observable UInt16 rounding.
+    // mode.active describes tool settings, not whether this stage can be skipped.
     Codes base{};
     for(int i=0;i<3;++i)base[i]=preset_assets::tables[mode.table[i]][input[i]];
     F ratio[2]={{1.f,1.f,1.f},{1.f,1.f,1.f}};
@@ -148,6 +154,17 @@ Codes finish_work(const F& work) {
     Codes out{};
     for(int i=0;i<3;++i)out[i]=uint16_t(round_even(double(std::max(0.f,std::min(work[i],1.f))*65535.f)));
     return out;
+}
+F phocus_work(const preset_assets::Preset *preset,bool tone,const Codes& input) {
+    const Codes adjusted=preset?post_curves(*preset,tone,input):input;
+    return {float(adjusted[0])/65535.f,float(adjusted[1])/65535.f,float(adjusted[2])/65535.f};
+}
+Codes phocus_post_spatial(const preset_assets::Preset *preset,const Codes& input) {
+    if(!preset)return input;
+    Codes output=hncs_phocus_post::saturation(input,preset->saturation);
+    if(preset->grayscale)
+        output=hncs_phocus_post::grayscale(output,{preset->gray[0]/100.,preset->gray[1]/100.,preset->gray[2]/100.});
+    return output;
 }
 }
 
@@ -349,18 +366,49 @@ extern "C" int hncs_process_srgb_fast_parallel(const hncs_context *c,const float
     return status.load(std::memory_order_relaxed);
 }
 
-// Exact Float export parallelism: identical per-pixel math, disjoint output.
-extern "C" int hncs_process_linear_rgba_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
-    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4||workers<1||workers>4)return -1;
+namespace {
+using FloatOperation = int (*)(const hncs_context*,const float*,float*,size_t);
+// Every operation is pointwise. Work scheduling never changes a pixel's
+// expression order, precision, table lookup, or rounding boundaries.
+int parallel_float(const hncs_context *c,const float *input,float *output,size_t count,
+                   unsigned workers,size_t output_channels,FloatOperation operation) {
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/output_channels||workers<1||workers>4)return -1;
     // Avoid launch overhead for small buffers. Context is immutable and each
     // worker writes a disjoint contiguous pixel range with constant scratch.
-    if(workers==1||count<65536)return hncs_process_linear_rgba(c,input,output,count);
+    if(workers==1||count<65536)return operation(c,input,output,count);
+#if defined(__APPLE__)
+    struct Work {
+        const hncs_context *context;
+        const float *input;
+        float *output;
+        size_t count,channels;
+        FloatOperation operation;
+        std::atomic<size_t> next{0};
+        std::atomic<int> status{0};
+    } work{c,input,output,count,output_channels,operation};
+    // Reuse libdispatch threads instead of creating three pthreads per strip.
+    // Small claims let faster cores take more pixels without exceeding the
+    // caller's low-power/thermal worker budget. dispatch_apply_f is synchronous.
+    dispatch_apply_f(workers,dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0),&work,
+        [](void *opaque,size_t) {
+            auto& w=*static_cast<Work*>(opaque);
+            constexpr size_t chunk=32768;
+            for(;;) {
+                const size_t start=w.next.fetch_add(chunk,std::memory_order_relaxed);
+                if(start>=w.count)break;
+                const size_t length=std::min(chunk,w.count-start);
+                if(w.operation(w.context,w.input+start*3,w.output+start*w.channels,length)!=0)
+                    w.status.store(-1,std::memory_order_relaxed);
+            }
+        });
+    return work.status.load(std::memory_order_relaxed);
+#else
     std::atomic<int> status{0};
     const size_t base=count/workers,remainder=count%workers;
     auto run=[&](unsigned index) {
         size_t start=base*index+std::min(size_t(index),remainder);
         size_t length=base+(index<remainder?1:0);
-        if(hncs_process_linear_rgba(c,input+start*3,output+start*4,length)!=0)
+        if(operation(c,input+start*3,output+start*output_channels,length)!=0)
             status.store(-1,std::memory_order_relaxed);
     };
     // Fixed-size thread storage needs no allocation. If thread creation fails,
@@ -373,6 +421,13 @@ extern "C" int hncs_process_linear_rgba_parallel(const hncs_context *c,const flo
     for(unsigned i=launched;i<workers;++i)run(i);
     for(unsigned i=0;i<launched;++i)if(threads[i].joinable())threads[i].join();
     return status.load(std::memory_order_relaxed);
+#endif
+}
+}
+
+// Exact Float export parallelism: identical per-pixel math, disjoint output.
+extern "C" int hncs_process_linear_rgba_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
+    return parallel_float(c,input,output,count,workers,4,hncs_process_linear_rgba);
 }
 
 extern "C" size_t hncs_preset_count(void) {
@@ -471,7 +526,7 @@ extern "C" hncs_context *hncs_create_preset(double ev,double capture_kelvin,doub
         for(double v:adapter)if(!std::isfinite(v))return nullptr;
         auto *context=new hncs_context(ev,factory,lstar!=0,repro!=0);
         context->preset=preset;context->preset_tone=tone!=0;
-        context->preset_pointwise_active=preset->saturation!=0.||preset->grayscale||preset->mode[tone].active;
+        context->preset_pointwise_active=true;
         context->source_to_native=adapter;
         context->capture_target_wb=baseline;context->target_wb=desired;context->factory_kelvin=factory;
         const int resolved=repro?7:film_type==4?raw_type:film_type;
@@ -535,6 +590,64 @@ extern "C" int hncs_finish_preset_work_linear(const hncs_context *c,const float 
         output[4*i+3]=1.f;
     }
     return 0;
+}
+extern "C" int hncs_process_preset_work_float_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
+    return parallel_float(c,input,output,count,workers,3,hncs_process_preset_work_float);
+}
+extern "C" int hncs_finish_preset_work_linear_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
+    return parallel_float(c,input,output,count,workers,4,hncs_finish_preset_work_linear);
+}
+extern "C" int hncs_apply_phocus_post_spatial(const char *key,const uint16_t *input,uint16_t *output,size_t count) {
+    if((!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(uint16_t)/3)return -1;
+    const auto *preset=find_preset(key);if(!preset)return -1;
+    for(size_t i=0;i<count;++i) {
+        const Codes value=phocus_post_spatial(preset,{input[3*i],input[3*i+1],input[3*i+2]});
+        for(int ch=0;ch<3;++ch)output[3*i+ch]=value[ch];
+    }
+    return 0;
+}
+extern "C" int hncs_process_phocus_work_float(const hncs_context *c,const float *input,float *output,size_t count) {
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;
+    for(size_t i=0;i<count;++i) {
+        V p={double(input[3*i])*c->exposure,double(input[3*i+1])*c->exposure,double(input[3*i+2])*c->exposure};
+        if(!finite(p))return -1;
+        p=transform(c->source_to_native,p);if(!finite(p))return -1;
+        const F work=phocus_work(c->preset,c->preset_tone,c->render(p));
+        for(int ch=0;ch<3;++ch)output[3*i+ch]=work[ch];
+    }
+    return 0;
+}
+extern "C" int hncs_finish_phocus_work_linear(const hncs_context *c,const float *input,float *output,size_t count) {
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4)return -1;
+    for(size_t i=0;i<count;++i) {
+        const F work={input[3*i],input[3*i+1],input[3*i+2]};
+        if(!std::isfinite(work[0])||!std::isfinite(work[1])||!std::isfinite(work[2]))return -1;
+        const V linear=c->display_linear_core(phocus_post_spatial(c->preset,finish_work(work)));
+        for(int ch=0;ch<3;++ch)output[4*i+ch]=float(linear[ch]);
+        output[4*i+3]=1.f;
+    }
+    return 0;
+}
+extern "C" int hncs_process_phocus_linear_rgba(const hncs_context *c,const float *input,float *output,size_t count) {
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4)return -1;
+    for(size_t i=0;i<count;++i) {
+        V p={double(input[3*i])*c->exposure,double(input[3*i+1])*c->exposure,double(input[3*i+2])*c->exposure};
+        if(!finite(p))return -1;
+        p=transform(c->source_to_native,p);if(!finite(p))return -1;
+        const V linear=c->display_linear_core(phocus_post_spatial(c->preset,finish_work(phocus_work(c->preset,c->preset_tone,c->render(p)))));
+        for(int ch=0;ch<3;++ch)output[4*i+ch]=float(linear[ch]);
+        output[4*i+3]=1.f;
+    }
+    return 0;
+}
+extern "C" int hncs_process_phocus_work_float_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
+    return parallel_float(c,input,output,count,workers,3,hncs_process_phocus_work_float);
+}
+extern "C" int hncs_finish_phocus_work_linear_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
+    return parallel_float(c,input,output,count,workers,4,hncs_finish_phocus_work_linear);
+}
+extern "C" int hncs_process_phocus_linear_rgba_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
+    return parallel_float(c,input,output,count,workers,4,hncs_process_phocus_linear_rgba);
 }
 extern "C" int hncs_source_to_native_matrix(const hncs_context *c,double *out) {
     if(!c||!out)return -1;

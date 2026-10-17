@@ -1,0 +1,6 @@
+{
+  "source": "Same iPhone ProRAW, L*RGB, EV -0.05, 24MP final HEIF, full spatial processing",
+  "display_comparison": "Common max-channel Reinhard SDR diagnostic transform; not an HDR screen capture",
+  "mean_absolute_linear_rgb_difference": 0.02697446011006832,
+  "max_absolute_linear_rgb_difference": 4.9259185791015625
+}

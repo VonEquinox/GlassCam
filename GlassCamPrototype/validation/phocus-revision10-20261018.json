@@ -1,0 +1,277 @@
+{
+  "schema": 1,
+  "status": "revision10_local_validation_passed",
+  "render_revision": 10,
+  "created_at_utc": "2026-10-17T17:34:29.264116+00:00",
+  "user_local_date": "2026-10-18",
+  "branch": "codex/single-camera-hard-black",
+  "base_commit": "abb1a920cc5008ea6df9c78117d5b9302d607990",
+  "method": "analyze-it: radare2/r2ghidra readable C plus original Phocus 4.2.2 native calls, distinct random seeds, O0/O3, frozen original vectors, production Swift/macOS execution",
+  "source_sha256": {
+    "core/ffcs.cpp": "67366683d5b34f3dc5f26deb609bcb46894c509b992d425fa6b72cad639deff2",
+    "core/ffcs_c.h": "96ec9bb5e0233f76de4bb4504638e707741bf8512ea91adad0b6f43d172673c1",
+    "core/ffcs_smoke.cpp": "28a3d8b9ebc65790b9ae93da9bbbdc5e829170bdb2b45e35ab98f9ee630e26ab",
+    "core/ffcs_v020_loader.cpp": "3ec33f9ad3980cd0a91fe8cdf16edac5191b4d61371b05876f1f1c7ec54814db",
+    "core/ffcs_v020_native.cpp": "0538b71f9c78800fe989071e91190805c5c32836c9790769f4c9735674f24ccb",
+    "core/hncs.cpp": "04774ea64c942fd0d6caf414986f7d3dd1384e03917f41eb22e8f0acf15afc8d",
+    "core/hncs_assets.inc": "ecbb39e63d9d725b8d522d2f9bc0cdc144d72cba2f0a90499fbb4cf1b9eabd5d",
+    "core/hncs_c.h": "c64383d72c2c0d6a184a18fa24cf1a56723717123635d0b954b03bfbd48b06d7",
+    "core/hncs_cli.cpp": "cfb405083a5ff5fbcade9fa356799397b9a4bc1d6bb698455ee0aff307a94ab1",
+    "core/hncs_numpy_rng.cpp": "00e768dfc73c2b7dd67e570495439feb18f47d309085cb0de1637c40cba50634",
+    "core/hncs_numpy_rng.h": "8b6382698f08a7065e7b05366af6a6a6f043743242723c2e8188e587e5d3fc90",
+    "core/hncs_phocus_post.hpp": "60b9f87c39b8301c6bb04411855d94c2b0448e0771dea0d79ba2fbb05dcdfdb3",
+    "core/hncs_phocus_sharpness.hpp": "aa964e7cb4d3dcfc402d2d448991599ecb408ac2aa676fca03a75f45f242ce6c",
+    "core/hncs_preset_assets.inc": "7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306",
+    "core/hncs_smoke.cpp": "0c8c18d3a8983c6232c90cd5cf1ce24ccdaa98dda5518fcd8baafae8663a7982",
+    "core/hncs_spatial.cpp": "431f3875e805ceb61b5f7161c7cff9d02014a24318b5db9020e5a17751d8c257",
+    "core/hncs_spatial.h": "e008d321a6b7cd0f80e5824806169aaf9c0945cf393bc4447230204ba40bc234",
+    "core/hncs_spatial_assets.inc": "c3b88181e1501edcaeb0cdeea9c847551306d43ca086e3d4fd9dbea732d17ee9",
+    "core/hncs_whitepoint_assets.inc": "99abe2be28ccafb208ddce592e041f03b0c5b9c40b5ffe610dfcaeee068c536e",
+    "ios/GlassCam/CameraController.swift": "64fa74ba055e9e863599f130c713dfd1f2c5993365d5ac5e8044e9e6e6c843d2",
+    "ios/GlassCam/CameraFrameDelivery.swift": "f38b3003619cf356821da106acfebe4486e9e2829ada0cb419a79a084e7fd37b",
+    "ios/GlassCam/CameraFraming.swift": "f520e71f66df65c43526a01ca3fec48feb93d36bf677da618851040bf520cceb",
+    "ios/GlassCam/CameraSettingsStore.swift": "043a9db86b59c577b054f64aa8001a8fda49278d6e01a0035327e934624b50bc",
+    "ios/GlassCam/CameraView.swift": "2ddf2cf7b31522323cd8c761c09122f93d9c0aec9a289686843e2a1efb229eff",
+    "ios/GlassCam/CaptureWorkflow.swift": "eb1aa1a104005daf6727ec81ffbc0352bff3833ca9c6c2634c91ec4173ec216b",
+    "ios/GlassCam/ContentView.swift": "35d11b3bd562f749f95f0d1e8be3ff29207cafaaaf356b536ec89f17fce5df2c",
+    "ios/GlassCam/ExportSettings.swift": "995224c3489a3ac22c95741a9b3511a7818b381a743bbb5d99c41b1091370dbe",
+    "ios/GlassCam/FFCSEngine.swift": "ab08f4825259bd62f8e3eeff12263c9d88754f2637062cb0431ed287eca06ae5",
+    "ios/GlassCam/GlassCam-Bridging-Header.h": "7ec513694282e41c577acfd71a51f26ce3847e1b87291aaac7b6bbdab91c07aa",
+    "ios/GlassCam/GlassCamApp.swift": "eccb542bc0783ed644c46e10ebdd02fbb95cd4ba557a0bca20a50ba8a7b4e1e6",
+    "ios/GlassCam/HEIFSaveDelivery.swift": "9ea6dfb43cee81f748c09b8fbf818a5ef2dcda9f6b24bbd805e76d7c89ccca25",
+    "ios/GlassCam/HNCSEngine.swift": "a84e5210643022b39264ef52e13f9126833a8eabd51587708c791b329e9ed801",
+    "ios/GlassCam/ImagePipeline.swift": "f41b95d7c37bb1c75cdfb689d7b64955087c5c8cea4c47ea9087d24917beee6a",
+    "ios/GlassCam/LiveColorProxy.swift": "dc812dfb47db21a965207df1ee2642de4b580055baac74afca25b15aa539506f",
+    "ios/GlassCam/PhotoWhiteBalance.swift": "3d45624d968d87900d51aee77213561410840bf5ba804e5fe2064af739a62236",
+    "ios/GlassCam/PrecisionPreview.swift": "0dde4b1fe23ad327bd3c6197e33338e2f50f202932564a9c794600d9aa9f9f3e",
+    "ios/GlassCam/PreviewRaster.swift": "435f18d6676cf9fb71774f6b7e50bfd4e3dc96b7930261547bc851cd0c5fa161",
+    "ios/GlassCam/ShareDelivery.swift": "556e5f640053ccb378bee9fa8dd715a0b7e7a5925c1530b3ad91b9de214d927a",
+    "ios/GlassCam/SourceImageStore.swift": "ce95c7e26eacc4e8c148317db8f1b72073a1438e576d991e00abdafd17e82ab3",
+    "ios/GlassCam.xcodeproj/project.pbxproj": "93e34eead5eded01681f3f6e744ac0d566e111ddef5b80080b02de613e49cbe9"
+  },
+  "summary": {
+    "color_core_and_gradation_channels": 203709420,
+    "color_core_and_gradation_maximum_uint16_error": 0,
+    "white_balance_maximum_gain_error": 1.3322676295501878e-15,
+    "post_color_channels": 33855528,
+    "sharpness_parameter_cases": 586,
+    "sharpness_pattern_cases": 92,
+    "chain_cases": 712,
+    "chain_channels": 4949196,
+    "portable_tests": 198,
+    "sanitizer_comparisons": 96,
+    "readable_c_functions": 18
+  },
+  "evidence": {
+    "settings": {
+      "path": "validation/phocus-r10-settings.json",
+      "sha256": "e8b978f9ea6bf0bc3ce97f5b7c8b60f8a786abce8a41d34cd57d7eabec540e3e",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/settings/report.json"
+    },
+    "color_a": {
+      "path": "validation/phocus-r10-color-a.json",
+      "sha256": "14183b9bf3973127dea09142129222f55630e9f64448da2815aeab09e3a26fda",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/color-audit-a/report.json"
+    },
+    "color_b": {
+      "path": "validation/phocus-r10-color-b.json",
+      "sha256": "ead91fcd4e70435d4699c16c8e0fd374fc9166fe25f0d64bd8ff50a001373cb6",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/color-audit-b/report.json"
+    },
+    "sharpness_o3": {
+      "path": "validation/phocus-r10-sharpness-o3.json",
+      "sha256": "51b1fd318053bd4b41a76d8ae61caf1bc1fcb6dd110284cb235b1d59704eefd9",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/sharpness-o3/report.json"
+    },
+    "sharpness_o0": {
+      "path": "validation/phocus-r10-sharpness-o0.json",
+      "sha256": "52c4887049882fc5c01f3334f9aed0c81696ad598629ae7867d55a270d6e91ff",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/sharpness-o0/report.json"
+    },
+    "post_stages": {
+      "path": "validation/phocus-r10-post-stages.json",
+      "sha256": "0cc500c1bb8171120475d50ed5679827db0783e374e6cf80982a27d8ad8f1dfe",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/post-stages/report.json"
+    },
+    "chain": {
+      "path": "validation/phocus-r10-chain.json",
+      "sha256": "8ac7ed4a288eea422d6f794d9785470b29a4b741040b6d4f867d0152416436f1",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/chain/report.json"
+    },
+    "spatial": {
+      "path": "validation/phocus-r10-spatial.json",
+      "sha256": "c567696ce617658ff2da8866c5953ccec254002bab0280560ef0288932cf936b",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/integration-final/report.json"
+    },
+    "raw_contract": {
+      "path": "validation/phocus-r10-raw-contract.json",
+      "sha256": "2c7140e098b6f3a5bfc47fd5f349d92a617155ff1cf4eb30b65ea6ca6e74c620",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/raw-contract/report.json"
+    },
+    "exposure": {
+      "path": "validation/phocus-r10-exposure.json",
+      "sha256": "7dd574644fe209a96e58dc80c736b351a609efd022a2672160a41266d8ad45ca",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/exposure/report.json"
+    },
+    "readable_c": {
+      "path": "validation/phocus-r10-readable-c.json",
+      "sha256": "3db1dd137c1d9d639d7dd68aed1c7f3b019ff17f0a03af98680078af8d8cf18a",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/readable-c/manifest.json"
+    },
+    "mac_standard": {
+      "path": "validation/phocus-r10-mac-standard.json",
+      "sha256": "787d1589c07e5b223bf67633cabd26dd9546ba4c85a6389e877f7faacd4fa4fa",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/mac-standard/revision10/report.json"
+    },
+    "mac_nature": {
+      "path": "validation/phocus-r10-mac-nature.json",
+      "sha256": "8c5ccbce3b845efc324223e9ac42dda2b9af79b088e080bc2ae5213b618bb0d3",
+      "original": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/mac-nature/revision10/report.json"
+    }
+  },
+  "logs": {
+    "portable": {
+      "path": "validation/phocus-revision10-portable-20261018.txt",
+      "sha256": "d40102d32539a579bb2b7896a74d8893a7529324fe7c020c3300287cef314ca1"
+    },
+    "apple": {
+      "path": "validation/phocus-revision10-apple-20261018.txt",
+      "sha256": "ae54be2acb89a498e5bbd9b34aabddd5c7f4939046bae23eab76870a18793ce7"
+    },
+    "sanitizer": {
+      "path": "validation/phocus-revision10-sanitizer-20261018.txt",
+      "sha256": "6ac032a564eb3d64da954addadf6b514567ffd8efefd3a10fe1ab0e7de268290"
+    }
+  },
+  "mac_full_source": {
+    "mac_standard": {
+      "preset": "standard",
+      "comparison": [
+        {
+          "all_encoded_files_identical": true,
+          "encoded_files": 2,
+          "first_pair_decoded_rgba_identical": true,
+          "megapixels": 24
+        },
+        {
+          "all_encoded_files_identical": true,
+          "encoded_files": 2,
+          "first_pair_decoded_rgba_identical": true,
+          "megapixels": 48
+        }
+      ],
+      "service": [
+        {
+          "encoded_sha256": "a6d3dd77aff1ee2d048e5ff8737f33ebe272334c4ceddff8126c387951ac395d",
+          "height": 5656,
+          "matches_pipeline_export": true,
+          "retry_reused_same_file": true,
+          "save_attempts": 2,
+          "source": "retained_file",
+          "white_balance": "Auto WB · 5119 K · Tint +21.4",
+          "width": 4242
+        },
+        {
+          "encoded_sha256": "a6d3dd77aff1ee2d048e5ff8737f33ebe272334c4ceddff8126c387951ac395d",
+          "height": 5656,
+          "matches_pipeline_export": true,
+          "retry_reused_same_file": true,
+          "save_attempts": 2,
+          "source": "memory_fallback",
+          "white_balance": "Auto WB · 5119 K · Tint +21.4",
+          "width": 4242
+        }
+      ],
+      "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+      "rounds_per_output": 1,
+      "working_space": "lstar",
+      "exposure_ev": -0.05
+    },
+    "mac_nature": {
+      "preset": "nature",
+      "comparison": [
+        {
+          "all_encoded_files_identical": true,
+          "encoded_files": 2,
+          "first_pair_decoded_rgba_identical": true,
+          "megapixels": 24
+        },
+        {
+          "all_encoded_files_identical": true,
+          "encoded_files": 2,
+          "first_pair_decoded_rgba_identical": true,
+          "megapixels": 48
+        }
+      ],
+      "service": [
+        {
+          "encoded_sha256": "6fb2f92c58c0bcdc8f1918ecf1198f2b4bf8c9421a4fc02d5aaf6bf2225d10db",
+          "height": 5656,
+          "matches_pipeline_export": true,
+          "retry_reused_same_file": true,
+          "save_attempts": 2,
+          "source": "retained_file",
+          "white_balance": "Auto WB · 5119 K · Tint +21.4",
+          "width": 4242
+        },
+        {
+          "encoded_sha256": "6fb2f92c58c0bcdc8f1918ecf1198f2b4bf8c9421a4fc02d5aaf6bf2225d10db",
+          "height": 5656,
+          "matches_pipeline_export": true,
+          "retry_reused_same_file": true,
+          "save_attempts": 2,
+          "source": "memory_fallback",
+          "white_balance": "Auto WB · 5119 K · Tint +21.4",
+          "width": 4242
+        }
+      ],
+      "source_sha256": "4bd1990df9893381b89797d1e761925973c0c840c3cd47dce758635c7502929e",
+      "rounds_per_output": 1,
+      "working_space": "lstar",
+      "exposure_ev": -0.05
+    }
+  },
+  "apple_checks": [
+    "asymmetric 7x131 markers, 64/64/3-row strip ordering and RGBAf reconstruction. Maximum error 0.0",
+    "native revision 10 migrates revision 8/9 selections; unknown revisions rejected",
+    "missing, varied and malformed RAW sharpness metadata",
+    "Foundation work-file row order and uneven partitions",
+    "odd portrait/landscape crops select identical before/after pixels",
+    "Swift native-USM/portable-grain file route matches memory with per-RAW baseline",
+    "actual Metal preview destination preserves quadrant coordinates and 2×/4×/8× HDR pixels",
+    "real Metal display layer receives per-photo HDR headroom, enables tone mapping, and resets for SDR",
+    "production automatic WB snapshot, Codable, cache invalidation and per-photo binding",
+    "production capture workflow permission/admission, duplicate/late callbacks, immutable settings, processing/save retry, in-flight Photos ownership, and persisted 24/48MP migration",
+    "7 real HEIF exports match full-frame processing; direct export has identical decoded pixels",
+    "HDR import, highlight ratios, 10-bit PQ metadata, and 7 HDR exports; direct export has identical decoded pixels",
+    "cancellation discards output while retaining the source",
+    "real share provider preserves HEIF and delivers cached full-size JPEG",
+    "per-RAW BaselineSharpness 1.5, decoder sharpness disabled, policy/retry stable",
+    "RAW Auto WB · 5119 K · Tint +21.4; xy (0.342873752117157, 0.36416757106781006); virtual model CCT 5119.0",
+    "real RAW 6048×8064 → 10-bit PQ HEIF; decoded peak 16.937206; bytes 4201714; seconds 5.063781976699829"
+  ],
+  "ios_build": {
+    "configuration": "Release",
+    "destination": "generic iOS",
+    "succeeded": true,
+    "code_signing_allowed": false,
+    "executable": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/ios-build/Build/Products/Release-iphoneos/GlassCam.app/GlassCam",
+    "executable_sha256": "6d79f84f0f75dd1f18c05c09d4a2dd6a285d9aadf5b277c4930a6da69417f80a",
+    "log": "/Users/vonequinox/.codex/visualizations/2026/10/17/01a14ab5-2375-7d73-8f2d-7c765f31a874/phocus-completion-20261018/ios-build.log",
+    "log_sha256": "e56d7b5303590a364646a400be6fdbbc56ea01ef957865198a423df577a2e9d4"
+  },
+  "phone": {
+    "tested": false,
+    "installed": false,
+    "reason": "This task's acceptance is limited to non-device work."
+  },
+  "limits": [
+    "UInt16 equivalence covers tested native work-code inputs and factory parameters, not every RGB16 triple.",
+    "No physical iPhone/X2D color calibration or full-scene color-error guarantee.",
+    "Native spatial equivalence is full-resolution, non-HDR work scale, without local layers or lens compensation.",
+    "Grain remains the separately validated portable model; source adaptation and HDR restoration are application contracts.",
+    "Reduced RAW diagnostic preview has a different sampling grid; final capture review comes from the actual HEIF.",
+    "Mac RAW checks use one retained source and one round per output; they are not iPhone performance results.",
+    "ASan/UBSan passed; LeakSanitizer was not enabled."
+  ]
+}
