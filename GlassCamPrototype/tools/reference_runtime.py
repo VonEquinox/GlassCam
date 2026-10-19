@@ -13,8 +13,6 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 REFERENCE = ROOT / 'reference'
-if not REFERENCE.exists():
-    REFERENCE = ROOT.parent / 'HNCS技术交付'
 ASSETS = REFERENCE / 'work/hncs-pipeline/assets'
 
 def assets():

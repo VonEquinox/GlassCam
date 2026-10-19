@@ -1,20 +1,31 @@
+# Local development caches
 __pycache__/
 *.py[cod]
 .DS_Store
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.webp
+.venv/
+.pytest_cache/
+
+# Local photo inputs and exports
 *.heic
 *.heif
-*.bmp
 *.tif
 *.tiff
 *.dng
+*.DNG
 *.arw
 *.ARW
 *.3fr
 *.3FR
+
+# Diagnostic previews; application image assets remain trackable
+/GlassCamPrototype/validation/**/*.png
+/GlassCamPrototype/validation/**/*.jpg
+/GlassCamPrototype/validation/**/*.jpeg
+/GlassCamPrototype/validation/**/*.webp
+
+# Local distributions and signing material
 *.dmg
-*.zip
+*.ipa
+*.xcarchive/
+*.mobileprovision
+*.p12

@@ -1,8 +1,8 @@
-# GlassCam — HNCS + FFCS 原生效果原型
+# GlassCam — iPhone 相机与 HNCS／FFCS 色彩处理
 
-SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。当前开发版支持三摄接力变焦、ProRAW、24MP／48MP 输出策略、HDR HEIF 自动保存与单张待完成照片恢复。最低系统为 iOS 27.0。本轮按用户要求先离线开发，完成后统一真机验收；历史手机结果对应其各自版本。见[当前范围](docs/IPHONE_FIRST_USABLE_20261018.md)和[构建、安装与续签](ios/README.md)。
+SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。当前开发版支持三摄接力变焦、ProRAW、24MP／48MP 输出策略、HDR HEIF 自动保存与单张待完成照片恢复。最低系统为 iOS 27.0。当前主分支为 `main`；历史手机结果对应其各自版本。见[当前范围](docs/IPHONE_FIRST_USABLE_20261018.md)和[构建、安装与续签](ios/README.md)。
 
-最新：HNCS revision 11 默认保留每张照片的白平衡，并提供 Original preset 选择，修复 Nature 在现有室内照片中新增的黄绿色偏色。209 项回归、Mac 图像／恢复检查、三摄已有 RAW 的 6 张全源 HDR 对照和未签名 iOS Release 编译通过；手机验收仍暂停，新版未安装。见[Nature 完整处理流程与修复](docs/PHOCUS_NATURE_PIPELINE_20261018.md)。
+最新：HNCS revision 11 默认保留每张照片的白平衡，并提供 Original preset 选择，修复 Nature 在现有室内照片中新增的黄绿色偏色。209 项回归、Mac 图像／恢复检查、三摄已有 RAW 的 6 张全源 HDR 对照和 iOS Release 编译通过。修复版已于 2026-10-18 安装到手机，安装后未启动或复测，剩余真机验收仍暂停。见[Nature 完整处理流程与修复](docs/PHOCUS_NATURE_PIPELINE_20261018.md)。
 
 2026-10-18 补充：[X2D II 必要颜色阶段](docs/X2D_COLOR_PIPELINE_20261018.md)、[原始 SILKYPIX／FFCS 审计](docs/FFCS_ORIGINAL_AUDIT_20261018.md)与[受控加速报告](docs/COLOR_PERFORMANCE_20261018.md)。独立 X2D HDR 接口要求原生准备输入；不等于完整 RAW 到成片复刻。默认采用逐位一致的 FFCS 缓存优化，Metal／Core ML 近似候选未启用。最新 206 项回归、Apple 图像检查、ASan/UBSan 和未签名 iOS Release 编译通过。
 
@@ -49,7 +49,7 @@ SwiftUI 原生界面、Apple 图像入口、标准 C++17 颜色/空间后端。�
 
 ## 可移植验证
 
-从本目录运行（仓库内为 `GlassCamPrototype/`，与原始技术交付同级）：
+从本目录运行（仓库内为 `GlassCamPrototype/`）。验证使用本目录的 `reference/` 和 `reference_ffcs/`：
 
 ```sh
 python tools/materialize_ffcs_reference.py
@@ -69,6 +69,6 @@ macOS 上另运行 `python3 -B tools/test_apple_images.py`：直接编译生产 
 
 ## 验证边界
 
-现有核的数值一致性不证明完整 Phocus RAW pipeline、富士机内 JPEG 等价性、iPhone 标定或真实照片审美。10-bit 编码 API 请求不证明实际位流。原始 RAW/配方长期资料库、Apple 性能与内存/热状态、微信兼容和商业权利清理尚未完成。原始交付及证据保持不变。
+现有核的数值一致性不证明完整 Phocus RAW pipeline、富士机内 JPEG 等价性、iPhone 标定或真实照片审美。10-bit 编码 API 请求不证明实际位流。原始 RAW/配方长期资料库、Apple 性能与内存/热状态、微信兼容和商业权利清理尚未完成。项目内参考资产和历史验证记录按原版本保留。
 
-上游 FFCS 0.2 的历史证据保留。最新本地 206 项测试、Apple 图像回归、48MP RAW 导出、ASan/UBSan 与 iOS Release 编译通过；当前与历史构建的数值证据、24/48MP 测量及真机边界见[测试状态](docs/TEST_STATUS.md)。
+上游 FFCS 0.2 的历史证据保留。研究阶段 206 项测试、Apple 图像回归、48MP RAW 导出、ASan/UBSan 与 iOS Release 编译通过，Nature 修复后回归增加至 209 项；当前与历史构建的数值证据、24/48MP 测量及真机边界见[测试状态](docs/TEST_STATUS.md)。

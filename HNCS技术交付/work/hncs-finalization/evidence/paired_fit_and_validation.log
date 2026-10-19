@@ -1,7 +1,0 @@
-Warm direct matrix: [[ 0.9712671   0.0140264   0.0147065 ]
- [-0.02379256  1.00446298  0.01932957]
- [ 0.00117769 -0.03782441  1.03664673]]
-Warm CCT: 2747.5869149699015 source / 2716 HNCS
-Warm metrics: {'chromatic_patch_loocv': {'mean': 0.438189517744299, 'median': 0.34088253613490765, 'p95': 0.9783923699336263, 'maximum': 0.9983816342861861}, 'all_patch_training': {'mean': 0.38475152937932156, 'median': 0.3381147812587234, 'p95': 0.8414849776329111, 'maximum': 0.9397938631186986}}
-training_warm {'calibration': 4.26592, 'adaptive': 0.56531, 'dual': 2.26178, 'paired': 0.38475}
-held_out_exposure_warm {'calibration': 4.29371, 'adaptive': 0.55111, 'dual': 2.26626, 'paired': 0.43202}

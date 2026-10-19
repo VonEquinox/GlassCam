@@ -1,9 +1,63 @@
-# HNCS 技术文档与代码
+# GlassCam
 
-本分支包含详细技术分析、全部Pipeline及Python源码、矩阵、LUT、ICC、标定模型和数值测试数据。
+GlassCam 是使用 SwiftUI、AVFoundation 和 C++17 开发的 iPhone 相机，支持三摄接力变焦、Apple ProRAW、HNCS／FFCS 色彩处理，以及 10-bit HDR HEIF 保存与回看。最低系统为 **iOS 27.0**，构建使用 **Xcode 27**。
 
-不收录任何照片、预览、RAW、TIFF、DNG、图片文件、安装镜像或大压缩包。照片渲染和重新标定需要自行提供本地输入。
+主分支为 `main`。应用源码、构建工具、测试和必要参考资源集中在 [GlassCamPrototype](GlassCamPrototype/README.md)。
 
-从 [技术说明](HNCS技术交付/README.md) 开始。目录中的颜色参数与固定测试向量可独立核验，无需照片或Phocus安装。
+## 功能
 
-当前应用与共享 C++ 内核位于 [GlassCamPrototype](GlassCamPrototype/README.md)。最新研究分别记录在 [X2D II 颜色阶段](GlassCamPrototype/docs/X2D_COLOR_PIPELINE_20261018.md)、[FFCS 原始审计](GlassCamPrototype/docs/FFCS_ORIGINAL_AUDIT_20261018.md)和[颜色精度受控加速](GlassCamPrototype/docs/COLOR_PERFORMANCE_20261018.md)，原技术交付与历史证据保持独立。
+- 双指连续变焦、焦段快捷按钮和长按焦距标尺，由系统根据场景选择实际镜头。
+- HNCS／FFCS 预设、独立效果开关和设置记忆；HNCS 默认保留每张照片的白平衡，也可选择原始预设白平衡。
+- 24MP／48MP 输出策略、全源图像处理和 10-bit BT.2020/PQ HDR HEIF。
+- 拍摄后自动保存到系统相册，支持成片回看与分享。
+- 单张待完成照片持久恢复，处理中断后可继续，保存失败可重试。
+
+48MP 档按最终构图的有效像素选择 48MP 或 24MP 输出，需要时插值。详细规则见[首版功能与验收记录](GlassCamPrototype/docs/IPHONE_FIRST_USABLE_20261018.md)。
+
+## 目录
+
+| 路径 | 内容 |
+|---|---|
+| [GlassCamPrototype/ios](GlassCamPrototype/ios/README.md) | SwiftUI 相机、图像处理和 Xcode 工程 |
+| [GlassCamPrototype/core](GlassCamPrototype/core/README.md) | HNCS／FFCS C++ 颜色与空间处理 |
+| [GlassCamPrototype/tools](GlassCamPrototype/tools) | 构建、资源准备、数值验证和性能工具 |
+| [GlassCamPrototype/tests](GlassCamPrototype/tests) | Python、Swift 与 C++ 回归检查 |
+| [GlassCamPrototype/reference](GlassCamPrototype/reference/ORIGIN.md) | GlassCam 使用的 HNCS 参考代码、数值资产和测试向量 |
+| [GlassCamPrototype/reference_ffcs](GlassCamPrototype/reference_ffcs/ORIGIN.md) | FFCS 固定版本资源和校验材料，构建时从 `source.zip` 准备资源 |
+| [GlassCamPrototype/docs](GlassCamPrototype/docs) | 功能约定、设计和验证报告 |
+| [GlassCamPrototype/validation](GlassCamPrototype/validation) | 已执行检查的数值结果与历史证据 |
+| [GLOSSARY.md](GLOSSARY.md) | 项目术语 |
+
+## 构建
+
+在仓库根目录运行：
+
+```sh
+python3 GlassCamPrototype/tools/iphone_release.py --unsigned
+```
+
+构建产物默认位于 `~/Library/Developer/GlassCamRelease`。签名、设备安装和续签步骤见 [iPhone 构建与试用](GlassCamPrototype/ios/README.md)。
+
+## 验证
+
+在已安装 [Python 验证依赖](GlassCamPrototype/requirements.txt) 的 Python 3.12 环境中运行：
+
+```sh
+python3 GlassCamPrototype/tools/materialize_ffcs_reference.py
+PYTHONPATH=GlassCamPrototype/tests python3 -B -m unittest discover -s GlassCamPrototype/tests -q
+```
+
+macOS 图像处理与恢复检查：
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer python3 -B GlassCamPrototype/tools/test_apple_images.py
+```
+
+## 当前状态
+
+HNCS render revision 11 已修复 Nature 固定白平衡造成的额外偏绿。修复版已于 2026-10-18 安装到用户的 iPhone，安装后未启动或复测，剩余真机验收仍待继续。已有数值验证限于各自记录的输入与处理阶段，完整跨相机成片等价尚未证明。
+
+- [项目功能与实现说明](GlassCamPrototype/README.md)
+- [测试、性能与待验收项目](GlassCamPrototype/docs/TEST_STATUS.md)
+- [Nature 白平衡处理与修复](GlassCamPrototype/docs/PHOCUS_NATURE_PIPELINE_20261018.md)
+- [参考来源与分发说明](GlassCamPrototype/NOTICE.md)

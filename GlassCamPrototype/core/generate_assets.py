@@ -5,7 +5,6 @@ import numpy as np
 import hashlib
 root=Path(__file__).resolve().parents[1]
 reference=root/'reference'
-if not reference.exists(): reference=root.parent/'HNCS技术交付'
 source=reference/'work/hncs-pipeline/assets/x2dii_phocus_422.npz'
 a=np.load(source,allow_pickle=False)
 keys=['matrix_temperatures','camera_to_xyz','wb_temperatures','grid','xyz_to_legacy_rgb','legacy_rgb_to_xyz','rgb_to_ycbcr','gray_thresholds','shadow_desaturation','legacy_icc_gamma','lut_std','v1_gamma','working_rgb_to_xyz','lut_expansion','lut_repro','v1_lstar','pure_lstar','pure_gamma']

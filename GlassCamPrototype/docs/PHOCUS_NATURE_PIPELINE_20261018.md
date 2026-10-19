@@ -126,6 +126,6 @@ Daylight、Cloudy 等以白平衡为主要作用的预设，在 Photo 模式下�
 - 209 项 Python 回归通过。
 - Mac 生产 Swift／Core Image／Metal／HEIF 检查通过，含旧配方迁移、明确选择记忆、Nature 偏绿回归、旧持久任务恢复、HDR、输出插值、保存重试和分享。相机与 Photos 事务在这组测试中使用替身。
 - iOS 通用设备 Release 编译通过，保留已有 SDK 弃用与方向配置警告。
-- **新版未安装到手机，未恢复拍摄或手机测试。** 手机上现有包仍为修复前版本。本轮不能替代后续真机视觉、三摄切换与完整日常验收，也不扩大跨相机色彩等价声明。
+- **离线验证完成后，修复版已于 2026-10-18 按用户要求成功安装到手机，安装后未启动或复测。** 真机测试仍暂停。本轮不能替代后续真机视觉、三摄切换与完整日常验收，也不扩大跨相机色彩等价声明。结构化验证记录保留当时离线阶段的状态，后续安装由独立的 Release 构建与设备安装日志确认。
 
 完整路径、SHA-256、二进制函数清单、数值和日志见[结构化验证记录](../validation/nature-pipeline-20261018.json)。[原版白平衡探针](../tools/audit_phocus_white_balance.py)与[已有 RAW 全源对照程序](../tools/nature_white_balance_study.swift)均可重复执行；实际编译命令保存在证据目录的 `study-build-command.json`。
