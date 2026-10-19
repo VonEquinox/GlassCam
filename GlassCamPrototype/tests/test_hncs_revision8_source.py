@@ -255,7 +255,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         recipe_crop = body(self.pipeline, 'var crop: ImageCrop')
         self.assertEqual(compact(recipe_crop), 'mode == .hncs ? hncs.crop(effects: effects) : .none')
 
-    def test_camera_square_frame_clips_unstretched_source(self):
+    def test_legacy_square_geometry_remains_but_camera_uses_uncropped_frame(self):
         framing = body(self.framing, 'init(size:')
         self.assertOrdered(framing, 'let outputAspect: CGFloat = cropToSquare ? 1 : aspect',
                            'min(width, height * outputAspect)',
@@ -269,7 +269,8 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertEqual(center.count('.frame(width: framing.photo.width, height: framing.photo.height)'), 2)
         self.assertEqual(center.count('.clipped()'), 2)
         self.assertNotIn('.resizeAspectFill', center)
-        self.assertIn('cropToSquare: colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare', self.view)
+        self.assertNotIn('cropToSquare:', self.view)
+        self.assertIn('HNCSEngine.cameraPresets', self.view)
 
 
 if __name__ == '__main__':

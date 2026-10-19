@@ -99,14 +99,16 @@ class EffectToggleSourceContracts(unittest.TestCase):
         self.assertIn('JSONEncoder().encode(recipe)', body(self.settings, 'private func persistRecipe()'))
         self.assertNotIn('adoptRecipeSnapshot', self.workflow)
 
-    def test_both_surfaces_bind_same_three_controls_and_none_depend_on_current_preset(self):
+    def test_camera_exposes_grain_and_sharpening_without_new_crop_selection(self):
         controls = body(self.content, 'struct EffectToggleControls:')
         toggles = re.findall(r'Toggle\("([^"]+)", isOn: \$effects\.(\w+)\)', controls)
-        self.assertEqual({flag for _, flag in toggles}, set(FLAGS))
+        self.assertEqual({flag for _, flag in toggles}, {'applyGrain', 'applySharpness'})
         self.assertNotIn('.disabled(', controls)
-        self.assertIn('EffectToggleControls(effects: $settings.effects, mode: settings.colorMode, hncs: settings.hncs)', self.camera)
-        for identifier in ('effects.sharpening', 'effects.grain', 'effects.extraCrop'):
+        self.assertIn('EffectToggleControls(effects: $settings.effects, mode: settings.colorMode)', self.camera)
+        for identifier in ('effects.sharpening', 'effects.grain'):
             self.assertIn(f'.accessibilityIdentifier("{identifier}")', controls)
+        self.assertNotIn('effects.extraCrop', self.camera + self.content)
+        self.assertNotIn('cropToSquare:', self.camera)
 
     def test_preset_and_simulation_selection_do_not_reset_global_flags(self):
         preset_controls = body(self.content, 'struct HNCSPresetControls:')
@@ -196,8 +198,10 @@ class EffectToggleSourceContracts(unittest.TestCase):
         self.assertNotIn('applySpatial', bake)
         self.assertIn('[0, 8].contains(simulationIndex)', body(self.live, 'var unsupportedReason:'))
 
-    def test_crop_switch_drives_camera_before_after_and_final_output_from_same_recipe(self):
-        self.assertIn('cropToSquare: colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare', self.camera)
+    def test_historical_photo_crop_still_applies_to_preview_and_final_output(self):
+        self.assertNotIn('cropToSquare:', self.camera)
+        self.assertIn('HNCSEngine.cameraPresets', self.camera)
+        self.assertIn('if cameraHNCS.presetKey == "square-crop" { cameraHNCS.presetKey = "standard" }', self.settings)
         process = body(self.pipeline, 'static func process(')
         self.assertIn('recipe.crop.resolve(width: input.width, height: input.height)', process)
         self.assertIn('input.original.cropped(to: crop)', process)

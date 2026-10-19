@@ -36,7 +36,7 @@ class SingleCameraViewContracts(unittest.TestCase):
         selected = section(VIEW, 'private var selectedOutput:', 'private func offerCompactPanel')
         self.assertIn('$0.megapixels == saved', selected)
         self.assertNotIn('$0.megapixels <= saved', selected)
-        self.assertIn('framed sources below 24 MP are saved at 24 MP', VIEW)
+        self.assertIn('In 48 MP mode, smaller framed sources save at 24 MP.', VIEW)
         self.assertNotIn('Open editor', VIEW)
 
 

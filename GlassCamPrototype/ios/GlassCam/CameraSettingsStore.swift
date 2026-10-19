@@ -25,8 +25,10 @@ final class CameraSettingsStore: ObservableObject {
     // The compatibility CCT field is unresolved here. ImagePipeline replaces it
     // with this photo's decoder white point; old manual values are not restored.
     var recipe: ProcessingRecipe {
-        ProcessingRecipe(mode: colorMode, exposureEV: exposure, illuminantKelvin: 6500,
-                         simulationIndex: simulationIndex, seed: 0, hncs: hncs, effects: effects, ffcs: ffcs)
+        var cameraHNCS = hncs
+        if cameraHNCS.presetKey == "square-crop" { cameraHNCS.presetKey = "standard" }
+        return ProcessingRecipe(mode: colorMode, exposureEV: exposure, illuminantKelvin: 6500,
+                                simulationIndex: simulationIndex, seed: 0, hncs: cameraHNCS, effects: effects, ffcs: ffcs)
     }
 
     init(defaults: UserDefaults = .standard) {
@@ -53,6 +55,9 @@ final class CameraSettingsStore: ObservableObject {
                 hncs.whiteBalancePolicy = .photo
             }
         }
+        // Only future camera selections migrate. Decoding a durable photo's
+        // ProcessingRecipe still preserves its original square composition.
+        if hncs.presetKey == "square-crop" { hncs.presetKey = "standard" }
         defaults.set(outputSelections, forKey: Self.outputsKey)
         persistRecipe()
     }

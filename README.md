@@ -7,6 +7,7 @@ GlassCam 是使用 SwiftUI、AVFoundation 和 C++17 开发的 iPhone 相机，�
 ## 功能
 
 - 双指连续变焦、焦段快捷按钮和长按焦距标尺，由系统根据场景选择实际镜头。
+- 固定居中的 4:3 成像区、自定义外围玻璃与独立设置页；可靠对齐时显示真实更广镜头的外围，失配时渐黑。此轮重写待授权验证。
 - HNCS／FFCS 预设、独立效果开关和设置记忆；HNCS 默认保留每张照片的白平衡，也可选择原始预设白平衡。
 - 24MP／48MP 输出策略、全源图像处理和 10-bit BT.2020/PQ HDR HEIF。
 - 拍摄后自动保存到系统相册，支持成片回看与分享。
@@ -54,6 +55,8 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer python3 -B GlassCamProt
 ```
 
 ## 当前状态
+
+2026-10-19：取景与设置重写的代码已写入 `main` 工作区，包括真实多摄外围、10% 误差渐黑／8% 稳定恢复、自定义 Metal 玻璃、移除新拍摄 Square Crop 和中英文界面。按用户要求，最终源码尚未构建或测试，也未安装、启动手机或拍照；等待新的测试许可。见[设计、代码交付和待验证项](GlassCamPrototype/docs/UI_REDESIGN_20261019.md)。
 
 HNCS render revision 11 已修复 Nature 固定白平衡造成的额外偏绿。修复版已于 2026-10-18 安装到用户的 iPhone，安装后未启动或复测，剩余真机验收仍待继续。已有数值验证限于各自记录的输入与处理阶段，完整跨相机成片等价尚未证明。
 

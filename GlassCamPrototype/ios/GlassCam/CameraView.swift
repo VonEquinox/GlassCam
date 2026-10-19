@@ -4,7 +4,7 @@ import UIKit
 
 /// Full-window live camera. Exact photo effects run only after DNG capture.
 /// An opt-in approximate GPU color proxy affects the central viewfinder only.
-/// The photo frame is surrounded by opaque black control bands.
+/// Peripheral glass never renders into the central photo rectangle.
 struct CameraView: View {
     @ObservedObject var settings: CameraSettingsStore
     @ObservedObject var workflow: CaptureWorkflow
@@ -33,19 +33,19 @@ struct CameraView: View {
     var body: some View {
         GeometryReader { proxy in
             let framing = CameraFraming(size: proxy.size,
-                                        photoAspectRatio: camera.geometry?.photoAspectRatio ?? 1,
-                                        cropToSquare: colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare)
+                                        photoAspectRatio: camera.geometry?.photoAspectRatio ??
+                                            (proxy.size.width > proxy.size.height ? 4.0 / 3.0 : 3.0 / 4.0))
             let chrome = CameraChromeLayout(framing: framing, safeArea: proxy.safeAreaInsets,
                                             needsAccessiblePanel: dynamicTypeSize.isAccessibilitySize)
             ZStack(alignment: .topLeading) {
                 Color.black
-                // Opaque black spare regions have hard edges at the photo frame.
-                ForEach(Array(framing.perimeter.enumerated()), id: \.offset) { _, pane in
-                    Color.black
-                        .frame(width: pane.width, height: pane.height)
-                        .position(x: pane.midX, y: pane.midY)
-                        .allowsHitTesting(false)
-                }
+                PeripheralGlassView(source: camera.peripheralSource, framing: framing,
+                                    enabled: scenePhase == .active && !settingsPresented && reviewedCapture == nil && !camera.isPreviewFrozen &&
+                                        !(experimentalLiveColor && liveProxyStatus.isShowingEffect))
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .allowsHitTesting(false).accessibilityHidden(true)
+                PhotoFrameBoundary(rect: framing.photo)
+                    .allowsHitTesting(false).accessibilityHidden(true)
                 if let layer = camera.centerPreviewLayer, camera.geometry != nil {
                     CameraPreview(layer: layer, gravity: .resizeAspect)
                         .frame(width: framing.sourcePhoto.width, height: framing.sourcePhoto.height)
@@ -53,7 +53,9 @@ struct CameraView: View {
                         .frame(width: framing.photo.width, height: framing.photo.height)
                         .clipped()
                         .position(x: framing.photo.midX, y: framing.photo.midY)
+                        .accessibilityElement(children: .ignore)
                         .accessibilityLabel("Unprocessed system camera preview inside the photograph frame")
+                        .accessibilityIdentifier("camera.photo.frame")
                 }
                 if let source = camera.centerLiveSource, camera.geometry != nil {
                     LiveColorProxy(source: source, recipe: liveRecipe,
@@ -75,7 +77,7 @@ struct CameraView: View {
                 if !camera.isCapturing && !camera.isReady && !workflow.isWorking {
                     VStack(spacing: 12) {
                         Image(systemName: "camera.fill").font(.largeTitle)
-                        Text(camera.status).font(.callout).multilineTextAlignment(.center)
+                        Text(LocalizedStringKey(camera.status)).font(.callout).multilineTextAlignment(.center)
                         if !camera.isReady && !camera.isConfiguring {
                             Button("Retry camera") { restartCamera() }.padding(10)
                             if AVCaptureDevice.authorizationStatus(for: .video) == .denied {
@@ -111,21 +113,6 @@ struct CameraView: View {
                         .accessibilityHidden(chrome.style != .separate)
                 }
                 controls(framing: framing, chrome: chrome)
-                if !workflow.status.isEmpty {
-                    workflowStatus
-                        .frame(maxWidth: min(360, proxy.size.width - 32))
-                        .position(x: proxy.size.width / 2, y: framing.photo.maxY - 64)
-                }
-                if camera.isPreviewFrozen {
-                    Text(camera.isCapturing ? "Preview paused · Capturing RAW" : "Preview paused")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .shadow(color: .black, radius: 2)
-                        .padding(8)
-                        .frame(width: framing.photo.width)
-                        .position(x: framing.photo.midX, y: framing.photo.minY + 20)
-                        .allowsHitTesting(false)
-                }
                 CameraOrientationObserver { camera.updateOrientation($0) }
                     .frame(width: proxy.size.width, height: proxy.size.height)
                     .allowsHitTesting(false)
@@ -190,7 +177,7 @@ struct CameraView: View {
 
     private var workflowStatus: some View {
         VStack(spacing: 8) {
-            Text(workflow.status).font(.footnote).multilineTextAlignment(.center)
+            Text(LocalizedStringKey(workflow.status)).font(.footnote).multilineTextAlignment(.center)
             if workflow.phase == .processing { ProgressView(value: workflow.progress) }
             if workflow.phase == .saveOutcomeUnknown {
                 if let date = workflow.pendingDate {
@@ -212,7 +199,7 @@ struct CameraView: View {
                             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
                         }
                     }
-                    Button(workflow.canRetry ? "Discard…" : "OK") {
+                    Button(LocalizedStringKey(workflow.canRetry ? "Discard…" : "OK")) {
                         if workflow.canRetry { discardConfirmation = true }
                         else { workflow.discardFailed() }
                     }
@@ -230,7 +217,7 @@ struct CameraView: View {
         case .portrait:
             VStack(spacing: 6) {
                 HStack {
-                    flashOff
+                    resolutionButton
                     Spacer(minLength: 8)
                     wordmark
                     Spacer(minLength: 8)
@@ -241,9 +228,10 @@ struct CameraView: View {
             .modifier(CameraChromeRegion(rect: chrome.first))
             VStack(spacing: 10) {
                 HStack {
-                    photoMode
-                    Spacer(minLength: 8)
+                    Spacer(minLength: 0)
                     zoomButtons
+                    lensIndicator
+                    Spacer(minLength: 0)
                 }
                 HStack {
                     thumbnailButton
@@ -255,10 +243,11 @@ struct CameraView: View {
             }
             .modifier(CameraChromeRegion(rect: chrome.second))
         case .landscape:
-            VStack(spacing: 12) {
+            VStack(spacing: 8) {
                 wordmark.font(.system(size: 10, weight: .semibold))
                 Spacer(minLength: 0)
-                flashOff
+                resolutionButton
+                compactStyleButton
                 Text(photoAspectLabel).font(.caption.weight(.semibold))
                 lensIndicator
                 Text("RAW").font(.caption.weight(.semibold)).tracking(2)
@@ -266,8 +255,9 @@ struct CameraView: View {
                 Spacer(minLength: 0)
             }
             .modifier(CameraChromeRegion(rect: chrome.first))
-            VStack(spacing: 12) {
-                photoMode
+            VStack(spacing: 8) {
+                statusButton
+                verticalZoomButtons
                 thumbnailButton
                 Spacer(minLength: 0)
                 shutter(diameter: 82)
@@ -277,15 +267,17 @@ struct CameraView: View {
             .modifier(CameraChromeRegion(rect: chrome.second))
         case .compactHorizontal:
             HStack(spacing: 8) {
-                flashOff
+                resolutionButton
+                compactStyleButton
                 Spacer(minLength: 0)
-                captureMetadata
+                statusButton
                 Spacer(minLength: 0)
                 gridButton
             }
             .modifier(CameraChromeRegion(rect: chrome.first))
             HStack {
                 thumbnailButton
+                lensIndicator
                 Spacer(minLength: 8)
                 shutter(diameter: 56)
                 Spacer(minLength: 8)
@@ -294,7 +286,8 @@ struct CameraView: View {
             .modifier(CameraChromeRegion(rect: chrome.second))
         case .compactVertical:
             VStack(spacing: 8) {
-                flashOff
+                resolutionButton
+                compactStyleButton
                 lensIndicator
                 Spacer(minLength: 0)
                 gridButton
@@ -302,7 +295,7 @@ struct CameraView: View {
             }
             .modifier(CameraChromeRegion(rect: chrome.first))
             VStack(spacing: 8) {
-                photoMode
+                statusButton
                 Spacer(minLength: 0)
                 shutter(diameter: 56)
                 Spacer(minLength: 0)
@@ -320,47 +313,100 @@ struct CameraView: View {
             .accessibilityLabel("GlassCam")
     }
 
-    private var flashOff: some View {
-        // Photo settings use the backend’s default flash-off path. This is status,
-        // not a pretend button; no unsupported flash feature is advertised.
-        Image(systemName: "bolt.slash").font(.system(size: 21, weight: .light))
-            .frame(width: 44, height: 44).accessibilityLabel("Flash off")
-    }
-
     private var gridButton: some View {
         Button { settings.gridVisible.toggle() } label: {
             Image(systemName: "grid").font(.system(size: 21, weight: .light))
                 .foregroundStyle(gridVisible ? .white : .white.opacity(0.55))
                 .frame(width: 44, height: 44)
         }
-        .accessibilityLabel(gridVisible ? "Hide composition grid" : "Show composition grid")
-        .accessibilityValue(gridVisible ? "On" : "Off")
+        .accessibilityLabel(Text(LocalizedStringKey(gridVisible ? "Hide composition grid" : "Show composition grid")))
+        .accessibilityValue(Text(LocalizedStringKey(gridVisible ? "On" : "Off")))
+        .accessibilityIdentifier("camera.grid")
     }
 
     private var captureMetadata: some View {
-        HStack(spacing: 14) {
-            Text(photoAspectLabel)
-            Text("·")
-            lensIndicator
-            Text("·")
-            Text(estimatedOutputLabel)
-        }
-        .font(.system(size: 12, weight: .semibold)).tracking(1.5)
-        .foregroundStyle(.white.opacity(0.8))
-        .lineLimit(1).minimumScaleFactor(0.8)
+        HStack(spacing: 12) {
+            styleButton
+            Spacer(minLength: 4)
+            statusButton
+        }.font(.system(size: 12, weight: .medium)).lineLimit(1)
     }
 
-    private var photoMode: some View {
-        let isApproximate = experimentalLiveColor && liveProxyStatus.isShowingEffect
-            && camera.isReady && !camera.isPreviewFrozen
-        return Text(isApproximate ? "Photo · Approx. preview" : "Photo")
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(.white).multilineTextAlignment(.center)
-            .accessibilityLabel(isApproximate ? "Photo mode. Approximate live color preview" : "Photo mode")
+    private var styleButton: some View {
+        Button { activePanel = .looks } label: {
+            HStack(spacing: 7) {
+                Image(systemName: "camera.filters")
+                Text(selectedStyleTitle)
+                    .lineLimit(1)
+                Image(systemName: "chevron.down").font(.system(size: 8, weight: .bold))
+            }.modifier(CameraPill())
+        }.disabled(workflow.isWorking || camera.isCapturing)
+            .accessibilityLabel("Choose photo style").accessibilityIdentifier("camera.style")
+            .accessibilityValue(selectedStyleTitle)
+    }
+
+    private var selectedStyleTitle: String {
+        colorMode == .hncs ? hncs.presetTitle :
+            (FFCSEngine.simulations(for: settings.ffcs.cameraFamily).first { $0.id == settings.simulationIndex }?.name ?? "FFCS")
+    }
+
+    private var compactStyleButton: some View {
+        Button { activePanel = .looks } label: {
+            Image(systemName: "camera.filters").font(.system(size: 20))
+                .frame(width: 44, height: 44)
+        }.disabled(workflow.isWorking || camera.isCapturing)
+            .accessibilityLabel("Choose photo style").accessibilityValue(selectedStyleTitle)
+            .accessibilityIdentifier("camera.style")
+    }
+
+    private var resolutionButton: some View {
+        Button {
+            guard let id = camera.physicalCameraID else { return }
+            let next = (selectedOutput?.megapixels ?? 24) == 24 ? 48 : 24
+            if camera.supportedOutputOptions.contains(where: { $0.megapixels == next }) {
+                settings.setOutputMegapixels(next, physicalCameraID: id, mode: selectedLens.rawValue)
+            }
+        } label: {
+            Text("\(selectedOutput?.megapixels ?? settings.preferredOutputMegapixels) MP")
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .modifier(CameraPill())
+        }.disabled(!workflow.canCapture || camera.physicalCameraID == nil)
+            .accessibilityLabel("Photo resolution").accessibilityIdentifier("camera.resolution")
+            .accessibilityValue(Text("\(selectedOutput?.megapixels ?? settings.preferredOutputMegapixels) MP"))
+    }
+
+    private var statusButton: some View {
+        Button { activePanel = .status } label: {
+            HStack(spacing: 6) {
+                if workflow.isWorking || camera.isPreviewFrozen { ProgressView().controlSize(.mini) }
+                else { Circle().fill(.white.opacity(0.65)).frame(width: 4, height: 4) }
+                Text(LocalizedStringKey(summaryStatus))
+                    .font(.system(size: 10, weight: .medium)).lineLimit(1).minimumScaleFactor(0.8)
+            }.frame(minWidth: 44, minHeight: 44).foregroundStyle(.white.opacity(0.78))
+        }.accessibilityLabel(Text(LocalizedStringKey(summaryStatus)))
+            .accessibilityValue(Text(LocalizedStringKey(workflow.status)))
+            .accessibilityIdentifier("capture.status.summary")
+    }
+
+    private var summaryStatus: String {
+        if camera.isCapturing || camera.isPreviewFrozen { return "Capturing RAW" }
+        switch workflow.phase {
+        case .authorizing: return "Preparing photo"
+        case .capturing: return "Capturing RAW"
+        case .retaining: return "Retaining photo"
+        case .processing: return "Processing photo"
+        case .saving: return "Saving photo"
+        case .restoring: return "Restoring photo"
+        case .paused: return "Photo paused"
+        case .failed, .saveOutcomeUnknown: return "Photo needs attention"
+        case .idle: break
+        }
+        if workflow.status.hasPrefix("Saved HDR") { return "Saved to Photos" }
+        if experimentalLiveColor && liveProxyStatus.isShowingEffect && camera.isReady { return "Approx. preview · HDR" }
+        return estimatedOutputLabel
     }
 
     private var photoAspectLabel: String {
-        if colorMode == .hncs && hncs.crop(effects: effects) == .centeredSquare { return "1:1 crop" }
         guard let size = camera.geometry?.sensorPhotoDimensions,
               size.width > 0, size.height > 0 else { return "—" }
         let long = Int(max(size.width, size.height))
@@ -390,19 +436,26 @@ struct CameraView: View {
     }
 
     private var zoomButtons: some View {
-        HStack(spacing: 8) {
-            ForEach(camera.zoomRange.stops) { stop in
-                Button { camera.setZoom(stop.factor) } label: {
-                    Text(CameraZoomRange.label(stop.factor))
-                        .font(.system(size: 13, weight: .semibold))
-                        .frame(minWidth: 44, minHeight: 44)
-                        .background(abs(camera.appliedZoom - stop.factor) < 0.04 ? Color.white.opacity(0.24) : Color.white.opacity(0.08))
-                        .clipShape(Capsule())
-                }
-                .onLongPressGesture(minimumDuration: 0.4) { activePanel = .zoom }
-                .accessibilityLabel("\(stop.title), \(CameraZoomRange.label(stop.factor))")
-                .accessibilityIdentifier("camera.zoom.\(stop.title)")
+        HStack(spacing: 8) { zoomStops }
+    }
+
+    private var verticalZoomButtons: some View {
+        VStack(spacing: 4) { zoomStops }
+    }
+
+    private var zoomStops: some View {
+        ForEach(camera.zoomRange.stops) { stop in
+            Button { camera.setZoom(stop.factor) } label: {
+                Text(CameraZoomRange.label(stop.factor))
+                    .font(.system(size: 13, weight: .semibold))
+                    .frame(minWidth: 44, minHeight: 44)
+                    .background(abs(camera.appliedZoom - stop.factor) < 0.04 ? Color.white.opacity(0.24) : Color.white.opacity(0.08))
+                    .clipShape(Capsule())
             }
+            .onLongPressGesture(minimumDuration: 0.4) { activePanel = .zoom }
+            .accessibilityLabel(Text(LocalizedStringKey(stop.title)))
+            .accessibilityValue(CameraZoomRange.label(stop.factor))
+            .accessibilityIdentifier("camera.zoom.\(stop.title)")
         }
         .disabled(!workflow.canCapture || camera.isCapturing || camera.isConfiguring)
     }
@@ -421,7 +474,7 @@ struct CameraView: View {
                     .accessibilityValue(CameraZoomRange.label(camera.appliedZoom))
                     .accessibilityIdentifier("camera.zoom.ruler")
             }
-            Text(camera.currentFraming.lensName ?? "Automatic lens selection")
+            Text(LocalizedStringKey(camera.currentFraming.lensName ?? "Automatic lens selection"))
                 .font(.caption).foregroundStyle(.secondary)
         }.padding()
     }
@@ -470,31 +523,31 @@ struct CameraView: View {
     }
 
     private func cameraPanel(_ panel: CameraPanel, framing: CameraFraming) -> some View {
-        NavigationStack {
-            Group {
-                if panel == .zoom { ScrollView { zoomRuler } }
-                else { VStack(spacing: 20) {
-                Text("Return to the viewfinder for an unobstructed view. Tap it to reopen these controls.")
-                    .font(.footnote).multilineTextAlignment(.center)
-                zoomButtons
-                HStack {
-                    thumbnailButton
-                    Spacer()
-                    shutter(diameter: 82)
-                    Spacer()
-                    settingsButton
+        VStack(spacing: 0) {
+            CameraPageHeader(title: panel == .zoom ? "Focal length" : panel == .looks ? "Photo styles" : "Camera controls",
+                             backIdentifier: "camera.panel.back") {
+                activePanel = nil
+            }
+            ScrollView {
+                if panel == .zoom { zoomRuler }
+                else if panel == .looks {
+                    CameraLookPicker(settings: settings) { activePanel = nil }.padding(20)
+                } else if panel == .status {
+                    VStack(spacing: 20) {
+                        Text(LocalizedStringKey(camera.isPreviewFrozen ? "Capturing RAW" : camera.status))
+                        if !workflow.status.isEmpty { workflowStatus }
+                        Text(estimatedOutputLabel).font(.caption).foregroundStyle(.secondary)
+                    }.padding(22)
+                } else {
+                    VStack(spacing: 20) {
+                        zoomButtons
+                        HStack { styleButton; resolutionButton }
+                        HStack { thumbnailButton; Spacer(); shutter(diameter: 76); Spacer(); settingsButton }
+                        if !workflow.status.isEmpty { workflowStatus }
+                    }.padding(22)
                 }
-                Text(workflow.isWorking ? workflow.status : camera.status).font(.footnote)
-                }.padding() }
-            }.background(Color.black)
-                .navigationTitle(panel == .zoom ? "Focal length" : "Camera controls")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Viewfinder") { activePanel = nil }
-                    }
-                }
-        }.tint(.white)
+            }
+        }.background(CameraSettingsBackground()).tint(.white)
     }
 
     private var selectedOutput: CameraController.OutputOption? {
@@ -505,7 +558,7 @@ struct CameraView: View {
     }
 
     private func offerCompactPanel(for style: CameraChromeLayout.Style) {
-        // Startup's provisional square frame must never launch the compact UI.
+        // Wait for the negotiated camera geometry before offering compact UI.
         guard camera.geometry != nil else { return }
         guard style == .separate else { compactPanelOffered = false; return }
         guard !compactPanelOffered, !settingsPresented, reviewedCapture == nil, !camera.isCapturing,
@@ -569,7 +622,7 @@ private enum CaptureUIError: LocalizedError {
 }
 
 private enum CameraPanel: String, Identifiable {
-    case compact, zoom
+    case compact, zoom, looks, status
     var id: Self { self }
 }
 
@@ -597,10 +650,10 @@ private struct CameraChromeLayout {
             second = usable(CGRect(x: framing.photo.maxX, y: 0,
                                    width: window.width - framing.photo.maxX, height: window.height))
             if !needsAccessiblePanel, min(first.width, second.width) >= 100,
-               min(first.height, second.height) >= 292 {
+               min(first.height, second.height) >= 408 {
                 style = .landscape
-            } else if !needsAccessiblePanel, first.width >= 44, second.width >= 56,
-                      min(first.height, second.height) >= 212 {
+            } else if !needsAccessiblePanel, first.width >= 68, second.width >= 64,
+                      min(first.height, second.height) >= 264 {
                 style = .compactVertical
             } else { style = .separate }
         } else {
@@ -618,7 +671,7 @@ private struct CameraChromeLayout {
     }
 }
 
-/// Opaque black bands keep controls legible outside the photograph.
+/// Hard clipping keeps every control outside the photograph.
 private struct CameraChromeRegion: ViewModifier {
     let rect: CGRect
     func body(content: Content) -> some View {
@@ -626,6 +679,23 @@ private struct CameraChromeRegion: ViewModifier {
             .frame(width: rect.width, height: rect.height)
             .clipped()
             .position(x: rect.midX, y: rect.midY)
+    }
+}
+
+private struct PhotoFrameBoundary: View {
+    let rect: CGRect
+    var body: some View {
+        Path { path in
+            let r = rect.insetBy(dx: -1, dy: -1)
+            let length: CGFloat = 18
+            for (x, dx) in [(r.minX, CGFloat(1)), (r.maxX, CGFloat(-1))] {
+                for (y, dy) in [(r.minY, CGFloat(1)), (r.maxY, CGFloat(-1))] {
+                    path.move(to: CGPoint(x: x, y: y + dy * length))
+                    path.addLine(to: CGPoint(x: x, y: y))
+                    path.addLine(to: CGPoint(x: x + dx * length, y: y))
+                }
+            }
+        }.stroke(.white.opacity(0.65), style: StrokeStyle(lineWidth: 1, lineCap: .round))
     }
 }
 
@@ -717,74 +787,148 @@ private struct CameraSettingsView: View {
     let physicalCameraID: String?
     let mode: String
     let onBack: () -> Void
+    @State private var advanced = false
 
     private var outputSelection: Binding<Int> {
-        Binding(get: { physicalCameraID.map { settings.outputMegapixels(physicalCameraID: $0, mode: mode) } ?? 24 },
+        Binding(get: { physicalCameraID.map { settings.outputMegapixels(physicalCameraID: $0, mode: mode) } ?? settings.preferredOutputMegapixels },
                 set: { value in
                     guard let id = physicalCameraID, options.contains(where: { $0.megapixels == value }) else { return }
                     settings.setOutputMegapixels(value, physicalCameraID: id, mode: mode)
                 })
     }
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Photo output") {
-                    Picker("Resolution", selection: outputSelection) {
-                        ForEach([24, 48], id: \.self) { value in
-                            Text("\(value) MP\(options.contains(where: { $0.megapixels == value }) ? "" : " · Unavailable")")
-                                .tag(value)
-                        }
-                    }.pickerStyle(.segmented)
-                        .disabled(physicalCameraID == nil || options.isEmpty)
-                        .accessibilityIdentifier("settings.resolution")
-                    Text("24 MP saves every photo at 24 MP. In 48 MP mode, framed sources below 24 MP are saved at 24 MP. Smaller sources are upscaled while keeping the composition.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                    LabeledContent("Format", value: "10-bit HDR HEIF")
-                    Text("Photos are automatically saved to your system photo library using these settings.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                }
-                Section("Photo effects") {
-                    Picker("Color engine", selection: $settings.colorMode) {
-                        ForEach(ColorMode.allCases) { mode in Text(mode.title).tag(mode) }
-                    }
-                    if settings.colorMode == .ffcs {
-                        FFCSReferenceControls(settings: $settings.ffcs, simulationIndex: $settings.simulationIndex)
-                    }
-                    LabeledContent("Exposure", value: String(format: "%+.2f EV", settings.exposure))
-                    Slider(value: $settings.exposure, in: -2...2, step: 0.05)
-                        .accessibilityLabel("Photo effect exposure")
-                    if settings.colorMode == .hncs {
-                        HNCSPresetControls(settings: $settings.hncs)
-                    }
-                    EffectToggleControls(effects: $settings.effects, mode: settings.colorMode, hncs: settings.hncs)
-                    Button("Reset effect adjustments") {
-                        settings.exposure = 0
-                        if settings.colorMode == .hncs { settings.hncs = .standard }
-                    }
-                }
-                Section("Viewfinder") {
-                    LabeledContent("Camera", value: "Automatic lens switching")
-                    Toggle("Composition grid", isOn: $settings.gridVisible)
-                    Picker("Preview long-edge limit", selection: $settings.centerPreviewLongEdge) {
-                        ForEach(CameraSettingsStore.centerPreviewCaps, id: \.self) { limit in
-                            Text("Up to \(limit) px").tag(limit)
-                        }
-                    }
-                    Toggle("Experimental live color (approx.)", isOn: $settings.experimentalLiveColor)
-                    Text("Approximate color only; the saved photo uses the complete selected effect.")
-                        .font(.footnote).foregroundStyle(.secondary)
+        VStack(spacing: 0) {
+            CameraPageHeader(title: advanced ? "Advanced" : "Settings",
+                             backLabel: advanced ? "Back to settings" : "Back to camera") {
+                if advanced { advanced = false } else { onBack() }
+            }
+            ScrollView {
+                VStack(spacing: 18) {
+                    if advanced { advancedCards } else { commonCards }
+                    Text("GLASSCAM").font(.system(size: 10, weight: .medium)).tracking(4)
+                        .foregroundStyle(.white.opacity(0.25)).padding(.vertical, 18)
+                }.padding(.horizontal, 20).padding(.top, 12)
+                    .frame(maxWidth: 680).frame(maxWidth: .infinity)
+            }.scrollIndicators(.hidden)
+        }
+        .background(CameraSettingsBackground()).foregroundStyle(.white)
+        .preferredColorScheme(.dark).tint(.white).buttonStyle(.plain)
+        .animation(.easeInOut(duration: 0.22), value: advanced)
+    }
+
+    @ViewBuilder private var commonCards: some View {
+        CameraCard(title: "Photo output", symbol: "photo.stack") {
+            Picker("Resolution", selection: outputSelection) {
+                ForEach([24, 48], id: \.self) { value in Text("\(value) MP").tag(value) }
+            }.pickerStyle(.segmented).disabled(physicalCameraID == nil || options.isEmpty)
+                .accessibilityIdentifier("settings.resolution")
+            HStack { Text("Format"); Spacer(); Text("10-bit HDR HEIF").foregroundStyle(.secondary) }.font(.subheadline)
+            Text("Photos save automatically. In 48 MP mode, smaller framed sources save at 24 MP.")
+                .font(.caption).foregroundStyle(.white.opacity(0.45))
+        }
+        CameraCard(title: "Photo style", symbol: "camera.filters") {
+            Picker("Color engine", selection: $settings.colorMode) {
+                ForEach(ColorMode.allCases) { mode in Text(mode.title).tag(mode) }
+            }.pickerStyle(.segmented).accessibilityIdentifier("settings.engine")
+            if settings.colorMode == .hncs {
+                Picker("Phocus preset", selection: $settings.hncs.presetKey) {
+                    ForEach(HNCSEngine.cameraPresets) { preset in Text(preset.name).tag(preset.id) }
+                }.pickerStyle(.menu).accessibilityIdentifier("settings.preset")
+                Picker("White balance", selection: $settings.hncs.whiteBalancePolicy) {
+                    ForEach(HNCSWhiteBalancePolicy.allCases) { value in Text(LocalizedStringKey(value.title)).tag(value) }
+                }.pickerStyle(.menu).accessibilityIdentifier("settings.whiteBalance")
+                Text(LocalizedStringKey(settings.hncs.whiteBalancePolicy == .photo
+                     ? "Keeps each photo’s own white balance."
+                     : "Uses the original preset white balance, when specified."))
+                    .font(.caption).foregroundStyle(.white.opacity(0.45))
+            } else {
+                Picker("Film simulation", selection: $settings.simulationIndex) {
+                    ForEach(FFCSEngine.simulations(for: settings.ffcs.cameraFamily)) { look in Text(look.name).tag(look.id) }
+                }.pickerStyle(.menu).accessibilityIdentifier("ffcs.simulation")
+            }
+            HStack {
+                Text("Effect exposure")
+                Spacer()
+                Text(String(format: "%+.2f EV", settings.exposure)).monospacedDigit().foregroundStyle(.secondary)
+            }.font(.subheadline)
+            Slider(value: $settings.exposure, in: -2...2, step: 0.05)
+                .accessibilityLabel("Photo effect exposure")
+            EffectToggleControls(effects: $settings.effects, mode: settings.colorMode)
+        }
+        CameraCard(title: "Viewfinder", symbol: "viewfinder") {
+            Toggle("Composition grid", isOn: $settings.gridVisible).accessibilityIdentifier("settings.grid")
+            Text("The clear central frame is your photo. The outer glass darkens when camera views cannot align reliably.")
+                .font(.caption).foregroundStyle(.white.opacity(0.45))
+        }
+        Button { advanced = true } label: {
+            CameraCard(title: "Advanced", symbol: "slider.horizontal.3") {
+                HStack {
+                    Text("Color processing & preview").font(.subheadline)
+                    Spacer()
+                    Image(systemName: "arrow.up.right").font(.subheadline)
                 }
             }
-            .scrollContentBackground(.hidden).background(Color.black)
-            .navigationTitle("Camera settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: onBack) { Label("Camera", systemImage: "chevron.left") }
-                        .accessibilityIdentifier("settings.back")
+        }.accessibilityIdentifier("settings.advanced")
+    }
+
+    @ViewBuilder private var advancedCards: some View {
+        CameraCard(title: "Color processing", symbol: "slider.horizontal.3") {
+            if settings.colorMode == .hncs {
+                HNCSPresetControls(settings: $settings.hncs, showCommon: false)
+            } else {
+                FFCSReferenceControls(settings: $settings.ffcs, simulationIndex: $settings.simulationIndex)
+            }
+        }
+        CameraCard(title: "Preview", symbol: "viewfinder") {
+            Picker("Preview long-edge limit", selection: $settings.centerPreviewLongEdge) {
+                ForEach(CameraSettingsStore.centerPreviewCaps, id: \.self) { value in Text("\(value) px").tag(value) }
+            }.pickerStyle(.menu)
+            Toggle("Experimental live color (approx.)", isOn: $settings.experimentalLiveColor)
+            Text("Approximate color only; the saved photo uses the complete selected effect.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        CameraCard(title: "Adjustments", symbol: "arrow.counterclockwise") {
+            Button("Reset effect adjustments") {
+                settings.exposure = 0
+                if settings.colorMode == .hncs { settings.hncs = .standard }
+            }
+            Text("Resets effect exposure and the HNCS look. Output, grain and sharpening choices stay saved.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+}
+
+private struct CameraLookPicker: View {
+    @ObservedObject var settings: CameraSettingsStore
+    let selected: () -> Void
+    var body: some View {
+        VStack(spacing: 18) {
+            Picker("Color engine", selection: $settings.colorMode) {
+                ForEach(ColorMode.allCases) { mode in Text(mode.title).tag(mode) }
+            }.pickerStyle(.segmented)
+            if settings.colorMode == .hncs {
+                ForEach(HNCSEngine.cameraPresets) { look in
+                    lookButton(look.name, active: settings.hncs.presetKey == look.id) {
+                        settings.hncs.presetKey = look.id; selected()
+                    }
+                }
+            } else {
+                ForEach(FFCSEngine.simulations(for: settings.ffcs.cameraFamily)) { look in
+                    lookButton(look.name, active: settings.simulationIndex == look.id) {
+                        settings.simulationIndex = look.id; selected()
+                    }
                 }
             }
-        }.preferredColorScheme(.dark).tint(.white)
+        }
+    }
+    private func lookButton(_ title: String, active: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(title).font(.system(size: 23, weight: .regular, design: .serif))
+                Spacer()
+                Image(systemName: active ? "checkmark.circle.fill" : "circle").foregroundStyle(.white.opacity(active ? 1 : 0.2))
+            }.padding(18).background(.white.opacity(active ? 0.09 : 0.035), in: RoundedRectangle(cornerRadius: 18))
+        }.buttonStyle(.plain)
     }
 }
 

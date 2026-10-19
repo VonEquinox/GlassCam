@@ -36,6 +36,12 @@
         A00000000000000000000029 = {isa = PBXBuildFile; fileRef = B00000000000000000000029; };
         A00000000000000000000030 /* CaptureGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000030 /* CaptureGeometry.swift */; };
         A00000000000000000000031 /* CaptureJournal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000031 /* CaptureJournal.swift */; };
+        A00000000000000000000032 /* CameraDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000032; };
+        A00000000000000000000033 /* PeripheralGlassPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000033; };
+        A00000000000000000000034 /* PeripheralAlignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000034; };
+        A00000000000000000000035 /* PeripheralGlassShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000035; };
+        A00000000000000000000036 /* PeripheralGlassView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000036; };
+        A00000000000000000000037 = {isa = PBXBuildFile; fileRef = B00000000000000000000037; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +82,12 @@
         B00000000000000000000029 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicePerformance.swift; sourceTree = "<group>"; };
         B00000000000000000000030 /* CaptureGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureGeometry.swift; sourceTree = "<group>"; };
         B00000000000000000000031 /* CaptureJournal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureJournal.swift; sourceTree = "<group>"; };
+        B00000000000000000000032 /* CameraDesign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraDesign.swift; sourceTree = "<group>"; };
+        B00000000000000000000033 /* PeripheralGlassPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralGlassPolicy.swift; sourceTree = "<group>"; };
+        B00000000000000000000034 /* PeripheralAlignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralAlignment.swift; sourceTree = "<group>"; };
+        B00000000000000000000035 /* PeripheralGlassShader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralGlassShader.swift; sourceTree = "<group>"; };
+        B00000000000000000000036 /* PeripheralGlassView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralGlassView.swift; sourceTree = "<group>"; };
+        B00000000000000000000037 = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,7 +139,13 @@
                 B00000000000000000000028,
                 B00000000000000000000029,
                 B00000000000000000000031 /* CaptureJournal.swift */,
+                B00000000000000000000037,
                 B00000000000000000000030 /* CaptureGeometry.swift */,
+                B00000000000000000000036 /* PeripheralGlassView.swift */,
+                B00000000000000000000035 /* PeripheralGlassShader.swift */,
+                B00000000000000000000034 /* PeripheralAlignment.swift */,
+                B00000000000000000000033 /* PeripheralGlassPolicy.swift */,
+                B00000000000000000000032 /* CameraDesign.swift */,
 			);
 			path = GlassCam;
 			sourceTree = "<group>";
@@ -196,6 +214,7 @@
 			knownRegions = (
 				en,
 				Base,
+                "zh-Hans",
 			);
 			mainGroup = C00000000000000000000001;
 			productRefGroup = C00000000000000000000003 /* Products */;
@@ -214,6 +233,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A00000000000000000000008 /* Resources/FFCS in Resources */,
+                A00000000000000000000037,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,6 +293,11 @@
                 A00000000000000000000029,
                 A00000000000000000000031 /* CaptureJournal.swift in Sources */,
                 A00000000000000000000030 /* CaptureGeometry.swift in Sources */,
+                A00000000000000000000036 /* PeripheralGlassView.swift in Sources */,
+                A00000000000000000000035 /* PeripheralGlassShader.swift in Sources */,
+                A00000000000000000000034 /* PeripheralAlignment.swift in Sources */,
+                A00000000000000000000033 /* PeripheralGlassPolicy.swift in Sources */,
+                A00000000000000000000032 /* CameraDesign.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -4,7 +4,8 @@ import OSLog
 import UIKit
 import ImageIO
 
-/// One .photo session, preferring the system's automatic triple-camera device.
+/// Automatic virtual-camera preview, with synchronized wider ports when supported.
+/// Photos always use an independent ordinary .photo transaction.
 /// Public methods and published state belong to main.
 /// AVFoundation graph ownership belongs exclusively to CameraBackend.queue.
 final class CameraController: ObservableObject {
@@ -36,6 +37,7 @@ final class CameraController: ObservableObject {
     @Published private(set) var isPreviewFrozen = false
     @Published private(set) var capturePhase: CapturePhase = .idle
     @Published private(set) var actualCapturedDimensions: CGSize?
+    @Published private(set) var peripheralSource: PeripheralFrameSource?
     @Published private(set) var centerLiveSource: LiveCameraFrameSource?
     @Published private(set) var centerPreviewLayer: AVSampleBufferDisplayLayer?
     @Published private(set) var geometry: CameraGeometry?
@@ -97,8 +99,7 @@ final class CameraController: ObservableObject {
                                                    displayedZoom: requestedZoom, stateChanged: { bundle in
                     DispatchQueue.main.async { [weak self] in
                         guard let self, self.generation == token else { return }
-                        self.currentFraming = bundle.framing
-                        self.sourceCaptureDimensions = bundle.sourceCaptureDimensions
+                        self.install(bundle)
                     }
                 }) { message in
                     DispatchQueue.main.async { [weak self] in
@@ -132,6 +133,7 @@ final class CameraController: ObservableObject {
     }
     private func install(_ bundle: CameraBackend.Bundle) {
         centerPreviewLayer = bundle.center; centerLiveSource = bundle.liveSource
+        peripheralSource = bundle.peripheralSource
         geometry = bundle.geometry
         supportedOutputOptions = bundle.outputOptions
         sourceCaptureDimensions = bundle.sourceCaptureDimensions
@@ -144,7 +146,7 @@ final class CameraController: ObservableObject {
         requestedZoom = zoomRange.clamped(requestedZoom)
     }
     private func clearPreview() {
-        centerPreviewLayer = nil; geometry = nil
+        centerPreviewLayer = nil; geometry = nil; peripheralSource = nil
         centerLiveSource?.setEnabled(false); centerLiveSource = nil
         supportedOutputOptions = []; sourceCaptureDimensions = nil; physicalCameraID = nil
         centerPreviewDimensions = nil
@@ -320,6 +322,7 @@ private final class CameraBackend {
     struct Bundle {
         let center: AVSampleBufferDisplayLayer
         let liveSource: LiveCameraFrameSource
+        let peripheralSource: PeripheralFrameSource?
         let geometry: CameraController.CameraGeometry
         let sourceCaptureDimensions: CGSize
         let outputOptions: [CameraController.OutputOption]
@@ -389,6 +392,11 @@ private final class CameraBackend {
     private var previewPixelFormats: [OSType] = []
     private var previewReadiness = DispatchGroup()
     private var useVirtualCamera = true
+    private var peripheralFrameSource: PeripheralFrameSource?
+    private var previewSynchronizer: AVCaptureDataOutputSynchronizer?
+    private var synchronizedDelivery: PeripheralFrameSynchronizer?
+    private var previewPortDevices: [AVCaptureDevice] = []
+    private var nativePhotoHints: [String: CMVideoDimensions] = [:]
     private struct NativeLens {
         let device: AVCaptureDevice
         let rawZoom: Double
@@ -412,7 +420,7 @@ private final class CameraBackend {
         discoverLensCatalog()
         let plan = PreviewConfiguration(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, displayedZoom: displayedZoom)
         configuration = plan
-        let photo: PhotoCapability
+        var photo: PhotoCapability
         do {
             photo = try buildSinglePhotoGraph(configuration: plan, orientation: orientation, expected: nil, includePreview: true)
         } catch let error as CameraFailure where error.allowsPhysicalFallback {
@@ -422,8 +430,126 @@ private final class CameraBackend {
         }
         capability = photo; dimensions = photo.dimensions
         try waitForPreviewFrames()
+        photo = try promotePreview(configuration: plan, orientation: orientation, photo: photo)
+        capability = photo
         phase = .preview
         return try previewBundle()
+    }
+
+    /// Probe .photo first, then build a video-only graph. A failed auxiliary graph
+    /// returns to the proven single preview; it never removes central capture.
+    private func promotePreview(configuration plan: PreviewConfiguration, orientation value: UIInterfaceOrientation,
+                                photo: PhotoCapability) throws -> PhotoCapability {
+        guard useVirtualCamera, tripleCamera != nil, AVCaptureMultiCamSession.isMultiCamSupported else { return photo }
+        for lens in lensCatalog {
+            nativePhotoHints[lens.device.uniqueID] = lens.device.formats.flatMap { nativePhotoDimensions(format: $0) }
+                .max(by: { Self.area($0) < Self.area($1) })
+        }
+        for includeMainPort in [true, false] {
+            tearDownGraph(preservingPreview: true)
+            do {
+                try buildMultiPreviewGraph(configuration: plan, orientation: value, photo: photo,
+                                           includeMainPort: includeMainPort)
+                try waitForPreviewFrames()
+                return PhotoCapability(physicalCameraID: photo.physicalCameraID, dimensions: photo.dimensions,
+                    horizontalFieldOfView: devices[0].activeFormat.videoFieldOfView, zoom: devices[0].videoZoomFactor)
+            } catch {
+                Self.logger.notice("Peripheral graph unavailable (extra main port: \(includeMainPort)): \(error.localizedDescription, privacy: .public)")
+                try checkLifetime()
+            }
+        }
+        tearDownGraph(preservingPreview: true)
+        let restored = try buildSinglePhotoGraph(configuration: plan, orientation: value, expected: nil, includePreview: true)
+        dimensions = restored.dimensions
+        try waitForPreviewFrames()
+        return restored
+    }
+
+    private func buildMultiPreviewGraph(configuration plan: PreviewConfiguration,
+                                        orientation value: UIInterfaceOrientation, photo: PhotoCapability, includeMainPort: Bool) throws {
+        try checkLifetime()
+        guard session == nil, let center = tripleCamera else { throw CameraFailure("Synchronized camera unavailable.") }
+        let formats = center.formats.filter { format in
+            let size = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+            return Self.sameAspect(size, photo.dimensions) &&
+                size.width >= 640 && format.videoSupportedFrameRateRanges.contains { $0.minFrameRate <= 30 && $0.maxFrameRate >= 30 } &&
+                abs(format.videoFieldOfView - photo.horizontalFieldOfView) < 0.5
+        }.sorted {
+            let a = CMVideoFormatDescriptionGetDimensions($0.formatDescription)
+            let b = CMVideoFormatDescriptionGetDimensions($1.formatDescription)
+            let target = min(plan.centerPreviewLongEdge, 1920)
+            let da = abs(Int(a.width)-target), db = abs(Int(b.width)-target)
+            return da == db ? Self.area(a) < Self.area(b) : da < db
+        }
+        // A single virtual input on iOS 26+ does not require format.isMultiCamSupported.
+        // Actual graph cost and delivery are still checked before publication.
+        guard let format = formats.first else { throw CameraFailure("No matching synchronized video format.") }
+        let multi = AVCaptureMultiCamSession()
+        session = multi; devices = [center]
+        multi.beginConfiguration()
+        var committed = false
+        defer { if !committed { multi.commitConfiguration() } }
+        let input = try AVCaptureDeviceInput(device: center)
+        guard multi.canAddInput(input) else { throw CameraFailure("Automatic synchronized input unavailable.") }
+        multi.addInputWithNoConnections(input)
+        try center.lockForConfiguration()
+        center.activeFormat = format
+        center.activeVideoMinFrameDuration = CMTime(value: 1, timescale: 30)
+        center.activeVideoMaxFrameDuration = CMTime(value: 1, timescale: 30)
+        center.videoZoomFactor = min(center.maxAvailableVideoZoomFactor,
+            max(center.minAvailableVideoZoomFactor, CGFloat(plan.displayedZoom / displayMultiplier(center))))
+        center.unlockForConfiguration()
+        // Adding an input clears this override, so set it after attachment.
+        input.videoMinFrameDurationOverride = CMTime(value: 1, timescale: 30)
+        guard let native = input.ports.first(where: { $0.mediaType == .video && $0.sourceDeviceType == center.deviceType }) else {
+            throw CameraFailure("Automatic center video port unavailable.")
+        }
+        try addPreview(port: native, device: center, cap: plan.centerPreviewLongEdge, to: multi)
+        previewPortDevices = [center]
+        let outerTypes: [AVCaptureDevice.DeviceType] = includeMainPort
+            ? [.builtInUltraWideCamera, .builtInWideAngleCamera] : [.builtInUltraWideCamera]
+        for type in outerTypes {
+            guard let physical = center.constituentDevices.first(where: { $0.deviceType == type }),
+                  let port = input.ports(for: .video, sourceDeviceType: type, sourceDevicePosition: .back).first else { continue }
+            // Virtual constituent ports use the virtual sensor format. A
+            // physical.activeFormat read here can still describe the old graph.
+            try addPreview(port: port, device: physical, cap: min(1280, plan.centerPreviewLongEdge),
+                sourceDimensions: CMVideoFormatDescriptionGetDimensions(center.activeFormat.formatDescription), to: multi)
+            previewPortDevices.append(physical)
+        }
+        guard previewOutputs.count > 1 else { throw CameraFailure("No wider synchronized video ports.") }
+        multi.commitConfiguration(); committed = true
+        guard multi.hardwareCost <= 1, multi.systemPressureCost <= 1 else { throw CameraFailure("Synchronized camera cost exceeds budget.") }
+        peripheralFrameSource = PeripheralFrameSource()
+        try negotiatePreviewPixelFormats()
+        applyOrientation(value)
+        installObservers(multi)
+        multi.startRunning()
+        try validateRunningGraph()
+        guard center.activeFormat === format else { throw CameraFailure("Starting the preview changed its camera format.") }
+        guard multi.hardwareCost <= 1, multi.systemPressureCost <= 1 else {
+            throw CameraFailure("Synchronized camera configuration is not sustainable.")
+        }
+        updatePeripheralSelection()
+    }
+
+    private func updatePeripheralSelection() {
+        guard let source = peripheralFrameSource, let center = devices.first,
+              let primary = center.activePrimaryConstituent,
+              primary.deviceType != .builtInUltraWideCamera else {
+            peripheralFrameSource?.configure(outputIndex: nil, ratio: 1); return
+        }
+        let desired: AVCaptureDevice.DeviceType = primary.deviceType == .builtInTelephotoCamera ? .builtInWideAngleCamera : .builtInUltraWideCamera
+        let candidates = previewPortDevices.indices.dropFirst()
+        let preferred = candidates.first(where: { previewPortDevices[$0].deviceType == desired })
+        let ultra = candidates.first(where: { previewPortDevices[$0].deviceType == .builtInUltraWideCamera })
+        guard let index = preferred ?? ultra else {
+            source.configure(outputIndex: nil, ratio: 1); return
+        }
+        let outer = previewPortDevices[index]
+        let centerTangent = tan(Double(center.activeFormat.videoFieldOfView) * .pi / 360) / Double(center.videoZoomFactor)
+        let outerTangent = tan(Double(outer.activeFormat.videoFieldOfView) * .pi / 360)
+        source.configure(outputIndex: index, ratio: Float(outerTangent / centerTangent))
     }
 
     private func discover(_ type: AVCaptureDevice.DeviceType) throws -> AVCaptureDevice {
@@ -556,9 +682,13 @@ private final class CameraBackend {
             center.videoZoomFactor = min(center.maxAvailableVideoZoomFactor,
                 max(center.minAvailableVideoZoomFactor, CGFloat(desired / displayMultiplier(center))))
             center.unlockForConfiguration()
-            let photo = try photoCapability(center)
-            capability = photo; dimensions = photo.dimensions
-            photoOutput?.maxPhotoDimensions = photo.dimensions
+            if session is AVCaptureMultiCamSession {
+                updatePeripheralSelection()
+            } else {
+                let photo = try photoCapability(center)
+                capability = photo; dimensions = photo.dimensions
+                photoOutput?.maxPhotoDimensions = photo.dimensions
+            }
         }
         return try previewBundle()
     }
@@ -567,7 +697,8 @@ private final class CameraBackend {
     @discardableResult
     private func buildSinglePhotoGraph(configuration plan: PreviewConfiguration, orientation value: UIInterfaceOrientation,
                                        expected: PhotoCapability?, includePreview: Bool,
-                                       forcedDevice: AVCaptureDevice? = nil) throws -> PhotoCapability {
+                                       forcedDevice: AVCaptureDevice? = nil,
+                                       matchingFieldOfViewTangent: Double? = nil) throws -> PhotoCapability {
         try checkLifetime()
         guard session == nil else { throw CameraFailure("A camera graph still owns the device.") }
         let center = try forcedDevice ?? captureDevice(displayedZoom: plan.displayedZoom)
@@ -601,6 +732,16 @@ private final class CameraBackend {
         }
         output.isAppleProRAWEnabled = true
         if output.isContentAwareDistortionCorrectionSupported { output.isContentAwareDistortionCorrectionEnabled = false }
+        if let tangent = matchingFieldOfViewTangent {
+            let exactZoom = tan(Double(center.activeFormat.videoFieldOfView) * .pi / 360) / tangent
+            guard exactZoom.isFinite, exactZoom >= Double(center.minAvailableVideoZoomFactor),
+                  exactZoom <= Double(center.maxAvailableVideoZoomFactor) else {
+                throw CameraFailure("The photo camera cannot preserve the viewfinder field of view.")
+            }
+            try center.lockForConfiguration()
+            center.videoZoomFactor = CGFloat(exactZoom)
+            center.unlockForConfiguration()
+        }
         let finalFormat = center.activeFormat
         let photo = try photoCapability(center)
         if let expected { try validate(photo, matches: expected) }
@@ -667,7 +808,8 @@ private final class CameraBackend {
         guard let port = input.ports.first(where: { $0.mediaType == .video }) else { throw CameraFailure("Camera video port is unavailable.") }
         return port
     }
-    private func addPreview(port: AVCaptureInput.Port, device: AVCaptureDevice, cap: Int, to session: AVCaptureSession) throws {
+    private func addPreview(port: AVCaptureInput.Port, device: AVCaptureDevice, cap: Int,
+                            sourceDimensions: CMVideoDimensions? = nil, to session: AVCaptureSession) throws {
         let video = AVCaptureVideoDataOutput()
         video.automaticallyConfiguresOutputBufferDimensions = false
         video.deliversPreviewSizedOutputBuffers = false; video.alwaysDiscardsLateVideoFrames = true
@@ -677,7 +819,8 @@ private final class CameraBackend {
         guard session.canAddConnection(connection) else { throw CameraFailure("A physical-lens video preview connection is unavailable.") }
         session.addConnection(connection)
         guard connection.isVideoOrientationSupported else { throw CameraFailure("This preview cannot match photo orientation.") }
-        let size = try Self.scaledPreviewDimensions(source: CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription), cap: cap)
+        let size = try Self.scaledPreviewDimensions(source: sourceDimensions ??
+            CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription), cap: cap)
         let delivery = CameraFrameDelivery.makeOnMainThread()
         video.setSampleBufferDelegate(delivery, queue: delivery.callbackQueue)
         previewOutputs.append(video); frameDeliveries.append(delivery)
@@ -740,6 +883,10 @@ private final class CameraBackend {
         }
         interfaceOrientation = value
         guard let session else { return }
+        previewSynchronizer?.setDelegate(nil, queue: nil)
+        synchronizedDelivery?.queue.sync {}
+        previewSynchronizer = nil; synchronizedDelivery = nil
+        peripheralFrameSource?.reset()
         if !configurationOpen { session.beginConfiguration() }
         defer { if !configurationOpen { session.commitConfiguration() } }
         for (index, video) in previewOutputs.enumerated() {
@@ -762,12 +909,21 @@ private final class CameraBackend {
             let portrait = orientation == .portrait || orientation == .portraitUpsideDown
             let width = Int(portrait ? size.height : size.width), height = Int(portrait ? size.width : size.height)
             let readiness = previewReadiness
-            readiness.enter()
-            frameDeliveries[index].expect(width: width, height: height, pixelFormat: previewPixelFormats[index]) { readiness.leave() }
+            if index == 0 { readiness.enter() }
+            frameDeliveries[index].expect(width: width, height: height, pixelFormat: previewPixelFormats[index]) {
+                if index == 0 { readiness.leave() }
+            }
             video.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelFormats[index],
                                    kCVPixelBufferWidthKey as String: width, kCVPixelBufferHeightKey as String: height]
             video.setSampleBufferDelegate(frameDeliveries[index], queue: frameDeliveries[index].callbackQueue)
             video.connection(with: .video)?.isEnabled = true
+        }
+        if let source = peripheralFrameSource, previewOutputs.count > 1 {
+            let receiver = PeripheralFrameSynchronizer(source: source, outputs: previewOutputs, deliveries: frameDeliveries)
+            let synchronizer = AVCaptureDataOutputSynchronizer(dataOutputs: previewOutputs)
+            synchronizedDelivery = receiver; previewSynchronizer = synchronizer
+            synchronizer.setDelegate(receiver, queue: receiver.queue)
+            updatePeripheralSelection()
         }
     }
     private func checkLifetime() throws {
@@ -833,13 +989,18 @@ private final class CameraBackend {
               !frameDeliveries.isEmpty, previewSizes.count == frameDeliveries.count else {
             throw CameraFailure("The preview graph is incomplete.")
         }
-        let framing = Self.framing(for: center, catalog: lensCatalog)
+        updatePeripheralSelection()
+        var framing = Self.framing(for: center, catalog: lensCatalog)
         let physical = highResolutionConstituent(for: center, displayedZoom: framing.displayZoom)
-        let source = physical.flatMap { try? photoCapability($0).dimensions } ?? photo.dimensions
+        let source: CMVideoDimensions
+        if session is AVCaptureMultiCamSession, let id = framing.cameraID, let hint = nativePhotoHints[id] {
+            source = hint; framing.nativePixelCount = Int(Self.area(hint))
+        } else { source = physical.flatMap { try? photoCapability($0).dimensions } ?? photo.dimensions }
         return Bundle(center: frameDeliveries[0].layer, liveSource: frameDeliveries[0].liveSource,
+                      peripheralSource: peripheralFrameSource,
                       geometry: geometry,
                       sourceCaptureDimensions: Self.size(source),
-                      outputOptions: Self.outputOptions(source: photo.dimensions), physicalCameraID: photo.physicalCameraID,
+                      outputOptions: Self.outputOptions(source: source), physicalCameraID: framing.cameraID ?? photo.physicalCameraID,
                       centerPreviewDimensions: Self.size(previewSizes[0]),
                       centerPreviewEncoding: Self.previewEncoding(previewPixelFormats[0]),
                       zoomRange: zoomRange(for: center), framing: framing)
@@ -856,7 +1017,18 @@ private final class CameraBackend {
         currentRequest = request; phase = .preparingPhoto
         do {
             try validateRunningGraph()
-            if let center = devices.first,
+            if session is AVCaptureMultiCamSession {
+                guard let center = devices.first, let primary = center.activePrimaryConstituent else {
+                    throw CameraFailure("Wait for automatic lens selection to settle.")
+                }
+                let tangent = tan(Double(center.activeFormat.videoFieldOfView) * .pi / 360) / Double(center.videoZoomFactor)
+                request.restoresVirtualPreview = true
+                request.progress(.preparing, "Preparing full-resolution photo…")
+                tearDownGraph(preservingPreview: true)
+                let photo = try buildSinglePhotoGraph(configuration: request.configuration, orientation: request.orientation,
+                    expected: nil, includePreview: false, forcedDevice: primary, matchingFieldOfViewTangent: tangent)
+                self.capability = photo; dimensions = photo.dimensions; request.capability = photo
+            } else if let center = devices.first,
                let physical = highResolutionConstituent(for: center, displayedZoom: configuration.displayedZoom) {
                 request.restoresVirtualPreview = true
                 request.progress(.preparing, "Preparing full-resolution photo…")
@@ -942,10 +1114,12 @@ private final class CameraBackend {
                     phase = .restoringPreview
                     request.progress(.restoring, "Restoring automatic viewfinder…")
                     tearDownGraph(preservingPreview: true)
-                    let photo = try buildSinglePhotoGraph(configuration: request.configuration, orientation: request.orientation,
+                    var photo = try buildSinglePhotoGraph(configuration: request.configuration, orientation: request.orientation,
                         expected: nil, includePreview: true)
                     capability = photo; dimensions = photo.dimensions
                     try waitForPreviewFrames()
+                    photo = try promotePreview(configuration: request.configuration, orientation: request.orientation, photo: photo)
+                    capability = photo
                 }
                 try validateRunningGraph()
                 try request.lifetime.check()
@@ -1029,6 +1203,11 @@ private final class CameraBackend {
     /// Owns graph disposal only, never a request completion. Stop and remove every
     /// input/output before another graph can acquire the same physical device.
     private func tearDownGraph(preservingPreview: Bool) {
+        previewSynchronizer?.setDelegate(nil, queue: nil)
+        synchronizedDelivery?.queue.sync {}
+        previewSynchronizer = nil; synchronizedDelivery = nil
+        peripheralFrameSource?.invalidate(); peripheralFrameSource = nil
+        previewPortDevices.removeAll()
         previewOutputs.forEach { $0.setSampleBufferDelegate(nil, queue: nil) }
         frameDeliveries.forEach { delivery in
             if preservingPreview { delivery.freeze() } else { delivery.invalidate() }
@@ -1058,7 +1237,7 @@ private final class CameraBackend {
         if let request { finishRequest(request, result: result, bundle: nil, previewReady: false, message: "Camera stopped.") }
         captureDelegate = nil; configuration = nil; capability = nil; lifetime = nil
         dimensions = CMVideoDimensions(width: 0, height: 0); failureHandler = nil
-        stateChanged = nil; tripleCamera = nil; lensCatalog = []
+        stateChanged = nil; tripleCamera = nil; lensCatalog = []; nativePhotoHints.removeAll()
     }
 }
 

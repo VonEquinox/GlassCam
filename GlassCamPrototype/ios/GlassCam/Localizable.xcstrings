@@ -1,0 +1,1246 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Settings": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        }
+      }
+    },
+    "Advanced": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高级设置"
+          }
+        }
+      }
+    },
+    "Back to camera": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回相机"
+          }
+        }
+      }
+    },
+    "Photo output": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片输出"
+          }
+        }
+      }
+    },
+    "Photo style": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片风格"
+          }
+        }
+      }
+    },
+    "Photo styles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片风格"
+          }
+        }
+      }
+    },
+    "Color engine": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "色彩引擎"
+          }
+        }
+      }
+    },
+    "Resolution": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分辨率"
+          }
+        }
+      }
+    },
+    "Photo resolution": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片分辨率"
+          }
+        }
+      }
+    },
+    "Format": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "格式"
+          }
+        }
+      }
+    },
+    "Photo effects": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片效果"
+          }
+        }
+      }
+    },
+    "Effect exposure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "效果曝光"
+          }
+        }
+      }
+    },
+    "Photo effect exposure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片效果曝光"
+          }
+        }
+      }
+    },
+    "Sharpening": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "锐化"
+          }
+        }
+      }
+    },
+    "Grain": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "颗粒"
+          }
+        }
+      }
+    },
+    "Viewfinder": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取景"
+          }
+        }
+      }
+    },
+    "Composition grid": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "构图网格"
+          }
+        }
+      }
+    },
+    "Color processing & preview": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "色彩处理与预览"
+          }
+        }
+      }
+    },
+    "Color processing": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "色彩处理"
+          }
+        }
+      }
+    },
+    "Preview": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预览"
+          }
+        }
+      }
+    },
+    "Adjustments": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "调整"
+          }
+        }
+      }
+    },
+    "Phocus preset": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phocus 预设"
+          }
+        }
+      }
+    },
+    "White balance": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "白平衡"
+          }
+        }
+      }
+    },
+    "Photo · Automatic": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片自动白平衡"
+          }
+        }
+      }
+    },
+    "Original preset": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原始预设"
+          }
+        }
+      }
+    },
+    "Film curve": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "胶片曲线"
+          }
+        }
+      }
+    },
+    "Working space": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作色域"
+          }
+        }
+      }
+    },
+    "Rendering intent": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "渲染意图"
+          }
+        }
+      }
+    },
+    "Preset tone curve": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预设明暗曲线"
+          }
+        }
+      }
+    },
+    "Override factory CCT": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覆盖工厂色温"
+          }
+        }
+      }
+    },
+    "As Shot (Standard fallback)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "随拍摄（回退 Standard）"
+          }
+        }
+      }
+    },
+    "Low Contrast": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低对比"
+          }
+        }
+      }
+    },
+    "High Contrast": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高对比"
+          }
+        }
+      }
+    },
+    "Old Standard": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旧版 Standard"
+          }
+        }
+      }
+    },
+    "Linear": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "线性"
+          }
+        }
+      }
+    },
+    "Reproduction (pure curve)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复现（纯曲线）"
+          }
+        }
+      }
+    },
+    "Reference LUT camera family": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "参考 LUT 相机系列"
+          }
+        }
+      }
+    },
+    "Film simulation": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "胶片模拟"
+          }
+        }
+      }
+    },
+    "Reference analytic adjustments (approx.)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "参考解析调整（近似）"
+          }
+        }
+      }
+    },
+    "Preview long-edge limit": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预览长边上限"
+          }
+        }
+      }
+    },
+    "Experimental live color (approx.)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实验性实时色彩（近似）"
+          }
+        }
+      }
+    },
+    "Reset effect adjustments": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置效果调整"
+          }
+        }
+      }
+    },
+    "Choose photo style": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择照片风格"
+          }
+        }
+      }
+    },
+    "Focal length": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "焦距"
+          }
+        }
+      }
+    },
+    "Focal length controls": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "焦距控制"
+          }
+        }
+      }
+    },
+    "Continuous focal length": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续焦距"
+          }
+        }
+      }
+    },
+    "Camera controls": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机控制"
+          }
+        }
+      }
+    },
+    "Capturing RAW": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在拍摄 RAW"
+          }
+        }
+      }
+    },
+    "Processing photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在处理照片"
+          }
+        }
+      }
+    },
+    "Photo needs attention": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片需要处理"
+          }
+        }
+      }
+    },
+    "Camera settings and photo effects": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机设置与照片效果"
+          }
+        }
+      }
+    },
+    "Take photo and save to Photos": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍摄并保存到相册"
+          }
+        }
+      }
+    },
+    "Apply your saved settings and automatically save an HDR photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用已保存的设置，自动保存 HDR 照片"
+          }
+        }
+      }
+    },
+    "View latest saved photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看最近保存的照片"
+          }
+        }
+      }
+    },
+    "Composition grid on": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "构图网格已开启"
+          }
+        }
+      }
+    },
+    "Composition grid off": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "构图网格已关闭"
+          }
+        }
+      }
+    },
+    "Retry camera": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试相机"
+          }
+        }
+      }
+    },
+    "Open Settings": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开系统设置"
+          }
+        }
+      }
+    },
+    "Open camera controls": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开相机控制"
+          }
+        }
+      }
+    },
+    "Camera stopped": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机已停止"
+          }
+        }
+      }
+    },
+    "Checking camera access…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查相机权限…"
+          }
+        }
+      }
+    },
+    "Checking camera ProRAW capability…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查 ProRAW 能力…"
+          }
+        }
+      }
+    },
+    "Automatic camera": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动相机"
+          }
+        }
+      }
+    },
+    "Main": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主摄"
+          }
+        }
+      }
+    },
+    "Ultra Wide": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "超广角"
+          }
+        }
+      }
+    },
+    "Telephoto": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "长焦"
+          }
+        }
+      }
+    },
+    "Automatic lens selection": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动选择镜头"
+          }
+        }
+      }
+    },
+    "Photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片"
+          }
+        }
+      }
+    },
+    "Review": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回看"
+          }
+        }
+      }
+    },
+    "Already in Photos": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已存入相册"
+          }
+        }
+      }
+    },
+    "Save again…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次保存…"
+          }
+        }
+      }
+    },
+    "Retry save": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试保存"
+          }
+        }
+      }
+    },
+    "Discard…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "丢弃…"
+          }
+        }
+      }
+    },
+    "OK": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好"
+          }
+        }
+      }
+    },
+    "Discard photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "丢弃照片"
+          }
+        }
+      }
+    },
+    "Save to Photos again": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次存入相册"
+          }
+        }
+      }
+    },
+    "Discard this unsaved photo?": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "丢弃这张尚未保存的照片？"
+          }
+        }
+      }
+    },
+    "Save this photo again? Check Photos first to avoid a duplicate.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次保存这张照片？请先检查系统相册，以免重复保存。"
+          }
+        }
+      }
+    },
+    "Share": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享"
+          }
+        }
+      }
+    },
+    "Camera": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
+      }
+    },
+    "Photos save automatically. In 48 MP mode, smaller framed sources save at 24 MP.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片会自动保存。48 MP 档下，有效像素不足 24 MP 时以 24 MP 输出。"
+          }
+        }
+      }
+    },
+    "The clear central frame is your photo. The outer glass darkens when camera views cannot align reliably.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中央清晰区域就是成片范围。多摄画面无法可靠对齐时，外围玻璃会变黑。"
+          }
+        }
+      }
+    },
+    "Approximate color only; the saved photo uses the complete selected effect.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅近似显示色彩；保存照片使用完整的所选效果。"
+          }
+        }
+      }
+    },
+    "Resets effect exposure and the HNCS look. Output, grain and sharpening choices stay saved.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置效果曝光和 HNCS 风格。输出、颗粒与锐化的选择会保留。"
+          }
+        }
+      }
+    },
+    "Factory CCT override changes the color profile only; it does not change photo white balance.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工厂色温覆盖只改变颜色配置，不改变照片白平衡。"
+          }
+        }
+      }
+    },
+    "As Shot uses the Standard film curve for iPhone photos. The selected preset also supplies its tone and detail settings.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone 照片的 As Shot 使用 Standard 胶片曲线。所选预设同时提供明暗和细节设置。"
+          }
+        }
+      }
+    },
+    "This native LUT asset is unavailable. Choose another look or family.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此原生 LUT 不可用，请选择其他风格或系列。"
+          }
+        }
+      }
+    },
+    "Saved to Photos": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已存入相册"
+          }
+        }
+      }
+    },
+    "Back to settings": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回设置"
+          }
+        }
+      }
+    },
+    "Keeps each photo’s own white balance.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留每张照片自身的白平衡。"
+          }
+        }
+      }
+    },
+    "Uses the original preset white balance, when specified.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预设指定白平衡时，使用其原始白平衡。"
+          }
+        }
+      }
+    },
+    "Share HDR photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享 HDR 照片"
+          }
+        }
+      }
+    },
+    "HDR photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HDR 照片"
+          }
+        }
+      }
+    },
+    "Hide composition grid": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏构图网格"
+          }
+        }
+      }
+    },
+    "Show composition grid": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示构图网格"
+          }
+        }
+      }
+    },
+    "On": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启"
+          }
+        }
+      }
+    },
+    "Off": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "Unprocessed system camera preview inside the photograph frame": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成像框内为系统相机预览"
+          }
+        }
+      }
+    },
+    "Viewfinder. Open camera controls": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取景。打开相机控制"
+          }
+        }
+      }
+    },
+    "Preparing photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在准备拍摄"
+          }
+        }
+      }
+    },
+    "Retaining photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在保留照片"
+          }
+        }
+      }
+    },
+    "Saving photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在保存照片"
+          }
+        }
+      }
+    },
+    "Restoring photo": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在恢复照片"
+          }
+        }
+      }
+    },
+    "Photo paused": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片处理已暂停"
+          }
+        }
+      }
+    },
+    "Approx. preview · HDR": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "近似预览 · HDR"
+          }
+        }
+      }
+    },
+    "Uses this look’s sharpening and grain settings, when available. Your choices stay saved when you change looks.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用当前风格包含的锐化与颗粒参数，切换风格时会保留开关选择。"
+          }
+        }
+      }
+    },
+    "To add sharpening or grain to FFCS looks, enable additional reference adjustments in Advanced.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要为 FFCS 风格添加锐化或颗粒，请在高级设置中开启参考解析调整。"
+          }
+        }
+      }
+    },
+    "Choose the camera color reference for this look.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择此风格使用的相机色彩参考。"
+          }
+        }
+      }
+    },
+    "Color reference: %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "色彩参考：%@"
+          }
+        }
+      }
+    },
+    "Optional tone, color, grain and sharpening adjustments. Grain and sharpening also follow your saved switches.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可选的明暗、色彩、颗粒与锐化调整。颗粒和锐化同时受各自开关控制。"
+          }
+        }
+      }
+    },
+    "Hasselblad RGB (legacy)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hasselblad RGB（旧版）"
+          }
+        }
+      }
+    },
+    "Factory CCT: %lld K": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工厂色温：%lld K"
+          }
+        }
+      }
+    },
+    "Reference sharpening radius: %.1f px": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "参考锐化半径：%.1f px"
+          }
+        }
+      }
+    },
+    "Camera permission denied. Enable camera access in Settings.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未获得相机权限，请在系统设置中开启。"
+          }
+        }
+      }
+    },
+    "Checking Photos access…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查相册权限…"
+          }
+        }
+      }
+    },
+    "Capturing RAW…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在拍摄 RAW…"
+          }
+        }
+      }
+    },
+    "Retaining photo…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在保留照片…"
+          }
+        }
+      }
+    },
+    "Saving to Photos…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在存入相册…"
+          }
+        }
+      }
+    },
+    "Checking retained photo…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查待完成照片…"
+          }
+        }
+      }
+    },
+    "Photo paused. Return to GlassCam to finish it.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片处理已暂停，返回 GlassCam 后继续。"
+          }
+        }
+      }
+    },
+    "Return to the camera and try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请返回相机后重试。"
+          }
+        }
+      }
+    },
+    "Zoom in": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "放大"
+          }
+        }
+      }
+    },
+    "Reset zoom": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置缩放"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

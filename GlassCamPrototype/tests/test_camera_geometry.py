@@ -51,16 +51,16 @@ def chrome_layout(width, height, aspect, safe_area=(0, 0, 0, 0), accessible=Fals
     if photo[0] > photo[1]:
         first = usable((0, 0, photo[0], height))
         second = usable((photo[0] + photo[2], 0, width - photo[0] - photo[2], height))
-        if not accessible and min(first[2], second[2]) >= 100 and min(first[3], second[3]) >= 292:
+        if not accessible and min(first[2], second[2]) >= 100 and min(first[3], second[3]) >= 408:
             style = 'landscape'
-        elif not accessible and first[2] >= 44 and second[2] >= 56 and min(first[3], second[3]) >= 212:
+        elif not accessible and first[2] >= 68 and second[2] >= 64 and min(first[3], second[3]) >= 264:
             style = 'compactVertical'
         else:
             style = 'separate'
     else:
         first = usable((0, 0, width, photo[1]))
         second = usable((0, photo[1] + photo[3], width, height - photo[1] - photo[3]))
-        if not accessible and first[3] >= 94 and second[3] >= 112 and min(first[2], second[2]) >= 276:
+        if not accessible and first[3] >= 94 and second[3] >= 140 and min(first[2], second[2]) >= 276:
             style = 'portrait'
         elif not accessible and first[3] >= 44 and second[3] >= 56 and min(first[2], second[2]) >= 312:
             style = 'compactHorizontal'
@@ -164,8 +164,10 @@ class CameraGeometryTests(unittest.TestCase):
 
     def test_controls_use_available_panes_or_separate_panel(self):
         cases = [
-            ((390, 844, .75), (59, 0, 34, 0), 'portrait'),
-            ((932, 430, 4 / 3), (0, 59, 21, 59), 'landscape'),
+            ((440, 956, .75), (62, 0, 34, 0), 'portrait'),
+            ((956, 440, 4 / 3), (0, 62, 21, 62), 'landscape'),
+            ((390, 844, .75), (59, 0, 34, 0), 'compactHorizontal'),
+            ((932, 430, 4 / 3), (0, 59, 21, 59), 'compactVertical'),
             ((375, 788, .75), (44, 0, 34, 0), 'compactHorizontal'),
             ((844, 390, 4 / 3), (0, 59, 21, 59), 'compactVertical'),
             ((720, 720, .75), (0, 0, 0, 0), 'compactVertical'),

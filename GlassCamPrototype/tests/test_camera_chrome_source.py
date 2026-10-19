@@ -12,6 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 VIEW = (ROOT / 'ios/GlassCam/CameraView.swift').read_text()
 FRAMING = (ROOT / 'ios/GlassCam/CameraFraming.swift').read_text()
 CONTENT = (ROOT / 'ios/GlassCam/ContentView.swift').read_text()
+DESIGN = (ROOT / 'ios/GlassCam/CameraDesign.swift').read_text()
+SHADER = (ROOT / 'ios/GlassCam/PeripheralGlassShader.swift').read_text()
 
 
 def section(source, start, end):
@@ -42,9 +44,10 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertIn('].filter { $0.width > 0 && $0.height > 0 }', FRAMING)
         self.assertEqual(panes.count('CGRect('), 4)
 
-    def test_opaque_chrome_has_no_glass_or_material(self):
-        self.assertNotIn('.glassEffect(', VIEW)
-        self.assertNotIn('.glassEffect(', CONTENT)
+    def test_custom_glass_does_not_use_system_backdrops_or_view_snapshots(self):
+        for source in (VIEW, CONTENT, DESIGN):
+            for token in ('.glassEffect(', 'UIGlassEffect', 'CABackdropLayer', 'UIVisualEffectView'):
+                self.assertNotIn(token, source)
         for forbidden in ('.glassEffect(.regular', '.buttonStyle(.glass)',
                           '.ultraThinMaterial', '.thinMaterial', '.regularMaterial',
                           '.thickMaterial', '.ultraThickMaterial', 'UIBlurEffect',
@@ -54,16 +57,16 @@ class CameraChromeSourceContracts(unittest.TestCase):
                           '.resizeAspectFill', 'scaleEffect(x: -1'):
             self.assertNotIn(forbidden, VIEW)
 
-    def test_black_perimeter_is_outside_the_photo(self):
-        panes = section(VIEW, 'ForEach(Array(framing.perimeter.enumerated())',
-                        'if let layer = camera.centerPreviewLayer')
-        self.assertIn('Color.black', panes)
-        self.assertIn('.frame(width: pane.width, height: pane.height)', panes)
-        self.assertIn('.position(x: pane.midX, y: pane.midY)', panes)
-        self.assertIn('.allowsHitTesting(false)', panes)
-        self.assertNotIn('CameraPaneGlass', VIEW)
-        self.assertLess(VIEW.index('ForEach(Array(framing.perimeter.enumerated())'),
-                        VIEW.index('if let layer = camera.centerPreviewLayer'))
+    def test_peripheral_renderer_is_behind_and_excludes_the_photo(self):
+        outer = section(VIEW, 'PeripheralGlassView(source:', 'if let layer = camera.centerPreviewLayer')
+        self.assertIn('framing: framing', outer)
+        self.assertIn('.allowsHitTesting(false)', outer)
+        self.assertIn('!settingsPresented && reviewedCapture == nil', outer)
+        self.assertIn('!camera.isPreviewFrozen', outer)
+        self.assertLess(VIEW.index('PeripheralGlassView(source:'), VIEW.index('if let layer = camera.centerPreviewLayer'))
+        self.assertIn('if (all(uv >= u.photo.xy) && all(uv < end)) discard_fragment();', SHADER)
+        self.assertLess(SHADER.index('discard_fragment()'), SHADER.index('camera.sample('))
+        self.assertIn('if (u.blackOpacity >= 0.9999) return float4(0,0,0,1);', SHADER)
 
     def test_photo_and_live_proxy_remain_plain_aspect_fit_at_same_photo_rect(self):
         center = section(VIEW, 'if let layer = camera.centerPreviewLayer',
@@ -82,27 +85,25 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertIn('enabled: experimentalLiveColor && scenePhase == .active && !camera.isPreviewFrozen', proxy)
 
 
-    def test_reference_style_has_brand_flash_grid_status_and_photo_only(self):
+    def test_viewfinder_exposes_real_photo_quick_controls_outside_center(self):
         controls = section(VIEW, 'private func controls(', 'private var wordmark:')
         portrait = section(controls, 'case .portrait:', 'case .landscape:')
-        ordered = ['flashOff', 'wordmark', 'gridButton', 'captureMetadata',
-                   'photoMode', 'thumbnailButton', 'shutter(', 'settingsButton']
+        ordered = ['resolutionButton', 'wordmark', 'gridButton', 'captureMetadata',
+                   'zoomButtons', 'lensIndicator', 'thumbnailButton', 'shutter(', 'settingsButton']
         cursor = -1
         for token in ordered:
             cursor = portrait.find(token, cursor + 1)
             self.assertGreaterEqual(cursor, 0, token)
         self.assertIn('Text("GLASSCAM")', VIEW)
-        wordmark = section(VIEW, 'private var wordmark:', 'private var flashOff:')
+        wordmark = section(VIEW, 'private var wordmark:', 'private var gridButton:')
         self.assertIn('.tracking(3.5)', wordmark)
-        flash = section(VIEW, 'private var flashOff:', 'private var gridButton:')
-        self.assertIn('Image(systemName: "bolt.slash")', flash)
-        self.assertIn('.accessibilityLabel("Flash off")', flash)
-        self.assertNotIn('Button {', flash)
-        photo_mode = section(VIEW, 'private var photoMode:', 'private var photoAspectLabel:')
-        self.assertIn('"Photo"', photo_mode)
-        self.assertIn('experimentalLiveColor', photo_mode)
-        self.assertIn('liveProxyStatus.isShowingEffect', photo_mode)
-        self.assertIn('camera.isReady && !camera.isPreviewFrozen', photo_mode)
+        metadata = section(VIEW, 'private var captureMetadata:', 'private var styleButton:')
+        self.assertIn('styleButton', metadata)
+        self.assertIn('statusButton', metadata)
+        self.assertNotIn('workflowStatus', VIEW[:VIEW.index('controls(framing: framing, chrome: chrome)')])
+        summary = section(VIEW, 'private var summaryStatus:', 'private var photoAspectLabel:')
+        self.assertIn('liveProxyStatus.isShowingEffect', summary)
+        self.assertIn('Approx. preview · HDR', summary)
         self.assertNotRegex(VIEW, r'Text\("(?:Video|Portrait|视频|人像)"\)')
         self.assertIn('camera.geometry?.sensorPhotoDimensions', VIEW)
         self.assertIn('CameraZoomRange.label(camera.requestedZoom)', VIEW)
@@ -143,17 +144,17 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertIn('style = .separate', layout)
         self.assertNotRegex(layout, r'framing\.photo\s*=')
         self.assertNotIn('CameraFraming(size:', layout)
-        for threshold in ('first.width >= 44, second.width >= 56',
+        for threshold in ('first.width >= 68, second.width >= 64',
                           'first.height >= 44, second.height >= 56',
-                          'min(first.height, second.height) >= 212',
+                          'min(first.height, second.height) >= 264',
                           'min(first.width, second.width) >= 312'):
             self.assertIn(threshold, layout)
         self.assertIn('.sheet(item: $activePanel)', VIEW)
         self.assertIn('.presentationBackground(Color.black)', VIEW)
         panel = section(VIEW, 'private func cameraPanel(', 'private var selectedOutput:')
-        self.assertIn('.background(Color.black)', panel)
-        self.assertIn('Tap it to reopen these controls.', panel)
-        self.assertIn('Button("Viewfinder") { activePanel = nil }', panel)
+        self.assertIn('.background(CameraSettingsBackground())', panel)
+        self.assertIn('backIdentifier: "camera.panel.back"', panel)
+        self.assertIn('activePanel = nil', panel)
         gesture = section(VIEW, 'if camera.centerPreviewLayer != nil', 'controls(framing: framing, chrome: chrome)')
         self.assertIn('.onTapGesture { if chrome.style == .separate { activePanel = .compact } }', gesture)
         self.assertIn('.accessibilityAction { if chrome.style == .separate { activePanel = .compact } }', gesture)
@@ -190,15 +191,16 @@ class CameraChromeSourceContracts(unittest.TestCase):
         for token in ('Picker("Color engine", selection: $settings.colorMode)',
                       'FFCSReferenceControls(settings: $settings.ffcs, simulationIndex: $settings.simulationIndex)',
                       'Slider(value: $settings.exposure, in: -2...2, step: 0.05)',
-                      'HNCSPresetControls(settings: $settings.hncs)',
+                      'HNCSPresetControls(settings: $settings.hncs, showCommon: false)',
                       'selection: outputSelection', 'selection: $settings.centerPreviewLongEdge',
-                      'isOn: $settings.experimentalLiveColor', 'Smaller sources are upscaled', 'ForEach([24, 48]'):
+                      'isOn: $settings.experimentalLiveColor', 'smaller framed sources save at 24 MP', 'ForEach([24, 48]',
+                      'CameraCard(title: "Photo output"', 'if advanced { advancedCards } else { commonCards }'):
             self.assertIn(token, settings)
         self.assertIn('.fullScreenCover(item: $destination', VIEW)
         self.assertIn('Image(systemName: "gearshape")', VIEW)
         self.assertNotIn('Open editor', VIEW)
 
-    def test_controls_are_clipped_to_the_black_spare_regions(self):
+    def test_controls_are_clipped_to_the_peripheral_regions(self):
         region = section(VIEW, 'private struct CameraChromeRegion:', 'private struct PhotoFrameGuide:')
         tokens = ['.frame(width: rect.width, height: rect.height)',
                   '.clipped()', '.position(x: rect.midX, y: rect.midY)']

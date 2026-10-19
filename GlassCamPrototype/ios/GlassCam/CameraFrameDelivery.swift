@@ -56,6 +56,9 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
     }
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
+        receive(sampleBuffer)
+    }
+    func receive(_ sampleBuffer: CMSampleBuffer) {
         guard CMSampleBufferDataIsReady(sampleBuffer), let image = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         lock.lock()
         guard active, CVPixelBufferGetPixelFormatType(image) == expectedPixelFormat,

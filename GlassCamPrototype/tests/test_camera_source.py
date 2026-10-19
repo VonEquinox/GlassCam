@@ -4,14 +4,32 @@ from pathlib import Path
 
 SOURCE = (Path(__file__).resolve().parents[1] / 'ios/GlassCam/CameraController.swift').read_text()
 FRAMES = (Path(__file__).resolve().parents[1] / 'ios/GlassCam/CameraFrameDelivery.swift').read_text()
+PERIPHERAL = (Path(__file__).resolve().parents[1] / 'ios/GlassCam/PeripheralAlignment.swift').read_text()
 
 class CameraSourceContracts(unittest.TestCase):
-    def test_one_photo_session_with_automatic_three_camera_support(self):
+    def test_automatic_preview_keeps_photos_in_an_ordinary_photo_session(self):
         self.assertIn('.builtInWideAngleCamera', SOURCE)
         for required in ('.builtInTripleCamera', '.builtInUltraWideCamera', '.builtInTelephotoCamera'):
             self.assertIn(required, SOURCE)
-        for forbidden in ('AVCaptureMultiCamSession', 'supportedMultiCamDeviceSets'):
-            self.assertNotIn(forbidden, SOURCE)
+        preview = SOURCE.split('private func buildMultiPreviewGraph(', 1)[1].split('private func updatePeripheralSelection()', 1)[0]
+        self.assertIn('AVCaptureMultiCamSession()', preview)
+        self.assertNotIn('AVCapturePhotoOutput()', preview)
+        self.assertIn('multi.hardwareCost <= 1', preview)
+        self.assertIn('multi.systemPressureCost <= 1', preview)
+        self.assertLess(preview.index('multi.addInputWithNoConnections(input)'),
+                        preview.index('input.videoMinFrameDurationOverride ='))
+        capture = SOURCE.split('    func capture(progress:', 1)[1].split('private func waitUntilPhotoReady(', 1)[0]
+        multi_capture = capture.split('if session is AVCaptureMultiCamSession {', 1)[1].split('} else if', 1)[0]
+        self.assertLess(multi_capture.index('tearDownGraph(preservingPreview: true)'),
+                        multi_capture.index('buildSinglePhotoGraph('))
+        self.assertIn('forcedDevice: primary, matchingFieldOfViewTangent: tangent', multi_capture)
+
+    def test_missing_peripheral_frames_do_not_block_center_delivery(self):
+        callback = PERIPHERAL.split('func dataOutputSynchronizer(', 1)[1].split('#endif', 1)[0]
+        self.assertLess(callback.index('deliveries[0].receive(center)'), callback.index('source.offer('))
+        self.assertIn('let outer = selection.outputIndex.flatMap(sample)', callback)
+        self.assertIn('if index == 0 { readiness.enter() }', SOURCE)
+        self.assertIn('if index == 0 { readiness.leave() }', SOURCE)
 
     def test_graph_uses_manual_center_photo_connection(self):
         for token in ['AVCaptureSession()', 'addInputWithNoConnections', 'addOutputWithNoConnections',
@@ -41,7 +59,7 @@ class CameraSourceContracts(unittest.TestCase):
                       'centerPreviewLongEdge',
                       'newSession.sessionPreset = .photo', 'nominal == 12 || nominal == 48',
                       '[24, 48].compactMap', 'ExportSettings.camera(tier).dimensions',
-                      'outputOptions: Self.outputOptions(source: photo.dimensions)']:
+                      'outputOptions: Self.outputOptions(source: source)']:
             self.assertIn(token, SOURCE)
         capture = SOURCE.split('private func submitPhoto(', 1)[1].split('private func finishPhoto(', 1)[0]
         self.assertNotIn('OutputOption', capture)

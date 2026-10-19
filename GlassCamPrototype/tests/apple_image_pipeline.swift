@@ -426,6 +426,28 @@ private func require(_ condition: Bool, _ message: String) throws {
             try require(store.recipe == recipe && CameraSettingsStore(defaults: defaults).recipe == recipe,
                         "Explicit camera WB choice was overwritten on reload")
         }
+        for cropEnabled in [true, false] {
+            var square = settings; square.presetKey = "square-crop"
+            let effects = EffectToggles(applyGrain: false, applySharpness: true, applyExtraCrop: cropEnabled)
+            let historical = ProcessingRecipe(mode: .hncs, exposureEV: -0.3, illuminantKelvin: 6500,
+                simulationIndex: 0, seed: 0, hncs: square, effects: effects)
+            let data = try JSONEncoder().encode(historical)
+            defaults.set(data, forKey: "editor.processingRecipe.revision8.v1")
+            let camera = CameraSettingsStore(defaults: defaults)
+            var migrated = square; migrated.presetKey = "standard"
+            let future = ProcessingRecipe(mode: .hncs, exposureEV: -0.3, illuminantKelvin: 6500,
+                simulationIndex: 0, seed: 0, hncs: migrated, effects: effects)
+            try require(camera.recipe == future && CameraSettingsStore(defaults: defaults).recipe == future,
+                        "Legacy square camera preference did not migrate and persist independently")
+            camera.hncs.presetKey = "square-crop"
+            try require(camera.recipe.crop == .none, "An injected legacy camera preference created a new square photo")
+            let restored = try JSONDecoder().decode(ProcessingRecipe.self, from: data)
+            try require(restored == historical && restored.crop == (cropEnabled ? .centeredSquare : .none),
+                        "Camera-only migration changed a frozen historical photo recipe")
+        }
+        try require(!HNCSEngine.cameraPresets.contains { $0.id == "square-crop" } &&
+                    HNCSEngine.presets.contains { $0.id == "square-crop" },
+                    "Camera catalog and legacy recipe catalog lost their compatibility boundary")
         for unsupported in [7, 12] {
             storedHNCS["renderRevision"] = unsupported
             payload["hncs"] = storedHNCS

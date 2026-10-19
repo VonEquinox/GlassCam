@@ -122,6 +122,9 @@ enum HNCSEngine {
 
     /// Catalog names come from the exact backend assets. Source-defined no-op
     /// tools are not presented as fake effects; spatial looks use a separate pass.
+    /// New camera UI excludes the legacy square look; saved photo recipes still decode it.
+    static var cameraPresets: [Preset] { presets.filter { $0.id != "square-crop" } }
+
     static let presets: [Preset] = (0..<Int(hncs_preset_count())).compactMap { index in
         guard let key = hncs_preset_key(index), let name = hncs_preset_name(index) else { return nil }
         let flags = hncs_preset_flags(key)

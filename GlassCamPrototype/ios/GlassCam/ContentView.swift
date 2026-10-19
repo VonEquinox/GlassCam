@@ -30,24 +30,26 @@ struct ContentView: View {
 
 struct HNCSPresetControls: View {
     @Binding var settings: HNCSSettings
+    var showCommon = true
 
     var body: some View {
-        Picker("Phocus preset", selection: $settings.presetKey) {
-            ForEach(HNCSEngine.presets) { preset in Text(preset.name).tag(preset.id) }
+        if showCommon {
+            Picker("Phocus preset", selection: $settings.presetKey) {
+                ForEach(HNCSEngine.cameraPresets) { preset in Text(preset.name).tag(preset.id) }
+            }
+            Picker("White balance", selection: $settings.whiteBalancePolicy) {
+                ForEach(HNCSWhiteBalancePolicy.allCases) { policy in Text(LocalizedStringKey(policy.title)).tag(policy) }
+            }
+            .accessibilityIdentifier("settings.whiteBalance")
         }
-        Picker("White balance", selection: $settings.whiteBalancePolicy) {
-            ForEach(HNCSWhiteBalancePolicy.allCases) { policy in Text(policy.title).tag(policy) }
-        }
-        .accessibilityIdentifier("settings.whiteBalance")
-        Text(settings.whiteBalanceExplanation).font(.caption).foregroundStyle(.secondary)
         Picker("Film curve", selection: $settings.filmCurve) {
-            ForEach(HNCSFilmCurve.allCases) { curve in Text(curve.title).tag(curve) }
+            ForEach(HNCSFilmCurve.allCases) { curve in Text(LocalizedStringKey(curve.title)).tag(curve) }
         }
         Picker("Working space", selection: $settings.workingSpace) {
-            ForEach(HNCSWorkingSpace.allCases) { space in Text(space.title).tag(space) }
+            ForEach(HNCSWorkingSpace.allCases) { space in Text(LocalizedStringKey(space.title)).tag(space) }
         }
         Picker("Rendering intent", selection: $settings.intent) {
-            ForEach(HNCSIntent.allCases) { intent in Text(intent.title).tag(intent) }
+            ForEach(HNCSIntent.allCases) { intent in Text(LocalizedStringKey(intent.title)).tag(intent) }
         }
         Toggle("Preset tone curve", isOn: $settings.applyToneCurve)
         Toggle("Override factory CCT", isOn: Binding(
@@ -65,55 +67,22 @@ struct HNCSPresetControls: View {
     }
 }
 
-/// Shared gates remain editable even when a look has no matching stage. Their
-/// saved state survives preset/mode changes; only source-defined stages run.
+/// The camera exposes two effect switches. The legacy crop flag remains in
+/// serialized recipes for previously saved photos, outside this UI.
 struct EffectToggleControls: View {
     @Binding var effects: EffectToggles
     let mode: ColorMode
-    let hncs: HNCSSettings
-    private var presetFlags: UInt32 {
-        HNCSEngine.presets.first { $0.id == hncs.presetKey }?.flags ?? 0
-    }
 
     var body: some View {
-        Toggle("Preset USM / sharpening", isOn: $effects.applySharpness)
+        Toggle("Sharpening", isOn: $effects.applySharpness)
             .accessibilityIdentifier("effects.sharpening")
-        Toggle("Preset grain", isOn: $effects.applyGrain)
+        Toggle("Grain", isOn: $effects.applyGrain)
             .accessibilityIdentifier("effects.grain")
-        Toggle("Preset extra crop", isOn: $effects.applyExtraCrop)
-            .accessibilityIdentifier("effects.extraCrop")
-        Text("Each switch uses only the current preset's parameters. Your choices stay saved when you change presets or engines.")
+        Text("Uses this look’s sharpening and grain settings, when available. Your choices stay saved when you change looks.")
             .font(.caption).foregroundStyle(.secondary)
         if mode == .ffcs {
-            Text("FFCS 0.2 native LUTs have neutral postprocessing: enabling grain or sharpening alone adds nothing. Reference analytic adjustments are a separate opt-in. FFCS has no extra crop; this crop choice stays saved for HNCS.")
+            Text("To add sharpening or grain to FFCS looks, enable additional reference adjustments in Advanced.")
                 .font(.caption).foregroundStyle(.secondary)
-        } else {
-            if hncs.presetKey == "standard" {
-                Text("Standard uses its factory sharpening when enabled. It has no preset grain.")
-                    .font(.caption).foregroundStyle(.secondary)
-            } else {
-                if presetFlags & 4 == 0 {
-                    Text("This HNCS preset has no grain stage.")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                if presetFlags & (8 | 16) == 0 {
-                    Text("This HNCS preset has no sharpening stage.")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-            }
-            if presetFlags & 4 != 0 && effects.applyGrain {
-                Text("Grain uses image dimensions and whole-image statistics. Its preview pattern can differ from the full-source export, even with the same recipe.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            if hncs.presetKey == "square-crop" {
-                Text(effects.applyExtraCrop
-                     ? "Centered 1:1 composition. The selected 24/48 MP output policy applies after this crop."
-                     : "Extra crop is off. The current camera composition is preserved.")
-                    .font(.caption).foregroundStyle(.secondary)
-            } else {
-                Text("This HNCS preset has no extra crop.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
         }
     }
 }
@@ -149,12 +118,10 @@ struct FFCSReferenceControls: View {
                 Text(simulation.name).tag(simulation.id)
             }
         }.pickerStyle(.menu).accessibilityIdentifier("ffcs.simulation")
-        Text("Research LUT asset family, not the iPhone capture camera. Only native available looks are listed; no analytic fallback.")
+        Text("Choose the camera color reference for this look.")
             .font(.caption).foregroundStyle(.secondary)
         if let actualFamily = FFCSEngine.resolvedAssetFamily(simulationIndex, family: settings.cameraFamily) {
-            Text(actualFamily == settings.cameraFamily.rawValue
-                 ? "Actual LUT asset family: \(actualFamily)"
-                 : "Actual LUT asset family: \(actualFamily). The source-defined native GFX fallback is active for this look.")
+            Text("Color reference: \(actualFamily)")
                 .font(.caption).foregroundStyle(.secondary)
                 .accessibilityIdentifier("ffcs.actualAssetFamily")
         } else {
@@ -163,7 +130,7 @@ struct FFCSReferenceControls: View {
         }
         Toggle("Reference analytic adjustments (approx.)", isOn: $settings.applyReferenceAdjustments)
             .accessibilityIdentifier("ffcs.referenceAdjustments")
-        Text("FFCS 0.2 corrects the previous default: native LUT rendering is neutral after the LUT. Existing grain, sharpening and crop switches stay saved. Opt in to approximate reference tone/color, grain and Gaussian sharpening; grain and sharpening still obey their own switches.")
+        Text("Optional tone, color, grain and sharpening adjustments. Grain and sharpening also follow your saved switches.")
             .font(.caption).foregroundStyle(.secondary)
         if settings.applyReferenceAdjustments {
             Stepper("Reference sharpening radius: \(settings.sharpenRadius, specifier: "%.1f") px",

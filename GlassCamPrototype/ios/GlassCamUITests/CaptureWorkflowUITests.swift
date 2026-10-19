@@ -1,6 +1,7 @@
 import XCTest
 import Darwin
 import AVFoundation
+import UIKit
 
 /// Opt-in physical-device acceptance: capture tests save real photos to the system library.
 /// Run only the GlassCamCaptureTests scheme when this side effect is intended.
@@ -18,7 +19,7 @@ final class CaptureWorkflowUITests: XCTestCase {
     /// Exercises the new controls without adding extra test photos. Physical
     /// source, RAW framing and image quality remain separate device checks.
     func testThreeLensShortcutsAndContinuousRuler() throws {
-        let app = XCUIApplication(bundleIdentifier: "dev.glasscam.prototype")
+        let app = makeApp()
         app.launch()
         let shutter = app.buttons["camera.shutter"]
         XCTAssertTrue(shutter.waitForExistence(timeout: 30))
@@ -38,9 +39,89 @@ final class CaptureWorkflowUITests: XCTestCase {
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Three-lens-focal-length-controls"; attachment.lifetime = .keepAlways
         add(attachment)
-        app.buttons["Viewfinder"].tap()
+        app.buttons["camera.panel.back"].tap()
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: shutter)], timeout: 30), .completed,
                        "Zoom changes left the shutter disabled")
+    }
+
+    /// Layout and localization checks open the camera but never press the shutter.
+    func testPhotoFrameAndControlsInPortraitAndLandscape() throws {
+        let app = try readyCamera()
+        defer { XCUIDevice.shared.orientation = .portrait }
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            let frame = app.otherElements["camera.photo.frame"]
+            XCTAssertTrue(frame.waitForExistence(timeout: 15))
+            let expectedPortrait = orientation == .portrait
+            let rotated = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                (app.frame.height > app.frame.width) == expectedPortrait &&
+                    (frame.frame.height > frame.frame.width) == expectedPortrait
+            }, object: app)
+            XCTAssertEqual(XCTWaiter.wait(for: [rotated], timeout: 15), .completed)
+            try waitForShutter(app)
+            let window = app.frame, photo = frame.frame
+            let aspect: CGFloat = expectedPortrait ? 3.0/4.0 : 4.0/3.0
+            let expectedWidth = min(window.width, window.height*aspect)
+            XCTAssertEqual(photo.width, expectedWidth, accuracy: 1)
+            XCTAssertEqual(photo.height, expectedWidth/aspect, accuracy: 1)
+            XCTAssertEqual(photo.midX, window.midX, accuracy: 1)
+            XCTAssertEqual(photo.midY, window.midY, accuracy: 1)
+            for identifier in ["camera.resolution", "camera.style", "camera.zoom", "camera.shutter",
+                               "camera.thumbnail", "camera.settings", "camera.grid", "capture.status.summary"] {
+                let control = app.buttons[identifier]
+                XCTAssertTrue(control.exists, identifier)
+                XCTAssertGreaterThanOrEqual(control.frame.width, 43.5, identifier)
+                XCTAssertGreaterThanOrEqual(control.frame.height, 43.5, identifier)
+                let intersection = control.frame.intersection(photo)
+                XCTAssertTrue(intersection.isNull || intersection.width*intersection.height < 0.5,
+                              "\(identifier) covers the photograph")
+            }
+            attach(app, name: expectedPortrait ? "Glass-viewfinder-portrait" : "Glass-viewfinder-landscape")
+        }
+    }
+
+    func testChineseQuickControlsAndSettingsPages() throws {
+        let app = try readyCamera(language: "zh-Hans")
+        XCTAssertEqual(app.buttons["camera.settings"].label, "相机设置与照片效果")
+        XCTAssertEqual(app.buttons["camera.resolution"].label, "照片分辨率")
+        let resolution = app.buttons["camera.resolution"]
+        let before = resolution.value as? String
+        resolution.tap()
+        XCTAssertNotEqual(resolution.value as? String, before)
+        resolution.tap()
+        XCTAssertEqual(resolution.value as? String, before)
+        let grid = app.buttons["camera.grid"]
+        let wasVisible = grid.value as? String
+        grid.tap()
+        XCTAssertNotEqual(grid.value as? String, wasVisible)
+        grid.tap()
+        attach(app, name: "Glass-viewfinder-Chinese")
+
+        app.buttons["camera.style"].tap()
+        XCTAssertTrue(app.staticTexts.matching(identifier: "照片风格").firstMatch.waitForExistence(timeout: 10))
+        app.segmentedControls.buttons["HNCS"].tap()
+        XCTAssertFalse(app.buttons["Square Crop"].exists)
+        attach(app, name: "Photo-styles-Chinese")
+        app.buttons["camera.panel.back"].tap()
+        app.buttons["camera.settings"].tap()
+        XCTAssertTrue(app.staticTexts["设置"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.segmentedControls["settings.resolution"].exists)
+        XCTAssertFalse(app.switches["effects.extraCrop"].exists)
+        attach(app, name: "Common-settings-Chinese")
+        let advanced = app.buttons["settings.advanced"]
+        for _ in 0..<6 {
+            if advanced.isHittable { break }
+            app.scrollViews.firstMatch.swipeUp()
+        }
+        XCTAssertTrue(advanced.isHittable)
+        advanced.tap()
+        XCTAssertTrue(app.staticTexts["高级设置"].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.buttons["settings.back"].label, "返回设置")
+        attach(app, name: "Advanced-settings-Chinese")
+        app.buttons["settings.back"].tap()
+        XCTAssertEqual(app.buttons["settings.back"].label, "返回相机")
+        app.buttons["settings.back"].tap()
+        try waitForShutter(app)
     }
 
     func testMainCaptureSurvivesTermination() throws {
@@ -87,7 +168,7 @@ final class CaptureWorkflowUITests: XCTestCase {
         app.buttons["camera.shutter"].tap()
         let saved = savedStatus(app)
         XCTAssertTrue(saved.waitForExistence(timeout: 120), app.debugDescription)
-        print("GLASSCAM-LANDSCAPE \(saved.label)")
+        print("GLASSCAM-LANDSCAPE \(saved.value as? String ?? saved.label)")
         app.buttons["camera.thumbnail"].tap()
         XCTAssertTrue(app.buttons["Share HDR photo"].waitForExistence(timeout: 10))
         attach(app, name: "Landscape-zoom-photo")
@@ -106,7 +187,8 @@ final class CaptureWorkflowUITests: XCTestCase {
         attach(app, name: "\(checkpoint)-viewfinder")
         let started = Date()
         app.buttons["camera.shutter"].tap()
-        let processing = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Processing HDR'")).firstMatch
+        let processing = app.buttons.matching(NSPredicate(format:
+            "identifier == 'capture.status.summary' AND label == 'Processing photo'")).firstMatch
         XCTAssertTrue(processing.waitForExistence(timeout: 30), app.debugDescription)
         XCTAssertFalse(app.buttons["camera.shutter"].isEnabled, "A second photo was admitted before saving")
         XCUIDevice.shared.press(.home)
@@ -119,7 +201,7 @@ final class CaptureWorkflowUITests: XCTestCase {
         let saved = savedStatus(app)
         XCTAssertTrue(saved.waitForExistence(timeout: 120), app.debugDescription)
         try waitForShutter(app)
-        print("GLASSCAM-RECOVERY \(checkpoint) terminated=\(terminate) \(saved.label) elapsed-including-checkpoint=\(Date().timeIntervalSince(started))")
+        print("GLASSCAM-RECOVERY \(checkpoint) terminated=\(terminate) \(saved.value as? String ?? saved.label) elapsed-including-checkpoint=\(Date().timeIntervalSince(started))")
         app.buttons["camera.thumbnail"].tap()
         XCTAssertTrue(app.buttons["Share HDR photo"].waitForExistence(timeout: 10))
         let pixels = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Estimated source'")).firstMatch
@@ -129,10 +211,16 @@ final class CaptureWorkflowUITests: XCTestCase {
         app.buttons["Camera"].tap()
     }
 
-    private func readyCamera() throws -> XCUIApplication {
+    private func makeApp(language: String = "en") -> XCUIApplication {
         let app = XCUIApplication(bundleIdentifier: "dev.glasscam.prototype")
-        app.launch()
+        app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", language == "en" ? "en_US" : "zh_CN"]
+        return app
+    }
+
+    private func readyCamera(language: String = "en") throws -> XCUIApplication {
+        let app = makeApp(language: language)
         XCUIDevice.shared.orientation = .portrait
+        app.launch()
         try waitForShutter(app)
         return app
     }
@@ -142,7 +230,7 @@ final class CaptureWorkflowUITests: XCTestCase {
         let stop = app.scrollViews.buttons["camera.zoom.\(lens)"]
         XCTAssertTrue(stop.waitForExistence(timeout: 10), app.debugDescription)
         stop.tap()
-        app.buttons["Viewfinder"].tap()
+        app.buttons["camera.panel.back"].tap()
         try waitForShutter(app)
     }
 
@@ -153,7 +241,8 @@ final class CaptureWorkflowUITests: XCTestCase {
     }
 
     private func savedStatus(_ app: XCUIApplication) -> XCUIElement {
-        app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Saved HDR'")).firstMatch
+        app.buttons.matching(NSPredicate(format:
+            "identifier == 'capture.status.summary' AND label == 'Saved to Photos'")).firstMatch
     }
 
     private func attach(_ app: XCUIApplication, name: String) {
@@ -163,7 +252,7 @@ final class CaptureWorkflowUITests: XCTestCase {
     }
 
     private func checkCapture(outputs: [Int], review: Bool) throws {
-        let app = XCUIApplication(bundleIdentifier: "dev.glasscam.prototype")
+        let app = makeApp()
         app.launch()
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         addUIInterruptionMonitor(withDescription: "Photos add-only authorization") { alert in
@@ -199,17 +288,17 @@ final class CaptureWorkflowUITests: XCTestCase {
                         if springboard.alerts.buttons[label].exists { springboard.alerts.buttons[label].tap(); break }
                     }
                 }
-                if app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Saved HDR'")).firstMatch.exists { break }
+                if savedStatus(app).exists { break }
                 Thread.sleep(forTimeInterval: 1)
             }
-            let saved = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Saved HDR'")).firstMatch
+            let saved = savedStatus(app)
             XCTAssertTrue(saved.waitForExistence(timeout: 100), app.debugDescription)
             XCTAssertTrue(app.buttons["camera.shutter"].exists, "Capture navigated away from camera")
             XCTAssertTrue(app.buttons["camera.thumbnail"].isEnabled)
             let attachment = XCTAttachment(screenshot: app.screenshot())
             attachment.name = "Saved-\(megapixels)MP-HDR"; attachment.lifetime = .keepAlways
             add(attachment)
-            print("GLASSCAM-ACCEPTANCE \(megapixels)MP \(saved.label)")
+            print("GLASSCAM-ACCEPTANCE \(megapixels)MP \(saved.value as? String ?? saved.label)")
         }
         guard review else { return }
         tap(app.buttons["camera.thumbnail"])
