@@ -42,8 +42,9 @@ def main():
             *(sources / name for name in ["ExportSettings.swift", "SourceImageStore.swift",
                                           "PhotoWhiteBalance.swift", "HNCSEngine.swift", "FFCSEngine.swift",
                                           "ImagePipeline.swift", "PreviewRaster.swift", "ShareDelivery.swift",
-                                          "CameraSettingsStore.swift", "CaptureWorkflow.swift"]),
-            ROOT / "tests/apple_image_pipeline.swift", ROOT / "tests/apple_capture_workflow.swift", "-L", work, "-lglasscam",
+                                          "CameraSettingsStore.swift", "CaptureGeometry.swift", "CaptureJournal.swift", "CaptureWorkflow.swift"]),
+            ROOT / "tests/apple_image_pipeline.swift", ROOT / "tests/apple_capture_workflow.swift",
+            ROOT / "tests/apple_capture_recovery.swift", "-L", work, "-lglasscam",
             "-Xlinker", "-rpath", "-Xlinker", work, "-o", work / "images")
         fixtures = work / "fixtures"
         fixtures.mkdir()

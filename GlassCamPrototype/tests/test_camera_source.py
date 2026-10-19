@@ -6,10 +6,11 @@ SOURCE = (Path(__file__).resolve().parents[1] / 'ios/GlassCam/CameraController.s
 FRAMES = (Path(__file__).resolve().parents[1] / 'ios/GlassCam/CameraFrameDelivery.swift').read_text()
 
 class CameraSourceContracts(unittest.TestCase):
-    def test_single_physical_main_camera(self):
+    def test_one_photo_session_with_automatic_three_camera_support(self):
         self.assertIn('.builtInWideAngleCamera', SOURCE)
-        for forbidden in ('.builtInUltraWideCamera', '.builtInTelephotoCamera',
-                          'AVCaptureMultiCamSession', 'supportedMultiCamDeviceSets'):
+        for required in ('.builtInTripleCamera', '.builtInUltraWideCamera', '.builtInTelephotoCamera'):
+            self.assertIn(required, SOURCE)
+        for forbidden in ('AVCaptureMultiCamSession', 'supportedMultiCamDeviceSets'):
             self.assertNotIn(forbidden, SOURCE)
 
     def test_graph_uses_manual_center_photo_connection(self):
@@ -29,8 +30,7 @@ class CameraSourceContracts(unittest.TestCase):
         self.assertNotIn('AVCapturePhotoSettings(format:', SOURCE)
 
     def test_no_implicit_resolution_or_framing_downgrade(self):
-        for token in ['sourceCeiling', 'Self.area(largest) == sourceCeiling',
-                      'center.videoZoomFactor = expected?.zoom ?? 1', 'connection.videoScaleAndCropFactor = 1',
+        for token in ['framing.acceptsRAWDimensions', 'framing: { Self.framing(for: camera, catalog: catalog) }', 'connection.videoScaleAndCropFactor = 1',
                       'connection.preferredVideoStabilizationMode = .off',
                       'output.maxPhotoDimensions = dimensions', 'settings.maxPhotoDimensions = request.capability.dimensions',
                       'settings.photoQualityPrioritization = .quality', 'connection.videoOrientation = orientation']:
@@ -40,7 +40,7 @@ class CameraSourceContracts(unittest.TestCase):
         for token in ['struct OutputOption', 'supportedOutputOptions', 'physicalCameraID',
                       'centerPreviewLongEdge',
                       'newSession.sessionPreset = .photo', 'nominal == 12 || nominal == 48',
-                      '[24, 48].filter { $0 <= sourceTier }', 'min(divisor, Int(sqrt(',
+                      '[24, 48].compactMap', 'ExportSettings.camera(tier).dimensions',
                       'outputOptions: Self.outputOptions(source: photo.dimensions)']:
             self.assertIn(token, SOURCE)
         capture = SOURCE.split('private func submitPhoto(', 1)[1].split('private func finishPhoto(', 1)[0]

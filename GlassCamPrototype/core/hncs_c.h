@@ -143,6 +143,18 @@ hncs_context *hncs_create_preset_whitepoint(double exposure_ev,
     int lstar_working_space, int reproduction, int film_curve_type,
     int raw_film_curve_type, const char *preset_key, int apply_tone_curve);
 
+/* Revision-11 explicit WB selection. 0 = original preset (identical to the
+ * preceding API); 1 = preserve photo WB, including tint. In photo mode the
+ * target virtual gains equal the capture gains, and the factory CCT follows
+ * that same photo unless factory_kelvin_override is explicitly nonzero.
+ * All other preset stages and original assets are unchanged. The policy is
+ * part of a frozen photo recipe, never inferred from the preset's name. */
+hncs_context *hncs_create_preset_whitepoint_with_policy(double exposure_ev,
+    double white_x, double white_y, double factory_kelvin_override,
+    int lstar_working_space, int reproduction, int film_curve_type,
+    int raw_film_curve_type, const char *preset_key, int apply_tone_curve,
+    int white_balance_policy);
+
 /* Immutable, generated catalog: 43 unique XML payloads; aliases accepted by all
  * key-based calls. Strings remain valid for the lifetime of the process.
  * Flags: 1 pointwise/WB effect, 2 square crop, 4 grain needs spatial route,

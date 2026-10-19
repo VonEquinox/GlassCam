@@ -18,6 +18,9 @@ struct CameraView: View {
     private var reviewedCapture: SavedCapture? { if case .photo(let photo) = destination { return photo }; return nil }
     @State private var configuredPreviewLimit: Int?
     @State private var discardConfirmation = false
+    @State private var pinchStartZoom: Double?
+    @State private var shutterReservation: UUID?
+    @State private var repeatSaveConfirmation = false
     private var colorMode: ColorMode { settings.colorMode }
     private var hncs: HNCSSettings { settings.hncs }
     private var effects: EffectToggles { settings.effects }
@@ -75,6 +78,11 @@ struct CameraView: View {
                         Text(camera.status).font(.callout).multilineTextAlignment(.center)
                         if !camera.isReady && !camera.isConfiguring {
                             Button("Retry camera") { restartCamera() }.padding(10)
+                            if AVCaptureDevice.authorizationStatus(for: .video) == .denied {
+                                Button("Open Settings") {
+                                    if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                                }
+                            }
                         }
                         if chrome.style == .separate {
                             Button("Open camera controls") { activePanel = .compact }
@@ -86,17 +94,21 @@ struct CameraView: View {
                     .background(.black)
                     .position(x: framing.photo.midX, y: framing.photo.midY)
                 }
-                if chrome.style == .separate && (camera.isCapturing || camera.isReady) {
-                    // The initial plain control panel explains this genuine gesture.
-                    // It never changes the photo rect; no invisible shutter is used.
+                if camera.centerPreviewLayer != nil {
                     Color.clear.contentShape(Rectangle())
                         .frame(width: framing.photo.width, height: framing.photo.height)
                         .position(x: framing.photo.midX, y: framing.photo.midY)
-                        .onTapGesture { activePanel = .compact }
+                        .gesture(MagnificationGesture().onChanged { value in
+                            guard workflow.canCapture, !camera.isCapturing else { return }
+                            if pinchStartZoom == nil { pinchStartZoom = camera.requestedZoom }
+                            camera.setZoom((pinchStartZoom ?? camera.requestedZoom) * Double(value))
+                        }.onEnded { _ in pinchStartZoom = nil })
+                        .onTapGesture { if chrome.style == .separate { activePanel = .compact } }
                         .accessibilityElement()
                         .accessibilityLabel("Viewfinder. Open camera controls")
                         .accessibilityAddTraits(.isButton)
-                        .accessibilityAction { activePanel = .compact }
+                        .accessibilityAction { if chrome.style == .separate { activePanel = .compact } }
+                        .accessibilityHidden(chrome.style != .separate)
                 }
                 controls(framing: framing, chrome: chrome)
                 if !workflow.status.isEmpty {
@@ -134,7 +146,7 @@ struct CameraView: View {
             }
             .sheet(item: $activePanel) { panel in
                 cameraPanel(panel, framing: framing)
-                    .presentationDetents([.large])
+                    .presentationDetents(panel == .zoom ? [.height(300), .large] : [.large])
                     .presentationDragIndicator(.visible)
                     .presentationBackground(Color.black)
             }
@@ -149,6 +161,12 @@ struct CameraView: View {
             else if phase == .active { restartCamera() }
         }
         .onChange(of: settings.centerPreviewLongEdge) { _, _ in restartCamera() }
+        .onChange(of: workflow.phase) { _, phase in
+            if phase == .idle || phase == .failed || phase == .paused {
+                if let reservation = shutterReservation { camera.releaseCaptureReservation(reservation) }
+                shutterReservation = nil
+            }
+        }
         .fullScreenCover(item: $destination, onDismiss: { restartCamera() }) { page in
             switch page {
             case .settings(let options, let cameraID):
@@ -164,12 +182,28 @@ struct CameraView: View {
                             titleVisibility: .visible) {
             Button("Discard photo", role: .destructive) { workflow.discardFailed() }
         }
+        .confirmationDialog("Save this photo again? Check Photos first to avoid a duplicate.", isPresented: $repeatSaveConfirmation,
+                            titleVisibility: .visible) {
+            Button("Save to Photos again") { workflow.saveAgain() }
+        }
     }
 
     private var workflowStatus: some View {
         VStack(spacing: 8) {
             Text(workflow.status).font(.footnote).multilineTextAlignment(.center)
             if workflow.phase == .processing { ProgressView(value: workflow.progress) }
+            if workflow.phase == .saveOutcomeUnknown {
+                if let date = workflow.pendingDate {
+                    Text(date.formatted(date: .abbreviated, time: .shortened)).font(.caption)
+                }
+                HStack {
+                    if let capture = workflow.pendingCapture {
+                        Button("Review") { destination = .photo(capture) }
+                    }
+                    Button("Already in Photos") { workflow.confirmAlreadySaved() }
+                    Button("Save again…") { repeatSaveConfirmation = true }
+                }.buttonStyle(.bordered)
+            }
             if workflow.phase == .failed {
                 HStack {
                     if workflow.canRetry { Button("Retry save", action: workflow.retry) }
@@ -206,7 +240,11 @@ struct CameraView: View {
             }
             .modifier(CameraChromeRegion(rect: chrome.first))
             VStack(spacing: 10) {
-                photoMode
+                HStack {
+                    photoMode
+                    Spacer(minLength: 8)
+                    zoomButtons
+                }
                 HStack {
                     thumbnailButton
                     Spacer(minLength: 12)
@@ -305,7 +343,7 @@ struct CameraView: View {
             Text("·")
             lensIndicator
             Text("·")
-            Text("\(selectedOutput?.megapixels ?? 24) MP · HDR")
+            Text(estimatedOutputLabel)
         }
         .font(.system(size: 12, weight: .semibold)).tracking(1.5)
         .foregroundStyle(.white.opacity(0.8))
@@ -333,9 +371,59 @@ struct CameraView: View {
     }
 
     private var lensIndicator: some View {
-        Text("1×").font(.system(size: 12, weight: .semibold))
-            .frame(minWidth: 44, minHeight: 44)
-            .accessibilityLabel("Main camera")
+        Button { activePanel = .zoom } label: {
+            Text(CameraZoomRange.label(camera.requestedZoom)).font(.system(size: 12, weight: .semibold))
+                .frame(minWidth: 44, minHeight: 44)
+        }
+        .disabled(!workflow.canCapture || camera.isCapturing)
+        .accessibilityLabel("Focal length controls")
+        .accessibilityValue(CameraZoomRange.label(camera.appliedZoom))
+        .accessibilityIdentifier("camera.zoom")
+    }
+
+    private var estimatedOutputLabel: String {
+        guard let source = camera.sourceCaptureDimensions else { return "HDR" }
+        let mode = selectedOutput?.megapixels ?? settings.preferredOutputMegapixels
+        let output = ExportSettings.camera(mode, framing: camera.currentFraming)
+        let tier = try? output.selectedOutputMegapixels(sourceWidth: Int(source.width), sourceHeight: Int(source.height), crop: settings.recipe.crop)
+        return "≈\(tier ?? 24) MP · HDR"
+    }
+
+    private var zoomButtons: some View {
+        HStack(spacing: 8) {
+            ForEach(camera.zoomRange.stops) { stop in
+                Button { camera.setZoom(stop.factor) } label: {
+                    Text(CameraZoomRange.label(stop.factor))
+                        .font(.system(size: 13, weight: .semibold))
+                        .frame(minWidth: 44, minHeight: 44)
+                        .background(abs(camera.appliedZoom - stop.factor) < 0.04 ? Color.white.opacity(0.24) : Color.white.opacity(0.08))
+                        .clipShape(Capsule())
+                }
+                .onLongPressGesture(minimumDuration: 0.4) { activePanel = .zoom }
+                .accessibilityLabel("\(stop.title), \(CameraZoomRange.label(stop.factor))")
+                .accessibilityIdentifier("camera.zoom.\(stop.title)")
+            }
+        }
+        .disabled(!workflow.canCapture || camera.isCapturing || camera.isConfiguring)
+    }
+
+    private var zoomRuler: some View {
+        VStack(spacing: 20) {
+            Text(CameraZoomRange.label(camera.requestedZoom)).font(.title2.monospacedDigit())
+                .accessibilityIdentifier("camera.zoom.readout")
+            zoomButtons
+            if camera.zoomRange.upperBound > camera.zoomRange.lowerBound {
+                Slider(value: Binding(get: { log2(camera.requestedZoom) },
+                                      set: { camera.setZoom(pow(2, $0)) }),
+                       in: log2(camera.zoomRange.lowerBound)...log2(camera.zoomRange.upperBound))
+                    .disabled(!workflow.canCapture)
+                    .accessibilityLabel("Continuous focal length")
+                    .accessibilityValue(CameraZoomRange.label(camera.appliedZoom))
+                    .accessibilityIdentifier("camera.zoom.ruler")
+            }
+            Text(camera.currentFraming.lensName ?? "Automatic lens selection")
+                .font(.caption).foregroundStyle(.secondary)
+        }.padding()
     }
 
     private var thumbnailButton: some View {
@@ -383,9 +471,12 @@ struct CameraView: View {
 
     private func cameraPanel(_ panel: CameraPanel, framing: CameraFraming) -> some View {
         NavigationStack {
-            VStack(spacing: 20) {
+            Group {
+                if panel == .zoom { ScrollView { zoomRuler } }
+                else { VStack(spacing: 20) {
                 Text("Return to the viewfinder for an unobstructed view. Tap it to reopen these controls.")
                     .font(.footnote).multilineTextAlignment(.center)
+                zoomButtons
                 HStack {
                     thumbnailButton
                     Spacer()
@@ -394,8 +485,10 @@ struct CameraView: View {
                     settingsButton
                 }
                 Text(workflow.isWorking ? workflow.status : camera.status).font(.footnote)
-            }.padding().background(Color.black)
-                .navigationTitle("Camera controls")
+                }.padding() }
+            }.background(Color.black)
+                .navigationTitle(panel == .zoom ? "Focal length" : "Camera controls")
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Viewfinder") { activePanel = nil }
@@ -430,17 +523,16 @@ struct CameraView: View {
 
     private func shutter(diameter: CGFloat) -> some View {
         Button {
-            guard camera.isReady, !camera.isCapturing, let output = selectedOutput else { return }
+            guard workflow.canCapture, let output = selectedOutput, let reservation = camera.reserveCapture() else { return }
             activePanel = nil
-            let portrait = (camera.geometry?.photoAspectRatio ?? 1) < 1
-            let export = ExportSettings(targetWidth: portrait ? output.height : output.width,
-                                        targetHeight: portrait ? output.width : output.height)
+            shutterReservation = reservation
+            let export = ExportSettings.camera(output.megapixels, framing: camera.currentFraming)
             let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export)
-            workflow.capture(snapshot: snapshot) { completion in
+            workflow.capturePhoto(snapshot: snapshot) { completion in
                 guard scenePhase == .active, !settingsPresented, reviewedCapture == nil else {
                     completion(.failure(CaptureUIError.cameraInactive)); return
                 }
-                camera.captureProRAW(completion: completion)
+                camera.capturePhoto(reservation: reservation, completion: completion)
             }
         } label: {
             ZStack {
@@ -452,7 +544,7 @@ struct CameraView: View {
             .frame(width: diameter, height: diameter)
             .contentShape(Circle())
         }
-        .disabled(!camera.isReady || camera.isCapturing || selectedOutput == nil || !workflow.canCapture)
+        .disabled(!camera.canReserveCapture || selectedOutput == nil || !workflow.canCapture)
         .accessibilityLabel("Take photo and save to Photos")
         .accessibilityIdentifier("camera.shutter")
         .accessibilityHint("Apply your saved settings and automatically save an HDR photo")
@@ -477,7 +569,7 @@ private enum CaptureUIError: LocalizedError {
 }
 
 private enum CameraPanel: String, Identifiable {
-    case compact
+    case compact, zoom
     var id: Self { self }
 }
 
@@ -515,7 +607,7 @@ private struct CameraChromeLayout {
             first = usable(CGRect(x: 0, y: 0, width: window.width, height: framing.photo.minY))
             second = usable(CGRect(x: 0, y: framing.photo.maxY, width: window.width,
                                    height: window.height - framing.photo.maxY))
-            if !needsAccessiblePanel, first.height >= 94, second.height >= 112,
+            if !needsAccessiblePanel, first.height >= 94, second.height >= 140,
                min(first.width, second.width) >= 276 {
                 style = .portrait
             } else if !needsAccessiblePanel, first.height >= 44, second.height >= 56,
@@ -645,16 +737,8 @@ private struct CameraSettingsView: View {
                     }.pickerStyle(.segmented)
                         .disabled(physicalCameraID == nil || options.isEmpty)
                         .accessibilityIdentifier("settings.resolution")
-                    if let choice = options.first(where: { $0.megapixels == outputSelection.wrappedValue }) {
-                        let crop = settings.recipe.crop
-                        let size = try? crop.resolve(width: choice.width, height: choice.height)
-                        if let size {
-                            LabeledContent("Saved dimensions", value: "\(size.width) × \(size.height)")
-                            if crop == .centeredSquare {
-                                Text("Square crop · \(Double(size.width * size.height) / 1_000_000, specifier: "%.1f") MP after crop")
-                            }
-                        }
-                    } else { Text("Selected output is unavailable. Select a supported size before taking a photo.").foregroundStyle(.orange) }
+                    Text("24 MP saves every photo at 24 MP. In 48 MP mode, framed sources below 24 MP are saved at 24 MP. Smaller sources are upscaled while keeping the composition.")
+                        .font(.footnote).foregroundStyle(.secondary)
                     LabeledContent("Format", value: "10-bit HDR HEIF")
                     Text("Photos are automatically saved to your system photo library using these settings.")
                         .font(.footnote).foregroundStyle(.secondary)
@@ -671,10 +755,6 @@ private struct CameraSettingsView: View {
                         .accessibilityLabel("Photo effect exposure")
                     if settings.colorMode == .hncs {
                         HNCSPresetControls(settings: $settings.hncs)
-                        LabeledContent("White balance", value: "Automatic from photo")
-                            .accessibilityIdentifier("settings.whiteBalance")
-                        Text("Each photo uses its own RAW white balance, including temperature and tint.")
-                            .font(.footnote).foregroundStyle(.secondary)
                     }
                     EffectToggleControls(effects: $settings.effects, mode: settings.colorMode, hncs: settings.hncs)
                     Button("Reset effect adjustments") {
@@ -683,7 +763,7 @@ private struct CameraSettingsView: View {
                     }
                 }
                 Section("Viewfinder") {
-                    LabeledContent("Camera", value: "Main · 1×")
+                    LabeledContent("Camera", value: "Automatic lens switching")
                     Toggle("Composition grid", isOn: $settings.gridVisible)
                     Picker("Preview long-edge limit", selection: $settings.centerPreviewLongEdge) {
                         ForEach(CameraSettingsStore.centerPreviewCaps, id: \.self) { limit in
@@ -737,16 +817,21 @@ private struct CaptureReview: View {
                                          height: min(maxY, max(-maxY, pan.height + value.translation.height)))
                         })
                     .onTapGesture(count: 2) { zoom = zoom == 1 ? 2 : 1; pan = .zero }
-                    .accessibilityLabel("Saved HDR photo")
+                    .accessibilityLabel("HDR photo")
                     .accessibilityAction(named: "Zoom in") { zoom = min(5, zoom + 1) }
                     .accessibilityAction(named: "Reset zoom") { zoom = 1; pan = .zero }
             }.clipped().background(Color.black)
             .safeAreaInset(edge: .bottom) {
-                if let white = capture.snapshot.recipe.photoWhiteBalance {
-                    Text(white.description).font(.caption).foregroundStyle(.secondary)
-                        .padding(8).frame(maxWidth: .infinity).background(Color.black)
+                VStack(spacing: 4) {
+                if let description = capture.resolutionDescription {
+                    Text(description).font(.caption).foregroundStyle(.secondary)
+                        .accessibilityIdentifier("review.resolution")
+                }
+                if let white = capture.snapshot.recipe.whiteBalanceDescription {
+                    Text(white).font(.caption).foregroundStyle(.secondary)
                         .accessibilityIdentifier("review.whiteBalance")
                 }
+                }.padding(8).frame(maxWidth: .infinity).background(Color.black)
             }
             .navigationTitle("\(capture.width) × \(capture.height) · HDR")
             .navigationBarTitleDisplayMode(.inline)
@@ -754,7 +839,7 @@ private struct CaptureReview: View {
                 ToolbarItem(placement: .topBarLeading) { Button("Camera", action: onBack) }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { sharing = true } label: { Image(systemName: "square.and.arrow.up") }
-                        .accessibilityLabel("Share saved HDR photo")
+                        .accessibilityLabel("Share HDR photo")
                 }
             }
         }.preferredColorScheme(.dark).tint(.white)

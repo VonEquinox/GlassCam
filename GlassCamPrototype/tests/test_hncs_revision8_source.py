@@ -70,7 +70,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertRegex(self.engine, r'struct HNCSSettings:\s*Codable,\s*Equatable,\s*Sendable')
         members = stored_members(self.engine, 'struct HNCSSettings:')
         expected = {'renderRevision', 'presetKey', 'filmCurve', 'rawFilmCurveType',
-                    'workingSpace', 'intent', 'factoryKelvinOverride', 'applyToneCurve'}
+                    'workingSpace', 'intent', 'factoryKelvinOverride', 'applyToneCurve', 'whiteBalancePolicy'}
         self.assertEqual(set(members), expected)
         settings = body(self.engine, 'struct HNCSSettings:')
         # HNCS fields now have explicit backward-compatible decoding, while
@@ -143,7 +143,9 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertIn('selection: $settings.presetKey', controls)
         self.assertIn('settings.factoryKelvinOverride = $0', controls)
         self.assertNotIn('model.kelvin', controls)
-        self.assertIn('LabeledContent("White balance", value: "Automatic from photo"', self.view)
+        self.assertIn('Picker("White balance", selection: $settings.whiteBalancePolicy)', controls)
+        self.assertIn('hncs_create_preset_whitepoint_with_policy', constructor)
+        self.assertIn('settings.whiteBalancePolicy == .photo ? 1 : 0', constructor)
         self.assertIn('Stepper("Factory CCT:', controls)
 
     def test_import_and_rerender_freeze_recipe_before_background_work(self):
@@ -169,7 +171,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
     def test_live_cube_identity_has_full_hncs_settings_and_new_contract(self):
         recipe = stored_members(self.proxy, 'struct LiveColorRecipe:')
         self.assertEqual(recipe['hncs'][:2], ('let', 'HNCSSettings'))
-        self.assertIn('revision10-native-sharpness', recipe['contract'][2])
+        self.assertIn('revision11-photo-white-balance', recipe['contract'][2])
         self.assertIn('cache.firstIndex { $0.recipe == request.recipe }', self.proxy)
         view = body(self.view, 'private var liveRecipe:')
         self.assertIn('hncs: colorMode == .hncs ? hncs : .standard', view)
@@ -236,7 +238,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertNotIn('processed.source.linearRGB', export)
         self.assertNotIn('processed.image', export)
         self.assertIn('Double(output.height) / Double(height)', export)
-        self.assertIn('kCIInputAspectRatioKey: 1.0', export)
+        self.assertIn('kCIInputAspectRatioKey: pixelAspect', export)
 
     def test_swift_crop_formulas_match_integer_model_and_validate_uncropped_target(self):
         resolve = body(self.export, 'func resolve(width:')

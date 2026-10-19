@@ -179,7 +179,7 @@ class EffectToggleSourceContracts(unittest.TestCase):
     def test_shutter_retention_render_and_save_use_complete_immutable_snapshot(self):
         shutter = body(self.camera, 'private func shutter(')
         self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export)', shutter)
-        self.assertLess(shutter.index('let snapshot'), shutter.index('camera.captureProRAW'))
+        self.assertLess(shutter.index('let snapshot'), shutter.index('camera.capturePhoto'))
         self.assertIn('let snapshot: CaptureSnapshot', self.workflow)
         self.assertIn('ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe', self.workflow)
         self.assertIn('settings: snapshot.output', self.workflow)

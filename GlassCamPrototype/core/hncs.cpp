@@ -571,9 +571,19 @@ extern "C" int hncs_whitepoint_parameters(double x,double y,double *capture_wb,d
 
 extern "C" hncs_context *hncs_create_preset_whitepoint(double ev,double x,double y,double factory_override,
     int lstar,int repro,int film_type,int raw_type,const char *key,int tone) {
+    return hncs_create_preset_whitepoint_with_policy(ev,x,y,factory_override,lstar,repro,film_type,raw_type,key,tone,0);
+}
+extern "C" hncs_context *hncs_create_preset_whitepoint_with_policy(double ev,double x,double y,double factory_override,
+    int lstar,int repro,int film_type,int raw_type,const char *key,int tone,int wb_policy) {
+    if(wb_policy!=0&&wb_policy!=1)return nullptr;
     V baseline{};double kelvin=0.;
     if(hncs_whitepoint_parameters(x,y,baseline.data(),&kelvin)!=0)return nullptr;
-    hncs_context *context=hncs_create_preset(ev,kelvin,factory_override,lstar,repro,film_type,raw_type,key,tone,baseline.data(),nullptr);
+    // Native CColorCorrectFilter selects its factory kernel from the effective
+    // WB gains. Keeping capture WB therefore also keeps capture CCT unless the
+    // user explicitly selected a separate factory override.
+    const double factory=wb_policy==1&&factory_override==0.?kelvin:factory_override;
+    const double *desired=wb_policy==1?baseline.data():nullptr;
+    hncs_context *context=hncs_create_preset(ev,kelvin,factory,lstar,repro,film_type,raw_type,key,tone,baseline.data(),desired);
     if(!context)return nullptr;
     const V white={x/y,1.,(1.-x-y)/y};
     M response=matrix(assets::camera_to_xyz+18);

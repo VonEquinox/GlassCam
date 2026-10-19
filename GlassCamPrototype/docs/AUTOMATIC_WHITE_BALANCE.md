@@ -2,6 +2,8 @@
 
 2026-10-15，`codex/single-camera-hard-black`。
 
+2026-10-18 更新：revision 11 将“照片白平衡”和“原始预设白平衡”显式分开。新拍默认 `Photo · Automatic`：下文公式中的 D=B，颜色核 CCT 也跟随同一照片白点，除非用户明确设置 factory override。`Original preset` 保留下文固定目标增益的历史行为；旧待恢复配方仍按这个行为重放，未来相机偏好独立迁移。成片标签对应实际选择。原厂资产与虚拟模型边界不变，详见[Nature 全流程与偏绿修复](PHOCUS_NATURE_PIPELINE_20261018.md)。
+
 ## 数据与流程
 
 拍摄保持系统自动白平衡，不锁定固定 Kelvin、不复制其他传感器的 RGB gains。收到不可变 DNG 后，`PhotoWhiteBalance.asShot` 在计算 `CIRAWFilter.outputImage` 前读取解码器默认 `neutralTemperature`、`neutralTint`、`neutralChromaticity`。色温/Tint 用于展示，完整 xy 用于 HNCS 数学；Apple 与 Phocus 的 Tint 单位不能直接互抄。

@@ -30,16 +30,63 @@ struct PixelCrop: Equatable, Sendable {
     }
 }
 
-/// Physical-lens capability selection supplies an allowed uncropped output size.
-/// Crop keeps its scale: a 4:3 48MP source becomes a 1:1 crop, never a 48MP upscale.
-struct ExportSettings: Equatable, Sendable {
+/// Explicit legacy targets retain their original no-upscale contract. Camera
+/// captures use the user-selected 24/48MP policy after the final recipe crop.
+struct ExportSettings: Codable, Equatable, Sendable {
     let targetWidth: Int?
     let targetHeight: Int?
+    let cameraMegapixels: Int?
+    let framing: CaptureFraming?
     static let native = ExportSettings(targetWidth: nil, targetHeight: nil)
+
+    init(targetWidth: Int?, targetHeight: Int?, cameraMegapixels: Int? = nil,
+         framing: CaptureFraming? = nil) {
+        self.targetWidth = targetWidth; self.targetHeight = targetHeight
+        self.cameraMegapixels = cameraMegapixels; self.framing = framing
+    }
+
+    static func camera(_ megapixels: Int, framing: CaptureFraming? = nil) -> ExportSettings {
+        ExportSettings(targetWidth: nil, targetHeight: nil, cameraMegapixels: megapixels, framing: framing)
+    }
+
+    func withFraming(_ value: CaptureFraming) -> ExportSettings {
+        ExportSettings(targetWidth: targetWidth, targetHeight: targetHeight,
+                       cameraMegapixels: cameraMegapixels, framing: value)
+    }
+
+    func effectivePixels(sourceWidth: Int, sourceHeight: Int, crop: ImageCrop = .none) throws -> Double {
+        let area = try crop.resolve(width: sourceWidth, height: sourceHeight)
+        return (framing ?? CaptureFraming()).effectivePixels(decodedWidth: sourceWidth, decodedHeight: sourceHeight,
+                                                             cropWidth: area.width, cropHeight: area.height)
+    }
+
+    func selectedOutputMegapixels(sourceWidth: Int, sourceHeight: Int, crop: ImageCrop = .none) throws -> Int? {
+        guard let cameraMegapixels else { return nil }
+        guard [24, 48].contains(cameraMegapixels), framing?.isValid != false else { throw PipelineError.unsupportedOutput }
+        let effective = try effectivePixels(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: crop)
+        return cameraMegapixels == 48 && effective >= 24_000_000 ? 48 : 24
+    }
 
     func dimensions(sourceWidth: Int, sourceHeight: Int,
                     crop: ImageCrop = .none) throws -> (width: Int, height: Int) {
         guard sourceWidth > 0, sourceHeight > 0 else { throw PipelineError.invalidImage }
+        if let megapixels = try selectedOutputMegapixels(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: crop) {
+            let area = try crop.resolve(width: sourceWidth, height: sourceHeight)
+            let pixels = Double(area.width) * Double(area.height)
+            // Keep native nominal 24/48MP grids instead of resampling solely to
+            // turn a manufacturer's nominal MP count into an exact round number.
+            if abs(pixels / (Double(megapixels) * 1_000_000) - 1) <= 0.025 {
+                return (area.width, area.height)
+            }
+            let scale = sqrt(Double(megapixels) * 1_000_000 / pixels)
+            let width = max(2, Int((Double(area.width) * scale / 2).rounded()) * 2)
+            let height = max(2, Int((Double(area.height) * scale / 2).rounded()) * 2)
+            guard abs(Double(width) * Double(height) / (Double(megapixels) * 1_000_000) - 1) < 0.02,
+                  abs((Double(width) / Double(height)) / (Double(area.width) / Double(area.height)) - 1) < 0.01 else {
+                throw PipelineError.unsupportedOutput
+            }
+            return (width, height)
+        }
         guard targetWidth != nil || targetHeight != nil else {
             let result = try crop.resolve(width: sourceWidth, height: sourceHeight)
             return (result.width, result.height)

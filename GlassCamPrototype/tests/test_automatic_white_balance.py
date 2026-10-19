@@ -29,8 +29,11 @@ class AutomaticWhiteBalance(unittest.TestCase):
         cls.lib.hncs_whitepoint_parameters.argtypes = [c.c_double, c.c_double, c.c_void_p, c.c_void_p]
         cls.lib.hncs_create_preset_whitepoint.argtypes = [c.c_double] * 4 + [c.c_int] * 4 + [c.c_char_p, c.c_int]
         cls.lib.hncs_create_preset_whitepoint.restype = c.c_void_p
+        cls.lib.hncs_create_preset_whitepoint_with_policy.argtypes = cls.lib.hncs_create_preset_whitepoint.argtypes + [c.c_int]
+        cls.lib.hncs_create_preset_whitepoint_with_policy.restype = c.c_void_p
         cls.lib.hncs_source_to_native_matrix.argtypes = [c.c_void_p, c.c_void_p]
         cls.lib.hncs_preset_white_balance.argtypes = [c.c_void_p] * 4
+        cls.lib.hncs_process_phocus_linear_rgba.argtypes = [c.c_void_p] * 3 + [c.c_size_t]
         cls.lib.hncs_destroy.argtypes = [c.c_void_p]
         cls.assets = r.assets()
         cls.response = cls.assets['camera_to_xyz'][2] @ np.diag(cls.assets['factory_wb'][1])
@@ -98,6 +101,54 @@ class AutomaticWhiteBalance(unittest.TestCase):
             self.assertFalse(self.lib.hncs_create_preset_whitepoint(0, x, y, 0, 0, 0, 4, 2, b'standard', 1))
         self.assertFalse(self.lib.hncs_create_preset_whitepoint(float('nan'), .3127, .329, 0, 0, 0, 4, 2, b'standard', 1))
         self.assertFalse(self.lib.hncs_create_preset_whitepoint(0, .3127, .329, 0, 0, 0, 4, 2, b'missing', 1))
+
+    def test_photo_policy_preserves_tint_neutral_axis_and_uses_effective_cct(self):
+        samples = [(.33209389448165894, .36442223191261292),
+                   (.33567193150520325, .37427031993865967),
+                   (.33416590094566345, .3648126423358917),
+                   (.44757, .40745), (.3127, .3290), (.34, .32), (.34, .38)]
+        for x, y in samples:
+            capture, temperature = self.parameters(x, y)
+            for preset in ['standard', 'nature', 'tungsten', 'daylight', 'cloudy', 'saturated', 'square-crop']:
+                for override in [0, 3500, 7900]:
+                    ctx = self.lib.hncs_create_preset_whitepoint_with_policy(0, x, y, override, 1, 0, 4, 2, preset.encode(), 1, 1)
+                    self.assertTrue(ctx)
+                    try:
+                        baseline = np.zeros(3); target = np.zeros(3); factory = c.c_double()
+                        self.assertEqual(self.lib.hncs_preset_white_balance(ctx, baseline.ctypes.data, target.ctypes.data, c.byref(factory)), 0)
+                        np.testing.assert_array_equal(baseline, capture)
+                        np.testing.assert_array_equal(target, capture)
+                        self.assertEqual(factory.value, override or temperature)
+                        matrix = np.zeros((3, 3))
+                        self.assertEqual(self.lib.hncs_source_to_native_matrix(ctx, matrix.ctypes.data), 0)
+                        np.testing.assert_allclose(matrix @ np.ones(3), 1, atol=4e-7, rtol=0)
+                    finally:
+                        self.lib.hncs_destroy(ctx)
+
+    def test_nature_photo_policy_keeps_tone_curve_and_removes_reported_neutral_cast(self):
+        gray = np.full((16, 3), .18, np.float32)
+        outputs = {}
+        for key, policy in [('nature', 0), ('nature', 1), ('standard', 1)]:
+            ctx = self.lib.hncs_create_preset_whitepoint_with_policy(0, .33567193150520325, .37427031993865967,
+                                                                   0, 1, 0, 4, 2, key.encode(), 1, policy)
+            self.assertTrue(ctx)
+            try:
+                out = np.empty((len(gray), 4), np.float32)
+                self.assertEqual(self.lib.hncs_process_phocus_linear_rgba(ctx, gray.ctypes.data, out.ctypes.data, len(gray)), 0)
+                outputs[key, policy] = out[0, :3]
+            finally:
+                self.lib.hncs_destroy(ctx)
+        np.testing.assert_allclose(outputs['nature', 0], [.26048735, .33648133, .23170701], rtol=0, atol=1e-7)
+        fixed, corrected = outputs['nature', 0], outputs['nature', 1]
+        self.assertGreater(fixed[1] / ((fixed[0] + fixed[2]) / 2), 1.25)
+        self.assertLess(abs(corrected[1] / ((corrected[0] + corrected[2]) / 2) - 1), .025)
+        self.assertGreater(np.max(np.abs(corrected - outputs['standard', 1])), .01,
+                           'Photo WB must retain Nature tone response, not substitute Standard')
+
+    def test_unknown_white_balance_policy_is_rejected(self):
+        for policy in [-1, 2, 255]:
+            self.assertFalse(self.lib.hncs_create_preset_whitepoint_with_policy(0, .3127, .3290,
+                                                                            0, 1, 0, 4, 2, b'nature', 1, policy))
 
 
 if __name__ == '__main__':

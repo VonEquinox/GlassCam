@@ -201,7 +201,8 @@ private func require(_ condition: Bool, _ message: String) throws {
     }
 
     static func checkExport(_ input: ImportedImage, recipe: ProcessingRecipe,
-                            directory: URL, name: String, scale: Double = 1) throws {
+                            directory: URL, name: String, scale requestedScale: Double = 1,
+                            settings explicitSettings: ExportSettings? = nil) throws {
         let processed = try ImagePipeline.process(input, recipe: recipe)
         // The preview thumbnail and full-source ImageIO/CI decoders can differ,
         // especially for HDR chroma. The whole-frame oracle must use full pixels.
@@ -217,12 +218,17 @@ private func require(_ condition: Bool, _ message: String) throws {
         let oracle = try ImagePipeline.process(full, recipe: recipe)
         let actualURL = directory.appendingPathComponent(name + "-actual.heic")
         let expectedURL = directory.appendingPathComponent(name + "-expected.heic")
-        let settings: ExportSettings = scale == 1 ? .native : .init(
-            targetWidth: Int(Double(input.width) * scale), targetHeight: Int(Double(input.height) * scale))
+        let settings: ExportSettings = explicitSettings ?? (requestedScale == 1 ? .native : .init(
+            targetWidth: Int(Double(input.width) * requestedScale), targetHeight: Int(Double(input.height) * requestedScale)))
+        let outputSize = try settings.dimensions(sourceWidth: full.width, sourceHeight: full.height, crop: recipe.crop)
+        let scale = explicitSettings == nil ? requestedScale : Double(outputSize.height) / Double(processed.image.height)
         try ImagePipeline.writeHEIF(processed, to: actualURL, settings: settings)
         let directURL = directory.appendingPathComponent(name + "-direct.heic")
+        var sourceDimensions: (Int, Int)?
         let directRecipe = try ImagePipeline.writeHEIF(sourceFile: input.sourceFile, recipe: recipe,
-                                                       to: directURL, settings: settings)
+            to: directURL, settings: settings, onSourceDimensions: { sourceDimensions = ($0, $1) })
+        try require(sourceDimensions?.0 == full.width && sourceDimensions?.1 == full.height,
+                    "Reported source size differs from the full decoder extent before recipe cropping")
         try require(directRecipe == processed.recipe, "Direct export changed the frozen white balance or recipe")
         guard let directImage = CIImage(contentsOf: directURL, options: [.expandToHDR: true]),
               let legacyImage = CIImage(contentsOf: actualURL, options: [.expandToHDR: true]) else {
@@ -382,6 +388,7 @@ private func require(_ condition: Bool, _ message: String) throws {
         settings.filmCurve = .linear
         settings.workingSpace = .lstar
         settings.intent = .reproduction
+        settings.whiteBalancePolicy = .preset
         settings.factoryKelvinOverride = 4000
         settings.applyToneCurve = false
         let expected = ProcessingRecipe(mode: .hncs, exposureEV: -0.3, illuminantKelvin: 6500,
@@ -389,21 +396,37 @@ private func require(_ condition: Bool, _ message: String) throws {
             effects: EffectToggles(applyGrain: false, applySharpness: false, applyExtraCrop: false))
         var payload = try JSONSerialization.jsonObject(with: JSONEncoder().encode(expected)) as! [String: Any]
         var storedHNCS = payload["hncs"] as! [String: Any]
+        storedHNCS.removeValue(forKey: "whiteBalancePolicy")
         let suite = "glasscam-native-gradation-migration-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
-        for revision in [8, 9] {
+        var photoSettings = settings; photoSettings.whiteBalancePolicy = .photo
+        let cameraExpected = ProcessingRecipe(mode: expected.mode, exposureEV: expected.exposureEV,
+            illuminantKelvin: 6500, simulationIndex: 0, seed: 0, hncs: photoSettings, effects: expected.effects)
+        for revision in [8, 9, 10] {
             storedHNCS["renderRevision"] = revision
             payload["hncs"] = storedHNCS
             let oldData = try JSONSerialization.data(withJSONObject: payload)
             let restored = try JSONDecoder().decode(ProcessingRecipe.self, from: oldData)
-            try require(restored == expected && restored.hncs.renderRevision == 10,
-                        "Native render migration lost existing HNCS selections or effect switches")
+            try require(restored == expected && restored.hncs.renderRevision == 11 && restored.hncs.whiteBalancePolicy == .preset,
+                        "Old photo recipe changed its original WB, HNCS selections or effect switches")
             defaults.set(oldData, forKey: "editor.processingRecipe.revision8.v1")
-            try require(CameraSettingsStore(defaults: defaults).recipe == expected,
-                        "Saved settings were reset instead of migrated")
+            try require(CameraSettingsStore(defaults: defaults).recipe == cameraExpected,
+                        "Camera defaults did not migrate WB independently of frozen photo recipes")
         }
-        for unsupported in [7, 11] {
+        for policy in HNCSWhiteBalancePolicy.allCases {
+            var selected = settings; selected.whiteBalancePolicy = policy
+            let recipe = ProcessingRecipe(mode: .hncs, exposureEV: -0.3, illuminantKelvin: 6500,
+                simulationIndex: 0, seed: 0, hncs: selected, effects: expected.effects)
+            let data = try JSONEncoder().encode(recipe)
+            try require(try JSONDecoder().decode(ProcessingRecipe.self, from: data) == recipe,
+                        "Explicit WB selection did not survive photo recipe round-trip")
+            defaults.set(data, forKey: "editor.processingRecipe.revision8.v1")
+            let store = CameraSettingsStore(defaults: defaults)
+            try require(store.recipe == recipe && CameraSettingsStore(defaults: defaults).recipe == recipe,
+                        "Explicit camera WB choice was overwritten on reload")
+        }
+        for unsupported in [7, 12] {
             storedHNCS["renderRevision"] = unsupported
             payload["hncs"] = storedHNCS
             let data = try JSONSerialization.data(withJSONObject: payload)
@@ -436,6 +459,36 @@ private func require(_ condition: Bool, _ message: String) throws {
         let direct = try ImagePipeline.process(input, recipe: .standard)
         try require(direct.recipe.photoWhiteBalance == input.whiteBalance,
                     "Pipeline failed to bind the photo's white point")
+
+        // Actual failing phone whitepoint. Check user-visible rendering and
+        // cache identity for both policies, not just a persisted enum value.
+        let tele = PhotoWhiteBalance(origin: .appleRAW, temperature: 5393, tint: 44.5,
+                                     x: 0.33567193150520325, y: 0.37427031993865967)
+        var nature = HNCSSettings.standard; nature.presetKey = "nature"; nature.workingSpace = .lstar
+        let gray = [Float](repeating: 0.18, count: 4 * 4 * 3)
+        let effects = EffectToggles(applyGrain: false, applySharpness: false, applyExtraCrop: false)
+        func render(_ settings: HNCSSettings) throws -> [Float] {
+            try HNCSEngine.exportLinearRGBA(linearSRGB: gray, width: 4, height: 4,
+                exposureEV: 0, illuminantKelvin: 6500, settings: settings, effects: effects, whiteBalance: tele)
+        }
+        let automatic = try render(nature)
+        nature.whiteBalancePolicy = .preset
+        let fixed = try render(nature)
+        let legacyGolden: [Float] = [0.26048735, 0.33648133, 0.23170701]
+        try require(zip(fixed.prefix(3), legacyGolden).allSatisfy { abs($0 - $1) < 1e-7 },
+                    "Original Nature WB replay no longer matches pre-fix output")
+        try require(fixed[1] / ((fixed[0] + fixed[2]) / 2) > 1.25,
+                    "Failing scene no longer reproduces the original green cast")
+        try require(abs(automatic[1] / ((automatic[0] + automatic[2]) / 2) - 1) < 0.025,
+                    "Photo WB did not keep neutral gray neutral through Nature")
+        let fixedRecipe = ProcessingRecipe(mode: .hncs, exposureEV: 0, illuminantKelvin: 6500,
+            simulationIndex: 0, seed: 0, hncs: nature, photoWhiteBalance: tele)
+        try require(fixedRecipe.whiteBalanceDescription == "Preset WB · Nature · 5500 K",
+                    "Review labels a preset-rebalanced photo as automatic WB")
+        nature.whiteBalancePolicy = .photo
+        try require(try render(nature) == automatic, "WB policy reused a stale cached context")
+        try require(ProcessingRecipe.standard.resolvingWhiteBalance(tele).whiteBalanceDescription == tele.description,
+                    "Automatic WB review lost the per-photo value")
     }
 
     static func checkRAW(_ source: URL, directory: URL) throws {
@@ -480,6 +533,30 @@ private func require(_ condition: Bool, _ message: String) throws {
         let maximum = pixels(image.applyingFilter("CIAreaMaximum", parameters: [kCIInputExtentKey: CIVector(cgRect: image.extent)]))
         try require(maximum.allSatisfy { $0.isFinite } && maximum.max()! > 1, "RAW HDR export lost superwhite pixels")
         print("PASS: real RAW \(width)×\(height) → 10-bit PQ HEIF; decoded peak \(maximum.max()!); bytes \((try Data(contentsOf: output)).count); seconds \(Date().timeIntervalSince(started))")
+        let captureFraming = CaptureFraming(cameraID: "offline-RAW-fixture", nativePixelCount: width * height,
+                                           deliveredWidth: width, deliveredHeight: height)
+        for mode in [24, 48] {
+            let settings = ExportSettings.camera(mode, framing: captureFraming)
+            let target = directory.appendingPathComponent("raw-camera-\(mode).heic")
+            var sourceDimensions: (Int, Int)?
+            try ImagePipeline.writeHEIF(sourceFile: processed.source.sourceFile, recipe: processed.recipe,
+                to: target, settings: settings, rawDecode: processed.source.rawDecode,
+                onSourceDimensions: { sourceDimensions = ($0, $1) })
+            try require(sourceDimensions?.0 == width && sourceDimensions?.1 == height,
+                        "Real RAW source size reporting differs from its oriented full decoder extent")
+            let encoded = CGImageSourceCreateWithURL(target as CFURL, nil)!
+            let properties = CGImageSourceCopyPropertiesAtIndex(encoded, 0, nil) as! [String: Any]
+            let expected = try settings.dimensions(sourceWidth: width, sourceHeight: height, crop: processed.recipe.crop)
+            try require((properties[kCGImagePropertyPixelWidth as String] as? NSNumber)?.intValue == expected.width &&
+                        (properties[kCGImagePropertyPixelHeight as String] as? NSNumber)?.intValue == expected.height &&
+                        (properties[kCGImagePropertyDepth as String] as? NSNumber)?.intValue == 10,
+                        "Real RAW camera output dimensions/depth did not follow its policy")
+            if expected.width == width && expected.height == height {
+                try require(try Data(contentsOf: target) == Data(contentsOf: output),
+                            "Native-sized camera mode changed the existing RAW export")
+            }
+            print("PASS: real RAW camera \(mode)MP policy → \(expected.width)×\(expected.height), 10-bit; native-sized output preserves original HEIF bytes")
+        }
     }
 
     static func main() async {
@@ -487,7 +564,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             guard (2...3).contains(CommandLine.arguments.count) else { throw CheckFailure(description: "Pass a temporary fixture directory and optional DNG") }
             let directory = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
             try checkNativeGradationMigration()
-            print("PASS: native revision 10 migrates revision 8/9 selections; unknown revisions rejected")
+            print("PASS: revision 11 preserves old 8/9/10 photo WB, migrates camera defaults, persists explicit choices, and rejects unknown revisions")
             try require(try ImagePipeline.baselineSharpness(in: [:]) == 0, "Missing RAW baseline must follow native zero fallback")
             for baseline in [0.0, 0.5, 1.0, 1.5, 2.0] {
                 let properties: [String: Any] = [kCGImagePropertyDNGDictionary as String:
@@ -521,6 +598,8 @@ private func require(_ condition: Bool, _ message: String) throws {
             try checkAutomaticWhiteBalance(full)
             print("PASS: production automatic WB snapshot, Codable, cache invalidation and per-photo binding")
             try await CaptureWorkflowChecks.run(fixture: full)
+            try CaptureOutputChecks.run()
+            try await CaptureRecoveryChecks.run(fixture: full, directory: directory)
             for preset in ["standard", "square-crop", "film-grain-artistic", "high"] {
                 try checkExport(full, recipe: recipe(preset), directory: directory, name: "hncs-" + preset)
             }
@@ -533,6 +612,9 @@ private func require(_ condition: Bool, _ message: String) throws {
             try checkExport(fixture(directory, width: 256, height: 384), recipe: .standard,
                             directory: directory, name: "hncs-downsample", scale: 0.5)
             print("PASS: 7 real HEIF exports match full-frame processing; direct export has identical decoded pixels")
+            try checkExport(fixture(directory, width: 200, height: 300), recipe: .standard,
+                            directory: directory, name: "camera-interpolated-24", settings: .camera(24))
+            print("PASS: adaptive 24MP interpolation matches independent full-frame linear-light HEIF output")
             let hdr = try hdrFixture(directory)
             try checkHDR(hdr, directory: directory)
             print("PASS: HDR import, highlight ratios, 10-bit PQ metadata, and 7 HDR exports; direct export has identical decoded pixels")

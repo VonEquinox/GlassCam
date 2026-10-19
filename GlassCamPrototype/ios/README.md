@@ -1,104 +1,99 @@
-# GlassCam native iOS prototype
+# GlassCam iPhone 构建与试用
 
-SwiftUI UI, Apple decoding/capture/encoding, and independent standard C++17 HNCS / FFCS engines. No package-manager or project-generator dependency.
+当前开发目标是用户自己的 iPhone，工程最低系统为 **iOS 27.0**，使用 **Xcode 27**。应用启动即相机，拍摄 Apple ProRAW，经现有 HNCS／FFCS 处理后自动保存 10-bit BT.2020/PQ HDR HEIF，并提供成片回看与分享。
 
-## Build status and setup
+本轮按用户要求先离线开发，开发完成后统一连接手机验收。编译通过与真实三摄拍摄通过是两项独立结果；最终状态见[测试记录](../docs/TEST_STATUS.md)。完整产品约定见[首版日常试用](../docs/IPHONE_FIRST_USABLE_20261018.md)。
 
-**Verified on 2026-10-13 with Xcode 27.0 and the iOS 27.0 simulator SDK: Debug and Release builds pass.** The app installs and launches in the iPhone 18 Pro Max simulator. Native macOS image regressions exercise the production Core Image/Metal pipeline, real HEIF output and the share provider. Physical-camera configuration, iPhone performance and receiving-app compatibility still require device testing.
+## 构建普通 Release
 
-1. Open `GlassCam.xcodeproj` in Xcode 16 or later. Keep `../core`, `../reference_ffcs/source.zip` and `../tools` in the supplied layout.
-2. The first build phase verifies the bundled archive and extracts all 50 original FFCS 0.2 assets offline. Missing/corrupt assets fail the build; there is no approximate substitute.
-3. Select shared scheme `GlassCam`, iOS 17+ simulator. For hardware, set your development team and a unique bundle identifier.
-4. This branch launches directly into a single-main-camera viewfinder with opaque black spare regions. Custom camera and editor surfaces use solid colors, with no Liquid Glass or material fallback. See [single-camera variant](../docs/SINGLE_CAMERA.md).
+在仓库根目录运行：
 
 ```sh
-xcodebuild -project GlassCam.xcodeproj -scheme GlassCam \
-  -configuration Debug -sdk iphonesimulator \
-  -destination 'generic/platform=iOS Simulator' \
-  CODE_SIGNING_ALLOWED=NO build
+python3 GlassCamPrototype/tools/iphone_release.py --unsigned
 ```
 
-From `GlassCamPrototype/`, run `python3 -B tools/test_apple_images.py` for the Apple image regressions. If command-line tools still select a different installation, prefix the command with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`. Test build products, LUT copies and synthetic images are kept in a temporary directory and removed on exit.
+这只编译，不连接设备、不安装应用。产物默认保存在 `~/Library/Developer/GlassCamRelease`，结果和日志分别为 `release.json` 与 `release-build.log`。
 
-## Import, effects and full-source output
+需要有签名的安装包时：
 
-PhotosPicker / Files accepts JPEG, PNG, HEIC and supported DNG. The complete input is retained in an owned, protected temporary file for this editing session. Default import preview is capped at a 2048px long edge: ImageIO thumbnails for rendered inputs, requested RAW scale for DNG. Embedded profiles and orientation feed Apple conversion to extended linear sRGB. DNG support and all Apple color/orientation behavior need device validation. ProRAW is not unprocessed CFA, and the HNCS virtual-native source bridge is not iPhone calibration.
+```sh
+python3 GlassCamPrototype/tools/iphone_release.py
+```
 
-Select HNCS or an available native FFCS look in one of five research asset families; the engines are not chained. Dedicated GFX100S/II tables take priority and common GFX100 fallback is identified. FFCS 0.2 defaults to neutral postprocessing; analytic reference adjustments require explicit opt-in. Exposure is −2…+2 EV. HNCS factory CCT 2000…10000K selects profile interpolation, not measured scene white balance. FFCS does not use this CCT. Comparison shows processed left and original right. Effect comparison now uses exact Float32 outputs and a single Metal RGBA16Float SDR drawable, without UIImage/UInt8 intermediates. The legacy8-bit fast API remains available for diagnostics, not the current editor preview. See [high-precision preview](../docs/HIGH_PRECISION_PREVIEW.md).
+使用工程已有的开发团队。工具检查最终签名，并从包内描述文件读取实际到期时间。普通 Release 不启用性能探针或神经实验入口。
 
-Export reopens the full source, processes exact color/spatial stages before downsizing, and uses 64-row output strips with FFCS halo/global grain coordinates. A disk-backed RGBAf raster feeds linear-light Lanczos when a smaller output is requested. Dedicated `writeHEIF10Representation` requests 10-bit SDR sRGB: no UInt8 preview input, HDR/gain map, or 8-bit fallback. Dimension/component-depth metadata checks are implemented, but actual HEVC coded depth still needs independent inspection. Source metadata including location is omitted; transparency flattens onto black.
+项目没有额外包管理器或工程生成器依赖。保留 `../core`、`../reference_ffcs/source.zip` 和 `../tools` 的布局；构建阶段会校验并展开 FFCS 资源。命令行使用 `/Applications/Xcode.app/Contents/Developer`，也可通过 `DEVELOPER_DIR` 指定其他 Xcode 安装。
 
-Only application-owned processing scratch is bounded. Full-source file size, Apple decoder/encoder surfaces, mmap resident pages and disk intermediate storage remain significant; a 48.8MP Float RGBA raster is about 781MB. The preview cap does not bound total RAW decode memory. See [full-source design](../docs/FULL_RESOLUTION_EXPORT.md).
+## 安装与续签
 
-## Save original HEIF and share compatibly
+开发完成、手机连接并解锁后，查询已配对设备：
 
-- Save HEIF to Photos requests add-only permission and creates a photo resource directly from the original HEIF. No compatibility conversion participates.
-- Save HEIF to Files uses an exporting document picker to copy that same original file.
-- Share uses one NSItemProvider with HEIC file/data representations registered before JPEG. The JPEG is generated only on request, from the finalized HEIF, retaining dimensions and normalizing orientation into conventional 8-bit SDR sRGB. It never uses the preview or rerenders an effect. Successful conversion is cached for subsequent loads.
-- There is no JPEG or PNG export option. Standard Save to Camera Roll is excluded from the share sheet; use the explicit HEIF save control.
-- Receiving extensions choose the representation they request. Registration priority does not prove they select HEIC or that WeChat accepts either route. Some recipients may re-encode independently.
-- Shared ownership keeps originals/compatibility files alive through picker/provider callbacks. Sheet dismissal alone does not delete a file still in use. Partial or failed compatibility output is not published; temporary owners clean up on release. A crash can leave OS-managed temporary data.
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun devicectl list devices
+```
 
-No automatic upload or background network work is implemented. Photos authorization and the receiving app's behavior remain platform-dependent and unverified here.
+用列表中的 CoreDevice ID 替换下方的 `DEVICE_ID`：
 
-## Task state, errors and cancellation
+```sh
+python3 GlassCamPrototype/tools/iphone_release.py --refresh-signing --install-device DEVICE_ID
+```
 
-Import transfer/decode/effect/export run away from the UI thread. Settings lock during operations; latest-operation tokens reject stale results. Effect failure retains the decoded source for Retry. A changed or failed, unrendered recipe disables Save/share until its preview succeeds, so an old result cannot be delivered as the pending settings.
+只有明确提供 `--install-device` 才会安装并启动 App。`--refresh-signing` 允许 Xcode 更新现有描述文件；需要 Xcode 中已有可用账号及签名身份。它不购买开发者会员。
 
-The actual worker and an explicit locked cancellation token carry cancellation across the serial decode queue. Cancellation is checked between strips and before/after codecs. Synchronous Apple calls cannot be interrupted mid-call; busy stays set until they return, and canceled work must not publish an image or start saving. Photos writes cannot be canceled after their transaction is submitted. Files picker cancellation and share-provider Progress cancellation are separate delivery boundaries.
+用户已接受现有开发签名的定期续签方式。之前的包使用 7 天描述文件，新包有效期以 `release.json` 中读取的时间为准。使用相同 bundle identifier 覆盖安装可保留应用数据；有待完成照片时不要卸载 App。
 
-HNCS preview supports up to four bounded workers, reduced under low-power/thermal policy. HNCS Float export now uses the same bounded worker policy with bit-exact per-pixel math and a serial oracle; FFCS app processing currently uses one worker. These are implementation choices, not measured iPhone energy/performance guarantees.
+## 相机与输出
 
-## Native camera and per-lens settings
+- 双指捏合连续变焦；焦段按钮跳到超广、主摄和原生长焦入口；长按按钮打开连续标尺。控件倍率来自实际设备能力。
+- 首选虚拟三摄，由 iOS 根据倍率、光线和对焦自动接力。没有可用虚拟 ProRAW 时按物理镜头能力回退；每次只运行一个普通 `.photo` 会话。
+- 若虚拟三摄只公布较小 RAW、其当前主镜头支持更高分辨率，快门时冻结该系统选镜结果，用同一物理镜头和等价倍率采集高分辨率 RAW，随后恢复虚拟取景。这样保留自动选镜和原生 48MP 能力；捕获时会短暂停住取景。
+- 弱光或近摄时，长焦倍率可以由较短焦距镜头裁切提供。焦段按钮代表所选视角，不承诺强制某一颗镜头。
+- 快门前冻结构图、方向、处理配方与输出选择。当前照片保存完成前，不能再拍下一张。
+- 相机已经施加的变焦不会在 RAW 解码后再次裁切；HNCS 预设额外裁切是单独的设置。
 
-The separately opened camera screen requests camera access on use. Physical center and wider peripheral video feeds extend across the window; the center photo rectangle is free of glass. The perimeter never enters PhotoOutput. Main/tele require an actual supported wider simultaneous source; ultra-wide permits black perimeter. Near/far objects, parallax, distortion and timing mean the FOV mapping is approximate, not a calibrated seamless continuation. Coverage is gated; optical edge alignment still needs physical targets.
+| 档位 | 最终构图的有效像素 | 输出 |
+|---|---|---|
+| 24MP | 任意合法源尺寸 | 24MP |
+| 48MP | 至少 24MP | 48MP |
+| 48MP | 小于 24MP | 24MP |
 
-Center/peripheral preview limits are independent (defaults 1920/960). Scaled video outputs do not force full-resolution preview buffers or silently lower the selected native still source. Per-physical-camera settings persist only supported 12/24/48MP processed output targets; a smaller target is produced after full-source effects, never by upscaling a smaller source.
+保持构图比例，需要时插值放大。原始 ProRAW 回调仍校验格式、缓冲尺寸和比例；已知原生未裁切焦段不会把异常降低的 RAW 分辨率当作成功。
 
-Main/tele MultiCam is video-only. At shutter, the UI labels and retains frozen preview, stops the MultiCam graph, then rebuilds an ordinary single-camera `.photo` graph for the same physical lens and highest supported ProRAW source. Actual returned RAW dimensions/type are validated; no silent12MP fallback. Preview is restored afterward, but restoration failure never discards an already successful photo. Single ultra-wide `.photo` remains direct. Per-lens output settings are preserved with exact supported-tier selection. Missing capabilities fail explicitly. See [handoff contract](../docs/CAPTURE_SESSION_HANDOFF.md).
+Apple 没有逐档保证 ProRAW 内部采样、裁切与上采样方式。当前有效像素使用解码栅格上限和实际镜头中心裁切模型的保守估计，界面明确标为估计；照片 EXIF 可补充数字变焦证据，默认值不能抹去已知裁切。实际物理镜头、EXIF、RAW 返回尺寸和解码尺寸随照片记录，恢复回看继续使用真实解码画幅。最终三摄验收需要核对取景边界、DNG 裁切标签及解码尺寸，不能只根据一个 48MP 文件标签证明独立细节。
 
-Live video is the system preview, not live HNCS/FFCS; captured ProRAW runs through the effects pipeline afterward.
+## 恢复与保存
 
-## First Apple-platform acceptance checklist
+RAW 和快门配方完整写入本机恢复目录后，一张待完成照片可跨进程恢复。处理在前台进行，切后台或锁屏在安全边界停止后续工作，回到前台继续。已经提交的 Photos 请求继续等待它自己的回调。
 
-1. Build Debug and Release; test iOS 26 native glass and older material fallback. Check iPad, VoiceOver, dark mode and permission-denied paths.
-2. Import oriented landscape/portrait JPEG, wide-gamut HEIC, PNG and supported/corrupt DNG. Verify profile conversion, EXIF/RAW/bitmap row orientation and exact before/after alignment. Run `tests/apple_ci_strip_roundtrip.swift` on Apple to check strip row order.
-3. Compare both endpoints, adjust/retry/reset effects, trigger render failure and cancel just before completion. Pending settings must block Save/share; decoded source remains retryable. Rapid transfers must not commit stale images.
-4. Export full source and smaller per-lens targets with both engines. Check dimensions, aspect/no upscale, no stripe seams, deterministic grain/sharpen and preview-to-final appearance; allow expected scale/byte-quantization differences.
-5. Inspect HEVC coded depth and HEIF primary-image SDR/sRGB metadata with a HEIF-aware inspector. A `.heic` name or decoded 16-bit buffer is not proof. Verify no HDR gain map, smooth-gradient precision and explicit encoder failures.
-6. Save separately to Photos and Files; retrieve originals and verify format, dimensions, metadata and unchanged file bytes where the API exposes originals. Test denied add-only access and picker cancellation. Verify JPEG never enters these dedicated saves.
-7. Test AirDrop and exact WeChat/iOS/device versions with ordinary image and file/original flows. Record which provider type is requested, whether original HEIC or compatibility JPEG is sent, received dimensions/depth/tags and ability to view. Test receivers that reject HEIC, repeated file/data callbacks, provider cancellation and dismissal while codec work is in flight. No compatibility claim before this test.
-8. Cancel import/effect/export during slow RAW decode, each processing boundary and encoding. Busy must persist until noncancelable work finishes; no overlapping export or canceled delivery. Photos transaction submission is the point beyond which cancellation cannot undo a save. Check temporary-file lifetime/cleanup and disk-full failure.
-9. On each lens/preview/output combination, record actual formats, ProRAW support and native/output sizes; test wider-feed coverage, startup readiness, rapid changes, rotation, interruptions, pressure and Retry. Compare preview edge targets to saved DNG framing and verify perimeter exclusion. Do not accept a 48MP marketing specification as successful capture evidence.
-10. Profile decode, core, resize, encode and delivery separately: large-image peak RSS/disk, thermal steady state, p50/p95 latency and energy. Cloud C++ preview timings are not phone/export results.
+- RAW 阶段恢复：使用原配方重新处理同一照片。
+- 已编码阶段恢复：复用保留的 HEIF，不重新渲染。
+- Photos 写入途中被结束：显示“结果可能已保存”，保留成片，由用户核对相册后确认已保存或再次保存。
+- 成功回执写入失败：提示恢复记录需要重试，不把它误报成 Photos 保存失败并自动重发。
+- 保存成功后清理恢复数据；回看和分享另持有有效的成片文件。
 
-## Apple API references
+相册保持仅添加权限。分享优先原始 HEIC，需要兼容格式时从最终 HEIF 生成 JPEG；接收端实际选择仍以实际应用测试为准。应用不提供长期 RAW 图库。
 
-- [CIRAWFilter](https://developer.apple.com/documentation/coreimage/cirawfilter)
-- [Dedicated HEIF10 writer](https://developer.apple.com/documentation/coreimage/cicontext/writeheif10representation(of:to:colorspace:options:))
-- [Liquid Glass](https://developer.apple.com/documentation/swiftui/applying-liquid-glass-to-custom-views)
-- [Item-provider file representations](https://developer.apple.com/documentation/foundation/nsitemprovider/registerfilerepresentation(fortypeidentifier:fileoptions:visibility:loadhandler:))
-- [Activity item-provider configuration](https://developer.apple.com/documentation/uikit/uiactivityitemsconfiguration/init(itemproviders:))
+## 离线验证
 
-## Experimental color-only live preview
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer python3 -B GlassCamPrototype/tools/test_apple_images.py
+```
 
-Default off. Center-only 65³ shaped GPU cube; full-photo C++ processing and 10-bit HEIF remain independent. Currently admitted: EV 0, HNCS 5500/6500 K or remeasured FFCS 0.2 XH2S neutral PROVIA/ACROS (overlay off, radius 1). Other recipes use the unchanged system layer with an explicit status; peripheral video remains system color. Source is still 8-bit NV12, processing/display is Float/RGBA16Float SDR. See [scope and measured approximation](../docs/LIVE_COLOR_PROXY.md). Device acceptance must cover source-age timeout, unavailable drawable, off-window/background, orientation, rapid look/lens changes, cancellation and GPU failure. No device FPS/energy result has been measured.
+它在 Mac 上编译生产 Swift／C++，运行真实 Core Image／Metal／HEIF，以及可注入的权限、恢复和 Photos 状态测试。相机与 Photos 的替身验证不等于真机拍摄。
 
-## Plan A reference camera UI
+完整 Python 回归需要仓库 `requirements.txt` 中的环境：
 
-Native clear glass is confined to the natural area outside the maximal full-window photo rectangle. No control-band reservation, center crop/warp or app-added blur/seam effect. Settings retain lens output, HNCS/FFCS, EV/Factory CCT, preview limits and diagnostics; the real Float thumbnail returns to the editor/import flow. Compact windows use a separate plain control panel. This is source implementation only, not a verified visual replica; see [Plan A](../docs/CLEAR_GLASS_UI.md).
+```sh
+PYTHONPATH=GlassCamPrototype/tests python3 -B -m unittest discover -s GlassCamPrototype/tests -q
+```
 
-## HNCS revision8设备验收增项
+## 统一真机验收
 
-- 检查真实preset/film/space/intent与tone/portable grain/USM控件、重启配方持久化和跨相机/编辑器同步。Standard按上游CLI绕过空间预设；其他预设默认sharpness开与CLI一致。
-- 虚拟capture CCT与工厂CCT、完整目标WB明确区分，不标称测量的相机白平衡。
-- Square Crop竖横屏、奇数源尺寸、中央边界、比较两侧、真实HEIF像素尺寸必须一致；玻璃仅在最终照片外。
-- HNCS工作RGB磁盘top-left行序、全图grain/USM和RGBAf还原必须用真实Apple CI诊断；空间导出取消、磁盘不足和后台时的FileProtection行为均待实测。
-- 核验快门配方快照、关闭后晚到照片与新导入/新相机/导出并发，成功DNG不得配错方或抢占新任务。
-- 新预设没有实时cube误差批准，必须系统取景回退；Standard5500/6500原旧配方单独保留。
+1. 普通 Release 冷启动、相机／相册权限拒绝及恢复，检查签名有效期。
+2. 三颗实际镜头及中间倍率：快速往返变焦、横竖屏、快门冻结、照片与取景边界对应；记录真实镜头、RAW 类型、尺寸和实际焦段。
+3. HNCS／FFCS、24MP／48MP、方形裁切组合，核对系统相册原件的尺寸、方向、HDR 与插值提示。
+4. 处理中切后台／锁屏、返回前台，以及保留任务后结束再启动；验证同一照片恢复和单张互斥。
+5. Photos 在途未知状态的人工确认、普通保存失败重试，确认不自动产生重复照片。
+6. 多次连续单拍、回看、设置重启保留，并测量快门到保存和再次可拍的耗时、热状态与内存。
 
-C++/Python黄金及源码模型测试通过不意味着以上Apple SDK/设备项目已执行。
-
-## 三个独立开关验收
-
-编辑器和相机共用颗粒、锐化、预设额外裁切三个设置；默认true，切换preset/引擎与Reset均保留用户值。确认旧HNCS显式false与旧FFCS开关默认全开的迁移（0.2数学仍采用新版中性默认，不保留旧错误解析叠加）；关闭Square Crop后中心边界、比较与HEIF恢复源比例。无对应效果时开关可设置未来偏好，但不添加新处理。切换期间拍摄/关闭/晚到成功必须保留快门三项值。App recipe JSON已包含三项；未新增HEIF内嵌Exif配方。Apple编译与实际操作仍未执行。
+`GlassCamCaptureTests` 会实际拍摄并保存照片，只在统一真机验收阶段执行。旧版的设备成功记录不能替代本轮三摄版本的验收。

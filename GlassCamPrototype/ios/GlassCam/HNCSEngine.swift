@@ -29,16 +29,23 @@ enum HNCSIntent: String, CaseIterable, Codable, Identifiable, Sendable {
     var title: String { self == .standard ? "Standard" : "Reproduction (pure curve)" }
 }
 
+enum HNCSWhiteBalancePolicy: String, CaseIterable, Codable, Identifiable, Sendable {
+    case photo, preset
+    var id: Self { self }
+    var title: String { self == .photo ? "Photo · Automatic" : "Original preset" }
+}
+
 struct HNCSSettings: Codable, Equatable, Sendable {
-    static let currentRenderRevision = 10
+    static let currentRenderRevision = 11
     var renderRevision = currentRenderRevision
     var presetKey = "standard"
     var filmCurve: HNCSFilmCurve = .asShot
     var rawFilmCurveType = 2
     var workingSpace: HNCSWorkingSpace = .legacy
     var intent: HNCSIntent = .standard
+    var whiteBalancePolicy: HNCSWhiteBalancePolicy = .photo
     // This selects factory matrix/LUT interpolation only. It does not replace
-    // capture CCT or the preset's absolute target-camera white-balance gains.
+    // capture CCT or the selected target-camera white-balance gains.
     var factoryKelvinOverride: Double? = nil
     var applyToneCurve = true
     static let standard = HNCSSettings()
@@ -46,19 +53,20 @@ struct HNCSSettings: Codable, Equatable, Sendable {
     init() {}
     private enum CodingKeys: String, CodingKey {
         case renderRevision, presetKey, filmCurve, rawFilmCurveType, workingSpace, intent
-        case factoryKelvinOverride, applyToneCurve
+        case factoryKelvinOverride, applyToneCurve, whiteBalancePolicy
     }
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         let savedRevision = try values.decodeIfPresent(Int.self, forKey: .renderRevision) ?? Self.currentRenderRevision
-        // Revision 10 adds native sharpness with per-RAW baseline metadata.
-        // Preserve both revision-8 and revision-9 selections and effect gates.
-        renderRevision = [8, 9].contains(savedRevision) ? Self.currentRenderRevision : savedRevision
+        // Old durable recipes must keep their original preset WB when replayed.
+        // Camera preferences migrate separately to photo WB for future shots.
+        renderRevision = [8, 9, 10].contains(savedRevision) ? Self.currentRenderRevision : savedRevision
         presetKey = try values.decodeIfPresent(String.self, forKey: .presetKey) ?? "standard"
         filmCurve = try values.decodeIfPresent(HNCSFilmCurve.self, forKey: .filmCurve) ?? .asShot
         rawFilmCurveType = try values.decodeIfPresent(Int.self, forKey: .rawFilmCurveType) ?? 2
         workingSpace = try values.decodeIfPresent(HNCSWorkingSpace.self, forKey: .workingSpace) ?? .legacy
         intent = try values.decodeIfPresent(HNCSIntent.self, forKey: .intent) ?? .standard
+        whiteBalancePolicy = try values.decodeIfPresent(HNCSWhiteBalancePolicy.self, forKey: .whiteBalancePolicy) ?? .preset
         factoryKelvinOverride = try values.decodeIfPresent(Double.self, forKey: .factoryKelvinOverride)
         applyToneCurve = try values.decodeIfPresent(Bool.self, forKey: .applyToneCurve) ?? true
     }
@@ -72,6 +80,21 @@ struct HNCSSettings: Codable, Equatable, Sendable {
         return (effects.applyGrain && flags & 4 != 0) || (effects.applySharpness && nativeSharpness)
     }
     var presetTitle: String { HNCSEngine.presets.first { $0.id == presetKey }?.name ?? "Unavailable preset" }
+    var presetWhiteBalanceKelvin: Int? {
+        HNCSEngine.presets.first { $0.id == presetKey }?.whiteBalanceKelvin
+    }
+    var whiteBalanceExplanation: String {
+        if whiteBalancePolicy == .photo {
+            if let kelvin = presetWhiteBalanceKelvin {
+                return "Keeps this photo's own temperature and tint. \(presetTitle)'s fixed \(kelvin) K white balance is not applied."
+            }
+            return "Keeps each photo's own temperature and tint while applying the preset's tone and detail settings."
+        }
+        if let kelvin = presetWhiteBalanceKelvin {
+            return "Applies \(presetTitle)'s fixed \(kelvin) K white balance and tint."
+        }
+        return "\(presetTitle) has no fixed white balance, so the photo's own temperature and tint are preserved."
+    }
     var isValid: Bool {
         renderRevision == Self.currentRenderRevision && rawFilmCurveType == 2 &&
         (factoryKelvinOverride == nil || (factoryKelvinOverride!.isFinite && (2000...10000).contains(factoryKelvinOverride!))) &&
@@ -89,7 +112,12 @@ enum HNCSEngine {
         let id: String
         let name: String
         let flags: UInt32
+        let whiteBalanceKelvin: Int?
         var hasOptionalSharpness: Bool { flags & 16 != 0 }
+    }
+
+    private struct PresetWhiteBalance: Decodable {
+        let color_temperature: Int?
     }
 
     /// Catalog names come from the exact backend assets. Source-defined no-op
@@ -99,7 +127,12 @@ enum HNCSEngine {
         let flags = hncs_preset_flags(key)
         let id = String(cString: key)
         guard id == "standard" || flags & (1 | 2 | 4 | 8) != 0 else { return nil }
-        return Preset(id: id, name: String(cString: name), flags: flags)
+        guard let json = hncs_preset_settings_json(key),
+              let white = try? JSONDecoder().decode(PresetWhiteBalance.self,
+                  from: Data(String(cString: json).utf8)) else { return nil }
+        let kelvin = white.color_temperature ?? 0
+        return Preset(id: id, name: String(cString: name), flags: flags,
+                      whiteBalanceKelvin: kelvin > 0 ? kelvin : nil)
     }
 
     private struct ContextKey: Equatable {
@@ -134,12 +167,13 @@ enum HNCSEngine {
             let pointer = settings.presetKey.withCString { preset in
                 if let white = key.whiteBalance {
                     guard white.isValid else { return OpaquePointer?.none }
-                    return hncs_create_preset_whitepoint(key.exposure, white.x, white.y,
+                    return hncs_create_preset_whitepoint_with_policy(key.exposure, white.x, white.y,
                         settings.factoryKelvinOverride ?? 0,
                         settings.workingSpace == .lstar ? 1 : 0,
                         settings.intent == .reproduction ? 1 : 0,
                         Int32(settings.filmCurve.rawValue), Int32(settings.rawFilmCurveType),
-                        preset, settings.applyToneCurve ? 1 : 0)
+                        preset, settings.applyToneCurve ? 1 : 0,
+                        settings.whiteBalancePolicy == .photo ? 1 : 0)
                 }
                 // Legacy reference/test clients retain the original CCT adapter.
                 return hncs_create_preset(key.exposure, key.captureKelvin,

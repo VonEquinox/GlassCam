@@ -34,8 +34,10 @@ final class SourceImageFile: @unchecked Sendable {
     let fileExtension: String?
     let pixelWidth: Int
     let pixelHeight: Int
+    private let deletesOnRelease: Bool
 
     init(data: Data, fileExtension: String?) throws {
+        deletesOnRelease = true
         guard let source = CGImageSourceCreateWithData(data as CFData, nil),
               let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [String: Any],
               let width = properties[kCGImagePropertyPixelWidth as String] as? NSNumber,
@@ -50,7 +52,20 @@ final class SourceImageFile: @unchecked Sendable {
         try data.write(to: url, options: ImageFileProtection.writeOptions)
     }
 
-    deinit { try? FileManager.default.removeItem(at: url) }
+    /// The recovery journal, rather than this borrowed handle, owns this file.
+    init(retainedURL: URL, fileExtension: String?) throws {
+        guard let source = CGImageSourceCreateWithURL(retainedURL as CFURL, nil),
+              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [String: Any],
+              let width = properties[kCGImagePropertyPixelWidth as String] as? NSNumber,
+              let height = properties[kCGImagePropertyPixelHeight as String] as? NSNumber,
+              width.intValue > 0, height.intValue > 0 else { throw PipelineError.invalidImage }
+        let orientation = (properties[kCGImagePropertyOrientation as String] as? NSNumber)?.intValue ?? 1
+        pixelWidth = (5...8).contains(orientation) ? height.intValue : width.intValue
+        pixelHeight = (5...8).contains(orientation) ? width.intValue : height.intValue
+        url = retainedURL; self.fileExtension = fileExtension; deletesOnRelease = false
+    }
+
+    deinit { if deletesOnRelease { try? FileManager.default.removeItem(at: url) } }
 }
 
 /// Disk-backed processing result, not a full-resolution Swift Float array.

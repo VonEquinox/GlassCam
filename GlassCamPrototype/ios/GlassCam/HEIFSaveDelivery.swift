@@ -6,11 +6,12 @@ import UIKit
 /// Saving is an original-HEIF-only path. Sharing compatibility never enters here.
 enum HEIFSaveDelivery {
     enum Error: LocalizedError {
-        case permissionDenied, saveFailed
+        case permissionDenied, saveFailed, inactive
         var errorDescription: String? {
             switch self {
             case .permissionDenied: return "Allow adding photos in Settings to automatically save your captured HDR photos."
             case .saveFailed: return "Photos could not save this HEIF. The original export was not replaced with another format."
+            case .inactive: return "Return to GlassCam to finish saving this photo."
             }
         }
     }
@@ -18,9 +19,10 @@ enum HEIFSaveDelivery {
         let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
         guard status == .authorized || status == .limited else { throw Error.permissionDenied }
     }
-    static func saveToPhotos(_ file: TemporaryHEIFFile) async throws {
+    @MainActor static func saveToPhotos(_ file: TemporaryHEIFFile) async throws {
         guard PHPhotoLibrary.authorizationStatus(for: .addOnly) == .authorized ||
               PHPhotoLibrary.authorizationStatus(for: .addOnly) == .limited else { throw Error.permissionDenied }
+        guard UIApplication.shared.applicationState != .background, UIApplication.shared.isProtectedDataAvailable else { throw Error.inactive }
         // Keep the original HEIF owner alive until Photos finishes importing it.
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
             PHPhotoLibrary.shared().performChanges({

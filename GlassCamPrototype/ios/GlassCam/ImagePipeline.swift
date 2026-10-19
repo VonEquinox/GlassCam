@@ -2,6 +2,28 @@ import Foundation
 import CoreImage
 import ImageIO
 
+/// Opt-in wall-clock spans for the synchronous export queue. The caller reads
+/// this object only after writeHEIF returns. Normal exports pass nil; timings
+/// never insert renders, synchronize extra GPU work, or change pixel math.
+final class PipelineTiming: @unchecked Sendable {
+    private(set) var seconds = [String: Double]()
+    private(set) var calls = [String: Int]()
+    private(set) var firstSeconds = [String: Double]()
+    private(set) var maximumSeconds = [String: Double]()
+    private(set) var thermalStates = Set<Int>()
+
+    func start() -> Double { ProcessInfo.processInfo.systemUptime }
+    func record(_ stage: String, since start: Double?) {
+        guard let start else { return }
+        let elapsed = ProcessInfo.processInfo.systemUptime - start
+        seconds[stage, default: 0] += elapsed
+        calls[stage, default: 0] += 1
+        if firstSeconds[stage] == nil { firstSeconds[stage] = elapsed }
+        maximumSeconds[stage] = max(maximumSeconds[stage, default: 0], elapsed)
+        if stage == "raw_render" { thermalStates.insert(ProcessInfo.processInfo.thermalState.rawValue) }
+    }
+}
+
 /// Immutable RAW input policy. The scene-linear candidate is diagnostic-only;
 /// Existing tone/EDR defaults are retained. HNCS disables decoder sharpening
 /// before applying its independently verified native sharpness stage.
@@ -219,6 +241,13 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
         let family = actual.map { $0 == ffcs.cameraFamily.rawValue ? $0 : "\(ffcs.cameraFamily.rawValue) / \($0) asset" }
             ?? "\(ffcs.cameraFamily.rawValue) / asset unavailable"
         return "FFCS · \(family) · \(FFCSEngine.simulationName(at: simulationIndex))"
+    }
+
+    var whiteBalanceDescription: String? {
+        if mode == .hncs, hncs.whiteBalancePolicy == .preset, let kelvin = hncs.presetWhiteBalanceKelvin {
+            return "Preset WB · \(hncs.presetTitle) · \(kelvin) K"
+        }
+        return photoWhiteBalance?.description
     }
 }
 
@@ -529,12 +558,13 @@ enum ImagePipeline {
     static func writeHEIF(_ processed: ProcessedImage, to url: URL,
                           settings: ExportSettings? = nil,
                           isCancelled: @escaping @Sendable () -> Bool = { false },
-                          progress: @escaping @Sendable (Double) -> Void = { _ in }) throws {
+                          progress: @escaping @Sendable (Double) -> Void = { _ in },
+                          timing: PipelineTiming? = nil) throws {
         try decodeQueue.sync {
             try autoreleasepool {
                 try exportFullSource(processed.source.sourceFile, whiteBalance: processed.source.whiteBalance,
                     recipe: processed.recipe, to: url, settings: settings ?? processed.source.exportSettings, rawDecode: processed.source.rawDecode,
-                    isCancelled: isCancelled, progress: progress)
+                    isCancelled: isCancelled, progress: progress, timing: timing)
             }
         }
     }
@@ -545,9 +575,12 @@ enum ImagePipeline {
     static func writeHEIF(sourceFile: SourceImageFile, recipe: ProcessingRecipe, to url: URL,
                           settings: ExportSettings, rawDecode: RAWDecodeRecipe = .current,
                           isCancelled: @escaping @Sendable () -> Bool = { false },
-                          progress: @escaping @Sendable (Double) -> Void = { _ in }) throws -> ProcessingRecipe {
+                          progress: @escaping @Sendable (Double) -> Void = { _ in },
+                          timing: PipelineTiming? = nil,
+                          onSourceDimensions: ((Int, Int) -> Void)? = nil) throws -> ProcessingRecipe {
         try decodeQueue.sync {
             try autoreleasepool {
+                let metadataStarted = timing?.start()
                 try checkExportCancellation(isCancelled)
                 var whiteBalance = PhotoWhiteBalance.renderedD65
                 var resolvedRAWDecode = rawDecode
@@ -557,8 +590,10 @@ enum ImagePipeline {
                     whiteBalance = .asShot(raw)
                 }
                 let resolved = recipe.resolvingWhiteBalance(whiteBalance)
+                timing?.record("metadata_bind", since: metadataStarted)
                 try exportFullSource(sourceFile, whiteBalance: whiteBalance, recipe: resolved,
-                    to: url, settings: settings, rawDecode: resolvedRAWDecode, isCancelled: isCancelled, progress: progress)
+                    to: url, settings: settings, rawDecode: resolvedRAWDecode, isCancelled: isCancelled, progress: progress,
+                    timing: timing, onSourceDimensions: onSourceDimensions)
                 return resolved
             }
         }
@@ -593,10 +628,15 @@ enum ImagePipeline {
     private static func exportFullSource(_ sourceFile: SourceImageFile, whiteBalance: PhotoWhiteBalance,
                                           recipe: ProcessingRecipe, to url: URL,
                                           settings: ExportSettings, rawDecode: RAWDecodeRecipe, isCancelled: @escaping @Sendable () -> Bool,
-                                          progress: @escaping @Sendable (Double) -> Void) throws {
+                                          progress: @escaping @Sendable (Double) -> Void,
+                                          timing: PipelineTiming? = nil,
+                                          onSourceDimensions: ((Int, Int) -> Void)? = nil) throws {
         try checkExportCancellation(isCancelled)
         progress(0)
+        let sourceStarted = timing?.start()
         let decoded = try fullSourceImage(sourceFile, whiteBalance: whiteBalance, rawDecode: rawDecode)
+        timing?.record("source_graph_setup", since: sourceStarted)
+        let setupStarted = timing?.start()
         try checkExportCancellation(isCancelled)
         // Protect all byte-count arithmetic before allocating or creating a file.
         guard decoded.extent.width < CGFloat(Int.max / 16),
@@ -608,6 +648,7 @@ enum ImagePipeline {
         let width = crop.width, height = crop.height
         guard width > 0, height > 0, width <= Int.max / 16 / height else { throw PipelineError.invalidImage }
         let output = try settings.dimensions(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: recipe.crop)
+        onSourceDimensions?(sourceWidth, sourceHeight)
         let rasterBytes = width * height * 16
         let capacity = try FileManager.default.temporaryDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
         // Reserve RGBAf + encoded-output margin and, when needed, 12-byte RGB
@@ -638,6 +679,7 @@ enum ImagePipeline {
             halo = try FFCSEngine.requiredHalo(simulationIndex: recipe.simulationIndex,
                                                effects: recipe.effects, settings: recipe.ffcs)
         } else { halo = 0 }
+        timing?.record("context_scratch_setup", since: setupStarted)
         for start in stride(from: 0, to: height, by: stripRows) {
             try checkExportCancellation(isCancelled)
             try autoreleasepool {
@@ -645,7 +687,10 @@ enum ImagePipeline {
                 let inputStart = max(0, start - halo)
                 let inputEnd = min(height, start + rows + halo)
                 let inputRows = inputEnd - inputStart
+                let allocationStarted = timing?.start()
                 var decodedRGBA = [Float](repeating: 0, count: width * inputRows * 4)
+                timing?.record("strip_buffer_allocation", since: allocationStarted)
+                let renderStarted = timing?.start()
                 decodedRGBA.withUnsafeMutableBytes { buffer in
                     // The strip and native backends count rows from the top.
                     // CI bounds count from the bottom, while render(toBitmap:)
@@ -654,6 +699,8 @@ enum ImagePipeline {
                                    bounds: CGRect(x: 0, y: CGFloat(height - inputEnd), width: CGFloat(width), height: CGFloat(inputRows)),
                                    format: .RGBAf, colorSpace: linear)
                 }
+                timing?.record("raw_render", since: renderStarted)
+                let packingStarted = timing?.start()
                 var rgb = [Float](repeating: 0, count: width * inputRows * 3)
                 for pixel in 0..<(width * inputRows) {
                     for channel in 0..<3 { rgb[pixel * 3 + channel] = decodedRGBA[pixel * 4 + channel] }
@@ -661,76 +708,108 @@ enum ImagePipeline {
                 let inputGains = try normalizeHighlights(&rgb)
                 let firstPixel = (start - inputStart) * width
                 let gains = Array(inputGains[firstPixel..<(firstPixel + width * rows)])
+                timing?.record("rgb_pack_hdr_split", since: packingStarted)
                 if let spatialWork {
+                    let gainWriteStarted = timing?.start()
                     try highlightWork!.append(gains)
+                    timing?.record("intermediate_io", since: gainWriteStarted)
+                    let colorStarted = timing?.start()
                     let work = try HNCSEngine.presetWork(linearSRGB: rgb, width: width, height: rows,
                         exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
+                    timing?.record("color_engine", since: colorStarted)
+                    let workWriteStarted = timing?.start()
                     try spatialWork.writeTopDownRows(work, originY: start, rows: rows)
+                    timing?.record("intermediate_io", since: workWriteStarted)
                     progress(0.1 + 0.35 * Double(start + rows) / Double(height))
                     return
                 }
                 var rgba: [Float]
                 switch recipe.mode {
                 case .hncs:
+                    let colorStarted = timing?.start()
                     rgba = try HNCSEngine.exportLinearRGBA(linearSRGB: rgb, width: width, height: rows,
                                                            exposureEV: recipe.exposureEV,
                                                            illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
+                    timing?.record("color_engine", since: colorStarted)
                 case .ffcs:
+                    let colorStarted = timing?.start()
                     let rendered = try FFCSEngine.exportLinearRGBStrip(
                         linearSRGB: rgb, fullWidth: width, fullHeight: height,
                         inputOriginY: inputStart, inputRows: inputRows,
                         outputOriginY: start, outputRows: rows,
                         exposureEV: recipe.exposureEV, simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects, settings: recipe.ffcs)
+                    timing?.record("color_engine", since: colorStarted)
+                    let expansionStarted = timing?.start()
                     var expanded = [Float](repeating: 1, count: width * rows * 4)
                     for pixel in 0..<(width * rows) {
                         for channel in 0..<3 { expanded[pixel * 4 + channel] = rendered[pixel * 3 + channel] }
                     }
                     rgba = expanded
+                    timing?.record("rgba_pack", since: expansionStarted)
                 }
+                let restoreStarted = timing?.start()
                 guard rgba.count == width * rows * 4,
                       rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
                 outputHeadroom = max(outputHeadroom, restoreHighlights(&rgba, gains: gains))
+                timing?.record("hdr_restore_validate", since: restoreStarted)
+                let writeStarted = timing?.start()
                 try raster.append(rgba)
+                timing?.record("rgba_write", since: writeStarted)
                 progress(0.1 + 0.75 * Double(start + rows) / Double(height))
             }
         }
         if let spatialWork {
+            let gainMapStarted = timing?.start()
             let gainData = try highlightWork!.mappedData(expectedBytes: width * height * 4)
+            timing?.record("intermediate_io", since: gainMapStarted)
             try checkExportCancellation(isCancelled)
             progress(0.45)
             // Grain normalization and USM see one complete cropped top-down
             // image, never independently seeded 64-row strips.
+            let spatialStarted = timing?.start()
             try HNCSEngine.applySpatial(to: spatialWork, settings: recipe.hncs, effects: recipe.effects,
                 baselineSharpness: rawDecode.baselineSharpness ?? 0, isCancelled: isCancelled)
+            timing?.record("spatial_sharpness", since: spatialStarted)
             progress(0.65)
             for start in stride(from: 0, to: height, by: stripRows) {
                 try checkExportCancellation(isCancelled)
                 try autoreleasepool {
                     let rows = min(stripRows, height - start)
+                    let workReadStarted = timing?.start()
                     let work = try spatialWork.readTopDownRows(originY: start, rows: rows)
+                    timing?.record("intermediate_io", since: workReadStarted)
+                    let finishStarted = timing?.start()
                     var rgba = try HNCSEngine.finishPresetWork(work, width: width, height: rows,
                         exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
+                    timing?.record("post_color", since: finishStarted)
+                    let restoreStarted = timing?.start()
                     guard rgba.count == width * rows * 4,
                           rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
                     let gains = gainData.withUnsafeBytes { bytes in
                         Array(bytes.bindMemory(to: Float.self)[(start * width)..<((start + rows) * width)])
                     }
                     outputHeadroom = max(outputHeadroom, restoreHighlights(&rgba, gains: gains))
+                    timing?.record("hdr_restore_validate", since: restoreStarted)
+                    let writeStarted = timing?.start()
                     try raster.append(rgba)
+                    timing?.record("rgba_write", since: writeStarted)
                     progress(0.65 + 0.2 * Double(start + rows) / Double(height))
                 }
             }
         }
         try checkExportCancellation(isCancelled)
+        let outputGraphStarted = timing?.start()
         let data = try raster.mappedData(expectedBytes: rasterBytes)
         var image = CIImage(bitmapData: data, bytesPerRow: width * 16,
                             size: CGSize(width: CGFloat(width), height: CGFloat(height)), format: .RGBAf, colorSpace: linear)
         if output.width != width || output.height != height {
             // Color and spatial effects have already run at cropped source resolution.
-            // Lanczos executes in linear light, with no fake higher-resolution path.
+            // The camera's 24/48MP policy can explicitly request interpolation.
+            // Resampling stays in linear light after the original color/spatial stages.
             let scale = Double(output.height) / Double(height)
+            let pixelAspect = Double(output.width) / Double(width) / scale
             image = image.applyingFilter("CILanczosScaleTransform", parameters: [kCIInputScaleKey: scale,
-                                                                                 kCIInputAspectRatioKey: 1.0])
+                                                                                 kCIInputAspectRatioKey: pixelAspect])
                 .cropped(to: CGRect(x: 0, y: 0, width: CGFloat(output.width), height: CGFloat(output.height)))
         }
         // Remove negative Lanczos ringing, keep super-white values, and enforce
@@ -740,14 +819,18 @@ enum ImagePipeline {
             "inputMaxComponents": CIVector(x: CGFloat(maximumHDRValue), y: CGFloat(maximumHDRValue), z: CGFloat(maximumHDRValue), w: 1)
         ]).cropped(to: CGRect(x: 0, y: 0, width: CGFloat(output.width), height: CGFloat(output.height)))
         if #available(iOS 26, macOS 26, *) { image = image.settingContentHeadroom(outputHeadroom) }
+        timing?.record("output_graph", since: outputGraphStarted)
         do {
             // Encode actual extended-linear pixels into BT.2020/PQ 10-bit HDR.
             // Keep mapped storage and file alive until synchronous encoding returns.
             progress(0.9)
             try checkExportCancellation(isCancelled)
+            let encodeStarted = timing?.start()
             try withExtendedLifetime((data, raster)) {
                 try context.writeHEIF10Representation(of: image, to: url, colorSpace: pq, options: [:])
             }
+            timing?.record("heif_encode_ci", since: encodeStarted)
+            let validationStarted = timing?.start()
             try checkExportCancellation(isCancelled)
             guard let result = CGImageSourceCreateWithURL(url as CFURL, nil),
                   let properties = CGImageSourceCopyPropertiesAtIndex(result, 0, nil) as? [String: Any],
@@ -757,6 +840,7 @@ enum ImagePipeline {
                   CIImage(contentsOf: url)?.colorSpace?.isHDR() == true else {
                 throw PipelineError.encoding
             }
+            timing?.record("output_validate", since: validationStarted)
             progress(1)
         } catch {
             try? FileManager.default.removeItem(at: url)

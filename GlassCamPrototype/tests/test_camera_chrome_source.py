@@ -105,8 +105,8 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertIn('camera.isReady && !camera.isPreviewFrozen', photo_mode)
         self.assertNotRegex(VIEW, r'Text\("(?:Video|Portrait|视频|人像)"\)')
         self.assertIn('camera.geometry?.sensorPhotoDimensions', VIEW)
-        self.assertIn('Text("1×")', VIEW)
-        self.assertIn('Main camera', VIEW)
+        self.assertIn('CameraZoomRange.label(camera.requestedZoom)', VIEW)
+        self.assertIn('Focal length controls', VIEW)
         self.assertIn('Text("RAW")', VIEW)
 
     def test_composition_grid_is_real_toggle_scoped_to_photograph(self):
@@ -154,22 +154,22 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertIn('.background(Color.black)', panel)
         self.assertIn('Tap it to reopen these controls.', panel)
         self.assertIn('Button("Viewfinder") { activePanel = nil }', panel)
-        gesture = section(VIEW, 'if chrome.style == .separate &&', 'controls(framing: framing, chrome: chrome)')
-        self.assertIn('.onTapGesture { activePanel = .compact }', gesture)
-        self.assertIn('.accessibilityAction { activePanel = .compact }', gesture)
+        gesture = section(VIEW, 'if camera.centerPreviewLayer != nil', 'controls(framing: framing, chrome: chrome)')
+        self.assertIn('.onTapGesture { if chrome.style == .separate { activePanel = .compact } }', gesture)
+        self.assertIn('.accessibilityAction { if chrome.style == .separate { activePanel = .compact } }', gesture)
         self.assertIn('.accessibilityLabel("Viewfinder. Open camera controls")', gesture)
         self.assertNotIn('captureProRAW', gesture)
 
     def test_compact_error_card_keeps_retry_and_controls_accessible(self):
         error = section(VIEW, 'if !camera.isCapturing && !camera.isReady',
-                        'if chrome.style == .separate &&')
+                        'if camera.centerPreviewLayer != nil')
         self.assertIn('Button("Retry camera") { restartCamera() }', error)
         self.assertIn('if chrome.style == .separate {', error)
         self.assertIn('Button("Open camera controls") { activePanel = .compact }', error)
-        gesture = section(VIEW, 'if chrome.style == .separate &&',
+        gesture = section(VIEW, 'if camera.centerPreviewLayer != nil',
                           'controls(framing: framing, chrome: chrome)')
-        self.assertIn('(camera.isCapturing || camera.isReady)', gesture)
-        self.assertIn('.onTapGesture { activePanel = .compact }', gesture)
+        self.assertIn('MagnificationGesture()', gesture)
+        self.assertIn('.onTapGesture { if chrome.style == .separate { activePanel = .compact } }', gesture)
         self.assertNotIn('restartCamera()', gesture)
 
     def test_compact_modal_does_not_reopen_on_dismissal_or_during_capture(self):
@@ -183,16 +183,16 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertIn('.onChange(of: camera.isReady)', VIEW)
         self.assertIn('.onChange(of: camera.isPreviewFrozen)', VIEW)
         shutter = section(VIEW, 'private func shutter(', 'private enum CameraPanel:')
-        self.assertLess(shutter.index('activePanel = nil'), shutter.index('camera.captureProRAW'))
+        self.assertLess(shutter.index('activePanel = nil'), shutter.index('camera.capturePhoto'))
 
     def test_settings_keep_effect_output_preview_and_editor_access(self):
         settings = section(VIEW, 'private struct CameraSettingsView:', 'private struct CaptureReview:')
         for token in ('Picker("Color engine", selection: $settings.colorMode)',
                       'FFCSReferenceControls(settings: $settings.ffcs, simulationIndex: $settings.simulationIndex)',
                       'Slider(value: $settings.exposure, in: -2...2, step: 0.05)',
-                      'LabeledContent("White balance", value: "Automatic from photo")',
+                      'HNCSPresetControls(settings: $settings.hncs)',
                       'selection: outputSelection', 'selection: $settings.centerPreviewLongEdge',
-                      'isOn: $settings.experimentalLiveColor', 'Saved dimensions', 'ForEach([24, 48]'):
+                      'isOn: $settings.experimentalLiveColor', 'Smaller sources are upscaled', 'ForEach([24, 48]'):
             self.assertIn(token, settings)
         self.assertIn('.fullScreenCover(item: $destination', VIEW)
         self.assertIn('Image(systemName: "gearshape")', VIEW)

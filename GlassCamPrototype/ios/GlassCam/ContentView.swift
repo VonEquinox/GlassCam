@@ -7,11 +7,24 @@ struct ContentView: View {
     @StateObject private var settings = CameraSettingsStore()
     @StateObject private var workflow = CaptureWorkflow(services: .live(
         authorize: { try await HEIFSaveDelivery.authorizePhotos() },
-        save: { try await HEIFSaveDelivery.saveToPhotos($0) }))
+        save: { try await HEIFSaveDelivery.saveToPhotos($0) }), journal: CaptureJournal(), initiallyActive: false)
+    @Environment(\.scenePhase) private var scenePhase
+
+    private func updateProcessingAvailability() {
+        workflow.setForeground(scenePhase == .active && UIApplication.shared.isProtectedDataAvailable)
+    }
 
     var body: some View {
         CameraView(settings: settings, workflow: workflow)
             .preferredColorScheme(.dark)
+            .onAppear { updateProcessingAvailability() }
+            .onChange(of: scenePhase) { _, _ in updateProcessingAvailability() }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.protectedDataWillBecomeUnavailableNotification)) { _ in
+                workflow.setForeground(false)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.protectedDataDidBecomeAvailableNotification)) { _ in
+                updateProcessingAvailability()
+            }
     }
 }
 
@@ -22,6 +35,11 @@ struct HNCSPresetControls: View {
         Picker("Phocus preset", selection: $settings.presetKey) {
             ForEach(HNCSEngine.presets) { preset in Text(preset.name).tag(preset.id) }
         }
+        Picker("White balance", selection: $settings.whiteBalancePolicy) {
+            ForEach(HNCSWhiteBalancePolicy.allCases) { policy in Text(policy.title).tag(policy) }
+        }
+        .accessibilityIdentifier("settings.whiteBalance")
+        Text(settings.whiteBalanceExplanation).font(.caption).foregroundStyle(.secondary)
         Picker("Film curve", selection: $settings.filmCurve) {
             ForEach(HNCSFilmCurve.allCases) { curve in Text(curve.title).tag(curve) }
         }
@@ -40,9 +58,9 @@ struct HNCSPresetControls: View {
                 get: { settings.factoryKelvinOverride ?? 6500 },
                 set: { settings.factoryKelvinOverride = $0 }), in: 2000...10000, step: 50)
         }
-        Text("Photo white balance is read automatically. WB presets apply their look relative to that photo. Factory CCT override changes the color profile only; it does not change photo white balance.")
+        Text("Factory CCT override changes the color profile only; it does not change photo white balance.")
             .font(.caption).foregroundStyle(.secondary)
-        Text("As Shot uses Standard because Apple inputs have no Phocus curve metadata. Standard, Low and High share the recovered V1 family; Old Standard is distinct only in legacy space. Reproduction uses the pure curve. Grain and sharpening follow the portable reference, not proprietary Phocus kernels.")
+        Text("As Shot uses the Standard film curve for iPhone photos. The selected preset also supplies its tone and detail settings.")
             .font(.caption).foregroundStyle(.secondary)
     }
 }
@@ -71,7 +89,7 @@ struct EffectToggleControls: View {
                 .font(.caption).foregroundStyle(.secondary)
         } else {
             if hncs.presetKey == "standard" {
-                Text("Standard bypasses preset grain and sharpening. Enabling either switch adds no effect to this preset.")
+                Text("Standard uses its factory sharpening when enabled. It has no preset grain.")
                     .font(.caption).foregroundStyle(.secondary)
             } else {
                 if presetFlags & 4 == 0 {
@@ -89,8 +107,8 @@ struct EffectToggleControls: View {
             }
             if hncs.presetKey == "square-crop" {
                 Text(effects.applyExtraCrop
-                     ? "Centered 1:1 crop. Output keeps genuine pixels; its megapixel count is lower than the full-sensor selection."
-                     : "Extra crop is off. The full source aspect and selected sensor output are preserved.")
+                     ? "Centered 1:1 composition. The selected 24/48 MP output policy applies after this crop."
+                     : "Extra crop is off. The current camera composition is preserved.")
                     .font(.caption).foregroundStyle(.secondary)
             } else {
                 Text("This HNCS preset has no extra crop.")

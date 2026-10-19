@@ -2,18 +2,20 @@ import AVFoundation
 import Combine
 import OSLog
 import UIKit
+import ImageIO
 
-/// Physical-lens capture only. Public methods and published state belong to main.
+/// One .photo session, preferring the system's automatic triple-camera device.
+/// Public methods and published state belong to main.
 /// AVFoundation graph ownership belongs exclusively to CameraBackend.queue.
 final class CameraController: ObservableObject {
     enum Mode: String, CaseIterable, Identifiable {
         case main
         var id: Self { self }
         var title: String {
-            "Main"
+            "Automatic camera"
         }
         fileprivate var centerType: AVCaptureDevice.DeviceType {
-            .builtInWideAngleCamera
+            .builtInTripleCamera
         }
     }
     /// Processed HEIF target; never a request to lower native ProRAW capture size.
@@ -43,6 +45,12 @@ final class CameraController: ObservableObject {
     @Published private(set) var centerPreviewDimensions: CGSize?
     @Published private(set) var centerPreviewEncoding: String?
     @Published private(set) var isConfiguring = false
+    @Published private(set) var zoomRange: CameraZoomRange = .main
+    @Published private(set) var requestedZoom = 1.0
+    @Published private(set) var appliedZoom = 1.0
+    @Published private(set) var currentFraming = CaptureFraming()
+    @Published private(set) var isUpdatingZoom = false
+    private var captureReservation: UUID?
     private let backend = CameraBackend()
     private var generation = UUID()
     private var lifetime = CameraLifetime()
@@ -50,12 +58,15 @@ final class CameraController: ObservableObject {
     private var appliedOrientation: UIInterfaceOrientation = .unknown
     private var orientationRevision: UInt64 = 0
     private var isApplyingOrientation = false
+    private var requestedPreviewLongEdge = 1920
 
     func start(mode: Mode = .main, centerPreviewLongEdge: Int = 1920) {
         dispatchPrecondition(condition: .onQueue(.main))
+        requestedPreviewLongEdge = centerPreviewLongEdge
         guard !isConfiguring, !isCapturing else { return }
         lifetime.cancel(); lifetime = CameraLifetime()
         let token = UUID(); generation = token
+        isUpdatingZoom = false; captureReservation = nil
         isConfiguring = true; isReady = false; isPreviewFrozen = false; capturePhase = .idle
         status = "Checking camera access…"; appliedOrientation = .unknown; isApplyingOrientation = false
         clearPreview()
@@ -77,11 +88,19 @@ final class CameraController: ObservableObject {
     private func configure(mode: Mode, centerPreviewLongEdge: Int, token: UUID) {
         let initialOrientation = orientation
         let lifetime = lifetime
-        status = "Checking \(mode.title) single-camera ProRAW capability…"
+        status = "Checking camera ProRAW capability…"
+        let requestedZoom = requestedZoom
         backend.queue.async { [weak self, backend] in
             do {
                 let bundle = try backend.configure(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge,
-                                                   orientation: initialOrientation, lifetime: lifetime) { message in
+                                                   orientation: initialOrientation, lifetime: lifetime,
+                                                   displayedZoom: requestedZoom, stateChanged: { bundle in
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self, self.generation == token else { return }
+                        self.currentFraming = bundle.framing
+                        self.sourceCaptureDimensions = bundle.sourceCaptureDimensions
+                    }
+                }) { message in
                     DispatchQueue.main.async { [weak self] in
                         guard let self, self.generation == token else { return }
                         self.isReady = false; self.status = message
@@ -93,7 +112,11 @@ final class CameraController: ObservableObject {
                     self.isConfiguring = false; self.isReady = true
                     self.appliedOrientation = initialOrientation
                     self.status = self.readyStatus
+                    if self.requestedPreviewLongEdge != centerPreviewLongEdge {
+                        self.start(centerPreviewLongEdge: self.requestedPreviewLongEdge); return
+                    }
                     self.updateOrientation(self.orientation)
+                    self.applyPendingZoom()
                 }
             } catch {
                 backend.stop()
@@ -105,16 +128,20 @@ final class CameraController: ObservableObject {
         }
     }
     private var readyStatus: String {
-        "Apple ProRAW · single main camera"
+        "Apple ProRAW · \(currentFraming.lensName ?? "Automatic camera")"
     }
     private func install(_ bundle: CameraBackend.Bundle) {
         centerPreviewLayer = bundle.center; centerLiveSource = bundle.liveSource
         geometry = bundle.geometry
         supportedOutputOptions = bundle.outputOptions
-        sourceCaptureDimensions = bundle.geometry.sensorPhotoDimensions
+        sourceCaptureDimensions = bundle.sourceCaptureDimensions
         physicalCameraID = bundle.physicalCameraID
         centerPreviewDimensions = bundle.centerPreviewDimensions
         centerPreviewEncoding = bundle.centerPreviewEncoding
+        zoomRange = bundle.zoomRange
+        appliedZoom = bundle.framing.displayZoom
+        currentFraming = bundle.framing
+        requestedZoom = zoomRange.clamped(requestedZoom)
     }
     private func clearPreview() {
         centerPreviewLayer = nil; geometry = nil
@@ -129,7 +156,8 @@ final class CameraController: ObservableObject {
         orientation = value
         // A shutter snapshot owns orientation until both the photo and restoration
         // finish. Keep the newest UI orientation, but never rotate its photo graph.
-        guard !isConfiguring, !isCapturing, !isApplyingOrientation, value != appliedOrientation,
+        guard !isConfiguring, !isCapturing, captureReservation == nil, !isUpdatingZoom,
+              !isApplyingOrientation, value != appliedOrientation,
               centerPreviewLayer != nil, !lifetime.isCancelled else { return }
         isReady = false; isApplyingOrientation = true; centerLiveSource?.setEnabled(false)
         orientationRevision &+= 1
@@ -144,6 +172,7 @@ final class CameraController: ObservableObject {
                     // Coalesce rotations arriving during negotiation, including a
                     // turn back to the previously applied orientation.
                     self.updateOrientation(self.orientation)
+                    self.applyPendingZoom()
                 }
             } catch {
                 DispatchQueue.main.async { [weak self] in
@@ -159,6 +188,7 @@ final class CameraController: ObservableObject {
         // its serial queue in startRunning or first-frame negotiation.
         lifetime.cancel(); generation = UUID()
         isConfiguring = false; isReady = false; isCapturing = false
+        isUpdatingZoom = false; captureReservation = nil
         isPreviewFrozen = false; capturePhase = .idle; appliedOrientation = .unknown; isApplyingOrientation = false
         clearPreview(); status = "Camera stopped"
         backend.queue.async { [backend] in backend.stop() }
@@ -166,8 +196,69 @@ final class CameraController: ObservableObject {
     /// Delivers only the validated Apple ProRAW DNG. Preview restore errors are
     /// reported through status/isReady and cannot replace a completed photo.
     func captureProRAW(completion: @escaping (Result<Data, Error>) -> Void) {
+        guard let reservation = reserveCapture() else {
+            completion(.failure(CameraFailure("Wait for the camera to finish adjusting."))); return
+        }
+        capturePhoto(reservation: reservation) { completion($0.map(\.data)) }
+    }
+
+    var canReserveCapture: Bool {
+        isReady && !isCapturing && !isConfiguring && !isUpdatingZoom &&
+        !isApplyingOrientation && captureReservation == nil
+    }
+
+    /// Reserve the applied view before the Photos permission dialog can yield.
+    func reserveCapture() -> UUID? {
         dispatchPrecondition(condition: .onQueue(.main))
-        guard isReady, !isCapturing, !isConfiguring else {
+        guard canReserveCapture else { return nil }
+        let id = UUID(); captureReservation = id
+        return id
+    }
+
+    func releaseCaptureReservation(_ id: UUID) {
+        guard captureReservation == id, !isCapturing else { return }
+        captureReservation = nil
+        updateOrientation(orientation); applyPendingZoom()
+    }
+
+    func setZoom(_ factor: Double) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        guard captureReservation == nil, !isCapturing, factor.isFinite else { return }
+        requestedZoom = zoomRange.clamped(factor)
+        if !isReady && !isConfiguring { start(centerPreviewLongEdge: requestedPreviewLongEdge) }
+        else { applyPendingZoom() }
+    }
+
+    private func applyPendingZoom() {
+        guard isReady, !isConfiguring, !isCapturing, captureReservation == nil,
+              !isApplyingOrientation, !isUpdatingZoom, !lifetime.isCancelled,
+              abs(requestedZoom - appliedZoom) > 0.0001 else { return }
+        isUpdatingZoom = true
+        let desired = requestedZoom, token = generation
+        backend.queue.async { [weak self, backend] in
+            do {
+                let bundle = try backend.setZoom(desired)
+                DispatchQueue.main.async { [weak self] in
+                    guard let self, self.generation == token else { return }
+                    if abs(self.requestedZoom - desired) < 0.0001 { self.requestedZoom = bundle.framing.displayZoom }
+                    self.install(bundle); self.isUpdatingZoom = false
+                    self.updateOrientation(self.orientation); self.applyPendingZoom()
+                }
+            } catch {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self, self.generation == token else { return }
+                    self.isUpdatingZoom = false; self.isReady = false
+                    self.status = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    func capturePhoto(reservation: UUID, completion: @escaping (Result<CapturedCameraPhoto, Error>) -> Void) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        guard captureReservation == reservation, isReady, !isCapturing, !isConfiguring,
+              !isUpdatingZoom, !isApplyingOrientation else {
+            releaseCaptureReservation(reservation)
             completion(.failure(CameraFailure("Camera is unavailable or a capture is already in progress."))); return
         }
         isCapturing = true; isReady = false; isPreviewFrozen = false
@@ -182,16 +273,16 @@ final class CameraController: ObservableObject {
                 }
             }) { outcome in
                 DispatchQueue.main.async { [weak self] in
-                    let photoResult = outcome.result.map { $0.data }
+                    let photoResult = outcome.result.map { CapturedCameraPhoto(data: $0.data, framing: $0.framing) }
                     // Stop/background can invalidate view state, never a completed DNG.
                     guard let self, self.generation == token else { completion(photoResult); return }
                     if let bundle = outcome.bundle { self.install(bundle) }
                     if case .success(let photo) = outcome.result { self.actualCapturedDimensions = photo.dimensions }
-                    self.isCapturing = false; self.capturePhase = .idle
+                    self.isCapturing = false; self.captureReservation = nil; self.capturePhase = .idle
                     self.isPreviewFrozen = false
                     self.isReady = outcome.previewReady
                     self.status = outcome.message ?? self.readyStatus
-                    if outcome.previewReady { self.updateOrientation(self.orientation) }
+                    if outcome.previewReady { self.updateOrientation(self.orientation); self.applyPendingZoom() }
                     completion(photoResult)
                 }
             }
@@ -202,7 +293,10 @@ final class CameraController: ObservableObject {
 
 private struct CameraFailure: LocalizedError {
     let message: String
-    init(_ message: String) { self.message = message }
+    let allowsPhysicalFallback: Bool
+    init(_ message: String, allowsPhysicalFallback: Bool = false) {
+        self.message = message; self.allowsPhysicalFallback = allowsPhysicalFallback
+    }
     var errorDescription: String? { message }
 }
 
@@ -218,6 +312,7 @@ private final class CameraLifetime {
 private struct CapturedProRAW {
     let data: Data
     let dimensions: CGSize
+    let framing: CaptureFraming
 }
 
 private final class CameraBackend {
@@ -226,10 +321,13 @@ private final class CameraBackend {
         let center: AVSampleBufferDisplayLayer
         let liveSource: LiveCameraFrameSource
         let geometry: CameraController.CameraGeometry
+        let sourceCaptureDimensions: CGSize
         let outputOptions: [CameraController.OutputOption]
         let physicalCameraID: String
         let centerPreviewDimensions: CGSize
         let centerPreviewEncoding: String
+        let zoomRange: CameraZoomRange
+        let framing: CaptureFraming
     }
     struct CaptureOutcome {
         let result: Result<CapturedProRAW, Error>
@@ -241,6 +339,7 @@ private final class CameraBackend {
     private struct PreviewConfiguration {
         let mode: CameraController.Mode
         let centerPreviewLongEdge: Int
+        var displayedZoom: Double
     }
     private struct PhotoCapability {
         let physicalCameraID: String
@@ -251,7 +350,8 @@ private final class CameraBackend {
     private final class CaptureRequest {
         let id = UUID()
         let configuration: PreviewConfiguration
-        let capability: PhotoCapability
+        var capability: PhotoCapability
+        var restoresVirtualPreview = false
         let orientation: UIInterfaceOrientation
         let lifetime: CameraLifetime
         let progress: (CameraController.CapturePhase, String) -> Void
@@ -288,19 +388,38 @@ private final class CameraBackend {
     private var previewSizes: [CMVideoDimensions] = []
     private var previewPixelFormats: [OSType] = []
     private var previewReadiness = DispatchGroup()
+    private var useVirtualCamera = true
+    private struct NativeLens {
+        let device: AVCaptureDevice
+        let rawZoom: Double
+        let displayedZoom: Double
+    }
+    private var tripleCamera: AVCaptureDevice?
+    private var lensCatalog: [NativeLens] = []
+    private var stateChanged: ((Bundle) -> Void)?
 
     func configure(mode: CameraController.Mode, centerPreviewLongEdge: Int,
                    orientation: UIInterfaceOrientation, lifetime: CameraLifetime,
+                   displayedZoom: Double,
+                   stateChanged: @escaping (Bundle) -> Void,
                    failure: @escaping (String) -> Void) throws -> Bundle {
         dispatchPrecondition(condition: .onQueue(queue))
         stop()
         self.lifetime = lifetime; try lifetime.check()
         failed = false; phase = .configuring; failureHandler = failure
-        let plan = PreviewConfiguration(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge)
+        useVirtualCamera = true
+        self.stateChanged = stateChanged
+        discoverLensCatalog()
+        let plan = PreviewConfiguration(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, displayedZoom: displayedZoom)
         configuration = plan
-        // One physical camera provides preview and ProRAW in the same photo graph.
-        let photo = try buildSinglePhotoGraph(configuration: plan, orientation: orientation,
-                                             expected: nil, includePreview: true)
+        let photo: PhotoCapability
+        do {
+            photo = try buildSinglePhotoGraph(configuration: plan, orientation: orientation, expected: nil, includePreview: true)
+        } catch let error as CameraFailure where error.allowsPhysicalFallback {
+            tearDownGraph(preservingPreview: false)
+            useVirtualCamera = false
+            photo = try buildSinglePhotoGraph(configuration: plan, orientation: orientation, expected: nil, includePreview: true)
+        }
         capability = photo; dimensions = photo.dimensions
         try waitForPreviewFrames()
         phase = .preview
@@ -312,14 +431,146 @@ private final class CameraBackend {
         guard let device = discovery.devices.first else { throw CameraFailure("The requested physical camera is unavailable.") }
         return device
     }
+
+    private func discoverLensCatalog() {
+        tripleCamera = try? discover(.builtInTripleCamera)
+        lensCatalog = []
+        if let tripleCamera {
+            let devices = tripleCamera.constituentDevices
+            let zooms = [1.0] + tripleCamera.virtualDeviceSwitchOverVideoZoomFactors.map(\.doubleValue)
+            let multiplier = Double(tripleCamera.displayVideoZoomFactorMultiplier)
+            if devices.count == zooms.count, multiplier.isFinite, multiplier > 0,
+               zooms.allSatisfy({ $0.isFinite && $0 > 0 }), zooms == zooms.sorted() {
+                lensCatalog = zip(devices, zooms).map { NativeLens(device: $0, rawZoom: $1, displayedZoom: $1 * multiplier) }
+                return
+            }
+        }
+        let physical = [AVCaptureDevice.DeviceType.builtInUltraWideCamera, .builtInWideAngleCamera, .builtInTelephotoCamera]
+            .compactMap { try? discover($0) }
+        guard let main = physical.first(where: { $0.deviceType == .builtInWideAngleCamera }) else { return }
+        let mainFOV = Double(main.activeFormat.videoFieldOfView) * .pi / 360
+        lensCatalog = physical.compactMap { device in
+            let fov = Double(device.activeFormat.videoFieldOfView) * .pi / 360
+            guard fov > 0, fov < .pi / 2, mainFOV > 0, mainFOV < .pi / 2 else { return nil }
+            let factor = device.uniqueID == main.uniqueID ? 1 : tan(mainFOV) / tan(fov)
+            return NativeLens(device: device, rawZoom: 1, displayedZoom: factor)
+        }.sorted { $0.displayedZoom < $1.displayedZoom }
+    }
+
+    private func captureDevice(displayedZoom: Double) throws -> AVCaptureDevice {
+        if useVirtualCamera, let tripleCamera { return tripleCamera }
+        let candidates = lensCatalog.sorted { $0.displayedZoom < $1.displayedZoom }
+        if let selected = candidates.last(where: { $0.displayedZoom <= displayedZoom + 0.0001 }) ?? candidates.first {
+            return selected.device
+        }
+        return try discover(.builtInWideAngleCamera)
+    }
+
+    private func displayMultiplier(_ device: AVCaptureDevice) -> Double {
+        if device.isVirtualDevice {
+            let value = Double(device.displayVideoZoomFactorMultiplier)
+            return value.isFinite && value > 0 ? value : 1
+        }
+        return lensCatalog.first { $0.device.uniqueID == device.uniqueID }?.displayedZoom ?? 1
+    }
+
+    private static func lensTitle(_ type: AVCaptureDevice.DeviceType) -> String {
+        switch type {
+        case .builtInUltraWideCamera: return "Ultra Wide"
+        case .builtInWideAngleCamera: return "Main"
+        case .builtInTelephotoCamera: return "Telephoto"
+        default: return "Automatic camera"
+        }
+    }
+
+    private func zoomRange(for device: AVCaptureDevice) -> CameraZoomRange {
+        if !device.isVirtualDevice && tripleCamera == nil && !lensCatalog.isEmpty {
+            let lower = lensCatalog.map { $0.displayedZoom * Double($0.device.minAvailableVideoZoomFactor) }.min()!
+            let upper = lensCatalog.map { lens in
+                let recommended = lens.device.activeFormat.systemRecommendedVideoZoomRange?.upperBound ?? lens.device.maxAvailableVideoZoomFactor
+                return lens.displayedZoom * Double(min(recommended, lens.device.maxAvailableVideoZoomFactor))
+            }.max()!
+            let stops = lensCatalog.map { CameraZoomStop(id: $0.device.uniqueID, title: Self.lensTitle($0.device.deviceType), factor: $0.displayedZoom) }
+            return CameraZoomRange(lowerBound: lower, upperBound: max(lower, upper), stops: stops)
+        }
+        let reference = device.isVirtualDevice ? device : (tripleCamera ?? device)
+        let multiplier = reference.isVirtualDevice ? Double(reference.displayVideoZoomFactorMultiplier) : displayMultiplier(reference)
+        let legalMin = Double(reference.minAvailableVideoZoomFactor) * multiplier
+        let legalMax = Double(reference.maxAvailableVideoZoomFactor) * multiplier
+        let recommendation = reference.activeFormat.systemRecommendedVideoZoomRange
+        let lower = max(legalMin, recommendation.map { Double($0.lowerBound) * multiplier } ?? legalMin)
+        let upper = min(legalMax, recommendation.map { Double($0.upperBound) * multiplier } ?? legalMax)
+        guard lower.isFinite, upper.isFinite, lower > 0, upper >= lower else { return .main }
+        let stops = lensCatalog.filter { $0.displayedZoom >= lower - 0.001 && $0.displayedZoom <= upper + 0.001 }
+            .map { CameraZoomStop(id: $0.device.uniqueID, title: Self.lensTitle($0.device.deviceType), factor: $0.displayedZoom) }
+        return CameraZoomRange(lowerBound: lower, upperBound: upper,
+                               stops: stops.isEmpty ? [.init(id: device.uniqueID, title: Self.lensTitle(device.deviceType), factor: lower)] : stops)
+    }
+
+    private static func framing(for device: AVCaptureDevice, catalog: [NativeLens]) -> CaptureFraming {
+        let primary = device.isVirtualDevice ? device.activePrimaryConstituent : device
+        let lens = primary.flatMap { primary in catalog.first { $0.device.uniqueID == primary.uniqueID } }
+        let multiplier = device.isVirtualDevice ? Double(device.displayVideoZoomFactorMultiplier) : (lens?.displayedZoom ?? 1)
+        let count = primary?.activeFormat.supportedMaxPhotoDimensions.map(Self.area).max()
+        return CaptureFraming(displayZoom: Double(device.videoZoomFactor) * multiplier,
+                              deviceZoom: Double(device.videoZoomFactor),
+                              nativeDeviceZoom: device.isVirtualDevice ? (lens?.rawZoom ?? 1) : 1,
+                              cameraID: primary?.uniqueID, lensName: primary.map { Self.lensTitle($0.deviceType) },
+                              nativePixelCount: count.flatMap { $0 > 0 && $0 <= Int64(Int.max) ? Int($0) : nil })
+    }
+
+    /// Some virtual triple cameras advertise only 12MP ProRAW even though each
+    /// constituent supports 48MP. Keep automatic virtual preview/selection, then
+    /// acquire from its current physical lens at the same field of view. Never
+    /// choose a different lens here or clamp an unrepresentable physical zoom.
+    private func highResolutionConstituent(for device: AVCaptureDevice, displayedZoom: Double) -> AVCaptureDevice? {
+        guard device.isVirtualDevice, let primary = device.activePrimaryConstituent,
+              let virtual = try? photoCapability(device), let physical = try? photoCapability(primary),
+              Self.area(physical.dimensions) > Self.area(virtual.dimensions),
+              let lens = lensCatalog.first(where: { $0.device.uniqueID == primary.uniqueID }) else { return nil }
+        let zoom = displayedZoom / lens.displayedZoom
+        guard zoom.isFinite, zoom >= Double(primary.minAvailableVideoZoomFactor),
+              zoom <= Double(primary.maxAvailableVideoZoomFactor) else { return nil }
+        return primary
+    }
+
+    func setZoom(_ displayedZoom: Double) throws -> Bundle {
+        dispatchPrecondition(condition: .onQueue(queue))
+        guard phase == .preview, currentRequest == nil, var plan = configuration, let center = devices.first else {
+            throw CameraFailure("Camera zoom is locked during capture.")
+        }
+        try validateRunningGraph()
+        let desired = zoomRange(for: center).clamped(displayedZoom)
+        plan.displayedZoom = desired; configuration = plan
+        let selected = try captureDevice(displayedZoom: desired)
+        if selected.uniqueID != center.uniqueID {
+            phase = .configuring
+            tearDownGraph(preservingPreview: true)
+            let photo = try buildSinglePhotoGraph(configuration: plan, orientation: interfaceOrientation,
+                                                 expected: nil, includePreview: true)
+            capability = photo; dimensions = photo.dimensions
+            try waitForPreviewFrames(); phase = .preview
+        } else {
+            try center.lockForConfiguration()
+            center.cancelVideoZoomRamp()
+            center.videoZoomFactor = min(center.maxAvailableVideoZoomFactor,
+                max(center.minAvailableVideoZoomFactor, CGFloat(desired / displayMultiplier(center))))
+            center.unlockForConfiguration()
+            let photo = try photoCapability(center)
+            capability = photo; dimensions = photo.dimensions
+            photoOutput?.maxPhotoDimensions = photo.dimensions
+        }
+        return try previewBundle()
+    }
     /// Creates only an ordinary .photo session. The previous graph must already
     /// have stopped and released all inputs/outputs; two sessions never own a lens.
     @discardableResult
     private func buildSinglePhotoGraph(configuration plan: PreviewConfiguration, orientation value: UIInterfaceOrientation,
-                                       expected: PhotoCapability?, includePreview: Bool) throws -> PhotoCapability {
+                                       expected: PhotoCapability?, includePreview: Bool,
+                                       forcedDevice: AVCaptureDevice? = nil) throws -> PhotoCapability {
         try checkLifetime()
         guard session == nil else { throw CameraFailure("A camera graph still owns the device.") }
-        let center = try discover(plan.mode.centerType)
+        let center = try forcedDevice ?? captureDevice(displayedZoom: plan.displayedZoom)
         if let expected, center.uniqueID != expected.physicalCameraID { throw CameraFailure("The physical photo camera changed. Capture was cancelled.") }
         let newSession = AVCaptureSession()
         session = newSession; devices = [center]
@@ -332,7 +583,9 @@ private final class CameraBackend {
         // Do not set activeFormat here: it would switch the ordinary session to
         // inputPriority and invalidate Apple's high-resolution .photo requirement.
         try center.lockForConfiguration()
-        center.videoZoomFactor = expected?.zoom ?? 1
+        let multiplier = displayMultiplier(center)
+        let desired = CGFloat(plan.displayedZoom / multiplier)
+        center.videoZoomFactor = expected?.zoom ?? min(center.maxAvailableVideoZoomFactor, max(center.minAvailableVideoZoomFactor, desired))
         center.unlockForConfiguration()
         let output = AVCapturePhotoOutput()
         guard newSession.canAddOutput(output) else { throw CameraFailure("Single-camera photo capture is unavailable.") }
@@ -343,7 +596,9 @@ private final class CameraBackend {
         guard photoConnection.isVideoOrientationSupported else { throw CameraFailure("Photo orientation control is unavailable.") }
         photoOutput = output
         output.maxPhotoQualityPrioritization = .quality
-        guard output.isAppleProRAWSupported else { throw CameraFailure("Apple ProRAW is unavailable on this physical camera in a photo session.") }
+        guard output.isAppleProRAWSupported else {
+            throw CameraFailure("Apple ProRAW is unavailable on this camera. Try another focal length.", allowsPhysicalFallback: center.isVirtualDevice)
+        }
         output.isAppleProRAWEnabled = true
         if output.isContentAwareDistortionCorrectionSupported { output.isContentAwareDistortionCorrectionEnabled = false }
         let finalFormat = center.activeFormat
@@ -352,7 +607,7 @@ private final class CameraBackend {
         dimensions = photo.dimensions
         output.maxPhotoDimensions = dimensions
         guard output.availableRawPhotoPixelFormatTypes.contains(where: AVCapturePhotoOutput.isAppleProRAWPixelFormat) else {
-            throw CameraFailure("The single-camera photo graph exposes no Apple ProRAW pixel format.")
+            throw CameraFailure("This camera exposes no Apple ProRAW format. Try another focal length.", allowsPhysicalFallback: center.isVirtualDevice)
         }
         if includePreview { try addPreview(port: port, device: center, cap: plan.centerPreviewLongEdge, to: newSession) }
         newSession.commitConfiguration(); committed = true
@@ -380,10 +635,6 @@ private final class CameraBackend {
         }
         guard let largest = nativePhotoDimensions(format: format).max(by: { Self.area($0) < Self.area($1) }) else {
             throw CameraFailure("The photo format has no full-framing 12MP or 48MP ProRAW source dimensions.")
-        }
-        let sourceCeiling = center.formats.flatMap { nativePhotoDimensions(format: $0) }.map(Self.area).max() ?? 0
-        guard Self.area(largest) == sourceCeiling else {
-            throw CameraFailure("The photo preset did not expose this lens's largest native source. Capture resolution was not lowered.")
         }
         return PhotoCapability(physicalCameraID: center.uniqueID, dimensions: largest,
                                horizontalFieldOfView: format.videoFieldOfView, zoom: center.videoZoomFactor)
@@ -456,16 +707,10 @@ private final class CameraBackend {
         [12, 24, 48].first { abs(Double(pixels) / (Double($0) * 1_000_000) - 1) <= 0.08 }
     }
     private static func outputOptions(source: CMVideoDimensions) -> [CameraController.OutputOption] {
-        let pixels = area(source)
-        guard let sourceTier = nominalMegapixels(pixels) else { return [] }
-        func gcd(_ a: Int, _ b: Int) -> Int { b == 0 ? a : gcd(b, a % b) }
-        let width = Int(source.width), height = Int(source.height)
-        let divisor = gcd(width, height), unitWidth = width / divisor, unitHeight = height / divisor
-        return [24, 48].filter { $0 <= sourceTier }.map { tier in
-            // Preserve native dimensions for its own nominal tier. Smaller exports
-            // use integer aspect-ratio units, never crop, stretch, or upscale.
-            let units = tier == sourceTier ? divisor : min(divisor, Int(sqrt(Double(tier) * 1_000_000 / Double(unitWidth * unitHeight))))
-            return .init(megapixels: tier, width: unitWidth * units, height: unitHeight * units)
+        guard source.width > 0, source.height > 0 else { return [] }
+        return [24, 48].compactMap { tier in
+            guard let size = try? ExportSettings.camera(tier).dimensions(sourceWidth: Int(source.width), sourceHeight: Int(source.height)) else { return nil }
+            return .init(megapixels: tier, width: size.width, height: size.height)
         }
     }
     private static func size(_ dimensions: CMVideoDimensions) -> CGSize {
@@ -584,15 +829,20 @@ private final class CameraBackend {
         return .init(sensorPhotoDimensions: size, photoAspectRatio: portrait ? size.height / size.width : size.width / size.height)
     }
     private func previewBundle() throws -> Bundle {
-        guard let photo = capability, let geometry = geometry(),
+        guard let photo = capability, let geometry = geometry(), let center = devices.first,
               !frameDeliveries.isEmpty, previewSizes.count == frameDeliveries.count else {
             throw CameraFailure("The preview graph is incomplete.")
         }
+        let framing = Self.framing(for: center, catalog: lensCatalog)
+        let physical = highResolutionConstituent(for: center, displayedZoom: framing.displayZoom)
+        let source = physical.flatMap { try? photoCapability($0).dimensions } ?? photo.dimensions
         return Bundle(center: frameDeliveries[0].layer, liveSource: frameDeliveries[0].liveSource,
                       geometry: geometry,
+                      sourceCaptureDimensions: Self.size(source),
                       outputOptions: Self.outputOptions(source: photo.dimensions), physicalCameraID: photo.physicalCameraID,
                       centerPreviewDimensions: Self.size(previewSizes[0]),
-                      centerPreviewEncoding: Self.previewEncoding(previewPixelFormats[0]))
+                      centerPreviewEncoding: Self.previewEncoding(previewPixelFormats[0]),
+                      zoomRange: zoomRange(for: center), framing: framing)
     }
     func capture(progress: @escaping (CameraController.CapturePhase, String) -> Void,
                  completion: @escaping (CaptureOutcome) -> Void) {
@@ -606,6 +856,15 @@ private final class CameraBackend {
         currentRequest = request; phase = .preparingPhoto
         do {
             try validateRunningGraph()
+            if let center = devices.first,
+               let physical = highResolutionConstituent(for: center, displayedZoom: configuration.displayedZoom) {
+                request.restoresVirtualPreview = true
+                request.progress(.preparing, "Preparing full-resolution photo…")
+                tearDownGraph(preservingPreview: true)
+                let photo = try buildSinglePhotoGraph(configuration: request.configuration, orientation: request.orientation,
+                    expected: nil, includePreview: false, forcedDevice: physical)
+                self.capability = photo; dimensions = photo.dimensions; request.capability = photo
+            }
             waitUntilPhotoReady(request, deadline: .now() + 8)
         } catch {
             finishPhoto(.failure(error), request: request)
@@ -650,7 +909,10 @@ private final class CameraBackend {
         // .speed when false, which makes 48MP captures resolve to 12MP.
         settings.photoQualityPrioritization = .quality
         settings.isAutoContentAwareDistortionCorrectionEnabled = false
-        let delegate = ProRAWCapture(expectedDimensions: request.capability.dimensions) { [weak self, weak request] result in
+        guard let camera = devices.first else { throw CameraFailure("Camera stopped before capture.") }
+        let catalog = lensCatalog
+        let delegate = ProRAWCapture(expectedDimensions: request.capability.dimensions,
+                                     framing: { Self.framing(for: camera, catalog: catalog) }) { [weak self, weak request] result in
             guard let self, let request else { return }
             self.queue.async { [weak self, weak request] in
                 guard let self, let request, self.currentRequest === request else { return }
@@ -671,14 +933,24 @@ private final class CameraBackend {
         dispatchPrecondition(condition: .onQueue(queue))
         guard currentRequest === request, request.completion != nil else { return }
         request.result = result; captureDelegate = nil
-        let bundle: Bundle? = nil
+        var bundle: Bundle?
         var previewReady = false
         var previewError: String?
         if !request.lifetime.isCancelled && !failed && phase != .stopped {
             do {
+                if request.restoresVirtualPreview {
+                    phase = .restoringPreview
+                    request.progress(.restoring, "Restoring automatic viewfinder…")
+                    tearDownGraph(preservingPreview: true)
+                    let photo = try buildSinglePhotoGraph(configuration: request.configuration, orientation: request.orientation,
+                        expected: nil, includePreview: true)
+                    capability = photo; dimensions = photo.dimensions
+                    try waitForPreviewFrames()
+                }
                 try validateRunningGraph()
                 try request.lifetime.check()
                 phase = .preview; previewReady = true
+                bundle = try previewBundle()
                 // Old layers remain alive through the controller's references
                 // until its main-thread bundle replacement. Do not flush them.
                 frozenDeliveries.removeAll()
@@ -745,6 +1017,14 @@ private final class CameraBackend {
                 }
             }
         }
+        if let device = devices.first, device.isVirtualDevice {
+            observations.append(device.observe(\.activePrimaryConstituent, options: [.new]) { [weak self] _, _ in
+                self?.queue.async { [weak self] in
+                    guard let self, self.phase == .preview, let bundle = try? self.previewBundle() else { return }
+                    self.stateChanged?(bundle)
+                }
+            })
+        }
     }
     /// Owns graph disposal only, never a request completion. Stop and remove every
     /// input/output before another graph can acquire the same physical device.
@@ -778,6 +1058,7 @@ private final class CameraBackend {
         if let request { finishRequest(request, result: result, bundle: nil, previewReady: false, message: "Camera stopped.") }
         captureDelegate = nil; configuration = nil; capability = nil; lifetime = nil
         dimensions = CMVideoDimensions(width: 0, height: 0); failureHandler = nil
+        stateChanged = nil; tripleCamera = nil; lensCatalog = []
     }
 }
 
@@ -791,8 +1072,16 @@ private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
     private var result: Result<CapturedProRAW, Error>?
     private var terminalResult: Result<CapturedProRAW, Error>?
     private let expectedDimensions: CMVideoDimensions
-    init(expectedDimensions: CMVideoDimensions, completion: @escaping (Result<CapturedProRAW, Error>) -> Void) {
-        self.expectedDimensions = expectedDimensions; self.completion = completion
+    private let framingProvider: () -> CaptureFraming
+    private var framing = CaptureFraming()
+    init(expectedDimensions: CMVideoDimensions, framing: @escaping () -> CaptureFraming,
+         completion: @escaping (Result<CapturedProRAW, Error>) -> Void) {
+        self.expectedDimensions = expectedDimensions; self.completion = completion; self.framingProvider = framing
+        self.framing = framing()
+    }
+    func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        lock.lock(); defer { lock.unlock() }
+        framing = framingProvider()
     }
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         lock.lock(); defer { lock.unlock() }
@@ -805,14 +1094,23 @@ private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
         }
         let actual = photo.resolvedSettings.rawPhotoDimensions
         let bufferWidth = CVPixelBufferGetWidth(buffer), bufferHeight = CVPixelBufferGetHeight(buffer)
-        Self.logger.notice("ProRAW dimensions: requested=\(self.expectedDimensions.width)x\(self.expectedDimensions.height), resolved=\(actual.width)x\(actual.height), buffer=\(bufferWidth)x\(bufferHeight)")
-        guard min(actual.width, actual.height) == min(expectedDimensions.width, expectedDimensions.height),
-              max(actual.width, actual.height) == max(expectedDimensions.width, expectedDimensions.height),
-              min(bufferWidth, bufferHeight) == Int(min(actual.width, actual.height)),
-              max(bufferWidth, bufferHeight) == Int(max(actual.width, actual.height)) else {
-            result = .failure(CameraFailure("The camera delivered different RAW dimensions from the requested full-quality framing. This capture was rejected; no lower-resolution photo was substituted.")); return
+        let exif = photo.metadata[kCGImagePropertyExifDictionary as String] as? [String: Any]
+        func number(_ key: CFString) -> Double? {
+            guard let value = (exif?[key as String] as? NSNumber)?.doubleValue, value.isFinite, value > 0 else { return nil }
+            return value
         }
-        result = .success(CapturedProRAW(data: data, dimensions: CGSize(width: CGFloat(actual.width), height: CGFloat(actual.height))))
+        framing.exifDigitalZoom = number(kCGImagePropertyExifDigitalZoomRatio)
+        framing.exifFocalLength = number(kCGImagePropertyExifFocalLength)
+        framing.exifEquivalentFocalLength = number(kCGImagePropertyExifFocalLenIn35mmFilm)
+        framing.exifLensModel = exif?[kCGImagePropertyExifLensModel as String] as? String
+        Self.logger.notice("ProRAW dimensions: requested=\(self.expectedDimensions.width)x\(self.expectedDimensions.height), resolved=\(actual.width)x\(actual.height), buffer=\(bufferWidth)x\(bufferHeight)")
+        guard framing.acceptsRAWDimensions(requestedWidth: Int(expectedDimensions.width), requestedHeight: Int(expectedDimensions.height),
+            deliveredWidth: Int(actual.width), deliveredHeight: Int(actual.height), bufferWidth: bufferWidth, bufferHeight: bufferHeight) else {
+            result = .failure(CameraFailure("The camera did not deliver a valid full-framing RAW for this focal length. Wait for it to settle and try again.")); return
+        }
+        framing.deliveredWidth = Int(actual.width); framing.deliveredHeight = Int(actual.height)
+        Self.logger.notice("Capture zoom=\(self.framing.displayZoom), lens=\(self.framing.lensName ?? "unknown", privacy: .public), RAW=\(actual.width)x\(actual.height)")
+        result = .success(CapturedProRAW(data: data, dimensions: CGSize(width: CGFloat(actual.width), height: CGFloat(actual.height)), framing: framing))
     }
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
         lock.lock()

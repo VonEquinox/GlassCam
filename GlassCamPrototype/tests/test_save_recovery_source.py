@@ -27,12 +27,12 @@ class SaveRecoveryContracts(unittest.TestCase):
         self.assertIn('job?.encoded = encoded', workflow)
         self.assertIn('try await services.save(encoded.file)', workflow)
         self.assertIn('guard canCapture, snapshot.recipe.isValid else { return }', workflow)
-        self.assertIn('guard phase == .failed else { return }', workflow)
+        self.assertIn('guard phase == .failed, task == nil else { return }', workflow)
         self.assertIn('case .memory(Data)', workflow.replace('case memory(Data)', 'case .memory(Data)'))
 
     def test_completed_capture_does_not_navigate_to_editor(self):
         view = (ROOT/'ios/GlassCam/CameraView.swift').read_text()
-        self.assertIn('workflow.capture(snapshot: snapshot)', view)
+        self.assertIn('workflow.capturePhoto(snapshot: snapshot)', view)
         self.assertIn('CaptureReview(capture: capture, onBack:', view)
         self.assertIn('ShareSheet(file: capture.file)', view)
         self.assertNotIn('Open editor', view)

@@ -16,6 +16,7 @@ final class CameraSettingsStore: ObservableObject {
         didSet { defaults.set(centerPreviewLongEdge, forKey: "camera.preview.center.longEdge") }
     }
     @Published private(set) var outputSelections: [String: Int]
+    @Published private(set) var preferredOutputMegapixels: Int
     private let defaults: UserDefaults
     private static let outputsKey = "camera.output.megapixels.byPhysicalLens.v1"
     // Reuse the existing key and decoder to preserve all previously saved effects.
@@ -36,11 +37,21 @@ final class CameraSettingsStore: ObservableObject {
         experimentalLiveColor = defaults.bool(forKey: "camera.liveColor.enabled")
         let savedOutputs = defaults.dictionary(forKey: Self.outputsKey) as? [String: Int] ?? [:]
         outputSelections = savedOutputs.mapValues { $0 == 12 ? 24 : $0 }
+        let preferred = defaults.integer(forKey: "camera.output.preferred.v2")
+        preferredOutputMegapixels = [24, 48].contains(preferred) ? preferred :
+            (savedOutputs.count == 1 && savedOutputs.values.first == 48 ? 48 : 24)
         if let data = defaults.data(forKey: Self.recipeKey),
            let saved = try? JSONDecoder().decode(ProcessingRecipe.self, from: data), saved.isValid {
             colorMode = saved.mode; simulationIndex = saved.simulationIndex
             exposure = saved.exposureEV; hncs = saved.hncs
             effects = saved.effects; ffcs = saved.ffcs
+            // Only future-camera preferences adopt the new automatic default.
+            // Decoding an old journal elsewhere retains its fixed-preset WB.
+            let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+            let savedHNCS = object?["hncs"] as? [String: Any]
+            if savedHNCS?["whiteBalancePolicy"] as? String == nil {
+                hncs.whiteBalancePolicy = .photo
+            }
         }
         defaults.set(outputSelections, forKey: Self.outputsKey)
         persistRecipe()
@@ -52,12 +63,14 @@ final class CameraSettingsStore: ObservableObject {
     }
 
     func outputMegapixels(physicalCameraID: String, mode: String) -> Int {
-        outputSelections[key(physicalCameraID: physicalCameraID, mode: mode)] ?? 24
+        outputSelections[key(physicalCameraID: physicalCameraID, mode: mode)] ?? preferredOutputMegapixels
     }
 
     func setOutputMegapixels(_ value: Int, physicalCameraID: String, mode: String) {
         guard [24, 48].contains(value) else { return }
         outputSelections[key(physicalCameraID: physicalCameraID, mode: mode)] = value
+        preferredOutputMegapixels = value
+        defaults.set(value, forKey: "camera.output.preferred.v2")
         defaults.set(outputSelections, forKey: Self.outputsKey)
     }
 

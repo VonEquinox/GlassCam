@@ -45,7 +45,7 @@ class LiveProxySourceContracts(unittest.TestCase):
         shutter = section(VIEW, 'private func shutter(', 'private enum CameraPanel')
         self.assertNotIn('experimentalLiveColor', shutter)
         self.assertNotIn('liveProxyStatus', shutter)
-        self.assertIn('camera.captureProRAW', shutter)
+        self.assertIn('camera.capturePhoto', shutter)
 
     def test_only_measured_recipe_allowlist_is_enabled(self):
         gate = section(PROXY, 'var unsupportedReason:', '/// Retains the original tagged buffer')

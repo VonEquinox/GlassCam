@@ -20,8 +20,8 @@ def section(source, start, end):
 class SingleCameraViewContracts(unittest.TestCase):
     def test_shutter_snapshots_before_authorization_and_camera_submission(self):
         shutter = section(VIEW, "private func shutter(", "private enum CaptureUIError")
-        self.assertLess(shutter.index('let snapshot = CaptureSnapshot'), shutter.index('workflow.capture('))
-        self.assertLess(shutter.index('workflow.capture('), shutter.index('camera.captureProRAW'))
+        self.assertLess(shutter.index('let snapshot = CaptureSnapshot'), shutter.index('workflow.capturePhoto('))
+        self.assertLess(shutter.index('workflow.capturePhoto('), shutter.index('camera.capturePhoto'))
         self.assertIn('!workflow.canCapture', shutter)
         self.assertIn('scenePhase == .active', shutter)
 
@@ -36,7 +36,7 @@ class SingleCameraViewContracts(unittest.TestCase):
         selected = section(VIEW, 'private var selectedOutput:', 'private func offerCompactPanel')
         self.assertIn('$0.megapixels == saved', selected)
         self.assertNotIn('$0.megapixels <= saved', selected)
-        self.assertIn('Selected output is unavailable.', VIEW)
+        self.assertIn('framed sources below 24 MP are saved at 24 MP', VIEW)
         self.assertNotIn('Open editor', VIEW)
 
 
@@ -52,8 +52,7 @@ class SingleCameraBackendContracts(unittest.TestCase):
     def test_highest_source_capability_does_not_use_multicam_or_preview_filter(self):
         capability = section(SOURCE, "private func photoCapability(", "private func validate(")
         self.assertIn("center.activeFormat", capability)
-        self.assertIn("center.formats.flatMap", capability)
-        self.assertIn("Self.area(largest) == sourceCeiling", capability)
+        self.assertIn("nativePhotoDimensions(format: format).max", capability)
         for forbidden in ("isMultiCamSupported", "previewLongEdge", "videoSupportedFrameRateRanges"):
             self.assertNotIn(forbidden, capability)
         native = section(SOURCE, "private func nativePhotoDimensions(", "private static func sameAspect(")
@@ -142,7 +141,7 @@ class SingleCameraBackendContracts(unittest.TestCase):
         rotate = section(SOURCE, "func rotatePreview(", "private func applyOrientation(")
         self.assertIn("guard phase == .preview, currentRequest == nil", rotate)
         controller = section(SOURCE, "func captureProRAW(", "    deinit")
-        self.assertOrdered(controller, "self.isCapturing = false", "if outcome.previewReady { self.updateOrientation(self.orientation) }")
+        self.assertOrdered(controller, "self.isCapturing = false", "if outcome.previewReady { self.updateOrientation(self.orientation); self.applyPendingZoom() }")
 
     def test_rapid_rotation_coalesces_latest_orientation_and_failed_rotation_stops_graph(self):
         update = section(SOURCE, "func updateOrientation(", "    func stop()")
@@ -195,11 +194,9 @@ class SingleCameraBackendContracts(unittest.TestCase):
         processed = section(SOURCE, "didFinishProcessingPhoto photo:", "    func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor")
         for token in ("photo.isRawPhoto", "AVCapturePhotoOutput.isAppleProRAWPixelFormat(CVPixelBufferGetPixelFormatType(buffer))",
                       "photo.fileDataRepresentation()", "!data.isEmpty", "photo.resolvedSettings.rawPhotoDimensions",
-                      "min(expectedDimensions.width, expectedDimensions.height)",
-                      "max(expectedDimensions.width, expectedDimensions.height)",
+                      "framing.acceptsRAWDimensions(requestedWidth:",
                       "CVPixelBufferGetWidth(buffer)", "CVPixelBufferGetHeight(buffer)",
-                      "min(bufferWidth, bufferHeight) == Int(min(actual.width, actual.height))",
-                      "max(bufferWidth, bufferHeight) == Int(max(actual.width, actual.height))"):
+                      "bufferWidth: bufferWidth, bufferHeight: bufferHeight)"):
             self.assertIn(token, processed)
 
 

@@ -1,0 +1,404 @@
+{
+  "status": "offline-fix-verified-device-testing-paused",
+  "updated_at": "2026-10-18T22:05:43.915963+08:00",
+  "app_render_revision": 11,
+  "git_head": "4fc7a39df8736e7efe8be816f50900489fef2bde",
+  "pre_existing_dirty_patch": {
+    "path": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/before-audit.patch",
+    "sha256": "c973119c4db42fbc40a1c3cb55315f4637d931cdbac49ba0728e1406a5d684aa"
+  },
+  "phone": {
+    "tests_paused_by_user": true,
+    "installed_this_revision": false,
+    "captured_this_task": false,
+    "note": "The currently installed phone app remains the pre-fix revision. Existing checkpoint files only were used."
+  },
+  "binary_analysis": {
+    "phocus_version": "4.2.2",
+    "architecture": "arm64",
+    "decompiled_functions": 38,
+    "manifest": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/full-pipeline-manifest.json",
+    "manifest_sha256": "150c38596e1dd7d0a63e12927822bf0cb8072e04a9a2a7f7ca8d0bd73b3319b8",
+    "original_binaries_unchanged": true,
+    "white_balance_tool_curve_entries_unchanged": 327680,
+    "native_kernel_selection_cases": 28,
+    "production_native_uint16_channels": 688128,
+    "maximum_uint16_difference": 0,
+    "native_report": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/native-white-balance.json",
+    "native_report_sha256": "4fbdcb9c0f150050d1a971c6783d4da838b50a0f081830aeb4dc9d5416e540a1"
+  },
+  "implementation": {
+    "new_capture_default": "photo",
+    "explicit_original_preset_mode": "preset",
+    "missing_policy_in_old_photo_recipes": "preset",
+    "missing_policy_in_camera_preferences": "migrate to photo for future shots only",
+    "factory_cct_default": "effective photo whitepoint in photo policy; original preset selection otherwise",
+    "explicit_factory_override": "preserved",
+    "original_api": "hncs_create_preset_whitepoint remains preset policy; existing CCT reference API unchanged",
+    "preset_assets_changed": false,
+    "empirical_green_correction_added": false
+  },
+  "tests": {
+    "python": {
+      "status": "passed",
+      "count": 209,
+      "log": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/python-tests.log"
+    },
+    "apple_integration": {
+      "status": "passed",
+      "log": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/apple-tests.log",
+      "scope": "Production Swift/C++/Core Image/Metal/HEIF, WB policy cache/render/description, old recipe/preferences migration, durable recovery, dimensions/HDR/save-retry/share. Camera and Photos use test substitutes."
+    },
+    "existing_raw": {
+      "status": "passed",
+      "inputs": 3,
+      "full_resolution_exports": 6,
+      "dimensions": [
+        6048,
+        8064
+      ],
+      "depth": 10,
+      "hdr": true,
+      "log": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/existing-photo-study.log"
+    },
+    "ios_release": {
+      "status": "build-passed",
+      "destination": "generic/platform=iOS",
+      "signed": false,
+      "installed": false,
+      "binary": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/ios-release/Build/Products/Release-iphoneos/GlassCam.app/GlassCam",
+      "sha256": "90a582a6d99a0833ba7d030e13e9d988bff56e1b49c625b4baf232af014ba90d",
+      "log": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/ios-release-build.log",
+      "warnings": "Existing orientation and SDK deprecations; AppIntents metadata skipped."
+    }
+  },
+  "existing_photographs": {
+    "main": {
+      "full_source_exports": {
+        "after": {
+          "decoded_peak": 1.2423242330551147,
+          "depth": 10,
+          "file": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-after-48mp.heic",
+          "hdr": true,
+          "height": 8064,
+          "same_source_low_chroma_mask": {
+            "green_over_red_blue": 1.0070234864773273,
+            "mean_linear_rgb": [
+              0.8386807284677414,
+              0.8312136375838297,
+              0.8121519457363159
+            ],
+            "sample_pixels": 397117
+          },
+          "width": 6048,
+          "sha256": "a86b57e4bc6023744eb1b0e9fba520da0824130101b7ee54b9a3ee4583b70e66"
+        },
+        "before": {
+          "decoded_peak": 1.1923868656158447,
+          "depth": 10,
+          "file": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-before-48mp.heic",
+          "hdr": true,
+          "height": 8064,
+          "same_source_low_chroma_mask": {
+            "green_over_red_blue": 1.077573713895543,
+            "mean_linear_rgb": [
+              0.8068902096562143,
+              0.844403722078628,
+              0.7603412682275941
+            ],
+            "sample_pixels": 397117
+          },
+          "width": 6048,
+          "sha256": "19ca96ee9148e9ed0de8ba97e3047b10518e449fd43a2548de633fc3e5b6e83b"
+        }
+      },
+      "preview_same_source_low_chroma_mask": {
+        "after": {
+          "green_over_red_blue": 1.0006249690037374,
+          "mean_linear_rgb": [
+            0.8556636736494635,
+            0.838656872640075,
+            0.8206024572568554
+          ],
+          "sample_pixels": 397117
+        },
+        "apple": {
+          "green_over_red_blue": 1.0021184633780076,
+          "mean_linear_rgb": [
+            0.587546463789145,
+            0.5618900725453798,
+            0.5338580269560377
+          ],
+          "sample_pixels": 397117
+        },
+        "before": {
+          "green_over_red_blue": 1.0734779191706627,
+          "mean_linear_rgb": [
+            0.8197216743750784,
+            0.8532358386143456,
+            0.7699446305891268
+          ],
+          "sample_pixels": 397117
+        }
+      },
+      "source": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/iphone-first-usable-20261018/native-checkpoint-main/source.dng",
+      "source_white_balance": "Auto WB · 5519 K · Tint +35.2",
+      "synthetic_18_percent_gray": {
+        "after": [
+          0.30845892429351807,
+          0.30924785137176514,
+          0.31200745701789856
+        ],
+        "before": [
+          0.2656639516353607,
+          0.3272096812725067,
+          0.26217591762542725
+        ]
+      },
+      "xy": [
+        0.33209389448165894,
+        0.3644222319126129
+      ],
+      "source_sha256": "6a65f222a8cf23b1b24727a5427b68f8d1e5e96b0c1a7fbf68fd879125a82c6a",
+      "original_capture_recipe_sha256": "743331653a70e0bedc661411163d2c0939150bbcc5be02911fe1ce25b32e4103",
+      "pre_fix_diagnostic_png_maximum_difference": 0
+    },
+    "tele": {
+      "full_source_exports": {
+        "after": {
+          "decoded_peak": 1.174676775932312,
+          "depth": 10,
+          "file": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-after-48mp.heic",
+          "hdr": true,
+          "height": 8064,
+          "same_source_low_chroma_mask": {
+            "green_over_red_blue": 1.0320247864532384,
+            "mean_linear_rgb": [
+              0.7918923510744188,
+              0.7899217476414343,
+              0.7389269819692381
+            ],
+            "sample_pixels": 500534
+          },
+          "width": 6048,
+          "sha256": "717716acaaed35e0c9bb30471cfc4c59778ce041b4d1b89b26c58a542a7caba9"
+        },
+        "before": {
+          "decoded_peak": 1.0323928594589233,
+          "depth": 10,
+          "file": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-before-48mp.heic",
+          "hdr": true,
+          "height": 8064,
+          "same_source_low_chroma_mask": {
+            "green_over_red_blue": 1.17537865471451,
+            "mean_linear_rgb": [
+              0.7518965448394471,
+              0.8160870210075974,
+              0.6367402450737036
+            ],
+            "sample_pixels": 500534
+          },
+          "width": 6048,
+          "sha256": "43a869a672f1afd15bfeee741355877faf99188861a1d567ac548673cc63de81"
+        }
+      },
+      "preview_same_source_low_chroma_mask": {
+        "after": {
+          "green_over_red_blue": 1.0338513022052216,
+          "mean_linear_rgb": [
+            0.7998868625203783,
+            0.7989333440465097,
+            0.7456610172228149
+          ],
+          "sample_pixels": 500534
+        },
+        "apple": {
+          "green_over_red_blue": 1.0591821278952833,
+          "mean_linear_rgb": [
+            0.49899666485633043,
+            0.49696466902898306,
+            0.4393965650530697
+          ],
+          "sample_pixels": 500534
+        },
+        "before": {
+          "green_over_red_blue": 1.17909282518124,
+          "mean_linear_rgb": [
+            0.7551831384626942,
+            0.8239227960099997,
+            0.6423706052526971
+          ],
+          "sample_pixels": 500534
+        }
+      },
+      "source": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/iphone-first-usable-20261018/native-checkpoint-tele/source.dng",
+      "source_white_balance": "Auto WB · 5393 K · Tint +44.5",
+      "synthetic_18_percent_gray": {
+        "after": [
+          0.30845892429351807,
+          0.30924785137176514,
+          0.31200745701789856
+        ],
+        "before": [
+          0.2604873478412628,
+          0.33648133277893066,
+          0.23170700669288635
+        ]
+      },
+      "xy": [
+        0.33567193150520325,
+        0.37427031993865967
+      ],
+      "source_sha256": "68b3979a26b08bfa30b92473035eac4019c53eeb4ca1646152edddda54b2c744",
+      "original_capture_recipe_sha256": "df79e705d7198876777ff73738a2d3f54515bb913f29f71c34aec93bcd7f517d",
+      "pre_fix_diagnostic_png_maximum_difference": 0
+    },
+    "ultra": {
+      "full_source_exports": {
+        "after": {
+          "decoded_peak": 1.2042171955108643,
+          "depth": 10,
+          "file": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-after-48mp.heic",
+          "hdr": true,
+          "height": 8064,
+          "same_source_low_chroma_mask": {
+            "green_over_red_blue": 1.0150293797407577,
+            "mean_linear_rgb": [
+              0.7185718303140132,
+              0.7138846812302876,
+              0.6880567766581642
+            ],
+            "sample_pixels": 420897
+          },
+          "width": 6048,
+          "sha256": "e4647fa1e39650fbbacbfef36241d6be4e82eb72030a77dd4d8d439f8f43002b"
+        },
+        "before": {
+          "decoded_peak": 1.2058309316635132,
+          "depth": 10,
+          "file": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-before-48mp.heic",
+          "hdr": true,
+          "height": 8064,
+          "same_source_low_chroma_mask": {
+            "green_over_red_blue": 1.1061030633734985,
+            "mean_linear_rgb": [
+              0.6908742574677688,
+              0.7288491446493217,
+              0.6269941560350528
+            ],
+            "sample_pixels": 420897
+          },
+          "width": 6048,
+          "sha256": "ddf2969984beb26274f337d01353b5856bd81370aa5b06809310c715e528e9fe"
+        }
+      },
+      "preview_same_source_low_chroma_mask": {
+        "after": {
+          "green_over_red_blue": 1.0153997799054333,
+          "mean_linear_rgb": [
+            0.7266360550518999,
+            0.7204039784278452,
+            0.6923202864492538
+          ],
+          "sample_pixels": 420897
+        },
+        "apple": {
+          "green_over_red_blue": 1.028650976360221,
+          "mean_linear_rgb": [
+            0.4537448485735357,
+            0.4491276102003318,
+            0.4194913034778143
+          ],
+          "sample_pixels": 420897
+        },
+        "before": {
+          "green_over_red_blue": 1.111370667283944,
+          "mean_linear_rgb": [
+            0.6945320934284583,
+            0.7373638035645316,
+            0.6324127779285658
+          ],
+          "sample_pixels": 420897
+        }
+      },
+      "source": "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/iphone-first-usable-20261018/native-checkpoint-ultra/source.dng",
+      "source_white_balance": "Auto WB · 5440 K · Tint +33.2",
+      "synthetic_18_percent_gray": {
+        "after": [
+          0.30845892429351807,
+          0.30924785137176514,
+          0.31200745701789856
+        ],
+        "before": [
+          0.2754096984863281,
+          0.326967716217041,
+          0.26009929180145264
+        ]
+      },
+      "xy": [
+        0.33416590094566345,
+        0.3648126423358917
+      ],
+      "source_sha256": "c51521dc50f6b67769ef0054a9b75c3c45e6798fd924065be25e0e9c99b91eb9",
+      "original_capture_recipe_sha256": "a5fd86ca4deeaffbc4e7b01282eca19c0ebfd50f49a386ea592d8fd6d692151f"
+    }
+  },
+  "photo_artifact_sha256": {
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/comparison.png": "c9efc30355b0e9a23402d45399cb8ab8412f43885dd3cba0eecb80e4a2c5d394",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/existing-photo-comparison.json": "4ec514c72512b4855b3c16ba72d337d43a0002670c4ff9cdd0a29f7b92f42d10",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-after-48mp.heic": "a86b57e4bc6023744eb1b0e9fba520da0824130101b7ee54b9a3ee4583b70e66",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-after-heif.png": "1372e09b468be3a16afb842daf72a7a31434ed1f30af4cb06fdb318c0c39ba8b",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-after-recipe.json": "539c46ef967d062573517689443883e240fd8af2893991abd7ce5be18afb250d",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-after.png": "146689d1e9fb672c79a2b6dfd16fc116aa6632854adf7784dfa85d2f5eb6b53a",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-apple.png": "154b96207cca4d5e5b8c7ab0c7018155ca1c63713244801188e112de4a174d82",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-before-48mp.heic": "19ca96ee9148e9ed0de8ba97e3047b10518e449fd43a2548de633fc3e5b6e83b",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-before-after.png": "fe2110d4d4c512acb0f79347867c056c121a82559456ac8c115f510fcf5074bf",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-before-heif.png": "4ede50dfb92d8d5980d99ed58ab8e358d69b1d1a88800933709ce3a6db9dda04",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-before-recipe.json": "7548732c2a9581eae3d7592bc56fc8417cdfe7a50b97d9192530e625f1143998",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/main-before.png": "7c582c907e6758bb5820a2d3a538d210abb720b7cfc42cde518f570b25417d50",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-after-48mp.heic": "717716acaaed35e0c9bb30471cfc4c59778ce041b4d1b89b26c58a542a7caba9",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-after-heif.png": "1f723e333589d7ceb37cbc8b66013b19785725acb1fe598d520f0354004e19fb",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-after-recipe.json": "4ac775b8cbca53a89dc409c1578d677ba58dad155713c55ac698d1100bd85dca",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-after.png": "746da6a1f0f60a46c2c807e65a2f63b25b376ed4b9471f25d0a9675dcbb51e31",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-apple.png": "c4db76922975f7338bf1ece5f8bade9cfbcbaf1749f7d9373b662aeb1e1a537a",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-before-48mp.heic": "43a869a672f1afd15bfeee741355877faf99188861a1d567ac548673cc63de81",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-before-after.png": "4bbc5d115446dca7b376f945222b037c28138ef27e33ae6b687db223aae6f4a5",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-before-heif.png": "8dd318963205e086f35427f2f1bcb119fc608481768259b15bd10b7813cd94cc",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-before-recipe.json": "90a7e7f3000fca079e944c0cbce315fd03dc98139e2757a1b05802d0d0b027a1",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/tele-before.png": "c4b40e7fb58bb84ad8959ef4a718b717ff965e1e9edefe839b7a3f592b45f2b6",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-after-48mp.heic": "e4647fa1e39650fbbacbfef36241d6be4e82eb72030a77dd4d8d439f8f43002b",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-after-heif.png": "22c986af745ac22b0723c680902470de540ea06353e9194bd0cd1635533323a5",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-after-recipe.json": "94b3bcd94fbcf0adacc57ef2895b4ad8ea8528c3d0e7cb819a1925f7df379979",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-after.png": "73a0209f20d8e8f87d3085f8e6545248dd6cda0c6834a18423aa1886716bf290",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-apple.png": "6f6a97528889a2ac85e996141e76a34b6a797498b9465c9bb7d8010237f966a1",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-before-48mp.heic": "ddf2969984beb26274f337d01353b5856bd81370aa5b06809310c715e528e9fe",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-before-after.png": "1653ce7c4a215d6fef7313e7bb2a7cb2c0f412045a54840ba52b3b9b15e07d5b",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-before-heif.png": "f3cbee0ce7616bdf0f3cf62c0d14dcb04c56259e170502b76585a3c2b7265127",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-before-recipe.json": "700348ee07c2d4ba91ec4cd4dea72dc759c36725e898b68e4a8d9551db0190ed",
+    "/Users/vonequinox/.codex/visualizations/2026/10/18/01a14de3-f010-7213-bc64-080397a3d13f/nature-pipeline-audit-20261018/photo-comparison/ultra-before.png": "28d3529c81216480577d723ade28819ab2a99f79daebc3f905b81b2a1c1ac280"
+  },
+  "source_sha256": {
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs.cpp": "c16fd529f6f8519c96a469ca91c82500c6c15af6ec64d76bc10fb534eaeb8d18",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/core/hncs_c.h": "9087dbe7150a1c0e615e91edd32c526d9aa591cd5f041870e526385e3e557263",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/ios/GlassCam/HNCSEngine.swift": "16273414ac4ca8352f944018b6de8bb46921331cca4c2293974e16c7857ee925",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/ios/GlassCam/CameraSettingsStore.swift": "6c281a7e812b8e5f1b93ff7aab17b2570aa27c71bd14c8ee1bbaf1ceb5ce8a8b",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/ios/GlassCam/ContentView.swift": "19838c01086fec1c477dfe66046a106af828428c22829622bf235e104cf88d1f",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/ios/GlassCam/CameraView.swift": "6e7cf923c25f5db1facda7a0e39825638d3e6fc6e997b62e6a77799f99a4fc59",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/ios/GlassCam/ImagePipeline.swift": "c361a03fd8c2350506e1f7d4c61eea0ccfe45f9131fb9efb1d8c6509084a4fa1",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/ios/GlassCam/LiveColorProxy.swift": "3f08c5bb811e62559f2baf070934d1a67436f35894db7e3967228b252c984262",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tests/test_automatic_white_balance.py": "5db2df4d6bc0f686ab485722f46edceb181b6d84364c6b1b8a82d04aded77e0d",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tests/test_hncs_revision8_source.py": "cd769b68a7a448d8cae2e1a0939ce281913094279450b301be5b491588eb8ad1",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tests/test_camera_chrome_source.py": "cc9ebd2d0d54b44c89a27adfd26f0ac16376a594f2a5703b175c31403957f58a",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tests/apple_image_pipeline.swift": "945ca96531da69f365679d0873353d256abc43e8cec75a2389a54632b1bc742c",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tests/apple_capture_recovery.swift": "308935a2fcfe40b82bf9a3df96cfc5ec9623a0274b8dada805acbcca369760f1",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/audit_phocus_white_balance.py": "709064a526d43a21e6cb6c4fa9bbc0cf1a5ed7e38d711e09686e868e6c9aa45d",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/tools/nature_white_balance_study.swift": "87ee6c46d984b7c35ddbd98e0ecf59132ca5c7f4aba0a7d5918464f0f5c13711",
+    "/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/docs/PHOCUS_NATURE_PIPELINE_20261018.md": "8c427fd55e6bb8f48a96666f23e07698290f7f6243bc5e21d22730e42013a893"
+  },
+  "limits": [
+    "The virtual iPhone-to-X2D source adapter is not a measured paired-camera calibration.",
+    "Native numerical equality is scoped to tested correction/WB/curve/kernel stages, not full RAW-to-ICC export equivalence.",
+    "These indoor scenes confirm removal of the preset-induced cast; no new color-chart or mixed-light capture was performed.",
+    "No iPhone tests, installation, Photos access, or performance claims were made for revision 11."
+  ]
+}
