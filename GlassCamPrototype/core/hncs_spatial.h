@@ -52,6 +52,24 @@ int hncs_apply_spatial_native_sharpness_file(const char *work_rgb_path,
 /* Factory native USM gate after the Standard/tool overlay: 1 active, 0 bypass,
  * -1 unknown key. Independent of the legacy portable catalog's optional flags. */
 int hncs_native_sharpness_enabled(const char *preset_key);
+/* Revision-12 Apple HDR work image: unscaled encoded Float RGB -> normalized
+ * Float RGB in [0,1], in place. work_scale is chosen by hncs_apple_hdr_work_scale
+ * from the complete frame. It must be finite in [1,64] and cover every component;
+ * never use per-strip scales.
+ * Packs once by this shared scale even when both effects are disabled. Original
+ * CPU sharpness receives the matching work-domain factor, so HDR differences
+ * participate in luma/blur/thresholds. Portable grain keeps its reference-white
+ * amplitude. Finish with hncs_finish_apple_hdr_work_linear and the same scale.
+ * No extra source gain may be restored afterward. Existing APIs unchanged.
+ * Same full-resolution, edge, cancellation and partial-error rules as above. */
+int hncs_prepare_apple_hdr_spatial(float *unscaled_work_rgb,
+    size_t width, size_t height, const char *preset_key, int apply_grain,
+    int apply_sharpness, double baseline_sharpness, double work_scale);
+int hncs_prepare_apple_hdr_spatial_file(const char *unscaled_work_rgb_path,
+    size_t width, size_t height, const char *preset_key, int apply_grain,
+    int apply_sharpness, double baseline_sharpness, double work_scale,
+    const char *scratch_directory, hncs_spatial_cancel_fn cancelled,
+    void *cancel_context);
 /* Prepared X2D II HDR gamma/gradation RGB16 -> original full-resolution USM.
  * Standard/Nature factory controls and the RAW BaselineSharpness; HDR amount
  * and noise tables use the original 5.8829245141 work-domain factor.

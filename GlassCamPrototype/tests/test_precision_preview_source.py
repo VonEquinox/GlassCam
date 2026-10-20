@@ -42,6 +42,7 @@ class PrecisionPreviewSourceContracts(unittest.TestCase):
         self.assertIn('layer.contentsHeadroom = CGFloat(peak)', self.preview)
         self.assertIn('layer.toneMapMode = .ifSupported', self.preview)
         self.assertIn('CGColorSpace.extendedLinearSRGB', self.preview)
+        self.assertIn('CGColorSpace.extendedLinearITUR_2020', self.preview)
         self.assertIn('.workingFormat: CIFormat.RGBAf.rawValue', self.preview)
         self.assertIn('PreviewRendering.render(output, with: context, to: drawable.texture,', self.preview)
         self.assertIn('destination.colorSpace = colorSpace', self.preview)

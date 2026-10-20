@@ -36,7 +36,7 @@ enum HNCSWhiteBalancePolicy: String, CaseIterable, Codable, Identifiable, Sendab
 }
 
 struct HNCSSettings: Codable, Equatable, Sendable {
-    static let currentRenderRevision = 11
+    static let currentRenderRevision = 12
     var renderRevision = currentRenderRevision
     var presetKey = "standard"
     var filmCurve: HNCSFilmCurve = .asShot
@@ -49,6 +49,11 @@ struct HNCSSettings: Codable, Equatable, Sendable {
     var factoryKelvinOverride: Double? = nil
     var applyToneCurve = true
     static let standard = HNCSSettings()
+    static let legacyStandard: HNCSSettings = {
+        var value = HNCSSettings()
+        value.renderRevision = 11
+        return value
+    }()
 
     init() {}
     private enum CodingKeys: String, CodingKey {
@@ -57,10 +62,10 @@ struct HNCSSettings: Codable, Equatable, Sendable {
     }
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        let savedRevision = try values.decodeIfPresent(Int.self, forKey: .renderRevision) ?? Self.currentRenderRevision
+        let savedRevision = try values.decodeIfPresent(Int.self, forKey: .renderRevision) ?? 11
         // Old durable recipes must keep their original preset WB when replayed.
         // Camera preferences migrate separately to photo WB for future shots.
-        renderRevision = [8, 9, 10].contains(savedRevision) ? Self.currentRenderRevision : savedRevision
+        renderRevision = [8, 9, 10].contains(savedRevision) ? 11 : savedRevision
         presetKey = try values.decodeIfPresent(String.self, forKey: .presetKey) ?? "standard"
         filmCurve = try values.decodeIfPresent(HNCSFilmCurve.self, forKey: .filmCurve) ?? .asShot
         rawFilmCurveType = try values.decodeIfPresent(Int.self, forKey: .rawFilmCurveType) ?? 2
@@ -74,6 +79,7 @@ struct HNCSSettings: Codable, Equatable, Sendable {
     func crop(effects: EffectToggles) -> ImageCrop {
         effects.applyExtraCrop && presetKey == "square-crop" ? .centeredSquare : .none
     }
+    var usesExtendedWorkingDomain: Bool { renderRevision == 12 }
     func requiresSpatial(effects: EffectToggles) -> Bool {
         guard let flags = HNCSEngine.presets.first(where: { $0.id == presetKey })?.flags else { return false }
         let nativeSharpness = presetKey.withCString { hncs_native_sharpness_enabled($0) == 1 }
@@ -96,7 +102,7 @@ struct HNCSSettings: Codable, Equatable, Sendable {
         return "\(presetTitle) has no fixed white balance, so the photo's own temperature and tint are preserved."
     }
     var isValid: Bool {
-        renderRevision == Self.currentRenderRevision && rawFilmCurveType == 2 &&
+        [11, Self.currentRenderRevision].contains(renderRevision) && rawFilmCurveType == 2 &&
         (factoryKelvinOverride == nil || (factoryKelvinOverride!.isFinite && (2000...10000).contains(factoryKelvinOverride!))) &&
         HNCSEngine.presets.contains { $0.id == presetKey }
     }
@@ -144,6 +150,7 @@ enum HNCSEngine {
         let whiteBalance: PhotoWhiteBalance?
         let settings: HNCSSettings
         let effects: EffectToggles
+        let workScale: Double
     }
 
     enum Error: LocalizedError {
@@ -153,7 +160,7 @@ enum HNCSEngine {
             case .invalidDimensions: return "The image dimensions or RGB buffer are invalid."
             case .invalidSettings: return "The color processor could not initialize with these settings."
             case .invalidPixels: return "The image contains invalid or non-finite color values."
-            case .spatialRequiresFloat: return "Spatial HNCS presets require the full-precision photo route."
+            case .spatialRequiresFloat: return "This HNCS recipe requires the full-precision photo route."
             case .spatialIO: return "HNCS grain or sharpening could not finish its temporary-file pass. Check available storage and retry."
             }
         }
@@ -187,16 +194,24 @@ enum HNCSEngine {
                     preset, settings.applyToneCurve ? 1 : 0, nil, nil)
             }
             guard let pointer else { throw Error.invalidSettings }
-            self.pointer = pointer; self.key = key
+            if key.workScale == 1 {
+                self.pointer = pointer
+            } else {
+                let scaled = hncs_clone_with_apple_hdr_work_scale(pointer, key.workScale)
+                hncs_destroy(pointer)
+                guard let scaled else { throw Error.invalidSettings }
+                self.pointer = scaled
+            }
+            self.key = key
         }
         deinit { hncs_destroy(pointer) }
     }
     private final class ContextCache: @unchecked Sendable {
         private let lock = NSLock()
         private var cached: ContextOwner?
-        func context(exposure: Double, kelvin: Double, settings: HNCSSettings, effects: EffectToggles, whiteBalance: PhotoWhiteBalance?) throws -> ContextOwner {
+        func context(exposure: Double, kelvin: Double, settings: HNCSSettings, effects: EffectToggles, whiteBalance: PhotoWhiteBalance?, workScale: Double = 1) throws -> ContextOwner {
             lock.lock(); defer { lock.unlock() }
-            let key = ContextKey(exposure: exposure, captureKelvin: kelvin, whiteBalance: whiteBalance, settings: settings, effects: effects)
+            let key = ContextKey(exposure: exposure, captureKelvin: kelvin, whiteBalance: whiteBalance, settings: settings, effects: effects, workScale: workScale)
             if let cached, cached.key == key { return cached }
             let owner = try ContextOwner(key: key)
             cached = owner
@@ -222,7 +237,7 @@ enum HNCSEngine {
     static func process(linearSRGB: [Float], width: Int, height: Int,
                         exposureEV: Double, illuminantKelvin: Double,
                         settings: HNCSSettings = .standard, effects: EffectToggles = .standard, quality: Quality = .fastPreview, whiteBalance: PhotoWhiteBalance? = nil) throws -> [UInt8] {
-        guard !settings.requiresSpatial(effects: effects) else { throw Error.spatialRequiresFloat }
+        guard !settings.usesExtendedWorkingDomain, !settings.requiresSpatial(effects: effects) else { throw Error.spatialRequiresFloat }
         guard width > 0, height > 0, width <= Int.max / height else {
             throw Error.invalidDimensions
         }
@@ -252,7 +267,7 @@ enum HNCSEngine {
     }
 
     /// Full-precision export bridge. The original UInt16 HNCS core remains
-    /// unchanged; display-linear sRGB is returned before any 8-bit encoder.
+    /// unchanged; extended-linear sRGB is returned before any 8-bit encoder.
     /// The HEIF encoder applies the output transfer function and quantization.
     static func exportLinearRGBA(linearSRGB: [Float], width: Int, height: Int,
                                  exposureEV: Double, illuminantKelvin: Double,
@@ -268,16 +283,17 @@ enum HNCSEngine {
               linearSRGB.count == count * 3 else {
             throw Error.invalidDimensions
         }
-        if settings.requiresSpatial(effects: effects) {
+        if settings.usesExtendedWorkingDomain || settings.requiresSpatial(effects: effects) {
             let work = try presetWork(linearSRGB: linearSRGB, width: width, height: height,
                                       exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
             let file = try HNCSPresetWorkFile(width: width, height: height)
             try file.writeTopDownRows(work, originY: 0, rows: height)
-            try applySpatial(to: file, settings: settings, effects: effects, baselineSharpness: baselineSharpness,
+            let workScale = settings.usesExtendedWorkingDomain ? try workingScale(maximum: work.max() ?? 0) : 1
+            try applySpatial(to: file, settings: settings, effects: effects, baselineSharpness: baselineSharpness, workScale: workScale,
                              isCancelled: { Task.isCancelled })
             let adjusted = try file.readTopDownRows(originY: 0, rows: height)
             return try finishPresetWork(adjusted, width: width, height: height,
-                                        exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
+                                        exposureEV: exposureEV, captureKelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance, workScale: workScale)
         }
         let owner = try contextCache.context(exposure: exposureEV, kelvin: illuminantKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
         let context = owner.pointer
@@ -292,7 +308,14 @@ enum HNCSEngine {
         return rgba
     }
 
+    static func workingScale(maximum: Float) throws -> Double {
+        let scale = hncs_apple_hdr_work_scale(Double(maximum))
+        guard scale.isFinite, (1...64).contains(scale) else { throw Error.invalidPixels }
+        return scale
+    }
+
     /// Working-space Float32 boundary, before native USM and portable grain.
+    /// Revision 12 accepts intact HDR input and emits unscaled extended work.
     /// Top-to-bottom bitmap rows pass unchanged to the temporary-file owner and
     /// NumPy spatial reference, so grain coordinates do not depend on strip size.
     static func presetWork(linearSRGB: [Float], width: Int, height: Int,
@@ -304,7 +327,10 @@ enum HNCSEngine {
         var result = [Float](repeating: 0, count: width * height * 3)
         let status = linearSRGB.withUnsafeBufferPointer { source in
             result.withUnsafeMutableBufferPointer { output in
-                hncs_process_phocus_work_float_parallel(owner.pointer, source.baseAddress, output.baseAddress, width * height, workerCount())
+                if settings.usesExtendedWorkingDomain {
+                    return hncs_process_apple_hdr_work_float_parallel(owner.pointer, source.baseAddress, output.baseAddress, width * height, workerCount())
+                }
+                return hncs_process_phocus_work_float_parallel(owner.pointer, source.baseAddress, output.baseAddress, width * height, workerCount())
             }
         }
         guard status == 0 else { throw Error.invalidPixels }
@@ -312,15 +338,19 @@ enum HNCSEngine {
     }
 
     static func finishPresetWork(_ work: [Float], width: Int, height: Int,
-                                 exposureEV: Double, captureKelvin: Double, settings: HNCSSettings, effects: EffectToggles = .standard, whiteBalance: PhotoWhiteBalance? = nil) throws -> [Float] {
+                                 exposureEV: Double, captureKelvin: Double, settings: HNCSSettings, effects: EffectToggles = .standard, whiteBalance: PhotoWhiteBalance? = nil, workScale: Double = 1) throws -> [Float] {
         guard width > 0, height > 0, width <= Int.max / 16 / height,
               work.count == width * height * 3 else { throw Error.invalidDimensions }
-        let owner = try contextCache.context(exposure: exposureEV, kelvin: captureKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance)
+        guard settings.usesExtendedWorkingDomain || workScale == 1 else { throw Error.invalidSettings }
+        let owner = try contextCache.context(exposure: exposureEV, kelvin: captureKelvin, settings: settings, effects: effects, whiteBalance: whiteBalance, workScale: workScale)
         defer { withExtendedLifetime(owner) {} }
         var result = [Float](repeating: 0, count: width * height * 4)
         let status = work.withUnsafeBufferPointer { source in
             result.withUnsafeMutableBufferPointer { output in
-                hncs_finish_phocus_work_linear_parallel(owner.pointer, source.baseAddress, output.baseAddress, width * height, workerCount())
+                if settings.usesExtendedWorkingDomain {
+                    return hncs_finish_apple_hdr_work_linear_parallel(owner.pointer, source.baseAddress, output.baseAddress, width * height, workScale, workerCount())
+                }
+                return hncs_finish_phocus_work_linear_parallel(owner.pointer, source.baseAddress, output.baseAddress, width * height, workerCount())
             }
         }
         guard status == 0 else { throw Error.invalidPixels }
@@ -334,6 +364,7 @@ enum HNCSEngine {
 
     static func applySpatial(to file: HNCSPresetWorkFile, settings: HNCSSettings, effects: EffectToggles = .standard,
                              baselineSharpness: Double = 0,
+                             workScale: Double = 1,
                              isCancelled: @escaping () -> Bool) throws {
         guard baselineSharpness.isFinite, baselineSharpness >= 0 else { throw Error.invalidSettings }
         try file.prepareForSpatialPass()
@@ -343,7 +374,15 @@ enum HNCSEngine {
         let status = file.url.path.withCString { path in
             settings.presetKey.withCString { key in
                 FileManager.default.temporaryDirectory.path.withCString { scratch in
-                    hncs_apply_spatial_native_sharpness_file(path, file.width, file.height, key,
+                    if settings.usesExtendedWorkingDomain {
+                        return hncs_prepare_apple_hdr_spatial_file(path, file.width, file.height, key,
+                            effects.applyGrain ? 1 : 0, effects.applySharpness ? 1 : 0,
+                            baselineSharpness, workScale, scratch, { context in
+                                guard let context else { return 0 }
+                                return Unmanaged<SpatialCancellation>.fromOpaque(context).takeUnretainedValue().isCancelled() ? 1 : 0
+                            }, opaque)
+                    }
+                    return hncs_apply_spatial_native_sharpness_file(path, file.width, file.height, key,
                         effects.applyGrain ? 1 : 0, effects.applySharpness ? 1 : 0,
                         baselineSharpness, scratch, { context in
                             guard let context else { return 0 }

@@ -19,9 +19,13 @@ private func require(_ condition: Bool, _ message: String) throws {
     static let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
     static let sRGB = CGColorSpace(name: CGColorSpace.sRGB)!
     static let pq = CGColorSpace(name: CGColorSpace.itur_2100_PQ)!
+    static let targetLinear = CGColorSpace(name: CGColorSpace.extendedLinearITUR_2020)!
     static let context = CIContext(options: [.workingColorSpace: linear,
                                              .workingFormat: CIFormat.RGBAf.rawValue,
                                              .cacheIntermediates: false])
+    static let targetContext = CIContext(options: [.workingColorSpace: targetLinear,
+                                                   .workingFormat: CIFormat.RGBAf.rawValue,
+                                                   .cacheIntermediates: false])
 
     static func pixels(_ image: CIImage) -> [Float] {
         let width = Int(image.extent.width), height = Int(image.extent.height)
@@ -106,20 +110,29 @@ private func require(_ condition: Bool, _ message: String) throws {
     }
 
     static func checkSpatial(_ input: ImportedImage, preset: String, baselineSharpness: Double) throws {
-        let settings = recipe(preset).hncs
+        var settings = recipe(preset).hncs
         let effects = EffectToggles.standard
-        var work = try HNCSEngine.presetWork(linearSRGB: input.linearRGB, width: input.width,
-            height: input.height, exposureEV: 0, captureKelvin: 6500, settings: settings)
-        let status = work.withUnsafeMutableBufferPointer { buffer in
-            preset.withCString { hncs_apply_spatial_native_sharpness(buffer.baseAddress, input.width, input.height, $0, 1, 1, baselineSharpness) }
+        for revision in [11, 12] {
+            settings.renderRevision = revision
+            var work = try HNCSEngine.presetWork(linearSRGB: input.linearRGB, width: input.width,
+                height: input.height, exposureEV: 0, captureKelvin: 6500, settings: settings)
+            let workScale = settings.usesExtendedWorkingDomain ? try HNCSEngine.workingScale(maximum: work.max() ?? 0) : 1
+            let status = work.withUnsafeMutableBufferPointer { buffer in
+                preset.withCString {
+                    if settings.usesExtendedWorkingDomain {
+                        return hncs_prepare_apple_hdr_spatial(buffer.baseAddress, input.width, input.height, $0, 1, 1, baselineSharpness, workScale)
+                    }
+                    return hncs_apply_spatial_native_sharpness(buffer.baseAddress, input.width, input.height, $0, 1, 1, baselineSharpness)
+                }
+            }
+            try require(status == 0, "Native spatial oracle failed")
+            let expected = try HNCSEngine.finishPresetWork(work, width: input.width, height: input.height,
+                exposureEV: 0, captureKelvin: 6500, settings: settings, workScale: workScale)
+            let actual = try HNCSEngine.exportLinearRGBA(linearSRGB: input.linearRGB, width: input.width,
+                height: input.height, exposureEV: 0, illuminantKelvin: 6500, settings: settings, effects: effects,
+                baselineSharpness: baselineSharpness)
+            try require(actual == expected, "Swift spatial file path differs from native memory path or loses BaselineSharpness")
         }
-        try require(status == 0, "Native spatial oracle failed")
-        let expected = try HNCSEngine.finishPresetWork(work, width: input.width, height: input.height,
-            exposureEV: 0, captureKelvin: 6500, settings: settings)
-        let actual = try HNCSEngine.exportLinearRGBA(linearSRGB: input.linearRGB, width: input.width,
-            height: input.height, exposureEV: 0, illuminantKelvin: 6500, settings: settings, effects: effects,
-            baselineSharpness: baselineSharpness)
-        try require(actual == expected, "Swift spatial file path differs from native memory path or loses BaselineSharpness")
     }
 
     static func checkMetal() throws {
@@ -254,7 +267,8 @@ private func require(_ condition: Bool, _ message: String) throws {
             expected = expected.settingContentHeadroom(max(1, peak))
         }
         // Compare through the same codec to separate row/effect errors from HEIF loss.
-        try context.writeHEIF10Representation(of: expected, to: expectedURL, colorSpace: pq, options: [:])
+        let expectedContext = recipe.usesExtendedHNCSWorkingDomain ? targetContext : context
+        try expectedContext.writeHEIF10Representation(of: expected, to: expectedURL, colorSpace: pq, options: [:])
         guard let actualImage = CIImage(contentsOf: actualURL, options: [.expandToHDR: true]),
               let expectedImage = CIImage(contentsOf: expectedURL, options: [.expandToHDR: true]) else {
             throw CheckFailure(description: "HEIF output cannot be reopened")
@@ -285,7 +299,11 @@ private func require(_ condition: Bool, _ message: String) throws {
     }
 
     static func checkHDR(_ input: ImportedImage, directory: URL) throws {
-        let processed = try ImagePipeline.process(input, recipe: .standard)
+        // Keep the old gain-map contract as a LEGACY replay check. Revision 12
+        // has independent HDR-domain/edge checks, not this formula as an oracle.
+        let legacyRecipe = ProcessingRecipe(mode: .hncs, exposureEV: 0, illuminantKelvin: 6500,
+            simulationIndex: 0, seed: 0, hncs: .legacyStandard)
+        let processed = try ImagePipeline.process(input, recipe: legacyRecipe)
         let source = input.linearRGB
         var base = source
         for i in stride(from: 0, to: base.count, by: 3) {
@@ -293,7 +311,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             for channel in 0..<3 { base[i + channel] /= gain }
         }
         var expected = try HNCSEngine.exportLinearRGBA(linearSRGB: base, width: input.width,
-            height: input.height, exposureEV: 0, illuminantKelvin: processed.recipe.illuminantKelvin, settings: .standard,
+            height: input.height, exposureEV: 0, illuminantKelvin: processed.recipe.illuminantKelvin, settings: .legacyStandard,
             whiteBalance: processed.recipe.photoWhiteBalance)
         for pixel in 0..<(source.count / 3) {
             let i = pixel * 3
@@ -324,6 +342,133 @@ private func require(_ condition: Bool, _ message: String) throws {
             try checkExport(input, recipe: recipe, directory: directory, name: "hdr-ffcs-\(overlay)")
         }
         try checkExport(input, recipe: .standard, directory: directory, name: "hdr-downsample", scale: 0.5)
+    }
+
+    static func checkHDRSpatialStructure(_ directory: URL) throws {
+        let width = 33, height = 17
+        var rgba = [Float](repeating: 1, count: width * height * 4)
+        for y in 0..<height { for x in 0..<width {
+            let value: Float = (15...17).contains(x) ? 2.1 : 2
+            for c in 0..<3 { rgba[(y * width + x) * 4 + c] = value }
+        } }
+        let raster = try PreviewRaster(linearRGBA: rgba, width: width, height: height)
+        let url = directory.appendingPathComponent("bright-detail.heic")
+        try targetContext.writeHEIF10Representation(of: raster.image, to: url, colorSpace: pq, options: [:])
+        let source = try SourceImageFile(data: Data(contentsOf: url), fileExtension: "heic")
+        // Explicit pre-codec vector: the assertion is about spatial behaviour,
+        // independent of HEVC chroma quantization and thumbnail decoding.
+        let input = ImportedImage(sourceFile: source, exportSettings: .native,
+            linearRGB: (0..<(width * height)).flatMap { Array(rgba[($0 * 4)..<($0 * 4 + 3)]) },
+            width: width, height: height, original: raster, sourceDescription: "HDR neutral edge")
+        func render(_ sharp: Bool) throws -> [Float] {
+            let recipe = ProcessingRecipe(mode: .hncs, exposureEV: 0, illuminantKelvin: 6500,
+                simulationIndex: 0, seed: 0, hncs: .standard,
+                effects: EffectToggles(applyGrain: false, applySharpness: sharp, applyExtraCrop: false))
+            return pixels(try ImagePipeline.process(input, recipe: recipe).image.image)
+        }
+        let off = try render(false), on = try render(true)
+        let dark = ((height / 2) * width + 14) * 4
+        let bright = ((height / 2) * width + 15) * 4
+        try require(on[bright] - on[dark] > off[bright] - off[dark] + 0.005,
+                    "HDR neutral detail still bypasses the production spatial pass")
+        try require(on[bright] > 1 && on.allSatisfy(\.isFinite), "HDR spatial output was clipped or invalid")
+    }
+
+    static func checkCaptureMetadata(_ directory: URL) async throws {
+        let width = 32, height = 24
+        var rgba = [Float](repeating: 2, count: width * height * 4)
+        for i in stride(from: 3, to: rgba.count, by: 4) { rgba[i] = 1 }
+        let raster = try PreviewRaster(linearRGBA: rgba, width: width, height: height)
+        let file = TemporaryHEIFFile()
+        try targetContext.writeHEIF10Representation(of: raster.image, to: file.url, colorSpace: pq, options: [:])
+        let before = pixels(CIImage(contentsOf: file.url, options: [.expandToHDR: true])!)
+        let original: [String: Any] = [
+            kCGImagePropertyOrientation as String: 6,
+            kCGImagePropertyTIFFDictionary as String: [
+                kCGImagePropertyTIFFMake as String: "Fixture Camera",
+                kCGImagePropertyTIFFModel as String: "Three-lens fixture",
+                kCGImagePropertyTIFFDateTime as String: "2026:10:19 11:22:33",
+                kCGImagePropertyTIFFOrientation as String: 6
+            ],
+            kCGImagePropertyExifDictionary as String: [
+                kCGImagePropertyExifDateTimeOriginal as String: "2026:10:19 11:22:33",
+                kCGImagePropertyExifDateTimeDigitized as String: "2026:10:19 11:22:33",
+                kCGImagePropertyExifOffsetTime as String: "+08:00",
+                kCGImagePropertyExifOffsetTimeOriginal as String: "+08:00",
+                kCGImagePropertyExifOffsetTimeDigitized as String: "+08:00",
+                kCGImagePropertyExifSubsecTimeOriginal as String: "125",
+                kCGImagePropertyExifSubsecTimeDigitized as String: "125",
+                kCGImagePropertyExifExposureTime as String: 1.0 / 125,
+                kCGImagePropertyExifFNumber as String: 2.8,
+                kCGImagePropertyExifISOSpeedRatings as String: [200],
+                kCGImagePropertyExifFocalLength as String: 5.7,
+                kCGImagePropertyExifFocalLenIn35mmFilm as String: 26,
+                kCGImagePropertyExifLensModel as String: "Fixture Lens",
+                kCGImagePropertyExifLensMake as String: "Fixture Camera",
+                kCGImagePropertyExifLensSpecification as String: [5.7, 5.7, 2.8, 2.8],
+                kCGImagePropertyExifMakerNote as String: Data([1, 2, 3, 4]),
+                kCGImagePropertyExifPixelXDimension as String: 9000,
+                kCGImagePropertyExifPixelYDimension as String: 6000
+            ]
+        ]
+        let metadata = PhotoMetadata(properties: original)
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let date = calendar.date(from: DateComponents(year: 2026, month: 10, day: 19, hour: 3, minute: 22, second: 33))!.addingTimeInterval(0.125)
+        try require(abs((metadata.captureDate?.timeIntervalSince(date) ?? 10)) < 0.001,
+                    "Capture timestamp lost its offset or subseconds")
+        let bareSource = CGImageSourceCreateWithURL(file.url as CFURL, nil)!
+        let bareProperties = CGImageSourceCopyPropertiesAtIndex(bareSource, 0, nil) as! [String: Any]
+        do {
+            try metadata.validate(in: bareProperties)
+            throw CheckFailure(description: "A successful encode without capture fields was accepted")
+        } catch PipelineError.metadata {}
+        try targetContext.writeHEIF10Representation(
+            of: raster.image.settingProperties(metadata.encodingProperties(width: width, height: height)),
+            to: file.url, colorSpace: pq, options: [:])
+        let after = pixels(CIImage(contentsOf: file.url, options: [.expandToHDR: true])!)
+        try require(try error(before, after) == 0, "Encoding capture metadata changed image pixels")
+        func check(_ properties: [String: Any]) throws {
+            let tiff = properties[kCGImagePropertyTIFFDictionary as String] as? [String: Any]
+            let exif = properties[kCGImagePropertyExifDictionary as String] as? [String: Any]
+            try require(tiff?[kCGImagePropertyTIFFMake as String] as? String == "Fixture Camera" &&
+                        tiff?[kCGImagePropertyTIFFModel as String] as? String == "Three-lens fixture" &&
+                        exif?[kCGImagePropertyExifLensModel as String] as? String == "Fixture Lens", "Capture identity was lost")
+            try require(exif?[kCGImagePropertyExifISOSpeedRatings as String] as? [Int] == [200] &&
+                        abs(((exif?[kCGImagePropertyExifExposureTime as String] as? NSNumber)?.doubleValue ?? 1) - 1.0 / 125) < 1e-7,
+                        "Exposure metadata was lost")
+            try require(exif?[kCGImagePropertyExifMakerNote as String] == nil &&
+                        (exif?[kCGImagePropertyExifPixelXDimension as String] as? NSNumber)?.intValue == width &&
+                        (exif?[kCGImagePropertyExifPixelYDimension as String] as? NSNumber)?.intValue == height &&
+                        ((properties[kCGImagePropertyOrientation as String] as? NSNumber)?.intValue ?? 1) == 1,
+                        "RAW metadata restored stale geometry or MakerNote offsets")
+            try require(abs(PhotoMetadata(properties: properties).captureDate?.timeIntervalSince(date) ?? 10) < 0.001,
+                        "Encoded capture date did not survive reload")
+            try require(exif?[kCGImagePropertyExifOffsetTimeOriginal as String] as? String == "+08:00" &&
+                        exif?[kCGImagePropertyExifSubsecTimeOriginal as String] as? String == "125" &&
+                        exif?[kCGImagePropertyExifSubsecTimeDigitized as String] as? String == "125",
+                        "Native EXIF timezone or subsecond fields were omitted")
+        }
+        let retained = try SourceImageFile(data: Data(contentsOf: file.url), fileExtension: "heic")
+        let output = TemporaryHEIFFile(captureDate: retained.metadata.captureDate)
+        try ImagePipeline.writeHEIF(sourceFile: retained, recipe: .standard, to: output.url, settings: .native)
+        let container = CGImageSourceCreateWithURL(output.url as CFURL, nil)!
+        let properties = CGImageSourceCopyPropertiesAtIndex(container, 0, nil) as! [String: Any]
+        try metadata.validate(in: properties)
+        try check(properties)
+        try require((properties[kCGImagePropertyDepth as String] as? NSNumber)?.intValue == 10 &&
+                    CIImage(contentsOf: output.url)?.colorSpace?.isHDR() == true,
+                    "Capture metadata changed the HDR/10-bit output")
+        let provider = ShareDelivery.makeProvider(for: output)
+        let jpeg: Data = try await withCheckedThrowingContinuation { continuation in
+            _ = provider.loadDataRepresentation(forTypeIdentifier: UTType.jpeg.identifier) { data, error in
+                if let error { continuation.resume(throwing: error) }
+                else if let data { continuation.resume(returning: data) }
+                else { continuation.resume(throwing: CheckFailure(description: "Missing JPEG metadata fixture")) }
+            }
+        }
+        let jpegSource = CGImageSourceCreateWithData(jpeg as CFData, nil)!
+        try check(CGImageSourceCopyPropertiesAtIndex(jpegSource, 0, nil) as! [String: Any])
     }
 
     static func checkCancellation(_ input: ImportedImage, directory: URL) throws {
@@ -391,8 +536,9 @@ private func require(_ condition: Bool, _ message: String) throws {
         settings.whiteBalancePolicy = .preset
         settings.factoryKelvinOverride = 4000
         settings.applyToneCurve = false
+        var historicalSettings = settings; historicalSettings.renderRevision = 11
         let expected = ProcessingRecipe(mode: .hncs, exposureEV: -0.3, illuminantKelvin: 6500,
-            simulationIndex: 0, seed: 0, hncs: settings,
+            simulationIndex: 0, seed: 0, hncs: historicalSettings,
             effects: EffectToggles(applyGrain: false, applySharpness: false, applyExtraCrop: false))
         var payload = try JSONSerialization.jsonObject(with: JSONEncoder().encode(expected)) as! [String: Any]
         var storedHNCS = payload["hncs"] as! [String: Any]
@@ -403,7 +549,7 @@ private func require(_ condition: Bool, _ message: String) throws {
         var photoSettings = settings; photoSettings.whiteBalancePolicy = .photo
         let cameraExpected = ProcessingRecipe(mode: expected.mode, exposureEV: expected.exposureEV,
             illuminantKelvin: 6500, simulationIndex: 0, seed: 0, hncs: photoSettings, effects: expected.effects)
-        for revision in [8, 9, 10] {
+        for revision in [8, 9, 10, 11] {
             storedHNCS["renderRevision"] = revision
             payload["hncs"] = storedHNCS
             let oldData = try JSONSerialization.data(withJSONObject: payload)
@@ -427,14 +573,14 @@ private func require(_ condition: Bool, _ message: String) throws {
                         "Explicit camera WB choice was overwritten on reload")
         }
         for cropEnabled in [true, false] {
-            var square = settings; square.presetKey = "square-crop"
+            var square = historicalSettings; square.presetKey = "square-crop"
             let effects = EffectToggles(applyGrain: false, applySharpness: true, applyExtraCrop: cropEnabled)
             let historical = ProcessingRecipe(mode: .hncs, exposureEV: -0.3, illuminantKelvin: 6500,
                 simulationIndex: 0, seed: 0, hncs: square, effects: effects)
             let data = try JSONEncoder().encode(historical)
             defaults.set(data, forKey: "editor.processingRecipe.revision8.v1")
             let camera = CameraSettingsStore(defaults: defaults)
-            var migrated = square; migrated.presetKey = "standard"
+            var migrated = square; migrated.presetKey = "standard"; migrated.renderRevision = 12
             let future = ProcessingRecipe(mode: .hncs, exposureEV: -0.3, illuminantKelvin: 6500,
                 simulationIndex: 0, seed: 0, hncs: migrated, effects: effects)
             try require(camera.recipe == future && CameraSettingsStore(defaults: defaults).recipe == future,
@@ -448,7 +594,12 @@ private func require(_ condition: Bool, _ message: String) throws {
         try require(!HNCSEngine.cameraPresets.contains { $0.id == "square-crop" } &&
                     HNCSEngine.presets.contains { $0.id == "square-crop" },
                     "Camera catalog and legacy recipe catalog lost their compatibility boundary")
-        for unsupported in [7, 12] {
+        storedHNCS.removeValue(forKey: "renderRevision")
+        payload["hncs"] = storedHNCS
+        let unversioned = try JSONDecoder().decode(ProcessingRecipe.self, from: JSONSerialization.data(withJSONObject: payload))
+        try require(unversioned.hncs.renderRevision == 11 && !unversioned.usesExtendedHNCSWorkingDomain,
+                    "An unversioned durable recipe silently adopted the new HDR domain")
+        for unsupported in [7, 13, 99] {
             storedHNCS["renderRevision"] = unsupported
             payload["hncs"] = storedHNCS
             let data = try JSONSerialization.data(withJSONObject: payload)
@@ -586,7 +737,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             guard (2...3).contains(CommandLine.arguments.count) else { throw CheckFailure(description: "Pass a temporary fixture directory and optional DNG") }
             let directory = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
             try checkNativeGradationMigration()
-            print("PASS: revision 11 preserves old 8/9/10 photo WB, migrates camera defaults, persists explicit choices, and rejects unknown revisions")
+            print("PASS: revision 12 preserves old photo rendering/WB, migrates future camera defaults, and rejects unknown revisions")
             try require(try ImagePipeline.baselineSharpness(in: [:]) == 0, "Missing RAW baseline must follow native zero fallback")
             for baseline in [0.0, 0.5, 1.0, 1.5, 2.0] {
                 let properties: [String: Any] = [kCGImagePropertyDNGDictionary as String:
@@ -640,6 +791,10 @@ private func require(_ condition: Bool, _ message: String) throws {
             let hdr = try hdrFixture(directory)
             try checkHDR(hdr, directory: directory)
             print("PASS: HDR import, highlight ratios, 10-bit PQ metadata, and 7 HDR exports; direct export has identical decoded pixels")
+            try checkHDRSpatialStructure(directory)
+            print("PASS: neutral HDR detail participates in the production sharpening pass")
+            try await checkCaptureMetadata(directory)
+            print("PASS: capture metadata in the initial encode, timestamp, HDR encoding and JPEG metadata retention")
             try checkCancellation(full, directory: directory)
             print("PASS: cancellation discards output while retaining the source")
             try await checkShare(full)

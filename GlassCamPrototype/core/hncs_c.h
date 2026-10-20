@@ -155,6 +155,43 @@ hncs_context *hncs_create_preset_whitepoint_with_policy(double exposure_ev,
     int raw_film_curve_type, const char *preset_key, int apply_tone_curve,
     int white_balance_policy);
 
+/* Revision-12 Apple HDR bridge, not a prepared-X2D RAW entry point.
+ * Input: actual extended-linear-sRGB Float32 RGB, with source highlights intact.
+ * Output: unscaled nonnegative working-space encoded Float32 RGB, up to 64.
+ * The bounded original colour core/gradation is unchanged. Source magnitude is
+ * restored through the selected working transfer function BEFORE sharpening.
+ * Find ONE frame-wide maximum, then call hncs_apple_hdr_work_scale; do not choose
+ * per-strip or per-pixel scales. Then call hncs_prepare_apple_hdr_spatial[_file], which
+ * packs the complete work image by that scale and runs the requested effects.
+ * Disjoint caller-owned buffers; 0 success, -1 invalid input/allocation failure.
+ * A pixel error can leave partial output; discard it. Original APIs unchanged. */
+int hncs_process_apple_hdr_work_float(const hncs_context *context,
+    const float *input_rgb, float *work_rgb, size_t pixel_count);
+int hncs_process_apple_hdr_work_float_parallel(const hncs_context *context,
+    const float *input_rgb, float *work_rgb, size_t pixel_count, unsigned workers);
+/* Unit domain for SDR; otherwise at least 5.8829245141 encoded units of native
+ * HDR capacity, enlarged only to cover the actual complete-frame maximum.
+ * Returns -1 on nonfinite, negative or >64 input. Reserves sharpening headroom. */
+double hncs_apple_hdr_work_scale(double maximum_work_value);
+/* Make an immutable output context with the frame's work scale. Precomputes
+ * the exact 65536-entry transfer decode once, rather than pow per output pixel.
+ * Destroy with hncs_destroy. Returns NULL on invalid scale or allocation error.
+ * Unit-scale constructors already support finish at scale 1 without cloning. */
+hncs_context *hncs_clone_with_apple_hdr_work_scale(const hncs_context *context,
+    double work_scale);
+/* After frame packing/spatial processing: normalized work RGB in [0,1], and
+ * the SAME work_scale in [1,64] as its cloned context. Native post-spatial saturation/grayscale run
+ * in the packed domain. Decode scaled working codes and apply display matrices
+ * WITHOUT clipping to sRGB. Output is signed extended-linear-sRGB RGBA, alpha 1.
+ * The caller converts to its target gamut before clipping/encoding. No source
+ * highlight gain may be multiplied afterward. Same buffer/error rules above. */
+int hncs_finish_apple_hdr_work_linear(const hncs_context *context,
+    const float *normalized_work_rgb, float *extended_linear_rgba,
+    size_t pixel_count, double work_scale);
+int hncs_finish_apple_hdr_work_linear_parallel(const hncs_context *context,
+    const float *normalized_work_rgb, float *extended_linear_rgba,
+    size_t pixel_count, double work_scale, unsigned workers);
+
 /* Immutable, generated catalog: 43 unique XML payloads; aliases accepted by all
  * key-based calls. Strings remain valid for the lifetime of the process.
  * Flags: 1 pointwise/WB effect, 2 square crop, 4 grain needs spatial route,

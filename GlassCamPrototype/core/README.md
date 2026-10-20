@@ -82,6 +82,14 @@ measurements and rejected GPU/Core ML candidates are documented in the
 
 ## Prepared X2D II HDR stages
 
+The Apple app's revision-12 working-domain bridge is separate from the prepared
+X2D APIs below. `hncs_process_apple_hdr_work_float` restores source magnitude into
+encoded working RGB before a frame-wide packing/spatial pass;
+`hncs_finish_apple_hdr_work_linear` returns signed extended-linear-sRGB without
+SDR gamut clipping. Old APIs retain their existing contracts. These new paths
+and tests have been written but not built or executed. See the
+[revision-12 contract](../docs/HNCS_REVISION12_20261019.md).
+
 `hncs_clone_with_native_gain` configures the ordinary color kernel's native
 processing scale without multiplying input pixels again. HDR uses a separate
 sequence: `hncs_render_x2d_hdr_color`, `hncs_render_x2d_hdr_post`,

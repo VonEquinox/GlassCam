@@ -155,7 +155,31 @@ struct PeripheralGlassChecks {
         source.configure(outputIndex: nil, ratio: 1)
         source.offer(center: a,outer: b,selection: source.selection())
         require(source.latest() == nil, "Native widest angle acquired a fake perimeter")
-        print("PASS: paired PTS, missing source and stale-generation rejection")
+        let independent = PeripheralFrameSource()
+        independent.configure(outputIndex: 1, ratio: 2)
+        let independentSelection = independent.selection()
+        independent.offer(center: nil, outer: b, selection: independentSelection)
+        require(independent.latest() == nil, "An outer frame alone cannot form a pair")
+        independent.offer(center: a, outer: nil, selection: independentSelection)
+        require(independent.latest()?.serial == 1, "Separate independent-camera callbacks failed to pair")
+        require(independent.selection() == independentSelection, "An absent callback output changed geometry")
+        independent.offer(center: a, outer: nil, selection: independentSelection)
+        require(independent.latest()?.serial == 1, "A consumed outer sample was reused")
+        independent.offer(center: nil, outer: try sample(time: 1.1), selection: independentSelection)
+        require(independent.latest() == nil, "Separate callbacks bypassed the synchronization limit")
+        independent.offer(center: try sample(time: 1.105), outer: nil, selection: independentSelection)
+        require(independent.latest()?.serial == 2, "A newer unmatched sample was lost")
+        independent.offer(center: a, outer: nil, selection: independentSelection)
+        independent.configure(outputIndex: 1, ratio: 3)
+        independent.offer(center: nil, outer: b, selection: independent.selection())
+        require(independent.latest() == nil, "Unmatched frames crossed a zoom/geometry change")
+        independent.reset()
+        independent.offer(center: a, outer: nil, selection: independent.selection())
+        require(independent.latest() == nil, "Unmatched frames crossed an orientation reset")
+        independent.invalidate()
+        independent.offer(center: a, outer: b, selection: independent.selection())
+        require(independent.latest() == nil, "A disposed source accepted frames")
+        print("PASS: paired/separate callbacks, bounded PTS, consumed samples and geometry invalidation")
     }
 
     static func pixelBuffer(rgba: [UInt8], width: Int, height: Int) -> CVPixelBuffer {
@@ -198,6 +222,14 @@ struct PeripheralGlassChecks {
         let expected = SIMD2(Float(cropX+96)/Float(width), Float(cropY+128)/Float(height))
         require(simd_length(mapped-expected) < 0.015, "Vision-to-Metal mapping disagrees with the known top-left crop")
         require(worker.analyze(pair, now: { 101 }) == nil, "An expired registration frame was reused")
+        func darkened(_ pixels: [UInt8]) -> [UInt8] {
+            pixels.enumerated().map { index, value in index % 4 == 3 ? value : UInt8((Float(value) * 0.1).rounded()) }
+        }
+        let dark = CIImage(cvPixelBuffer: pixelBuffer(rgba: darkened(center), width: 192, height: 256))
+        let darkBytes = worker.bitmap(dark, bounds: CGRect(x: 0, y: 0, width: 192, height: 256), width: 192, height: 256)
+        let darkMatch = PeripheralAlignmentWorker.measureSeams(reference: darkBytes, warped: darkBytes, width: 192, height: 256)
+        require(darkMatch != nil && darkMatch!.residual == 0,
+                "Dark but aligned texture was erased by the registration bitmap's transfer curve")
         print("PASS: full Vision/CI registration against an independent overlapping-scene fixture")
     }
 
@@ -246,6 +278,10 @@ struct PeripheralGlassChecks {
                 } else {
                     require(bytes[i+3] == 1,"Perimeter was not fully owned by glass")
                     if blackness == 1 { require(bytes[i] == 0 && bytes[i+1] == 0 && bytes[i+2] == 0,"Blackening left transmitted light") }
+                    else {
+                        require(bytes[i+2] > bytes[i+1] && bytes[i+1] > bytes[i],
+                                "Visible glass lost the transmitted camera colors")
+                    }
                 }
             } }
         }

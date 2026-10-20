@@ -26,6 +26,7 @@ final class CameraSettingsStore: ObservableObject {
     // with this photo's decoder white point; old manual values are not restored.
     var recipe: ProcessingRecipe {
         var cameraHNCS = hncs
+        if cameraHNCS.renderRevision == 11 { cameraHNCS.renderRevision = HNCSSettings.currentRenderRevision }
         if cameraHNCS.presetKey == "square-crop" { cameraHNCS.presetKey = "standard" }
         return ProcessingRecipe(mode: colorMode, exposureEV: exposure, illuminantKelvin: 6500,
                                 simulationIndex: simulationIndex, seed: 0, hncs: cameraHNCS, effects: effects, ffcs: ffcs)
@@ -58,6 +59,7 @@ final class CameraSettingsStore: ObservableObject {
         // Only future camera selections migrate. Decoding a durable photo's
         // ProcessingRecipe still preserves its original square composition.
         if hncs.presetKey == "square-crop" { hncs.presetKey = "standard" }
+        hncs.renderRevision = HNCSSettings.currentRenderRevision
         defaults.set(outputSelections, forKey: Self.outputsKey)
         persistRecipe()
     }

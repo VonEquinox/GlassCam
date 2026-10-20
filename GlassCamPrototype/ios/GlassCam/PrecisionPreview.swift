@@ -65,7 +65,7 @@ struct PrecisionPreview: UIViewRepresentable {
 
         override init() {
             let device = MTLCreateSystemDefaultDevice()
-            let colorSpace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
+            let colorSpace = CGColorSpace(name: CGColorSpace.extendedLinearITUR_2020)!
             self.device = device
             self.colorSpace = colorSpace
             if let device {
@@ -171,7 +171,9 @@ struct PrecisionPreview: UIViewRepresentable {
                     output = effect
                 }
             }
-            // Preserve highlight values above reference white for EDR presentation.
+            // Inputs are matched to linear BT.2020 before this clamp. Negative
+            // sRGB coordinates may represent valid wide-gamut display colours.
+            // Core Animation performs the final conversion to the actual screen.
             output = output.applyingFilter("CIColorClamp", parameters: [
                 "inputMinComponents": CIVector(x: 0, y: 0, z: 0, w: 1),
                 "inputMaxComponents": CIVector(x: CGFloat(ImagePipeline.maximumHDRValue), y: CGFloat(ImagePipeline.maximumHDRValue), z: CGFloat(ImagePipeline.maximumHDRValue), w: 1)

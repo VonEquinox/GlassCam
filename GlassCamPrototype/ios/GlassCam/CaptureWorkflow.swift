@@ -71,7 +71,7 @@ final class CaptureWorkflow: ObservableObject {
                 case .file(let file): input = file
                 case .memory(let data): input = try SourceImageFile(data: data, fileExtension: "dng")
                 }
-                let file = TemporaryHEIFFile()
+                let file = TemporaryHEIFFile(captureDate: input.metadata.captureDate)
                 var framing = snapshot.output.framing
                 let recipe = try ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe,
                     to: file.url, settings: snapshot.output, isCancelled: { control.isStopped }, progress: progress,
@@ -87,7 +87,7 @@ final class CaptureWorkflow: ObservableObject {
                                               control: CaptureProcessingControl) async throws -> SavedCapture {
             try await Task.detached(priority: .userInitiated) {
                 if control.isStopped { throw CancellationError() }
-                let file = TemporaryHEIFFile()
+                let file = TemporaryHEIFFile(captureDate: try PhotoMetadata.read(from: url).captureDate)
                 try CaptureJournal.writeProtected(Data(contentsOf: url), to: file.url)
                 return try review(file, snapshot: snapshot, control: control)
             }.value

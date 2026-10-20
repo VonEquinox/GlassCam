@@ -23,13 +23,23 @@ enum HEIFSaveDelivery {
         guard PHPhotoLibrary.authorizationStatus(for: .addOnly) == .authorized ||
               PHPhotoLibrary.authorizationStatus(for: .addOnly) == .limited else { throw Error.permissionDenied }
         guard UIApplication.shared.applicationState != .background, UIApplication.shared.isProtectedDataAvailable else { throw Error.inactive }
+        let captureDate: Date?
+        if let date = file.captureDate { captureDate = date }
+        else {
+            captureDate = try await Task.detached(priority: .userInitiated) {
+                try PhotoMetadata.read(from: file.url).captureDate
+            }.value
+        }
+        guard UIApplication.shared.applicationState != .background, UIApplication.shared.isProtectedDataAvailable else { throw Error.inactive }
         // Keep the original HEIF owner alive until Photos finishes importing it.
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
             PHPhotoLibrary.shared().performChanges({
                 let options = PHAssetResourceCreationOptions()
                 options.originalFilename = file.url.lastPathComponent
                 options.shouldMoveFile = false
-                PHAssetCreationRequest.forAsset().addResource(with: .photo, fileURL: file.url, options: options)
+                let request = PHAssetCreationRequest.forAsset()
+                if let captureDate { request.creationDate = captureDate }
+                request.addResource(with: .photo, fileURL: file.url, options: options)
             }, completionHandler: { [file] success, error in
                 withExtendedLifetime(file) {
                     if let error { continuation.resume(throwing: error) }

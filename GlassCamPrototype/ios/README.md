@@ -2,7 +2,9 @@
 
 当前开发目标是用户自己的 iPhone，工程最低系统为 **iOS 27.0**，使用 **Xcode 27**。应用启动即相机，拍摄 Apple ProRAW，经现有 HNCS／FFCS 处理后自动保存 10-bit BT.2020/PQ HDR HEIF，并提供成片回看与分享。
 
-2026-10-19 的[取景与设置重写](../docs/UI_REDESIGN_20261019.md)已写入代码。用户最新要求为先完成并汇报，得到新许可后再测试；最终源码尚未构建、运行测试或上机。下列命令仅为后续操作说明。编译通过与真实三摄拍摄通过是两项独立结果；状态见[测试记录](../docs/TEST_STATUS.md)。
+最新 HNCS revision 12 修复输出色域、HDR 锐化与拍摄元数据。新拍摄采用新流程，旧照片保留旧版本。元数据写入失败的后续修正版已于 2026-10-19 18:05 完成签名 Release 构建和 USB 覆盖安装，Mac 定向元数据检查和原失败照片重放通过；完整回归仍未运行。见[revision 12 说明](../docs/HNCS_REVISION12_20261019.md)及[故障修复](../docs/METADATA_FAILURE_20261019.md)。
+
+2026-10-19 的[取景与设置重写](../docs/UI_REDESIGN_20261019.md)已包含在本次安装中。构建、严格签名校验和安装均通过；本次未启动手机 App、运行 UI 测试或拍照。进一步设备验收仍需许可；状态见[测试记录](../docs/TEST_STATUS.md)及[最新安装证据](../validation/metadata-failure-20261019.json)。
 
 ## 构建普通 Release
 
@@ -39,6 +41,12 @@ python3 GlassCamPrototype/tools/iphone_release.py --refresh-signing --install-de
 ```
 
 只有明确提供 `--install-device` 才会安装并启动 App。`--refresh-signing` 允许 Xcode 更新现有描述文件；需要 Xcode 中已有可用账号及签名身份。它不购买开发者会员。
+
+如只安装、不启动，先运行上述签名构建，再单独安装：
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun devicectl device install app --device DEVICE_ID ~/Library/Developer/GlassCamRelease/Build/Products/Release-iphoneos/GlassCam.app
+```
 
 用户已接受现有开发签名的定期续签方式。之前的包使用 7 天描述文件，新包有效期以 `release.json` 中读取的时间为准。使用相同 bundle identifier 覆盖安装可保留应用数据；有待完成照片时不要卸载 App。
 

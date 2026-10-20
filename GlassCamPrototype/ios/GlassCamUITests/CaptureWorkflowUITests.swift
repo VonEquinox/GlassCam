@@ -8,6 +8,19 @@ import UIKit
 final class CaptureWorkflowUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
+    /// Inspect the current full interface, including the glass behind controls.
+    /// This targeted diagnostic never presses the shutter or changes settings.
+    func testPeripheralGlassPreviewOnly() throws {
+        let app = XCUIApplication(bundleIdentifier: "dev.glasscam.prototype")
+        app.activate()
+        XCTAssertTrue(app.otherElements["camera.photo.frame"].waitForExistence(timeout: 30))
+        let settled = expectation(description: "Allow the peripheral animation to settle")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { settled.fulfill() }
+        wait(for: [settled], timeout: 5)
+        attach(app, name: "Peripheral-glass-full-interface")
+        print("GLASSCAM-PERIPHERAL-UI \(app.debugDescription)")
+    }
+
     func testSettingsAndAutomatic24MPSave() throws {
         try checkCapture(outputs: [24], review: false)
     }

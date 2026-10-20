@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <new>
 #include <cstring>
 #include <string>
@@ -196,11 +197,14 @@ struct hncs_context {
     // 65536-entry display decode avoids pow() three times per pixel. This is
     // the original ICC gamma, not an approximate color correction / RGB LUT.
     std::array<double,65536> gamma_decode{};
+    std::vector<double> extended_gamma_decode;
+    double extended_work_scale=1.;
     std::array<uint8_t,65536> srgb_encode{};
     double exposure=1., shadow_threshold=0., shadow_a=0., shadow_b=0., shadow_d=1.;
     int width=0,height=0;
     double cb0=0., cr0=0.;
     bool reproduction=false;
+    bool lstar_working_space=false;
     const preset_assets::Preset *preset=nullptr;
     bool preset_tone=true;
     bool preset_pointwise_active=false;
@@ -209,6 +213,7 @@ struct hncs_context {
     const uint16_t *curve=assets::v1_gamma;
     explicit hncs_context(double ev,double kelvin,bool lstar=false,bool repro=false) {
         reproduction=repro;
+        lstar_working_space=lstar;
         curve=lstar?(repro?assets::pure_lstar:assets::v1_lstar):(repro?assets::pure_gamma:assets::v1_gamma);
         double k=clamp(std::trunc(kelvin),2000,10000);
         M camera{};
@@ -300,10 +305,26 @@ struct hncs_context {
         }
         return result;
     }
-    inline V display_linear_core(const std::array<uint16_t,3>& codes) const {
-        V linear={gamma_decode[codes[0]],gamma_decode[codes[1]],gamma_decode[codes[2]]};
+    inline double decode_working(double encoded) const {
+        return lstar_working_space
+            ? (encoded<=.08?encoded/(24389./2700.):std::pow((encoded+.16)/1.16,3.))
+            : std::pow(encoded,assets::legacy_icc_gamma[0]);
+    }
+    inline double encode_working(double linear) const {
+        return lstar_working_space
+            ? (linear<=216./24389.?linear*(24389./2700.):1.16*std::cbrt(linear)-.16)
+            : std::pow(linear,1./assets::legacy_icc_gamma[0]);
+    }
+    inline V working_linear_to_extended_srgb(const V& linear) const {
         // Keep the original stage order instead of folding matrices together.
-        V rgb=transform(xyz_to_srgb,transform(display_adaptation,transform(legacy_to_xyz,linear)));
+        // Negative components here can be valid colours outside sRGB. The
+        // target-colour-space writer, not this matrix, owns gamut clipping.
+        return transform(xyz_to_srgb,transform(display_adaptation,transform(legacy_to_xyz,linear)));
+    }
+    inline V display_linear_core(const std::array<uint16_t,3>& codes) const {
+        const V linear={gamma_decode[codes[0]],gamma_decode[codes[1]],gamma_decode[codes[2]]};
+        V rgb=working_linear_to_extended_srgb(linear);
+        // Retain the old SDR/reference ABI and revision-11 photo recipe.
         for(double& v:rgb)v=clamp(v,0,1);
         return rgb;
     }
@@ -752,6 +773,99 @@ extern "C" int hncs_finish_phocus_work_linear_parallel(const hncs_context *c,con
 extern "C" int hncs_process_phocus_linear_rgba_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
     return parallel_float(c,input,output,count,workers,4,hncs_process_phocus_linear_rgba);
 }
+
+namespace {
+bool overlapping_buffers(const void* a,size_t a_bytes,const void* b,size_t b_bytes) {
+    const auto first=reinterpret_cast<uintptr_t>(a),second=reinterpret_cast<uintptr_t>(b);
+    return first<=second?second-first<a_bytes:first-second<b_bytes;
+}
+}
+
+extern "C" hncs_context *hncs_clone_with_apple_hdr_work_scale(const hncs_context *source,double work_scale) {
+    if(!source||!std::isfinite(work_scale)||work_scale<1.||work_scale>64.)return nullptr;
+    try {
+        auto result=std::make_unique<hncs_context>(*source);
+        result->extended_work_scale=work_scale;
+        result->extended_gamma_decode.clear();
+        if(work_scale!=1.) {
+            result->extended_gamma_decode.resize(65536);
+            for(size_t i=0;i<65536;++i)
+                result->extended_gamma_decode[i]=result->decode_working((double(i)/65535.)*work_scale);
+        }
+        return result.release();
+    }catch(...) {return nullptr;}
+}
+
+extern "C" double hncs_apple_hdr_work_scale(double maximum_work_value) {
+    if(!std::isfinite(maximum_work_value)||maximum_work_value<0.||maximum_work_value>64.)return -1.;
+    // Keep SDR at its original precision. HDR reserves the documented native
+    // encoded headroom, so sharpening is not capped at the source's peak.
+    return maximum_work_value<=1.?1.:std::max(5.8829245141,maximum_work_value);
+}
+
+extern "C" int hncs_process_apple_hdr_work_float(const hncs_context *c,const float *input,float *output,size_t count) {
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;
+    if(count&&overlapping_buffers(input,count*3*sizeof(float),output,count*3*sizeof(float)))return -1;
+    for(size_t i=0;i<count;++i) {
+        const float* source=input+i*3;
+        if(!std::isfinite(source[0])||!std::isfinite(source[1])||!std::isfinite(source[2]))return -1;
+        // The existing Apple-to-X2D model still evaluates its bounded colour
+        // core on a chromaticity-preserving base. Restore magnitude in the
+        // *working image*, before any spatial filter, rather than after USM.
+        const float gain=std::max({1.f,source[0],source[1],source[2]});
+        V p={double(source[0]/gain)*c->exposure,double(source[1]/gain)*c->exposure,double(source[2]/gain)*c->exposure};
+        p=transform(c->source_to_native,p);if(!finite(p))return -1;
+        Codes codes=c->render(p);
+        if(c->preset)codes=post_curves(*c->preset,c->preset_tone,codes);
+        for(unsigned ch=0;ch<3;++ch) {
+            // Skip the transfer roundtrip for SDR. The unscaled Float work
+            // image retains both HDR brightness differences and working gamut.
+            const double encoded=gain==1.f?double(float(codes[ch])/65535.f):
+                c->encode_working(c->gamma_decode[codes[ch]]*double(gain));
+            if(!std::isfinite(encoded)||encoded<0.||encoded>64.)return -1;
+            output[3*i+ch]=float(encoded);
+        }
+    }
+    return 0;
+}
+
+extern "C" int hncs_process_apple_hdr_work_float_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
+    if(count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;
+    if(count&&input&&output&&overlapping_buffers(input,count*3*sizeof(float),output,count*3*sizeof(float)))return -1;
+    return parallel_float(c,input,output,count,workers,3,hncs_process_apple_hdr_work_float);
+}
+
+extern "C" int hncs_finish_apple_hdr_work_linear(const hncs_context *c,const float *input,float *output,size_t count,double work_scale) {
+    if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4||
+       !std::isfinite(work_scale)||work_scale<1.||work_scale>64.||c->extended_work_scale!=work_scale||
+       (work_scale!=1.&&c->extended_gamma_decode.size()!=65536))return -1;
+    if(count&&overlapping_buffers(input,count*3*sizeof(float),output,count*4*sizeof(float)))return -1;
+    for(size_t i=0;i<count;++i) {
+        const F work={input[3*i],input[3*i+1],input[3*i+2]};
+        for(float value:work)if(!std::isfinite(value)||value<0.f||value>1.f)return -1;
+        const Codes codes=phocus_post_spatial(c->preset,finish_work(work));
+        V linear{};
+        for(unsigned ch=0;ch<3;++ch)
+            linear[ch]=work_scale==1.?c->gamma_decode[codes[ch]]:
+                c->extended_gamma_decode[codes[ch]];
+        linear=c->working_linear_to_extended_srgb(linear);
+        if(!finite(linear))return -1;
+        for(unsigned ch=0;ch<3;++ch)output[4*i+ch]=float(linear[ch]);
+        output[4*i+3]=1.f;
+    }
+    return 0;
+}
+
+extern "C" int hncs_finish_apple_hdr_work_linear_parallel(const hncs_context *c,const float *input,float *output,size_t count,double work_scale,unsigned workers) {
+    if(!c||!std::isfinite(work_scale)||c->extended_work_scale!=work_scale||work_scale<1.||work_scale>64.||
+       count>std::numeric_limits<size_t>::max()/sizeof(float)/4)return -1;
+    if(count&&input&&output&&overlapping_buffers(input,count*3*sizeof(float),output,count*4*sizeof(float)))return -1;
+    return parallel_float(c,input,output,count,workers,4,
+        [](const hncs_context *context,const float *source,float *destination,size_t pixels) {
+            return hncs_finish_apple_hdr_work_linear(context,source,destination,pixels,context->extended_work_scale);
+        });
+}
+
 extern "C" int hncs_source_to_native_matrix(const hncs_context *c,double *out) {
     if(!c||!out)return -1;
     std::copy(c->source_to_native.begin(),c->source_to_native.end(),out);

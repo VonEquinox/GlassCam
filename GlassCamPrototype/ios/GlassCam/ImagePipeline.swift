@@ -198,7 +198,7 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
         illuminantKelvin = try values.decodeIfPresent(Double.self, forKey: .illuminantKelvin) ?? 6500
         simulationIndex = try values.decodeIfPresent(Int.self, forKey: .simulationIndex) ?? 0
         seed = try values.decodeIfPresent(UInt32.self, forKey: .seed) ?? 0
-        hncs = try values.decodeIfPresent(HNCSSettings.self, forKey: .hncs) ?? .standard
+        hncs = try values.decodeIfPresent(HNCSSettings.self, forKey: .hncs) ?? .legacyStandard
         photoWhiteBalance = try values.decodeIfPresent(PhotoWhiteBalance.self, forKey: .photoWhiteBalance)
         ffcs = try values.decodeIfPresent(FFCSSettings.self, forKey: .ffcs) ?? .standard
         if let savedEffects = try values.decodeIfPresent(EffectToggles.self, forKey: .effects) {
@@ -249,6 +249,8 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
         }
         return photoWhiteBalance?.description
     }
+
+    var usesExtendedHNCSWorkingDomain: Bool { mode == .hncs && hncs.usesExtendedWorkingDomain }
 }
 
 struct ProcessedImage: @unchecked Sendable {
@@ -263,13 +265,14 @@ struct ProcessedImage: @unchecked Sendable {
 }
 
 enum PipelineError: LocalizedError {
-    case invalidImage, rendering, encoding, unsupportedOutput
+    case invalidImage, rendering, encoding, unsupportedOutput, metadata
     var errorDescription: String? {
         switch self {
         case .invalidImage: return "This image could not be decoded. Try a JPEG, PNG, HEIC, or supported DNG."
         case .rendering: return "The image renderer could not create an output."
         case .unsupportedOutput: return "The selected sensor output exceeds the genuine source or changes its uncropped aspect ratio. Capture at a supported resolution; upsampling is disabled."
         case .encoding: return "The processed image could not be encoded as 10-bit HDR HEIF. No lower-bit-depth fallback was saved."
+        case .metadata: return "The photo's capture information could not be preserved. Its source has been retained for retry."
         }
     }
 }
@@ -282,9 +285,8 @@ enum ImagePipeline {
     // PQ represents up to 10,000 nits; Core Image's HDR reference white is 203 nits.
     static let maximumHDRValue: Float = 10_000 / 203
 
-    /// The reference effects operate in SDR. Separate source highlight magnitude
-    /// before processing, then restore it after all color/spatial effects. Inputs
-    /// at or below reference white keep the existing reference-engine behavior.
+    /// Legacy revision-11 HNCS and the existing FFCS HDR adapter. Revision 12
+    /// HNCS restores magnitude inside its working image before spatial effects.
     private static func normalizeHighlights(_ rgb: inout [Float]) throws -> [Float] {
         guard rgb.count % 3 == 0, rgb.allSatisfy({ $0.isFinite }) else { throw PipelineError.rendering }
         var gains = [Float](repeating: 1, count: rgb.count / 3)
@@ -533,7 +535,9 @@ enum ImagePipeline {
         // Crop before pointwise/spatial processing, just as the source reference.
         // Exact engines return display-linear Float32; no byte encoder runs.
         var effectInput = rgb
-        let gains = try normalizeHighlights(&effectInput)
+        let gains: [Float]?
+        if recipe.usesExtendedHNCSWorkingDomain { gains = nil }
+        else { gains = try normalizeHighlights(&effectInput) }
         var rgba: [Float]
         switch recipe.mode {
         case .hncs:
@@ -546,7 +550,7 @@ enum ImagePipeline {
                                                    height: crop.height, exposureEV: recipe.exposureEV,
                                                    simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects, settings: recipe.ffcs)
         }
-        restoreHighlights(&rgba, gains: gains)
+        if let gains { restoreHighlights(&rgba, gains: gains) }
         let image = try PreviewRaster(linearRGBA: rgba, width: crop.width, height: crop.height)
         return ProcessedImage(image: image, comparisonSource: comparisonSource, source: input, recipe: recipe)
     }
@@ -651,10 +655,13 @@ enum ImagePipeline {
         onSourceDimensions?(sourceWidth, sourceHeight)
         let rasterBytes = width * height * 16
         let capacity = try FileManager.default.temporaryDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
-        // Reserve RGBAf + encoded-output margin and, when needed, 12-byte RGB
-        // work, 4-byte highlight gain, and 20-byte global spatial scratch budget.
+        // Reserve RGBAf + encoded-output margin and the full work image/scratch.
+        // Only legacy HNCS additionally stores a separate per-pixel gain plane.
+        let extendedWork = recipe.usesExtendedHNCSWorkingDomain
         let needsSpatial = recipe.mode == .hncs && recipe.hncs.requiresSpatial(effects: recipe.effects)
-        let spatialBytes = needsSpatial ? Double(width) * Double(height) * 36 : 0
+        let needsWorkImage = needsSpatial || extendedWork
+        let workBytesPerPixel = extendedWork ? (needsSpatial ? 32.0 : 12.0) : (needsSpatial ? 36.0 : 0.0)
+        let spatialBytes = Double(width) * Double(height) * workBytesPerPixel
         if let available = capacity.volumeAvailableCapacityForImportantUsage,
            Double(available) < Double(rasterBytes) * 1.5 + spatialBytes + 64 * 1024 * 1024 {
             throw CocoaError(.fileWriteOutOfSpace)
@@ -664,16 +671,27 @@ enum ImagePipeline {
         let context = CIContext(options: [.workingColorSpace: linear,
                                           .workingFormat: CIFormat.RGBAf.rawValue,
                                           .cacheIntermediates: false])
+        // CIContext colour-matches inputs before executing filters. Clamp only
+        // in the destination primaries, so valid negative sRGB components can
+        // first become in-gamut BT.2020 values.
+        let encodingContext: CIContext
+        if extendedWork {
+            guard let targetLinear = CGColorSpace(name: CGColorSpace.extendedLinearITUR_2020) else { throw PipelineError.rendering }
+            encodingContext = CIContext(options: [.workingColorSpace: targetLinear,
+                                                  .workingFormat: CIFormat.RGBAf.rawValue,
+                                                  .cacheIntermediates: false])
+        } else { encodingContext = context }
         let bounds = CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
         let croppedSource = decoded.cropped(to: crop.ciRect)
             .transformed(by: CGAffineTransform(translationX: -CGFloat(crop.x), y: -CGFloat(crop.ciY)))
         let source = croppedSource.composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
             .cropped(to: bounds)
         let raster = try ExportRasterFile()
-        let highlightWork = needsSpatial ? try ExportRasterFile() : nil
-        let spatialWork = needsSpatial ? try HNCSPresetWorkFile(width: width, height: height) : nil
+        let highlightWork = needsSpatial && !extendedWork ? try ExportRasterFile() : nil
+        let spatialWork = needsWorkImage ? try HNCSPresetWorkFile(width: width, height: height) : nil
         let stripRows = 64
         var outputHeadroom: Float = 1
+        var maximumWorkValue: Float = 0
         let halo: Int
         if recipe.mode == .ffcs {
             halo = try FFCSEngine.requiredHalo(simulationIndex: recipe.simulationIndex,
@@ -705,17 +723,18 @@ enum ImagePipeline {
                 for pixel in 0..<(width * inputRows) {
                     for channel in 0..<3 { rgb[pixel * 3 + channel] = decodedRGBA[pixel * 4 + channel] }
                 }
-                let inputGains = try normalizeHighlights(&rgb)
+                let inputGains = extendedWork ? [] : try normalizeHighlights(&rgb)
                 let firstPixel = (start - inputStart) * width
-                let gains = Array(inputGains[firstPixel..<(firstPixel + width * rows)])
+                let gains = extendedWork ? [] : Array(inputGains[firstPixel..<(firstPixel + width * rows)])
                 timing?.record("rgb_pack_hdr_split", since: packingStarted)
                 if let spatialWork {
                     let gainWriteStarted = timing?.start()
-                    try highlightWork!.append(gains)
+                    if let highlightWork { try highlightWork.append(gains) }
                     timing?.record("intermediate_io", since: gainWriteStarted)
                     let colorStarted = timing?.start()
                     let work = try HNCSEngine.presetWork(linearSRGB: rgb, width: width, height: rows,
                         exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
+                    if extendedWork { maximumWorkValue = max(maximumWorkValue, work.max() ?? 0) }
                     timing?.record("color_engine", since: colorStarted)
                     let workWriteStarted = timing?.start()
                     try spatialWork.writeTopDownRows(work, originY: start, rows: rows)
@@ -760,7 +779,8 @@ enum ImagePipeline {
         }
         if let spatialWork {
             let gainMapStarted = timing?.start()
-            let gainData = try highlightWork!.mappedData(expectedBytes: width * height * 4)
+            let gainData = try highlightWork?.mappedData(expectedBytes: width * height * 4)
+            let workScale = extendedWork ? try HNCSEngine.workingScale(maximum: maximumWorkValue) : 1
             timing?.record("intermediate_io", since: gainMapStarted)
             try checkExportCancellation(isCancelled)
             progress(0.45)
@@ -768,7 +788,7 @@ enum ImagePipeline {
             // image, never independently seeded 64-row strips.
             let spatialStarted = timing?.start()
             try HNCSEngine.applySpatial(to: spatialWork, settings: recipe.hncs, effects: recipe.effects,
-                baselineSharpness: rawDecode.baselineSharpness ?? 0, isCancelled: isCancelled)
+                baselineSharpness: rawDecode.baselineSharpness ?? 0, workScale: workScale, isCancelled: isCancelled)
             timing?.record("spatial_sharpness", since: spatialStarted)
             progress(0.65)
             for start in stride(from: 0, to: height, by: stripRows) {
@@ -780,15 +800,21 @@ enum ImagePipeline {
                     timing?.record("intermediate_io", since: workReadStarted)
                     let finishStarted = timing?.start()
                     var rgba = try HNCSEngine.finishPresetWork(work, width: width, height: rows,
-                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
+                        exposureEV: recipe.exposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance, workScale: workScale)
                     timing?.record("post_color", since: finishStarted)
                     let restoreStarted = timing?.start()
-                    guard rgba.count == width * rows * 4,
-                          rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
-                    let gains = gainData.withUnsafeBytes { bytes in
-                        Array(bytes.bindMemory(to: Float.self)[(start * width)..<((start + rows) * width)])
+                    guard rgba.count == width * rows * 4, rgba.allSatisfy({ $0.isFinite }) else { throw PipelineError.rendering }
+                    if extendedWork {
+                        // This is an upper bound in the source primaries. The
+                        // destination-space clamp still owns the physical limit.
+                        outputHeadroom = min(maximumHDRValue, max(outputHeadroom, rgba.max() ?? 1))
+                    } else {
+                        guard let gainData, rgba.allSatisfy({ $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
+                        let gains = gainData.withUnsafeBytes { bytes in
+                            Array(bytes.bindMemory(to: Float.self)[(start * width)..<((start + rows) * width)])
+                        }
+                        outputHeadroom = max(outputHeadroom, restoreHighlights(&rgba, gains: gains))
                     }
-                    outputHeadroom = max(outputHeadroom, restoreHighlights(&rgba, gains: gains))
                     timing?.record("hdr_restore_validate", since: restoreStarted)
                     let writeStarted = timing?.start()
                     try raster.append(rgba)
@@ -812,8 +838,9 @@ enum ImagePipeline {
                                                                                  kCIInputAspectRatioKey: pixelAspect])
                 .cropped(to: CGRect(x: 0, y: 0, width: CGFloat(output.width), height: CGFloat(output.height)))
         }
-        // Remove negative Lanczos ringing, keep super-white values, and enforce
-        // PQ's physical ceiling. Alpha clamping requires restoring finite bounds.
+        // For revision 12 these filters execute in linear BT.2020. Remove
+        // out-of-target-gamut/ringing values there, while keeping super-white
+        // values up to PQ's physical ceiling. Legacy recipes retain their domain.
         image = image.applyingFilter("CIColorClamp", parameters: [
             "inputMinComponents": CIVector(x: 0, y: 0, z: 0, w: 1),
             "inputMaxComponents": CIVector(x: CGFloat(maximumHDRValue), y: CGFloat(maximumHDRValue), z: CGFloat(maximumHDRValue), w: 1)
@@ -825,12 +852,18 @@ enum ImagePipeline {
             // Keep mapped storage and file alive until synchronous encoding returns.
             progress(0.9)
             try checkExportCancellation(isCancelled)
+            let metadataStarted = timing?.start()
+            image = image.settingProperties(sourceFile.metadata.encodingProperties(
+                width: output.width, height: output.height,
+                presetWhiteBalance: recipe.mode == .hncs && recipe.hncs.whiteBalancePolicy == .preset && recipe.hncs.presetWhiteBalanceKelvin != nil))
+            timing?.record("capture_metadata", since: metadataStarted)
             let encodeStarted = timing?.start()
             try withExtendedLifetime((data, raster)) {
-                try context.writeHEIF10Representation(of: image, to: url, colorSpace: pq, options: [:])
+                try encodingContext.writeHEIF10Representation(of: image, to: url, colorSpace: pq, options: [:])
             }
             timing?.record("heif_encode_ci", since: encodeStarted)
             let validationStarted = timing?.start()
+            try ImageFileProtection.apply(to: url)
             try checkExportCancellation(isCancelled)
             guard let result = CGImageSourceCreateWithURL(url as CFURL, nil),
                   let properties = CGImageSourceCopyPropertiesAtIndex(result, 0, nil) as? [String: Any],
@@ -840,6 +873,7 @@ enum ImagePipeline {
                   CIImage(contentsOf: url)?.colorSpace?.isHDR() == true else {
                 throw PipelineError.encoding
             }
+            try sourceFile.metadata.validate(in: properties)
             timing?.record("output_validate", since: validationStarted)
             progress(1)
         } catch {

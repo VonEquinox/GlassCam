@@ -1,5 +1,7 @@
 # 默认 HDR 导出
 
+2026-10-19：新拍摄的 HNCS revision 12 已改为在空间处理前还原工作图像的高光，并在目标 BT.2020 色域裁剪；HEIF/JPEG 在首次编码时保留拍摄元数据。后续元数据故障修正通过 Mac 定向检查及失败照片的 48MP 重放，18:05 已将签名 Release 覆盖安装到 iPhone；本次未启动手机 App 或拍照，完整输出验收仍待继续。详见[新数据契约](HNCS_REVISION12_20261019.md)及[故障记录](METADATA_FAILURE_20261019.md)。下文保留 revision 11 HNCS／既有 FFCS 的拆分方案和历史验证，不能作为新版结果。
+
 更新：2026-10-15，分支 `codex/single-camera-hard-black`。
 
 保存到相册、文件以及分享首选项现在直接使用 10-bit BT.2020/PQ HEIF。没有 SDR 导出开关。成片页的 Float32 → RGBA16Float 显示开启 EDR，保留超过参考白的数值。实际显示亮度取决于屏幕可用的 HDR 亮度空间。

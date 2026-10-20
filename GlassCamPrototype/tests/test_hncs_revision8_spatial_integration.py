@@ -145,7 +145,7 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
         self.assertOrdered(prepare, 'handle.synchronize()', 'handle.seekToEnd() == UInt64(byteCount)')
         self.assertOrdered(body(file, 'deinit'), 'handle.close()', 'removeItem(at: url)')
         self.assertIn('attributes: ImageFileProtection.attributes', file)
-        protection = body(source('SourceImageStore.swift'), 'private enum ImageFileProtection')
+        protection = body(source('SourceImageStore.swift'), 'enum ImageFileProtection')
         ios_protection = protection.split('#else', 1)[1].split('#endif', 1)[0]
         self.assertIn('FileProtectionType.complete', ios_protection)
         self.assertIn('.completeFileProtection', ios_protection)
@@ -153,7 +153,7 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
     def test_preview_and_full_export_use_same_pointwise_spatial_final_sequence(self):
         engine = source('HNCSEngine.swift')
         preview = body(engine, 'static func exportLinearRGBA(')
-        self.assertOrdered(preview, 'if settings.requiresSpatial(effects: effects)', 'presetWork(linearSRGB:',
+        self.assertOrdered(preview, 'if settings.usesExtendedWorkingDomain || settings.requiresSpatial(effects: effects)', 'presetWork(linearSRGB:',
                            'HNCSPresetWorkFile(width: width, height: height)',
                            'writeTopDownRows(work, originY: 0, rows: height)',
                            'applySpatial(to: file, settings: settings',
@@ -187,7 +187,7 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
                            'guard status == 0')
         self.assertIn('takeUnretainedValue().isCancelled() ? 1 : 0', spatial)
         legacy = body(engine, 'static func process(')
-        self.assertIn('guard !settings.requiresSpatial(effects: effects) else { throw Error.spatialRequiresFloat }', legacy)
+        self.assertIn('guard !settings.usesExtendedWorkingDomain, !settings.requiresSpatial(effects: effects) else { throw Error.spatialRequiresFloat }', legacy)
 
 
 if __name__ == '__main__':

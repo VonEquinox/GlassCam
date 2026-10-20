@@ -267,7 +267,7 @@ void normalize(Store &plane,size_t n,float divisor,const Operation &op) {
 }
 float clip(float x){return std::max(0.f,std::min(1.f,x));}
 void add_grain(Store &work,Store &grain,Store &channel,size_t n,int which,
-               float channel_std,const SpatialPreset &cfg,const Operation &op) {
+               float channel_std,const SpatialPreset &cfg,const Operation &op,float reference_scale=1.f) {
     std::vector<float> rgb(kChunk*3),g(kChunk),c(kChunk);
     const float color=static_cast<float>(cfg.color),mono=static_cast<float>(1.-cfg.color);
     const float amplitude=static_cast<float>(.012*cfg.amount);
@@ -280,14 +280,18 @@ void add_grain(Store &work,Store &grain,Store &channel,size_t n,int which,
             const int first=which<0?0:which,last=which<0?3:which+1;
             for(int ch=first;ch<last;++ch) {
                 const size_t j=i*3+static_cast<size_t>(ch);
-                const float strength=amplitude*(.55f+.45f*std::sqrt(clip(rgb[j])));
+                const float brightness=reference_scale==1.f?clip(rgb[j]):clip(rgb[j]*reference_scale);
+                float strength=amplitude*(.55f+.45f*std::sqrt(brightness));
+                // Portable grain amount is measured in reference-white work
+                // units. Packing HDR must not multiply its amplitude by S.
+                if(reference_scale!=1.f)strength/=reference_scale;
                 rgb[j]=clip(rgb[j]+noise*strength);
             }
         }
         work.write(at*3,rgb.data(),count*3);
     }
 }
-void apply_grain(Store &work,size_t w,size_t h,const SpatialPreset &cfg,const Operation &op) {
+void apply_grain(Store &work,size_t w,size_t h,const SpatialPreset &cfg,const Operation &op,float reference_scale=1.f) {
     const size_t n=w*h;hncs_spatial::NumpyNormal rng(seed_for(cfg.key,w,h));
     File grain(op);
     {
@@ -298,12 +302,12 @@ void apply_grain(Store &work,size_t w,size_t h,const SpatialPreset &cfg,const Op
         for(size_t at=0;at<n;at+=kChunk){op.check();const size_t count=std::min(kChunk,n-at);grain.read(at,fine.data(),count);coarse.read(at,rough.data(),count);for(size_t j=0;j<count;++j)fine[j]=fine_amount*fine[j]+coarse_amount*rough[j];grain.write(at,fine.data(),count);}
     }
     normalize(grain,n,std::max(stddev(grain,n,false,op),1.e-6f),op);
-    if(cfg.color==0){add_grain(work,grain,grain,n,-1,1.f,cfg,op);return;}
-    add_grain(work,grain,grain,n,0,std::max(stddev(grain,n,true,op),1.e-6f),cfg,op);
+    if(cfg.color==0){add_grain(work,grain,grain,n,-1,1.f,cfg,op,reference_scale);return;}
+    add_grain(work,grain,grain,n,0,std::max(stddev(grain,n,true,op),1.e-6f),cfg,op,reference_scale);
     for(int ch=1;ch<3;++ch) {
         File filtered(op);
         {File base(op);normals(base,n,rng,op);gaussian(base,filtered,w,h,cfg.fine,true,op);}
-        add_grain(work,grain,filtered,n,ch,std::max(stddev(filtered,n,true,op),1.e-6f),cfg,op);
+        add_grain(work,grain,filtered,n,ch,std::max(stddev(filtered,n,true,op),1.e-6f),cfg,op,reference_scale);
     }
 }
 void apply_usm(Store &work,size_t w,size_t h,const SpatialPreset &cfg,const Operation &op) {
@@ -331,8 +335,8 @@ uint16_t native_work_code(float value) {
 }
 
 void apply_native_usm(Store &work,size_t w,size_t h,const NativeSharpnessPreset &cfg,
-                      double baseline,const Operation &op) {
-    const hncs_phocus_sharpness::Context kernel(cfg.amount,cfg.radius,cfg.noise,cfg.dark,baseline);
+                      double baseline,const Operation &op,double work_scale=1.) {
+    const hncs_phocus_sharpness::Context kernel(cfg.amount,cfg.radius,cfg.noise,cfg.dark,baseline,work_scale);
     const size_t radius=kernel.radius();
     // One immutable horizontal-luma plane makes in-place output safe across
     // tile boundaries. Integer luma <=16383 is exactly represented by Float32.
@@ -379,7 +383,7 @@ void apply_native_usm(Store &work,size_t w,size_t h,const NativeSharpnessPreset 
 }
 
 void process_native_sharpness(Store &work,size_t w,size_t h,const SpatialPreset &cfg,
-                              int grain,int sharp,double baseline,const Operation &op) {
+                              int grain,int sharp,double baseline,const Operation &op,double work_scale=1.) {
     if(!std::isfinite(baseline)||baseline<0.)throw Failure{-1};
     const NativeSharpnessPreset* native=nullptr;
     for(const auto& row:kNativeSharpnessPresets)if(std::strcmp(row.key,cfg.key)==0){native=&row;break;}
@@ -387,11 +391,31 @@ void process_native_sharpness(Store &work,size_t w,size_t h,const SpatialPreset 
     std::vector<float> buffer(kChunk);const size_t samples=w*h*3;
     for(size_t at=0;at<samples;at+=kChunk){op.check();const size_t n=std::min(kChunk,samples-at);work.read(at,buffer.data(),n);for(size_t j=0;j<n;++j)if(!std::isfinite(buffer[j]))throw Failure{-1};}
     if(sharp&&native->enabled&&hncs_phocus_sharpness::effective_amount(native->amount,baseline)>0.)
-        apply_native_usm(work,w,h,*native,baseline,op);
+        apply_native_usm(work,w,h,*native,baseline,op,work_scale);
     // Original AddPostViewerRGBFilters puts sharpness before film grain.
     // Grain remains the separately documented portable model.
-    if(grain&&cfg.grain)apply_grain(work,w,h,cfg,op);
+    if(grain&&cfg.grain)apply_grain(work,w,h,cfg,op,float(work_scale));
     op.check();
+}
+
+void prepare_apple_hdr_spatial(Store &work,size_t w,size_t h,const SpatialPreset &cfg,
+                               int grain,int sharp,double baseline,double scale,const Operation &op) {
+    if(!std::isfinite(scale)||scale<1.||scale>64.||!std::isfinite(baseline)||baseline<0.)throw Failure{-1};
+    std::vector<float> values(kChunk);
+    const size_t samples=w*h*3;
+    // One scale for every pixel and every strip. The native 14-bit luma image
+    // now contains HDR brightness structure. Its response tables use the same
+    // scale to interpret brightness/noise in reference-white encoded units.
+    for(size_t at=0;at<samples;at+=kChunk) {
+        op.check();const size_t n=std::min(kChunk,samples-at);
+        work.read(at,values.data(),n);
+        for(size_t j=0;j<n;++j) {
+            if(!std::isfinite(values[j])||values[j]<0.f||double(values[j])>scale)throw Failure{-1};
+            if(scale!=1.)values[j]=float(double(values[j])/scale);
+        }
+        if(scale!=1.)work.write(at,values.data(),n);
+    }
+    process_native_sharpness(work,w,h,cfg,grain,sharp,baseline,op,scale);
 }
 } // namespace
 
@@ -435,5 +459,14 @@ extern "C" int hncs_apply_spatial_native_sharpness(float *work,size_t w,size_t h
 }
 extern "C" int hncs_apply_spatial_native_sharpness_file(const char *path,size_t w,size_t h,const char *key,int grain,int sharp,double baseline,const char *directory,hncs_spatial_cancel_fn cancelled,void *context) {
     try{const size_t n=dimensions(w,h,grain,sharp);if(!path||!path[0])throw Failure{-1};const auto &cfg=preset(key);File store(path,n*3);process_native_sharpness(store,w,h,cfg,grain,sharp,baseline,{directory,cancelled,context});store.flush();return 0;}
+    catch(const Failure &e){return e.code;}catch(const std::invalid_argument&){return -1;}catch(...){return -2;}
+}
+
+extern "C" int hncs_prepare_apple_hdr_spatial(float *work,size_t w,size_t h,const char *key,int grain,int sharp,double baseline,double scale) {
+    try{dimensions(w,h,grain,sharp);if(!work)throw Failure{-1};const auto &cfg=preset(key);Memory store(work);prepare_apple_hdr_spatial(store,w,h,cfg,grain,sharp,baseline,scale,{nullptr,nullptr,nullptr});return 0;}
+    catch(const Failure &e){return e.code;}catch(const std::invalid_argument&){return -1;}catch(...){return -2;}
+}
+extern "C" int hncs_prepare_apple_hdr_spatial_file(const char *path,size_t w,size_t h,const char *key,int grain,int sharp,double baseline,double scale,const char *directory,hncs_spatial_cancel_fn cancelled,void *context) {
+    try{const size_t n=dimensions(w,h,grain,sharp);if(!path||!path[0])throw Failure{-1};const auto &cfg=preset(key);File store(path,n*3);prepare_apple_hdr_spatial(store,w,h,cfg,grain,sharp,baseline,scale,{directory,cancelled,context});store.flush();return 0;}
     catch(const Failure &e){return e.code;}catch(const std::invalid_argument&){return -1;}catch(...){return -2;}
 }

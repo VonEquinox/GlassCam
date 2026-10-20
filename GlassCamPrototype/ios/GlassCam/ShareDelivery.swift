@@ -125,6 +125,7 @@ private final class ShareRepresentationStorage: @unchecked Sendable {
         }
         let width = Int(decoded.extent.width.rounded(.down))
         let height = Int(decoded.extent.height.rounded(.down))
+        let metadata = try PhotoMetadata.read(from: original.url)
         let bounds = CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
         guard let sRGB = CGColorSpace(name: CGColorSpace.sRGB) else {
             throw ShareDeliveryError.colorSpace
@@ -144,7 +145,7 @@ private final class ShareRepresentationStorage: @unchecked Sendable {
                                                        "inputMaxComponents": CIVector(x: 1, y: 1, z: 1, w: 1)])
             // Alpha clamping expands the extent; restore the finite image bounds.
             .cropped(to: bounds)
-            .settingProperties([:])
+            .settingProperties(metadata.encodingProperties(width: width, height: height))
         let context = CIContext(options: [.workingColorSpace: CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!,
                                           .workingFormat: CIFormat.RGBAh.rawValue,
                                           .cacheIntermediates: false])
@@ -153,6 +154,7 @@ private final class ShareRepresentationStorage: @unchecked Sendable {
         // is checked before and afterward and never delivers a canceled payload.
         try context.writeJPEGRepresentation(of: image, to: file.url, colorSpace: sRGB,
                                             options: [CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): 0.95])
+        try ImageFileProtection.apply(to: file.url)
         try Self.checkCancellation(progress)
         guard let source = CGImageSourceCreateWithURL(file.url as CFURL, nil),
               CGImageSourceGetType(source) as String? == UTType.jpeg.identifier,
@@ -163,6 +165,7 @@ private final class ShareRepresentationStorage: @unchecked Sendable {
               ((properties[kCGImagePropertyOrientation as String] as? NSNumber)?.intValue ?? 1) == 1 else {
             throw ShareDeliveryError.encoding
         }
+        try metadata.validate(in: properties)
         compatibilityFile = file // Publish only complete, checked files.
         return file.url
     }

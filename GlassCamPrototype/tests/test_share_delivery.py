@@ -47,7 +47,8 @@ class ShareDeliveryContracts(unittest.TestCase):
         self.assertIn('translationX: -decoded.extent.minX', self.source)
         self.assertIn('y: -decoded.extent.minY', self.source)
         self.assertIn('CGColorSpace.sRGB', self.source)
-        self.assertIn('.settingProperties([:])', self.source)
+        # Native capture metadata and normalized geometry are verified by the
+        # production ImageIO/HEIF/JPEG round-trip in apple_image_pipeline.swift.
         self.assertIn('CIColorClamp', self.source)
         self.assertIn('CIToneMapHeadroom', self.source)
         self.assertIn('.expandToHDR: true', self.source)

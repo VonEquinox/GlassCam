@@ -55,6 +55,7 @@ struct PeripheralGlassView: UIViewRepresentable {
         private var inFlight = false
         private var lastMatrix = matrix_identity_float3x3
         private var lastGain = SIMD3<Float>(repeating: 1)
+        private var lastTrace = -Double.infinity
         private let colorSpace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
         var isBlack: Bool { policy.opacity(at: CACurrentMediaTime()) >= 0.9999 }
 
@@ -133,6 +134,10 @@ struct PeripheralGlassView: UIViewRepresentable {
             } else { valid = false }
             let scale = min(framing.photo.width,framing.photo.height) / min(framing.window.width,framing.window.height)
             let error = valid ? alignment.map { $0.residual * Double(scale) } : nil
+            if PeripheralDiagnostics.isEnabled, now-lastTrace >= 1 {
+                lastTrace = now
+                PeripheralDiagnostics.trace("render enabled=\(enabled) source=\(source != nil) pair=\(pair != nil) alignment=\(alignment != nil) valid=\(valid) opacity=\(policy.opacity(at: now)) state=\(source?.diagnosticState() ?? "none") pairAge=\(pair.map { now-$0.receipt } ?? -1) alignmentAge=\(alignment.map { now-$0.receipt } ?? -1) residual=\(error ?? -1) frame=\(pair.map { "\(CVPixelBufferGetWidth($0.center))x\(CVPixelBufferGetHeight($0.center))" } ?? "none") photo=\(framing.photo)")
+            }
             policy.update(error: error, available: valid, at: now, measuredAt: alignment?.receipt)
             guard let drawable = view.currentDrawable, let pass = view.currentRenderPassDescriptor,
                   let command = queue.makeCommandBuffer() else { return }

@@ -107,17 +107,17 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
                            'defaults.set(data, forKey: Self.recipeKey)')
         self.assertIn('editor.processingRecipe.revision8.v1', self.settings)
         valid = body(self.engine, 'var isValid: Bool')
-        self.assertIn('renderRevision == Self.currentRenderRevision', valid)
+        self.assertIn('[11, Self.currentRenderRevision].contains(renderRevision)', valid)
         self.assertIn('rawFilmCurveType == 2', valid)
         self.assertIn('HNCSEngine.presets.contains { $0.id == presetKey }', valid)
 
     def test_context_cache_matches_complete_settings_and_retains_inflight_owner(self):
         members = stored_members(self.engine, 'private struct ContextKey:')
         self.assertEqual({key: value[1] for key, value in members.items()},
-                         {'exposure': 'Double', 'captureKelvin': 'Double', 'whiteBalance': 'PhotoWhiteBalance?', 'settings': 'HNCSSettings', 'effects': 'EffectToggles'})
+                         {'exposure': 'Double', 'captureKelvin': 'Double', 'whiteBalance': 'PhotoWhiteBalance?', 'settings': 'HNCSSettings', 'effects': 'EffectToggles', 'workScale': 'Double'})
         cache = body(self.engine, 'private final class ContextCache:')
         self.assertOrdered(cache, 'lock.lock()',
-                           'ContextKey(exposure: exposure, captureKelvin: kelvin, whiteBalance: whiteBalance, settings: settings, effects: effects)',
+                           'ContextKey(exposure: exposure, captureKelvin: kelvin, whiteBalance: whiteBalance, settings: settings, effects: effects, workScale: workScale)',
                            'cached.key == key', 'ContextOwner(key: key)', 'cached = owner')
         self.assertNotRegex(cache, r'cached\.(?:exposure|kelvin)\s*==')
         for signature in ['static func process(', 'static func exportLinearRGBA(']:

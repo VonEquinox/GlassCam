@@ -22,7 +22,7 @@ class HEIFSourceContracts(unittest.TestCase):
         self.assertIn('normalizeHighlights(&rgb)',export)
         self.assertIn('restoreHighlights(&rgba, gains: gains)',export)
         self.assertIn('colorSpace?.isHDR() == true',export)
-        self.assertIn('context.writeHEIF10Representation(',export)
+        self.assertIn('encodingContext.writeHEIF10Representation(',export)
         self.assertNotIn('UIImage(',export)
         self.assertNotIn('.RGBA8',export)
         self.assertNotIn('writeHEIFRepresentation(',export)
