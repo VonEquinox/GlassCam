@@ -959,6 +959,9 @@ final class PeripheralAlignmentWorker {
         var peak: Float? = nil
         var signalStandardDeviation: Float = 0
         var repeatedStructure = false
+        /// Maximum distance from the best candidate to another feasible 2D
+        /// candidate, plus half-pixel quantization per axis. Not a covariance.
+        var displacementUncertainty:Float? = nil
     }
     struct SeamMeasurement {
         /// Diagnostic only. Unknown is NaN, never a fabricated zero.
@@ -1164,6 +1167,7 @@ final class PeripheralAlignmentWorker {
             var interval: ClosedRange<Double>?, bestOffset: SIMD2<Float>?, fb: Float?
             var normalInterval: ClosedRange<Double>?, peak: Float?
             var reverseOffset: SIMD2<Float>?
+            var displacementUncertainty:Float?
             var repeatedStructure = false
             let signal = sqrt(max(0,pa.statistics(x,y)?.variance ?? 0)/289)
             peak = forward.peaks.max(by: { $0.value < $1.value })?.value
@@ -1222,6 +1226,7 @@ final class PeripheralAlignmentWorker {
                     status = spread <= 2 ? .measured : .ambiguous
                     bestOffset = SIMD2(Float(best.dx),Float(best.dy))
                     if status == .measured {
+                        displacementUncertainty=spread+sqrt(0.5)
                         offsets[index] = bestOffset!
                         addGain(x,y,best.dx,best.dy)
                     }
@@ -1231,7 +1236,8 @@ final class PeripheralAlignmentWorker {
             segments.append(.init(index: index,point: SIMD2(Float(x),Float(y)),status: status,
                 interval: interval,best: bestOffset,forwardBackward: fb,searchComplete: forward.complete && !exhausted,
                 gradientEigenvalues: information,observableNormal: SIMD2(cos(angle),sin(angle)),noiseScale: noiseScale,
-                normalInterval:normalInterval,peak:peak,signalStandardDeviation:signal,repeatedStructure:repeatedStructure))
+                normalInterval:normalInterval,peak:peak,signalStandardDeviation:signal,repeatedStructure:repeatedStructure,
+                displacementUncertainty:displacementUncertainty))
         }
         // Independent correspondence validation, not just source-point spread.
         // These matched points have full-domain uniqueness and a reverse check.

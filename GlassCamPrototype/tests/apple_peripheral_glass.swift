@@ -33,6 +33,7 @@ struct PeripheralGlassChecks {
         try livePreviewChecks()
         try pairedPresentationChecks()
         controlledDisparityChecks()
+        localDeformationChecks()
         adverseResponseChecks()
         print("PASS: peripheral policy, projection, residual, mailbox, direct seam measurement and Metal center exclusion")
     }
@@ -889,6 +890,110 @@ struct PeripheralGlassChecks {
 }
 
 extension PeripheralGlassChecks {
+    static func localDeformationChecks() {
+        func assessment(_ offsets:[SIMD2<Double>],change:((inout [[String:Any]])->Void)? = nil) -> PeripheralPaneAssessment {
+            var rows:[[String:Any]]=(0..<12).map { i in
+                let textured=(4..<4+offsets.count).contains(i)
+                let offset=textured ? offsets[i-4]:.zero,d=simd_length(offset)
+                return ["edge":0,"start":i*16,"end":(i+1)*16,"nativeScale":1.0,"nativeSampleCount":128,
+                    "nativeEdgeSupport":textured ? [64,64]:[0,0],"nativeWeakEdgeSupport":textured ? [128,128]:[0,0],
+                    "currentNativeGrayVariance":textured ? [0.01,0.01]:[0.0,0.0],"nativeNoiseSigma":[0.0,0.0],
+                    "currentNativeGrayNCC":textured ? 0.1:1.0,"flatBothNative": !textured,
+                    "segmentStatus":textured ? "measured":"unobservable","segmentSearchComplete":true,
+                    "segmentRepeated":false,"segmentPeak":0.99,"segment":i,
+                    "segmentVisibleShiftLower":max(0,(d-sqrt(0.5))/192),"segmentVisibleShiftUpper":(d+sqrt(0.5))/192,
+                    "segmentPoint":[Double(i*16+8),10.0],"segmentBestDisplacement":[offset.x,offset.y],
+                    "segmentForwardBackward":0.0,"segmentDisplacementUncertainty":sqrt(0.5),
+                    "missingStructureExtentFraction":0.0]
+            }
+            change?(&rows)
+            var result=PeripheralAlignmentResult(epoch:1,receipt:0,photoAspectRatio:0.75,
+                photoToOuter:matrix_identity_float3x3,residual:.nan,gain:SIMD3(repeating:1),seams:.horizontal,expiresAt:0.2)
+            result.nativeSeam=PeripheralNativeSeam(strips:[],gains:.init(),evidence:.init(compatible:false,coverage:1,
+                maximumObservableError:nil,reason:"controlled-matches",nativeSupportChecked:true),diagnostics:rows)
+            return PeripheralPaneAssessment.measure(result,edge:0)
+        }
+        let uniform=assessment([SIMD2(14,0),SIMD2(14,0),SIMD2(14,0)])
+        let varying=assessment([SIMD2(6,0),SIMD2(14,0),SIMD2(22,0)])
+        require(uniform.deformation==nil && uniform.darkness(tolerance:1)==1,"Uniform translation became apparent deformation")
+        require(varying.darkness(tolerance:1)==1 && (varying.deformation ?? 0)>0.30,
+            "A flat majority still hides the 6/14/22-pixel localized deformation")
+        let legacy=assessment([SIMD2(6,0),SIMD2(14,0),SIMD2(22,0)]) { rows in
+            for i in rows.indices {rows[i].removeValue(forKey:"segmentDisplacementUncertainty")}
+        }
+        require(legacy.deformation==nil && legacy.darkness(tolerance:1)==1,
+            "Missing vector evidence fabricated deformation or disabled continuous local displacement")
+        let shear=assessment([SIMD2(-4,0),.zero,SIMD2(4,0)])
+        require(shear.localizedError==nil && (shear.error ?? 0)<0.025 && shear.darkness(tolerance:1)>0.1,
+            "Reliable relative deformation was ignored below the absolute-shift threshold")
+        require(shear.darkness(tolerance:4)<shear.darkness(tolerance:1),"Deformation ignores the user's tolerance")
+        for offsets:[SIMD2<Double>] in [
+            [SIMD2(2,0),SIMD2(2,0),SIMD2(2,0)],
+            [SIMD2(-0.5,0),.zero,SIMD2(0.5,0)],
+            [.zero,SIMD2(14,0),.zero],
+            [SIMD2(-4,0),SIMD2(4,0)]
+        ] {
+            let value=assessment(offsets)
+            require(value.deformation==nil && value.darkness(tolerance:1)==0,
+                "Small motion, quantization, one bad match or insufficient support darkened the pane")
+        }
+        for kind in ["ambiguous","repeated","incomplete","bad-reverse","duplicate","uncertain","gap"] {
+            let value=assessment([SIMD2(-4,0),.zero,SIMD2(4,0)]) { rows in
+                switch kind {
+                case "ambiguous":rows[5]["segmentStatus"]="ambiguous"
+                case "repeated":rows[5]["segmentRepeated"]=true
+                case "incomplete":rows[5]["segmentSearchComplete"]=false
+                case "bad-reverse":rows[5]["segmentForwardBackward"]=3.0
+                case "duplicate":rows[5]["segment"]=4
+                case "gap":rows[6]["segmentPoint"]=[160.0,10.0]
+                default:for i in rows.indices {rows[i]["segmentDisplacementUncertainty"]=2.7}
+                }
+            }
+            require(value.deformation==nil && value.darkness(tolerance:1)==0,
+                "Unreliable \(kind) vectors were promoted to deformation")
+        }
+        // Actual corresponding camera pixels: three unique patches have known
+        // displacements of 6, 14 and 22 pixels along each horizontal seam.
+        let w=192,h=256,ow=384,oh=512
+        var center=[UInt8](repeating:128,count:w*h*4),outer=[UInt8](repeating:128,count:ow*oh*4)
+        for i in stride(from:3,to:center.count,by:4) {center[i]=255}
+        for i in stride(from:3,to:outer.count,by:4) {outer[i]=255}
+        for y in [10,h-11] {for (j,x) in [72,88,104].enumerated() {
+            let patch=texture(width:15,height:15,seed:UInt64(351+y+j*71)),dx=[6,14,22][j]
+            for py in 0..<15 {for px in 0..<15 {for c in 0..<3 {
+                let value=patch[(py*15+px)*4+c]
+                center[((y-7+py)*w+x-7+px)*4+c]=value
+                outer[((128+y-7+py)*ow+96+x+dx-7+px)*4+c]=value
+            }}}
+        }}
+        let pair=PeripheralFrameSource.Pair(center:pixelBuffer(rgba:center,width:w,height:h),
+            outer:pixelBuffer(rgba:outer,width:ow,height:oh),receipt:30,
+            configuration:.init(outputIndex:1,fieldOfViewRatio:2,epoch:1),serial:60)
+        let measured=PeripheralAlignmentWorker().analyze(pair,seams:.horizontal,
+            window:CGRect(x:0,y:-0.25,width:1,height:1.5),now:{30.01},tolerance:1)!
+        let measuredPanes=(0...1).map {PeripheralPaneAssessment.measure(measured,edge:$0)}
+        require(measuredPanes.allSatisfy {($0.deformation ?? 0)>0.30 && $0.darkness(tolerance:1)>0.99},
+            "Real pixel matching did not carry the supported nonuniform displacement into glass shading")
+
+        let clear=PeripheralPaneAssessment(error:0,supportFraction:1,reason:"clear")
+        let bent=PeripheralPaneAssessment(reason:"verified-bend",deformation:0.4)
+        for spike in [false,true] {
+            var policy=PeripheralPreviewPolicy()
+            for frame in 0...360 {
+                let time=Double(frame)/60
+                let bad=spike ? frame==120:(120..<240).contains(frame)
+                if frame%5==0 {policy.observe([bad ? bent:clear,clear,clear,clear],at:time)}
+                let alpha=policy.update(at:time,ready:true,tolerance:1)
+                require(alpha[0]==alpha[1],"Deformation split upper/lower glass shading")
+                if spike && frame>=120 {require(alpha[0]<0.01,"One deformation spike flashed black")}
+                if !spike && (145...240).contains(frame) {require(alpha[0]>0.99,"Persistent deformation did not darken")}
+                if !spike && (240...275).contains(frame) {require(alpha[0]>0.99,"Deformation shade reopened without stable recovery")}
+                if frame>=330 {require(alpha[0]<0.01,"Stable recovery never cleared the deformation shade")}
+            }
+        }
+        print("PASS local deformation: nonuniform displacement, uncertainty/direction checks, actual camera pixels, tolerance and asymmetric temporal shading")
+    }
+
     static func adverseResponseChecks() {
         let clear=PeripheralPaneAssessment(error:0,supportFraction:1,reason:"current-clear-seam")
         let bad=PeripheralPaneAssessment(error:0.14,supportFraction:1,reason:"current-bad-seam")

@@ -15,6 +15,46 @@ struct PeripheralPaneAssessment {
     var observationCoverage = 1.0
     var affectedFraction = 0.0
     var localizedError:Double?
+    /// Conservative change in displacement per analysis pixel along a seam.
+    /// This is a display-continuity measure, not optical lens distortion.
+    var deformation:Double?
+
+    private struct VectorMatch {
+        let point:SIMD2<Double>
+        let offset:SIMD2<Double>
+        let uncertainty:Double
+        let segment:Int
+    }
+    private struct LocalMatch {
+        let distance:Double
+        let lower:Double
+        let vector:VectorMatch?
+    }
+
+    private static func deformation(in matches:[LocalMatch]) -> Double? {
+        let vectors=matches.compactMap(\.vector)
+        guard vectors.count==matches.count,vectors.count>=3,
+              Set(vectors.map(\.segment)).count==vectors.count else {return nil}
+        var changes:[(vector:SIMD2<Double>,lower:Double)]=[]
+        for (a,b) in zip(vectors,vectors.dropFirst()) {
+            let spacing=simd_distance(a.point,b.point)
+            // Adjacent independent 16-pixel patches only. Missing matches and
+            // duplicate/corner anchors cannot become apparent deformation.
+            guard spacing>=8,spacing<=24 else {return nil}
+            let change=(b.offset-a.offset)/spacing
+            let lower=max(0,simd_length(b.offset-a.offset)-a.uncertainty-b.uncertainty)/spacing
+            changes.append((change,lower))
+        }
+        var result=0.0
+        for (a,b) in zip(changes,changes.dropFirst()) {
+            // A single wrong middle match produces opposing changes. Require
+            // two supported changes with a compatible direction instead.
+            guard a.lower>0,b.lower>0,
+                  simd_dot(a.vector,b.vector)>=0.5*simd_length(a.vector)*simd_length(b.vector) else {continue}
+            result=max(result,min(a.lower,b.lower))
+        }
+        return result>0 ? result:nil
+    }
 
     func darkness(tolerance: Double) -> Double {
         let scale = pow(PeripheralTolerance.normalized(tolerance),0.25)
@@ -29,7 +69,10 @@ struct PeripheralPaneAssessment {
         let missing = ramp(missingStructureFraction,0.08,0.22)
         let broadMismatch = ramp(mismatchFraction,0.18,0.45)
         let localized=localizedError.map {ramp($0,0.025*scale,0.065*scale)} ?? 0
-        return max(localized,max(confirmed,max(missing,max(displacement*min(1,supportFraction/0.25),broadMismatch))))
+        // 10–30% relative displacement change shades a reliably observed local
+        // stretch/bend, including when its absolute displacement is still small.
+        let shape=deformation.map {ramp($0,0.10*scale,0.30*scale)} ?? 0
+        return max(shape,max(localized,max(confirmed,max(missing,max(displacement*min(1,supportFraction/0.25),broadMismatch)))))
     }
 
     static func measure(_ result: PeripheralAlignmentResult, edge: Int) -> Self {
@@ -37,7 +80,7 @@ struct PeripheralPaneAssessment {
             .sorted {($0["start"] as? Int ?? 0)<($1["start"] as? Int ?? 0)} ?? []
         guard !rows.isEmpty else { return .init() }
         var distances: [Double] = [], bad = 0.0, supported = 0, missing = 0.0,observed=0
-        var localMatches:[(distance:Double,lower:Double)?]=[]
+        var localMatches:[LocalMatch?]=[]
         var affected=0.0
         func visibleRisk(_ distance:Double)->Double {
             let t=max(0,min(1,(distance-0.025)/0.04))
@@ -73,7 +116,18 @@ struct PeripheralPaneAssessment {
             let hasCounterpart = weak.count == 2 && min(weak[0],weak[1]) >= 3
             let visibleSignal = hasLine || (row["flatBothNative"] as? Bool != true &&
                 variances.count==2 && min(variances[0],variances[1])>0.00005)
-            localMatches.append(knownMatch && visibleSignal ? (matchedDistance,matchedLower):nil)
+            var vector:VectorMatch?
+            if knownMatch,visibleSignal,row["segmentStatus"] as? String == "measured",peak.isFinite,peak>=0.95,
+               let fb=(row["segmentForwardBackward"] as? NSNumber)?.doubleValue,(0...1).contains(fb),
+               let point=(row["segmentPoint"] as? [NSNumber])?.map({$0.doubleValue}),point.count==2,point.allSatisfy(\.isFinite),
+               let offset=(row["segmentBestDisplacement"] as? [NSNumber])?.map({$0.doubleValue}),offset.count==2,offset.allSatisfy(\.isFinite),
+               let segment=row["segment"] as? Int,segment>=0,
+               let uncertainty=(row["segmentDisplacementUncertainty"] as? NSNumber)?.doubleValue,
+               uncertainty.isFinite,(sqrt(0.5)-0.000001...3).contains(uncertainty) {
+                vector=VectorMatch(point:SIMD2(point[0],point[1]),offset:SIMD2(offset[0],offset[1]),
+                    uncertainty:uncertainty,segment:segment)
+            }
+            localMatches.append(knownMatch && visibleSignal ? LocalMatch(distance:matchedDistance,lower:matchedLower,vector:vector):nil)
             let asymmetry = variances.count==2 && max(variances[0],variances[1])>0.0005 &&
                 min(variances[0],variances[1])*16<max(variances[0],variances[1]) && ncc<0.3
             let missingLine = hasLine && !knownMatch &&
@@ -118,18 +172,19 @@ struct PeripheralPaneAssessment {
         let index=Int(position),fraction=position-Double(index)
         let error=distances.isEmpty ? nil:distances[index]*(1-fraction)+distances[min(index+1,distances.count-1)]*fraction
         let localCount=max(2,Int(ceil(Double(rows.count)*0.25)))
-        let short=192*min(1,1/result.photoAspectRatio)
-        var localized:Double?,localLower:Double?
+        var localized:Double?,localLower:Double?,deformation:Double?
         if rows.count>=localCount {
             for start in 0...(rows.count-localCount) {
                 let group=localMatches[start..<(start+localCount)].compactMap {$0}
                 guard group.count==localCount else {continue}
-                let values=group.map(\.distance).sorted(),lower=group.map(\.lower).min()!
-                guard values.last!-values.first!<=4/short,lower>0.045 else {continue}
-                // A contiguous displaced object must have several mutually
-                // consistent observations. Never promote a single extreme
-                // fallback distance or an unobservable tangential interval.
-                localized=max(localized ?? 0,values[values.count/2])
+                if let shape=Self.deformation(in:group) {deformation=max(deformation ?? 0,shape)}
+                let values=group.map(\.distance).sorted(),bounds=group.map(\.lower).sorted()
+                let middle=(group.count-1)/2,lower=bounds[middle]
+                guard bounds[0]>0.025,lower>0.045 else {continue}
+                // The whole contiguous group must have a confirmed displacement,
+                // with a substantial majority error. A stretch must not escape
+                // merely because adjacent displacements differ in magnitude.
+                localized=max(localized ?? 0,values[middle])
                 localLower=max(localLower ?? 0,lower)
             }
         }
@@ -137,7 +192,8 @@ struct PeripheralPaneAssessment {
             supportFraction:Double(supported)/Double(rows.count),missingStructureFraction:Double(missing)/Double(rows.count),
             corroboratedShiftLower:localLower,
             reason:observed==0 ? "unobserved":missing>0 ? "unmatched-visible-structure":"direct-seam-distribution",
-            observationCoverage:Double(observed)/Double(rows.count),affectedFraction:affected/Double(rows.count),localizedError:localized)
+            observationCoverage:Double(observed)/Double(rows.count),affectedFraction:affected/Double(rows.count),localizedError:localized,
+            deformation:deformation)
         if result.evidence.reliable, let lower=result.evidence.interval?.lowerBound, lower.isFinite {
             value.error=max(value.error ?? 0,lower);value.supportFraction=1
         }
@@ -170,6 +226,7 @@ private struct PeripheralSeamEstimate {
         // Preserve subpixel stability without attenuating a real step change.
         if let old=value.error,let new=measured.error,abs(old-new)<=1.0/192 {measured.error=old}
         if let old=value.localizedError,let new=measured.localizedError,abs(old-new)<=1.0/192 {measured.localizedError=old}
+        if let old=value.deformation,let new=measured.deformation,abs(old-new)<=1.0/32 {measured.deformation=old}
         if abs(value.missingStructureFraction-measured.missingStructureFraction)<=0.02 {measured.missingStructureFraction=value.missingStructureFraction}
         if abs(value.affectedFraction-measured.affectedFraction)<=0.02 {measured.affectedFraction=value.affectedFraction}
         if abs(value.mismatchFraction-measured.mismatchFraction)<=0.02 {measured.mismatchFraction=value.mismatchFraction}
@@ -177,6 +234,7 @@ private struct PeripheralSeamEstimate {
         // otherwise a few edge pixels changing strength can repeatedly reopen.
         if let old=value.error,let new=measured.error,new<old,old-new<=2.0/192 {measured.error=old}
         if let old=value.localizedError,let new=measured.localizedError,new<old,old-new<=2.0/192 {measured.localizedError=old}
+        if let old=value.deformation,let new=measured.deformation,new<old,old-new<=1.0/16 {measured.deformation=old}
         if measured.missingStructureFraction<value.missingStructureFraction,
            value.missingStructureFraction-measured.missingStructureFraction<=0.04 {measured.missingStructureFraction=value.missingStructureFraction}
         if measured.mismatchFraction<value.mismatchFraction,
@@ -295,8 +353,8 @@ struct PeripheralPreviewPolicy {
     }
     var targets: [Double] { sharingTopBottom((0..<4).map { checked[$0] ? target[$0]:1 }) }
     var diagnostics: [[String:Any]] {
-        observations.enumerated().map { edge,value in
-            ["edge":edge,"checked":checked[edge],"visibleError":value.error ?? .nan,
+        observations.enumerated().map { edge,value -> [String:Any] in
+            var row:[String:Any] = ["edge":edge,"checked":checked[edge],"visibleError":value.error ?? .nan,
              "mismatchFraction":value.mismatchFraction,"supportFraction":value.supportFraction,
              "missingStructureFraction":value.missingStructureFraction,
              "corroboratedShiftLower":value.corroboratedShiftLower ?? .nan,
@@ -309,6 +367,9 @@ struct PeripheralPreviewPolicy {
              "transitionDecision":estimates[edge].decision,
              "recheckNeeded":recheckNeeded[edge],"recheckSince":recheckSince[edge] ?? .nan,
              "reason":value.reason,"observedAt":estimates[edge].observedAt ?? .nan]
+            row["deformation"]=value.deformation ?? .nan
+            row["rawDeformation"]=rawObservations[edge].deformation ?? .nan
+            return row
         }
     }
 }

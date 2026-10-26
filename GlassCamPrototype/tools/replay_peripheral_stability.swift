@@ -59,7 +59,8 @@ struct PeripheralStabilityReplay {
                     rows.append(["analysisPixelTranslation":[m.0,m.1],"rotationDegrees":m.2,
                         "shade":assessments.map {$0.darkness(tolerance:tolerance)},
                         "assessment":assessments.map { ["error":$0.error ?? -1,"support":$0.supportFraction,
-                            "mismatch":$0.mismatchFraction,"missing":$0.missingStructureFraction,"reason":$0.reason] },
+                            "mismatch":$0.mismatchFraction,"missing":$0.missingStructureFraction,
+                            "localizedError":$0.localizedError ?? -1,"deformation":$0.deformation ?? -1,"reason":$0.reason] },
                         "nativeTiles":result.nativeSeam?.diagnostics ?? []])
                 }
                 var policy=PeripheralPreviewPolicy(),trace:[[String:Any]]=[]
@@ -68,7 +69,7 @@ struct PeripheralStabilityReplay {
                     // Warm the first pose, then hold each tiny pose for half
                     // a second: these are real changes in no underlying depth.
                     let pose=frame<120 ? 0:((frame-120)/30)%observations.count
-                    if frame%5==0 {policy.observe(observations[pose],at:time)}
+                    if frame%5==0 {policy.observe(observations[pose],at:time,tolerance:tolerance)}
                     let alpha=policy.update(at:time,ready:true,tolerance:tolerance)
                     if frame>=120 {trace.append(["time":time,"pose":pose,"opacity":Array(alpha.prefix(2))])}
                 }
