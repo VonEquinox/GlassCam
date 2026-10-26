@@ -24,7 +24,7 @@ final class PipelineTiming: @unchecked Sendable {
     }
 }
 
-/// Immutable RAW input policy. LUMIX revision 2 uses scene-linear ProRAW;
+/// Immutable RAW input policy. LUMIX revision 2 and later use scene-linear ProRAW;
 /// HNCS/FFCS retain their existing tone/EDR defaults. HNCS disables decoder sharpening
 /// before applying its independently verified native sharpness stage.
 struct RAWDecodeRecipe: Codable, Equatable, Sendable {
@@ -87,15 +87,22 @@ struct ImportedImage: @unchecked Sendable {
     let sourceDescription: String
     let whiteBalance: PhotoWhiteBalance
     let rawDecode: RAWDecodeRecipe
+    /// Pinned input settings before any color engine overrides. Retain these
+    /// across re-decodes so changing engines cannot inherit the previous one.
+    let baseRAWDecode: RAWDecodeRecipe
+    let previewMaximumEdge: Int
     let sourceISO: Int?
 
     init(sourceFile: SourceImageFile, exportSettings: ExportSettings, linearRGB: [Float],
          width: Int, height: Int, original: PreviewRaster, sourceDescription: String,
          whiteBalance: PhotoWhiteBalance = .renderedD65, rawDecode: RAWDecodeRecipe = .current,
-         sourceISO: Int? = nil) {
+         sourceISO: Int? = nil, baseRAWDecode: RAWDecodeRecipe? = nil,
+         previewMaximumEdge: Int? = nil) {
         self.sourceFile = sourceFile; self.exportSettings = exportSettings; self.linearRGB = linearRGB
         self.width = width; self.height = height; self.original = original
         self.sourceDescription = sourceDescription; self.whiteBalance = whiteBalance; self.rawDecode = rawDecode
+        self.baseRAWDecode = baseRAWDecode ?? rawDecode
+        self.previewMaximumEdge = previewMaximumEdge ?? max(width, height)
         self.sourceISO = sourceISO
     }
 }
@@ -277,6 +284,10 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
     }
 
     var usesExtendedHNCSWorkingDomain: Bool { mode == .hncs && hncs.usesExtendedWorkingDomain }
+
+    /// Revision 3 includes user exposure in the restored HDR magnitude. Saved
+    /// revision 1/2 photos retain their previous exposure and clipping behavior.
+    var appliesLUMIXExposureBeforeHighlights: Bool { mode == .lumix && lumix.renderRevision >= 3 }
 }
 
 struct ProcessedImage: @unchecked Sendable {
@@ -313,7 +324,11 @@ enum ImagePipeline {
 
     /// Legacy revision-11 HNCS and the existing FFCS HDR adapter. Revision 12
     /// HNCS restores magnitude inside its working image before spatial effects.
-    private static func normalizeHighlights(_ rgb: inout [Float]) throws -> [Float] {
+    private static func normalizeHighlights(_ rgb: inout [Float], exposureEV: Double = 0) throws -> [Float] {
+        if exposureEV != 0 {
+            let scale = Float(exp2(exposureEV))
+            for i in rgb.indices { rgb[i] *= scale }
+        }
         guard rgb.count % 3 == 0, rgb.allSatisfy({ $0.isFinite }) else { throw PipelineError.rendering }
         var gains = [Float](repeating: 1, count: rgb.count / 3)
         for i in stride(from: 0, to: rgb.count, by: 3) {
@@ -455,7 +470,8 @@ enum ImagePipeline {
         }
     }
 
-    private static func decode(data: Data, fileExtension: String?, sourceFile: SourceImageFile, maximumEdge: CGFloat, exportSettings: ExportSettings, rawDecode: RAWDecodeRecipe) throws -> ImportedImage {
+    private static func decode(data: Data, fileExtension: String?, sourceFile: SourceImageFile, maximumEdge: CGFloat, exportSettings: ExportSettings, rawDecode: RAWDecodeRecipe,
+                               baseRAWDecode: RAWDecodeRecipe? = nil) throws -> ImportedImage {
         let isRAW = ["dng", "raw"].contains(fileExtension?.lowercased() ?? "")
         var source: CIImage?
         var whiteBalance = PhotoWhiteBalance.renderedD65
@@ -530,12 +546,13 @@ enum ImagePipeline {
         return ImportedImage(sourceFile: sourceFile, exportSettings: exportSettings, linearRGB: rgb, width: width, height: height,
                              original: original,
                              sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter • \(decodePrecisionDescription)" : "Rendered image • embedded profile → linear sRGB • \(decodePrecisionDescription)",
-                             whiteBalance: whiteBalance, rawDecode: resolvedRAWDecode, sourceISO: captureISO)
+                             whiteBalance: whiteBalance, rawDecode: resolvedRAWDecode, sourceISO: captureISO,
+                             baseRAWDecode: baseRAWDecode ?? resolvedRAWDecode, previewMaximumEdge: Int(maximumEdge))
     }
 
     static func process(_ input: ImportedImage, recipe: ProcessingRecipe) throws -> ProcessedImage {
         var input = input
-        let sourcePolicy = recipe.sourceDecodeRecipe(input.rawDecode)
+        let sourcePolicy = recipe.sourceDecodeRecipe(input.baseRAWDecode)
         if ["dng", "raw"].contains(input.sourceFile.fileExtension?.lowercased() ?? ""),
            sourcePolicy != input.rawDecode {
             // Re-decode for the selected engine's pinned RAW input policy and
@@ -545,8 +562,8 @@ enum ImagePipeline {
             input = try decodeQueue.sync {
                 try autoreleasepool {
                     try decode(data: Data(contentsOf: previous.sourceFile.url), fileExtension: previous.sourceFile.fileExtension,
-                        sourceFile: previous.sourceFile, maximumEdge: CGFloat(max(previous.width, previous.height)),
-                        exportSettings: previous.exportSettings, rawDecode: sourcePolicy)
+                        sourceFile: previous.sourceFile, maximumEdge: CGFloat(previous.previewMaximumEdge),
+                        exportSettings: previous.exportSettings, rawDecode: sourcePolicy, baseRAWDecode: previous.baseRAWDecode)
                 }
             }
         }
@@ -572,7 +589,10 @@ enum ImagePipeline {
         var effectInput = rgb
         let gains: [Float]?
         if recipe.usesExtendedHNCSWorkingDomain { gains = nil }
-        else { gains = try normalizeHighlights(&effectInput) }
+        else {
+            gains = try normalizeHighlights(&effectInput,
+                exposureEV: recipe.appliesLUMIXExposureBeforeHighlights ? recipe.exposureEV : 0)
+        }
         var rgba: [Float]
         switch recipe.mode {
         case .hncs:
@@ -586,7 +606,8 @@ enum ImagePipeline {
                                                    simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects, settings: recipe.ffcs)
         case .lumix:
             rgba = try LUMIXEngine.exportLinearRGBA(linearSRGB: effectInput, width: crop.width,
-                                                    height: crop.height, exposureEV: recipe.exposureEV,
+                                                    height: crop.height,
+                                                    exposureEV: recipe.appliesLUMIXExposureBeforeHighlights ? 0 : recipe.exposureEV,
                                                     settings: recipe.lumix, illuminantKelvin: recipe.illuminantKelvin)
         }
         if let gains { restoreHighlights(&rgba, gains: gains) }
@@ -764,7 +785,8 @@ enum ImagePipeline {
                 for pixel in 0..<(width * inputRows) {
                     for channel in 0..<3 { rgb[pixel * 3 + channel] = decodedRGBA[pixel * 4 + channel] }
                 }
-                let inputGains = extendedWork ? [] : try normalizeHighlights(&rgb)
+                let inputGains = extendedWork ? [] : try normalizeHighlights(&rgb,
+                    exposureEV: recipe.appliesLUMIXExposureBeforeHighlights ? recipe.exposureEV : 0)
                 let firstPixel = (start - inputStart) * width
                 let gains = extendedWork ? [] : Array(inputGains[firstPixel..<(firstPixel + width * rows)])
                 timing?.record("rgb_pack_hdr_split", since: packingStarted)
@@ -809,7 +831,8 @@ enum ImagePipeline {
                 case .lumix:
                     let colorStarted = timing?.start()
                     rgba = try LUMIXEngine.exportLinearRGBA(linearSRGB: rgb, width: width, height: rows,
-                        exposureEV: recipe.exposureEV, settings: recipe.lumix, illuminantKelvin: recipe.illuminantKelvin)
+                        exposureEV: recipe.appliesLUMIXExposureBeforeHighlights ? 0 : recipe.exposureEV,
+                        settings: recipe.lumix, illuminantKelvin: recipe.illuminantKelvin)
                     timing?.record("color_engine", since: colorStarted)
                 }
                 let restoreStarted = timing?.start()

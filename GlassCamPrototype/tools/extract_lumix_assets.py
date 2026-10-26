@@ -34,6 +34,8 @@ def main():
     reference = ROOT / "reference_lumix"
     reference.mkdir(exist_ok=True)
     validation = ROOT / "validation/lumix-integration-20261026"
+    evidence = validation / "evidence"
+    evidence.mkdir(parents=True, exist_ok=True)
     vectors = validation / "native-vectors"
     vectors.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
@@ -50,7 +52,7 @@ def main():
         def oracle(*args):
             return subprocess.check_output([str(executable), str(framework), *map(str, args)], text=True)
         enum = oracle("enum")
-        (validation / "evidence/photo-style-enum.tsv").write_text(enum)
+        (evidence / "photo-style-enum.tsv").write_text(enum)
         names = {int(line.split("\t")[0]): line.split("\t")[1] for line in enum.splitlines()}
         mapping = oracle("map")
         (validation / "camera-style-map.tsv").write_text(mapping)

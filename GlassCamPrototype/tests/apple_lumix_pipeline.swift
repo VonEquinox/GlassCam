@@ -24,6 +24,14 @@ private func require(_ condition: Bool, _ message: String) throws {
             }
             return output
         }
+        func maximumDifference(_ a: [Float], _ b: [Float]) throws -> Float {
+            try require(a.count == b.count, "Image dimensions changed during processing")
+            return zip(a, b).map { abs($0 - $1) }.max() ?? 0
+        }
+        func lumixRecipe(_ settings: LUMIXSettings = .standard, ev: Double = 0) -> ProcessingRecipe {
+            ProcessingRecipe(mode: .lumix, exposureEV: ev, illuminantKelvin: 6500,
+                simulationIndex: 0, seed: 0, hncs: .standard, lumix: settings)
+        }
         // An image taller than two export strips, with saturated colors and >1 headroom.
         let width = 33, height = 131
         var rgba = [Float](repeating: 1, count: width*height*4)
@@ -49,6 +57,12 @@ private func require(_ condition: Bool, _ message: String) throws {
             linearRGB: (0..<(width*height)).flatMap { Array(fullRGBA[($0*4)..<($0*4+3)]) },
             width: width, height: height, original: try PreviewRaster(linearRGBA: fullRGBA, width: width, height: height),
             sourceDescription: "Full-source HDR oracle")
+        func floatInput(_ values: [Float], width: Int, height: Int) throws -> ImportedImage {
+            ImportedImage(sourceFile: retained, exportSettings: .native,
+                linearRGB: (0..<(width*height)).flatMap { Array(values[($0*4)..<($0*4+3)]) },
+                width: width, height: height, original: try PreviewRaster(linearRGBA: values, width: width, height: height),
+                sourceDescription: "Exposure fixture")
+        }
         var previews = [[Float]]()
         for look in LUMIXEngine.looks {
             let recipe = ProcessingRecipe(mode: .lumix, exposureEV: 0, illuminantKelvin: 6500,
@@ -96,6 +110,52 @@ private func require(_ condition: Bool, _ message: String) throws {
             }
         }
         try require(zip(previews[0],previews[1]).contains { abs($0-$1) > 0.01 }, "Standard and Vivid rendered identically")
+
+        // Exposure must be equivalent to scaling scene-linear source pixels,
+        // including colored highlights crossing 1.0 and multiple export strips.
+        for style in ["standard", "l-monochrome"] {
+            for ev: Double in [-2, -1, 1, 2] {
+                let recipe = lumixRecipe(LUMIXSettings(photoStyle: style), ev: ev)
+                let actual = try ImagePipeline.process(full, recipe: recipe)
+                var scaled = fullRGBA
+                let scale = Float(exp2(ev))
+                for pixel in 0..<(width*height) { for channel in 0..<3 { scaled[pixel*4+channel] *= scale } }
+                let expected = try ImagePipeline.process(floatInput(scaled, width: width, height: height),
+                    recipe: lumixRecipe(LUMIXSettings(photoStyle: style)))
+                try require(try maximumDifference(pixels(actual.image.image), pixels(expected.image.image)) == 0,
+                            "LUMIX exposure clipped HDR magnitude or changed highlight color")
+                let label = "\(style)-ev\(ev)"
+                let output = directory.appendingPathComponent(label+".heic")
+                let direct = directory.appendingPathComponent(label+"-direct.heic")
+                let oracle = directory.appendingPathComponent(label+"-expected.heic")
+                try ImagePipeline.writeHEIF(actual, to: output)
+                _ = try ImagePipeline.writeHEIF(sourceFile: retained, recipe: recipe, to: direct, settings: .native)
+                try context.writeHEIF10Representation(of: expected.image.image, to: oracle, colorSpace: pq, options: [:])
+                let outputPixels = pixels(CIImage(contentsOf: output, options: [.expandToHDR: true])!)
+                try require(try maximumDifference(outputPixels, pixels(CIImage(contentsOf: direct, options: [.expandToHDR: true])!)) == 0,
+                            "Direct and previewed LUMIX exposure exports differ")
+                try require(try maximumDifference(outputPixels, pixels(CIImage(contentsOf: oracle, options: [.expandToHDR: true])!)) < 0.02,
+                            "Strip export did not apply exposure before HDR splitting")
+            }
+        }
+        let bright = try floatInput([2, 2, 2, 1], width: 1, height: 1)
+        for ev: Double in [0, 1, 2] {
+            let result = try ImagePipeline.process(bright, recipe: lumixRecipe(ev: ev))
+            let value = Float(2 * exp2(ev))
+            try require(pixels(result.image.image).prefix(3).allSatisfy { abs($0 - value) < 0.0001 },
+                        "Positive exposure stopped increasing HDR white")
+        }
+        // Frozen photos keep their original rendering; only new camera recipes
+        // migrate to revision 3, including preferences saved by revision 2.
+        let v2 = try JSONDecoder().decode(LUMIXSettings.self,
+            from: Data("{\"photoStyle\":\"standard\",\"renderRevision\":2}".utf8))
+        try require(v2.isValid, "Saved LUMIX v2 is no longer supported")
+        for ev: Double in [0, 1, 2] {
+            let result = try ImagePipeline.process(bright, recipe: lumixRecipe(v2, ev: ev))
+            try require(pixels(result.image.image).prefix(3).allSatisfy { $0 == 2 },
+                        "A saved LUMIX v2 photo changed its exposure behavior")
+        }
+        print("PASS LUMIX HDR exposure: ±1/2 EV, colored highlights, strip/direct export and v2 replay")
         let lumix = LUMIXSettings(photoStyle: "cinelike-d2")
         let frozen = ProcessingRecipe(mode: .lumix, exposureEV: -0.3, illuminantKelvin: 6500,
             simulationIndex: 0, seed: 7, hncs: .standard, lumix: lumix).resolvingWhiteBalance(.renderedD65)
@@ -108,6 +168,10 @@ private func require(_ condition: Bool, _ message: String) throws {
         settings.lumix = lumix; settings.colorMode = .lumix
         let reloaded = CameraSettingsStore(defaults: defaults)
         try require(reloaded.colorMode == .lumix && reloaded.lumix == lumix, "Camera preferences lost LUMIX")
+        defaults.set(try JSONEncoder().encode(lumixRecipe(v2)), forKey: "editor.processingRecipe.revision8.v1")
+        let migratedCamera = CameraSettingsStore(defaults: defaults)
+        try require(migratedCamera.recipe.lumix.renderRevision == 3 && v2.renderRevision == 2,
+                    "Migrating future camera captures changed a saved v2 recipe")
         settings.colorMode = .ffcs
         try require(settings.lumix == lumix && frozen.lumix == lumix, "Switching engines changed a frozen recipe")
         // Old recipes keep their engine and white-balance semantics without any LUMIX key.
@@ -148,7 +212,33 @@ private func require(_ condition: Bool, _ message: String) throws {
         // Optional real retained ProRAW. This reads an existing capture only.
         if CommandLine.arguments.count > 2 {
             let rawURL = URL(fileURLWithPath: CommandLine.arguments[2])
-            let photo = try ImagePipeline.load(data: Data(contentsOf: rawURL), fileExtension: "dng")
+            let rawData = try Data(contentsOf: rawURL)
+            // Reuse each processed source, as a same-photo editor would. Compare
+            // both dimensions and actual pixels with independently selected engines.
+            for basePolicy in [RAWDecodeRecipe.current,
+                RAWDecodeRecipe(rendering: .sceneLinear, linearExposureEV: -0.5,
+                    decoderExposureEV: 0.25, edrAmount: 1, sharpnessAmount: 0.35)] {
+                let source = try ImagePipeline.load(data: rawData, fileExtension: "dng",
+                    previewMaximumEdge: 256, rawDecode: basePolicy)
+                var reused = source
+                for mode: ColorMode in [.lumix, .hncs, .ffcs, .lumix] {
+                    let target = ProcessingRecipe(mode: mode, exposureEV: 0, illuminantKelvin: 6500,
+                        simulationIndex: 0, seed: 0, hncs: .standard)
+                    let direct = try ImagePipeline.process(source, recipe: target)
+                    let switched = try ImagePipeline.process(reused, recipe: target)
+                    try require(switched.source.baseRAWDecode == source.rawDecode &&
+                                switched.source.previewMaximumEdge == 256 &&
+                                switched.source.rawDecode == direct.source.rawDecode,
+                                "Switching from LUMIX lost the original RAW decode configuration")
+                    try require(switched.image.width == direct.image.width && switched.image.height == direct.image.height,
+                                "Repeated engine changes shrank the RAW preview")
+                    try require(try maximumDifference(pixels(switched.image.image), pixels(direct.image.image)) < 0.000001,
+                                "The RAW output depends on previously selected color engines")
+                    reused = switched.source
+                }
+            }
+            print("PASS real ProRAW engine round trips preserve pixels, dimensions and custom decode settings")
+            let photo = try ImagePipeline.load(data: rawData, fileExtension: "dng")
             let recipe = ProcessingRecipe(mode: .lumix, exposureEV: 0, illuminantKelvin: 6500,
                 simulationIndex: 0, seed: 0, hncs: .standard)
             let processed = try ImagePipeline.process(photo, recipe: recipe)

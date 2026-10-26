@@ -19,7 +19,7 @@ class HEIFSourceContracts(unittest.TestCase):
         self.assertIn('format: .RGBAf',export)
         self.assertIn('CGColorSpace.extendedLinearSRGB',export)
         self.assertIn('CGColorSpace.itur_2100_PQ',export)
-        self.assertIn('normalizeHighlights(&rgb)',export)
+        self.assertIn('normalizeHighlights(&rgb,',export)
         self.assertIn('restoreHighlights(&rgba, gains: gains)',export)
         self.assertIn('colorSpace?.isHDR() == true',export)
         self.assertIn('encodingContext.writeHEIF10Representation(',export)
