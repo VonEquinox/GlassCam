@@ -8,6 +8,75 @@ import UIKit
 final class CaptureWorkflowUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
+    /// UI policy only: no camera capture and no Photos writes.
+    func testCapturePriorityMenuAndSpeed12MPOnSimulator() throws {
+#if targetEnvironment(simulator)
+        let app = makeApp()
+        app.launchArguments += ["-camera.output.preferred.v2", "24"]
+        addUIInterruptionMonitor(withDescription: "Simulator camera permission") { alert in
+            for title in ["Don't Allow", "Don’t Allow", "不允许"] {
+                if alert.buttons[title].exists { alert.buttons[title].tap(); return true }
+            }
+            return false
+        }
+        app.launch()
+        let priority = app.buttons["camera.quality"]
+        XCTAssertTrue(priority.waitForExistence(timeout: 20))
+        priority.tap()
+        let speed = app.buttons["camera.quality.speed"]
+        XCTAssertTrue(speed.waitForExistence(timeout: 5), app.debugDescription)
+        speed.tap()
+        XCTAssertEqual(priority.value as? String, "Speed")
+        XCTAssertEqual(app.buttons["camera.resolution"].value as? String, "12 MP")
+        app.terminate(); app.launch()
+        XCTAssertTrue(priority.waitForExistence(timeout: 20))
+        XCTAssertEqual(priority.value as? String, "Speed")
+        priority.tap(); app.buttons["camera.quality.balanced"].tap()
+        XCTAssertEqual(priority.value as? String, "Balanced")
+        XCTAssertEqual(app.buttons["camera.resolution"].value as? String, "24 MP")
+        priority.tap(); app.buttons["camera.quality.quality"].tap()
+        XCTAssertEqual(priority.value as? String, "Quality")
+        attach(app, name: "Capture-priority-menu")
+#else
+        throw XCTSkip("This check is intentionally restricted to a simulator.")
+#endif
+    }
+
+    /// Simulator-only: manual diagnosis must work even when no camera can start.
+    func testManualStateRecordsWithoutCameraOnSimulator() throws {
+#if targetEnvironment(simulator)
+        let app = makeApp(language: "zh-Hans")
+        addUIInterruptionMonitor(withDescription: "Simulator camera permission") { alert in
+            for title in ["不允许", "Don't Allow", "Don’t Allow"] {
+                if alert.buttons[title].exists { alert.buttons[title].tap(); return true }
+            }
+            return false
+        }
+        app.launch()
+        let record = app.buttons["glass.record-state"]
+        XCTAssertTrue(record.waitForExistence(timeout: 20))
+        XCTAssertTrue(record.label.contains("记录状态"), record.label)
+        attach(app, name: "Manual-record-button-Chinese")
+        for _ in 0..<2 {
+            record.tap()
+            let saved = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: record)
+            XCTAssertEqual(XCTWaiter.wait(for: [saved], timeout: 15), .completed)
+        }
+        app.buttons["glass.recordings"].tap()
+        let entries = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "record-"))
+        let count = XCTNSPredicateExpectation(predicate: NSPredicate { _,_ in entries.count >= 2 }, object: app)
+        XCTAssertEqual(XCTWaiter.wait(for: [count], timeout: 15), .completed, app.debugDescription)
+        XCTAssertTrue(app.buttons["glass.export"].isEnabled)
+        attach(app, name: "Manual-records-saved-without-camera")
+        app.terminate(); app.launch()
+        XCTAssertTrue(app.buttons["glass.recordings"].waitForExistence(timeout: 20))
+        app.buttons["glass.recordings"].tap()
+        XCTAssertGreaterThanOrEqual(entries.count, 2)
+#else
+        throw XCTSkip("This check is intentionally restricted to a simulator.")
+#endif
+    }
+
     /// Inspect the current full interface, including the glass behind controls.
     /// This targeted diagnostic never presses the shutter or changes settings.
     func testPeripheralGlassPreviewOnly() throws {
@@ -19,6 +88,28 @@ final class CaptureWorkflowUITests: XCTestCase {
         wait(for: [settled], timeout: 5)
         attach(app, name: "Peripheral-glass-full-interface")
         print("GLASSCAM-PERIPHERAL-UI \(app.debugDescription)")
+    }
+
+    /// Reproduce physical-camera handoffs without triggering a still capture.
+    /// Check readiness after every switch so returning to Main cannot conceal
+    /// an Ultra Wide / Telephoto session that failed to start.
+    func testPreviewLensSwitchesRemainReady() throws {
+        XCUIDevice.shared.orientation = .portrait
+        let app = makeApp()
+        app.launchEnvironment["OS_ACTIVITY_DT_MODE"] = "YES"
+        app.launchEnvironment["GLASSCAM_PERIPHERAL_TRACE"] = "1"
+        app.launch()
+        try waitForShutter(app)
+        for lens in ["Ultra Wide", "Main", "Telephoto", "Main", "Ultra Wide", "Main"] {
+            app.buttons["camera.zoom"].tap()
+            let stop = app.scrollViews.buttons["camera.zoom.\(lens)"]
+            XCTAssertTrue(stop.waitForExistence(timeout: 10), app.debugDescription)
+            stop.tap()
+            app.buttons["camera.panel.back"].tap()
+            try waitForShutter(app)
+            print("GLASSCAM-PREVIEW-SWITCH ready=\(lens)")
+        }
+        attach(app, name: "Preview-lens-switches-ready")
     }
 
     func testSettingsAndAutomatic24MPSave() throws {

@@ -14,6 +14,10 @@ FRAMING = (ROOT / 'ios/GlassCam/CameraFraming.swift').read_text()
 CONTENT = (ROOT / 'ios/GlassCam/ContentView.swift').read_text()
 DESIGN = (ROOT / 'ios/GlassCam/CameraDesign.swift').read_text()
 SHADER = (ROOT / 'ios/GlassCam/PeripheralGlassShader.swift').read_text()
+GLASS = (ROOT / 'ios/GlassCam/PeripheralGlassView.swift').read_text()
+POLICY = (ROOT / 'ios/GlassCam/PeripheralGlassPolicy.swift').read_text()
+CONTROLLER = (ROOT / 'ios/GlassCam/CameraController.swift').read_text()
+LIVE = (ROOT / 'ios/GlassCam/LiveColorProxy.swift').read_text()
 
 
 def section(source, start, end):
@@ -44,10 +48,29 @@ class CameraChromeSourceContracts(unittest.TestCase):
         self.assertIn('].filter { $0.width > 0 && $0.height > 0 }', FRAMING)
         self.assertEqual(panes.count('CGRect('), 4)
 
-    def test_custom_glass_does_not_use_system_backdrops_or_view_snapshots(self):
+    def test_liquid_glass_is_clear_and_owned_by_the_perimeter_panes_only(self):
+        # System Liquid Glass is the periphery material. It lives in one view
+        # whose panes are exactly CameraFraming.perimeter (window minus photo).
         for source in (VIEW, CONTENT, DESIGN):
             for token in ('.glassEffect(', 'UIGlassEffect', 'CABackdropLayer', 'UIVisualEffectView'):
                 self.assertNotIn(token, source)
+        liquid = section(GLASS, 'struct PeripheralLiquidGlass: View', '\n}\n')
+        self.assertIn('GlassEffectContainer', liquid)
+        self.assertIn('ForEach(Array(framing.perimeter.enumerated())', liquid)
+        self.assertIn('.glassEffect(.clear, in: Rectangle())', liquid)
+        self.assertIn('.frame(width: pane.width, height: pane.height)', liquid)
+        self.assertIn('.position(x: pane.midX, y: pane.midY)', liquid)
+        self.assertIn('.allowsHitTesting(false)', liquid)
+        self.assertEqual(GLASS.count('.glassEffect('), 1)
+        for forbidden in ('.regular', 'framing.photo', 'framing.window.width * ', 'cornerRadius'):
+            self.assertNotIn(forbidden, liquid)
+        # Raw fallback lies below the atomic paired drawable. Native glass is
+        # masked to the periphery; controls remain above all preview surfaces.
+        order = ['CameraPreview(layer: layer', 'PeripheralGlassView(source:', 'PeripheralLiquidGlass(framing: framing)',
+                 'LiveColorProxy(source: source',
+                 'PhotoFrameBoundary(rect: framing.photo)', 'PhotoFrameGuide(gridVisible:',
+                 'controls(framing: framing, chrome: chrome)']
+        self.assertEqual([VIEW.index(t) for t in order], sorted(VIEW.index(t) for t in order))
         for forbidden in ('.glassEffect(.regular', '.buttonStyle(.glass)',
                           '.ultraThinMaterial', '.thinMaterial', '.regularMaterial',
                           '.thickMaterial', '.ultraThickMaterial', 'UIBlurEffect',
@@ -57,16 +80,47 @@ class CameraChromeSourceContracts(unittest.TestCase):
                           '.resizeAspectFill', 'scaleEffect(x: -1'):
             self.assertNotIn(forbidden, VIEW)
 
-    def test_peripheral_renderer_is_behind_and_excludes_the_photo(self):
-        outer = section(VIEW, 'PeripheralGlassView(source:', 'if let layer = camera.centerPreviewLayer')
+    def test_paired_renderer_keeps_glass_outside_the_unshaded_center(self):
+        outer = section(VIEW, 'PeripheralGlassView(source:', 'PeripheralLiquidGlass(framing: framing)')
         self.assertIn('framing: framing', outer)
         self.assertIn('.allowsHitTesting(false)', outer)
         self.assertIn('!settingsPresented && reviewedCapture == nil', outer)
         self.assertIn('!camera.isPreviewFrozen', outer)
-        self.assertLess(VIEW.index('PeripheralGlassView(source:'), VIEW.index('if let layer = camera.centerPreviewLayer'))
+        self.assertLess(VIEW.index('if let layer = camera.centerPreviewLayer'), VIEW.index('PeripheralGlassView(source:'))
+        self.assertIn('pairedPreviewFragment', SHADER)
+        self.assertIn('center.sample(s,(uv-u.photo.xy)/u.photo.zw)', SHADER)
+        self.assertIn('let bundle = uploading ?? textures.completed', GLASS)
+        self.assertIn('includeCenter:true', GLASS)
         self.assertIn('if (all(uv >= u.photo.xy) && all(uv < end)) discard_fragment();', SHADER)
         self.assertLess(SHADER.index('discard_fragment()'), SHADER.index('camera.sample('))
         self.assertIn('if (u.blackOpacity >= 0.9999) return float4(0,0,0,1);', SHADER)
+        # Liquid Glass supplies the material: one unblurred tap, matched brightness.
+        self.assertEqual(SHADER.count('camera.sample('), 1)
+        for forbidden in ('exp(-distance', 'rim', '0.77', 'for (int'):
+            self.assertNotIn(forbidden, SHADER)
+        self.assertIn('PeripheralProjection.margin(matrix,window: window,width: outerWidth,height: outerHeight)', GLASS)
+        self.assertIn('live.resourceValid(bundle,revision:revision,at:now)', GLASS)
+        self.assertIn('live.update(pair:pair,analysis:alignment', GLASS)
+        self.assertIn('.mask {', GLASS)
+
+    def test_darkness_follows_distortion_continuously_with_latched_black(self):
+        for token in ('static let fadeStart = 0.05', 'static let darkeningThreshold = 0.10',
+                      'static let recoveryThreshold = 0.08', 'static let darkeningDuration = 0.30',
+                      'static let recoveryDuration = 0.40', 'static let recoveryStability = 0.40',
+                      'static func darkness(forError error: Double)'):
+            self.assertIn(token, POLICY)
+        self.assertIn('var latched: Bool { recoveryLatched || proofExpired }', POLICY)
+
+    def test_viewfinder_prefers_60_hz_and_falls_back_keeping_the_periphery(self):
+        self.assertIn('for fps: Int32 in [60, 30, 15] {', CONTROLLER)
+        self.assertNotIn('for fps: Int32 in [30, 15]', CONTROLLER)
+        single = section(CONTROLLER, 'private func applyPreviewFrameRate(', 'private func photoCapability(')
+        self.assertIn('let fps: Int32 = 60', single)
+        self.assertIn('videoSupportedFrameRateRanges', single)
+        self.assertNotIn('activeFormat =', single)
+        self.assertIn('if includePreview { try applyPreviewFrameRate(center) }', CONTROLLER)
+        self.assertIn('view.preferredFramesPerSecond = 60', GLASS)
+        self.assertIn('link.preferredFramesPerSecond = 60', LIVE)
 
     def test_photo_and_live_proxy_remain_plain_aspect_fit_at_same_photo_rect(self):
         center = section(VIEW, 'if let layer = camera.centerPreviewLayer',
@@ -150,9 +204,10 @@ class CameraChromeSourceContracts(unittest.TestCase):
                           'min(first.width, second.width) >= 312'):
             self.assertIn(threshold, layout)
         self.assertIn('.sheet(item: $activePanel)', VIEW)
-        self.assertIn('.presentationBackground(Color.black)', VIEW)
+        # Panels use the system Liquid Glass sheet, not an opaque override.
+        self.assertNotIn('.presentationBackground(', VIEW)
         panel = section(VIEW, 'private func cameraPanel(', 'private var selectedOutput:')
-        self.assertIn('.background(CameraSettingsBackground())', panel)
+        self.assertNotIn('CameraSettingsBackground()', panel)
         self.assertIn('backIdentifier: "camera.panel.back"', panel)
         self.assertIn('activePanel = nil', panel)
         gesture = section(VIEW, 'if camera.centerPreviewLayer != nil', 'controls(framing: framing, chrome: chrome)')
@@ -193,7 +248,8 @@ class CameraChromeSourceContracts(unittest.TestCase):
                       'Slider(value: $settings.exposure, in: -2...2, step: 0.05)',
                       'HNCSPresetControls(settings: $settings.hncs, showCommon: false)',
                       'selection: outputSelection', 'selection: $settings.centerPreviewLongEdge',
-                      'isOn: $settings.experimentalLiveColor', 'smaller framed sources save at 24 MP', 'ForEach([24, 48]',
+                      'isOn: $settings.experimentalLiveColor', 'smaller framed sources save at 24 MP',
+                      'ForEach(settings.captureQuality == .speed ? [12] : [24, 48]',
                       'CameraCard(title: "Photo output"', 'if advanced { advancedCards } else { commonCards }'):
             self.assertIn(token, settings)
         self.assertIn('.fullScreenCover(item: $destination', VIEW)

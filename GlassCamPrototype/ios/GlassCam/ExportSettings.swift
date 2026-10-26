@@ -1,6 +1,26 @@
 import Foundation
 import CoreGraphics
 
+/// Capture priority is independent of the selected color engine. Speed uses
+/// an explicitly requested 12MP source; high resolution preferences survive it.
+enum CaptureQuality: String, CaseIterable, Codable, Sendable {
+    case speed, balanced, quality
+    var title: String {
+        switch self {
+        case .speed: return "Speed"
+        case .balanced: return "Balanced"
+        case .quality: return "Quality"
+        }
+    }
+    func outputMegapixels(preferred: Int) -> Int { self == .speed ? 12 : preferred }
+    func sourceDimensions(available: [CGSize]) -> CGSize? {
+        available.filter { size in
+            guard size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0 else { return false }
+            return self != .speed || abs(Double(size.width * size.height) / 12_000_000 - 1) <= 0.08
+        }.max { $0.width * $0.height < $1.width * $1.height }
+    }
+}
+
 /// Crop coordinates are resolved in oriented source pixels, never UI points.
 /// The reference and decoded bitmaps use floor offsets from the top-left.
 /// CI rectangles use a lower-left origin; ciY converts only those coordinates.
@@ -31,7 +51,7 @@ struct PixelCrop: Equatable, Sendable {
 }
 
 /// Explicit legacy targets retain their original no-upscale contract. Camera
-/// captures use the user-selected 24/48MP policy after the final recipe crop.
+/// captures use 12MP for Speed, or the selected 24/48MP policy after recipe crop.
 struct ExportSettings: Codable, Equatable, Sendable {
     let targetWidth: Int?
     let targetHeight: Int?
@@ -62,7 +82,8 @@ struct ExportSettings: Codable, Equatable, Sendable {
 
     func selectedOutputMegapixels(sourceWidth: Int, sourceHeight: Int, crop: ImageCrop = .none) throws -> Int? {
         guard let cameraMegapixels else { return nil }
-        guard [24, 48].contains(cameraMegapixels), framing?.isValid != false else { throw PipelineError.unsupportedOutput }
+        guard [12, 24, 48].contains(cameraMegapixels), framing?.isValid != false else { throw PipelineError.unsupportedOutput }
+        if cameraMegapixels == 12 { return 12 }
         let effective = try effectivePixels(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: crop)
         return cameraMegapixels == 48 && effective >= 24_000_000 ? 48 : 24
     }
@@ -73,7 +94,7 @@ struct ExportSettings: Codable, Equatable, Sendable {
         if let megapixels = try selectedOutputMegapixels(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: crop) {
             let area = try crop.resolve(width: sourceWidth, height: sourceHeight)
             let pixels = Double(area.width) * Double(area.height)
-            // Keep native nominal 24/48MP grids instead of resampling solely to
+            // Keep native nominal 12/24/48MP grids instead of resampling solely to
             // turn a manufacturer's nominal MP count into an exact round number.
             if abs(pixels / (Double(megapixels) * 1_000_000) - 1) <= 0.025 {
                 return (area.width, area.height)

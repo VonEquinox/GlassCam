@@ -4,11 +4,12 @@ import UIKit
 
 /// Full-window live camera. Exact photo effects run only after DNG capture.
 /// An opt-in approximate GPU color proxy affects the central viewfinder only.
-/// Peripheral glass never renders into the central photo rectangle.
+/// Paired Metal preview presents both lenses together; glass stays outside.
 struct CameraView: View {
     @ObservedObject var settings: CameraSettingsStore
     @ObservedObject var workflow: CaptureWorkflow
     @StateObject private var camera = CameraController()
+    @StateObject private var stateRecords = PeripheralRecordingModel()
     private let selectedLens: CameraController.Mode = .main
     @State private var liveProxyStatus = LiveColorProxyStatus.off
     @State private var activePanel: CameraPanel?
@@ -39,13 +40,9 @@ struct CameraView: View {
                                             needsAccessiblePanel: dynamicTypeSize.isAccessibilitySize)
             ZStack(alignment: .topLeading) {
                 Color.black
-                PeripheralGlassView(source: camera.peripheralSource, framing: framing,
-                                    enabled: scenePhase == .active && !settingsPresented && reviewedCapture == nil && !camera.isPreviewFrozen &&
-                                        !(experimentalLiveColor && liveProxyStatus.isShowingEffect))
-                    .frame(width: proxy.size.width, height: proxy.size.height)
-                    .allowsHitTesting(false).accessibilityHidden(true)
-                PhotoFrameBoundary(rect: framing.photo)
-                    .allowsHitTesting(false).accessibilityHidden(true)
+                // Retained raw fallback for single-camera mode / graph handoff.
+                // While paired frames are available the single drawable above
+                // it owns BOTH camera images, with no independent center clock.
                 if let layer = camera.centerPreviewLayer, camera.geometry != nil {
                     CameraPreview(layer: layer, gravity: .resizeAspect)
                         .frame(width: framing.sourcePhoto.width, height: framing.sourcePhoto.height)
@@ -57,7 +54,18 @@ struct CameraView: View {
                         .accessibilityLabel("Unprocessed system camera preview inside the photograph frame")
                         .accessibilityIdentifier("camera.photo.frame")
                 }
-                if let source = camera.centerLiveSource, camera.geometry != nil {
+                PeripheralGlassView(source: camera.peripheralSource, framing: framing,
+                                    enabled: scenePhase == .active && !settingsPresented && reviewedCapture == nil && !camera.isPreviewFrozen,
+                                    colorRecipe: liveRecipe,
+                                    colorEnabled: experimentalLiveColor && scenePhase == .active && !camera.isPreviewFrozen && camera.peripheralSource != nil,
+                                    cameraReady: camera.isReady) { status in
+                        if camera.peripheralSource != nil {liveProxyStatus=status}
+                    }
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .allowsHitTesting(false).accessibilityHidden(true)
+                PeripheralLiquidGlass(framing: framing)
+                    .frame(width: proxy.size.width,height: proxy.size.height)
+                if let source = camera.centerLiveSource, camera.geometry != nil, camera.peripheralSource == nil {
                     LiveColorProxy(source: source, recipe: liveRecipe,
                                    enabled: experimentalLiveColor && scenePhase == .active && !camera.isPreviewFrozen,
                                    cameraReady: camera.isReady) { status in
@@ -69,6 +77,8 @@ struct CameraView: View {
                     .position(x: framing.photo.midX, y: framing.photo.midY)
                     .allowsHitTesting(false)
                 }
+                PhotoFrameBoundary(rect: framing.photo)
+                    .allowsHitTesting(false).accessibilityHidden(true)
                 PhotoFrameGuide(gridVisible: gridVisible)
                     .frame(width: framing.photo.width, height: framing.photo.height)
                     .position(x: framing.photo.midX, y: framing.photo.midY)
@@ -113,6 +123,25 @@ struct CameraView: View {
                         .accessibilityHidden(chrome.style != .separate)
                 }
                 controls(framing: framing, chrome: chrome)
+                    // Clear glass transmits bright scenes; a soft glyph shadow
+                    // keeps controls legible without dimming the periphery.
+                    .shadow(color: .black.opacity(0.45), radius: 3, y: 0.5)
+                PeripheralRecordingControls(model: stateRecords) {
+                    stateRecords.record(source: camera.peripheralSource, camera: [
+                        "status": camera.status, "isReady": camera.isReady,
+                        "isCapturing": camera.isCapturing, "isPreviewFrozen": camera.isPreviewFrozen,
+                        "isConfiguring": camera.isConfiguring, "capturePhase": camera.capturePhase.rawValue,
+                        "requestedZoom": camera.requestedZoom, "appliedZoom": camera.appliedZoom,
+                        "physicalCameraID": camera.physicalCameraID ?? "none",
+                        "previewEncoding": camera.centerPreviewEncoding ?? "none",
+                        "sceneActive": scenePhase == .active, "settingsPresented": settingsPresented,
+                        "experimentalLiveColor": experimentalLiveColor,
+                        "tolerance": PeripheralTolerance.shared.value,
+                        "liveColorShowing": liveProxyStatus.isShowingEffect,
+                        "workflowPhase": String(describing: workflow.phase),
+                        "sourceState": camera.peripheralSource?.diagnosticState() ?? "no-source"])
+                }
+                .position(x: framing.photo.midX, y: max(62, framing.photo.maxY - 62))
                 CameraOrientationObserver { camera.updateOrientation($0) }
                     .frame(width: proxy.size.width, height: proxy.size.height)
                     .allowsHitTesting(false)
@@ -135,7 +164,6 @@ struct CameraView: View {
                 cameraPanel(panel, framing: framing)
                     .presentationDetents(panel == .zoom ? [.height(300), .large] : [.large])
                     .presentationDragIndicator(.visible)
-                    .presentationBackground(Color.black)
             }
         }
         .ignoresSafeArea()
@@ -247,6 +275,7 @@ struct CameraView: View {
                 wordmark.font(.system(size: 10, weight: .semibold))
                 Spacer(minLength: 0)
                 resolutionButton
+                qualityButton
                 compactStyleButton
                 Text(photoAspectLabel).font(.caption.weight(.semibold))
                 lensIndicator
@@ -268,6 +297,7 @@ struct CameraView: View {
         case .compactHorizontal:
             HStack(spacing: 8) {
                 resolutionButton
+                qualityButton
                 compactStyleButton
                 Spacer(minLength: 0)
                 statusButton
@@ -287,6 +317,7 @@ struct CameraView: View {
         case .compactVertical:
             VStack(spacing: 8) {
                 resolutionButton
+                qualityButton
                 compactStyleButton
                 lensIndicator
                 Spacer(minLength: 0)
@@ -327,6 +358,7 @@ struct CameraView: View {
     private var captureMetadata: some View {
         HStack(spacing: 12) {
             styleButton
+            qualityButton
             Spacer(minLength: 4)
             statusButton
         }.font(.system(size: 12, weight: .medium)).lineLimit(1)
@@ -346,8 +378,12 @@ struct CameraView: View {
     }
 
     private var selectedStyleTitle: String {
-        colorMode == .hncs ? hncs.presetTitle :
-            (FFCSEngine.simulations(for: settings.ffcs.cameraFamily).first { $0.id == settings.simulationIndex }?.name ?? "FFCS")
+        switch colorMode {
+        case .hncs: return hncs.presetTitle
+        case .ffcs: return FFCSEngine.simulations(for: settings.ffcs.cameraFamily)
+            .first { $0.id == settings.simulationIndex }?.name ?? "FFCS"
+        case .lumix: return settings.lumix.title
+        }
     }
 
     private var compactStyleButton: some View {
@@ -367,12 +403,35 @@ struct CameraView: View {
                 settings.setOutputMegapixels(next, physicalCameraID: id, mode: selectedLens.rawValue)
             }
         } label: {
-            Text("\(selectedOutput?.megapixels ?? settings.preferredOutputMegapixels) MP")
+            Text("\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP")
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .modifier(CameraPill())
-        }.disabled(!workflow.canCapture || camera.physicalCameraID == nil)
+        }.disabled(!workflow.canCapture || camera.physicalCameraID == nil || settings.captureQuality == .speed)
             .accessibilityLabel("Photo resolution").accessibilityIdentifier("camera.resolution")
-            .accessibilityValue(Text("\(selectedOutput?.megapixels ?? settings.preferredOutputMegapixels) MP"))
+            .accessibilityValue(Text("\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP"))
+    }
+
+    private var qualityButton: some View {
+        Menu {
+            ForEach(CaptureQuality.allCases, id: \.self) { quality in
+                Button { settings.captureQuality = quality } label: {
+                    if settings.captureQuality == quality {
+                        Label(quality == .speed ? "Speed · 12 MP" : quality.title, systemImage: "checkmark")
+                    } else {
+                        Text(quality == .speed ? "Speed · 12 MP" : quality.title)
+                    }
+                }.accessibilityIdentifier("camera.quality.\(quality.rawValue)")
+            }
+        } label: {
+            Text(settings.captureQuality.title)
+                .font(.system(size: 11, weight: .semibold))
+                .modifier(CameraPill())
+        }
+        .disabled(!workflow.canCapture || camera.isCapturing)
+        .accessibilityLabel("Capture priority")
+        .accessibilityValue(settings.captureQuality.title)
+        .accessibilityIdentifier("camera.quality")
+        .accessibilityHint("Choose Speed at 12 MP, Balanced, or Quality")
     }
 
     private var statusButton: some View {
@@ -429,7 +488,7 @@ struct CameraView: View {
 
     private var estimatedOutputLabel: String {
         guard let source = camera.sourceCaptureDimensions else { return "HDR" }
-        let mode = selectedOutput?.megapixels ?? settings.preferredOutputMegapixels
+        let mode = selectedOutput?.megapixels ?? settings.captureQuality.outputMegapixels(preferred: settings.preferredOutputMegapixels)
         let output = ExportSettings.camera(mode, framing: camera.currentFraming)
         let tier = try? output.selectedOutputMegapixels(sourceWidth: Int(source.width), sourceHeight: Int(source.height), crop: settings.recipe.crop)
         return "≈\(tier ?? 24) MP · HDR"
@@ -519,7 +578,8 @@ struct CameraView: View {
         LiveColorRecipe(mode: colorMode, simulationIndex: colorMode == .ffcs ? settings.simulationIndex : 0,
                         exposureEV: settings.exposure, illuminantKelvin: 5500,
                         hncs: colorMode == .hncs ? hncs : .standard, effects: effects,
-                        ffcs: colorMode == .ffcs ? settings.ffcs : .standard)
+                        ffcs: colorMode == .ffcs ? settings.ffcs : .standard,
+                        lumix: colorMode == .lumix ? settings.lumix : .standard)
     }
 
     private func cameraPanel(_ panel: CameraPanel, framing: CameraFraming) -> some View {
@@ -541,17 +601,23 @@ struct CameraView: View {
                 } else {
                     VStack(spacing: 20) {
                         zoomButtons
-                        HStack { styleButton; resolutionButton }
+                        styleButton
+                        HStack { resolutionButton; qualityButton }
                         HStack { thumbnailButton; Spacer(); shutter(diameter: 76); Spacer(); settingsButton }
                         if !workflow.status.isEmpty { workflowStatus }
                     }.padding(22)
                 }
             }
-        }.background(CameraSettingsBackground()).tint(.white)
+        }.tint(.white) // The system Liquid Glass sheet is the panel background.
     }
 
     private var selectedOutput: CameraController.OutputOption? {
         guard let cameraID = camera.physicalCameraID else { return nil }
+        if settings.captureQuality == .speed {
+            guard let source = camera.sourceCaptureDimensions,
+                  let size = try? ExportSettings.camera(12).dimensions(sourceWidth: Int(source.width), sourceHeight: Int(source.height)) else { return nil }
+            return .init(megapixels: 12, width: size.width, height: size.height)
+        }
         let saved = settings.outputMegapixels(physicalCameraID: cameraID, mode: selectedLens.rawValue)
         // Unsupported choices never fall back to lower resolution or upsampling.
         return camera.supportedOutputOptions.first { $0.megapixels == saved }
@@ -580,12 +646,12 @@ struct CameraView: View {
             activePanel = nil
             shutterReservation = reservation
             let export = ExportSettings.camera(output.megapixels, framing: camera.currentFraming)
-            let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export)
+            let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality)
             workflow.capturePhoto(snapshot: snapshot) { completion in
                 guard scenePhase == .active, !settingsPresented, reviewedCapture == nil else {
                     completion(.failure(CaptureUIError.cameraInactive)); return
                 }
-                camera.capturePhoto(reservation: reservation, completion: completion)
+                camera.capturePhoto(reservation: reservation, quality: snapshot.quality, completion: completion)
             }
         } label: {
             ZStack {
@@ -790,9 +856,11 @@ private struct CameraSettingsView: View {
     @State private var advanced = false
 
     private var outputSelection: Binding<Int> {
-        Binding(get: { physicalCameraID.map { settings.outputMegapixels(physicalCameraID: $0, mode: mode) } ?? settings.preferredOutputMegapixels },
+        Binding(get: { settings.captureQuality.outputMegapixels(preferred:
+                    physicalCameraID.map { settings.outputMegapixels(physicalCameraID: $0, mode: mode) } ?? settings.preferredOutputMegapixels) },
                 set: { value in
-                    guard let id = physicalCameraID, options.contains(where: { $0.megapixels == value }) else { return }
+                    guard settings.captureQuality != .speed, let id = physicalCameraID,
+                          options.contains(where: { $0.megapixels == value }) else { return }
                     settings.setOutputMegapixels(value, physicalCameraID: id, mode: mode)
                 })
     }
@@ -818,10 +886,17 @@ private struct CameraSettingsView: View {
 
     @ViewBuilder private var commonCards: some View {
         CameraCard(title: "Photo output", symbol: "photo.stack") {
+            Picker("Capture priority", selection: $settings.captureQuality) {
+                ForEach(CaptureQuality.allCases, id: \.self) { quality in Text(quality.title).tag(quality) }
+            }.pickerStyle(.segmented).accessibilityIdentifier("settings.captureQuality")
             Picker("Resolution", selection: outputSelection) {
-                ForEach([24, 48], id: \.self) { value in Text("\(value) MP").tag(value) }
-            }.pickerStyle(.segmented).disabled(physicalCameraID == nil || options.isEmpty)
+                ForEach(settings.captureQuality == .speed ? [12] : [24, 48], id: \.self) { value in Text("\(value) MP").tag(value) }
+            }.pickerStyle(.segmented).disabled(physicalCameraID == nil || options.isEmpty || settings.captureQuality == .speed)
                 .accessibilityIdentifier("settings.resolution")
+            if settings.captureQuality == .speed {
+                Text("Speed captures and saves at 12 MP. Balanced and Quality restore your 24/48 MP selection.")
+                    .font(.caption).foregroundStyle(.white.opacity(0.6))
+            }
             HStack { Text("Format"); Spacer(); Text("10-bit HDR HEIF").foregroundStyle(.secondary) }.font(.subheadline)
             Text("Photos save automatically. In 48 MP mode, smaller framed sources save at 24 MP.")
                 .font(.caption).foregroundStyle(.white.opacity(0.45))
@@ -841,10 +916,12 @@ private struct CameraSettingsView: View {
                      ? "Keeps each photo’s own white balance."
                      : "Uses the original preset white balance, when specified."))
                     .font(.caption).foregroundStyle(.white.opacity(0.45))
-            } else {
+            } else if settings.colorMode == .ffcs {
                 Picker("Film simulation", selection: $settings.simulationIndex) {
                     ForEach(FFCSEngine.simulations(for: settings.ffcs.cameraFamily)) { look in Text(look.name).tag(look.id) }
                 }.pickerStyle(.menu).accessibilityIdentifier("ffcs.simulation")
+            } else {
+                LUMIXPhotoStyleControls(settings: $settings.lumix)
             }
             HStack {
                 Text("Effect exposure")
@@ -875,8 +952,12 @@ private struct CameraSettingsView: View {
         CameraCard(title: "Color processing", symbol: "slider.horizontal.3") {
             if settings.colorMode == .hncs {
                 HNCSPresetControls(settings: $settings.hncs, showCommon: false)
-            } else {
+            } else if settings.colorMode == .ffcs {
                 FFCSReferenceControls(settings: $settings.ffcs, simulationIndex: $settings.simulationIndex)
+            } else {
+                LUMIXPhotoStyleControls(settings: $settings.lumix)
+                Text("Keeps each photo’s own white balance.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
         }
         CameraCard(title: "Preview", symbol: "viewfinder") {
@@ -912,10 +993,16 @@ private struct CameraLookPicker: View {
                         settings.hncs.presetKey = look.id; selected()
                     }
                 }
-            } else {
+            } else if settings.colorMode == .ffcs {
                 ForEach(FFCSEngine.simulations(for: settings.ffcs.cameraFamily)) { look in
                     lookButton(look.name, active: settings.simulationIndex == look.id) {
                         settings.simulationIndex = look.id; selected()
+                    }
+                }
+            } else {
+                ForEach(LUMIXEngine.looks) { look in
+                    lookButton(look.name, active: settings.lumix.photoStyle == look.id) {
+                        settings.lumix.photoStyle = look.id; selected()
                     }
                 }
             }

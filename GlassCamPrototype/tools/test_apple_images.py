@@ -28,11 +28,12 @@ def main():
         run("xcrun", "clang++", "-std=c++17", "-O2", "-fno-fast-math",
             "-ffp-contract=off", "-dynamiclib", core / "hncs.cpp",
             core / "hncs_spatial.cpp", core / "hncs_numpy_rng.cpp",
-            core / "ffcs.cpp", "-lz", "-pthread", "-o", work / "libglasscam.dylib")
+            core / "ffcs.cpp", core / "lumix.cpp", "-lz", "-pthread", "-o", work / "libglasscam.dylib")
         with (work / "resources.log").open("w") as log:
             subprocess.run(["bash", str(ROOT / "tools/prepare_ffcs_resources.sh"),
                             str(ROOT / "reference_ffcs/source.zip"), str(work / "FFCS")],
                            stdout=log, stderr=subprocess.STDOUT, check=True)
+        run("python3", ROOT / "tools/prepare_lumix_resources.py", "--output", work / "LUMIX")
         swift = ["xcrun", "swiftc", "-swift-version", "5", "-O",
                  "-module-cache-path", work / "modules"]
         run(*swift, ROOT / "tests/apple_ci_strip_roundtrip.swift", "-o", work / "strips")
@@ -40,7 +41,7 @@ def main():
         sources = ROOT / "ios/GlassCam"
         run(*swift, "-I", core, "-import-objc-header", sources / "GlassCam-Bridging-Header.h",
             *(sources / name for name in ["ExportSettings.swift", "SourceImageStore.swift",
-                                          "PhotoWhiteBalance.swift", "HNCSEngine.swift", "FFCSEngine.swift",
+                                          "PhotoWhiteBalance.swift", "HNCSEngine.swift", "FFCSEngine.swift", "LUMIXEngine.swift",
                                           "ImagePipeline.swift", "PreviewRaster.swift", "ShareDelivery.swift",
                                           "CameraSettingsStore.swift", "CaptureGeometry.swift", "CaptureJournal.swift", "CaptureWorkflow.swift"]),
             ROOT / "tests/apple_image_pipeline.swift", ROOT / "tests/apple_capture_workflow.swift",

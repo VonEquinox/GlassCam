@@ -19,3 +19,7 @@ Revision 8 preset source/catalog and the six UInt16 post-curve tables retain the
 ## NumPy / SciPy compatibility components
 
 The revision-8 portable spatial port retains the applicable NumPy/SciPy BSD and PCG/random-generator license notices and source URLs directly in `core/hncs_numpy_rng.cpp` and `core/hncs_spatial.cpp`. These notices must accompany redistributions, including compiled distributions where the licenses require it. This is distinct from the unresolved rights to recovered Phocus/Fujifilm factory data.
+
+## LUMIX / SILKYPIX reference data
+
+The LUMIX Photo Style adapter uses original paired LUTs and SDR VE register data extracted from the user-supplied SILKYPIX Developer Studio 8 SE 8.0.31.1. Provenance, hashes and the source-adaptation boundary are recorded in [reference_lumix/ORIGIN.md](reference_lumix/ORIGIN.md). No SILKYPIX executable is included in the iPhone application.

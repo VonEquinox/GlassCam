@@ -10,11 +10,16 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
     let callbackQueue = DispatchQueue(label: "dev.glasscam.preview.\(UUID().uuidString)", qos: .userInteractive)
     private let lock = NSLock()
     private var pending = false
+    private var latestPending: (sample:CMSampleBuffer,generation:UInt64)?
     private var active = true
     private var generation: UInt64 = 0
     private var expectedWidth = 0
     private var expectedHeight = 0
     private var expectedPixelFormat: OSType = 0
+    private var submissionObserver: ((Double) -> Void)?
+    func observeSubmissions(_ observer: @escaping (Double) -> Void) {
+        lock.lock(); submissionObserver = observer; lock.unlock()
+    }
     private var firstFrame: (() -> Void)?
 
     @MainActor private init(makeLayer: Void) {
@@ -30,7 +35,7 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
     func expect(width: Int, height: Int, pixelFormat: OSType, onFirstValidFrame: @escaping () -> Void) {
         lock.lock()
         expectedWidth = width; expectedHeight = height; expectedPixelFormat = pixelFormat; generation &+= 1
-        firstFrame = onFirstValidFrame
+        firstFrame = onFirstValidFrame; latestPending=nil
         let ticket = generation
         lock.unlock()
         liveSource.reset(generation: ticket)
@@ -44,11 +49,11 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
     /// Stop accepting frames and revoke pending main/GPU work without flushing
     /// the last displayed image. The old layers remain visible during handoff.
     func freeze() {
-        lock.lock(); active = false; generation &+= 1; lock.unlock()
+        lock.lock(); active = false; generation &+= 1; latestPending=nil; lock.unlock()
         liveSource.invalidate()
     }
     func invalidate() {
-        lock.lock(); active = false; generation &+= 1; lock.unlock()
+        lock.lock(); active = false; generation &+= 1; latestPending=nil; lock.unlock()
         liveSource.invalidate()
         DispatchQueue.main.async { [weak self] in
             self?.layer.sampleBufferRenderer.flush(removingDisplayedImage: true, completionHandler: nil)
@@ -67,28 +72,29 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
         // The GPU mailbox replaces stale pending frames even while the raw
         // fallback has a main closure queued. No CPU color work on this queue.
         liveSource.offer(sampleBuffer, generation: generation)
+        // Replace the retained frame too. The old pending gate retained the
+        // first sample while discarding all newer raw-preview samples.
+        latestPending=(sampleBuffer,generation)
         guard !pending else { lock.unlock(); return }
         pending = true
-        let ticket = generation
         lock.unlock()
         // The sample attachment, rather than a buffer-level attachment, makes
         // live frames display immediately without introducing a playback timebase.
-        if let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: true),
-           CFArrayGetCount(attachments) > 0 {
-            let entry = unsafeBitCast(CFArrayGetValueAtIndex(attachments, 0), to: CFMutableDictionary.self)
-            CFDictionarySetValue(entry,
-                                 Unmanaged.passUnretained(kCMSampleAttachmentKey_DisplayImmediately).toOpaque(),
-                                 Unmanaged.passUnretained(kCFBooleanTrue).toOpaque())
-        }
-        // The pending gate means there can be only ONE queued main closure and
-        // retained sample per lens. New frames are discarded while it is pending.
+        // One queued main closure, reading the newest available sample.
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             // The lock covers renderer mutation too. freeze() cannot return
             // while a previously admitted main closure can still enqueue/flush.
             self.lock.lock()
-            guard self.active, self.generation == ticket else {
+            guard self.active, let latest=self.latestPending,self.generation==latest.generation else {
                 self.pending = false; self.lock.unlock(); return
+            }
+            self.latestPending=nil
+            let sampleBuffer=latest.sample
+            if let attachments=CMSampleBufferGetSampleAttachmentsArray(sampleBuffer,createIfNecessary:true),CFArrayGetCount(attachments)>0 {
+                let entry=unsafeBitCast(CFArrayGetValueAtIndex(attachments,0),to:CFMutableDictionary.self)
+                CFDictionarySetValue(entry,Unmanaged.passUnretained(kCMSampleAttachmentKey_DisplayImmediately).toOpaque(),
+                    Unmanaged.passUnretained(kCFBooleanTrue).toOpaque())
             }
             let renderer = self.layer.sampleBufferRenderer
             if renderer.status == .failed || renderer.requiresFlushToResumeDecoding {
@@ -98,6 +104,7 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
                 self.pending = false; self.lock.unlock(); return
             }
             renderer.enqueue(sampleBuffer)
+            self.submissionObserver?(CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)))
             // A first-frame signal follows enqueue, so shutter readiness cannot
             // precede the layer's first actual negotiated-size image.
             let first = self.firstFrame; self.firstFrame = nil

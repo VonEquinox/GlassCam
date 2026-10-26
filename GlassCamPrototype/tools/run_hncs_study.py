@@ -15,9 +15,9 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 SWIFT = ["ExportSettings.swift", "SourceImageStore.swift", "PhotoWhiteBalance.swift",
-         "HNCSEngine.swift", "FFCSEngine.swift", "ImagePipeline.swift", "PreviewRaster.swift",
+         "HNCSEngine.swift", "FFCSEngine.swift", "LUMIXEngine.swift", "ImagePipeline.swift", "PreviewRaster.swift",
          "CaptureWorkflow.swift"]
-CPP = ["hncs.cpp", "hncs_spatial.cpp", "hncs_numpy_rng.cpp", "ffcs.cpp"]
+CPP = ["hncs.cpp", "hncs_spatial.cpp", "hncs_numpy_rng.cpp", "ffcs.cpp", "lumix.cpp"]
 
 
 def call(*args):

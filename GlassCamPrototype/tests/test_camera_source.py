@@ -18,7 +18,7 @@ class CameraSourceContracts(unittest.TestCase):
         self.assertIn('multi.systemPressureCost <= 1', preview)
         self.assertLess(preview.index('multi.addInputWithNoConnections(input)'),
                         preview.index('input.videoMinFrameDurationOverride ='))
-        capture = SOURCE.split('    func capture(progress:', 1)[1].split('private func waitUntilPhotoReady(', 1)[0]
+        capture = SOURCE.split('    func capture(quality:', 1)[1].split('private func waitUntilPhotoReady(', 1)[0]
         multi_capture = capture.split('if session is AVCaptureMultiCamSession {', 1)[1].split('} else if', 1)[0]
         self.assertLess(multi_capture.index('tearDownGraph(preservingPreview: true)'),
                         multi_capture.index('buildSinglePhotoGraph('))
@@ -50,8 +50,8 @@ class CameraSourceContracts(unittest.TestCase):
     def test_no_implicit_resolution_or_framing_downgrade(self):
         for token in ['framing.acceptsRAWDimensions', 'framing: { Self.framing(for: camera, catalog: catalog) }', 'connection.videoScaleAndCropFactor = 1',
                       'connection.preferredVideoStabilizationMode = .off',
-                      'output.maxPhotoDimensions = dimensions', 'settings.maxPhotoDimensions = request.capability.dimensions',
-                      'settings.photoQualityPrioritization = .quality', 'connection.videoOrientation = orientation']:
+                      'output.maxPhotoDimensions = dimensions', 'settings.maxPhotoDimensions = captureDimensions',
+                      'switch request.quality', 'connection.videoOrientation = orientation']:
             self.assertIn(token, SOURCE)
 
     def test_output_targets_are_separate_from_source(self):
@@ -64,7 +64,7 @@ class CameraSourceContracts(unittest.TestCase):
         capture = SOURCE.split('private func submitPhoto(', 1)[1].split('private func finishPhoto(', 1)[0]
         self.assertNotIn('OutputOption', capture)
         self.assertNotIn('megapixels', capture)
-        self.assertIn('settings.maxPhotoDimensions = request.capability.dimensions', capture)
+        self.assertIn('settings.maxPhotoDimensions = captureDimensions', capture)
 
     def test_bounded_capture_and_failure_observation(self):
         for token in ['currentRequest == nil', 'didFinishCaptureFor', 'runtimeErrorNotification',
@@ -93,8 +93,8 @@ class CameraSourceContracts(unittest.TestCase):
                       'finishPhoto(result, request: request)']:
             self.assertIn(token, failure)
         observers = SOURCE.split('private func installObservers', 1)[1].split('private func tearDownGraph', 1)[0]
-        self.assertEqual(observers.count('self.failSession('), 2)
-        self.assertEqual(observers.count('self.session === observed'), 2)
+        self.assertEqual(observers.count('self.failSession('), 3)
+        self.assertEqual(observers.count('self.session === observed'), 3)
         self.assertIn('stopRunning: true', observers)
         finish = SOURCE.split('private func finishRequest(', 1)[1].split('private func failSession(', 1)[0]
         self.assertLess(finish.index('request.completion = nil'), finish.index('callback(CaptureOutcome('))

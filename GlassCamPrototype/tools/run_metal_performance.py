@@ -19,8 +19,8 @@ def main():
     args=parser.parse_args();root=Path(__file__).resolve().parents[1]
     out=args.output_dir.resolve();build=out/"build";build.mkdir(parents=True,exist_ok=True)
     swift=[root/"ios/GlassCam"/name for name in ["ExportSettings.swift","SourceImageStore.swift","PhotoWhiteBalance.swift","HNCSEngine.swift",
-                "FFCSEngine.swift","ImagePipeline.swift","PreviewRaster.swift","CaptureWorkflow.swift"]]
-    cpp=[root/"tools/metal_hncs_source_bridge.mm",*[root/"core"/name for name in ["hncs_spatial.cpp","hncs_numpy_rng.cpp","ffcs.cpp"]]]
+                "FFCSEngine.swift","LUMIXEngine.swift","ImagePipeline.swift","PreviewRaster.swift","CaptureWorkflow.swift"]]
+    cpp=[root/"tools/metal_hncs_source_bridge.mm",*[root/"core"/name for name in ["hncs_spatial.cpp","hncs_numpy_rng.cpp","ffcs.cpp","lumix.cpp"]]]
     if not args.collect_only:
         commands=[
             ["xcrun","clang++","-std=c++17","-O3","-fno-fast-math","-ffp-contract=off","-fobjc-arc","-dynamiclib",*map(str,cpp),

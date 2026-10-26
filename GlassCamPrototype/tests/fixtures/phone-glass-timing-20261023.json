@@ -1,0 +1,4867 @@
+{
+  "sourceRecord": "record-1792750091524-1DE46ECC",
+  "wallTime": "2026-10-23T10:08:11Z",
+  "description": "Actual phone render times, observation identities and evidence; all current whole-boundary native checks passed. No camera images included. Resource validity remains the captured value.",
+  "rows": [
+    {
+      "time": 0.0,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2814,
+      "observedAt": -0.15938912506680936,
+      "expiresAt": 0.040610874944832176,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6666892708162777
+    },
+    {
+      "time": 0.01677191664930433,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2814,
+      "observedAt": -0.15938912506680936,
+      "expiresAt": 0.040610874944832176,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6247594791930169
+    },
+    {
+      "time": 0.03335604164749384,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2814,
+      "observedAt": -0.15938912506680936,
+      "expiresAt": 0.040610874944832176,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5832991666975431
+    },
+    {
+      "time": 0.05002279166365042,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2814,
+      "observedAt": -0.15938912506680936,
+      "expiresAt": 0.040610874944832176,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.06668874999741092,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2820,
+      "observedAt": -0.05933987512253225,
+      "expiresAt": 0.14066012488910928,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.021180555555555553,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.10000791668426245,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2820,
+      "observedAt": -0.05933987512253225,
+      "expiresAt": 0.14066012488910928,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.021180555555555553,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.11668333335546777,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2820,
+      "observedAt": -0.05933987512253225,
+      "expiresAt": 0.14066012488910928,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.021180555555555553,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583114583219867
+    },
+    {
+      "time": 0.13334883336210623,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2820,
+      "observedAt": -0.05933987512253225,
+      "expiresAt": 0.14066012488910928,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.021180555555555553,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9166477083053906
+    },
+    {
+      "time": 0.15003883332246915,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2827,
+      "observedAt": 0.05738420790294185,
+      "expiresAt": 0.2573842079145834,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.028125,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.16668370831757784,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2827,
+      "observedAt": 0.05738420790294185,
+      "expiresAt": 0.2573842079145834,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.028125,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.18334991665324196,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2827,
+      "observedAt": 0.05738420790294185,
+      "expiresAt": 0.2573842079145834,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.028125,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583344791608397
+    },
+    {
+      "time": 0.200005708320532,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2827,
+      "observedAt": 0.05738420790294185,
+      "expiresAt": 0.2573842079145834,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.028125,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9166949999926146
+    },
+    {
+      "time": 0.2166805416927673,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2827,
+      "observedAt": 0.05738420790294185,
+      "expiresAt": 0.2573842079145834,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.028125,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8750079165620264
+    },
+    {
+      "time": 0.2333430833532475,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2827,
+      "observedAt": 0.05738420790294185,
+      "expiresAt": 0.2573842079145834,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.028125,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8333515624108259
+    },
+    {
+      "time": 0.2500511250109412,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2833,
+      "observedAt": 0.15743341587949544,
+      "expiresAt": 0.357433415891137,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.013541666666666667,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7915814582665917
+    },
+    {
+      "time": 0.2667094999924302,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2833,
+      "observedAt": 0.15743341587949544,
+      "expiresAt": 0.357433415891137,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.013541666666666667,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7499355208128691
+    },
+    {
+      "time": 0.283367249998264,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2833,
+      "observedAt": 0.15743341587949544,
+      "expiresAt": 0.357433415891137,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.013541666666666667,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7082911457982846
+    },
+    {
+      "time": 0.30000195832690224,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2833,
+      "observedAt": 0.15743341587949544,
+      "expiresAt": 0.357433415891137,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.013541666666666667,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.666704374976689
+    },
+    {
+      "time": 0.31667516665766016,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2833,
+      "observedAt": 0.15743341587949544,
+      "expiresAt": 0.357433415891137,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.013541666666666667,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6250213541497942
+    },
+    {
+      "time": 0.3333773333579302,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2838,
+      "observedAt": 0.24080783291719854,
+      "expiresAt": 0.44080783292884007,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5832659373991191
+    },
+    {
+      "time": 0.3500260000000708,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2838,
+      "observedAt": 0.24080783291719854,
+      "expiresAt": 0.44080783292884007,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5416442707937676
+    },
+    {
+      "time": 0.36670054169371724,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2838,
+      "observedAt": 0.24080783291719854,
+      "expiresAt": 0.44080783292884007,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.4999579165596515
+    },
+    {
+      "time": 0.3833674999768846,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2838,
+      "observedAt": 0.24080783291719854,
+      "expiresAt": 0.44080783292884007,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.45829052085173316
+    },
+    {
+      "time": 0.40000220836373046,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2838,
+      "observedAt": 0.24080783291719854,
+      "expiresAt": 0.44080783292884007,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.41670374988461845
+    },
+    {
+      "time": 0.4166730416473001,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2838,
+      "observedAt": 0.24080783291719854,
+      "expiresAt": 0.44080783292884007,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.3750266666756943
+    },
+    {
+      "time": 0.4334041666588746,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2838,
+      "observedAt": 0.24080783291719854,
+      "expiresAt": 0.44080783292884007,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.3331988541467581
+    },
+    {
+      "time": 0.45000750001054257,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2838,
+      "observedAt": 0.24080783291719854,
+      "expiresAt": 0.44080783292884007,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.46677212498616427,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2844,
+      "observedAt": 0.34085704089375213,
+      "expiresAt": 0.5408570409053937,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.4833419166970998,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2844,
+      "observedAt": 0.34085704089375213,
+      "expiresAt": 0.5408570409053937,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.5000122083583847,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2844,
+      "observedAt": 0.34085704089375213,
+      "expiresAt": 0.5408570409053937,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583242708467878
+    },
+    {
+      "time": 0.5166901666671038,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2844,
+      "observedAt": 0.34085704089375213,
+      "expiresAt": 0.5408570409053937,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9166293750749901
+    },
+    {
+      "time": 0.5333483333233744,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2844,
+      "observedAt": 0.34085704089375213,
+      "expiresAt": 0.5408570409053937,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.011458333333333334,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8749839584343135
+    },
+    {
+      "time": 0.5500219999812543,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2850,
+      "observedAt": 0.4409062908962369,
+      "expiresAt": 0.6409062909078784,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01423611111111111,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.5666771666728891,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2850,
+      "observedAt": 0.4409062908962369,
+      "expiresAt": 0.6409062909078784,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01423611111111111,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.5833761250250973,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2850,
+      "observedAt": 0.4409062908962369,
+      "expiresAt": 0.6409062909078784,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01423611111111111,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9582526041194797
+    },
+    {
+      "time": 0.600013958348427,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2850,
+      "observedAt": 0.4409062908962369,
+      "expiresAt": 0.6409062909078784,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01423611111111111,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9166580208111554
+    },
+    {
+      "time": 0.6166751250275411,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2850,
+      "observedAt": 0.4409062908962369,
+      "expiresAt": 0.6409062909078784,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01423611111111111,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8750051041133702
+    },
+    {
+      "time": 0.6333752916543745,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2856,
+      "observedAt": 0.5409555829246528,
+      "expiresAt": 0.7409555829362944,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8332546875462867
+    },
+    {
+      "time": 0.6500105416635051,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2856,
+      "observedAt": 0.5409555829246528,
+      "expiresAt": 0.7409555829362944,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.79166656252346
+    },
+    {
+      "time": 0.6667020000168122,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2856,
+      "observedAt": 0.5409555829246528,
+      "expiresAt": 0.7409555829362944,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7499379166401923
+    },
+    {
+      "time": 0.6833435416920111,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2856,
+      "observedAt": 0.5409555829246528,
+      "expiresAt": 0.7409555829362944,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7083340624521952
+    },
+    {
+      "time": 0.7000092500238679,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2856,
+      "observedAt": 0.5409555829246528,
+      "expiresAt": 0.7409555829362944,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.666669791622553
+    },
+    {
+      "time": 0.7167007499956526,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2861,
+      "observedAt": 0.6243299578782171,
+      "expiresAt": 0.8243299578898586,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012847222222222223,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6249410416930914
+    },
+    {
+      "time": 0.7333743333583698,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2861,
+      "observedAt": 0.6243299578782171,
+      "expiresAt": 0.8243299578898586,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012847222222222223,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5832570832862984
+    },
+    {
+      "time": 0.7500429999781772,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2861,
+      "observedAt": 0.6243299578782171,
+      "expiresAt": 0.8243299578898586,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012847222222222223,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5415854167367797
+    },
+    {
+      "time": 0.766683624999132,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2861,
+      "observedAt": 0.6243299578782171,
+      "expiresAt": 0.8243299578898586,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012847222222222223,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.49998385418439284
+    },
+    {
+      "time": 0.7833419583621435,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2861,
+      "observedAt": 0.6243299578782171,
+      "expiresAt": 0.8243299578898586,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012847222222222223,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.45833802077686414
+    },
+    {
+      "time": 0.8001097916858271,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2866,
+      "observedAt": 0.7077043749159202,
+      "expiresAt": 0.9077043749275617,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.41641843746765517
+    },
+    {
+      "time": 0.8166743333567865,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2866,
+      "observedAt": 0.7077043749159202,
+      "expiresAt": 0.9077043749275617,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.37500708329025656
+    },
+    {
+      "time": 0.8333627916872501,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2866,
+      "observedAt": 0.7077043749159202,
+      "expiresAt": 0.9077043749275617,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.3332859374640975
+    },
+    {
+      "time": 0.8500291249947622,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2866,
+      "observedAt": 0.7077043749159202,
+      "expiresAt": 0.9077043749275617,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.29162010419531725
+    },
+    {
+      "time": 0.8666965833399445,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2866,
+      "observedAt": 0.7077043749159202,
+      "expiresAt": 0.9077043749275617,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.24995145833236165
+    },
+    {
+      "time": 0.8833377083647065,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2866,
+      "observedAt": 0.7077043749159202,
+      "expiresAt": 0.9077043749275617,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.20834864577045664
+    },
+    {
+      "time": 0.900006250012666,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2866,
+      "observedAt": 0.7077043749159202,
+      "expiresAt": 0.9077043749275617,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.1666772916505579
+    },
+    {
+      "time": 0.9167101249913685,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2866,
+      "observedAt": 0.7077043749159202,
+      "expiresAt": 0.9077043749275617,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.9333497500047088,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2872,
+      "observedAt": 0.8077535828924738,
+      "expiresAt": 1.0077535829041153,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025347222222222226,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.950064749980811,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2872,
+      "observedAt": 0.8077535828924738,
+      "expiresAt": 1.0077535829041153,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025347222222222226,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 0.9667425416409969,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2872,
+      "observedAt": 0.8077535828924738,
+      "expiresAt": 1.0077535829041153,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025347222222222226,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583055208495352
+    },
+    {
+      "time": 0.9833534583449364,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2872,
+      "observedAt": 0.8077535828924738,
+      "expiresAt": 1.0077535829041153,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025347222222222226,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9167782290896866
+    },
+    {
+      "time": 1.000020666688215,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2872,
+      "observedAt": 0.8077535828924738,
+      "expiresAt": 1.0077535829041153,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025347222222222226,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8751102082314901
+    },
+    {
+      "time": 1.01674524997361,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2878,
+      "observedAt": 0.9078028749208897,
+      "expiresAt": 1.1078028749325313,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.045486111111111116,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.0333705000230111,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2878,
+      "observedAt": 0.9078028749208897,
+      "expiresAt": 1.1078028749325313,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.045486111111111116,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.050009125028737,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2878,
+      "observedAt": 0.9078028749208897,
+      "expiresAt": 1.1078028749325313,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.045486111111111116,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9584034374856856
+    },
+    {
+      "time": 1.066682041680906,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2878,
+      "observedAt": 0.9078028749208897,
+      "expiresAt": 1.1078028749325313,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.045486111111111116,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9167211458552629
+    },
+    {
+      "time": 1.0833426666795276,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2878,
+      "observedAt": 0.9078028749208897,
+      "expiresAt": 1.1078028749325313,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.045486111111111116,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8750695833587088
+    },
+    {
+      "time": 1.1000337500008754,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2883,
+      "observedAt": 0.9911772079067305,
+      "expiresAt": 1.191177207918372,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04756944444444444,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8333418750553392
+    },
+    {
+      "time": 1.1166912916814908,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2883,
+      "observedAt": 0.9911772079067305,
+      "expiresAt": 1.191177207918372,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04756944444444444,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7916980208538007
+    },
+    {
+      "time": 1.1333635833580047,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2883,
+      "observedAt": 0.9911772079067305,
+      "expiresAt": 1.191177207918372,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04756944444444444,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7500172916625161
+    },
+    {
+      "time": 1.150010083336383,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2883,
+      "observedAt": 0.9911772079067305,
+      "expiresAt": 1.191177207918372,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04756944444444444,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.70840104171657
+    },
+    {
+      "time": 1.166678833309561,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2883,
+      "observedAt": 0.9911772079067305,
+      "expiresAt": 1.191177207918372,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04756944444444444,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6667291667836253
+    },
+    {
+      "time": 1.1833756666746922,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2889,
+      "observedAt": 1.0912264579092152,
+      "expiresAt": 1.2912264579208568,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6249870833707973
+    },
+    {
+      "time": 1.200013375026174,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2889,
+      "observedAt": 1.0912264579092152,
+      "expiresAt": 1.2912264579208568,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5833928124920931
+    },
+    {
+      "time": 1.216696833318565,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2889,
+      "observedAt": 1.0912264579092152,
+      "expiresAt": 1.2912264579208568,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5416841667611152
+    },
+    {
+      "time": 1.2333621666766703,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2889,
+      "observedAt": 1.0912264579092152,
+      "expiresAt": 1.2912264579208568,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.500020833365852
+    },
+    {
+      "time": 1.2500292499898933,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2889,
+      "observedAt": 1.0912264579092152,
+      "expiresAt": 1.2912264579208568,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.4583531250827946
+    },
+    {
+      "time": 1.2666768750059418,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2889,
+      "observedAt": 1.0912264579092152,
+      "expiresAt": 1.2912264579208568,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.4167340625426732
+    },
+    {
+      "time": 1.2833428333397023,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2889,
+      "observedAt": 1.0912264579092152,
+      "expiresAt": 1.2912264579208568,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.37506916670827195
+    },
+    {
+      "time": 1.3000280416454189,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2895,
+      "observedAt": 1.1912757079117,
+      "expiresAt": 1.3912757079233415,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04340277777777777,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.3166775416466407,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2895,
+      "observedAt": 1.1912757079117,
+      "expiresAt": 1.3912757079233415,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04340277777777777,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.333369166648481,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2895,
+      "observedAt": 1.1912757079117,
+      "expiresAt": 1.3912757079233415,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04340277777777777,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9582709374953993
+    },
+    {
+      "time": 1.3500094583141617,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2895,
+      "observedAt": 1.1912757079117,
+      "expiresAt": 1.3912757079233415,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04340277777777777,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.3666790000279434,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2895,
+      "observedAt": 1.1912757079117,
+      "expiresAt": 1.3912757079233415,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04340277777777777,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.3833561249775812,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2895,
+      "observedAt": 1.1912757079117,
+      "expiresAt": 1.3912757079233415,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04340277777777777,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583071876259055
+    },
+    {
+      "time": 1.4000140416901559,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2895,
+      "observedAt": 1.1912757079117,
+      "expiresAt": 1.3912757079233415,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04340277777777777,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.4167122916551307,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2901,
+      "observedAt": 1.2913248328841291,
+      "expiresAt": 1.4913248328957707,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7916666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04131944444444444,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.4333467916585505,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2901,
+      "observedAt": 1.2913248328841291,
+      "expiresAt": 1.4913248328957707,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7916666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04131944444444444,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.450023000012152,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2901,
+      "observedAt": 1.2913248328841291,
+      "expiresAt": 1.4913248328957707,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7916666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04131944444444444,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583094791159965
+    },
+    {
+      "time": 1.4666842499864288,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2901,
+      "observedAt": 1.2913248328841291,
+      "expiresAt": 1.4913248328957707,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7916666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04131944444444444,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9166563541803043
+    },
+    {
+      "time": 1.4833768333191983,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2901,
+      "observedAt": 1.2913248328841291,
+      "expiresAt": 1.4913248328957707,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7916666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.04131944444444444,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8749248958483804
+    },
+    {
+      "time": 1.5000849166535772,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2907,
+      "observedAt": 1.391374124912545,
+      "expiresAt": 1.5913741249241866,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7916666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01532903520149134,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.516682416666299,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2907,
+      "observedAt": 1.391374124912545,
+      "expiresAt": 1.5913741249241866,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7916666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01532903520149134,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.5333583750179969,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2907,
+      "observedAt": 1.391374124912545,
+      "expiresAt": 1.5913741249241866,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7916666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01532903520149134,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583101041207556
+    },
+    {
+      "time": 1.5500077916658483,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2907,
+      "observedAt": 1.391374124912545,
+      "expiresAt": 1.5913741249241866,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7916666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01532903520149134,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9166865625011269
+    },
+    {
+      "time": 1.5666723333415575,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2907,
+      "observedAt": 1.391374124912545,
+      "expiresAt": 1.5913741249241866,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7916666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01532903520149134,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8750252083118539
+    },
+    {
+      "time": 1.5833710000151768,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2913,
+      "observedAt": 1.4914233328890987,
+      "expiresAt": 1.6914233329007402,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8332785416278057
+    },
+    {
+      "time": 1.60003029165091,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2913,
+      "observedAt": 1.4914233328890987,
+      "expiresAt": 1.6914233329007402,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7916303125384729
+    },
+    {
+      "time": 1.6167009166674688,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2913,
+      "observedAt": 1.4914233328890987,
+      "expiresAt": 1.6914233329007402,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7499537499970756
+    },
+    {
+      "time": 1.6333419583388604,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2913,
+      "observedAt": 1.4914233328890987,
+      "expiresAt": 1.6914233329007402,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7083511458185967
+    },
+    {
+      "time": 1.650010958313942,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2913,
+      "observedAt": 1.4914233328890987,
+      "expiresAt": 1.6914233329007402,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6666786458808929
+    },
+    {
+      "time": 1.6667079583276063,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2918,
+      "observedAt": 1.5747977079008706,
+      "expiresAt": 1.7747977079125121,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.5833333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.624936145846732
+    },
+    {
+      "time": 1.6833403750206344,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2918,
+      "observedAt": 1.5747977079008706,
+      "expiresAt": 1.7747977079125121,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.5833333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5833551041141618
+    },
+    {
+      "time": 1.700054541695863,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2918,
+      "observedAt": 1.5747977079008706,
+      "expiresAt": 1.7747977079125121,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.5833333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5415696874260902
+    },
+    {
+      "time": 1.7166919166920707,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2918,
+      "observedAt": 1.5747977079008706,
+      "expiresAt": 1.7747977079125121,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.5833333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.4999762499355711
+    },
+    {
+      "time": 1.7333654166432098,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2918,
+      "observedAt": 1.5747977079008706,
+      "expiresAt": 1.7747977079125121,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.5833333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.7500354166841134,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2923,
+      "observedAt": 1.6581720408867113,
+      "expiresAt": 1.8581720408983529,
+      "evidence": {
+        "appearance": "mismatch",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.02326388888888889,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.7667015416664071,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2923,
+      "observedAt": 1.6581720408867113,
+      "expiresAt": 1.8581720408983529,
+      "evidence": {
+        "appearance": "mismatch",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.02326388888888889,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.7833707083482295,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2923,
+      "observedAt": 1.6581720408867113,
+      "expiresAt": 1.8581720408983529,
+      "evidence": {
+        "appearance": "mismatch",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.02326388888888889,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.958327083295444
+    },
+    {
+      "time": 1.8000400416785851,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2923,
+      "observedAt": 1.6581720408867113,
+      "expiresAt": 1.8581720408983529,
+      "evidence": {
+        "appearance": "mismatch",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.02326388888888889,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9166537499695551
+    },
+    {
+      "time": 1.816707750025671,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2923,
+      "observedAt": 1.6581720408867113,
+      "expiresAt": 1.8581720408983529,
+      "evidence": {
+        "appearance": "mismatch",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.02326388888888889,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8749844791018404
+    },
+    {
+      "time": 1.8333603750215843,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2923,
+      "observedAt": 1.6581720408867113,
+      "expiresAt": 1.8581720408983529,
+      "evidence": {
+        "appearance": "mismatch",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.02326388888888889,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.833352916612057
+    },
+    {
+      "time": 1.8500163333374076,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2923,
+      "observedAt": 1.6581720408867113,
+      "expiresAt": 1.8581720408983529,
+      "evidence": {
+        "appearance": "mismatch",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.02326388888888889,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.791713020822499
+    },
+    {
+      "time": 1.8666862500249408,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2923,
+      "observedAt": 1.6581720408867113,
+      "expiresAt": 1.8581720408983529,
+      "evidence": {
+        "appearance": "mismatch",
+        "coverage": 0.6666666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.02326388888888889,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.883374166674912,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2929,
+      "observedAt": 1.7582213329151273,
+      "expiresAt": 1.9582213329267688,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.916686666663736,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2929,
+      "observedAt": 1.7582213329151273,
+      "expiresAt": 1.9582213329267688,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.9333505416871049,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2929,
+      "observedAt": 1.7582213329151273,
+      "expiresAt": 1.9582213329267688,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583403124415781
+    },
+    {
+      "time": 1.9500232916907407,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2929,
+      "observedAt": 1.7582213329151273,
+      "expiresAt": 1.9582213329267688,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9166584374324884
+    },
+    {
+      "time": 1.9666848750202917,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2929,
+      "observedAt": 1.7582213329151273,
+      "expiresAt": 1.9582213329267688,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 1.9833755000145175,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2936,
+      "observedAt": 1.8749455409124494,
+      "expiresAt": 2.074945540924091,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.020153043965390246,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.0000412500230595,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2936,
+      "observedAt": 1.8749455409124494,
+      "expiresAt": 2.074945540924091,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.020153043965390246,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.0166932916617952,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2936,
+      "observedAt": 1.8749455409124494,
+      "expiresAt": 2.074945540924091,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.020153043965390246,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583698959031608
+    },
+    {
+      "time": 2.033407166658435,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2936,
+      "observedAt": 1.8749455409124494,
+      "expiresAt": 2.074945540924091,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.020153043965390246,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9165852084115613
+    },
+    {
+      "time": 2.0500119583448395,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2936,
+      "observedAt": 1.8749455409124494,
+      "expiresAt": 2.074945540924091,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.020153043965390246,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8750732291955501
+    },
+    {
+      "time": 2.066696291672997,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2942,
+      "observedAt": 1.9749947498785332,
+      "expiresAt": 2.1749947498901747,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025157356285438585,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8333623958751559
+    },
+    {
+      "time": 2.0833680416690186,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2942,
+      "observedAt": 1.9749947498785332,
+      "expiresAt": 2.1749947498901747,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025157356285438585,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7916830208851025
+    },
+    {
+      "time": 2.100030333327595,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2942,
+      "observedAt": 1.9749947498785332,
+      "expiresAt": 2.1749947498901747,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025157356285438585,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.750027291738661
+    },
+    {
+      "time": 2.1166809999849647,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2942,
+      "observedAt": 1.9749947498785332,
+      "expiresAt": 2.1749947498901747,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025157356285438585,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.708400625095237
+    },
+    {
+      "time": 2.133347875031177,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2942,
+      "observedAt": 1.9749947498785332,
+      "expiresAt": 2.1749947498901747,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025157356285438585,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6667334374797065
+    },
+    {
+      "time": 2.1500104583101347,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2942,
+      "observedAt": 1.9749947498785332,
+      "expiresAt": 2.1749947498901747,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.7083333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.025157356285438585,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6250769792823121
+    },
+    {
+      "time": 2.1667081666528247,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2947,
+      "observedAt": 2.0583690829225816,
+      "expiresAt": 2.258369082934223,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.583332708425587
+    },
+    {
+      "time": 2.183345250028651,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2947,
+      "observedAt": 2.0583690829225816,
+      "expiresAt": 2.258369082934223,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5417399999860208
+    },
+    {
+      "time": 2.2000420416588895,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2947,
+      "observedAt": 2.0583690829225816,
+      "expiresAt": 2.258369082934223,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.4999980209104251
+    },
+    {
+      "time": 2.216679291683249,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2947,
+      "observedAt": 2.0583690829225816,
+      "expiresAt": 2.258369082934223,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.45840489584952593
+    },
+    {
+      "time": 2.2333481666864827,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2947,
+      "observedAt": 2.0583690829225816,
+      "expiresAt": 2.258369082934223,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.41673270834144205
+    },
+    {
+      "time": 2.250009791692719,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2947,
+      "observedAt": 2.0583690829225816,
+      "expiresAt": 2.258369082934223,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.01909722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.3750786458258517
+    },
+    {
+      "time": 2.266698458348401,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2953,
+      "observedAt": 2.15841837489279,
+      "expiresAt": 2.3584183749044314,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.05034722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.2833616249845363,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2953,
+      "observedAt": 2.15841837489279,
+      "expiresAt": 2.3584183749044314,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.05034722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.300036375003401,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2953,
+      "observedAt": 2.15841837489279,
+      "expiresAt": 2.3584183749044314,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.05034722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583131249528378
+    },
+    {
+      "time": 2.3166777916485444,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2953,
+      "observedAt": 2.15841837489279,
+      "expiresAt": 2.3584183749044314,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.05034722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9167095833399799
+    },
+    {
+      "time": 2.3333418749971315,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2953,
+      "observedAt": 2.15841837489279,
+      "expiresAt": 2.3584183749044314,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.05034722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.875049374968512
+    },
+    {
+      "time": 2.3500159166869707,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2953,
+      "observedAt": 2.15841837489279,
+      "expiresAt": 2.3584183749044314,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.05034722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.833364270743914
+    },
+    {
+      "time": 2.36669112497475,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2953,
+      "observedAt": 2.15841837489279,
+      "expiresAt": 2.3584183749044314,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.05034722222222222,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.3833546666428447,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2959,
+      "observedAt": 2.2584676248952746,
+      "expiresAt": 2.458467624906916,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.4166867500171065,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2959,
+      "observedAt": 2.2584676248952746,
+      "expiresAt": 2.458467624906916,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.433353625005111,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2959,
+      "observedAt": 2.2584676248952746,
+      "expiresAt": 2.458467624906916,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.625,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.016319444444444445,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9583328125299886
+    },
+    {
+      "time": 2.4500207916717045,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2964,
+      "observedAt": 2.3418419578811154,
+      "expiresAt": 2.541841957892757,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9166648958635051
+    },
+    {
+      "time": 2.466689958353527,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2964,
+      "observedAt": 2.3418419578811154,
+      "expiresAt": 2.541841957892757,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8749919791589491
+    },
+    {
+      "time": 2.4833724583149888,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2964,
+      "observedAt": 2.3418419578811154,
+      "expiresAt": 2.541841957892757,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8332857292552944
+    },
+    {
+      "time": 2.5000218333443627,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2964,
+      "observedAt": 2.3418419578811154,
+      "expiresAt": 2.541841957892757,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7916622916818596
+    },
+    {
+      "time": 2.5166838750010356,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2964,
+      "observedAt": 2.3418419578811154,
+      "expiresAt": 2.541841957892757,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7500071875401773
+    },
+    {
+      "time": 2.5333765416871756,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2970,
+      "observedAt": 2.4418912078836,
+      "expiresAt": 2.6418912078952417,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.875,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.7082755208248273
+    },
+    {
+      "time": 2.5500356249976903,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2970,
+      "observedAt": 2.4418912078836,
+      "expiresAt": 2.6418912078952417,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.875,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6666278125485405
+    },
+    {
+      "time": 2.5666951666935347,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2970,
+      "observedAt": 2.4418912078836,
+      "expiresAt": 2.6418912078952417,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.875,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.6249789583089296
+    },
+    {
+      "time": 2.5833454999956302,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2970,
+      "observedAt": 2.4418912078836,
+      "expiresAt": 2.6418912078952417,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.875,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5833531250536907
+    },
+    {
+      "time": 2.6000118749798276,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2970,
+      "observedAt": 2.4418912078836,
+      "expiresAt": 2.6418912078952417,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.875,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.5416871875931975
+    },
+    {
+      "time": 2.616700208338443,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2975,
+      "observedAt": 2.525265582895372,
+      "expiresAt": 2.7252655829070136,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.49996635419665836
+    },
+    {
+      "time": 2.6333708749734797,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2975,
+      "observedAt": 2.525265582895372,
+      "expiresAt": 2.7252655829070136,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.4582896876090672
+    },
+    {
+      "time": 2.650011749996338,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2975,
+      "observedAt": 2.525265582895372,
+      "expiresAt": 2.7252655829070136,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.41668750005192123
+    },
+    {
+      "time": 2.666678250010591,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2975,
+      "observedAt": 2.525265582895372,
+      "expiresAt": 2.7252655829070136,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.37502125001628883
+    },
+    {
+      "time": 2.683343208336737,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2975,
+      "observedAt": 2.525265582895372,
+      "expiresAt": 2.7252655829070136,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.3333588542009238
+    },
+    {
+      "time": 2.700012458313722,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2975,
+      "observedAt": 2.525265582895372,
+      "expiresAt": 2.7252655829070136,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.8333333333333334,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.017708333333333333,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.2916857292584609
+    },
+    {
+      "time": 2.716708749998361,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2980,
+      "observedAt": 2.608639915881213,
+      "expiresAt": 2.8086399158928543,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.24994500004686415
+    },
+    {
+      "time": 2.733340375008993,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2980,
+      "observedAt": 2.608639915881213,
+      "expiresAt": 2.8086399158928543,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.2083659375202842
+    },
+    {
+      "time": 2.7500274583580904,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2980,
+      "observedAt": 2.608639915881213,
+      "expiresAt": 2.8086399158928543,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.1666482291475404
+    },
+    {
+      "time": 2.766672166646458,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2980,
+      "observedAt": 2.608639915881213,
+      "expiresAt": 2.8086399158928543,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.1250364584266208
+    },
+    {
+      "time": 2.783337416651193,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2980,
+      "observedAt": 2.608639915881213,
+      "expiresAt": 2.8086399158928543,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.0833733334147837
+    },
+    {
+      "time": 2.800011416664347,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2980,
+      "observedAt": 2.608639915881213,
+      "expiresAt": 2.8086399158928543,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.0416883333818987
+    },
+    {
+      "time": 2.816680916643236,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2980,
+      "observedAt": 2.608639915881213,
+      "expiresAt": 2.8086399158928543,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.012152777777777776,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.8333515416597947,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2986,
+      "observedAt": 2.7086891249055043,
+      "expiresAt": 2.908689124917146,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.875,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.850014541647397,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2986,
+      "observedAt": 2.7086891249055043,
+      "expiresAt": 2.908689124917146,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.875,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.8667016249964945,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2986,
+      "observedAt": 2.7086891249055043,
+      "expiresAt": 2.908689124917146,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.875,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9582822916272562
+    },
+    {
+      "time": 2.8833565000095405,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2986,
+      "observedAt": 2.7086891249055043,
+      "expiresAt": 2.908689124917146,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.875,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9166451040946413
+    },
+    {
+      "time": 2.900014541693963,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2986,
+      "observedAt": 2.7086891249055043,
+      "expiresAt": 2.908689124917146,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.875,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.015625,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8749999998835847
+    },
+    {
+      "time": 2.9166845833533444,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2992,
+      "observedAt": 2.8087384158861823,
+      "expiresAt": 3.008738415897824,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.03090277777777778,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.9333438749890774,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2992,
+      "observedAt": 2.8087384158861823,
+      "expiresAt": 3.008738415897824,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.03090277777777778,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 2.9513173750019632,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2992,
+      "observedAt": 2.8087384158861823,
+      "expiresAt": 3.008738415897824,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.03090277777777778,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9550662499677856
+    },
+    {
+      "time": 2.9667966666747816,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2992,
+      "observedAt": 2.8087384158861823,
+      "expiresAt": 3.008738415897824,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.03090277777777778,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.9163680207857396
+    },
+    {
+      "time": 2.9833511666511185,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2992,
+      "observedAt": 2.8087384158861823,
+      "expiresAt": 3.008738415897824,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.03090277777777778,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8749817708448973
+    },
+    {
+      "time": 3.000010250019841,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2992,
+      "observedAt": 2.8087384158861823,
+      "expiresAt": 3.008738415897824,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.75,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.03090277777777778,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 0.8333340624230914
+    },
+    {
+      "time": 3.0166991250007413,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": false,
+      "frameID": 2998,
+      "observedAt": 2.9087875828845426,
+      "expiresAt": 3.108787582896184,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.9166666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.014930555555555556,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    },
+    {
+      "time": 3.0333827916765586,
+      "epoch": 2,
+      "sourceAvailable": true,
+      "textureValid": true,
+      "frameID": 2998,
+      "observedAt": 2.9087875828845426,
+      "expiresAt": 3.108787582896184,
+      "evidence": {
+        "appearance": "compatible",
+        "coverage": 0.9166666666666666,
+        "permitsDisplay": true,
+        "reason": "native-visible-seam",
+        "reliable": false,
+        "searchComplete": true,
+        "status": "ambiguous",
+        "visibleSeam": {
+          "compatible": true,
+          "coverage": 1,
+          "maximumObservableError": 0.014930555555555556,
+          "nativeSupportChecked": true,
+          "reason": "native-visible-seam"
+        }
+      },
+      "recordedQualityOpacity": 1,
+      "recordedReadinessOpacity": 1
+    }
+  ]
+}

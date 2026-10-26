@@ -82,7 +82,7 @@ class SingleCameraBackendContracts(unittest.TestCase):
         self.assertNotIn(".flush(", freeze)
         delivery = section(FRAMES, "func captureOutput(", "func captureOutput(_ output: AVCaptureOutput, didDrop")
         self.assertOrdered(delivery, "CMSampleBufferDataIsReady", "CVPixelBufferGetPixelFormatType",
-                           "CVPixelBufferGetWidth", "CVPixelBufferGetHeight", "generation == ticket",
+                           "CVPixelBufferGetWidth", "CVPixelBufferGetHeight", "self.generation==latest.generation",
                            "renderer.isReadyForMoreMediaData", "renderer.enqueue(sampleBuffer)", "first?()")
         teardown = section(SOURCE, "private func tearDownGraph(", "    func stop()")
         self.assertIn("if preservingPreview { delivery.freeze() } else { delivery.invalidate() }", teardown)
@@ -91,7 +91,7 @@ class SingleCameraBackendContracts(unittest.TestCase):
     def test_freeze_is_a_fence_against_admitted_main_enqueue_and_queued_flush(self):
         delivery = section(FRAMES, "func captureOutput(", "func captureOutput(_ output: AVCaptureOutput, didDrop")
         main = delivery.split("DispatchQueue.main.async", 1)[1]
-        self.assertOrdered(main, "self.lock.lock()", "guard self.active, self.generation == ticket",
+        self.assertOrdered(main, "self.lock.lock()", "guard self.active, let latest=self.latestPending,self.generation==latest.generation",
                            "let renderer", "renderer.enqueue(sampleBuffer)",
                            "self.pending = false; self.lock.unlock()", "first?()")
         self.assertNotIn("self.lock.unlock()\n            let renderer", main)
@@ -124,8 +124,12 @@ class SingleCameraBackendContracts(unittest.TestCase):
         self.assertIn("DispatchTime.now() >= deadline", ready)
         submit = section(SOURCE, "private func submitPhoto(", "private func finishPhoto(")
         self.assertIn("self.currentRequest === request", submit)
-        self.assertIn("settings.maxPhotoDimensions = request.capability.dimensions", submit)
-        self.assertIn("settings.photoQualityPrioritization = .quality", submit)
+        self.assertIn("settings.maxPhotoDimensions = captureDimensions", submit)
+        self.assertIn("switch request.quality", submit)
+        for priority in ("speed", "balanced", "quality"):
+            self.assertIn(f"settings.photoQualityPrioritization = .{priority}", submit)
+        self.assertIn("request.quality.sourceDimensions(available: available)", submit)
+        self.assertIn("expectedDimensions: captureDimensions", submit)
         self.assertIn("self.phase == .capturing", submit)
         self.assertIn("Photo capture timed out", submit)
         for forbidden in ("OutputOption", "outputMegapixels", "previewLongEdge",

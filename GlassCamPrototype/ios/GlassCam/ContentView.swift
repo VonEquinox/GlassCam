@@ -74,15 +74,34 @@ struct EffectToggleControls: View {
     let mode: ColorMode
 
     var body: some View {
-        Toggle("Sharpening", isOn: $effects.applySharpness)
-            .accessibilityIdentifier("effects.sharpening")
-        Toggle("Grain", isOn: $effects.applyGrain)
-            .accessibilityIdentifier("effects.grain")
-        Text("Uses this look’s sharpening and grain settings, when available. Your choices stay saved when you change looks.")
-            .font(.caption).foregroundStyle(.secondary)
-        if mode == .ffcs {
-            Text("To add sharpening or grain to FFCS looks, enable additional reference adjustments in Advanced.")
+        if mode != .lumix {
+            Toggle("Sharpening", isOn: $effects.applySharpness)
+                .accessibilityIdentifier("effects.sharpening")
+            Toggle("Grain", isOn: $effects.applyGrain)
+                .accessibilityIdentifier("effects.grain")
+            Text("Uses this look’s sharpening and grain settings, when available. Your choices stay saved when you change looks.")
                 .font(.caption).foregroundStyle(.secondary)
+            if mode == .ffcs {
+                Text("To add sharpening or grain to FFCS looks, enable additional reference adjustments in Advanced.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
+struct LUMIXPhotoStyleControls: View {
+    @Binding var settings: LUMIXSettings
+    var body: some View {
+        VStack(alignment: .leading) {
+        Picker("Photo Style", selection: $settings.photoStyle) {
+            ForEach(LUMIXEngine.looks) { look in Text(look.name).tag(look.id) }
+        }.pickerStyle(.menu).accessibilityIdentifier("lumix.photoStyle")
+        Stepper(value: $settings.contrast, in: -5...5, step: 0.5) {
+            Text("Contrast: \(settings.contrast, specifier: "%.1f")")
+        }.accessibilityIdentifier("lumix.contrast")
+        Stepper(value: $settings.saturation, in: -5...5, step: 0.5) {
+            Text("Saturation: \(settings.saturation, specifier: "%.1f")")
+        }.accessibilityIdentifier("lumix.saturation")
         }
     }
 }

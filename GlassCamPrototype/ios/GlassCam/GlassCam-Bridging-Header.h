@@ -3,4 +3,5 @@
 #include "hncs_c.h"
 #include "hncs_spatial.h"
 #include "ffcs_c.h"
+#include "lumix_c.h"
 #endif

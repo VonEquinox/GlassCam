@@ -24,8 +24,8 @@ final class PipelineTiming: @unchecked Sendable {
     }
 }
 
-/// Immutable RAW input policy. The scene-linear candidate is diagnostic-only;
-/// Existing tone/EDR defaults are retained. HNCS disables decoder sharpening
+/// Immutable RAW input policy. LUMIX revision 2 uses scene-linear ProRAW;
+/// HNCS/FFCS retain their existing tone/EDR defaults. HNCS disables decoder sharpening
 /// before applying its independently verified native sharpness stage.
 struct RAWDecodeRecipe: Codable, Equatable, Sendable {
     enum Rendering: String, Codable, Sendable { case appleRendered, sceneLinear }
@@ -53,6 +53,11 @@ struct RAWDecodeRecipe: Codable, Equatable, Sendable {
         RAWDecodeRecipe(rendering: rendering, decoderVersion: decoderVersion,
             linearExposureEV: linearExposureEV, decoderExposureEV: decoderExposureEV,
             edrAmount: edrAmount, sharpnessAmount: 0, baselineSharpness: baselineSharpness)
+    }
+    var sceneLinearInput: RAWDecodeRecipe {
+        RAWDecodeRecipe(rendering: .sceneLinear, decoderVersion: decoderVersion,
+            linearExposureEV: linearExposureEV, decoderExposureEV: decoderExposureEV,
+            edrAmount: nil, sharpnessAmount: nil, baselineSharpness: baselineSharpness)
     }
     var isValid: Bool {
         linearExposureEV.isFinite && (-10...10).contains(linearExposureEV) &&
@@ -82,25 +87,29 @@ struct ImportedImage: @unchecked Sendable {
     let sourceDescription: String
     let whiteBalance: PhotoWhiteBalance
     let rawDecode: RAWDecodeRecipe
+    let sourceISO: Int?
 
     init(sourceFile: SourceImageFile, exportSettings: ExportSettings, linearRGB: [Float],
          width: Int, height: Int, original: PreviewRaster, sourceDescription: String,
-         whiteBalance: PhotoWhiteBalance = .renderedD65, rawDecode: RAWDecodeRecipe = .current) {
+         whiteBalance: PhotoWhiteBalance = .renderedD65, rawDecode: RAWDecodeRecipe = .current,
+         sourceISO: Int? = nil) {
         self.sourceFile = sourceFile; self.exportSettings = exportSettings; self.linearRGB = linearRGB
         self.width = width; self.height = height; self.original = original
         self.sourceDescription = sourceDescription; self.whiteBalance = whiteBalance; self.rawDecode = rawDecode
+        self.sourceISO = sourceISO
     }
 }
 
 /// Only implemented, audited backends belong in this list. Adding a mode must
 /// implement both preview and float export dispatch before exposing it in the UI.
 enum ColorMode: String, CaseIterable, Identifiable, Codable, Sendable {
-    case hncs, ffcs
+    case hncs, ffcs, lumix
     var id: Self { self }
     var title: String {
         switch self {
         case .hncs: return "HNCS"
         case .ffcs: return "FFCS"
+        case .lumix: return "LUMIX"
         }
     }
 }
@@ -174,6 +183,7 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
     let hncs: HNCSSettings
     let effects: EffectToggles
     let ffcs: FFCSSettings
+    let lumix: LUMIXSettings
     let photoWhiteBalance: PhotoWhiteBalance?
     // Only the HNCS square preset defines a crop. FFCS has no extra-crop stage.
     var crop: ImageCrop { mode == .hncs ? hncs.crop(effects: effects) : .none }
@@ -181,14 +191,15 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
     init(mode: ColorMode, exposureEV: Double, illuminantKelvin: Double,
          simulationIndex: Int, seed: UInt32, hncs: HNCSSettings,
          effects: EffectToggles = .standard, ffcs: FFCSSettings = .standard,
-         photoWhiteBalance: PhotoWhiteBalance? = nil) {
+         photoWhiteBalance: PhotoWhiteBalance? = nil, lumix: LUMIXSettings = .standard) {
         self.mode = mode; self.exposureEV = exposureEV; self.illuminantKelvin = illuminantKelvin
         self.simulationIndex = simulationIndex; self.seed = seed; self.hncs = hncs
         self.effects = effects; self.ffcs = ffcs; self.photoWhiteBalance = photoWhiteBalance
+        self.lumix = lumix
     }
 
     private enum CodingKeys: String, CodingKey {
-        case mode, exposureEV, illuminantKelvin, simulationIndex, seed, hncs, effects, ffcs, photoWhiteBalance
+        case mode, exposureEV, illuminantKelvin, simulationIndex, seed, hncs, effects, ffcs, photoWhiteBalance, lumix
     }
     private enum LegacyEffectKeys: String, CodingKey { case applyGrain, applySharpness }
     init(from decoder: Decoder) throws {
@@ -201,6 +212,7 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
         hncs = try values.decodeIfPresent(HNCSSettings.self, forKey: .hncs) ?? .legacyStandard
         photoWhiteBalance = try values.decodeIfPresent(PhotoWhiteBalance.self, forKey: .photoWhiteBalance)
         ffcs = try values.decodeIfPresent(FFCSSettings.self, forKey: .ffcs) ?? .standard
+        lumix = try values.decodeIfPresent(LUMIXSettings.self, forKey: .lumix) ?? .standard
         if let savedEffects = try values.decodeIfPresent(EffectToggles.self, forKey: .effects) {
             effects = savedEffects
         } else if mode == .hncs, values.contains(.hncs), try !values.decodeNil(forKey: .hncs) {
@@ -223,7 +235,20 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
         guard photoWhiteBalance == nil else { return self }
         return ProcessingRecipe(mode: mode, exposureEV: exposureEV,
             illuminantKelvin: value.modelKelvin ?? 6500, simulationIndex: simulationIndex,
-            seed: seed, hncs: hncs, effects: effects, ffcs: ffcs, photoWhiteBalance: value)
+            seed: seed, hncs: hncs, effects: effects, ffcs: ffcs, photoWhiteBalance: value, lumix: lumix)
+    }
+    func resolvingLUMIXSourceISO(_ value: Int?) -> ProcessingRecipe {
+        guard mode == .lumix, lumix.renderRevision >= 2, lumix.sourceISO == nil else { return self }
+        var resolved = lumix; resolved.sourceISO = value ?? 100
+        return ProcessingRecipe(mode: mode, exposureEV: exposureEV,
+            illuminantKelvin: illuminantKelvin, simulationIndex: simulationIndex, seed: seed,
+            hncs: hncs, effects: effects, ffcs: ffcs, photoWhiteBalance: photoWhiteBalance, lumix: resolved)
+    }
+
+    func sourceDecodeRecipe(_ original: RAWDecodeRecipe) -> RAWDecodeRecipe {
+        if mode == .hncs { return original.withoutDecoderSharpness }
+        if mode == .lumix && lumix.renderRevision >= 2 { return original.sceneLinearInput }
+        return original
     }
 
     static let standard = ProcessingRecipe(mode: .hncs, exposureEV: 0, illuminantKelvin: 6500,
@@ -232,10 +257,11 @@ struct ProcessingRecipe: Codable, Equatable, Sendable {
         exposureEV.isFinite && (-2...2).contains(exposureEV) &&
         illuminantKelvin.isFinite && (2000...10000).contains(illuminantKelvin) &&
         (photoWhiteBalance == nil || photoWhiteBalance!.isValid) &&
-        (0..<Int(ffcs_simulation_count())).contains(simulationIndex) && hncs.isValid && ffcs.isValid
+        (0..<Int(ffcs_simulation_count())).contains(simulationIndex) && hncs.isValid && ffcs.isValid && lumix.isValid
     }
 
     var displayName: String {
+        if mode == .lumix { return "LUMIX · \(lumix.title)" }
         guard mode == .ffcs else { return "HNCS · \(hncs.presetTitle) · \(hncs.filmCurve.title)" }
         let actual = FFCSEngine.resolvedAssetFamily(simulationIndex, family: ffcs.cameraFamily)
         let family = actual.map { $0 == ffcs.cameraFamily.rawValue ? $0 : "\(ffcs.cameraFamily.rawValue) / \($0) asset" }
@@ -321,6 +347,12 @@ enum ImagePipeline {
             throw PipelineError.invalidImage
         }
         return number.doubleValue
+    }
+    static func sourceISO(in properties: [AnyHashable: Any]) -> Int? {
+        let exif = properties[kCGImagePropertyExifDictionary as String] as? [String: Any]
+        guard let values = exif?[kCGImagePropertyExifISOSpeedRatings as String] as? [NSNumber],
+              let iso = values.first?.doubleValue, iso.isFinite, (1...1_000_000).contains(iso) else { return nil }
+        return Int(iso.rounded())
     }
 
     /// Shared by reduced RAW decode, metadata-only capture binding, and full
@@ -428,11 +460,13 @@ enum ImagePipeline {
         var source: CIImage?
         var whiteBalance = PhotoWhiteBalance.renderedD65
         var resolvedRAWDecode = rawDecode
+        var captureISO: Int?
         var decodePrecisionDescription = "Float32 RAW decode · not sensor-native bit depth"
         if isRAW {
             if let raw = CIRAWFilter(imageData: data, identifierHint: "com.adobe.raw-image") {
                 resolvedRAWDecode = try configureRAW(raw, recipe: rawDecode)
                 whiteBalance = .asShot(raw)
+                captureISO = sourceISO(in: raw.properties)
                 let native = raw.nativeSize
                 let longEdge = max(native.width, native.height)
                 guard longEdge.isFinite, longEdge > 0 else { throw PipelineError.invalidImage }
@@ -496,26 +530,27 @@ enum ImagePipeline {
         return ImportedImage(sourceFile: sourceFile, exportSettings: exportSettings, linearRGB: rgb, width: width, height: height,
                              original: original,
                              sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter • \(decodePrecisionDescription)" : "Rendered image • embedded profile → linear sRGB • \(decodePrecisionDescription)",
-                             whiteBalance: whiteBalance, rawDecode: resolvedRAWDecode)
+                             whiteBalance: whiteBalance, rawDecode: resolvedRAWDecode, sourceISO: captureISO)
     }
 
     static func process(_ input: ImportedImage, recipe: ProcessingRecipe) throws -> ProcessedImage {
         var input = input
-        if recipe.mode == .hncs, ["dng", "raw"].contains(input.sourceFile.fileExtension?.lowercased() ?? ""),
-           input.rawDecode.sharpnessAmount != 0 {
-            // A generic import can retain Apple's sharpening. Re-decode for
-            // HNCS and retain that exact input policy in ProcessedImage.source.
-            // Automatic capture binds this policy before any pixel decode.
+        let sourcePolicy = recipe.sourceDecodeRecipe(input.rawDecode)
+        if ["dng", "raw"].contains(input.sourceFile.fileExtension?.lowercased() ?? ""),
+           sourcePolicy != input.rawDecode {
+            // Re-decode for the selected engine's pinned RAW input policy and
+            // retain that policy in ProcessedImage.source. Automatic capture
+            // binds the same policy before any pixel decode.
             let previous = input
             input = try decodeQueue.sync {
                 try autoreleasepool {
                     try decode(data: Data(contentsOf: previous.sourceFile.url), fileExtension: previous.sourceFile.fileExtension,
                         sourceFile: previous.sourceFile, maximumEdge: CGFloat(max(previous.width, previous.height)),
-                        exportSettings: previous.exportSettings, rawDecode: previous.rawDecode.withoutDecoderSharpness)
+                        exportSettings: previous.exportSettings, rawDecode: sourcePolicy)
                 }
             }
         }
-        let recipe = recipe.resolvingWhiteBalance(input.whiteBalance)
+        let recipe = recipe.resolvingWhiteBalance(input.whiteBalance).resolvingLUMIXSourceISO(input.sourceISO)
         guard recipe.isValid else { throw HNCSEngine.Error.invalidSettings }
         let crop = try recipe.crop.resolve(width: input.width, height: input.height)
         let comparisonSource = try input.original.cropped(to: crop)
@@ -549,6 +584,10 @@ enum ImagePipeline {
             rgba = try FFCSEngine.exportLinearRGBA(linearSRGB: effectInput, width: crop.width,
                                                    height: crop.height, exposureEV: recipe.exposureEV,
                                                    simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects, settings: recipe.ffcs)
+        case .lumix:
+            rgba = try LUMIXEngine.exportLinearRGBA(linearSRGB: effectInput, width: crop.width,
+                                                    height: crop.height, exposureEV: recipe.exposureEV,
+                                                    settings: recipe.lumix, illuminantKelvin: recipe.illuminantKelvin)
         }
         if let gains { restoreHighlights(&rgba, gains: gains) }
         let image = try PreviewRaster(linearRGBA: rgba, width: crop.width, height: crop.height)
@@ -588,12 +627,14 @@ enum ImagePipeline {
                 try checkExportCancellation(isCancelled)
                 var whiteBalance = PhotoWhiteBalance.renderedD65
                 var resolvedRAWDecode = rawDecode
+                var captureISO: Int?
                 if ["dng", "raw"].contains(sourceFile.fileExtension?.lowercased() ?? "") {
                     guard let raw = CIRAWFilter(imageURL: sourceFile.url) else { throw PipelineError.invalidImage }
-                    resolvedRAWDecode = try configureRAW(raw, recipe: recipe.mode == .hncs ? rawDecode.withoutDecoderSharpness : rawDecode)
+                    resolvedRAWDecode = try configureRAW(raw, recipe: recipe.sourceDecodeRecipe(rawDecode))
                     whiteBalance = .asShot(raw)
+                    captureISO = sourceISO(in: raw.properties)
                 }
-                let resolved = recipe.resolvingWhiteBalance(whiteBalance)
+                let resolved = recipe.resolvingWhiteBalance(whiteBalance).resolvingLUMIXSourceISO(captureISO)
                 timing?.record("metadata_bind", since: metadataStarted)
                 try exportFullSource(sourceFile, whiteBalance: whiteBalance, recipe: resolved,
                     to: url, settings: settings, rawDecode: resolvedRAWDecode, isCancelled: isCancelled, progress: progress,
@@ -765,6 +806,11 @@ enum ImagePipeline {
                     }
                     rgba = expanded
                     timing?.record("rgba_pack", since: expansionStarted)
+                case .lumix:
+                    let colorStarted = timing?.start()
+                    rgba = try LUMIXEngine.exportLinearRGBA(linearSRGB: rgb, width: width, height: rows,
+                        exposureEV: recipe.exposureEV, settings: recipe.lumix, illuminantKelvin: recipe.illuminantKelvin)
+                    timing?.record("color_engine", since: colorStarted)
                 }
                 let restoreStarted = timing?.start()
                 guard rgba.count == width * rows * 4,

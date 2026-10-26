@@ -1,0 +1,1448 @@
+{
+  "description": "User explicitly rejected this scene as transparent; both edges must darken at maximum tolerance.",
+  "id": "record-1792913435797-F96EE7D0",
+  "aspect": 0.75,
+  "tiles": [
+    {
+      "boundedCandidates": false,
+      "colorPass": true,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0.10217022150754929,
+      "currentNativeGrayVariance": [
+        0.00033530304790474474,
+        1.5890647773630917e-05
+      ],
+      "edge": 0,
+      "end": 120,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.07158839702606201,
+        0.0036382675170898438
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 408,
+      "maxStructureDifference": 0.07158839702606201,
+      "maxUnsupportedStructureRun": 3,
+      "medianRGBError": 0.16862745583057404,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        215,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        1208,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.1764705926179886,
+      "passed": false,
+      "robustObservableDistanceNative": 85,
+      "segment": 0,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": 0.7936806678771973,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 0,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": true,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.009969019331037998,
+      "currentNativeGrayVariance": [
+        2.2097421606304124e-05,
+        2.9421059934975347e-06
+      ],
+      "edge": 0,
+      "end": 240,
+      "flatBothNative": true,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.03657186031341553,
+        0.008181154727935791
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 266,
+      "maxStructureDifference": 0.03657186031341553,
+      "maxUnsupportedStructureRun": 2,
+      "medianRGBError": 0.16470588743686676,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        20,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        189,
+        2
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.16862745583057404,
+      "passed": true,
+      "robustObservableDistanceNative": 264,
+      "segment": 1,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": 0.6875274777412415,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 120,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": true,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0,
+      "currentNativeGrayVariance": [
+        2.4944171173046925e-09,
+        0
+      ],
+      "edge": 0,
+      "end": 360,
+      "flatBothNative": true,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.00028324127197265625,
+        2.384185791015625e-07
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 0,
+      "maxStructureDifference": 0.00028324127197265625,
+      "maxUnsupportedStructureRun": 0,
+      "medianRGBError": 0.1568627506494522,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        0,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.16078431904315948,
+      "passed": true,
+      "robustObservableDistanceNative": 0,
+      "segment": 2,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": "NaN",
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 240,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.08000089228153229,
+      "currentNativeGrayVariance": [
+        8.53596748839891e-09,
+        0.0013569025322794914
+      ],
+      "edge": 0,
+      "end": 480,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.00025212764739990234,
+        0.047615647315979004
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 342,
+      "maxStructureDifference": 0.047615647315979004,
+      "maxUnsupportedStructureRun": 69,
+      "medianRGBError": 0.14509804546833038,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        1670
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        0,
+        2498
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.23529411852359772,
+      "passed": false,
+      "robustObservableDistanceNative": 315,
+      "segment": 3,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": "NaN",
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 360,
+      "tolerance": 4,
+      "unsupportedLine": true,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.10139234364032745,
+      "currentNativeGrayVariance": [
+        8.180158772574941e-09,
+        0.002370673231780529
+      ],
+      "edge": 0,
+      "end": 600,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.00028330087661743164,
+        0.062427520751953125
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 467,
+      "maxStructureDifference": 0.062427520751953125,
+      "maxUnsupportedStructureRun": 100,
+      "medianRGBError": 0.13725490868091583,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        2837
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        0,
+        3788
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.27843138575553894,
+      "passed": false,
+      "robustObservableDistanceNative": 431,
+      "segment": 4,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": "NaN",
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 480,
+      "tolerance": 4,
+      "unsupportedLine": true,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.07472500205039978,
+      "currentNativeGrayVariance": [
+        2.6443123246622235e-08,
+        0.0027459103148430586
+      ],
+      "edge": 0,
+      "end": 720,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.0002834200859069824,
+        0.04858219623565674
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 592,
+      "maxStructureDifference": 0.04858219623565674,
+      "maxUnsupportedStructureRun": 120,
+      "medianRGBError": 0.14901961386203766,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        3196
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        0,
+        3977
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.30588236451148987,
+      "passed": false,
+      "robustObservableDistanceNative": 553,
+      "segment": 5,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": "NaN",
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 600,
+      "tolerance": 4,
+      "unsupportedLine": true,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.13593466579914093,
+      "currentNativeGrayVariance": [
+        2.105204011115802e-08,
+        0.0009697444038465619
+      ],
+      "edge": 0,
+      "end": 840,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.00028324127197265625,
+        0.05004310607910156
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 616,
+      "maxStructureDifference": 0.05004310607910156,
+      "maxUnsupportedStructureRun": 65,
+      "medianRGBError": 0.16078431904315948,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        1840
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        0,
+        3428
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.24313725531101227,
+      "passed": false,
+      "robustObservableDistanceNative": 604,
+      "segment": 6,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": "NaN",
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 720,
+      "tolerance": 4,
+      "unsupportedLine": true,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0.149952232837677,
+      "currentNativeGrayVariance": [
+        2.0655329890928442e-08,
+        0.0012220838107168674
+      ],
+      "edge": 0,
+      "end": 960,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.00028324127197265625,
+        0.043507397174835205
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 530,
+      "maxStructureDifference": 0.043507397174835205,
+      "maxUnsupportedStructureRun": 72,
+      "medianRGBError": 0.18039216101169586,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        2000
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        0,
+        3005
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.2666666805744171,
+      "passed": false,
+      "robustObservableDistanceNative": 510,
+      "segment": 7,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": 0.4329298734664917,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 840,
+      "tolerance": 4,
+      "unsupportedLine": true,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0.05208052322268486,
+      "currentNativeGrayVariance": [
+        2.282878419634926e-08,
+        0.0017779693007469177
+      ],
+      "edge": 0,
+      "end": 1080,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.00028324127197265625,
+        0.043166399002075195
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 405,
+      "maxStructureDifference": 0.043166399002075195,
+      "maxUnsupportedStructureRun": 84,
+      "medianRGBError": 0.20392157137393951,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        1785
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        0,
+        2229
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.29411765933036804,
+      "passed": false,
+      "robustObservableDistanceNative": 393,
+      "segment": 8,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": "NaN",
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 960,
+      "tolerance": 4,
+      "unsupportedLine": true,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": true,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0,
+      "currentNativeGrayVariance": [
+        0,
+        4.4987365981796756e-05
+      ],
+      "edge": 0,
+      "end": 1200,
+      "flatBothNative": true,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        7.152557373046875e-07,
+        0.0039215087890625
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 0,
+      "maxStructureDifference": 0.0039215087890625,
+      "maxUnsupportedStructureRun": 0,
+      "medianRGBError": 0.22745098173618317,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        0,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.23137255012989044,
+      "passed": true,
+      "robustObservableDistanceNative": 0,
+      "segment": 9,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": "NaN",
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 1080,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": true,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0.45912057161331177,
+      "currentNativeGrayVariance": [
+        4.847895240800426e-08,
+        1.1211962373636197e-05
+      ],
+      "edge": 0,
+      "end": 1320,
+      "flatBothNative": true,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.00028324127197265625,
+        0.0039215087890625
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 0,
+      "maxStructureDifference": 0.003921031951904297,
+      "maxUnsupportedStructureRun": 0,
+      "medianRGBError": 0.23529411852359772,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        0,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.24313725531101227,
+      "passed": true,
+      "robustObservableDistanceNative": 0,
+      "segment": 10,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": 0.6949642300605774,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 1200,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": true,
+      "currentNativeGrayAgreement": true,
+      "currentNativeGrayNCC": 0.6604127287864685,
+      "currentNativeGrayVariance": [
+        0.1003711074590683,
+        0.0584263950586319
+      ],
+      "edge": 0,
+      "end": 1440,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.11205953359603882,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.2067835032939911,
+        0.09406161308288574
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 12,
+      "maxStructureDifference": 0.20124289393424988,
+      "maxUnsupportedStructureRun": 0,
+      "medianRGBError": 0.22745098173618317,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": true,
+      "nativeEdgeSupport": [
+        3669,
+        2525
+      ],
+      "nativeNoiseSigma": [
+        0.0005046911537647247,
+        0.000504618976265192
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        4279,
+        3662
+      ],
+      "normalBounded": true,
+      "p90RGBError": 0.42352941632270813,
+      "passed": true,
+      "robustObservableDistanceNative": 5,
+      "segment": 11,
+      "segmentNormalLower": 0.0008692579334504142,
+      "segmentNormalUpper": 0.017574976882286198,
+      "segmentPeak": 0.9872400164604187,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0.0008692579334504142,
+      "segmentVisibleShiftUpper": 0.017574976882286198,
+      "start": 1320,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0.013541666666666667
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.6226984262466431,
+      "currentNativeGrayVariance": [
+        0.0038750034291297197,
+        2.3657266865484416e-05
+      ],
+      "edge": 1,
+      "end": 120,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.04309499263763428,
+        0.004014700651168823
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 258,
+      "maxStructureDifference": 0.04293769598007202,
+      "maxUnsupportedStructureRun": 120,
+      "medianRGBError": 0.10588235408067703,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        2310,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0.0022024675272405148,
+        0.0005046550650149584
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        3391,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.3490196168422699,
+      "passed": false,
+      "robustObservableDistanceNative": 224,
+      "segment": 12,
+      "segmentNormalLower": 0.1390616536131031,
+      "segmentNormalUpper": 0.15400178829923006,
+      "segmentPeak": 0.9915698170661926,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0.1390616536131031,
+      "segmentVisibleShiftUpper": 0.15400178829923006,
+      "start": 0,
+      "tolerance": 4,
+      "unsupportedLine": true,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.3112952411174774,
+      "currentNativeGrayVariance": [
+        0.005052648019045591,
+        2.629034497658722e-05
+      ],
+      "edge": 1,
+      "end": 240,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.04690614342689514,
+        0.004108399152755737
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 140,
+      "maxStructureDifference": 0.047341763973236084,
+      "maxUnsupportedStructureRun": 38,
+      "medianRGBError": 0.0941176488995552,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        2420,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0.0022024675272405148,
+        0.00017141747230198234
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        3800,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.35686275362968445,
+      "passed": false,
+      "robustObservableDistanceNative": 113,
+      "segment": 13,
+      "segmentNormalLower": 0.13777766028945912,
+      "segmentNormalUpper": 0.15126787225499483,
+      "segmentPeak": 0.9790958762168884,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "measured",
+      "segmentVisibleShiftLower": 0.13780754496471717,
+      "segmentVisibleShiftUpper": 0.1518230837908455,
+      "start": 120,
+      "tolerance": 4,
+      "unsupportedLine": true,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.3765875995159149,
+      "currentNativeGrayVariance": [
+        0.009096256457269192,
+        1.0267634934280068e-05
+      ],
+      "edge": 1,
+      "end": 360,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.18499216437339783,
+        0.003638625144958496
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 232,
+      "maxStructureDifference": 0.1849919557571411,
+      "maxUnsupportedStructureRun": 120,
+      "medianRGBError": 0.1411764770746231,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        2695,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0.0022024675272405148,
+        0.00017141747230198234
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        3574,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.35686275362968445,
+      "passed": false,
+      "robustObservableDistanceNative": 196,
+      "segment": 14,
+      "segmentNormalLower": 0.13346017797693877,
+      "segmentNormalUpper": 0.14171337684089672,
+      "segmentPeak": 0.9649025201797485,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "measured",
+      "segmentVisibleShiftLower": 0.13421509275292137,
+      "segmentVisibleShiftUpper": 0.14392151467114098,
+      "start": 240,
+      "tolerance": 4,
+      "unsupportedLine": true,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.36143380403518677,
+      "currentNativeGrayVariance": [
+        0.006699365098029375,
+        1.5644725863239728e-05
+      ],
+      "edge": 1,
+      "end": 480,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.06284403800964355,
+        0.0036413967609405518
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 339,
+      "maxStructureDifference": 0.063498854637146,
+      "maxUnsupportedStructureRun": 120,
+      "medianRGBError": 0.3607843220233917,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        2188,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0.0011807456612586975,
+        0.00033327366691082716
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        2764,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.37254902720451355,
+      "passed": false,
+      "robustObservableDistanceNative": 309,
+      "segment": 15,
+      "segmentNormalLower": 0.12968455155596403,
+      "segmentNormalUpper": 0.14298049211596184,
+      "segmentPeak": 0.9614496827125549,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0.12968455155596403,
+      "segmentVisibleShiftUpper": 0.14298049211596184,
+      "start": 360,
+      "tolerance": 4,
+      "unsupportedLine": true,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.3955865502357483,
+      "currentNativeGrayVariance": [
+        0.004007675684988499,
+        1.8250753782922402e-05
+      ],
+      "edge": 1,
+      "end": 600,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.07946571707725525,
+        0.004016369581222534
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 439,
+      "maxStructureDifference": 0.0815829336643219,
+      "maxUnsupportedStructureRun": 120,
+      "medianRGBError": 0.37254902720451355,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        1986,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0.0005046911537647247,
+        0.0005046550650149584
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        2613,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.3803921639919281,
+      "passed": false,
+      "robustObservableDistanceNative": 417,
+      "segment": 16,
+      "segmentNormalLower": 0.12661256790067024,
+      "segmentNormalUpper": 0.14210046927228304,
+      "segmentPeak": 0.9713362455368042,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0.12661256790067024,
+      "segmentVisibleShiftUpper": 0.14210046927228304,
+      "start": 480,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": -0.10911300033330917,
+      "currentNativeGrayVariance": [
+        0.0004740025906357914,
+        1.854379843280185e-05
+      ],
+      "edge": 1,
+      "end": 720,
+      "flatBothNative": false,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.07408151030540466,
+        0.003795921802520752
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 439,
+      "maxStructureDifference": 0.07439291477203369,
+      "maxUnsupportedStructureRun": 120,
+      "medianRGBError": 0.3764705955982208,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        945,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0.00034276279620826244,
+        0.0003333097556605935
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": false,
+      "nativeWeakEdgeSupport": [
+        1309,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.3843137323856354,
+      "passed": false,
+      "robustObservableDistanceNative": 420,
+      "segment": 17,
+      "segmentNormalLower": 0.12465261816884347,
+      "segmentNormalUpper": 0.14076233506296806,
+      "segmentPeak": 0.9733694791793823,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0.12465261816884347,
+      "segmentVisibleShiftUpper": 0.14076233506296806,
+      "start": 600,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0.5137624144554138,
+      "currentNativeGrayVariance": [
+        5.005001730751246e-05,
+        1.5280582374543883e-05
+      ],
+      "edge": 1,
+      "end": 840,
+      "flatBothNative": true,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.014039427042007446,
+        0.0038289427757263184
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 320,
+      "maxStructureDifference": 0.013201892375946045,
+      "maxUnsupportedStructureRun": 11,
+      "medianRGBError": 0.3607843220233917,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        19,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0,
+        0.0005046911537647247
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        298,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.37254902720451355,
+      "passed": false,
+      "robustObservableDistanceNative": 318,
+      "segment": 18,
+      "segmentNormalLower": 0.1238056560348001,
+      "segmentNormalUpper": 0.13656407197410594,
+      "segmentPeak": 0.9871492981910706,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0.1238056560348001,
+      "segmentVisibleShiftUpper": 0.13656407197410594,
+      "start": 720,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": false,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0.09082773327827454,
+      "currentNativeGrayVariance": [
+        0.00015914894174784422,
+        2.999775460921228e-05
+      ],
+      "edge": 1,
+      "end": 960,
+      "flatBothNative": true,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.018306702375411987,
+        0.003921449184417725
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 0,
+      "maxStructureDifference": 0.01905164122581482,
+      "maxUnsupportedStructureRun": 0,
+      "medianRGBError": 0.3333333432674408,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0.0001713994424790144,
+        0.0005046550650149584
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        592,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.3529411852359772,
+      "passed": false,
+      "robustObservableDistanceNative": 0,
+      "segment": 19,
+      "segmentNormalLower": 0.12355446219350168,
+      "segmentNormalUpper": 0.13960633277987175,
+      "segmentPeak": 0.9897663593292236,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0.12355446219350168,
+      "segmentVisibleShiftUpper": 0.13960633277987175,
+      "start": 840,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": true,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0.4039202332496643,
+      "currentNativeGrayVariance": [
+        6.486346683232114e-05,
+        0.00010535003093536943
+      ],
+      "edge": 1,
+      "end": 1080,
+      "flatBothNative": true,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.019176065921783447,
+        0.0035467147827148438
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 0,
+      "maxStructureDifference": 0.01817697286605835,
+      "maxUnsupportedStructureRun": 0,
+      "medianRGBError": 0.3019607961177826,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0.00017138139810413122,
+        0.0005046550650149584
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        987,
+        81
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.3137255012989044,
+      "passed": true,
+      "robustObservableDistanceNative": 0,
+      "segment": 20,
+      "segmentNormalLower": 0.11936379869684843,
+      "segmentNormalUpper": 0.1322512090215557,
+      "segmentPeak": 0.9884660243988037,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0.11936379869684843,
+      "segmentVisibleShiftUpper": 0.1322512090215557,
+      "start": 960,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": true,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0.2996102273464203,
+      "currentNativeGrayVariance": [
+        4.951810115016997e-05,
+        1.1758278560591862e-05
+      ],
+      "edge": 1,
+      "end": 1200,
+      "flatBothNative": true,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.018895357847213745,
+        0.003704756498336792
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 0,
+      "maxStructureDifference": 0.01939237117767334,
+      "maxUnsupportedStructureRun": 0,
+      "medianRGBError": 0.3019607961177826,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        0
+      ],
+      "nativeNoiseSigma": [
+        0.00017138139810413122,
+        0.0001713994424790144
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        1310,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.30588236451148987,
+      "passed": true,
+      "robustObservableDistanceNative": 0,
+      "segment": 21,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": 0.9104704260826111,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 1080,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": true,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0.38781264424324036,
+      "currentNativeGrayVariance": [
+        9.853477968135849e-05,
+        1.142017117672367e-05
+      ],
+      "edge": 1,
+      "end": 1320,
+      "flatBothNative": true,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.022069603204727173,
+        0.00551074743270874
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 0,
+      "maxStructureDifference": 0.02169555425643921,
+      "maxUnsupportedStructureRun": 0,
+      "medianRGBError": 0.29411765933036804,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": false,
+      "nativeEdgeSupport": [
+        0,
+        0
+      ],
+      "nativeNoiseSigma": [
+        1.8040147153897124e-08,
+        0.0005046550650149584
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        1320,
+        0
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.30588236451148987,
+      "passed": true,
+      "robustObservableDistanceNative": 0,
+      "segment": 22,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": 0.914941132068634,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 1200,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0
+    },
+    {
+      "boundedCandidates": false,
+      "colorPass": true,
+      "currentNativeGrayAgreement": false,
+      "currentNativeGrayNCC": 0.42167264223098755,
+      "currentNativeGrayVariance": [
+        0.00013065866369288415,
+        0.00013401273463387042
+      ],
+      "edge": 1,
+      "end": 1440,
+      "flatBothNative": true,
+      "geometryGrayBias": 0.1534752994775772,
+      "geometryGrayGain": 1,
+      "maxBadRunNativePixels": 0,
+      "maximumRawGradient": [
+        0.029139578342437744,
+        0.013013094663619995
+      ],
+      "maximumStructureDistanceAnalysisPixels": 12,
+      "maxObservableDistanceNative": 25,
+      "maxStructureDifference": 0.02913963794708252,
+      "maxUnsupportedStructureRun": 0,
+      "medianRGBError": 0.2862745225429535,
+      "minimumGrayNCC": 0.6000000238418579,
+      "nativeDirectional": true,
+      "nativeEdgeSupport": [
+        0,
+        20
+      ],
+      "nativeNoiseSigma": [
+        0.00017138139810413122,
+        0.0006760545074939728
+      ],
+      "nativePeriodicProfile": false,
+      "nativeSampleCount": 7200,
+      "nativeScale": 7.5,
+      "nativeStructurePass": true,
+      "nativeWeakEdgeSupport": [
+        1568,
+        1420
+      ],
+      "normalBounded": false,
+      "p90RGBError": 0.30588236451148987,
+      "passed": true,
+      "robustObservableDistanceNative": 23,
+      "segment": 23,
+      "segmentNormalLower": "NaN",
+      "segmentNormalUpper": "NaN",
+      "segmentPeak": 0.93905109167099,
+      "segmentRepeated": false,
+      "segmentSearchComplete": true,
+      "segmentStatus": "unobservable",
+      "segmentVisibleShiftLower": 0,
+      "segmentVisibleShiftUpper": "NaN",
+      "start": 1320,
+      "tolerance": 4,
+      "unsupportedLine": false,
+      "visibleErrorUpper": 0.022569444444444448
+    }
+  ],
+  "measurementImplementation": "fixed-direct-stitch with explicit ambiguity and robust native edge distance"
+}

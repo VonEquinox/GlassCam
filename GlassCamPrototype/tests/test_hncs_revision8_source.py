@@ -86,7 +86,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertEqual(members['rawFilmCurveType'][2], '2')
         self.assertEqual(members['factoryKelvinOverride'][2], 'nil')
         recipe = stored_members(self.pipeline, 'struct ProcessingRecipe:')
-        self.assertEqual(set(recipe), {'mode', 'exposureEV', 'illuminantKelvin', 'simulationIndex', 'seed', 'hncs', 'effects', 'ffcs', 'photoWhiteBalance'})
+        self.assertEqual(set(recipe), {'mode', 'exposureEV', 'illuminantKelvin', 'simulationIndex', 'seed', 'hncs', 'effects', 'ffcs', 'photoWhiteBalance', 'lumix'})
         self.assertTrue(all(member[0] == 'let' for member in recipe.values()))
         self.assertEqual(recipe['hncs'][1], 'HNCSSettings')
         self.assertEqual(recipe['effects'][1], 'EffectToggles')
@@ -149,7 +149,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertIn('Stepper("Factory CCT:', controls)
 
     def test_import_and_rerender_freeze_recipe_before_background_work(self):
-        self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export)', self.view)
+        self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality)', self.view)
         self.assertIn('ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe', self.workflow)
         self.assertIn('settings: snapshot.output', self.workflow)
         self.assertIn('let snapshot: CaptureSnapshot', self.workflow)

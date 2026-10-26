@@ -42,6 +42,15 @@
         A00000000000000000000035 /* PeripheralGlassShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000035; };
         A00000000000000000000036 /* PeripheralGlassView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000036; };
         A00000000000000000000037 = {isa = PBXBuildFile; fileRef = B00000000000000000000037; };
+        A00000000000000000000038 /* CameraSessionRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000038; };
+        A00000000000000000000039 /* PeripheralStateRecording.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000039 /* PeripheralStateRecording.swift */; };
+        A00000000000000000000040 /* PeripheralRecordingControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000040 /* PeripheralRecordingControls.swift */; };
+        A00000000000000000000041 /* PeripheralVisibleSeam.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000041 /* PeripheralVisibleSeam.swift */; };
+        A00000000000000000000042 /* PeripheralDenseRefinement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000042 /* PeripheralDenseRefinement.swift */; };
+        A00000000000000000000043 /* PeripheralLiveDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000043 /* PeripheralLiveDisplay.swift */; };
+        A00000000000000000000044 /* LUMIXEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000044; };
+        A00000000000000000000045 /* lumix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000045; settings = {COMPILER_FLAGS = "-O3 -fno-fast-math -ffp-contract=off"; }; };
+        A00000000000000000000046 /* Resources/LUMIX in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000046; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,6 +97,15 @@
         B00000000000000000000035 /* PeripheralGlassShader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralGlassShader.swift; sourceTree = "<group>"; };
         B00000000000000000000036 /* PeripheralGlassView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralGlassView.swift; sourceTree = "<group>"; };
         B00000000000000000000037 = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+        B00000000000000000000038 /* CameraSessionRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraSessionRecovery.swift; sourceTree = "<group>"; };
+        B00000000000000000000039 /* PeripheralStateRecording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralStateRecording.swift; sourceTree = "<group>"; };
+        B00000000000000000000040 /* PeripheralRecordingControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralRecordingControls.swift; sourceTree = "<group>"; };
+        B00000000000000000000041 /* PeripheralVisibleSeam.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralVisibleSeam.swift; sourceTree = "<group>"; };
+        B00000000000000000000042 /* PeripheralDenseRefinement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralDenseRefinement.swift; sourceTree = "<group>"; };
+        B00000000000000000000043 /* PeripheralLiveDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralLiveDisplay.swift; sourceTree = "<group>"; };
+        B00000000000000000000044 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LUMIXEngine.swift; sourceTree = "<group>"; };
+        B00000000000000000000045 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lumix.cpp; sourceTree = "<group>"; };
+        B00000000000000000000046 = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources/LUMIX; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +140,8 @@
 				B00000000000000000000003 /* ImagePipeline.swift */,
 				B00000000000000000000004 /* HNCSEngine.swift */,
 				B00000000000000000000007 /* FFCSEngine.swift */,
+                B00000000000000000000044 /* LUMIXEngine.swift */,
+                B00000000000000000000046 /* Resources/LUMIX */,
 				B00000000000000000000009 /* Resources/FFCS */,
 				B00000000000000000000011 /* CameraController.swift */,
 				B00000000000000000000012 /* CameraView.swift */,
@@ -141,6 +161,12 @@
                 B00000000000000000000031 /* CaptureJournal.swift */,
                 B00000000000000000000037,
                 B00000000000000000000030 /* CaptureGeometry.swift */,
+                B00000000000000000000041 /* PeripheralVisibleSeam.swift */,
+                B00000000000000000000042 /* PeripheralDenseRefinement.swift */,
+                B00000000000000000000043 /* PeripheralLiveDisplay.swift */,
+                B00000000000000000000038 /* CameraSessionRecovery.swift */,
+                B00000000000000000000040 /* PeripheralRecordingControls.swift */,
+                B00000000000000000000039 /* PeripheralStateRecording.swift */,
                 B00000000000000000000036 /* PeripheralGlassView.swift */,
                 B00000000000000000000035 /* PeripheralGlassShader.swift */,
                 B00000000000000000000034 /* PeripheralAlignment.swift */,
@@ -164,6 +190,7 @@
 			children = (
 				B00000000000000000000005 /* hncs.cpp */,
 				B00000000000000000000008 /* ffcs.cpp */,
+                B00000000000000000000045 /* lumix.cpp */,
 				B00000000000000000000022 /* hncs_spatial.cpp */,
 				B00000000000000000000023 /* hncs_numpy_rng.cpp */,
 			);
@@ -179,6 +206,7 @@
 			buildConfigurationList = F00000000000000000000002 /* Build configuration list for PBXNativeTarget "GlassCam" */;
 			buildPhases = (
 				D00000000000000000000004 /* Prepare verified FFCS LUTs */,
+                D00000000000000000000008 /* Prepare verified LUMIX LUTs */,
 				D00000000000000000000001 /* Sources */,
 				D00000000000000000000003 /* Frameworks */,
 				D00000000000000000000002 /* Resources */,
@@ -233,6 +261,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A00000000000000000000008 /* Resources/FFCS in Resources */,
+                A00000000000000000000046 /* Resources/LUMIX in Resources */,
                 A00000000000000000000037,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -260,6 +289,26 @@
 			shellPath = /bin/bash;
 			shellScript = "set -euo pipefail\n/bin/bash \"$SRCROOT/../tools/prepare_ffcs_resources.sh\" \"$SRCROOT/../reference_ffcs/source.zip\" \"$SRCROOT/GlassCam/Resources/FFCS\"\n";
 		};
+        D00000000000000000000008 /* Prepare verified LUMIX LUTs */ = {
+            isa = PBXShellScriptBuildPhase;
+            buildActionMask = 2147483647;
+            files = ();
+            inputPaths = (
+                "$(SRCROOT)/../tools/prepare_lumix_resources.py",
+                "$(SRCROOT)/../reference_lumix/source.zip",
+                "$(SRCROOT)/../reference_lumix/pipeline.zip",
+                "$(SRCROOT)/../reference_lumix/SHA256SUMS",
+            );
+            name = "Prepare verified LUMIX LUTs";
+            outputPaths = (
+                "$(SRCROOT)/GlassCam/Resources/LUMIX",
+                "$(SRCROOT)/GlassCam/Resources/LUMIX/manifest.json",
+                "$(SRCROOT)/GlassCam/Resources/LUMIX/pipeline-manifest.json",
+            );
+            runOnlyForDeploymentPostprocessing = 0;
+            shellPath = /bin/bash;
+            shellScript = "set -euo pipefail\n/usr/bin/python3 \"$SRCROOT/../tools/prepare_lumix_resources.py\"\n";
+        };
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -274,6 +323,8 @@
 				A00000000000000000000005 /* hncs.cpp in Sources */,
 				A00000000000000000000006 /* FFCSEngine.swift in Sources */,
 				A00000000000000000000007 /* ffcs.cpp in Sources */,
+                A00000000000000000000044 /* LUMIXEngine.swift in Sources */,
+                A00000000000000000000045 /* lumix.cpp in Sources */,
 				A00000000000000000000011 /* CameraController.swift in Sources */,
 				A00000000000000000000012 /* CameraView.swift in Sources */,
 				A00000000000000000000013 /* CameraFraming.swift in Sources */,
@@ -293,6 +344,12 @@
                 A00000000000000000000029,
                 A00000000000000000000031 /* CaptureJournal.swift in Sources */,
                 A00000000000000000000030 /* CaptureGeometry.swift in Sources */,
+                A00000000000000000000041 /* PeripheralVisibleSeam.swift in Sources */,
+                A00000000000000000000042 /* PeripheralDenseRefinement.swift in Sources */,
+                A00000000000000000000043 /* PeripheralLiveDisplay.swift in Sources */,
+                A00000000000000000000038 /* CameraSessionRecovery.swift in Sources */,
+                A00000000000000000000040 /* PeripheralRecordingControls.swift in Sources */,
+                A00000000000000000000039 /* PeripheralStateRecording.swift in Sources */,
                 A00000000000000000000036 /* PeripheralGlassView.swift in Sources */,
                 A00000000000000000000035 /* PeripheralGlassShader.swift in Sources */,
                 A00000000000000000000034 /* PeripheralAlignment.swift in Sources */,
@@ -342,6 +399,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core";
 				INFOPLIST_KEY_CFBundleDisplayName = GlassCam;
+				INFOPLIST_FILE = GlassCam/Info.plist;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Capture Apple ProRAW photos and display the live camera view.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Automatically save your captured 10-bit HDR photos to your photo library.";
@@ -371,6 +430,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core";
 				INFOPLIST_KEY_CFBundleDisplayName = GlassCam;
+				INFOPLIST_FILE = GlassCam/Info.plist;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Capture Apple ProRAW photos and display the live camera view.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Automatically save your captured 10-bit HDR photos to your photo library.";

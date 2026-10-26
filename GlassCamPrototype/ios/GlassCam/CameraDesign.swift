@@ -1,6 +1,8 @@
 import SwiftUI
 
-/// App-owned chrome. No system glass/backdrop effects and no view snapshots.
+/// App-owned settings chrome and viewfinder pills. The viewfinder periphery
+/// itself is system Liquid Glass (PeripheralLiquidGlass); pills stay light so
+/// glass is never stacked on glass. No view snapshots.
 struct CameraCard<Content: View>: View {
     var title: LocalizedStringKey
     var symbol: String
@@ -46,7 +48,7 @@ struct CameraPill: ViewModifier {
     func body(content: Content) -> some View {
         content.padding(.horizontal, 14).frame(minWidth: 44, minHeight: 44)
             .foregroundStyle(selected ? .black : .white)
-            .background(selected ? Color.white.opacity(0.94) : Color.black.opacity(0.28), in: Capsule())
+            .background(selected ? Color.white.opacity(0.94) : Color.white.opacity(0.06), in: Capsule())
             .overlay(Capsule().strokeBorder(.white.opacity(selected ? 0 : 0.22), lineWidth: 0.6))
     }
 }

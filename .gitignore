@@ -5,6 +5,9 @@ __pycache__/
 .venv/
 .pytest_cache/
 
+# Materialized from the checked, self-contained LUMIX archive at build time
+/GlassCamPrototype/ios/GlassCam/Resources/LUMIX/
+
 # Local photo inputs and exports
 *.heic
 *.heif

@@ -31,9 +31,9 @@ def main():
     scratch=out/"scratch";scratch.mkdir(exist_ok=True)
     run_environment={**os.environ,"TMPDIR":str(scratch)+"/"}
     swift_names=["ExportSettings.swift","SourceImageStore.swift","PhotoWhiteBalance.swift","HNCSEngine.swift",
-                 "FFCSEngine.swift","ImagePipeline.swift","PreviewRaster.swift","CaptureWorkflow.swift"]
+                 "FFCSEngine.swift","LUMIXEngine.swift","ImagePipeline.swift","PreviewRaster.swift","CaptureWorkflow.swift"]
     sources=[root/"ios/GlassCam"/name for name in swift_names]
-    shared=[root/"core"/name for name in ["hncs.cpp","hncs_spatial.cpp","hncs_numpy_rng.cpp"]]
+    shared=[root/"core"/name for name in ["hncs.cpp","hncs_spatial.cpp","hncs_numpy_rng.cpp","lumix.cpp"]]
     manifest={"scope":"Mac only; no camera/phone/Photos calls", "raw_sha256":sha(args.raw_source),"baseline_ffcs_sha256":sha(args.baseline_ffcs),
               "source_sha256":{str(p.relative_to(root)):sha(p) for p in [*sources,*shared,root/"core/ffcs.cpp",Path(__file__),root/"tools/apple_color_performance.swift",
                                   *sorted((root/"core").glob("*.hpp")),*sorted((root/"core").glob("*.h")),*sorted((root/"core").glob("*.inc"))]},"builds":[]}

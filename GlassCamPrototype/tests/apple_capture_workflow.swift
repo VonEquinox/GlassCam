@@ -71,6 +71,35 @@ enum CaptureWorkflowChecks {
         let data = try Data(contentsOf: fixture.sourceFile.url)
         let snapshot = CaptureSnapshot(recipe: .standard, output: .init(targetWidth: 5656, targetHeight: 4242))
         do {
+            let harness = try WorkflowHarness(data: data)
+            let high = CGSize(width: 8064, height: 6048), low = CGSize(width: 4032, height: 3024)
+            try harness.check(CaptureQuality.speed.sourceDimensions(available: [high, low]) == low &&
+                CaptureQuality.balanced.sourceDimensions(available: [low, high]) == high &&
+                CaptureQuality.quality.sourceDimensions(available: [high, low]) == high,
+                "Capture priority selected the wrong RAW source size")
+            try harness.check(CaptureQuality.speed.sourceDimensions(available: [high]) == nil,
+                "Speed silently accepted a high-resolution source")
+            try harness.check(CaptureQuality.speed.sourceDimensions(available: [.zero, CGSize(width: CGFloat.nan, height: 4)]) == nil,
+                "Invalid camera dimensions were accepted")
+            let size = try ExportSettings.camera(12).dimensions(sourceWidth: 4032, sourceHeight: 3024)
+            try harness.check(size.width == 4032 && size.height == 3024,
+                "Speed resampled a native nominal 12MP image")
+            let speed = CaptureSnapshot(recipe: .standard, output: .camera(12), quality: .speed)
+            let encoded = try JSONEncoder().encode(speed)
+            let replay = try JSONDecoder().decode(CaptureSnapshot.self, from: encoded)
+            try harness.check(replay.quality == .speed && replay.output.cameraMegapixels == 12,
+                "Capture quality or Speed output was lost on replay")
+            var legacy = try JSONSerialization.jsonObject(with: encoded) as! [String: Any]
+            legacy.removeValue(forKey: "quality")
+            let old = try JSONDecoder().decode(CaptureSnapshot.self, from: JSONSerialization.data(withJSONObject: legacy))
+            try harness.check(old.quality == .quality, "A legacy photo changed its original Quality policy")
+            legacy["quality"] = "turbo"
+            do {
+                _ = try JSONDecoder().decode(CaptureSnapshot.self, from: JSONSerialization.data(withJSONObject: legacy))
+                try harness.check(false, "Unknown capture priority was accepted")
+            } catch is DecodingError { }
+        }
+        do {
             let harness = try WorkflowHarness(data: data); harness.denied = true
             let workflow = harness.makeWorkflow()
             workflow.capture(snapshot: snapshot) { _ in harness.shutterCalls += 1 }
@@ -117,6 +146,7 @@ enum CaptureWorkflowChecks {
                 simulationIndex: 0, seed: 0, hncs: .standard)
             defaults.set(try JSONEncoder().encode(legacyRecipe), forKey: "editor.processingRecipe.revision8.v1")
             let settings = CameraSettingsStore(defaults: defaults)
+            try WorkflowHarness(data: data).check(settings.captureQuality == .quality, "Default priority changed")
             try WorkflowHarness(data: data).check(settings.recipe.photoWhiteBalance == nil &&
                 settings.recipe.illuminantKelvin == 6500 && settings.exposure == 0.25,
                 "Legacy manual WB survived automatic migration or reset unrelated effects")
@@ -126,12 +156,20 @@ enum CaptureWorkflowChecks {
             settings.exposure = 0.5; settings.gridVisible = false
             settings.experimentalLiveColor = true; settings.centerPreviewLongEdge = 2560
             settings.setOutputMegapixels(48, physicalCameraID: "physical-main", mode: "main")
-            let frozen = CaptureSnapshot(recipe: settings.recipe, output: .init(targetWidth: 8064, targetHeight: 6048))
+            settings.captureQuality = .speed
+            try WorkflowHarness(data: data).check(settings.captureQuality.outputMegapixels(preferred:
+                settings.outputMegapixels(physicalCameraID: "physical-main", mode: "main")) == 12,
+                "Speed did not select 12MP output")
+            settings.captureQuality = .balanced
+            try WorkflowHarness(data: data).check(settings.captureQuality.outputMegapixels(preferred:
+                settings.outputMegapixels(physicalCameraID: "physical-main", mode: "main")) == 48,
+                "Leaving Speed lost the 48MP preference")
+            let frozen = CaptureSnapshot(recipe: settings.recipe, output: .init(targetWidth: 8064, targetHeight: 6048), quality: settings.captureQuality)
             let harness = try WorkflowHarness(data: data)
             harness.processingFailures = 1; harness.retentionFails = true; harness.holdSave = true
             let workflow = harness.makeWorkflow()
             workflow.capture(snapshot: frozen) { $0(.success(data)) }
-            settings.exposure = -1; settings.hncs.presetKey = "standard"
+            settings.exposure = -1; settings.hncs.presetKey = "standard"; settings.captureQuality = .quality
             try await harness.wait(workflow, phase: .failed)
             try harness.check(workflow.canRetry && harness.sawMemoryFallback, "Failed processing lost sole source")
             workflow.retry()
@@ -142,16 +180,20 @@ enum CaptureWorkflowChecks {
                               "In-flight Photos transaction admitted discard/retry/capture")
             harness.holdSave = false; harness.saveContinuation?.resume(); harness.saveContinuation = nil
             try await harness.wait(workflow, phase: .idle)
-            try harness.check(harness.snapshots.allSatisfy { $0.recipe == frozen.recipe },
+            try harness.check(harness.snapshots.allSatisfy { $0.recipe == frozen.recipe && $0.quality == frozen.quality },
                               "Settings changes retargeted committed shot or retry")
             let restored = CameraSettingsStore(defaults: defaults)
             try harness.check(restored.recipe == settings.recipe && !restored.gridVisible && restored.experimentalLiveColor &&
+                              restored.captureQuality == .quality &&
                               restored.centerPreviewLongEdge == 2560 &&
                               restored.outputMegapixels(physicalCameraID: "physical-main", mode: "main") == 48,
                               "Settings did not survive reconstruction")
             settings.setOutputMegapixels(12, physicalCameraID: "physical-main", mode: "main")
             try harness.check(settings.outputMegapixels(physicalCameraID: "physical-main", mode: "main") == 48,
                               "Unsupported 12MP output was accepted")
+            settings.captureQuality = .speed
+            try harness.check(CameraSettingsStore(defaults: defaults).captureQuality == .speed,
+                              "Speed priority did not survive relaunch")
         }
         print("PASS: production capture workflow permission/admission, duplicate/late callbacks, immutable settings, processing/save retry, in-flight Photos ownership, and persisted 24/48MP migration")
     }

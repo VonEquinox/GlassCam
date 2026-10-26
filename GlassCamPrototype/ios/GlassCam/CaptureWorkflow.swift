@@ -5,6 +5,18 @@ import ImageIO
 struct CaptureSnapshot: Codable, Sendable {
     let recipe: ProcessingRecipe
     let output: ExportSettings
+    let quality: CaptureQuality
+
+    init(recipe: ProcessingRecipe, output: ExportSettings, quality: CaptureQuality = .quality) {
+        self.recipe = recipe; self.output = output; self.quality = quality
+    }
+    private enum CodingKeys: String, CodingKey { case recipe, output, quality }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        recipe = try values.decode(ProcessingRecipe.self, forKey: .recipe)
+        output = try values.decode(ExportSettings.self, forKey: .output)
+        quality = try values.decodeIfPresent(CaptureQuality.self, forKey: .quality) ?? .quality
+    }
 }
 
 struct SavedCapture: Identifiable, @unchecked Sendable {
@@ -79,7 +91,7 @@ final class CaptureWorkflow: ObservableObject {
                         framing?.decodedWidth = width; framing?.decodedHeight = height
                     })
                 let output = framing.map { snapshot.output.withFraming($0) } ?? snapshot.output
-                return try review(file, snapshot: CaptureSnapshot(recipe: recipe, output: output), control: control)
+                return try review(file, snapshot: CaptureSnapshot(recipe: recipe, output: output, quality: snapshot.quality), control: control)
             }.value
         }
 
@@ -216,7 +228,7 @@ final class CaptureWorkflow: ObservableObject {
         case .success(let photo):
             if let snapshot = job?.snapshot, snapshot.output.cameraMegapixels != nil {
                 guard photo.framing.isValid else { fail(CaptureJournal.Failure.damaged, id: id); return }
-                job?.snapshot = CaptureSnapshot(recipe: snapshot.recipe, output: snapshot.output.withFraming(photo.framing))
+                job?.snapshot = CaptureSnapshot(recipe: snapshot.recipe, output: snapshot.output.withFraming(photo.framing), quality: snapshot.quality)
             }
             job?.source = .memory(photo.data); phase = .retaining
             task = Task {

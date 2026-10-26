@@ -102,11 +102,14 @@ def main():
         (build / "main.swift").write_text(harness)
         sources = [root / "ios/GlassCam" / name for name in [
             "ExportSettings.swift", "SourceImageStore.swift", "PhotoWhiteBalance.swift",
-            "HNCSEngine.swift", "FFCSEngine.swift", "PreviewRaster.swift", "CaptureWorkflow.swift"]]
+            "HNCSEngine.swift", "FFCSEngine.swift", "LUMIXEngine.swift", "PreviewRaster.swift", "CaptureWorkflow.swift"]]
+        subprocess.run(["xcrun", "clang++", "-std=c++17", "-O3", "-c", str(root / "core/lumix.cpp"),
+                        "-o", str(build / "lumix.o")], check=True)
         command = ["xcrun", "swiftc", "-swift-version", "5", "-O", "-parse-as-library",
                    "-module-cache-path", str(build / "modules"), "-I", str(root / "core"),
                    "-import-objc-header", str(root / "ios/GlassCam/GlassCam-Bridging-Header.h"),
                    *map(str, sources), str(build / "ImagePipeline.swift"), str(build / "main.swift"),
+                   str(build / "lumix.o"), "-lc++", "-lz",
                    "-L", str(study / "build"), "-lstudy", "-Xlinker", "-rpath", "-Xlinker",
                    str(study / "build"), "-o", str(build / "capture")]
         with (build / "build.log").open("w") as log:

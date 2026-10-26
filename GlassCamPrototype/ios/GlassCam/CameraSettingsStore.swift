@@ -4,12 +4,16 @@ import Combine
 /// One persistent source of truth for the settings page and shutter snapshots.
 final class CameraSettingsStore: ObservableObject {
     static let centerPreviewCaps = [1280, 1920, 2560, 3840, 4096]
+    @Published var captureQuality: CaptureQuality {
+        didSet { defaults.set(captureQuality.rawValue, forKey: "camera.capture.quality.v1") }
+    }
     @Published var colorMode: ColorMode = .hncs { didSet { persistRecipe() } }
     @Published var simulationIndex = 0 { didSet { persistRecipe() } }
     @Published var exposure = 0.0 { didSet { persistRecipe() } }
     @Published var hncs = HNCSSettings.standard { didSet { persistRecipe() } }
     @Published var effects = EffectToggles.standard { didSet { persistRecipe() } }
     @Published var ffcs = FFCSSettings.standard { didSet { persistRecipe() } }
+    @Published var lumix = LUMIXSettings.standard { didSet { persistRecipe() } }
     @Published var gridVisible: Bool { didSet { defaults.set(gridVisible, forKey: "camera.grid.visible") } }
     @Published var experimentalLiveColor: Bool { didSet { defaults.set(experimentalLiveColor, forKey: "camera.liveColor.enabled") } }
     @Published var centerPreviewLongEdge: Int {
@@ -28,12 +32,17 @@ final class CameraSettingsStore: ObservableObject {
         var cameraHNCS = hncs
         if cameraHNCS.renderRevision == 11 { cameraHNCS.renderRevision = HNCSSettings.currentRenderRevision }
         if cameraHNCS.presetKey == "square-crop" { cameraHNCS.presetKey = "standard" }
+        var cameraLUMIX = lumix
+        cameraLUMIX.renderRevision = LUMIXSettings.currentRenderRevision
+        cameraLUMIX.sourceISO = nil
         return ProcessingRecipe(mode: colorMode, exposureEV: exposure, illuminantKelvin: 6500,
-                                simulationIndex: simulationIndex, seed: 0, hncs: cameraHNCS, effects: effects, ffcs: ffcs)
+                                simulationIndex: simulationIndex, seed: 0, hncs: cameraHNCS, effects: effects, ffcs: ffcs, lumix: cameraLUMIX)
     }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        captureQuality = defaults.string(forKey: "camera.capture.quality.v1")
+            .flatMap(CaptureQuality.init(rawValue:)) ?? .quality
         let center = defaults.integer(forKey: "camera.preview.center.longEdge")
         centerPreviewLongEdge = Self.centerPreviewCaps.contains(center) ? center : 1920
         gridVisible = defaults.object(forKey: "camera.grid.visible") as? Bool ?? true
@@ -47,7 +56,7 @@ final class CameraSettingsStore: ObservableObject {
            let saved = try? JSONDecoder().decode(ProcessingRecipe.self, from: data), saved.isValid {
             colorMode = saved.mode; simulationIndex = saved.simulationIndex
             exposure = saved.exposureEV; hncs = saved.hncs
-            effects = saved.effects; ffcs = saved.ffcs
+            effects = saved.effects; ffcs = saved.ffcs; lumix = saved.lumix
             // Only future-camera preferences adopt the new automatic default.
             // Decoding an old journal elsewhere retains its fixed-preset WB.
             let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
@@ -60,6 +69,8 @@ final class CameraSettingsStore: ObservableObject {
         // ProcessingRecipe still preserves its original square composition.
         if hncs.presetKey == "square-crop" { hncs.presetKey = "standard" }
         hncs.renderRevision = HNCSSettings.currentRenderRevision
+        lumix.renderRevision = LUMIXSettings.currentRenderRevision
+        lumix.sourceISO = nil
         defaults.set(outputSelections, forKey: Self.outputsKey)
         persistRecipe()
     }
