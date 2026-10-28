@@ -1,5 +1,6 @@
 """Compile and exercise the production F5 core on macOS without using a camera."""
 from pathlib import Path
+from native_build import build_command, binary_directory, swift_native_flags
 import argparse
 import json
 import os
@@ -12,8 +13,6 @@ SWIFT_BASE = ["ExportSettings.swift", "SourceImageStore.swift", "PhotoWhiteBalan
               "HNCSEngine.swift", "FFCSEngine.swift", "LUMIXEngine.swift", "ImagePipeline.swift",
               "PreviewRaster.swift", "ShareDelivery.swift", "CameraSettingsStore.swift",
               "CaptureGeometry.swift", "CaptureJournal.swift", "CaptureWorkflow.swift"]
-CPP = ["hncs.cpp", "hncs_spatial.cpp", "hncs_numpy_rng.cpp", "ffcs.cpp", "lumix.cpp",
-       "f5_math.cpp", "f5_registration.cpp", "f5_quality.cpp", "f5_c.cpp"]
 
 
 def main():
@@ -45,19 +44,18 @@ def main():
             raise SystemExit(result.returncode)
         print(name, "PASS", round(results[-1]["seconds"], 2), "s", flush=True)
 
-    core = ROOT / "core"
-    sanitizers = ["-fsanitize=address"] if args.sanitize else []
-    run("compile-core", ["xcrun", "clang++", "-std=c++17", "-O2", "-fno-fast-math", "-ffp-contract=off", *sanitizers,
-        "-dynamiclib", *(core / name for name in CPP), "-lz", "-pthread", "-o", work / "libglasscam.dylib"])
+    run("compile-core", build_command('GlassCamNative', sanitize=args.sanitize))
+    directory = binary_directory(sanitize=args.sanitize)
+    library = directory / 'libGlassCamNative.dylib'
     if args.suite in ("all", "core"):
-        run("compile-core-tests", ["xcrun", "clang++", "-std=c++17", "-O2", *sanitizers, "-I", core,
-            ROOT / "tests/native-legacy/f5_core_tests.cpp", "-L", work, "-lglasscam", "-Wl,-rpath,"+str(work), "-o", work / "core-tests"])
-        run("core-numerics", [work / "core-tests"])
+        run("compile-core-tests", build_command('f5_core_tests', sanitize=args.sanitize))
+        run("core-numerics", [directory / "f5_core_tests"],
+            {"ASAN_OPTIONS": "detect_leaks=0", "UBSAN_OPTIONS": "halt_on_error=1"} if args.sanitize else None)
     base = ["xcrun", "swiftc", "-swift-version", "5", "-O", "-module-cache-path", work / "modules",
-            "-I", core, "-import-objc-header", ROOT / "App/GlassCam/GlassCam-Bridging-Header.h"]
+            *swift_native_flags(library)]
     if args.sanitize:
         base += ["-sanitize=address", "-g"]
-    link = ["-L", work, "-lglasscam", "-Xlinker", "-rpath", "-Xlinker", work]
+    link = []
     if args.suite in ("all", "metal"):
         run("compile-metal-tests", [*base, ROOT / "App/GlassCam/F5Errors.swift", ROOT / "App/GlassCam/F5MetalRuntime.swift",
             ROOT / "tests/swift-legacy/apple_f5_metal.swift", *link, "-o", work / "metal-tests"])

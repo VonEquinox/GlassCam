@@ -1,0 +1,4 @@
+module CF5 {
+    header "f5_c.h"
+    export *
+}

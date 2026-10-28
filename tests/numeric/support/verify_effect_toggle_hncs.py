@@ -10,6 +10,7 @@ import itertools
 import json
 import os
 from pathlib import Path
+from native_build import build_product, build_command
 import platform
 import subprocess
 import tempfile
@@ -28,7 +29,6 @@ P = c.c_void_p
 
 
 def verify():
-    compiler = os.environ.get('CXX', 'g++')
     report = {
         'passed': False,
         'scope': 'synthetic white-balanced native RGB; caller crop and Standard spatial bypass; pinned Python with the explicit binary-verified no-adjustment gradation correction',
@@ -39,7 +39,7 @@ def verify():
         'cases_detail': [],
         'apple_executed': False, 'swift_executed': False,
         'platform': platform.platform(), 'numpy': np.__version__,
-        'compiler': subprocess.check_output([compiler, '--version'], text=True).splitlines()[0],
+        'compiler': subprocess.check_output(['swift', '--version'], text=True).splitlines()[0],
     }
     assets = r.assets()
     rng = np.random.default_rng(831701)
@@ -47,13 +47,8 @@ def verify():
     null_callback = callback_type()
     with tempfile.TemporaryDirectory(prefix='hncs-effect-toggles-') as temporary:
         temporary = Path(temporary)
-        library = temporary / 'effects.so'
-        command = [compiler, '-std=c++17', '-O3', '-fno-fast-math', '-ffp-contract=off',
-                   '-shared', '-fPIC', '-pthread', '-Wall', '-Wextra', '-Werror',
-                   str(ROOT / 'core/hncs.cpp'), str(ROOT / 'core/hncs_spatial.cpp'),
-                   str(ROOT / 'core/hncs_numpy_rng.cpp'), '-o', str(library)]
-        subprocess.run(command, check=True)
-        report['compile_flags'] = command[1:11]
+        library = build_product()
+        report['build_command'] = build_command('GlassCamNative')
         lib = c.CDLL(str(library))
         lib.hncs_create_preset.argtypes = [c.c_double, c.c_double, c.c_double, c.c_int, c.c_int,
                                           c.c_int, c.c_int, c.c_char_p, c.c_int, P, P]

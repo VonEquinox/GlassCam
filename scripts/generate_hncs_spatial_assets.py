@@ -13,7 +13,7 @@ from phocus_sharpness_settings import preset_sharpness
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument('--reference',type=pathlib.Path,required=True)
-    ap.add_argument('--output',type=pathlib.Path,default=pathlib.Path(__file__).resolve().parents[1]/'core/hncs_spatial_assets.inc')
+    ap.add_argument('--output',type=pathlib.Path,default=pathlib.Path(__file__).resolve().parents[1]/'Packages/GlassCamKit/Sources/CHNCS/generated/hncs_spatial_assets.inc')
     args=ap.parse_args()
     spec=importlib.util.spec_from_file_location('spatial_reference',args.reference/'phocus_presets.py')
     p=importlib.util.module_from_spec(spec); spec.loader.exec_module(p)

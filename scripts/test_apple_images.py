@@ -1,9 +1,10 @@
 """Run the production image pipeline against Core Image, Metal and HEIF on macOS.
 
-No Python packages are needed. Build products, LUTs and fixtures live in one
-temporary directory and are removed on exit; the source checkout is unchanged.
+No Python packages are needed. Native products use the SwiftPM build cache;
+Swift runners, LUTs and fixtures are removed with their temporary directory.
 """
 from pathlib import Path
+from native_build import build_product, swift_native_flags
 import argparse
 import platform
 import subprocess
@@ -24,11 +25,7 @@ def main():
         raise SystemExit("Requires macOS with Apple developer tools and Metal.")
     with tempfile.TemporaryDirectory(prefix="glasscam-apple-images-") as directory:
         work = Path(directory)
-        core = ROOT / "core"
-        run("xcrun", "clang++", "-std=c++17", "-O2", "-fno-fast-math",
-            "-ffp-contract=off", "-dynamiclib", core / "hncs.cpp",
-            core / "hncs_spatial.cpp", core / "hncs_numpy_rng.cpp",
-            core / "ffcs.cpp", core / "lumix.cpp", *(core / name for name in ["f5_math.cpp", "f5_registration.cpp", "f5_quality.cpp", "f5_c.cpp"]), "-lz", "-pthread", "-o", work / "libglasscam.dylib")
+        library = build_product()
         with (work / "resources.log").open("w") as log:
             subprocess.run(["bash", str(ROOT / "scripts/prepare_ffcs_resources.sh"),
                             str(ROOT / "vendor/ffcs/source.zip"), str(work / "FFCS")],
@@ -39,14 +36,13 @@ def main():
         run(*swift, ROOT / "tests/swift-legacy/apple_ci_strip_roundtrip.swift", "-o", work / "strips")
         run(work / "strips")
         sources = ROOT / "App/GlassCam"
-        run(*swift, "-I", core, "-import-objc-header", sources / "GlassCam-Bridging-Header.h",
+        run(*swift, *swift_native_flags(library),
             *(sources / name for name in ["ExportSettings.swift", "SourceImageStore.swift",
                                           "PhotoWhiteBalance.swift", "HNCSEngine.swift", "FFCSEngine.swift", "LUMIXEngine.swift",
                                           "ImagePipeline.swift", "PreviewRaster.swift", "ShareDelivery.swift",
                                           "CameraSettingsStore.swift", "CaptureGeometry.swift", "CaptureJournal.swift", "CaptureWorkflow.swift"]), *sorted(sources.glob("F5*.swift")),
             ROOT / "tests/swift-legacy/apple_image_pipeline.swift", ROOT / "tests/swift-legacy/apple_capture_workflow.swift",
-            ROOT / "tests/swift-legacy/apple_capture_recovery.swift", "-L", work, "-lglasscam",
-            "-Xlinker", "-rpath", "-Xlinker", work, "-o", work / "images")
+            ROOT / "tests/swift-legacy/apple_capture_recovery.swift", "-o", work / "images")
         fixtures = work / "fixtures"
         fixtures.mkdir()
         run(work / "images", fixtures, *([args.raw_source.resolve()] if args.raw_source else []))

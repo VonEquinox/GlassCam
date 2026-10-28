@@ -11,6 +11,7 @@ import inspect
 import json
 import os
 from pathlib import Path
+from native_build import build_product, build_command
 import random
 import subprocess
 import sys
@@ -93,11 +94,8 @@ def reference(pixels, name, seed=0, linear=False):
 
 def build_library():
     import ctypes as c
-    out = ROOT / 'build/libffcs_verify.so'
-    out.parent.mkdir(exist_ok=True)
-    command = ['g++', '-std=c++17', '-O3', '-ffp-contract=off', '-fno-fast-math',
-               '-shared', '-fPIC', '-pthread', str(ROOT / 'core/ffcs.cpp'), '-lz', '-o', str(out)]
-    subprocess.run(command, check=True)
+    out = build_product()
+    command = build_command('GlassCamNative')
     lib = c.CDLL(str(out))
     ptr = c.POINTER
     lib.ffcs_simulation_count.restype = c.c_size_t

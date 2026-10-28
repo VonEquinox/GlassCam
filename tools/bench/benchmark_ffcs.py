@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tests/numeric"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from support import verify_ffcs as v
 
 

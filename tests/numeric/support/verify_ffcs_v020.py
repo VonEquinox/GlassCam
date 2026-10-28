@@ -8,6 +8,7 @@ mobile input is exposure-clamped linear RGB encoded to the reference API.
 from __future__ import annotations
 import ctypes as c, hashlib, importlib.metadata, json, math, os
 from pathlib import Path
+from native_build import build_product, build_command
 import random, struct, subprocess, sys, tempfile, zlib
 from unittest.mock import patch
 import numpy as np
@@ -55,9 +56,8 @@ def configured(source):
 
 
 def build():
-    output=ROOT/'build/libffcs_v020_verify.so';output.parent.mkdir(exist_ok=True)
-    command=['g++','-std=c++17','-O3','-fno-fast-math','-ffp-contract=off','-shared','-fPIC','-pthread',str(ROOT/'core/ffcs.cpp'),'-lz','-o',str(output)]
-    subprocess.run(command,check=True)
+    output = build_product()
+    command = build_command('GlassCamNative')
     lib=c.CDLL(str(output));sz=c.c_size_t;vp=c.c_void_p;cp=c.c_char_p;fp=c.POINTER(c.c_float);dp=c.POINTER(c.c_double);bp=c.POINTER(c.c_uint8)
     cb=c.CFUNCTYPE(None,cp,dp,sz,sz,vp)
     lib.ffcs_create_family_config.argtypes=[cp,cp,sz,c.c_int,c.c_int,c.c_int,c.c_double,cp,sz];lib.ffcs_create_family_config.restype=vp

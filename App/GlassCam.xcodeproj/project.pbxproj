@@ -7,18 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A00000000000000000000005 /* hncs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000005 /* hncs.cpp */; settings = {COMPILER_FLAGS = "-O3 -fno-fast-math -ffp-contract=off"; }; };
-		A00000000000000000000007 /* ffcs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000008 /* ffcs.cpp */; settings = {COMPILER_FLAGS = "-O3 -fno-fast-math -ffp-contract=off"; }; };
 		A00000000000000000000008 /* Resources/FFCS in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000009 /* Resources/FFCS */; };
 		A00000000000000000000009 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* libz.tbd */; };
-		A00000000000000000000022 /* hncs_spatial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000022 /* hncs_spatial.cpp */; settings = {COMPILER_FLAGS = "-O3 -fno-fast-math -ffp-contract=off"; }; };
-		A00000000000000000000023 /* hncs_numpy_rng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000023 /* hncs_numpy_rng.cpp */; settings = {COMPILER_FLAGS = "-O3 -fno-fast-math -ffp-contract=off"; }; };
-        A00000000000000000000045 /* lumix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000045; settings = {COMPILER_FLAGS = "-O3 -fno-fast-math -ffp-contract=off"; }; };
         A00000000000000000000046 /* Resources/LUMIX in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000046; };
-        A5000000000000000000000E /* f5_math.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5000000000000000000000E; settings = {COMPILER_FLAGS = "-O2 -fno-fast-math -ffp-contract=off"; }; };
-        A5000000000000000000000F /* f5_registration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5000000000000000000000F; settings = {COMPILER_FLAGS = "-O2 -fno-fast-math -ffp-contract=off"; }; };
-        A50000000000000000000010 /* f5_quality.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000010; settings = {COMPILER_FLAGS = "-O2 -fno-fast-math -ffp-contract=off"; }; };
-        A50000000000000000000011 /* f5_c.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000011; settings = {COMPILER_FLAGS = "-O2 -fno-fast-math -ffp-contract=off"; }; };
+        A05000000000000000000001 /* GlassCamCore in Frameworks */ = {isa = PBXBuildFile; productRef = A05000000000000000000003 /* GlassCamCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,20 +20,11 @@
         900000000000000000000002 = {isa = PBXTargetDependency; target = E00000000000000000000001; targetProxy = 900000000000000000000001; };
 /* End PBXTargetDependency section */
 /* Begin PBXFileReference section */
-		B00000000000000000000005 /* hncs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = hncs.cpp; sourceTree = "<group>"; };
 		B00000000000000000000006 /* GlassCam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GlassCam.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B00000000000000000000008 /* ffcs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ffcs.cpp; sourceTree = "<group>"; };
 		B00000000000000000000009 /* Resources/FFCS */ = {isa = PBXFileReference; lastKnownFileType = folder; path = GlassCam/Resources/FFCS; sourceTree = "<group>"; };
 		B00000000000000000000010 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		B00000000000000000000022 /* hncs_spatial.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = hncs_spatial.cpp; sourceTree = "<group>"; };
-		B00000000000000000000023 /* hncs_numpy_rng.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = hncs_numpy_rng.cpp; sourceTree = "<group>"; };
         B00000000000000000000027 = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = GlassCamUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-        B00000000000000000000045 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lumix.cpp; sourceTree = "<group>"; };
         B00000000000000000000046 = {isa = PBXFileReference; lastKnownFileType = folder; path = GlassCam/Resources/LUMIX; sourceTree = "<group>"; };
-        B5000000000000000000000E /* f5_math.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = f5_math.cpp; sourceTree = "<group>"; };
-        B5000000000000000000000F /* f5_registration.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = f5_registration.cpp; sourceTree = "<group>"; };
-        B50000000000000000000010 /* f5_quality.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = f5_quality.cpp; sourceTree = "<group>"; };
-        B50000000000000000000011 /* f5_c.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = f5_c.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +33,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A00000000000000000000009 /* libz.tbd in Frameworks */,
+                A05000000000000000000001 /* GlassCamCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +45,6 @@
 			isa = PBXGroup;
 			children = (
 				C00000000000000000000002 /* GlassCam */,
-				C00000000000000000000004 /* ../core */,
 				C00000000000000000000003 /* Products */,
                 B00000000000000000000009 /* Resources/FFCS */,
                 B00000000000000000000046 /* Resources/LUMIX */,
@@ -87,22 +70,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C00000000000000000000004 /* ../core */ = {
-			isa = PBXGroup;
-			children = (
-                B5000000000000000000000E /* f5_math.cpp */,
-                B5000000000000000000000F /* f5_registration.cpp */,
-                B50000000000000000000010 /* f5_quality.cpp */,
-                B50000000000000000000011 /* f5_c.cpp */,
-				B00000000000000000000005 /* hncs.cpp */,
-				B00000000000000000000008 /* ffcs.cpp */,
-                B00000000000000000000045 /* lumix.cpp */,
-				B00000000000000000000022 /* hncs_spatial.cpp */,
-				B00000000000000000000023 /* hncs_numpy_rng.cpp */,
-			);
-			path = ../core;
-			sourceTree = "<group>";
-		};
         C00000000000000000000005 = {
             isa = PBXFileSystemSynchronizedRootGroup;
             explicitFileTypes = {};
@@ -120,7 +87,6 @@
             };
             membershipExceptions = (
                 Info.plist,
-                "GlassCam-Bridging-Header.h",
                 Resources/FFCS,
                 Resources/LUMIX,
             );
@@ -145,6 +111,7 @@
 			);
 			fileSystemSynchronizedGroups = (C00000000000000000000002,);
 			name = GlassCam;
+            packageProductDependencies = (A05000000000000000000003 /* GlassCamCore */,);
 			productName = GlassCam;
 			productReference = B00000000000000000000006 /* GlassCam.app */;
 			productType = "com.apple.product-type.application";
@@ -178,6 +145,7 @@
 			productRefGroup = C00000000000000000000003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
+            packageReferences = (A05000000000000000000002 /* GlassCamKit */,);
 			targets = (
 				E00000000000000000000001 /* GlassCam */,
                 E00000000000000000000003,
@@ -245,20 +213,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-                A5000000000000000000000E /* f5_math.cpp in Sources */,
-                A5000000000000000000000F /* f5_registration.cpp in Sources */,
-                A50000000000000000000010 /* f5_quality.cpp in Sources */,
-                A50000000000000000000011 /* f5_c.cpp in Sources */,
-				A00000000000000000000005 /* hncs.cpp in Sources */,
-				A00000000000000000000007 /* ffcs.cpp in Sources */,
-                A00000000000000000000045 /* lumix.cpp in Sources */,
-				A00000000000000000000022 /* hncs_spatial.cpp in Sources */,
-				A00000000000000000000023 /* hncs_numpy_rng.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
         D00000000000000000000005 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
+
+/* Begin XCLocalSwiftPackageReference section */
+        A05000000000000000000002 /* GlassCamKit */ = {isa = XCLocalSwiftPackageReference; relativePath = ../Packages/GlassCamKit; };
+/* End XCLocalSwiftPackageReference section */
+/* Begin XCSwiftPackageProductDependency section */
+        A05000000000000000000003 /* GlassCamCore */ = {isa = XCSwiftPackageProductDependency; productName = GlassCamCore; };
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F00000000000000000000003 /* Debug */ = {
@@ -290,13 +256,10 @@
 		F00000000000000000000005 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
-				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8LPRP9Y8AS;
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core";
 				INFOPLIST_KEY_CFBundleDisplayName = GlassCam;
 				INFOPLIST_FILE = GlassCam/Info.plist;
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
@@ -313,7 +276,6 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "GlassCam/GlassCam-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -321,13 +283,10 @@
 		F00000000000000000000006 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
-				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8LPRP9Y8AS;
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../core";
 				INFOPLIST_KEY_CFBundleDisplayName = GlassCam;
 				INFOPLIST_FILE = GlassCam/Info.plist;
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
@@ -344,7 +303,6 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "GlassCam/GlassCam-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

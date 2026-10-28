@@ -46,3 +46,7 @@ __pycache__/
 *.xcarchive/
 *.mobileprovision
 *.p12
+
+# Swift Package Manager products and local state
+.build/
+.swiftpm/

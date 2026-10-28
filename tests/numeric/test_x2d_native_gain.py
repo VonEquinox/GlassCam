@@ -3,7 +3,7 @@ import ctypes as c
 import hashlib
 import json
 from pathlib import Path
-import subprocess
+from native_build import build_product
 import tempfile
 import unittest
 
@@ -16,9 +16,7 @@ class X2DNativeGainTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.temp = tempfile.TemporaryDirectory(prefix="x2d-native-gain-")
-        path = Path(cls.temp.name) / "core.so"
-        subprocess.run(["clang++", "-std=c++17", "-O2", "-fno-fast-math", "-ffp-contract=off",
-                        "-shared", "-fPIC", "-pthread", str(ROOT / "core/hncs.cpp"), "-o", str(path)], check=True)
+        path = build_product()
         cls.lib = c.CDLL(str(path))
         cls.lib.hncs_create_mode.argtypes = [c.c_double, c.c_double, c.c_int, c.c_int]
         cls.lib.hncs_create_mode.restype = c.c_void_p

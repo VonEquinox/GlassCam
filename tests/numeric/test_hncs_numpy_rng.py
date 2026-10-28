@@ -1,7 +1,6 @@
 """Production SeedSequence and normal streams agree bit-for-bit with NumPy."""
 import ctypes as c
-import os
-import subprocess
+from native_build import build_product
 
 import numpy as np
 import pytest
@@ -15,11 +14,8 @@ STREAM_DRAW_COUNT = 1000003
 
 
 @pytest.fixture(scope='module')
-def rng_library(tmp_path_factory):
-    output = tmp_path_factory.mktemp('rng') / 'rng.so'
-    subprocess.run([os.environ.get('CXX', 'c++'), '-std=c++17', '-shared', '-fPIC', '-O3',
-                    '-fno-fast-math', '-ffp-contract=off', '-Wall', '-Wextra', '-Werror',
-                    str(ROOT / 'tests/native-legacy/hncs_numpy_rng_bridge.cpp'), '-o', str(output)], check=True)
+def rng_library():
+    output = build_product('GlassCamNativeTestSupport')
     lib = c.CDLL(str(output))
     lib.hncs_rng_seed.argtypes = [c.c_uint64, c.c_void_p]
     lib.hncs_rng_normals.argtypes = [c.c_uint64, c.c_size_t, c.c_void_p]

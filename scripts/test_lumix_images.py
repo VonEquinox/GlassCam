@@ -1,5 +1,6 @@
 """Run the production LUMIX Swift/Core Image/HDR pipeline on Mac fixtures."""
 from pathlib import Path
+from native_build import build_product, swift_native_flags
 import argparse
 from contextlib import nullcontext
 import os
@@ -27,20 +28,16 @@ def main():
     with (nullcontext(str(args.output.resolve())) if args.output else tempfile.TemporaryDirectory(prefix="glasscam-lumix-images-")) as temporary:
         work = Path(temporary)
         work.mkdir(parents=True, exist_ok=True)
-        core = ROOT / "core"
-        run("xcrun", "clang++", "-std=c++17", "-O2", "-fno-fast-math", "-ffp-contract=off", "-dynamiclib",
-            *(core / name for name in ["hncs.cpp", "hncs_spatial.cpp", "hncs_numpy_rng.cpp", "ffcs.cpp", "lumix.cpp", "f5_math.cpp", "f5_registration.cpp", "f5_quality.cpp", "f5_c.cpp"]),
-            "-lz", "-pthread", "-o", work / "libglasscam.dylib")
+        library = build_product()
         run(sys.executable, ROOT / "scripts/prepare_lumix_resources.py", "--output", work / "LUMIX")
         run("bash", ROOT / "scripts/prepare_ffcs_resources.sh", ROOT / "vendor/ffcs/source.zip", work / "FFCS")
         sources = args.swift_source_root.resolve()
         run("xcrun", "swiftc", "-swift-version", "5", "-O", "-module-cache-path", work / "modules",
-            "-I", core, "-import-objc-header", sources / "GlassCam-Bridging-Header.h",
+            *swift_native_flags(library),
             *(sources / name for name in ["ExportSettings.swift", "SourceImageStore.swift", "PhotoWhiteBalance.swift",
                 "HNCSEngine.swift", "FFCSEngine.swift", "LUMIXEngine.swift", "ImagePipeline.swift", "PreviewRaster.swift",
                 "ShareDelivery.swift", "CameraSettingsStore.swift", "CaptureGeometry.swift", "CaptureJournal.swift", "CaptureWorkflow.swift"]), *sorted(sources.glob("F5*.swift")),
-            args.test_source.resolve(), "-L", work, "-lglasscam",
-            "-Xlinker", "-rpath", "-Xlinker", work, "-o", work / "images")
+            args.test_source.resolve(), "-o", work / "images")
         run(work / "images", work / "fixtures", *([p.resolve() for p in args.proraw] if args.proraw else []))
 
 

@@ -11,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path,
                         default=root / 'vendor/hncs/work/hncs-pipeline/assets/x2dii_phocus_422.npz')
-    parser.add_argument('--output', type=Path, default=root / 'core/hncs_whitepoint_assets.inc')
+    parser.add_argument('--output', type=Path, default=root / 'Packages/GlassCamKit/Sources/CHNCS/generated/hncs_whitepoint_assets.inc')
     args = parser.parse_args()
     with np.load(args.source, allow_pickle=False) as source:
         table = source['robertson']

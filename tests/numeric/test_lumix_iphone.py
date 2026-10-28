@@ -3,7 +3,7 @@ import concurrent.futures
 import ctypes as C
 import json
 from pathlib import Path
-import subprocess
+from native_build import build_product
 import sys
 import tempfile
 import unittest
@@ -21,10 +21,7 @@ class LUMIXIPhone(unittest.TestCase):
     def setUpClass(cls):
         cls.work = tempfile.TemporaryDirectory(prefix="glasscam-lumix-iphone-")
         directory = Path(cls.work.name)
-        library = directory / "lumix.dylib"
-        subprocess.run(["clang++", "-std=c++17", "-O2", "-fno-fast-math",
-                        "-ffp-contract=off", "-shared", "-fPIC", str(ROOT / "core/lumix.cpp"),
-                        "-lz", "-o", str(library)], check=True)
+        library = build_product()
         cls.assets = directory / "LUMIX"
         for name in ["source.zip", "pipeline.zip"]:
             prepare(ROOT / "vendor/lumix" / name, cls.assets)

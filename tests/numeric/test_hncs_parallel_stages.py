@@ -1,7 +1,7 @@
 """Compare production parallel stages with their untouched serial oracles."""
 import ctypes as c
 from pathlib import Path
-import subprocess
+from native_build import build_product
 import tempfile
 import unittest
 
@@ -14,9 +14,7 @@ class HNCSParallelStages(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.directory = tempfile.TemporaryDirectory(prefix="hncs-parallel-stages-")
-        path = Path(cls.directory.name) / "libhncs.dylib"
-        subprocess.run(["clang++", "-std=c++17", "-O3", "-fno-fast-math", "-ffp-contract=off",
-                        "-shared", "-fPIC", "-pthread", str(ROOT / "core/hncs.cpp"), "-o", str(path)], check=True)
+        path = build_product()
         cls.lib = c.CDLL(str(path))
         cls.lib.hncs_create_preset_whitepoint.argtypes = [c.c_double] * 4 + [c.c_int] * 4 + [c.c_char_p, c.c_int]
         cls.lib.hncs_create_preset_whitepoint.restype = c.c_void_p

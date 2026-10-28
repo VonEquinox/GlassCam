@@ -1,7 +1,7 @@
 """Independent colour-domain vectors and HDR spatial regressions."""
 import ctypes as c
 from pathlib import Path
-import subprocess
+from native_build import build_product
 import tempfile
 import unittest
 
@@ -14,11 +14,7 @@ class HNCSHDRDomainTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.temporary = tempfile.TemporaryDirectory(prefix="hncs-hdr-domain-")
-        library = Path(cls.temporary.name) / "core.so"
-        subprocess.run(["clang++", "-std=c++17", "-O2", "-fno-fast-math", "-ffp-contract=off",
-                        "-pthread", "-shared", "-fPIC",
-                        *[str(ROOT / "core" / name) for name in ["hncs.cpp", "hncs_spatial.cpp", "hncs_numpy_rng.cpp"]],
-                        "-o", str(library)], check=True)
+        library = build_product()
         cls.lib = c.CDLL(str(library))
         cls.lib.hncs_create_mode.argtypes = [c.c_double, c.c_double, c.c_int, c.c_int]
         cls.lib.hncs_create_mode.restype = c.c_void_p

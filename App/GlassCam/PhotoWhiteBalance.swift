@@ -1,3 +1,4 @@
+import CHNCS
 import Foundation
 import CoreImage
 

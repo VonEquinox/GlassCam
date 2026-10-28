@@ -1,3 +1,4 @@
+import CHNCS
 // Compiles the production Swift/C++ code, not a separate Python model.
 // Run: python3 -B scripts/test_apple_images.py
 import Foundation

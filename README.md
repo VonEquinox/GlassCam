@@ -22,7 +22,7 @@ GlassCam 是使用 SwiftUI、AVFoundation 和 C++17 开发的 iPhone 相机，�
 | 路径 | 内容 |
 |---|---|
 | [App](docs/legacy/ios-README.md) | SwiftUI 相机、图像处理和 Xcode 工程 |
-| [core](docs/legacy/core-README.md) | HNCS／FFCS C++ 颜色与空间处理 |
+| [Packages/GlassCamKit](Packages/GlassCamKit/Package.swift) | SwiftPM 构建的 HNCS／FFCS／LUMIX／F5 C++ 内核与原生检查 |
 | [scripts](scripts) | 构建、资源准备、数值验证和性能工具 |
 | [tests](tests) | Python、Swift 与 C++ 回归检查 |
 | [vendor/hncs](vendor/hncs/ORIGIN.md) | GlassCam 使用的 HNCS 参考代码、数值资产和测试向量 |
@@ -36,6 +36,7 @@ GlassCam 是使用 SwiftUI、AVFoundation 和 C++17 开发的 iPhone 相机，�
 在仓库根目录运行：
 
 ```sh
+make native
 python3 scripts/iphone_release.py --unsigned
 ```
 
@@ -43,11 +44,11 @@ python3 scripts/iphone_release.py --unsigned
 
 ## 验证
 
-在已安装 [Python 验证依赖](tests/numeric/requirements.txt) 的 Python 3.12 环境中运行：
+安装 `uv` 后运行；数值测试会准备 [Python 验证依赖](tests/numeric/requirements.txt) 和固定哈希的 FFCS 资源：
 
 ```sh
-python3 scripts/materialize_ffcs_reference.py
-python3 -B -m pytest tests/numeric
+make test-numeric
+make test-native
 ```
 
 macOS 图像处理与恢复检查：

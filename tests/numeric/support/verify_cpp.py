@@ -5,13 +5,11 @@ from pathlib import Path
 import numpy as np
 from . import reference_runtime as r
 ROOT=r.ROOT
-BUILD=ROOT/'build'; BUILD.mkdir(exist_ok=True)
-LIB=BUILD/'libhncs.so'
-COMMAND=['g++','-std=c++17','-O3','-ffp-contract=off','-fno-fast-math','-pthread','-shared','-fPIC',str(ROOT/'core/hncs.cpp'),'-o',str(LIB)]
+from native_build import build_product
 
 def library():
-    subprocess.run(COMMAND,check=True)
-    lib=c.CDLL(str(LIB))
+    library_path = build_product()
+    lib=c.CDLL(str(library_path))
     lib.hncs_create_mode.argtypes=[c.c_double,c.c_double,c.c_int,c.c_int];lib.hncs_create_mode.restype=c.c_void_p
     lib.hncs_destroy.argtypes=[c.c_void_p]
     lib.hncs_render_native.argtypes=[c.c_void_p,c.POINTER(c.c_double),c.POINTER(c.c_uint16),c.c_size_t];lib.hncs_render_native.restype=c.c_int

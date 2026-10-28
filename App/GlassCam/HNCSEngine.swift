@@ -1,3 +1,4 @@
+import CHNCS
 import Foundation
 
 /// Persisted selections describe the render, not just labels in a menu. Apple

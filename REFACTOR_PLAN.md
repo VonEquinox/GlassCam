@@ -57,6 +57,8 @@ GlassCam/
 │   │   ├── F5/
 │   │   └── Peripheral/
 │   ├── NativeTests/                C++ 冒烟和 sanitizer 程序（executable targets）
+│   ├── NativeTestSupport/          Python 使用的测试桥动态库
+│   ├── NativeTools/                tools/bench 调用的 C++ executable targets
 │   └── Tests/{ImagingCoreTests,CaptureTests,F5Tests,PeripheralTests}/
 ├── tests/
 │   ├── numeric/                    pytest；support/ 放数值参考实现
@@ -79,12 +81,12 @@ PY="uv run --no-project --python 3.12 --with-requirements tests/numeric/requirem
 
 | 编号 | 内容 | 命令 |
 |---|---|---|
-| V1 | Python 全套 | `$PY -m pytest tests/numeric` |
+| V1 | Python 全套 | `make test-numeric` |
 | V2 | Apple 图像管线、拍摄流程与恢复 | `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer $PY scripts/test_apple_images.py --raw-source <MAIN_DNG>` |
 | V3 | 完整色彩链基线 | `$PY scripts/test_lumix_images.py --test-source tests/swift-legacy/apple_color_chain.swift --output <DIR> --proraw <MAIN_DNG> --proraw <ULTRA_DNG> --proraw <TELE_DNG>` |
 | V4 | F5 | `$PY scripts/test_f5.py` |
 | V5 | 外围玻璃 | `$PY scripts/test_peripheral_glass.py`，以及 `$PY scripts/test_peripheral_recording.py` |
-| V6 | 原生 C++ | `$PY -m pytest tests/numeric/test_native_core.py tests/numeric/test_hncs_numpy_rng.py tests/numeric/test_hncs_spatial.py`；`$PY scripts/test_hncs_spatial_sanitizers.py --disable-leak-detection` |
+| V6 | 原生 C++ | `make test-native`（Release 与 ASan + UBSan）；`$PY -m pytest tests/numeric/test_native_core.py tests/numeric/test_hncs_numpy_rng.py tests/numeric/test_hncs_spatial.py` |
 | V7 | 未签名 Release 构建 | `$PY scripts/iphone_release.py --unsigned` |
 | V8 | UI 测试（模拟器） | `xcodebuild test -project App/GlassCam.xcodeproj -scheme GlassCamCaptureTests -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -parallel-testing-enabled NO -only-testing:GlassCamUITests/CaptureWorkflowUITests/testCapturePriorityMenuAndSpeed12MPOnSimulator -only-testing:GlassCamUITests/CaptureWorkflowUITests/testManualStateRecordsWithoutCameraOnSimulator` |
 
@@ -458,6 +460,10 @@ xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj \
 - `resource-sha256.txt`：App 内 `FFCS/`、`LUMIX/` 的逐文件 SHA-256，共 87 项。打包后的资源位于 App 根目录，没有额外的 `Resources/` 层。
 - V3 未生成任何 HEIF，也没有 HEIF SHA-256 基线；后续不能据此宣称完整三摄色彩链字节一致。
 
+T05 构建入口：`make native` 构建 `GlassCamNative`；`make test-native` 通过 `scripts/test_native.py` 运行全部原生检查，再以 `swift build -c release --package-path Packages/GlassCamKit --build-system native --scratch-path Packages/GlassCamKit/.build/native-sanitized --sanitize=address --sanitize=undefined` 构建并重复运行。Xcode 27 的默认 `swiftbuild` 后端在纯 C++ 动态库链接时遗漏 sanitizer runtime，故 sanitizer 构建显式使用 SwiftPM `native` 后端。macOS 设置 `ASAN_OPTIONS=detect_leaks=0`；UBSan 设置 `halt_on_error=1`。测试目标保留 `-UNDEBUG`，使 Release 中的原生断言继续执行。
+
+FFCS 原生测试资源由既有固定哈希资源脚本准备到 `Packages/GlassCamKit/.build/native-test-resources/FFCS`，不依赖 pytest 先运行。App 使用本地静态产品 `GlassCamCore`，桌面 Swift runner 使用公开 C module map 与 `GlassCamNative`。
+
 ## 附录 B：不变量清单（T03 填写，T09 补测试名）
 
 | # | 不变量 | 来源测试 | 新测试（T09） |
@@ -540,7 +546,7 @@ xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj \
 
 `verify_ffcs_v020.py` 从 `materialize_ffcs_reference.py` 导入归档哈希校验与四项研究文件清单；T03/T04 移动模块时须保留此依赖。清单中的四项从固定哈希归档读取，其他上游文件继续检查工作区内容。
 
-**保留：测试专用 C++ 桥，暂放 tests/native-legacy/，T05 放进测试支持 target**（1）：`x2d_hdr_post_model_bridge.cpp`
+**保留：测试专用 C++ 桥**：`x2d_hdr_post_model_bridge.cpp` 与 `hncs_numpy_rng_bridge.cpp` 位于 `Packages/GlassCamKit/NativeTestSupport/`，由动态库 `GlassCamNativeTestSupport` 提供。RNG 桥包含原实现以检查私有 SeedSequence，测试命名空间隔离其符号；产品源码不变。
 
 **转成 pytest 数值测试（T03）**（10）：`test_hncs_numpy_rng.py`、`test_hncs_spatial.py`、`verify_cpp.py`、`verify_ffcs_effect_switches.py`、`verify_ffcs_strips.py`、`verify_hncs_revision8.py`、`verify_hncs_revision8_live.py`、`verify_linear_export.py`、`verify_lumix.py`、`verify_parallel_linear.py`。不能只靠仓库内容运行的，改归研究仓库 `tools/studies/`。
 
@@ -554,22 +560,22 @@ xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj \
 | `verify_hncs_revision8_live.py` | `tests/numeric/test_hncs_dense_gradation.py` |
 | `verify_linear_export.py`、`verify_parallel_linear.py` | `tests/numeric/test_linear_export.py`、`test_parallel_linear.py` |
 | `verify_ffcs_strips.py` | `tests/numeric/test_ffcs_strips.py` |
-| `verify_ffcs_effect_switches.py` | `tests/numeric/test_ffcs_defaults.py`；原 C++ 开关程序继续由 `test_ffcs_effect_switches.py` 执行，T05 改 NativeTests |
+| `verify_ffcs_effect_switches.py` | `tests/numeric/test_ffcs_defaults.py`；原 C++ 开关程序由 `NativeTests/ffcs_effect_switches_test/` 执行 |
 | `verify_lumix.py` | `tests/numeric/test_lumix_reference.py` |
 
-`tests/numeric/conftest.py` 从固定哈希 FFCS 归档准备缺失的忽略资源和 App LUT，不覆盖上游跟踪源码。新数值检查的 C ABI 和临时构建集中在 `support/native.py` 与 `conftest.py`，T05 接入 SwiftPM 后替换构建。
+`tests/numeric/conftest.py` 从固定哈希 FFCS 归档准备缺失的忽略资源和 App LUT，不覆盖上游跟踪源码。数值检查的 C ABI 在 `support/native.py`；`conftest.py` 与旧测试支持模块通过 `scripts/native_build.py` 构建和加载 SwiftPM 动态库。
 
 `GLASSCAM_LARGE_NUMERICS=1` 显式开启原空间脚本 `--large` 的两个大尺寸案例。默认数值验收跳过这两个案例。旧 `benchmark_ffcs.py`、`benchmark_optimized.py`、`render_preview.py` 从 `tests/numeric/support/` 导入原参考辅助模块，T04 移动时需同步更新导入根目录。
 
-**T05 删除**（1）：`scripts/test_hncs_spatial_sanitizers.py`，改由 `make test-native` 的 sanitizer 构建覆盖。
+**T05 已替换**：`scripts/test_hncs_spatial_sanitizers.py` 和两个 FFCS C++ 测试的 Python 包装已删除，检查由 `make test-native` 覆盖。
 
-**暂留至依赖解除后迁出**（1）：`scripts/hncs_spatial_evidence.py`。T03 改写 RNG、空间数值测试后移除相应依赖；T05 删除 sanitizer runner 后，把该文件迁到研究仓库 `tools/studies/`。
+**T05 研究归档**：`scripts/hncs_spatial_evidence.py`、`core/hncs_cli.cpp`、`core/ffcs_v020_loader.cpp`、`core/ffcs_v020_native.cpp` 已迁到研究仓库 `tools/studies/`。三个旧 CLI 无在用的测试调用者。研究仓库提交 `c6428e3d38e924a5c4f8ff9446944687a39d9d4b`，来源主仓库 `0d2896f0e28151ec70b6e146c13da89d6faeb1a8`。
 
 **T09 删除（暂放 scripts/）**（5）：`test_apple_images.py`、`test_f5.py`、`test_lumix_images.py`、`test_peripheral_glass.py`、`test_peripheral_recording.py`
 
 **保留：tools/diagnostics/**（10）：`analyze_peripheral_records.py`、`inspect_proraw_profile.py`、`pull_peripheral_records.py`、`render_preview.py`、`replay_peripheral_native.py`、`replay_peripheral_native.swift`、`replay_peripheral_records.swift`、`replay_peripheral_stability.py`、`replay_peripheral_stability.swift`、`replay_peripheral_transitions.swift`
 
-**保留：tools/bench/**（9）：`benchmark_current_pipeline.py`、`benchmark_ffcs.py`、`benchmark_lowres_color.cpp`、`benchmark_lowres_color.py`、`benchmark_optimized.py`、`profile_ffcs.cpp`、`profile_hncs.cpp`、`run_device_performance.py`、`summarize_device_performance.py`
+**保留：tools/bench/**（6）：`benchmark_current_pipeline.py`、`benchmark_ffcs.py`、`benchmark_lowres_color.py`、`benchmark_optimized.py`、`run_device_performance.py`、`summarize_device_performance.py`。三个 C++ 程序 `benchmark_lowres_color.cpp`、`profile_ffcs.cpp`、`profile_hncs.cpp` 位于 `Packages/GlassCamKit/NativeTools/<名称>/`，Python 入口调用对应 SwiftPM product。
 
 工具输出目录为 `~/Library/Developer/GlassCamDiagnostics/bench/`，预览默认输出到 `~/Library/Developer/GlassCamDiagnostics/preview/`，不写入 fixtures。`benchmark_current_pipeline.py` 和 `benchmark_lowres_color.py` 保留原有 Linux `/proc`、CPU affinity 依赖；macOS 不运行其性能采集入口。`scripts/test_f5.py` 的四个可选 `--build-*` 分支仍引用 T02 已迁出的研究入口，默认 V4 不使用；T09 删除旧 runner 时一并处理。
 
@@ -615,7 +621,7 @@ xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj \
 
 **保留，T09 改写**：全部 `apple_*.swift` 和 `F5Fixtures.swift`
 
-**保留，T05 改成 NativeTests**：全部 `*.cpp`。其中 `hncs_numpy_rng_bridge.cpp` 放进测试支持动态库。
+**保留：NativeTests**：原 `tests/native-legacy/` 中全部 C++ 检查和两个 core 冒烟程序分别位于 `Packages/GlassCamKit/NativeTests/<名称>/`；两个桥文件位于 `NativeTestSupport/`。
 
 **保留**：`fixtures/`
 

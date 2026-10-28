@@ -3,7 +3,7 @@ import ctypes as c
 import hashlib
 import json
 from pathlib import Path
-import subprocess
+from native_build import build_product
 import tempfile
 import unittest
 
@@ -16,10 +16,7 @@ class NativePhocusChainTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.temporary = tempfile.TemporaryDirectory(prefix="phocus-native-golden-")
-        library = Path(cls.temporary.name) / "native.so"
-        subprocess.run(["clang++", "-std=c++17", "-O2", "-fno-fast-math", "-ffp-contract=off", "-pthread",
-            "-shared", "-fPIC", *[str(ROOT / "core" / p) for p in ["hncs.cpp", "hncs_spatial.cpp", "hncs_numpy_rng.cpp"]],
-            "-o", str(library)], check=True)
+        library = build_product()
         cls.lib = c.CDLL(str(library))
         cls.lib.hncs_create_preset.argtypes = [c.c_double] * 3 + [c.c_int] * 4 + [c.c_char_p, c.c_int, c.c_void_p, c.c_void_p]
         cls.lib.hncs_create_preset.restype = c.c_void_p

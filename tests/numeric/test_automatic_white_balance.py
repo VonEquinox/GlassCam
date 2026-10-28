@@ -1,7 +1,7 @@
 """Independent NumPy oracle for the additive, per-photo virtual WB adapter."""
 import ctypes as c
 from pathlib import Path
-import subprocess
+from native_build import build_product
 import sys
 import tempfile
 import unittest
@@ -17,10 +17,7 @@ class AutomaticWhiteBalance(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.directory = tempfile.TemporaryDirectory(prefix='glasscam-wb-')
-        output = Path(cls.directory.name) / 'libwhitepoint.dylib'
-        subprocess.run(['clang++', '-std=c++17', '-O2', '-fno-fast-math',
-                        '-ffp-contract=off', '-shared', '-fPIC', '-pthread',
-                        str(ROOT / 'core/hncs.cpp'), '-o', str(output)], check=True)
+        output = build_product()
         cls.lib = c.CDLL(str(output))
         cls.lib.hncs_whitepoint_parameters.argtypes = [c.c_double, c.c_double, c.c_void_p, c.c_void_p]
         cls.lib.hncs_create_preset_whitepoint.argtypes = [c.c_double] * 4 + [c.c_int] * 4 + [c.c_char_p, c.c_int]

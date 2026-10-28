@@ -3,7 +3,7 @@ import ctypes as c
 import hashlib
 import json
 from pathlib import Path
-import subprocess
+from native_build import build_product
 import tempfile
 import unittest
 
@@ -17,8 +17,7 @@ class X2DHDRTests(unittest.TestCase):
     def setUpClass(cls):
         cls.temp=tempfile.TemporaryDirectory(prefix="x2d-hdr-")
         library=Path(cls.temp.name)/"core.so"
-        subprocess.run(["clang++","-std=c++17","-O2","-fno-fast-math","-ffp-contract=off",
-                        "-shared","-fPIC","-pthread",str(ROOT/"core/hncs.cpp"),"-o",str(library)],check=True)
+        library = build_product()
         cls.lib=c.CDLL(str(library))
         cls.lib.hncs_create_mode.argtypes=[c.c_double,c.c_double,c.c_int,c.c_int]
         cls.lib.hncs_create_mode.restype=c.c_void_p

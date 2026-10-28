@@ -3,7 +3,6 @@ from pathlib import Path
 import ctypes as c
 import hashlib
 import json
-import os
 import subprocess
 import sys
 
@@ -37,14 +36,10 @@ def ffcs_resources():
                     str(ROOT / 'App/GlassCam/Resources/FFCS')], check=True)
 
 
-@pytest.fixture(scope='session')
-def native_library_path(tmp_path_factory):
-    output = tmp_path_factory.mktemp('native') / 'libglasscam.so'
-    sources = ['hncs.cpp', 'hncs_spatial.cpp', 'hncs_numpy_rng.cpp', 'ffcs.cpp', 'lumix.cpp']
-    subprocess.run([os.environ.get('CXX', 'c++'), '-std=c++17', '-O3', '-fno-fast-math',
-                    '-ffp-contract=off', '-shared', '-fPIC', '-pthread',
-                    *(str(ROOT / 'core' / name) for name in sources), '-lz', '-o', str(output)], check=True)
-    return output
+@pytest.fixture(scope='session', autouse=True)
+def native_library_path():
+    from native_build import build_product
+    return build_product()
 
 
 @pytest.fixture(scope='session')

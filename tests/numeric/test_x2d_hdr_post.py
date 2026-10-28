@@ -3,7 +3,7 @@ import ctypes as c
 import hashlib
 import json
 from pathlib import Path
-import subprocess
+from native_build import build_product
 import tempfile
 import unittest
 
@@ -16,11 +16,7 @@ class X2DHDRPostTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.temp = tempfile.TemporaryDirectory(prefix="x2d-hdr-post-")
-        library = Path(cls.temp.name) / "post.so"
-        subprocess.run(["clang++", "-std=c++17", "-O2", "-fno-fast-math", "-ffp-contract=off",
-                        "-shared", "-fPIC", "-pthread", str(ROOT / "core/hncs.cpp"),
-                        str(ROOT / "core/hncs_spatial.cpp"), str(ROOT / "core/hncs_numpy_rng.cpp"),
-                        str(ROOT / "tests/native-legacy/x2d_hdr_post_model_bridge.cpp"), "-o", str(library)], check=True)
+        library = build_product('GlassCamNativeTestSupport')
         cls.lib = c.CDLL(str(library))
         cls.lib.hdr_post_model.argtypes = [c.c_void_p, c.c_void_p, c.c_size_t, c.c_int, c.c_double, c.c_double, c.c_int]
         cls.lib.hncs_render_x2d_hdr_post.argtypes = [c.c_void_p, c.c_void_p, c.c_size_t, c.c_double, c.c_double, c.c_int]

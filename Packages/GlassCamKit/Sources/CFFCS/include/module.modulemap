@@ -1,0 +1,4 @@
+module CFFCS {
+    header "ffcs_c.h"
+    export *
+}

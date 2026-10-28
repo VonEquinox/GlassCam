@@ -1,3 +1,4 @@
+import CLUMIX
 import Foundation
 
 /// The selected original Photo Style is part of the durable photo recipe.
