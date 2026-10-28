@@ -2,7 +2,10 @@
 import ctypes as c
 import hashlib, json, time
 import numpy as np
-import verify_cpp as v
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests/numeric"))
+from support import verify_cpp as v
 ROOT=v.ROOT
 
 def main():

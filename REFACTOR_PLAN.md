@@ -79,16 +79,17 @@ PY="uv run --no-project --python 3.12 --with-requirements GlassCamPrototype/requ
 
 | 编号 | 内容 | 命令（重构前路径） |
 |---|---|---|
-| V1 | Python 全套 | `PYTHONPATH=GlassCamPrototype/tests $PY -m unittest discover -s GlassCamPrototype/tests` |
+| V1 | Python 全套 | `$PY -m pytest GlassCamPrototype/tests/numeric` |
 | V2 | Apple 图像管线、拍摄流程与恢复 | `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer $PY GlassCamPrototype/tools/test_apple_images.py --raw-source <MAIN_DNG>` |
 | V3 | 完整色彩链基线 | `$PY GlassCamPrototype/tools/test_lumix_images.py --test-source GlassCamPrototype/tests/apple_color_chain.swift --output <DIR> --proraw <MAIN_DNG> --proraw <ULTRA_DNG> --proraw <TELE_DNG>` |
 | V4 | F5 | `$PY GlassCamPrototype/tools/test_f5.py` |
 | V5 | 外围玻璃 | `$PY GlassCamPrototype/tools/test_peripheral_glass.py`，以及 `$PY GlassCamPrototype/tools/test_peripheral_recording.py` |
-| V6 | 原生 C++ | `$PY GlassCamPrototype/tools/verify_cpp.py`（macOS 的已知报告错误与可用 golden 入口见附录 A）；`$PY GlassCamPrototype/tools/test_hncs_numpy_rng.py`；`$PY GlassCamPrototype/tools/test_hncs_spatial.py --reference GlassCamPrototype/reference`；`$PY GlassCamPrototype/tools/test_hncs_spatial_sanitizers.py --disable-leak-detection` |
+| V6 | 原生 C++ | `$PY -m pytest GlassCamPrototype/tests/numeric/test_native_core.py GlassCamPrototype/tests/numeric/test_hncs_numpy_rng.py GlassCamPrototype/tests/numeric/test_hncs_spatial.py`；`$PY GlassCamPrototype/tools/test_hncs_spatial_sanitizers.py --disable-leak-detection` |
 | V7 | 未签名 Release 构建 | `$PY GlassCamPrototype/tools/iphone_release.py --unsigned` |
 | V8 | UI 测试（模拟器） | `xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj -scheme GlassCamCaptureTests -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -parallel-testing-enabled NO -only-testing:GlassCamUITests/CaptureWorkflowUITests/testCapturePriorityMenuAndSpeed12MPOnSimulator -only-testing:GlassCamUITests/CaptureWorkflowUITests/testManualStateRecordsWithoutCameraOnSimulator` |
 
 「与基线一致」是指：通过的检查仍然通过；已知失败的错误信息不变；V3 输出的 HEIF 文件 SHA-256 与附录 A 逐个相同。
+
 
 ## 任务总览
 
@@ -461,6 +462,73 @@ xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj \
 
 | # | 不变量 | 来源测试 | 新测试（T09） |
 |---|---|---|---|
+| B01 | 配方编解码和相等性包含色彩模式、曝光、色温、模拟风格、随机种子、HNCS/FFCS/LUMIX 设置、效果开关、照片白平衡、RAW 输入策略和管线版本。 | `test_hncs_revision8_source/Revision8IntegrationSourceContracts.test_synthesized_recipe_identity_and_persistence_include_every_hncs_choice` | |
+| B02 | HNCS 默认使用 standard、asShot、rawFilmCurveType 2 和空 factoryKelvinOverride；旧配方缺失字段按生产解码器的兼容规则恢复。 | `test_hncs_revision8_source/Revision8IntegrationSourceContracts.test_synthesized_recipe_identity_and_persistence_include_every_hncs_choice` | |
+| B03 | 相机设置只恢复有效配方，全部效果选择可持久化；沿用 editor.processingRecipe.revision8.v1 键。 | `test_hncs_revision8_source/Revision8IntegrationSourceContracts.test_settings_restore_as_one_validated_recipe_and_all_controls_persist`；`test_effect_toggle_source/EffectToggleSourceContracts.test_editor_restore_persist_adopt_and_rerender_include_all_effects` | |
+| B04 | 三个效果开关默认打开，任一缺失或 null 字段分别默认 true，非布尔类型解码失败。 | `test_effect_toggle_models/EffectToggleMigrationModels.test_missing_new_fields_default_individually_and_null_effects_use_legacy`；`test_effect_toggle_models/EffectToggleMigrationModels.test_malformed_boolean_does_not_silently_become_default_or_true` | |
+| B05 | 显式 effects 优先于旧 HNCS 开关，八种组合可无损往返，旧字段不再重复编码。 | `test_effect_toggle_models/EffectToggleMigrationModels.test_new_eight_combinations_round_trip_and_override_stale_legacy_fields`；`test_effect_toggle_models/EffectToggleMigrationModels.test_legacy_all_four_explicit_grain_and_sharpness_choices_survive` | |
+| B06 | 没有 effects 时，仅活动 HNCS 模式继承旧 applyGrain/applySharpness；缺失字段分别默认 true，旧 FFCS 三项默认 true，额外裁剪默认 true。 | `test_effect_toggle_models/EffectToggleMigrationModels.test_legacy_all_four_explicit_grain_and_sharpness_choices_survive`；`test_effect_toggle_models/EffectToggleMigrationModels.test_missing_legacy_flags_default_individually_without_erasing_explicit_false` | |
+| B07 | 缺失 FFCS 设置的配方采用 renderRevision 2、XH2S、关闭参考调整及 sharpenRadius 1，已有三个效果标志不丢失。 | `test_ffcs_v020_contracts/FFCSV020Contracts.test_missing_settings_adopt_neutral_default_retain_all_three_flags` | |
+| B08 | 改变一个效果开关不改变其他开关或色彩参数；切换模式、预设和模拟风格不重置开关。 | `test_effect_toggle_models/EffectToggleCombinationModels.test_changing_one_switch_preserves_other_flags_and_all_color_settings`；`test_effect_toggle_models/EffectToggleCombinationModels.test_selecting_preset_or_mode_never_resets_flag_choices` | |
+| B09 | 启用效果只启用预设已有的阶段，不改原始参数或凭空增加颗粒、锐化、裁剪。 | `test_effect_toggle_models/EffectToggleCombinationModels.test_exactly_eight_independent_combinations_for_every_required_preset_and_ffcs`；`test_effect_toggle_models/EffectToggleCombinationModels.test_switches_do_not_mutate_original_preset_parameters`；`test_effect_toggle_models/EffectToggleCombinationModels.test_enabling_absent_effect_never_invents_grain_sharpness_or_crop` | |
+| B10 | 只有 HNCS square-crop 且 applyExtraCrop 打开时裁剪为正方形；FFCS 忽略额外裁剪标志，即使保存了 square-crop HNCS 设置。 | `test_effect_toggle_models/EffectToggleGeometryModels.test_ffcs_crop_flag_is_noop_even_with_saved_square_hncs_preset`；`test_effect_toggle_source/EffectToggleSourceContracts.test_hncs_crop_and_spatial_gates_only_enable_source_defined_stages` | |
+| B11 | 历史 square-crop 照片仍按保存配方裁剪；相机新设置不再提供额外裁剪选择，并把保存的 square-crop 相机预设迁为 standard。 | `test_effect_toggle_source/EffectToggleSourceContracts.test_historical_photo_crop_still_applies_to_preview_and_final_output` | |
+| B12 | 缓存身份区分全部 HNCS/FFCS 设置、曝光、白平衡和效果开关；并发中的既有处理不被新配方替换。 | `test_hncs_revision8_source/Revision8IntegrationSourceContracts.test_context_cache_matches_complete_settings_and_retains_inflight_owner`；`test_effect_toggle_source/EffectToggleSourceContracts.test_both_backend_caches_include_flags_and_preserve_inflight_owners` | |
+| B13 | 捕获色温、工厂色温覆盖和目标白平衡相互独立，不重复向已经白平衡的 RGB 施加目标增益。 | `test_hncs_revision8_source/Revision8IntegrationSourceContracts.test_bridge_keeps_capture_factory_and_target_wb_separate` | |
+| B14 | 快门在授权前冻结完整配方、输出尺寸和质量；后续设置变化不影响照片的处理、保存及重试。 | `test_single_camera_capture_source/SingleCameraViewContracts.test_shutter_snapshots_before_authorization_and_camera_submission`；`test_hncs_revision8_capture_recipe/CaptureRecipeSourceContracts.test_snapshot_is_forwarded_to_full_source_processing`；`test_ffcs_v020_contracts/FFCSV020Contracts.test_explicit_ffcs_settings_snapshot_survives_mutation` | |
+| B15 | 授权失败不提交快门或处理照片，并释放单张拍摄准入以供后续操作。 | `apple_capture_workflow/CaptureWorkflowChecks.run（Denied Photos permission）` | |
+| B16 | 处理失败保留原始输入和冻结配方，重试再次处理同一照片。 | `apple_capture_workflow/CaptureWorkflowChecks.run（processing retry）` | |
+| B17 | 保存失败重试复用已编码 HEIF，不重复处理；重复点击重试只提交一次保存。 | `test_save_recovery_source/SaveRecoveryContracts.test_save_retry_uses_encoded_file_and_keeps_single_admission`；`apple_capture_workflow/CaptureWorkflowChecks.run（Save retry）` | |
+| B18 | 已有拍摄、处理或相册事务期间不接纳第二张照片；无效配方不提交拍摄。 | `test_save_recovery_source/SaveRecoveryContracts.test_save_retry_uses_encoded_file_and_keeps_single_admission`；`apple_capture_workflow/CaptureWorkflowChecks.run（in-flight Photos transaction）` | |
+| B19 | 重启后 rawReady 从保存 RAW 和冻结配方恢复；encodedReady 复用编码文件；成功后清理活动记录但保留回看与分享文件。 | `apple_capture_recovery/CaptureRecoveryChecks.run（RAW recovery、Encoded recovery）` | |
+| B20 | 重启后保存结果未知时不自动重复保存，需用户确认；已有成功回执的记录不再调用相册保存。 | `apple_capture_recovery/CaptureRecoveryChecks.run（unknown save、Durable receipt）` | |
+| B21 | 持久化记录或清理失败后的重试不重复已完成的处理或相册事务；损坏的恢复数据不保存且不静默删除。 | `apple_capture_recovery/CaptureRecoveryChecks.run（Bookkeeping retry、Damaged recovery data）` | |
+| B22 | 已提交照片不因界面关闭、进入后台、取景恢复失败或过期界面回调而替换为失败；未到终结回调的照片在取消后不交付。 | `test_hncs_revision8_capture_recipe/LateCaptureRecipeModelTests.test_late_committed_photo_after_close_keeps_every_shutter_field_and_square_crop`；`test_hncs_revision8_capture_recipe/LateCaptureRecipeModelTests.test_close_without_terminal_success_still_rejects_photo_and_recipe`；`test_single_camera_capture_source/SingleCameraBackendContracts.test_preview_failure_and_stale_ui_do_not_replace_committed_photo` | |
+| B23 | 成功照片仅在终结回调确认后交付；停止、取消、失败与重复回调合计只完成一次请求。 | `test_single_camera_capture_source/SingleCameraBackendContracts.test_terminal_callback_is_commit_point_and_cancel_returns_only_terminal_success`；`test_single_camera_capture_source/SingleCameraBackendContracts.test_stop_and_failure_preserve_terminal_result_with_exactly_once_completion` | |
+| B24 | 捕获期间保持快门方向不变；捕获结束后应用最后一次请求的方向，快速旋转合并为最终方向。 | `test_single_camera_capture_source/SingleCameraBackendContracts.test_orientation_is_immutable_until_terminal_completion_and_restoration`；`test_single_camera_capture_source/SingleCameraBackendContracts.test_rapid_rotation_coalesces_latest_orientation_and_failed_rotation_stops_graph` | |
+| B25 | 取景就绪要求实际投递有效帧；冻结后旧代次帧和排队刷新不能覆盖冻结画面；等待取景可取消并超时失败。 | `test_single_camera_capture_source/SingleCameraBackendContracts.test_preview_readiness_requires_real_enqueued_frame_before_freeze`；`test_single_camera_capture_source/SingleCameraBackendContracts.test_freeze_is_a_fence_against_admitted_main_enqueue_and_queued_flush`；`test_single_camera_capture_source/SingleCameraBackendContracts.test_background_cancellation_is_synchronous_and_readiness_wait_is_cancelable` | |
+| B26 | RAW 回调必须是非空 ProRAW，元数据和像素缓冲尺寸匹配请求；不接受静默降分辨率或改变取景范围。 | `test_camera_source/CameraSourceContracts.test_proraw_is_verified_at_setup_request_and_delivery`；`test_camera_source/CameraSourceContracts.test_no_implicit_resolution_or_framing_downgrade`；`test_single_camera_capture_source/SingleCameraBackendContracts.test_returned_photo_validates_raw_type_and_metadata_and_pixel_buffer_dimensions` | |
+| B27 | 最终输出目标与源相机能力及预览分辨率分离；物理镜头的保存输出选择只精确匹配，不自动选择更低档位。 | `test_camera_geometry/CameraGeometryTests.test_output_is_physical_lens_scoped_and_separate_from_preview`；`test_single_camera_capture_source/SingleCameraViewContracts.test_saved_output_never_silently_retargets_to_lower_resolution` | |
+| B28 | 相册仅请求 addOnly 授权，并复制原始 HEIF 文件；保存与文件导出不移动或兼容重编码原文件。 | `test_save_recovery_source/SaveRecoveryContracts.test_save_original_file_without_compatibility_encoder` | |
+| B29 | 拍摄完成留在相机；回看使用已保存照片与文件，可分享而不重新渲染。 | `test_save_recovery_source/SaveRecoveryContracts.test_completed_capture_does_not_navigate_to_editor`；`test_camera_chrome_source/CameraChromeSourceContracts.test_editor_passes_actual_photo_and_mutable_recipe_to_camera` | |
+| B30 | 照片区按输出比例在整个窗口中最大等比居中，安全区和控制面板不缩小照片区。 | `test_camera_geometry/CameraGeometryTests.test_known_portrait_landscape_square_and_matching_windows`；`test_camera_geometry/CameraGeometryTests.test_extreme_aspects_and_tiny_sizes_remain_maximal`；`test_camera_geometry/CameraGeometryTests.test_safe_area_changes_only_control_placement_never_photo` | |
+| B31 | 外围上、下、左、右区域恰好组成窗口减照片区，零面积区不输出，各区域互不重叠；等比缩放窗口保持归一化区域不变。 | `test_camera_geometry/CameraGeometryTests.test_perimeter_edges_are_exactly_window_minus_photo`；`test_camera_geometry/CameraGeometryTests.test_arbitrary_window_aspects_partition_without_center_overlap`；`test_camera_geometry/CameraGeometryTests.test_uniform_resize_preserves_normalized_photo_and_perimeter` | |
+| B32 | 非法尺寸转为空区域且坐标有限；非法宽高比回退为最大正方形。 | `test_camera_geometry/CameraGeometryTests.test_invalid_and_zero_input_never_produces_nan`；`test_camera_geometry/CameraGeometryTests.test_invalid_aspect_falls_back_to_maximal_square` | |
+| B33 | 控制区仅使用外围与安全区交集；空间不足或无障碍字号时使用独立面板，不覆盖或改变照片区。 | `test_camera_geometry/CameraGeometryTests.test_controls_use_available_panes_or_separate_panel`；`test_camera_chrome_source/CameraChromeSourceContracts.test_controls_are_clipped_to_the_peripheral_regions` | |
+| B34 | 独立控制面板可点击或无障碍操作重新打开；关闭后不立即重开，捕获或冻结时不自动弹出；相机失败时仍可操作重试与控制入口。 | `test_camera_chrome_source/CameraChromeSourceContracts.test_compact_layout_uses_separate_plain_panel_and_accessible_reopen`；`test_camera_chrome_source/CameraChromeSourceContracts.test_compact_modal_does_not_reopen_on_dismissal_or_during_capture`；`test_camera_chrome_source/CameraChromeSourceContracts.test_compact_error_card_keeps_retry_and_controls_accessible` | |
+| B35 | 构图网格开关真实生效且只覆盖照片区；缩略图来自已保存照片，无照片或工作中禁止打开回看。 | `test_camera_chrome_source/CameraChromeSourceContracts.test_composition_grid_is_real_toggle_scoped_to_photograph`；`test_camera_chrome_source/CameraChromeSourceContracts.test_thumbnail_is_actual_image_with_honest_empty_state_and_editor_action` | |
+| B36 | 正方形裁剪取短边、整数居中，奇数差多出的像素留在右侧或下侧，Core Image 坐标往返保持同一源像素。 | `test_hncs_revision8_geometry/SquareCropGeometryModelTests.test_odd_even_and_one_pixel_exact_rectangles`；`test_hncs_revision8_geometry/SquareCropGeometryModelTests.test_exhaustive_small_rectangles_are_contained_centered_and_integer_aligned`；`test_hncs_revision8_geometry/SquareCropGeometryModelTests.test_ci_coordinate_round_trip_preserves_odd_dimension_crop` | |
+| B37 | 裁剪前后对照使用完全相同的源像素和尺寸；关闭裁剪恢复完整传感器像素。 | `test_hncs_revision8_geometry/SquareCropGeometryModelTests.test_before_after_wipe_uses_identical_source_pixels_and_shape`；`test_effect_toggle_models/EffectToggleGeometryModels.test_crop_off_restores_full_sensor_pixels_for_before_and_after` | |
+| B38 | 输出尺寸先按源方向旋转并检查不放大及宽高比，再应用裁剪；裁剪不能掩盖非法输出尺寸。 | `test_hncs_revision8_geometry/SquareCropGeometryModelTests.test_physical_output_rotation_is_resolved_before_square_target_selection`；`test_hncs_revision8_geometry/SquareCropGeometryModelTests.test_square_crop_cannot_hide_invalid_upscale_or_aspect_selection`；`test_hncs_revision8_geometry/SquareCropGeometryModelTests.test_crop_selection_preserves_uniform_downsample_and_square_encoder_aspect` | |
+| B39 | 原生导出保留源尺寸或真实短边正方形，不上采样；旧正方形取景保持源宽高比、中心和物理视场比例。 | `test_hncs_revision8_geometry/SquareCropGeometryModelTests.test_native_export_is_true_source_square_without_upscale`；`test_hncs_revision8_geometry/SquareCropGeometryModelTests.test_final_square_camera_frame_is_maximal_with_unstretched_center_source`；`test_hncs_revision8_geometry/SquareCropGeometryModelTests.test_camera_crop_preserves_physical_fov_scale_in_both_orientations` | |
+| B40 | 预览和最终导出使用同一冻结配方，导出从保留的完整源文件重新解码，预览分辨率不限制最终输出。 | `test_hncs_revision8_source/Revision8IntegrationSourceContracts.test_preview_and_export_dispatch_the_same_frozen_hncs_recipe`；`test_full_resolution_export_source/FullResolutionExportContracts.test_original_file_is_retained_and_reloaded`；`test_full_resolution_export_source/FullResolutionExportContracts.test_preview_resolution_is_independent` | |
+| B41 | 完整源色彩处理和空间处理先于下采样；分条边界使用全图坐标与正确 halo，分条结果和整图一致。 | `test_full_resolution_export_source/FullResolutionExportContracts.test_exact_color_precedes_downsampling`；`test_full_resolution_export_source/FullResolutionExportContracts.test_bounded_scratch_and_global_halo`；`test_hncs_revision8_spatial_integration/Revision8SpatialIntegrationSourceContracts.test_preview_and_full_export_use_same_pointwise_spatial_final_sequence` | |
+| B42 | 空间工作文件保持自上而下的 RGB Float32 行序；不同读写分条组合保持每个像素和通道，非法范围与短读失败，完成或取消后释放暂存文件。 | `test_hncs_revision8_spatial_integration/SpatialRowStorageModelTests.test_different_write_and_read_partitions_preserve_each_pixel_and_channel`；`test_hncs_revision8_spatial_integration/SpatialRowStorageModelTests.test_spatial_output_top_down_coordinates_survive_partitioned_read`；`test_hncs_revision8_spatial_integration/SpatialRowStorageModelTests.test_invalid_or_short_strips_fail_instead_of_leaking_partial_image`；`test_hncs_revision8_spatial_integration/Revision8SpatialIntegrationSourceContracts.test_spatial_work_file_matches_model_byte_offsets_and_releases_scratch` | |
+| B43 | 空间阶段取消传播为取消结果；效果标志和冻结配方经过内存及文件路径保持一致。 | `test_hncs_revision8_spatial_integration/Revision8SpatialIntegrationSourceContracts.test_spatial_flags_and_cancellation_cross_bridge_without_dropping_recipe`；`test_effect_toggle_source/EffectToggleSourceContracts.test_every_pipeline_backend_call_receives_same_frozen_effects` | |
+| B44 | HEIF 导出是 10 位，HDR 使用 ITU-R BT.2100 PQ，浮点线性处理保留高光且不经 8 位中间编码；失败不回退为 JPEG/PNG。 | `test_heif_source/HEIFSourceContracts.test_dedicated_ten_bit_writer_has_float_input`；`test_heif_source/HEIFSourceContracts.test_user_export_has_no_byte_image_fallback`；`test_heif_source/HEIFSourceContracts.test_c_float_route_bypasses_both_byte_encoders` | |
+| B45 | 精确预览拥有有限的浮点像素和尺寸，支持扩展线性色域与 HDR headroom，失败可见且不降为 8 位；方向只应用一次。 | `test_precision_preview_source/PrecisionPreviewSourceContracts.test_source_and_processed_are_owned_float_rasters`；`test_precision_preview_source/PrecisionPreviewSourceContracts.test_float_render_target_preserves_hdr`；`test_precision_preview_source/PrecisionPreviewSourceContracts.test_errors_are_visible_without_byte_fallback`；`test_precision_preview_source/PrecisionPreviewSourceContracts.test_no_second_exif_orientation_transform` | |
+| B46 | 对照分割操作只改变既有图像的合成，不触发色彩重算；源与结果尺寸必须一致。 | `test_precision_preview_source/PrecisionPreviewSourceContracts.test_wipe_is_gpu_only_and_redraw_is_demand_driven` | |
+| B47 | 分享提供 HEIC/JPEG 的文件和数据表示；原始 HEIC 保持字节与扩展名，JPEG 仅在请求时由最终文件生成并缓存。 | `test_share_delivery/ShareDeliveryContracts.test_concrete_formats_are_registered_in_fidelity_order`；`test_share_delivery/ShareDeliveryContracts.test_original_is_not_reencoded_or_renamed_as_jpeg`；`test_share_delivery/ShareDeliveryContracts.test_jpeg_is_lazy_cached_and_comes_from_final_file` | |
+| B48 | 兼容 JPEG 保留完整尺寸、归一化方向 1，输出 8 位 sRGB SDR；HDR 到 SDR 使用色调映射。 | `test_share_delivery/ShareDeliveryContracts.test_orientation_sdr_and_full_dimensions_are_explicit` | |
+| B49 | 并发分享请求复用同一兼容文件，取消在编码前后均有效且失败结果不缓存；回调持有文件直至交付结束。 | `test_share_delivery/ShareDeliveryContracts.test_work_serialized_and_cancellation_is_cooperative`；`test_share_delivery/ShareDeliveryContracts.test_provider_and_callbacks_retain_files` | |
+| B50 | 实验实时色彩默认关闭，仅作用于中心取景，不影响拍摄与最终导出。 | `test_live_proxy_source/LiveProxySourceContracts.test_experiment_is_default_off_and_center_only`；`test_live_proxy_source/LiveProxySourceContracts.test_precise_photo_and_export_do_not_depend_on_proxy` | |
+| B51 | 实时色彩仅允许零曝光、指定 XH2S FFCS 风格及默认参考参数；不支持的配方显示系统取景，旧立方体结果不能继续呈现。 | `test_live_proxy_source/LiveProxySourceContracts.test_only_measured_recipe_allowlist_is_enabled`；`test_hncs_revision8_source/Revision8IntegrationSourceContracts.test_unsupported_live_recipe_revokes_old_cube_before_any_request` | |
+| B52 | 实时立方体来自实际点运算内核，关闭空间阶段并保持 RGB 轴顺序和 alpha 1；完整配方变化使缓存失效，过期烘焙结果不能呈现。 | `test_live_proxy_source/LiveProxySourceContracts.test_cube_is_baked_from_actual_pointwise_cores`；`test_live_proxy_source/LiveProxySourceContracts.test_bakes_are_bounded_cancelable_and_cached`；`test_effect_toggle_source/EffectToggleSourceContracts.test_live_cache_identity_changes_for_every_flag_but_stays_pointwise_only` | |
+| B53 | 实时帧邮箱仅保留最新帧，禁用或失效后清空，旧 generation 的帧不再可取。 | `test_live_proxy_source/LiveProxySourceContracts.test_capture_mailbox_replaces_while_raw_main_queue_is_busy` | |
+| B54 | 实时帧色彩标签缺失或冲突、缓冲格式不符、非正方形像素或 clean aperture 越界时拒绝处理。 | `test_live_proxy_source/LiveProxySourceContracts.test_tagged_buffer_enters_color_managed_ci_without_cpu_copy` | |
+| B55 | 实时预览按 clean aperture 等比显示并保留已有旋转，不额外翻转；目的显示为 SDR。 | `test_live_proxy_source/LiveProxySourceContracts.test_clean_aperture_fit_keeps_native_rotation`；`test_live_proxy_source/LiveProxySourceContracts.test_working_shaper_cube_and_sdr_destination_contract` | |
+| B56 | 实时帧超过 0.5 秒接收时龄即隐藏；仅最新 generation、presentation 与成功 GPU 完成可显示，不替换捕获时间戳。 | `test_live_proxy_source/LiveProxySourceContracts.test_freshness_uses_monotonic_receipt_without_replacing_capture_pts`；`test_live_proxy_source/LiveProxySourceContracts.test_first_success_alone_reveals_proxy_and_gpu_owns_inputs`；`test_live_proxy_source/LiveProxySourceContracts.test_drawable_is_requested_only_after_taking_a_fresh_frame` | |
+| B57 | 实时视图离窗、暂停、停止、旋转、尺寸变化或会话失败后隐藏旧画面并清空待处理来源；状态去重且旧通知不覆盖新状态。 | `test_live_proxy_source/LiveProxySourceContracts.test_offwindow_scene_pause_and_stop_clear_pending_sources`；`test_live_proxy_source/LiveProxySourceContracts.test_rotation_and_session_failures_revoke_old_gpu_generation`；`test_live_proxy_source/LiveProxySourceContracts.test_status_is_deduplicated_and_published_outside_swiftui_update` | |
+| B58 | 外围帧缺失不阻塞中心帧投递；外围显示和玻璃始终位于照片区外，中心不受遮暗影响。 | `test_camera_source/CameraSourceContracts.test_missing_peripheral_frames_do_not_block_center_delivery`；`test_camera_chrome_source/CameraChromeSourceContracts.test_liquid_glass_is_clear_and_owned_by_the_perimeter_panes_only`；`test_camera_chrome_source/CameraChromeSourceContracts.test_paired_renderer_keeps_glass_outside_the_unshaded_center` | |
+| B59 | 外围随畸变连续变暗并锁黑；淡出起点 0.05、变暗阈值 0.10、恢复阈值 0.08、变暗 0.30 秒、恢复 0.40 秒及稳定期 0.40 秒。 | `test_camera_chrome_source/CameraChromeSourceContracts.test_darkness_follows_distortion_continuously_with_latched_black` | |
+| B60 | 取景优先 60 Hz，并按支持能力降到 30/15 Hz，保持外围取景而不改变照片源能力。 | `test_camera_chrome_source/CameraChromeSourceContracts.test_viewfinder_prefers_60_hz_and_falls_back_keeping_the_periphery`；`test_single_camera_capture_source/SingleCameraBackendContracts.test_highest_source_capability_does_not_use_multicam_or_preview_filter` | |
+
+
+### 旧约定核实事项
+
+旧效果模型把 Standard 空间阶段视为外层旁路，但当前原生锐化入口不同；T09 核实当前实现，不恢复旧旁路。来源：`test_effect_toggle_models/EffectToggleCombinationModels.test_exactly_eight_independent_combinations_for_every_required_preset_and_ffcs`。
+
+旧 EditorRecipeModel 已无对应产品编辑器；导入冻结、控件变化与忙碌交付约定由 B14 的当前 CaptureWorkflow 冻结快照行为承接，T09 不新增旧编辑器。来源：`test_hncs_revision8_capture_recipe/LateCaptureRecipeModelTests.test_on_dismiss_and_control_observers_cannot_retarget_busy_capture_import`、`test_edits_after_callback_do_not_mutate_frozen_render_and_pause_delivery`、`test_imports_without_explicit_capture_recipe_freeze_current_editor_controls`、`test_effect_toggle_models/EffectToggleFrozenRecipeModels.test_import_freezes_each_flag_and_rerender_reestablishes_delivery`。
 
 ## 附录 C：`tools/` 文件归属
 
@@ -475,6 +543,23 @@ xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj \
 **保留：测试专用 C++ 桥，T05 放进测试支持 target**（1）：`x2d_hdr_post_model_bridge.cpp`
 
 **转成 pytest 数值测试（T03）**（10）：`test_hncs_numpy_rng.py`、`test_hncs_spatial.py`、`verify_cpp.py`、`verify_ffcs_effect_switches.py`、`verify_ffcs_strips.py`、`verify_hncs_revision8.py`、`verify_hncs_revision8_live.py`、`verify_linear_export.py`、`verify_lumix.py`、`verify_parallel_linear.py`。不能只靠仓库内容运行的，改归研究仓库 `tools/studies/`。
+
+T03 后的数值测试入口（相对 `GlassCamPrototype/`）：
+
+| 原 tools 入口 | pytest 入口或保留支持 |
+|---|---|
+| `verify_cpp.py` | `tests/numeric/test_native_core.py`；`support/verify_cpp.py` 保留现有 benchmark 调用的原生辅助函数 |
+| `test_hncs_numpy_rng.py`、`test_hncs_spatial.py` | `tests/numeric/` 下同名测试；空间参考函数在 `support/spatial.py` |
+| `verify_hncs_revision8.py` | `tests/numeric/test_hncs_presets.py` |
+| `verify_hncs_revision8_live.py` | `tests/numeric/test_hncs_dense_gradation.py` |
+| `verify_linear_export.py`、`verify_parallel_linear.py` | `tests/numeric/test_linear_export.py`、`test_parallel_linear.py` |
+| `verify_ffcs_strips.py` | `tests/numeric/test_ffcs_strips.py` |
+| `verify_ffcs_effect_switches.py` | `tests/numeric/test_ffcs_defaults.py`；原 C++ 开关程序继续由 `test_ffcs_effect_switches.py` 执行，T05 改 NativeTests |
+| `verify_lumix.py` | `tests/numeric/test_lumix_reference.py` |
+
+`tests/numeric/conftest.py` 从固定哈希 FFCS 归档准备缺失的忽略资源和 App LUT，不覆盖上游跟踪源码。新数值检查的 C ABI 和临时构建集中在 `support/native.py` 与 `conftest.py`，T05 接入 SwiftPM 后替换构建。
+
+`GLASSCAM_LARGE_NUMERICS=1` 显式开启原空间脚本 `--large` 的两个大尺寸案例。默认数值验收跳过这两个案例。旧 `benchmark_ffcs.py`、`benchmark_optimized.py`、`render_preview.py` 从 `tests/numeric/support/` 导入原参考辅助模块，T04 移动时需同步更新导入根目录。
 
 **T05 删除**（1）：`test_hncs_spatial_sanitizers.py`，改由 `make test-native` 的 sanitizer 构建覆盖。
 
@@ -494,13 +579,16 @@ xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj \
 
 **补迁上游材料**：`reference_ffcs/implementation/tools/` 下的三个文件和 `reference_ffcs/validation/macho_inventory.json`，在研究仓库按 `upstream/ffcs/` 下的原有相对路径保存。
 
+旧 Float16 存储实验、FFCS 历史报告检查及其两份原始报告保存在研究仓库提交 `4cd04554d37f673cebdf24032266edbbec957530`。它们不属于产品数值回归。
+
 研究仓库 commit（T02）：`799f5a6a560a7be4c3a520b0f5359a9e1758a53b`，来源主仓库 `77d2507fd61b647e8567d99a5b46112975d10039`。
 
 ## 附录 D：`validation/` 中保留的 golden
 
 这些文件保留在主仓库，T04 移到 `tests/fixtures/`；其余全部迁到研究仓库。移动之后运行测试，缺哪个补哪个，并更新这份清单。
 
-- `ffcs-v020-stage-goldens.json`、`ffcs-v020-native.json`、`ffcs-effect-defaults-before.json`（仅当引用它的测试方法在 T03 后仍然保留）
+- `ffcs-v020-stage-goldens.json`：保留的数值 golden。
+- `ffcs-v020-native.json`、`ffcs-effect-defaults-before.json`：T03 后已无代码引用，属于历史报告；研究仓库已有逐字节相同副本，T04 统一从主仓库迁出，不放入新的 fixtures 目录。
 - `phocus-native-chain-goldens.json`、`phocus-native-chain-vectors.npz`
 - `x2d-hdr-goldens.json`、`x2d-hdr-vectors.npz`
 - `x2d-hdr-gradation-goldens.json`、`x2d-hdr-gradation-goldens.npz`

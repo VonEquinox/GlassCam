@@ -7,7 +7,9 @@ import argparse, json
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageCms, ImageDraw, ImageOps
-from reference_runtime import assets, effect
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests/numeric"))
+from support.reference_runtime import assets, effect
 
 def decode(x): return np.where(x<=.04045,x/12.92,((x+.055)/1.055)**2.4)
 def synthetic():

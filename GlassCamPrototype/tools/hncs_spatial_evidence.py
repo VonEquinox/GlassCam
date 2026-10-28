@@ -6,8 +6,8 @@ def snapshot(root, reference=None):
     paths=[root/name for name in [
         'core/hncs_spatial.h','core/hncs_spatial.cpp','core/hncs_spatial_assets.inc',
         'core/hncs_numpy_rng.h','core/hncs_numpy_rng.cpp',
-        'tools/generate_hncs_spatial_assets.py','tools/test_hncs_spatial.py',
-        'tools/test_hncs_numpy_rng.py','tools/test_hncs_spatial_sanitizers.py',
+        'tools/generate_hncs_spatial_assets.py','tests/numeric/test_hncs_spatial.py',
+        'tests/numeric/test_hncs_numpy_rng.py','tools/test_hncs_spatial_sanitizers.py',
         'tools/hncs_spatial_evidence.py','tests/hncs_numpy_rng_bridge.cpp',
         'tests/hncs_spatial_smoke.cpp']]
     if reference:
