@@ -5,6 +5,19 @@ __pycache__/
 .venv/
 .pytest_cache/
 
+# Prototype build and Xcode user state
+/GlassCamPrototype/**/build/
+/GlassCamPrototype/**/DerivedData/
+/GlassCamPrototype/**/xcuserdata/
+/GlassCamPrototype/**/*.xcuserstate
+
+# Original FFCS assets are materialized from the pinned source archive
+/GlassCamPrototype/ios/GlassCam/Resources/FFCS/*/
+/GlassCamPrototype/ios/GlassCam/Resources/FFCS/.verified
+/GlassCamPrototype/reference_ffcs/implementation/ffcs/data/**/*.lutz
+/GlassCamPrototype/reference_ffcs/implementation/ffcs/data/**/*.icc
+/GlassCamPrototype/reference_ffcs/examples/generated/
+
 # Materialized from the checked, self-contained LUMIX archive at build time
 /GlassCamPrototype/ios/GlassCam/Resources/LUMIX/
 
