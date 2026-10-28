@@ -4,7 +4,7 @@
 
 交给 agent 时这样说：
 
-> 你负责 GlassCam 重构的 **T0x**。先读 `AGENTS.md`、`GlassCamPrototype/docs/writing-docs.md`、`GlassCamPrototype/docs/testing.md`，再读 `REFACTOR_PLAN.md` 的「执行规则」「验收套件」、你的任务和它引用的附录。只做这一个任务，完成后按「执行规则」第 7 条汇报。
+> 你负责 GlassCam 重构的 **T0x**。先读 `AGENTS.md`、`docs/writing-docs.md`、`docs/testing.md`，再读 `REFACTOR_PLAN.md` 的「执行规则」「验收套件」、你的任务和它引用的附录。只做这一个任务，完成后按「执行规则」第 7 条汇报。
 
 ## 目标
 
@@ -74,19 +74,19 @@ T00 负责确认这些命令能实际运行，并把最终写法记进附录 A�
 先定义 Python 环境（本机系统 Python 没有 numpy）：
 
 ```sh
-PY="uv run --no-project --python 3.12 --with-requirements GlassCamPrototype/requirements.txt --with tifffile python -B"
+PY="uv run --no-project --python 3.12 --with-requirements tests/numeric/requirements.txt --with tifffile python -B"
 ```
 
-| 编号 | 内容 | 命令（重构前路径） |
+| 编号 | 内容 | 命令 |
 |---|---|---|
-| V1 | Python 全套 | `$PY -m pytest GlassCamPrototype/tests/numeric` |
-| V2 | Apple 图像管线、拍摄流程与恢复 | `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer $PY GlassCamPrototype/tools/test_apple_images.py --raw-source <MAIN_DNG>` |
-| V3 | 完整色彩链基线 | `$PY GlassCamPrototype/tools/test_lumix_images.py --test-source GlassCamPrototype/tests/apple_color_chain.swift --output <DIR> --proraw <MAIN_DNG> --proraw <ULTRA_DNG> --proraw <TELE_DNG>` |
-| V4 | F5 | `$PY GlassCamPrototype/tools/test_f5.py` |
-| V5 | 外围玻璃 | `$PY GlassCamPrototype/tools/test_peripheral_glass.py`，以及 `$PY GlassCamPrototype/tools/test_peripheral_recording.py` |
-| V6 | 原生 C++ | `$PY -m pytest GlassCamPrototype/tests/numeric/test_native_core.py GlassCamPrototype/tests/numeric/test_hncs_numpy_rng.py GlassCamPrototype/tests/numeric/test_hncs_spatial.py`；`$PY GlassCamPrototype/tools/test_hncs_spatial_sanitizers.py --disable-leak-detection` |
-| V7 | 未签名 Release 构建 | `$PY GlassCamPrototype/tools/iphone_release.py --unsigned` |
-| V8 | UI 测试（模拟器） | `xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj -scheme GlassCamCaptureTests -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -parallel-testing-enabled NO -only-testing:GlassCamUITests/CaptureWorkflowUITests/testCapturePriorityMenuAndSpeed12MPOnSimulator -only-testing:GlassCamUITests/CaptureWorkflowUITests/testManualStateRecordsWithoutCameraOnSimulator` |
+| V1 | Python 全套 | `$PY -m pytest tests/numeric` |
+| V2 | Apple 图像管线、拍摄流程与恢复 | `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer $PY scripts/test_apple_images.py --raw-source <MAIN_DNG>` |
+| V3 | 完整色彩链基线 | `$PY scripts/test_lumix_images.py --test-source tests/swift-legacy/apple_color_chain.swift --output <DIR> --proraw <MAIN_DNG> --proraw <ULTRA_DNG> --proraw <TELE_DNG>` |
+| V4 | F5 | `$PY scripts/test_f5.py` |
+| V5 | 外围玻璃 | `$PY scripts/test_peripheral_glass.py`，以及 `$PY scripts/test_peripheral_recording.py` |
+| V6 | 原生 C++ | `$PY -m pytest tests/numeric/test_native_core.py tests/numeric/test_hncs_numpy_rng.py tests/numeric/test_hncs_spatial.py`；`$PY scripts/test_hncs_spatial_sanitizers.py --disable-leak-detection` |
+| V7 | 未签名 Release 构建 | `$PY scripts/iphone_release.py --unsigned` |
+| V8 | UI 测试（模拟器） | `xcodebuild test -project App/GlassCam.xcodeproj -scheme GlassCamCaptureTests -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -parallel-testing-enabled NO -only-testing:GlassCamUITests/CaptureWorkflowUITests/testCapturePriorityMenuAndSpeed12MPOnSimulator -only-testing:GlassCamUITests/CaptureWorkflowUITests/testManualStateRecordsWithoutCameraOnSimulator` |
 
 「与基线一致」是指：通过的检查仍然通过；已知失败的错误信息不变；V3 输出的 HEIF 文件 SHA-256 与附录 A 逐个相同。
 
@@ -540,11 +540,11 @@ xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj \
 
 `verify_ffcs_v020.py` 从 `materialize_ffcs_reference.py` 导入归档哈希校验与四项研究文件清单；T03/T04 移动模块时须保留此依赖。清单中的四项从固定哈希归档读取，其他上游文件继续检查工作区内容。
 
-**保留：测试专用 C++ 桥，T05 放进测试支持 target**（1）：`x2d_hdr_post_model_bridge.cpp`
+**保留：测试专用 C++ 桥，暂放 tests/native-legacy/，T05 放进测试支持 target**（1）：`x2d_hdr_post_model_bridge.cpp`
 
 **转成 pytest 数值测试（T03）**（10）：`test_hncs_numpy_rng.py`、`test_hncs_spatial.py`、`verify_cpp.py`、`verify_ffcs_effect_switches.py`、`verify_ffcs_strips.py`、`verify_hncs_revision8.py`、`verify_hncs_revision8_live.py`、`verify_linear_export.py`、`verify_lumix.py`、`verify_parallel_linear.py`。不能只靠仓库内容运行的，改归研究仓库 `tools/studies/`。
 
-T03 后的数值测试入口（相对 `GlassCamPrototype/`）：
+数值测试入口（相对仓库根目录）：
 
 | 原 tools 入口 | pytest 入口或保留支持 |
 |---|---|
@@ -561,15 +561,17 @@ T03 后的数值测试入口（相对 `GlassCamPrototype/`）：
 
 `GLASSCAM_LARGE_NUMERICS=1` 显式开启原空间脚本 `--large` 的两个大尺寸案例。默认数值验收跳过这两个案例。旧 `benchmark_ffcs.py`、`benchmark_optimized.py`、`render_preview.py` 从 `tests/numeric/support/` 导入原参考辅助模块，T04 移动时需同步更新导入根目录。
 
-**T05 删除**（1）：`test_hncs_spatial_sanitizers.py`，改由 `make test-native` 的 sanitizer 构建覆盖。
+**T05 删除**（1）：`scripts/test_hncs_spatial_sanitizers.py`，改由 `make test-native` 的 sanitizer 构建覆盖。
 
-**暂留至依赖解除后迁出**（1）：`hncs_spatial_evidence.py`。T03 改写 RNG、空间数值测试后移除相应依赖；T05 删除 sanitizer runner 后，把该文件迁到研究仓库 `tools/studies/`。
+**暂留至依赖解除后迁出**（1）：`scripts/hncs_spatial_evidence.py`。T03 改写 RNG、空间数值测试后移除相应依赖；T05 删除 sanitizer runner 后，把该文件迁到研究仓库 `tools/studies/`。
 
-**T09 删除**（5）：`test_apple_images.py`、`test_f5.py`、`test_lumix_images.py`、`test_peripheral_glass.py`、`test_peripheral_recording.py`
+**T09 删除（暂放 scripts/）**（5）：`test_apple_images.py`、`test_f5.py`、`test_lumix_images.py`、`test_peripheral_glass.py`、`test_peripheral_recording.py`
 
 **保留：tools/diagnostics/**（10）：`analyze_peripheral_records.py`、`inspect_proraw_profile.py`、`pull_peripheral_records.py`、`render_preview.py`、`replay_peripheral_native.py`、`replay_peripheral_native.swift`、`replay_peripheral_records.swift`、`replay_peripheral_stability.py`、`replay_peripheral_stability.swift`、`replay_peripheral_transitions.swift`
 
 **保留：tools/bench/**（9）：`benchmark_current_pipeline.py`、`benchmark_ffcs.py`、`benchmark_lowres_color.cpp`、`benchmark_lowres_color.py`、`benchmark_optimized.py`、`profile_ffcs.cpp`、`profile_hncs.cpp`、`run_device_performance.py`、`summarize_device_performance.py`
+
+工具输出目录为 `~/Library/Developer/GlassCamDiagnostics/bench/`，预览默认输出到 `~/Library/Developer/GlassCamDiagnostics/preview/`，不写入 fixtures。`benchmark_current_pipeline.py` 和 `benchmark_lowres_color.py` 保留原有 Linux `/proc`、CPU affinity 依赖；macOS 不运行其性能采集入口。`scripts/test_f5.py` 的四个可选 `--build-*` 分支仍引用 T02 已迁出的研究入口，默认 V4 不使用；T09 删除旧 runner 时一并处理。
 
 **研究仓库 tools/reverse-engineering/：直接或间接依赖原厂二进制**（49）：`apple_color_performance.swift`、`audit_ffcs_original.py`、`audit_phocus_binaries.py`、`audit_phocus_input_spatial.py`、`audit_phocus_post_stages.py`、`audit_phocus_raw_contract.py`、`audit_phocus_sharpness_settings.py`、`audit_phocus_white_balance.py`、`audit_x2d_hdr_gradation.py`、`audit_x2d_identity.py`、`benchmark_ffcs_cache.py`、`collect_phocus_validation.py`、`compare_hdr_images.swift`、`compare_x2d_crops.py`、`decompile_ffcs_stages.py`、`decompile_phocus.py`、`decompile_x2d_pipeline.py`、`diagnose_metal_hdr_export.py`、`extract_lumix_assets.py`、`extract_lumix_pipeline.py`、`extract_lumix_reference.cpp`、`hdr_image_metrics.cpp`、`hdr_image_metrics.h`、`measure_source_acceleration.py`、`metal_hncs_source_bridge.mm`、`native_ffcs_audit.cpp`、`native_phocus_filters_bridge.cpp`、`native_x2d_hdr_bridge.cpp`、`native_x2d_pipeline_bridge.cpp`、`phocus_sharpness_model_bridge.cpp`、`phocus_sharpness_reference.py`、`phocus_sharpness_vectors.py`、`probe_coreml_source_matrix.py`、`probe_lumix_pipeline.cpp`、`probe_x2d_native_pipeline.py`、`report_phocus_reference.py`、`run_color_performance.py`、`run_metal_performance.py`、`run_x2d_export_audit.py`、`verify_ffcs_header_matrix.py`、`verify_ffcs_strict_cache.py`、`verify_lumix_pipeline.py`、`verify_phocus_chain.py`、`verify_phocus_sharpness.py`、`verify_phocus_spatial_integration.py`、`verify_x2d_color_gain.py`、`verify_x2d_hdr.py`、`verify_x2d_hdr_chain.py`、`verify_x2d_hdr_post.py`
 
@@ -583,21 +585,22 @@ T03 后的数值测试入口（相对 `GlassCamPrototype/`）：
 
 研究仓库 commit（T02）：`799f5a6a560a7be4c3a520b0f5359a9e1758a53b`，来源主仓库 `77d2507fd61b647e8567d99a5b46112975d10039`。
 
-## 附录 D：`validation/` 中保留的 golden
+## 附录 D：保留的 golden
 
-这些文件保留在主仓库，T04 移到 `tests/fixtures/`；其余全部迁到研究仓库。移动之后运行测试，缺哪个补哪个，并更新这份清单。
+这些文件位于 `tests/fixtures/`，每个主题目录的 `README.md` 记录来源、生成方式和版本。文件内容保持迁移前原样。
 
-- `ffcs-v020-stage-goldens.json`：保留的数值 golden。
-- `ffcs-v020-native.json`、`ffcs-effect-defaults-before.json`：T03 后已无代码引用，属于历史报告；研究仓库已有逐字节相同副本，T04 统一从主仓库迁出，不放入新的 fixtures 目录。
-- `phocus-native-chain-goldens.json`、`phocus-native-chain-vectors.npz`
-- `x2d-hdr-goldens.json`、`x2d-hdr-vectors.npz`
-- `x2d-hdr-gradation-goldens.json`、`x2d-hdr-gradation-goldens.npz`
-- `x2d-hdr-post-goldens.json`、`x2d-hdr-post-goldens.npz`
-- `x2d-hdr-sharpness-goldens.json`、`x2d-hdr-sharpness-goldens.npz`
-- `x2d-native-gain-goldens.json`、`x2d-native-gain-vectors.npz`
-- `lumix-full-proraw-20261026/native-full-vectors.zip`
-- `lumix-integration-20261026/native-vectors/`（被 `verify_lumix.py` 使用）
-- `ffcs_mobile_stage_goldens.json`（如果仍被引用）
+- `ffcs/ffcs-v020-stage-goldens.json`、`ffcs/ffcs_mobile_stage_goldens.json`
+- `hncs/phocus-native-chain-goldens.json`、`hncs/phocus-native-chain-vectors.npz`
+- `hncs/x2d-hdr-goldens.json`、`hncs/x2d-hdr-vectors.npz`
+- `hncs/x2d-hdr-gradation-goldens.json`、`hncs/x2d-hdr-gradation-goldens.npz`
+- `hncs/x2d-hdr-post-goldens.json`、`hncs/x2d-hdr-post-goldens.npz`
+- `hncs/x2d-hdr-sharpness-goldens.json`、`hncs/x2d-hdr-sharpness-goldens.npz`
+- `hncs/x2d-native-gain-goldens.json`、`hncs/x2d-native-gain-vectors.npz`
+- `lumix/native-full-vectors.zip`、`lumix/native-vectors/`
+- `color-pipeline/color-pipeline-v1-exposure.json`
+- `peripheral/phone-glass-timing-20261023.json`、`peripheral/direct-stitch-distant-scene-20261025.json`、`peripheral/direct-stitch-near-computer-20261025.json`
+
+`ffcs-v020-native.json`、`ffcs-effect-defaults-before.json` 无代码引用，已从主仓库移除；逐字节相同的历史报告保存在研究仓库提交 `4cd04554d37f673cebdf24032266edbbec957530`。
 
 ## 附录 E：`tests/` 的处理
 

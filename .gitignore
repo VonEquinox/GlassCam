@@ -5,21 +5,22 @@ __pycache__/
 .venv/
 .pytest_cache/
 
-# Prototype build and Xcode user state
-/GlassCamPrototype/**/build/
-/GlassCamPrototype/**/DerivedData/
-/GlassCamPrototype/**/xcuserdata/
-/GlassCamPrototype/**/*.xcuserstate
+# Build and Xcode user state
+/build/
+/**/build/
+/**/DerivedData/
+/**/xcuserdata/
+/**/*.xcuserstate
 
 # Original FFCS assets are materialized from the pinned source archive
-/GlassCamPrototype/ios/GlassCam/Resources/FFCS/*/
-/GlassCamPrototype/ios/GlassCam/Resources/FFCS/.verified
-/GlassCamPrototype/reference_ffcs/implementation/ffcs/data/**/*.lutz
-/GlassCamPrototype/reference_ffcs/implementation/ffcs/data/**/*.icc
-/GlassCamPrototype/reference_ffcs/examples/generated/
+/App/GlassCam/Resources/FFCS/*/
+/App/GlassCam/Resources/FFCS/.verified
+/vendor/ffcs/implementation/ffcs/data/**/*.lutz
+/vendor/ffcs/implementation/ffcs/data/**/*.icc
+/vendor/ffcs/examples/generated/
 
 # Materialized from the checked, self-contained LUMIX archive at build time
-/GlassCamPrototype/ios/GlassCam/Resources/LUMIX/
+/App/GlassCam/Resources/LUMIX/
 
 # Local photo inputs and exports
 *.heic
@@ -34,10 +35,10 @@ __pycache__/
 *.3FR
 
 # Diagnostic previews; application image assets remain trackable
-/GlassCamPrototype/validation/**/*.png
-/GlassCamPrototype/validation/**/*.jpg
-/GlassCamPrototype/validation/**/*.jpeg
-/GlassCamPrototype/validation/**/*.webp
+/validation/**/*.png
+/validation/**/*.jpg
+/validation/**/*.jpeg
+/validation/**/*.webp
 
 # Local distributions and signing material
 *.dmg
