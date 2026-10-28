@@ -17,7 +17,7 @@ def main():
         env.setdefault("DEVELOPER_DIR", "/Applications/Xcode.app/Contents/Developer")
         sources = ROOT / "App/GlassCam"
         subprocess.run(["xcrun", "swiftc", "-swift-version", "5", "-O", "-module-cache-path", str(work / "modules"),
-                        *[str(sources / name) for name in ("Peripheral/PeripheralGlassPolicy.swift", "Peripheral/PeripheralAlignment.swift", "Peripheral/PeripheralStateRecording.swift", "Peripheral/PeripheralVisibleSeam.swift", "Peripheral/PeripheralDenseRefinement.swift", "Peripheral/PeripheralLiveDisplay.swift")],
+                        *[str(sources / name) for name in ("Peripheral/PeripheralGlassPolicy.swift", "Peripheral/PeripheralAlignment.swift", "Peripheral/PeripheralFrameInput.swift", "Peripheral/LiveCameraFrame.swift", "Peripheral/PeripheralStateRecording.swift", "Peripheral/PeripheralVisibleSeam.swift", "Peripheral/PeripheralDenseRefinement.swift", "Peripheral/PeripheralLiveDisplay.swift")],
                         str(ROOT / "tests/swift-legacy/apple_peripheral_recording.swift"), "-o", str(work / "tests")], env=env, check=True)
         subprocess.run([str(work / "tests"), str(work / "fixtures")], env=env, check=True)
         fixture = work / "fixtures"

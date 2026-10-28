@@ -634,7 +634,7 @@ FFCS 原生测试资源由既有固定哈希资源脚本准备到 `Packages/Glas
 | `ImagingCore/Processing` | `ImagePipeline`（剩余部分）、`PreviewRaster`、`SourceImageStore`、`ShareDelivery`、`SceneLinearImage` | Model、Engines |
 | `Capture` | `CaptureWorkflow`、`CaptureJournal`、`CaptureFormats`、`CameraSettingsStore`、`CameraSessionRecovery` | ImagingCore |
 | `F5` | `F5BurstStore`、`F5CaptureFormat`、`F5ColorBridge`、`F5Errors`、`F5ImagePipeline`、`F5LocalDenoise`、`F5Metal`、`F5MetalOutput`、`F5MetalRuntime`、`F5MetalSolver`、`F5Models`、`F5RAW`、`F5Reconstruction`、`F5Kernels.metal` | ImagingCore、Capture |
-| `Peripheral` | `PeripheralAlignment`、`PeripheralDenseRefinement`、`PeripheralGlassPolicy`、`PeripheralGlassShader`、`PeripheralLiveDisplay`、`PeripheralStateRecording`、`PeripheralVisibleSeam`、`CameraFraming` | Model |
+| `Peripheral` | `PeripheralAlignment`、`PeripheralDenseRefinement`、`PeripheralGlassPolicy`、`PeripheralGlassShader`、`PeripheralLiveDisplay`、`PeripheralStateRecording`、`PeripheralVisibleSeam`、`PeripheralFrameInput`、`LiveCameraFrame`、`CameraFraming` | Model |
 | `Camera`（App） | `CameraController`、`CameraFrameDelivery`、`F5CaptureDriver`、`LiveColorProxy` | 以上全部 |
 | `UI`（App） | `GlassCamApp`、`ContentView`、`CameraView`、`CameraDesign`、`F5SettingsCard`、`PeripheralGlassView`、`PeripheralRecordingControls`、`PrecisionPreview`、`HEIFSaveDelivery` | 以上全部 |
 | `Bench`（App） | `DevicePerformance` | 以上全部 |
@@ -646,6 +646,8 @@ FFCS 原生测试资源由既有固定哈希资源脚本准备到 `Packages/Glas
 `CaptureFormats` 是不可变的格式注册表，由 `GlassCamApp` 将 `F5CaptureFormat` 注入拍摄服务与 journal。`CapturePayload`、`CaptureProvenance` 和 `CaptureFormat` 由 Capture 定义，F5 提供载荷、来源信息编解码、恢复、复制、归档和渲染实现。`CaptureSnapshot` 的历史 `f5` 与 `archiveF5RAW` JSON 键保持不变；解码包含来源信息的记录时使用注册表提供的 `decoder()`。`CapturedCameraPhoto` 位于 Capture，`SceneLinearImage` 位于 Processing；F5 在线性图像接口中保留其白平衡校验及错误。
 
 T07 的持久化样本与生成入口见 `tests/fixtures/journal/README.md`，新增 Swift Testing 用例暂在 `tests/swift-legacy/journal_compatibility.swift`；T09 连同 `tests/support/JournalFixtures.swift` 迁入 package。测试根通过注册表显式启用 F5，暂存与归档位置可注入临时目录。
+
+`PeripheralFrameInput` 由 Peripheral 定义，`CameraFrameDelivery` 在 Camera 层实现；外围同步器通过该协议交付原始 `CMSampleBuffer` 并观察中心预览的实际提交 PTS。`LiveCameraFrame` 与 `LiveCameraFrameSource` 同在 Peripheral 的 `LiveCameraFrame.swift`，保留原始帧附件、时间戳和单槽替换语义；T09 随 Peripheral target 迁入，Camera 和取景视图引用该 target。
 
 T06–T08 期间使用的检查脚本，保存为 `scripts/check_layers.py`，T09 删除：
 

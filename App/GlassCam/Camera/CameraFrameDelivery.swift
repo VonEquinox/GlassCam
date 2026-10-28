@@ -4,7 +4,7 @@ import CoreVideo
 
 /// One retained frame per physical lens; no per-frame ObservableObject updates.
 /// Capture delegates run on their own serial queues. Layer access is main-only.
-final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, PeripheralFrameInput {
     let layer: AVSampleBufferDisplayLayer
     let liveSource = LiveCameraFrameSource()
     let callbackQueue = DispatchQueue(label: "dev.glasscam.preview.\(UUID().uuidString)", qos: .userInteractive)

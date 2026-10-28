@@ -29,7 +29,7 @@ def main():
         command = ["xcrun", "swiftc", "-swift-version", "5", "-O", "-module-cache-path", str(work / "modules")]
         if args.sanitize:
             command += ["-sanitize=address"]
-        command += [str(sources / name) for name in ["Capture/CameraSessionRecovery.swift", "Peripheral/PeripheralGlassPolicy.swift", "Peripheral/PeripheralGlassShader.swift", "Peripheral/PeripheralAlignment.swift", "Peripheral/PeripheralStateRecording.swift", "Peripheral/PeripheralVisibleSeam.swift", "Peripheral/PeripheralDenseRefinement.swift", "Peripheral/PeripheralLiveDisplay.swift"]]
+        command += [str(sources / name) for name in ["Capture/CameraSessionRecovery.swift", "Peripheral/PeripheralGlassPolicy.swift", "Peripheral/PeripheralGlassShader.swift", "Peripheral/PeripheralAlignment.swift", "Peripheral/PeripheralFrameInput.swift", "Peripheral/LiveCameraFrame.swift", "Peripheral/PeripheralStateRecording.swift", "Peripheral/PeripheralVisibleSeam.swift", "Peripheral/PeripheralDenseRefinement.swift", "Peripheral/PeripheralLiveDisplay.swift"]]
         command += [str(ROOT / "tests/swift-legacy/apple_peripheral_glass.swift"), "-o", str(work / "peripheral")]
         subprocess.run(command, check=True, env=env)
         if args.sanitize:

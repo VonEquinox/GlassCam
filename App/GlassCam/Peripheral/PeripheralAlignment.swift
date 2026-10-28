@@ -353,10 +353,10 @@ final class PeripheralFrameSynchronizer: NSObject, AVCaptureDataOutputSynchroniz
     let queue = DispatchQueue(label: "dev.glasscam.preview.synchronized", qos: .userInteractive)
     let source: PeripheralFrameSource
     let outputs: [AVCaptureVideoDataOutput]
-    let deliveries: [CameraFrameDelivery]
+    let deliveries: [any PeripheralFrameInput]
     let clockProvider: () -> CMClock?
     private var lastDiagnosticTime = -Double.infinity
-    init(source: PeripheralFrameSource, outputs: [AVCaptureVideoDataOutput], deliveries: [CameraFrameDelivery], clock: @escaping () -> CMClock?) {
+    init(source: PeripheralFrameSource, outputs: [AVCaptureVideoDataOutput], deliveries: [any PeripheralFrameInput], clock: @escaping () -> CMClock?) {
         self.source = source; self.outputs = outputs; self.deliveries = deliveries; self.clockProvider = clock
         deliveries.first?.observeSubmissions { [weak source] pts in source?.recordSubmittedCenter(pts) }
     }
