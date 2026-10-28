@@ -8,11 +8,11 @@ struct ContentView: View {
     @StateObject private var workflow: CaptureWorkflow
     private let resources: ColorResources
 
-    init(resources: ColorResources) {
+    init(resources: ColorResources, formats: CaptureFormats) {
         self.resources = resources
-        _workflow = StateObject(wrappedValue: CaptureWorkflow(services: .live(resources: resources,
+        _workflow = StateObject(wrappedValue: CaptureWorkflow(services: .live(resources: resources, formats: formats,
             authorize: { try await HEIFSaveDelivery.authorizePhotos() },
-            save: { try await HEIFSaveDelivery.saveToPhotos($0) }), journal: CaptureJournal(), initiallyActive: false))
+            save: { try await HEIFSaveDelivery.saveToPhotos($0) }), journal: CaptureJournal(formats: formats), initiallyActive: false))
     }
     @Environment(\.scenePhase) private var scenePhase
 

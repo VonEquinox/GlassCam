@@ -3,7 +3,15 @@ import CoreImage
 import Metal
 import ImageIO
 
-struct F5LinearImage {
+struct F5LinearImage: SceneLinearImage {
+    func validatedWhiteBalance() throws -> PhotoWhiteBalance {
+        let white = color.whiteBalance
+        guard white.isValid, color.whiteBalanceOwner == "matrix" else {
+            throw F5Failure(.colorTransformInvalid, "Invalid F5 white-balance ownership.")
+        }
+        return white
+    }
+    var sourceISO: Int { Int(reference.actualISO.rounded()) }
     let raster: ExportRasterFile
     let width: Int, height: Int, orientation: Int
     let color: F5ColorTransformRecord
@@ -36,7 +44,7 @@ struct F5LinearImage {
 }
 
 enum F5ImagePipeline {
-    struct Result { let file: TemporaryHEIFFile, snapshot: CaptureSnapshot }
+    typealias Result = CaptureRenderResult
     static func render(resources: ColorResources, _ source: F5BurstSource, snapshot: CaptureSnapshot, progress: @escaping @Sendable (Double)->Void,
                        isCancelled: @escaping @Sendable ()->Bool) throws -> Result {
         let reconstruction=try F5Reconstructor.reconstruct(source,progress:{progress($0*0.7)},isCancelled:isCancelled)
@@ -159,5 +167,15 @@ enum F5Reconstructor {
         try CaptureJournal.writeProtected(F5Hash.json(color),to:source.directory.appendingPathComponent("color-transform.json"))
         progress(1)
         return .init(raster:raster.file,width:raster.width,height:raster.height,orientation:reference.raster.orientation,color:color,quality:report,reference:reference)
+    }
+}
+
+// Preserve the format-specific entry for existing F5 callers.
+extension ImagePipeline {
+    static func writeF5HEIF(resources: ColorResources, _ image: F5LinearImage, metadata: PhotoMetadata,
+        recipe: ProcessingRecipe, to url: URL, isCancelled: @escaping @Sendable () -> Bool,
+        progress: @escaping @Sendable (Double) -> Void) throws -> ProcessingRecipe {
+        try writeLinearHEIF(resources: resources, image, metadata: metadata, recipe: recipe, to: url,
+            isCancelled: isCancelled, progress: progress)
     }
 }

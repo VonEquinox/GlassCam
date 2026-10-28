@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct GlassCamApp: App {
+    private let formats = CaptureFormats([F5CaptureFormat()])
     private let resources = ColorResources(resourceDirectory: Bundle.main.resourceURL)
     var body: some Scene {
         WindowGroup {
@@ -9,10 +10,10 @@ struct GlassCamApp: App {
             if ProcessInfo.processInfo.environment["GLASSCAM_PERFORMANCE_RUN"] != nil {
                 DevicePerformanceView(resources: resources).preferredColorScheme(.dark)
             } else {
-                ContentView(resources: resources).preferredColorScheme(.dark)
+                ContentView(resources: resources, formats: formats).preferredColorScheme(.dark)
             }
 #else
-            ContentView(resources: resources).preferredColorScheme(.dark)
+            ContentView(resources: resources, formats: formats).preferredColorScheme(.dark)
 #endif
         }
     }

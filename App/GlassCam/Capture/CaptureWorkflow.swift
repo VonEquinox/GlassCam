@@ -6,10 +6,10 @@ struct CaptureSnapshot: Codable, Sendable {
     let recipe: ProcessingRecipe
     let output: ExportSettings
     let quality: CaptureQuality
-    let f5: F5CaptureProvenance?
+    let f5: (any CaptureProvenance)?
     let archiveF5RAW: Bool
 
-    init(recipe: ProcessingRecipe, output: ExportSettings, quality: CaptureQuality = .quality, f5: F5CaptureProvenance? = nil, archiveF5RAW: Bool = false) {
+    init(recipe: ProcessingRecipe, output: ExportSettings, quality: CaptureQuality = .quality, f5: (any CaptureProvenance)? = nil, archiveF5RAW: Bool = false) {
         self.recipe = recipe
         self.output = quality == .f5 ? ExportSettings(targetWidth:nil,targetHeight:nil,framing:output.framing) : output
         self.quality = quality; self.f5 = f5; self.archiveF5RAW = archiveF5RAW
@@ -20,8 +20,20 @@ struct CaptureSnapshot: Codable, Sendable {
         recipe = try values.decode(ProcessingRecipe.self, forKey: .recipe)
         output = try values.decode(ExportSettings.self, forKey: .output)
         quality = try values.decodeIfPresent(CaptureQuality.self, forKey: .quality) ?? .quality
-        f5 = try values.decodeIfPresent(F5CaptureProvenance.self, forKey: .f5)
+        if values.contains(.f5), try !values.decodeNil(forKey: .f5) {
+            let formats = decoder.userInfo[CaptureFormats.decoderKey] as? CaptureFormats ?? CaptureFormats()
+            let format = try formats.requireFormat(identifier: "f5")
+            f5 = try format.decodeProvenance(from: values.superDecoder(forKey: .f5))
+        } else { f5 = nil }
         archiveF5RAW = try values.decodeIfPresent(Bool.self, forKey: .archiveF5RAW) ?? false
+    }
+    func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encode(recipe, forKey: .recipe)
+        try values.encode(output, forKey: .output)
+        try values.encode(quality, forKey: .quality)
+        if let f5 { try f5.encode(to: values.superEncoder(forKey: .f5)) }
+        try values.encode(archiveF5RAW, forKey: .archiveF5RAW)
     }
 }
 
@@ -34,8 +46,7 @@ struct SavedCapture: Identifiable, @unchecked Sendable {
     let snapshot: CaptureSnapshot
     var resolutionDescription: String? {
         if let f5 = snapshot.f5 {
-            return String(format: "F5 · 5 RAW · Output %.1f MP", Double(width * height) / 1_000_000) +
-                (f5.hasFallback ? " · Some areas use native detail" : "")
+            return f5.resolutionDescription(width: width, height: height)
         }
         guard let framing = snapshot.output.framing,
               let sourceWidth = framing.decodedWidth ?? framing.deliveredWidth,
@@ -50,7 +61,7 @@ struct SavedCapture: Identifiable, @unchecked Sendable {
 enum RetainedCaptureSource: @unchecked Sendable {
     case file(SourceImageFile)
     case memory(Data)
-    case burst(F5BurstSource)
+    case burst(any CapturePayload)
 }
 
 /// Root-owned single-photo workflow. A Photos receipt or an explicit user
@@ -70,34 +81,35 @@ final class CaptureWorkflow: ObservableObject {
                                            CaptureProcessingControl) async throws -> SavedCapture)? = nil
         var reload: (@Sendable (URL, CaptureSnapshot, CaptureProcessingControl) async throws -> SavedCapture)? = nil
 
-        static func live(resources: ColorResources, authorize: @escaping @MainActor () async throws -> Void,
+        static func live(resources: ColorResources, formats: CaptureFormats = CaptureFormats(), authorize: @escaping @MainActor () async throws -> Void,
                          save: @escaping @MainActor (TemporaryHEIFFile) async throws -> Void) -> Services {
             Services(authorize: authorize, retain: { data in
                 try await Task.detached(priority: .userInitiated) {
                     try SourceImageFile(data: data, fileExtension: "dng")
                 }.value
             }, process: { source, snapshot, progress in
-                try await processCapture(resources: resources, source, snapshot: snapshot, progress: progress, control: CaptureProcessingControl())
+                try await processCapture(resources: resources, formats: formats, source, snapshot: snapshot, progress: progress, control: CaptureProcessingControl())
             }, save: save, processWithControl: { source, snapshot, progress, control in
-                try await processCapture(resources: resources, source, snapshot: snapshot, progress: progress, control: control)
+                try await processCapture(resources: resources, formats: formats, source, snapshot: snapshot, progress: progress, control: control)
             }, reload: { url, snapshot, control in
                 try await reloadCapture(url, snapshot: snapshot, control: control)
             })
         }
 
-        nonisolated private static func processCapture(resources: ColorResources, _ source: RetainedCaptureSource, snapshot: CaptureSnapshot,
+        nonisolated private static func processCapture(resources: ColorResources, formats: CaptureFormats, _ source: RetainedCaptureSource, snapshot: CaptureSnapshot,
             progress: @escaping @Sendable (Double) -> Void, control: CaptureProcessingControl) async throws -> SavedCapture {
             try await Task.detached(priority: .userInitiated) {
                 if control.isStopped { throw CancellationError() }
                 if case .burst(let burst) = source {
-                    let result = try F5ImagePipeline.render(resources: resources, burst, snapshot: snapshot, progress: progress, isCancelled: { control.isStopped })
+                    let format = try formats.requireFormat(identifier: burst.formatIdentifier)
+                    let result = try format.render(resources: resources, burst, snapshot: snapshot, progress: progress, isCancelled: { control.isStopped })
                     return try review(result.file, snapshot: result.snapshot, control: control)
                 }
                 let input: SourceImageFile
                 switch source {
                 case .file(let file): input = file
                 case .memory(let data): input = try SourceImageFile(data: data, fileExtension: "dng")
-                case .burst: throw F5Failure(.damagedBundle, "Unexpected burst dispatch.")
+                case .burst(let payload): throw CaptureSourceFailure(source: payload, detail: "Unexpected burst dispatch.")
                 }
                 let file = TemporaryHEIFFile(captureDate: input.metadata.captureDate)
                 var framing = snapshot.output.framing
@@ -271,7 +283,7 @@ final class CaptureWorkflow: ObservableObject {
                     try journal.retainBurst(burst, id: id, snapshot: snapshot)
                 }.value
                 guard job?.id == id else { return }
-                job?.record = record; job?.source = .burst(try F5BurstSource(directory: journal.burstURL))
+                job?.record = record; job?.source = .burst(try journal.retainedPayload(for: record))
                 return
             }
             let result = try await Task.detached(priority: .userInitiated) {
@@ -279,7 +291,7 @@ final class CaptureWorkflow: ObservableObject {
                 switch source {
                 case .memory(let bytes): data = bytes
                 case .file(let file): data = try Data(contentsOf: file.url)
-                case .burst: throw F5Failure(.damagedBundle, "Unexpected single-photo retention.")
+                case .burst(let payload): throw CaptureSourceFailure(source: payload, detail: "Unexpected single-photo retention.")
                 }
                 let record = try journal.retain(data, id: id, snapshot: snapshot)
                 let file = try SourceImageFile(retainedURL: journal.rawURL, fileExtension: "dng")
@@ -461,8 +473,8 @@ final class CaptureWorkflow: ObservableObject {
                 if control.isStopped || !foreground { throw CancellationError() }
                 var recovered = Job(id: record.id, snapshot: record.snapshot, record: record)
                 if record.stage == .rawReady {
-                    if record.sourceKind == "f5" {
-                        recovered.source = .burst(try await Task.detached { try F5BurstSource(directory: journal.burstURL) }.value)
+                    if journal.hasPayload(for: record) {
+                        recovered.source = .burst(try await Task.detached { try journal.retainedPayload(for: record) }.value)
                     } else {
                         recovered.source = .file(try await Task.detached { try SourceImageFile(retainedURL: journal.rawURL, fileExtension: "dng") }.value)
                     }

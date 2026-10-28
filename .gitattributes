@@ -1,1 +1,5 @@
 * text=auto
+
+# Synthetic journal payloads must retain their exact bytes.
+tests/fixtures/journal/**/*.raw binary
+tests/fixtures/journal/**/*.dng binary

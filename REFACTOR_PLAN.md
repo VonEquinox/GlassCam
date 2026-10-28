@@ -290,12 +290,12 @@ PY="uv run --no-project --python 3.12 --with-requirements tests/numeric/requirem
 
 1. **先冻结持久化格式。** 动代码之前，用当前代码生成拍摄记录的 JSON fixture，至少覆盖三种：单张照片、F5 五帧连拍、旧的 Speed 档位。存进 `tests/fixtures/journal/`，并补上 README。
 2. 在 Capture 和 Processing 层定义扩展点（例如连拍载荷协议、通用的线性图像类型、错误类型），由 F5 实现并注册。具体设计由执行者决定，但必须满足：Capture 和 ImagingCore 不再引用任何 F5 类型。
-3. JSON 格式不变：旧 fixture 能正确解码；解码后再编码，得到的字节与原文件相同。
+3. JSON 格式不变：旧 fixture 能正确解码；当前单张和 F5 格式解码后再编码，得到的字节与原文件相同。旧 Speed 缺少 `archiveF5RAW` 时，现有解码器会补 `false`；用户已确认保留这一兼容行为，按迁移前生成的 `speed-normalized.json` 做逐字节比较。
 
 **验收**
 
 - `scripts/check_layers.py` 中不再有目标层为 F5 的违规。
-- 上述 fixture 测试通过；V2、V4 与基线一致。
+- `scripts/test_journal_fixtures.py --work <DIR>` 的 Swift Testing fixture 测试通过；V2、V4 与基线一致。
 
 ## T08 外围模块边界
 
@@ -631,9 +631,9 @@ FFCS 原生测试资源由既有固定哈希资源脚本准备到 `Packages/Glas
 |---|---|---|
 | `ImagingCore/Model` | `ExportSettings`、`CaptureGeometry`、`RAWDecodeRecipe`、`ProcessingRecipe`、`PipelineError`、`HNCSSettings`、`LUMIXSettings`、`PhotoWhiteBalance`、`HNCSPresetCatalog`、`LUMIXPhotoStyleCatalog` | 无 |
 | `ImagingCore/Engines` | `HNCSEngine`、`FFCSEngine`、`LUMIXEngine`、`RAWWhiteBalance`、`HNCSPresetWorkFile`、`ImageFileProtection`、`ColorResources`、`ProcessingRecipeDisplay` | Model |
-| `ImagingCore/Processing` | `ImagePipeline`（剩余部分）、`PreviewRaster`、`SourceImageStore`、`ShareDelivery` | Model、Engines |
-| `Capture` | `CaptureWorkflow`、`CaptureJournal`、`CameraSettingsStore`、`CameraSessionRecovery` | ImagingCore |
-| `F5` | `F5BurstStore`、`F5ColorBridge`、`F5Errors`、`F5ImagePipeline`、`F5LocalDenoise`、`F5Metal`、`F5MetalOutput`、`F5MetalRuntime`、`F5MetalSolver`、`F5Models`、`F5RAW`、`F5Reconstruction`、`F5Kernels.metal` | ImagingCore、Capture |
+| `ImagingCore/Processing` | `ImagePipeline`（剩余部分）、`PreviewRaster`、`SourceImageStore`、`ShareDelivery`、`SceneLinearImage` | Model、Engines |
+| `Capture` | `CaptureWorkflow`、`CaptureJournal`、`CaptureFormats`、`CameraSettingsStore`、`CameraSessionRecovery` | ImagingCore |
+| `F5` | `F5BurstStore`、`F5CaptureFormat`、`F5ColorBridge`、`F5Errors`、`F5ImagePipeline`、`F5LocalDenoise`、`F5Metal`、`F5MetalOutput`、`F5MetalRuntime`、`F5MetalSolver`、`F5Models`、`F5RAW`、`F5Reconstruction`、`F5Kernels.metal` | ImagingCore、Capture |
 | `Peripheral` | `PeripheralAlignment`、`PeripheralDenseRefinement`、`PeripheralGlassPolicy`、`PeripheralGlassShader`、`PeripheralLiveDisplay`、`PeripheralStateRecording`、`PeripheralVisibleSeam`、`CameraFraming` | Model |
 | `Camera`（App） | `CameraController`、`CameraFrameDelivery`、`F5CaptureDriver`、`LiveColorProxy` | 以上全部 |
 | `UI`（App） | `GlassCamApp`、`ContentView`、`CameraView`、`CameraDesign`、`F5SettingsCard`、`PeripheralGlassView`、`PeripheralRecordingControls`、`PrecisionPreview`、`HEIFSaveDelivery` | 以上全部 |
@@ -642,6 +642,10 @@ FFCS 原生测试资源由既有固定哈希资源脚本准备到 `Packages/Glas
 `RAWInputPolicy` 与 `RAWDecodeRecipe` 同文件；`ColorMode`、`EffectToggles`、`FFCSCameraFamily`、`FFCSSettings` 与 `ProcessingRecipe` 同文件。白平衡的持久化值与原生白点计算在 Model，`CIRAWFilter` 适配扩展在 Engines。`HNCSPresetWorkFile` 从 `SourceImageStore` 拆出，共用的文件保护策略在 Engines。
 
 `ColorResources` 只表示运行时资源目录，由 `GlassCamApp` 提供并传入拍摄服务、图像管线和取景配方；持久化照片配方不包含资源路径。旧 Swift 图像 runner 的位置参数为 fixture 目录、已准备的资源根目录、可选 DNG。T07 保留这项依赖注入，T09 迁移 runner 时同步传入 package 测试资源目录。
+
+`CaptureFormats` 是不可变的格式注册表，由 `GlassCamApp` 将 `F5CaptureFormat` 注入拍摄服务与 journal。`CapturePayload`、`CaptureProvenance` 和 `CaptureFormat` 由 Capture 定义，F5 提供载荷、来源信息编解码、恢复、复制、归档和渲染实现。`CaptureSnapshot` 的历史 `f5` 与 `archiveF5RAW` JSON 键保持不变；解码包含来源信息的记录时使用注册表提供的 `decoder()`。`CapturedCameraPhoto` 位于 Capture，`SceneLinearImage` 位于 Processing；F5 在线性图像接口中保留其白平衡校验及错误。
+
+T07 的持久化样本与生成入口见 `tests/fixtures/journal/README.md`，新增 Swift Testing 用例暂在 `tests/swift-legacy/journal_compatibility.swift`；T09 连同 `tests/support/JournalFixtures.swift` 迁入 package。测试根通过注册表显式启用 F5，暂存与归档位置可注入临时目录。
 
 T06–T08 期间使用的检查脚本，保存为 `scripts/check_layers.py`，T09 删除：
 

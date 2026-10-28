@@ -328,13 +328,13 @@ enum Check {
         print("F5 actual Metal LUT NLL error",nll,"standardized score error",score)
     }
     static func journal(_ f:F5Fixtures.Fixture,root:URL) async throws {
-        let directory=root.appendingPathComponent("journal-\(UUID().uuidString)"),journal=CaptureJournal(directory:directory)
+        let directory=root.appendingPathComponent("journal-\(UUID().uuidString)"),journal=CaptureJournal(directory:directory,formats:CaptureFormats([F5CaptureFormat()]))
         let id=UUID(),snapshot=CaptureSnapshot(recipe:.standard,output:.camera(48),quality:.f5)
         let record=try journal.retainBurst(f.source,id:id,snapshot:snapshot)
         try Check.that(record.schemaVersion==2 && record.sourceKind=="f5","Journal stored a burst as a single DNG")
-        let recovered=try CaptureJournal(directory:directory).load()
+        let recovered=try CaptureJournal(directory:directory,formats:CaptureFormats([F5CaptureFormat()])).load()
         try Check.that(recovered?.id==id && recovered?.snapshot.quality == .f5,"A restart lost the immutable F5 transaction")
-        let source=try F5BurstSource(directory:journal.burstURL)
+        let source=try F5BurstSource(directory:directory.appendingPathComponent("burst"))
         try Check.that(source.manifest.frames.count==5,"Restart lost RAW frames")
         let victim=try source.manifest.frames[4].mosaic.url(in:source.directory),original=try Data(contentsOf:victim)
         var corrupted=original;corrupted[0]^=1;try corrupted.write(to:victim)

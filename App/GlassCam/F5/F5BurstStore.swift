@@ -2,7 +2,8 @@ import Foundation
 
 /// A borrowed immutable burst handle. Staging and recovery directories are
 /// durable owners; deallocation never deletes captured RAW data.
-final class F5BurstSource: @unchecked Sendable {
+final class F5BurstSource: CapturePayload, @unchecked Sendable {
+    var formatIdentifier: String { "f5" }
     let directory: URL
     let manifest: F5BurstManifest
     init(directory: URL, verify: Bool = true) throws {
@@ -194,7 +195,7 @@ final class F5BurstTransaction: @unchecked Sendable {
         for folder in folders where UUID(uuidString: folder.lastPathComponent) != nil {
             let intentURL = folder.appendingPathComponent("intent.json")
             guard FileManager.default.fileExists(atPath: intentURL.path) else { continue }
-            let intent = try JSONDecoder().decode(Intent.self, from: Data(contentsOf: intentURL))
+            let intent = try CaptureFormats([F5CaptureFormat()]).decoder().decode(Intent.self, from: Data(contentsOf: intentURL))
             if intent.purpose == "product", intent.snapshot != nil { candidates.append((folder, intent)) }
         }
         guard candidates.count <= 1 else { throw F5Failure(.damagedBundle, "Multiple unfinished F5 product transactions require review.") }

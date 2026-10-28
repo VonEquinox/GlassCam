@@ -442,14 +442,12 @@ enum ImagePipeline {
         }
     }
 
-    /// F5 has already reconstructed and characterized scene-linear RGB. This
-    /// entry never invokes CIRAWFilter and preserves the old ProRAW recipes.
-    static func writeF5HEIF(resources: ColorResources, _ image: F5LinearImage, metadata: PhotoMetadata, recipe: ProcessingRecipe, to url: URL,
+    /// Characterized scene-linear RGB enters without another RAW decode.
+    static func writeLinearHEIF(resources: ColorResources, _ image: any SceneLinearImage, metadata: PhotoMetadata, recipe: ProcessingRecipe, to url: URL,
                            isCancelled: @escaping @Sendable () -> Bool, progress: @escaping @Sendable (Double) -> Void) throws -> ProcessingRecipe {
         try decodeQueue.sync {
-            let white = image.color.whiteBalance
-            guard white.isValid, image.color.whiteBalanceOwner == "matrix" else { throw F5Failure(.colorTransformInvalid,"Invalid F5 white-balance ownership.") }
-            let resolved = recipe.resolvingWhiteBalance(white).resolvingLUMIXSourceISO(Int(image.reference.actualISO.rounded()))
+            let white = try image.validatedWhiteBalance()
+            let resolved = recipe.resolvingWhiteBalance(white).resolvingLUMIXSourceISO(image.sourceISO)
             try exportLinearSource(resources: resources, image.image,metadata:metadata,recipe:resolved,to:url,settings:.native,rawDecode:.sceneLinear,
                 isCancelled:isCancelled,progress:progress)
             return resolved

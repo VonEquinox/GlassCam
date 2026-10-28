@@ -34,6 +34,9 @@ __pycache__/
 *.3fr
 *.3FR
 
+# Small synthetic journal payloads required by persistence compatibility tests
+!/tests/fixtures/journal/**/*.dng
+
 # Diagnostic previews; application image assets remain trackable
 /validation/**/*.png
 /validation/**/*.jpg

@@ -3,7 +3,11 @@ import Foundation
 import Metal
 import simd
 
-struct F5CaptureProvenance: Codable, Sendable {
+struct F5CaptureProvenance: Codable, CaptureProvenance {
+    func resolutionDescription(width: Int, height: Int) -> String {
+        String(format: "F5 · 5 RAW · Output %.1f MP", Double(width * height) / 1_000_000) +
+            (hasFallback ? " · Some areas use native detail" : "")
+    }
     let decodeRevision: String, colorBridgeRevision: String, profileSHA256: String, referenceFrameID: String
     let inputWidth: Int, inputHeight: Int, frameSHA256: [String], actualExposures: [Double]
     let whiteBalanceOwner: String, transformSHA256: String

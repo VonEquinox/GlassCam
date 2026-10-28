@@ -182,7 +182,7 @@ final class CameraController: ObservableObject {
             guard self.generation == token, let reservation = self.reserveCapture() else { return }
             self.capturePhoto(reservation: reservation, quality: .f5, f5Purpose: "probe") { [weak self] result in
                 guard let self, self.generation == token else { return }
-                if case .success(let photo) = result { self.f5SampleDirectory = photo.burst?.directory; self.status = "Five RAW samples recorded. Main-camera calibration is still required." }
+                if case .success(let photo) = result { self.f5SampleDirectory = (photo.burst as? F5BurstSource)?.directory; self.status = "Five RAW samples recorded. Main-camera calibration is still required." }
                 else if case .failure(let error) = result { self.status = error.localizedDescription }
             }
         }
