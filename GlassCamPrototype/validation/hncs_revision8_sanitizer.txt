@@ -1,8 +1,0 @@
-PASS: AddressSanitizer + UndefinedBehaviorSanitizer; 43 contexts, full pointwise/work/finish/parallel boundaries; null/nonfinite/overflow validation. LeakSanitizer unavailable in this ptrace environment; detect_leaks=0.
-Compiler: g++ (Debian 14.2.0-19) 14.2.0
-Build: g++ -std=c++17 -O1 -g -fno-fast-math -ffp-contract=off -pthread -fsanitize=address,undefined -fno-omit-frame-pointer -Icore core/hncs.cpp tests/hncs_revision8_sanitizer.cpp -o build/hncs_revision8_sanitizer
-Run: ASAN_OPTIONS=detect_leaks=0 ./build/hncs_revision8_sanitizer
-core/hncs.cpp SHA-256: 91ded7f9bdcbebad1a783fb9746237dca801d5137d46843e8502870e6757c40f
-core/hncs_c.h SHA-256: bda069e00bab194b47b8936461414022d6186a6070d61700ca11c10ead418df3
-core/hncs_preset_assets.inc SHA-256: 7ab536e657bd139543ca4c96065ccb9aac1b10303cc317858f24e7844e281306
-tests/hncs_revision8_sanitizer.cpp SHA-256: 723686c128900c01112c5e8fd604f33135571fb6966a0d608b46f69636886de5

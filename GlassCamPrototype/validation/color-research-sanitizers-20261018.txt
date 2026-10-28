@@ -1,2 +1,0 @@
-Strip sanitizer smoke passed: 19 looks, 760 calls, 1/4 workers, bit-exact halos/borders, invalid counts/overlap.
-PASS: 106 native stage/spatial comparisons, HDR stages, invalid sizes, NaN/Inf and cancellation under ASan/UBSan

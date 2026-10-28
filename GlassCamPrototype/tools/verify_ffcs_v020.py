@@ -11,6 +11,7 @@ from pathlib import Path
 import random, struct, subprocess, sys, tempfile, zlib
 from unittest.mock import patch
 import numpy as np
+from materialize_ffcs_reference import PREFIX, RESEARCH_FILES, verified_archive
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'reference_ffcs'
 FAMILIES=('XH2S','XA3','GFX100','GFX100S','GFX100II')
@@ -19,8 +20,12 @@ V=ROOT/'validation'
 def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def source_stamp(source):
     manifest=json.loads((source/'validation/delivery_manifest.json').read_text())
-    for entry in manifest['files']:
-        assert sha(source/entry['path'])==entry['sha256'],entry['path']
+    with verified_archive(source/'source.zip') as archive:
+        for entry in manifest['files']:
+            path=entry['path']
+            actual=(hashlib.sha256(archive.read(PREFIX+path)).hexdigest()
+                    if path in RESEARCH_FILES else sha(source/path))
+            assert actual==entry['sha256'],path
     return {'version':manifest['version'],'manifest_sha256':sha(source/'validation/delivery_manifest.json'),'verified_manifest_files':len(manifest['files']), 'implementation_sha256':{str(p.relative_to(source)):sha(p) for p in sorted((source/'implementation/ffcs').glob('*.py'))}}
 def load(source=SOURCE):
     sys.path.insert(0,str(source/'implementation'))

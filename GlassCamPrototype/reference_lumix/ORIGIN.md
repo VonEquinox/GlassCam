@@ -4,7 +4,7 @@ Source: the user-supplied `LumixAnalyze` directory, SILKYPIX Developer Studio 8 
 
 Pinned framework: `SILKYPIX8`, 32,343,344 bytes,
 SHA-256 `63738fb40fc09a340bceaae351fc41a699601c50d22a9b4a990bd34ed22b826b`.
-The source report and its subsequent review are preserved as `ANALYSIS.md` and `ANALYSIS_REVIEW.md`.
+原始报告和复核保存在本地 `GlassCam-research` 仓库的提交 `799f5a6a560a7be4c3a520b0f5359a9e1758a53b`，路径为 `docs/reports/lumix/ANALYSIS.md` 和 `docs/reports/lumix/ANALYSIS_REVIEW.md`。提取脚本位于同一提交的 `tools/reverse-engineering/`，原始调查证据位于 `evidence/`。
 
 `source.zip` and `pipeline.zip` are self-contained runtime data archives. Their hashes are in `SHA256SUMS`;
 its manifest records every original `.s3d` hash, decoded-grid hash and independent native-vector hash.

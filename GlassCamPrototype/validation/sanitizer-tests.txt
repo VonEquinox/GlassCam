@@ -1,3 +1,0 @@
-C ABI smoke checks passed (4 modes, 1..4 workers, invalid settings/buffers).
-
-Includes Float RGBA export path. LeakSanitizer disabled: container ptrace incompatibility. ASan and UBSan enabled.

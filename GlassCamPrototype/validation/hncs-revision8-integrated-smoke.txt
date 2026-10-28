@@ -1,2 +1,0 @@
-C ABI smoke checks passed (4 modes, 1..4 workers, invalid settings/buffers).
-HNCS spatial smoke: memory/file equality, invalid inputs and cancellation passed.

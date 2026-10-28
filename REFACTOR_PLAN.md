@@ -470,6 +470,8 @@ xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj \
 
 **保留：数值测试支持，移到 tests/numeric/support/**（5）：`phocus_binary_reference.py`、`reference_runtime.py`、`verify_effect_toggle_hncs.py`、`verify_ffcs.py`、`verify_ffcs_v020.py`
 
+`verify_ffcs_v020.py` 从 `materialize_ffcs_reference.py` 导入归档哈希校验与四项研究文件清单；T03/T04 移动模块时须保留此依赖。清单中的四项从固定哈希归档读取，其他上游文件继续检查工作区内容。
+
 **保留：测试专用 C++ 桥，T05 放进测试支持 target**（1）：`x2d_hdr_post_model_bridge.cpp`
 
 **转成 pytest 数值测试（T03）**（10）：`test_hncs_numpy_rng.py`、`test_hncs_spatial.py`、`verify_cpp.py`、`verify_ffcs_effect_switches.py`、`verify_ffcs_strips.py`、`verify_hncs_revision8.py`、`verify_hncs_revision8_live.py`、`verify_linear_export.py`、`verify_lumix.py`、`verify_parallel_linear.py`。不能只靠仓库内容运行的，改归研究仓库 `tools/studies/`。
@@ -492,7 +494,7 @@ xcodebuild test -project GlassCamPrototype/ios/GlassCam.xcodeproj \
 
 **补迁上游材料**：`reference_ffcs/implementation/tools/` 下的三个文件和 `reference_ffcs/validation/macho_inventory.json`，在研究仓库按 `upstream/ffcs/` 下的原有相对路径保存。
 
-研究仓库 commit（T02 填写）：
+研究仓库 commit（T02）：`799f5a6a560a7be4c3a520b0f5359a9e1758a53b`，来源主仓库 `77d2507fd61b647e8567d99a5b46112975d10039`。
 
 ## 附录 D：`validation/` 中保留的 golden
 

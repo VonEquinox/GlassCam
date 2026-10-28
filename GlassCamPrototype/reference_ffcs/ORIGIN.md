@@ -11,13 +11,15 @@ Current reference: user-supplied **FFCS 0.2.0**, private `VonEquinox/GlassCam`,
 
 `source.zip` is the original ordinary Git ZIP, reused by Git object identity;
 it is not an LFS pointer or a reconstructed archive. The source research branch
-is unchanged. Readable source, tests, examples, documents, and supplied validation
-are retained verbatim. Local verification lives under the app's `validation/`;
-supplied reports inside this reference are upstream evidence, not local execution.
+is unchanged.
 
-Run `python tools/materialize_ffcs_reference.py` from the prototype root to restore
-the complete reference and bundle all 50 native tables. The offline Xcode build
-phase verifies the archive and every table's SHA256, extracting only exact paths
+保留的运行时与参考源码、测试、示例和文档保持原样。加载原厂二进制的工具与二进制清单保存在本地 `GlassCam-research` 仓库的提交 `799f5a6a560a7be4c3a520b0f5359a9e1758a53b`，位于 `upstream/ffcs/` 下的原有相对路径；提取与审计工具位于 `tools/reverse-engineering/`，调查记录位于 `evidence/`。
+
+原始归档和交付清单的哈希保持不变。校验过程从固定哈希归档直接读取四项迁出材料，其他文件读取工作区内容。
+
+在原型根目录运行 `python tools/materialize_ffcs_reference.py` 可恢复保留的参考文件，并准备全部 50 张原厂表；已迁出的工具和二进制清单不再解压。
+
+The offline Xcode build phase verifies the archive and every table's SHA256, extracting only exact paths
 from the checked-in checksum list. No Python, package install, or network is
 required by that build phase. Generated binary resources are ignored by Git.
 

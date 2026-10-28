@@ -1,7 +1,0 @@
-iPhone 18 Pro Max / iOS 27.0.1 / Release
-24MP automatic Photos save observed in the full capture scenario:
-GLASSCAM-ACCEPTANCE 24MP Saved HDR · 4242 × 5656
-Final 48MP capture, review return, and settings relaunch acceptance:
-GLASSCAM-ACCEPTANCE 48MP Saved HDR · 6048 × 8064
-Test Case '-[GlassCamUITests.CaptureWorkflowUITests testSettingsAndAutomatic48MPSaveAndReview]' passed (48.519 seconds).
-** TEST SUCCEEDED **
