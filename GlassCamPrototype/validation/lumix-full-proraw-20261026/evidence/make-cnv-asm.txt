@@ -1,0 +1,79 @@
+            ;-- method.IslVEISFilter3DLUT.MakeUpCnv_IslZCnvPolyLine__IslVEISFilter3DLUT::LUTContrast_const__double__double_:
+            ;-- func.0082d5e4:
+            ;-- IslVEISFilter3DLUT::MakeUpCnv(IslZCnvPolyLine*, IslVEISFilter3DLUT::LUTContrast const&, double, double):
+            0x0082d5e4      55             push rbp
+            0x0082d5e5      4889e5         mov rbp, rsp
+            0x0082d5e8      4881ece001..   sub rsp, 0x1e0
+            0x0082d5ef      488b058aea..   mov rax, qword [reloc.__stack_chk_guard] ; [0x122c080:8]=0
+            0x0082d5f6      488b00         mov rax, qword [rax]
+            0x0082d5f9      488945f8       mov qword [rbp - 8], rax
+            0x0082d5fd      660f57d2       xorpd xmm2, xmm2
+            0x0082d601      660f299520..   movapd xmmword [rbp - 0x1e0], xmm2
+            0x0082d609      4531c9         xor r9d, r9d
+            0x0082d60c      4531c0         xor r8d, r8d
+        ┌─> 0x0082d60f      4c89c0         mov rax, r8
+        ╎   0x0082d612      48d1e8         shr rax, 1
+        ╎   0x0082d615      25feffff7f     and eax, 0x7ffffffe
+        ╎   0x0082d61a      0fb70406       movzx eax, word [rsi + rax]
+        ╎   0x0082d61e      4489c9         mov ecx, r9d
+        ╎   0x0082d621      80e10c         and cl, 0xc
+        ╎   0x0082d624      d3e8           shr eax, cl
+        ╎   0x0082d626      83e00f         and eax, 0xf
+       ┌──< 0x0082d629      7449           je 0x82d674
+       │╎   0x0082d62b      ba01000000     mov edx, 1
+       │╎   0x0082d630      89c1           mov ecx, eax
+       │╎   0x0082d632      d3e2           shl edx, cl
+       │╎   0x0082d634      0f57db         xorps xmm3, xmm3
+       │╎   0x0082d637      f20f2ada       cvtsi2sd xmm3, edx
+       │╎   0x0082d63b      420fb744460e   movzx eax, word [rsi + r8*2 + 0xe]
+       │╎   0x0082d641      49ffc0         inc r8
+       │╎   0x0082d644      0f57e4         xorps xmm4, xmm4
+       │╎   0x0082d647      f20f2ae0       cvtsi2sd xmm4, eax
+       │╎   0x0082d64b      660f14dc       unpcklpd xmm3, xmm4
+       │╎   0x0082d64f      660f58d3       addpd xmm2, xmm3
+       │╎   0x0082d653      66420f2994..   movapd xmmword [rbp + r9*4 - 0x1d0], xmm2
+       │╎   0x0082d65d      4983c104       add r9, 4
+       │╎   0x0082d661      4983f81c       cmp r8, 0x1c
+       │└─< 0x0082d665      75a8           jne 0x82d60f
+       │    0x0082d667      ba1c000000     mov edx, 0x1c
+       │    0x0082d66c      41b81c000000   mov r8d, 0x1c
+       │┌─< 0x0082d672      eb09           jmp 0x82d67d
+       └──> 0x0082d674      4183f81d       cmp r8d, 0x1d
+       ┌──< 0x0082d678      7332           jae 0x82d6ac
+       ││   0x0082d67a      4489c2         mov edx, r8d
+       │└─> 0x0082d67d      89d0           mov eax, edx
+       │    0x0082d67f      48c1e004       shl rax, 4
+       │    0x0082d683      488d840520..   lea rax, [rbp + rax - 0x1e0]
+       │    0x0082d68b      49c1e004       shl r8, 4
+       │┌─> 0x0082d68f      660f2810       movapd xmm2, xmmword [rax]
+       │╎   0x0082d693      66420f2994..   movapd xmmword [rbp + r8 - 0x1e0], xmm2
+       │╎   0x0082d69d      4983c010       add r8, 0x10
+       │╎   0x0082d6a1      4981f8d001..   cmp r8, 0x1d0
+       │└─< 0x0082d6a8      75e5           jne 0x82d68f
+       │┌─< 0x0082d6aa      eb03           jmp 0x82d6af
+       └──> 0x0082d6ac      4489c2         mov edx, r8d
+        └─> 0x0082d6af      f20f12c0       movddup xmm0, xmm0
+            0x0082d6b3      f20f12c9       movddup xmm1, xmm1
+            0x0082d6b7      b810000000     mov eax, 0x10
+            0x0082d6bc      660f289405..   movapd xmm2, xmmword [rbp + rax - 0x1e0]
+            0x0082d6c5      660f289c05..   movapd xmm3, xmmword [rbp + rax - 0x1d0]
+            0x0082d6ce      660f28e2       movapd xmm4, xmm2
+            0x0082d6d2      660f14e3       unpcklpd xmm4, xmm3
+            0x0082d6d6      660f59e0       mulpd xmm4, xmm0
+            0x0082d6da      660f15d3       unpckhpd xmm2, xmm3
+            0x0082d6de      660f59d1       mulpd xmm2, xmm1
+            0x0082d6e2      660f28dc       movapd xmm3, xmm4
+            0x0082d6e6      660f15da       unpckhpd xmm3, xmm2
+            0x0082d6ea      660f14e2       unpcklpd xmm4, xmm2
+            0x0082d6ee      660f11a405..   movupd xmmword [rbp + rax - 0x1e0], xmm4
+            0x0082d6f7      660f119c05..   movupd xmmword [rbp + rax - 0x1d0], xmm3
+            0x0082d700      4883c020       add rax, 0x20               ; mach0_cmd_0
+            0x0082d704      483dd0010000   cmp rax, 0x1d0
+            0x0082d70a      75b0           jne 0x82d6bc
+            0x0082d70c      ffc2           inc edx
+            0x0082d70e      488b07         mov rax, qword [rdi]
+            0x0082d711      488db520fe..   lea rsi, [rbp - 0x1e0]
+            0x0082d718      31c9           xor ecx, ecx
+            0x0082d71a      ff5020         call qword [rax + mach0_segment64_0] ; mach0_cmd_0
+                                                                       ; 0x20
+            0x0082d71d      488b0d5ce9..   mov rcx, qword [reloc.__stack_chk_guard] ; [0x122c080:8]=0

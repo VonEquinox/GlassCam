@@ -1,0 +1,48 @@
+{
+  "status": "synthetic metadata and byte fixtures only; not an iPhone test",
+  "valid_fixture_accepted": true,
+  "five_files_hash_and_stride_checked": true,
+  "invalid_variants": [
+    {
+      "mutation": "six_frames",
+      "correctly_rejected": true
+    },
+    {
+      "mutation": "wrong_role_count",
+      "correctly_rejected": true
+    },
+    {
+      "mutation": "duplicate_id",
+      "correctly_rejected": true
+    },
+    {
+      "mutation": "different_physical_camera",
+      "correctly_rejected": true
+    },
+    {
+      "mutation": "unequal_main_exposure",
+      "correctly_rejected": true
+    },
+    {
+      "mutation": "different_iso",
+      "correctly_rejected": true
+    },
+    {
+      "mutation": "short_not_short",
+      "correctly_rejected": true
+    },
+    {
+      "mutation": "invalid_cfa_origin",
+      "correctly_rejected": true
+    },
+    {
+      "mutation": "invalid_stride",
+      "correctly_rejected": true
+    },
+    {
+      "mutation": "preview_pixel_leak",
+      "correctly_rejected": true
+    }
+  ],
+  "invalid_variant_count": 10
+}

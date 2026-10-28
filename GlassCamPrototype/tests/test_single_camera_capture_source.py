@@ -186,13 +186,13 @@ class SingleCameraBackendContracts(unittest.TestCase):
     def test_stop_and_failure_preserve_terminal_result_with_exactly_once_completion(self):
         stop = SOURCE.rsplit("    func stop()", 1)[1].split("private final class ProRAWCapture", 1)[0]
         self.assertOrdered(stop, "lifetime?.cancel()", "let request = currentRequest",
-                           "request?.result ?? captureDelegate?.cancel()", "tearDownGraph(preservingPreview: false)",
+                           "request?.result ?? f5Capture?.cancel().map(Self.burstPhoto) ?? captureDelegate?.cancel()", "tearDownGraph(preservingPreview: false)",
                            "finishRequest(request, result: result")
         finish = section(SOURCE, "private func finishRequest(", "private func failSession(")
         self.assertOrdered(finish, "guard currentRequest === request, let callback = request.completion",
                            "request.completion = nil", "currentRequest = nil", "callback(CaptureOutcome(result: result")
         fail = section(SOURCE, "private func failSession(", "private func installObservers(")
-        self.assertIn("request.result ?? captureDelegate?.cancel(reason: message)", fail)
+        self.assertIn("request.result ?? f5Capture?.cancel().map(Self.burstPhoto) ?? captureDelegate?.cancel(reason: message)", fail)
 
     def test_returned_photo_validates_raw_type_and_metadata_and_pixel_buffer_dimensions(self):
         processed = section(SOURCE, "didFinishProcessingPhoto photo:", "    func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor")

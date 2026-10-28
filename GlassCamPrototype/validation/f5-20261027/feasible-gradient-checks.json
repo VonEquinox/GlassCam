@@ -1,0 +1,57 @@
+{
+  "camera_used": false,
+  "results": {
+    "synthetic": true,
+    "camera_used": false,
+    "real_device_samples_audited": false,
+    "results": [
+      {
+        "name": "compile-core",
+        "exit_code": 0,
+        "seconds": 4.226052500016522
+      },
+      {
+        "name": "compile-core-tests",
+        "exit_code": 0,
+        "seconds": 0.5221244170097634
+      },
+      {
+        "name": "core-numerics",
+        "exit_code": 0,
+        "seconds": 0.9355963750276715
+      },
+      {
+        "name": "compile-metal-tests",
+        "exit_code": 0,
+        "seconds": 2.788833833998069
+      },
+      {
+        "name": "metal-numerics",
+        "exit_code": 0,
+        "seconds": 0.9929519590223208
+      },
+      {
+        "name": "compile-contract-tests",
+        "exit_code": 0,
+        "seconds": 26.175412584037986
+      },
+      {
+        "name": "contracts",
+        "exit_code": 0,
+        "seconds": 6.821743500011507
+      },
+      {
+        "name": "compile-desktop-quality",
+        "exit_code": 0,
+        "seconds": 24.72624808398541
+      }
+    ]
+  },
+  "ios_release": {
+    "status": "PASS",
+    "code_signing": false,
+    "device_used": false,
+    "log_sha256": "d85b108b3fa1e5ddfc9ff30ed08a3799ec9160a177f3e4ece7368ee12e36eb5a"
+  },
+  "fallback_scope": "Independent FP64 full objective decrease for full/interior tiles under three radiometric layouts; cancellation leaves coefficients unchanged."
+}

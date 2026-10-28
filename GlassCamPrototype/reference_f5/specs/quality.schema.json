@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:f5:quality:1.0",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "reference_frame_id",
+    "output_semantics",
+    "solve_status",
+    "quality_class_counts",
+    "flags",
+    "capture_span_ms",
+    "actual_frame_count",
+    "profile_sha256",
+    "objective_epochs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "reference_frame_id": {
+      "type": "string"
+    },
+    "output_semantics": {
+      "const": "camera_linear_no_wb"
+    },
+    "solve_status": {
+      "enum": [
+        "CONVERGED",
+        "BUDGET_STOP",
+        "NATIVE_ONLY",
+        "REFERENCE_ONLY",
+        "FAILED"
+      ]
+    },
+    "quality_class_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "capture_span_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "actual_frame_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "profile_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "objective_epochs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "valid_event_count",
+          "stop_reason"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "valid_event_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "stop_reason": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

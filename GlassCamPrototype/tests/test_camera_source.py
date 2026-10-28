@@ -40,7 +40,8 @@ class CameraSourceContracts(unittest.TestCase):
 
     def test_proraw_is_verified_at_setup_request_and_delivery(self):
         self.assertGreaterEqual(SOURCE.count('output.isAppleProRAWSupported'), 3)
-        self.assertIn('output.isAppleProRAWEnabled = true', SOURCE)
+        self.assertIn('output.isAppleProRAWEnabled = !bayer', SOURCE)
+        self.assertIn('output.isAppleProRAWSupported, output.isAppleProRAWEnabled else', SOURCE)
         self.assertIn('availableRawPhotoPixelFormatTypes.first(where: AVCapturePhotoOutput.isAppleProRAWPixelFormat)', SOURCE)
         self.assertIn('AVCapturePhotoSettings(rawPixelFormatType: raw)', SOURCE)
         self.assertIn('CVPixelBufferGetPixelFormatType(buffer)', SOURCE)

@@ -249,7 +249,7 @@ class CameraChromeSourceContracts(unittest.TestCase):
                       'HNCSPresetControls(settings: $settings.hncs, showCommon: false)',
                       'selection: outputSelection', 'selection: $settings.centerPreviewLongEdge',
                       'isOn: $settings.experimentalLiveColor', 'smaller framed sources save at 24 MP',
-                      'ForEach(settings.captureQuality == .speed ? [12] : [24, 48]',
+                      'if settings.captureQuality == .f5', 'ForEach([24,48],id:',
                       'CameraCard(title: "Photo output"', 'if advanced { advancedCards } else { commonCards }'):
             self.assertIn(token, settings)
         self.assertIn('.fullScreenCover(item: $destination', VIEW)

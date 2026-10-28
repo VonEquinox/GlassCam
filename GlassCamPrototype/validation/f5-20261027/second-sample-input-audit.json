@@ -1,0 +1,444 @@
+{
+  "revision": "f5-device-input-audit-v1",
+  "qualification": "UNQUALIFIED",
+  "synthetic": false,
+  "hardware_model": "iPhone19,7",
+  "os_build": "24A446",
+  "manifest_sha256": "f06d058f97d61caf7144719ac5f6b3d95681ed175080a6641589372f9b424535",
+  "oracle": "Adobe DNG SDK 1.7.1 Stage1, original integers",
+  "oracle_binary_sha256": "31f667d35422d512a6244682868b5ad3c606a684a1e5d5200bb5db950cc0a35b",
+  "frame_count": 5,
+  "all_blob_hashes_verified": true,
+  "raw_fourcc": "0x62676734",
+  "raster": {
+    "activeArea": {
+      "bottom": 3024,
+      "left": 0,
+      "right": 4032,
+      "top": 0
+    },
+    "bitsPerSample": 16,
+    "byteOrder": "little",
+    "cfa": [
+      3,
+      1,
+      2,
+      0
+    ],
+    "height": 3024,
+    "orientation": 6,
+    "rowBytes": 8448,
+    "width": 4224
+  },
+  "native_to_dng_divisor": 4,
+  "dng_stage1_rounding": "floor",
+  "active_pixels_compared": 60963840,
+  "capture_span_ms": 133.3879579906352,
+  "main_to_short_ratio": 3.888842223155537,
+  "persisted_flags": [
+    "HIGHLIGHT_NOT_GUARANTEED",
+    "METERING_UNCERTAIN",
+    "MOTION_UNCERTAIN"
+  ],
+  "recomputed_flags": [
+    "EXPOSURE_ADJUSTED",
+    "HIGHLIGHT_NOT_GUARANTEED",
+    "ISO_CHANGED",
+    "METERING_UNCERTAIN",
+    "MOTION_UNCERTAIN",
+    "NONUNIFORM_MAINS",
+    "SHORT_EXPOSURE_LIMITED"
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "role": "L",
+      "dng_sha256": "b93f4fec86340fd97c60388f07f864d04e3a7bc99ad11cb624804abe589bdc31",
+      "native_sha256": "eb538c6be6b1d47c7ed41daa97b128284a1b459b26c43fd95918a1a1a38e08d6",
+      "pixels_compared": 12192768,
+      "exact_divisors": [
+        4
+      ],
+      "native_minimum": 2084,
+      "native_maximum": 12040,
+      "native_percentiles": [
+        2127.0,
+        2581.0,
+        5696.0
+      ],
+      "dng_minimum": 521,
+      "dng_maximum": 3010,
+      "dng_black": [
+        528
+      ],
+      "dng_white": [
+        4095
+      ],
+      "noise_profile": [
+        0.00010030884896555255,
+        2.714828625244713e-07
+      ],
+      "requested_exposure": 6.8e-05,
+      "actual_exposure": 6.999860002799944e-05,
+      "requested_iso": null,
+      "actual_iso": 80,
+      "opcodes": [
+        {
+          "list": 3,
+          "id": 9,
+          "version": 16973824,
+          "flags": 0,
+          "area": [
+            0,
+            0,
+            3024,
+            4032
+          ],
+          "first_plane": 0,
+          "affected_planes": 3,
+          "pitch": [
+            1,
+            1
+          ],
+          "grid": [
+            49,
+            64,
+            3
+          ],
+          "spacing": [
+            0.021164020523428917,
+            0.01587301678955555
+          ],
+          "origin": [
+            0.0,
+            0.0
+          ],
+          "gain_minimum": 1.00048828125,
+          "gain_maximum": 6.092588424682617,
+          "planes_identical": true
+        }
+      ],
+      "native_low_bit_residual_histogram": [
+        2944046,
+        3195185,
+        2911816,
+        3141721
+      ],
+      "outside_active_pixels": 580608,
+      "outside_active_all_zero": true
+    },
+    {
+      "index": 1,
+      "role": "L",
+      "dng_sha256": "f8ef348927d1554c42ef14c822562ac67fda53e68c0fab249467d65598b4d3fe",
+      "native_sha256": "89a3fab5cb76a6179b10bfd548f589dc5fe6edc1aa88e5657dc64715e2923e32",
+      "pixels_compared": 12192768,
+      "exact_divisors": [
+        4
+      ],
+      "native_minimum": 2047,
+      "native_maximum": 13544,
+      "native_percentiles": [
+        2126.0,
+        2581.0,
+        5694.0
+      ],
+      "dng_minimum": 511,
+      "dng_maximum": 3386,
+      "dng_black": [
+        528
+      ],
+      "dng_white": [
+        4095
+      ],
+      "noise_profile": [
+        0.00010030884896555255,
+        2.714828625244713e-07
+      ],
+      "requested_exposure": 6.8e-05,
+      "actual_exposure": 6.999860002799944e-05,
+      "requested_iso": null,
+      "actual_iso": 80,
+      "opcodes": [
+        {
+          "list": 3,
+          "id": 9,
+          "version": 16973824,
+          "flags": 0,
+          "area": [
+            0,
+            0,
+            3024,
+            4032
+          ],
+          "first_plane": 0,
+          "affected_planes": 3,
+          "pitch": [
+            1,
+            1
+          ],
+          "grid": [
+            49,
+            64,
+            3
+          ],
+          "spacing": [
+            0.021164020523428917,
+            0.01587301678955555
+          ],
+          "origin": [
+            0.0,
+            0.0
+          ],
+          "gain_minimum": 1.00048828125,
+          "gain_maximum": 6.092552185058594,
+          "planes_identical": true
+        }
+      ],
+      "native_low_bit_residual_histogram": [
+        2966245,
+        3106694,
+        3052145,
+        3067684
+      ],
+      "outside_active_pixels": 580608,
+      "outside_active_all_zero": true
+    },
+    {
+      "index": 2,
+      "role": "S",
+      "dng_sha256": "74c1fd24292d81e6fe6d76e388d15662dbac1b23e927475a5bb92c28632a29dc",
+      "native_sha256": "091f92a70ecf2ed2e7ea5f3e8440b2cae93c35c5ef940bf8a1c093a38cf58d5b",
+      "pixels_compared": 12192768,
+      "exact_divisors": [
+        4
+      ],
+      "native_minimum": 2080,
+      "native_maximum": 4886,
+      "native_percentiles": [
+        2112.0,
+        2226.0,
+        2973.0
+      ],
+      "dng_minimum": 520,
+      "dng_maximum": 1221,
+      "dng_black": [
+        528
+      ],
+      "dng_white": [
+        4095
+      ],
+      "noise_profile": [
+        7.753602920040007e-05,
+        2.600560603228251e-07
+      ],
+      "requested_exposure": 1.4e-05,
+      "actual_exposure": 1.7999856001151992e-05,
+      "requested_iso": null,
+      "actual_iso": 64,
+      "opcodes": [
+        {
+          "list": 3,
+          "id": 9,
+          "version": 16973824,
+          "flags": 0,
+          "area": [
+            0,
+            0,
+            3024,
+            4032
+          ],
+          "first_plane": 0,
+          "affected_planes": 3,
+          "pitch": [
+            1,
+            1
+          ],
+          "grid": [
+            49,
+            64,
+            3
+          ],
+          "spacing": [
+            0.021164020523428917,
+            0.01587301678955555
+          ],
+          "origin": [
+            0.0,
+            0.0
+          ],
+          "gain_minimum": 1.00048828125,
+          "gain_maximum": 6.092667102813721,
+          "planes_identical": true
+        }
+      ],
+      "native_low_bit_residual_histogram": [
+        3331156,
+        2848098,
+        3037122,
+        2976392
+      ],
+      "outside_active_pixels": 580608,
+      "outside_active_all_zero": true
+    },
+    {
+      "index": 3,
+      "role": "L",
+      "dng_sha256": "983561ff71a9aaa5ebb5b3bb47a658fdf6e2d54bb46572a1472676b43ae9a871",
+      "native_sha256": "2545ca2e54ae021f151aa373927320ad2cc12bfb17bcabf9a2ceb1fd059ffaa2",
+      "pixels_compared": 12192768,
+      "exact_divisors": [
+        4
+      ],
+      "native_minimum": 2081,
+      "native_maximum": 12929,
+      "native_percentiles": [
+        2126.0,
+        2581.0,
+        5697.0
+      ],
+      "dng_minimum": 520,
+      "dng_maximum": 3232,
+      "dng_black": [
+        528
+      ],
+      "dng_white": [
+        4095
+      ],
+      "noise_profile": [
+        0.00010030884896555255,
+        2.714828625244713e-07
+      ],
+      "requested_exposure": 6.8e-05,
+      "actual_exposure": 6.999860002799944e-05,
+      "requested_iso": null,
+      "actual_iso": 80,
+      "opcodes": [
+        {
+          "list": 3,
+          "id": 9,
+          "version": 16973824,
+          "flags": 0,
+          "area": [
+            0,
+            0,
+            3024,
+            4032
+          ],
+          "first_plane": 0,
+          "affected_planes": 3,
+          "pitch": [
+            1,
+            1
+          ],
+          "grid": [
+            49,
+            64,
+            3
+          ],
+          "spacing": [
+            0.021164020523428917,
+            0.01587301678955555
+          ],
+          "origin": [
+            0.0,
+            0.0
+          ],
+          "gain_minimum": 1.00048828125,
+          "gain_maximum": 6.092667102813721,
+          "planes_identical": true
+        }
+      ],
+      "native_low_bit_residual_histogram": [
+        2968836,
+        3105378,
+        3049893,
+        3068661
+      ],
+      "outside_active_pixels": 580608,
+      "outside_active_all_zero": true
+    },
+    {
+      "index": 4,
+      "role": "L",
+      "dng_sha256": "91d5c2bd201d567490e3dc2378cfb3ffdce9c67f1f9cb6e14d53c8b51d886eb0",
+      "native_sha256": "f2a5c387e30977a3237ffbe6d900aea6c9e433125c0941a93bf31b5278cc6bc0",
+      "pixels_compared": 12192768,
+      "exact_divisors": [
+        4
+      ],
+      "native_minimum": 2052,
+      "native_maximum": 13504,
+      "native_percentiles": [
+        2126.0,
+        2581.0,
+        5696.0
+      ],
+      "dng_minimum": 513,
+      "dng_maximum": 3376,
+      "dng_black": [
+        528
+      ],
+      "dng_white": [
+        4095
+      ],
+      "noise_profile": [
+        0.00010030884896555255,
+        2.714828625244713e-07
+      ],
+      "requested_exposure": 6.8e-05,
+      "actual_exposure": 6.999860002799944e-05,
+      "requested_iso": null,
+      "actual_iso": 80,
+      "opcodes": [
+        {
+          "list": 3,
+          "id": 9,
+          "version": 16973824,
+          "flags": 0,
+          "area": [
+            0,
+            0,
+            3024,
+            4032
+          ],
+          "first_plane": 0,
+          "affected_planes": 3,
+          "pitch": [
+            1,
+            1
+          ],
+          "grid": [
+            49,
+            64,
+            3
+          ],
+          "spacing": [
+            0.021164020523428917,
+            0.01587301678955555
+          ],
+          "origin": [
+            0.0,
+            0.0
+          ],
+          "gain_minimum": 1.00048828125,
+          "gain_maximum": 6.092667102813721,
+          "planes_identical": true
+        }
+      ],
+      "native_low_bit_residual_histogram": [
+        3108550,
+        3029189,
+        3093830,
+        2961199
+      ],
+      "outside_active_pixels": 580608,
+      "outside_active_all_zero": true
+    }
+  ],
+  "constraints": [
+    "No noise/optical calibration or product qualification is inferred from this scene.",
+    "Zero padding outside ActiveArea is not dark calibration data.",
+    "Use fractional code conversion; retain native low bits and quantization intervals."
+  ]
+}

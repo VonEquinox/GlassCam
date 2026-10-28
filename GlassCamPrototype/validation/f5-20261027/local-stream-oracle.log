@@ -1,0 +1,19 @@
+/private/tmp/GlassCam-F5-Python/lib/python3.14/site-packages/colour/utilities/verbose.py:340: ColourUsageWarning: "Matplotlib" related API features are not available: "No module named 'matplotlib'".
+See the installation guide for more information: https://www.colour-science.org/installation-guide/
+  warn(*args, **kwargs)
+identity 64 error 1.7881393471474993e-07 seconds 0.06324079167097807
+identity 256 error 1.7881393471474993e-07 seconds 0.005285499966703355
+identity 64 error 1.7881393471474993e-07 seconds 0.006844333314802498
+identity 256 error 1.7881393471474993e-07 seconds 0.0037894166307523847
+noisy 64 error 1.3260739839537905e-07 seconds 0.0028772499645128846
+noisy 256 error 1.3260739839537905e-07 seconds 0.002987499989103526
+noisy 64 error 1.3260739839537905e-07 seconds 0.0031602499657310545
+noisy 256 error 1.3260739839537905e-07 seconds 0.004050541669130325
+tile_boundary 64 error 1.4139205317675874e-07 seconds 0.012578875001054257
+tile_boundary 256 error 1.4139205317675874e-07 seconds 0.004127666645217687
+tile_boundary 64 error 1.4139205317675874e-07 seconds 0.01461804163409397
+tile_boundary 256 error 1.4139205317675874e-07 seconds 0.005307874991558492
+hdr_constant 64 error 2.384185797676963e-07 seconds 0.00256041664397344
+hdr_constant 256 error 2.384185797676963e-07 seconds 0.002718916686717421
+hdr_constant 64 error 2.384185797676963e-07 seconds 0.004281958332285285
+hdr_constant 256 error 2.384185797676963e-07 seconds 0.0030458333785645664

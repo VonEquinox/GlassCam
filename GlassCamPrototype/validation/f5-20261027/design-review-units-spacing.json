@@ -1,0 +1,117 @@
+{
+  "revision": "f5-design-review-units-spacing-v1",
+  "camera_used": false,
+  "pg_unit_conversion": [
+    {
+      "code": 2113,
+      "kind": 0,
+      "max_absolute_difference_nll_score_curvature_probability": [
+        4.440892098500626e-16,
+        0.0,
+        4.656612873077393e-10,
+        2.0816681711721685e-17
+      ],
+      "standardized_score_and_curvature_difference": [
+        0.0,
+        1.3576106169076638e-16
+      ]
+    },
+    {
+      "code": 4096,
+      "kind": 0,
+      "max_absolute_difference_nll_score_curvature_probability": [
+        1.163513729807164e-13,
+        8.853362487570848e-12,
+        1.4551915228366852e-11,
+        8.36136715420821e-16
+      ],
+      "standardized_score_and_curvature_difference": [
+        3.34965210506278e-14,
+        2.0830661946116076e-16
+      ]
+    },
+    {
+      "code": 13544,
+      "kind": 0,
+      "max_absolute_difference_nll_score_curvature_probability": [
+        4.876099524153688e-13,
+        1.7708501331981097e-11,
+        8.827191777527332e-08,
+        1.5040052536718918e-15
+      ],
+      "standardized_score_and_curvature_difference": [
+        1.5890216555886861e-13,
+        7.10752796281067e-12
+      ]
+    },
+    {
+      "code": 16380,
+      "kind": 1,
+      "max_absolute_difference_nll_score_curvature_probability": [
+        6.800116025829084e-16,
+        2.213340621892712e-12,
+        1.0634266800479963e-09,
+        6.661338147750939e-16
+      ],
+      "standardized_score_and_curvature_difference": [
+        2.2417820230981403e-14,
+        1.0909323163005071e-13
+      ]
+    },
+    {
+      "code": 0,
+      "kind": 2,
+      "max_absolute_difference_nll_score_curvature_probability": [
+        0.0,
+        0.0,
+        0.000203575823,
+        0.0
+      ],
+      "standardized_score_and_curvature_difference": [
+        0.0,
+        5.935144410402055e-11
+      ]
+    }
+  ],
+  "library_sha256": "322d987b4dc08a9c1e02dec161a60c89594af0fe274f068311fcdf803cf77321",
+  "code_sha256": "b305a1fb0d7fb4e062ec83ccd3f71eb5b5cd62d115d60d6d7122e62f1cc77069",
+  "units": [
+    "normalized radiance",
+    "black-subtracted DNG units",
+    "black-subtracted native-code units"
+  ],
+  "quantization": "The full half-code interval and divisor are transformed without flooring native codes.",
+  "spacing_control": [
+    {
+      "scale": 1,
+      "spacing": 1.0,
+      "physical_prior_integral": 0.004899249917195814,
+      "physical_hessian_mean": [
+        0.00040000000000001146,
+        0.0002121320343559642,
+        0.00019999999999999185
+      ]
+    },
+    {
+      "scale": 2,
+      "spacing": 0.5,
+      "physical_prior_integral": 0.00489924991719598,
+      "physical_hessian_mean": [
+        0.00039999999999998717,
+        0.00021213203435596417,
+        0.0002000000000000092
+      ]
+    },
+    {
+      "scale": 4,
+      "spacing": 0.25,
+      "physical_prior_integral": 0.004899249917197285,
+      "physical_hessian_mean": [
+        0.0004000000000000045,
+        0.00021213203435596655,
+        0.0001999999999999988
+      ]
+    }
+  ],
+  "scope": "PG likelihood unit conversion via production C++ primitive and independent physical-prior quadrature. Not a high-resolution image-quality test."
+}

@@ -1,0 +1,72 @@
+{
+  "recordedAt": "2026-10-28T17:27:37.120880+08:00",
+  "captureQuality": "quality",
+  "rawInputPolicy": "cameraNeutral",
+  "lumixRenderRevision": 4,
+  "nativeOracle": {
+    "cases": 56,
+    "pixels": 5506816,
+    "maximumRGB48Error": 0
+  },
+  "newNumericTests": {
+    "tests": 6,
+    "passed": true
+  },
+  "python": {
+    "tests": 223,
+    "passed": 212,
+    "failed": 11,
+    "newFailures": 0,
+    "failures": [
+      "FAIL: test_settings_keep_effect_output_preview_and_editor_access (test_camera_chrome_source.CameraChromeSourceContracts.test_settings_keep_effect_output_preview_and_editor_access)",
+      "FAIL: test_output_is_physical_lens_scoped_and_separate_from_preview (test_camera_geometry.CameraGeometryTests.test_output_is_physical_lens_scoped_and_separate_from_preview)",
+      "FAIL: test_proraw_is_verified_at_setup_request_and_delivery (test_camera_source.CameraSourceContracts.test_proraw_is_verified_at_setup_request_and_delivery)",
+      "FAIL: test_every_pipeline_backend_call_receives_same_frozen_effects (test_effect_toggle_source.EffectToggleSourceContracts.test_every_pipeline_backend_call_receives_same_frozen_effects)",
+      "FAIL: test_historical_photo_crop_still_applies_to_preview_and_final_output (test_effect_toggle_source.EffectToggleSourceContracts.test_historical_photo_crop_still_applies_to_preview_and_final_output)",
+      "FAIL: test_shutter_retention_render_and_save_use_complete_immutable_snapshot (test_effect_toggle_source.EffectToggleSourceContracts.test_shutter_retention_render_and_save_use_complete_immutable_snapshot)",
+      "FAIL: test_export_resolves_full_source_crop_before_output_selection_and_processing (test_hncs_revision8_source.Revision8IntegrationSourceContracts.test_export_resolves_full_source_crop_before_output_selection_and_processing)",
+      "FAIL: test_import_and_rerender_freeze_recipe_before_background_work (test_hncs_revision8_source.Revision8IntegrationSourceContracts.test_import_and_rerender_freeze_recipe_before_background_work)",
+      "FAIL: test_preview_and_export_dispatch_the_same_frozen_hncs_recipe (test_hncs_revision8_source.Revision8IntegrationSourceContracts.test_preview_and_export_dispatch_the_same_frozen_hncs_recipe)",
+      "FAIL: test_preview_and_full_export_use_same_pointwise_spatial_final_sequence (test_hncs_revision8_spatial_integration.Revision8SpatialIntegrationSourceContracts.test_preview_and_full_export_use_same_pointwise_spatial_final_sequence)",
+      "FAIL: test_stop_and_failure_preserve_terminal_result_with_exactly_once_completion (test_single_camera_capture_source.SingleCameraBackendContracts.test_stop_and_failure_preserve_terminal_result_with_exactly_once_completion)"
+    ],
+    "baselineRelatedTests": 85,
+    "baselineSameFailures": true,
+    "completeLog": "/Users/vonequinox/Library/Developer/GlassCamDiagnostics/color-repair-20261028/python-regression.log"
+  },
+  "appleProductionChecks": true,
+  "realProRAW": {
+    "sourceSHA256": "4ad933b123960952a6bfc40dc59455192b2352d5b026854ed390ef54088aca15",
+    "width": 5416,
+    "height": 7222,
+    "engines": [
+      "hncs",
+      "ffcs",
+      "lumix"
+    ],
+    "fullSourceDirectReviewBytesIdentical": true
+  },
+  "release": {
+    "app": "/Users/vonequinox/Library/Developer/GlassCamRelease/color-repair-20261028/Build/Products/Release-iphoneos/GlassCam.app",
+    "bundleID": "dev.glasscam.prototype",
+    "signed": true,
+    "strictSignatureVerified": true,
+    "LUMIXResourceFilesVerified": 33,
+    "installed": true,
+    "receipt": "Local diagnostics only",
+    "appSHA256": "46c631d62c666e6ce73c1f5af8f8fa2a811772c0c363f5eb143008ca5d889345"
+  },
+  "phoneNewCapturePerformed": false,
+  "phoneVisualAcceptancePerformed": false,
+  "diagnostics": "/Users/vonequinox/Library/Developer/GlassCamDiagnostics/color-repair-20261028",
+  "comparison": "/Users/vonequinox/.codex/visualizations/2026/10/28/01a181c2-a1e0-72c1-a571-083a75ad161e/color-repair/comparison.png",
+  "sourceSHA256": {
+    "core/lumix.cpp": "32dde7de6641ba3dcdfab3f0f2a4e73cac50389e41978ba3da2b9da3f5143df6",
+    "core/lumix_c.h": "005ac57cb5134d25ead17714e7b5244a6a2f2f260427df7468ece73230f2d9f8",
+    "ios/GlassCam/ImagePipeline.swift": "744d4e6e22ab3dc0e5a36c84addf8e8b6046f147e905bbd9b57790a08f184877",
+    "ios/GlassCam/LUMIXEngine.swift": "e22471e4cba72f8650cb564856b1cc585052893cc5bde8ddb881a545797b52ce",
+    "tests/apple_lumix_pipeline.swift": "f7aad5dacef5344bcb7da278f6656a83d48d9ac37af4b19d410eae4a1fb82992",
+    "tests/test_lumix_iphone.py": "b11f413aa8d7241d35f7e5f2201675e3a4765876e9f71632e7f38b8699aa73ba",
+    "tests/test_hncs_revision8_source.py": "d4b2d97b2409f54db982f0c7f0550fb65a390a98954e51a7eb48c69f75f6a86d"
+  }
+}

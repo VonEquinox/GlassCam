@@ -1,0 +1,48 @@
+{
+  "synthetic": true,
+  "camera_used": false,
+  "real_device_samples_audited": false,
+  "results": [
+    {
+      "name": "compile-core",
+      "exit_code": 0,
+      "seconds": 3.7837607500259764
+    },
+    {
+      "name": "compile-core-tests",
+      "exit_code": 0,
+      "seconds": 0.4284435829613358
+    },
+    {
+      "name": "core-numerics",
+      "exit_code": 0,
+      "seconds": 0.8725880419951864
+    },
+    {
+      "name": "compile-metal-tests",
+      "exit_code": 0,
+      "seconds": 2.3197962080012076
+    },
+    {
+      "name": "metal-numerics",
+      "exit_code": 0,
+      "seconds": 0.511636333016213
+    },
+    {
+      "name": "compile-contract-tests",
+      "exit_code": 0,
+      "seconds": 23.50815662497189
+    },
+    {
+      "name": "contracts",
+      "exit_code": 0,
+      "seconds": 2.1176690839929506
+    }
+  ],
+  "ios_release_build": {
+    "status": "PASS",
+    "code_signing": false,
+    "device_used": false,
+    "log_sha256": "0d38c6651636537522399d229e714eb6fb5c4de93cddcae3a277abda23615618"
+  }
+}

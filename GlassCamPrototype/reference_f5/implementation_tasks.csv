@@ -1,0 +1,10 @@
+id,dependency,deliverable,exit_gate
+W0,,capture probe and immutable burst transaction,P0
+W1,W0 fixtures,canonical raw and linear color contracts,G1 structural
+W2,W0 W1,qualified profile likelihood LUT and calibration archive,G1 physical
+W3,W1; synthetic can start before W2,FP64 operator likelihood motion and native solver,G2 local
+W4,W2 W3,global solver confidence flags and fallback,G2 global
+W5,W4,same-budget baselines and independently held-out report,G3
+W6,W3 W4,Metal equivalence resource profiling and optimized kernels,G2 GPU and G4 resources
+W7,W1 W4 W6,color bridge encoded outputs durable save,G4 product
+W8,W5 W6,optional extensions with dedicated ablations,extension promotion tests

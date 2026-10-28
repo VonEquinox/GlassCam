@@ -1,0 +1,14 @@
+F5 metadata contracts passed
+F5 journal contracts passed
+2026-10-27 16:41:33.330 contract-tests[79994:3908877] Metal API Validation Enabled
+2026-10-27 16:41:33.330 contract-tests[79994:3908877] Metal GPU Validation Enabled
+2026-10-27 16:41:35.016 contract-tests[79994:3908886] Error creating PSO for the uber shader: ci_ubershader_r4
+2026-10-27 16:41:35.021 contract-tests[79994:3908885] Error creating PSO for the uber shader: ci_ubershader_r4
+F5 frozen objective GPU 2144.4106923639774 CPU 2144.4108962136256 gradient 8.857292737461875e-07 Jacobi 2.9348779142173955e-07 normal 2.933620596640011e-07
+F5 guided color prior GPU/FP64 gradient 8.785012299884035e-07 normal 3.57222921493907e-07
+F5 frozen objective GPU 1780.396898418665 CPU 1780.3968867081055 gradient 8.612354185782557e-07 Jacobi 2.772705997130792e-07 normal 2.388758579135438e-07
+F5 guided color prior GPU/FP64 gradient 8.517555740669722e-07 normal 3.095009358870943e-07
+F5 frozen objective GPU 3318.5435048639774 CPU 3318.543540386176 gradient 4.453275801450103e-07 Jacobi 5.214488063556423e-07 normal 4.998925594868223e-07
+F5 guided color prior GPU/FP64 gradient 4.4874142152336286e-07 normal 5.832370786116154e-07
+PASS F5 camera-linear -> color matrix -> production HDR HEIF NATIVE_ONLY
+PASS F5 production contracts, journal, and frozen CPU/GPU objective

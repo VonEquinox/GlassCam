@@ -1,0 +1,26 @@
+{
+  "status": "synthetic/algebraic checks; no phone data",
+  "pg_quantized_and_censored_score_max_relative_fd_error": 2.369516774569604e-07,
+  "signed_spline_controls": {
+    "minimum_true_output": 0.04999999999999999,
+    "minimum_exact_coefficient": -0.5441697584576695,
+    "signed_fit_rmse": 7.310578359934718e-17,
+    "nonnegative_controls_fit_rmse": 0.1242851952304866
+  },
+  "warp_response_noncommutation": {
+    "frequency_cycles_per_input_pixel": 0.75,
+    "relative_magnifications": [
+      1.0,
+      1.01,
+      1.02,
+      1.05
+    ],
+    "response_amplitude_relative_errors": [
+      0.0,
+      0.04484572312061225,
+      0.08876087702655604,
+      0.21488078856646822
+    ]
+  },
+  "limitations": "The last test assumes Gaussian optics plus a box pixel. It is a counterexample to unrestricted effective-image warping, not an iPhone calibration."
+}

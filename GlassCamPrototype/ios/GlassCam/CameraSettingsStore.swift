@@ -7,6 +7,9 @@ final class CameraSettingsStore: ObservableObject {
     @Published var captureQuality: CaptureQuality {
         didSet { defaults.set(captureQuality.rawValue, forKey: "camera.capture.quality.v1") }
     }
+    @Published var archiveF5RAW: Bool {
+        didSet { defaults.set(archiveF5RAW, forKey:"camera.f5.keepRaw") }
+    }
     @Published var colorMode: ColorMode = .hncs { didSet { persistRecipe() } }
     @Published var simulationIndex = 0 { didSet { persistRecipe() } }
     @Published var exposure = 0.0 { didSet { persistRecipe() } }
@@ -41,8 +44,10 @@ final class CameraSettingsStore: ObservableObject {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        captureQuality = defaults.string(forKey: "camera.capture.quality.v1")
+        archiveF5RAW = defaults.bool(forKey:"camera.f5.keepRaw")
+        let storedQuality = defaults.string(forKey: "camera.capture.quality.v1")
             .flatMap(CaptureQuality.init(rawValue:)) ?? .quality
+        captureQuality = storedQuality == .speed ? .f5 : storedQuality
         let center = defaults.integer(forKey: "camera.preview.center.longEdge")
         centerPreviewLongEdge = Self.centerPreviewCaps.contains(center) ? center : 1920
         gridVisible = defaults.object(forKey: "camera.grid.visible") as? Bool ?? true
@@ -72,6 +77,7 @@ final class CameraSettingsStore: ObservableObject {
         lumix.renderRevision = LUMIXSettings.currentRenderRevision
         lumix.sourceISO = nil
         defaults.set(outputSelections, forKey: Self.outputsKey)
+        defaults.set(captureQuality.rawValue, forKey: "camera.capture.quality.v1")
         persistRecipe()
     }
 

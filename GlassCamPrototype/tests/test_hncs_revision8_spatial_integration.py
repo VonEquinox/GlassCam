@@ -159,7 +159,7 @@ class Revision8SpatialIntegrationSourceContracts(unittest.TestCase):
                            'applySpatial(to: file, settings: settings',
                            'readTopDownRows(originY: 0, rows: height)',
                            'finishPresetWork(adjusted,')
-        export = body(source('ImagePipeline.swift'), 'private static func exportFullSource(')
+        export = body(source('ImagePipeline.swift'), 'private static func exportLinearSource(')
         self.assertOrdered(export, 'recipe.hncs.requiresSpatial(effects: recipe.effects)', 'HNCSPresetWorkFile(width: width, height: height)',
                            'HNCSEngine.presetWork(', 'spatialWork.writeTopDownRows(',
                            'HNCSEngine.applySpatial(to: spatialWork, settings: recipe.hncs',

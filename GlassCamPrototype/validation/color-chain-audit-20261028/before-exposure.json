@@ -1,0 +1,239 @@
+{
+  "exposure" : [
+    {
+      "exposureEV" : -2,
+      "gray2" : [
+        0.8278120756149292,
+        0.82946276664733887,
+        0.8351476788520813
+      ],
+      "maxErrorFromScalingSource" : 1.1837813854217529,
+      "mode" : "hncs",
+      "saturated" : [
+        1.5860682725906372,
+        0.2811419665813446,
+        0.027804210782051086
+      ]
+    },
+    {
+      "exposureEV" : -1,
+      "gray2" : [
+        1.487898588180542,
+        1.4901092052459717,
+        1.4962986707687378
+      ],
+      "maxErrorFromScalingSource" : 1.9994792938232422,
+      "mode" : "hncs",
+      "saturated" : [
+        3.237621545791626,
+        0.73201394081115723,
+        0.058501444756984711
+      ]
+    },
+    {
+      "exposureEV" : 0,
+      "gray2" : [
+        1.9994856119155884,
+        1.99994957447052,
+        1.9999361038208008
+      ],
+      "maxErrorFromScalingSource" : 0,
+      "mode" : "hncs",
+      "saturated" : [
+        4.712275505065918,
+        1.7182269096374512,
+        0.22481651604175568
+      ]
+    },
+    {
+      "exposureEV" : 1,
+      "gray2" : [
+        1.9994856119155884,
+        1.99994957447052,
+        1.9999361038208008
+      ],
+      "maxErrorFromScalingSource" : 9.1356019973754883,
+      "mode" : "hncs",
+      "saturated" : [
+        4.5715460777282715,
+        3.1634929180145264,
+        0.74935626983642578
+      ]
+    },
+    {
+      "exposureEV" : 2,
+      "gray2" : [
+        1.9994856119155884,
+        1.99994957447052,
+        1.9999361038208008
+      ],
+      "maxErrorFromScalingSource" : 26.474063873291016,
+      "mode" : "hncs",
+      "saturated" : [
+        4.1216750144958496,
+        4.0306015014648438,
+        1.6029846668243408
+      ]
+    },
+    {
+      "exposureEV" : -2,
+      "gray2" : [
+        0.64237034320831299,
+        0.64413785934448242,
+        0.63240104913711548
+      ],
+      "maxErrorFromScalingSource" : 1.9936041831970215,
+      "mode" : "ffcs",
+      "saturated" : [
+        1.8825260400772095,
+        0.45593592524528503,
+        0.23138371109962463
+      ]
+    },
+    {
+      "exposureEV" : -1,
+      "gray2" : [
+        1.1152172088623047,
+        1.1167851686477661,
+        1.0838128328323364
+      ],
+      "maxErrorFromScalingSource" : 0.54185295104980469,
+      "mode" : "ffcs",
+      "saturated" : [
+        2.0085117816925049,
+        0.72709351778030396,
+        0.31596305966377258
+      ]
+    },
+    {
+      "exposureEV" : 0,
+      "gray2" : [
+        2,
+        2,
+        2
+      ],
+      "maxErrorFromScalingSource" : 0,
+      "mode" : "ffcs",
+      "saturated" : [
+        4,
+        1.6666736602783203,
+        0.79737269878387451
+      ]
+    },
+    {
+      "exposureEV" : 1,
+      "gray2" : [
+        2,
+        2,
+        2
+      ],
+      "maxErrorFromScalingSource" : 8,
+      "mode" : "ffcs",
+      "saturated" : [
+        4,
+        2.734227180480957,
+        1.0192744731903076
+      ]
+    },
+    {
+      "exposureEV" : 2,
+      "gray2" : [
+        2,
+        2,
+        2
+      ],
+      "maxErrorFromScalingSource" : 24,
+      "mode" : "ffcs",
+      "saturated" : [
+        4,
+        4,
+        1.5543309450149536
+      ]
+    },
+    {
+      "exposureEV" : -2,
+      "gray2" : [
+        0.77466732263565063,
+        0.77466732263565063,
+        0.77466732263565063
+      ],
+      "maxErrorFromScalingSource" : 0,
+      "mode" : "lumix",
+      "saturated" : [
+        0.98150789737701416,
+        0.42979967594146729,
+        0.0013584904372692108
+      ]
+    },
+    {
+      "exposureEV" : -1,
+      "gray2" : [
+        1,
+        1,
+        1
+      ],
+      "maxErrorFromScalingSource" : 0,
+      "mode" : "lumix",
+      "saturated" : [
+        1.9630157947540283,
+        0.85959935188293457,
+        0.0027169808745384216
+      ]
+    },
+    {
+      "exposureEV" : 0,
+      "gray2" : [
+        2,
+        2,
+        2
+      ],
+      "maxErrorFromScalingSource" : 0,
+      "mode" : "lumix",
+      "saturated" : [
+        3.9260315895080566,
+        1.7191987037658691,
+        0.0054339617490768433
+      ]
+    },
+    {
+      "exposureEV" : 1,
+      "gray2" : [
+        4,
+        4,
+        4
+      ],
+      "maxErrorFromScalingSource" : 0,
+      "mode" : "lumix",
+      "saturated" : [
+        7.8520631790161133,
+        3.4383974075317383,
+        0.010867923498153687
+      ]
+    },
+    {
+      "exposureEV" : 2,
+      "gray2" : [
+        8,
+        8,
+        8
+      ],
+      "maxErrorFromScalingSource" : 0,
+      "mode" : "lumix",
+      "saturated" : [
+        15.704126358032227,
+        6.8767948150634766,
+        0.021735846996307373
+      ]
+    }
+  ],
+  "failures" : [
+    "hncs EV -2.0 changed HDR exposure\/color: 1.1837814",
+    "hncs EV -1.0 changed HDR exposure\/color: 1.9994793",
+    "hncs EV 1.0 changed HDR exposure\/color: 9.135602",
+    "hncs EV 2.0 changed HDR exposure\/color: 26.474064",
+    "ffcs EV -2.0 changed HDR exposure\/color: 1.9936042",
+    "ffcs EV -1.0 changed HDR exposure\/color: 0.54185295",
+    "ffcs EV 1.0 changed HDR exposure\/color: 8.0",
+    "ffcs EV 2.0 changed HDR exposure\/color: 24.0"
+  ]
+}

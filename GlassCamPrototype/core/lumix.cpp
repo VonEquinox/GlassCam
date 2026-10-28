@@ -55,6 +55,24 @@ struct Curve {
         return a.y + (b.y-a.y)*(value-a.x)/(b.x-a.x);
     }
 };
+
+// Move RGB toward its equal-luma neutral, preserving the chroma direction.
+// The output knee approaches the cube boundary continuously instead of clipping
+// channels independently. Input projection leaves every in-gamut value intact.
+void boundChroma(std::array<double, 3> &rgb, bool soft) {
+    const double y = std::clamp((rgb[0]*0.299+rgb[1]*0.587)+rgb[2]*0.114, 0.0, 1.0);
+    if (y <= 0 || y >= 1) { rgb.fill(y); return; }
+    double radius = 0;
+    for (double value : rgb) {
+        const double delta = value-y;
+        radius = std::max(radius, delta >= 0 ? delta/(1-y) : -delta/y);
+    }
+    const double knee = soft ? 0.95 : 1.0;
+    if (radius <= knee) return;
+    const double distance = radius-knee;
+    const double bounded = soft ? knee + distance/(1+distance/(1-knee)) : 1;
+    for (double &value : rgb) value = std::clamp(y+(value-y)*(bounded/radius), 0.0, 1.0);
+}
 }
 
 struct LUMIXContext {
@@ -136,6 +154,28 @@ struct LUMIXContext {
         output[0]=truncated(rounded(cr*1.402+y)*contrastRatio);
         output[1]=truncated(rounded(cr*-0.71414+(cb*-0.34414+y))*contrastRatio);
         output[2]=truncated(rounded(cb*1.772+y)*contrastRatio);
+    }
+
+    std::array<double, 3> filterIPhone(std::array<double, 3> rgb, const Curve &tone) const {
+        boundChroma(rgb, false);
+        uint16_t coordinates[3], mapped[3];
+        for (size_t c = 0; c < 3; ++c) coordinates[c] = rounded(rgb[c]*4095);
+        sample(coordinates, mapped);
+        for (size_t c = 0; c < 3; ++c) rgb[c] = mapped[c]/4095.0;
+        const double y = (rgb[0]*0.299+rgb[1]*0.587)+rgb[2]*0.114;
+        if (y == 0) return {0, 0, 0};
+        double cb, cr;
+        if (monochrome[0]) {
+            cb = (int(monochrome[2])-(monochrome[2]>=128?256:0))*4/4095.0;
+            cr = (int(monochrome[1])-(monochrome[1]>=128?256:0))*4/4095.0;
+        } else {
+            cb = ((rgb[0]*-0.1687+rgb[1]*-0.3313)+rgb[2]*0.5)*saturation*0.0078125;
+            cr = ((rgb[0]*0.5+rgb[1]*-0.4187)+rgb[2]*-0.0813)*saturation*0.0078125;
+        }
+        const double ratio = tone.convert(y)/y;
+        rgb = {(cr*1.402+y)*ratio, (cr*-0.71414+(cb*-0.34414+y))*ratio, (cb*1.772+y)*ratio};
+        boundChroma(rgb, true);
+        return rgb;
     }
 };
 
@@ -259,6 +299,31 @@ int lumix_process_linear_rgba(const LUMIXContext *context, const float *input, s
         else context->sample(rgb, rendered);
         for (size_t c = 0; c < 3; ++c) {
             const double x = std::clamp(double(rendered[c])/white, 0.0, 1.0);
+            output[i*4+c] = static_cast<float>(x <= 0.04045 ? x/12.92 : std::pow((x+0.055)/1.055, 2.4));
+        }
+        output[i*4+3] = 1;
+    }
+    fail(error, size, ""); return 1;
+}
+int lumix_process_iphone_rgba(const LUMIXContext *context, const float *input, size_t inputCount,
+                              size_t pixels, double ev, float *output, size_t outputCount,
+                              char *error, size_t size) {
+    if (!context || !context->fullPipeline || !input || !output || !pixels ||
+        pixels > std::numeric_limits<size_t>::max()/16 || inputCount != pixels*3 ||
+        outputCount != pixels*4 || !std::isfinite(ev) || ev < -32 || ev > 32) {
+        fail(error, size, "Invalid LUMIX iPhone buffers or exposure"); return 0;
+    }
+    for (size_t i = 0; i < inputCount; ++i) if (!std::isfinite(input[i])) {
+        fail(error, size, "LUMIX input must be finite"); return 0;
+    }
+    const double gain = std::exp2(ev);
+    const auto tone = context->contrastCurve(1);
+    for (size_t i = 0; i < pixels; ++i) {
+        // Panasonic low-ISO sensor compensation is intentionally absent here.
+        // iPhone ISO numbers do not characterize a Panasonic sensor response.
+        auto rgb = context->filterIPhone({input[i*3]*gain, input[i*3+1]*gain, input[i*3+2]*gain}, tone);
+        for (size_t c = 0; c < 3; ++c) {
+            const double x = rgb[c];
             output[i*4+c] = static_cast<float>(x <= 0.04045 ? x/12.92 : std::pow((x+0.055)/1.055, 2.4));
         }
         output[i*4+3] = 1;

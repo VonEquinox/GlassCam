@@ -1,0 +1,20 @@
+{
+  "revision": "f5-lightweight-development-policy-v2",
+  "qualification": "UNQUALIFIED_DIAGNOSTIC",
+  "production_default": false,
+  "policies": [
+    {
+      "name": "candidate-v2",
+      "parameters": {
+        "lambdaY": 0.001,
+        "lambdaC": 0.04,
+        "colorGuide": true,
+        "adaptiveColorGuide": true,
+        "flatPriorBoost": 256,
+        "cardinalInitialization": true,
+        "geometryMode": "joint",
+        "attemptHigh": false
+      }
+    }
+  ]
+}

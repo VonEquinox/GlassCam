@@ -3,7 +3,7 @@ import Foundation
 /// The selected original Photo Style is part of the durable photo recipe.
 /// Missing fields in older HNCS/FFCS recipes adopt Standard without changing mode.
 struct LUMIXSettings: Codable, Equatable, Sendable {
-    static let currentRenderRevision = 3 // Apply exposure before the HDR split.
+    static let currentRenderRevision = 4 // Bounded float iPhone adapter; no UInt16 wrap.
     var renderRevision = currentRenderRevision
     var photoStyle = "standard"
     var contrast = 0.0
@@ -12,7 +12,7 @@ struct LUMIXSettings: Codable, Equatable, Sendable {
     var sourceISO: Int? = nil
     static let standard = LUMIXSettings()
     var isValid: Bool {
-        [1, 2, Self.currentRenderRevision].contains(renderRevision) &&
+        [1, 2, 3, Self.currentRenderRevision].contains(renderRevision) &&
         contrast.isFinite && (-5...5).contains(contrast) &&
         saturation.isFinite && (-5...5).contains(saturation) &&
         (sourceISO == nil || (1...1_000_000).contains(sourceISO!)) &&
@@ -112,7 +112,11 @@ enum LUMIXEngine {
             linearSRGB.withUnsafeBufferPointer { input in
                 rgba.withUnsafeMutableBufferPointer { output in
                     message.withUnsafeMutableBufferPointer { error in
-                        lumix_process_linear_rgba(owner.pointer, input.baseAddress, input.count, pixels,
+                        if settings.renderRevision >= 4 {
+                            return lumix_process_iphone_rgba(owner.pointer, input.baseAddress, input.count, pixels,
+                                exposureEV, output.baseAddress, output.count, error.baseAddress, error.count)
+                        }
+                        return lumix_process_linear_rgba(owner.pointer, input.baseAddress, input.count, pixels,
                             exposureEV, output.baseAddress, output.count, error.baseAddress, error.count)
                     }
                 }

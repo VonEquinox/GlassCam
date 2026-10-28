@@ -1,0 +1,90 @@
+{
+  "camera_used": false,
+  "core_and_metal": {
+    "synthetic": true,
+    "camera_used": false,
+    "real_device_samples_audited": false,
+    "results": [
+      {
+        "name": "compile-core",
+        "exit_code": 0,
+        "seconds": 4.4825966660282575
+      },
+      {
+        "name": "compile-core-tests",
+        "exit_code": 0,
+        "seconds": 0.4780462500057183
+      },
+      {
+        "name": "core-numerics",
+        "exit_code": 0,
+        "seconds": 0.8631046670489013
+      },
+      {
+        "name": "compile-metal-tests",
+        "exit_code": 0,
+        "seconds": 3.5090064580435865
+      },
+      {
+        "name": "metal-numerics",
+        "exit_code": 0,
+        "seconds": 0.6489687910070643
+      },
+      {
+        "name": "compile-contract-tests",
+        "exit_code": 0,
+        "seconds": 24.854777041007765
+      },
+      {
+        "name": "contracts",
+        "exit_code": 0,
+        "seconds": 2.10327841702383
+      },
+      {
+        "name": "compile-desktop-quality",
+        "exit_code": 0,
+        "seconds": 21.31982962496113
+      },
+      {
+        "name": "compile-local-denoise",
+        "exit_code": 0,
+        "seconds": 1.259088457969483
+      }
+    ]
+  },
+  "pipeline": {
+    "synthetic": true,
+    "camera_used": false,
+    "real_device_samples_audited": false,
+    "results": [
+      {
+        "name": "compile-core",
+        "exit_code": 0,
+        "seconds": 3.8836215829942375
+      },
+      {
+        "name": "compile-contract-tests",
+        "exit_code": 0,
+        "seconds": 25.514491875015665
+      },
+      {
+        "name": "contracts",
+        "exit_code": 0,
+        "seconds": 2.7672728750039823
+      },
+      {
+        "name": "compile-local-denoise",
+        "exit_code": 0,
+        "seconds": 1.283253917004913
+      }
+    ]
+  },
+  "ios_release_build": {
+    "status": "PASS",
+    "code_signing": false,
+    "device_used": false,
+    "log_sha256": "6476c47675fa406ea4263a6dd9552d7b2878c3297d1151ea40a326e063f71216"
+  },
+  "local_filter_oracle": "local-frequency-metal-oracle.json",
+  "sampling_svd_oracle": "sampling-diversity-audit.json"
+}

@@ -5,7 +5,7 @@ import CoreImage
 /// RAW output. Apple applies the RAW WB; HNCS uses xy to construct its virtual
 /// capture baseline, never iPhone sensor gains or a second temperature filter.
 struct PhotoWhiteBalance: Codable, Equatable, Sendable {
-    enum Origin: String, Codable, Sendable { case appleRAW, renderedD65, fallbackD65 }
+    enum Origin: String, Codable, Sendable { case appleRAW, renderedD65, fallbackD65, f5Matrix }
     let origin: Origin
     let temperature: Double
     let tint: Double
@@ -43,6 +43,7 @@ struct PhotoWhiteBalance: Codable, Equatable, Sendable {
     var description: String {
         switch origin {
         case .appleRAW: return String(format: "Auto WB · %.0f K · Tint %+.1f", temperature, tint)
+        case .f5Matrix: return String(format: "F5 matrix WB · %.0f K", temperature)
         case .renderedD65: return "White balance baked into source"
         case .fallbackD65: return "Source white point unavailable · D65 fallback"
         }

@@ -1,12 +1,14 @@
 import Foundation
 import CoreGraphics
 
-/// Capture priority is independent of the selected color engine. Speed uses
-/// an explicitly requested 12MP source; high resolution preferences survive it.
+/// F5 owns a five-frame Bayer transaction. The legacy speed value is retained
+/// only to decode unfinished old photos; it is no longer offered in the UI.
 enum CaptureQuality: String, CaseIterable, Codable, Sendable {
-    case speed, balanced, quality
+    case f5, balanced, quality, speed
+    static var allCases: [CaptureQuality] { [.f5, .balanced, .quality] }
     var title: String {
         switch self {
+        case .f5: return "F5"
         case .speed: return "Speed"
         case .balanced: return "Balanced"
         case .quality: return "Quality"

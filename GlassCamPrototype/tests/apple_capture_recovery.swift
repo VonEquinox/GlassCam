@@ -117,7 +117,7 @@ enum CaptureRecoveryChecks {
         // camera default. The on-disk recipe has no WB policy field.
         do {
             let journal = store("legacy-white-balance"), harness = try RecoveryHarness()
-            var settings = HNCSSettings.standard
+            var settings = HNCSSettings.legacyStandard
             settings.presetKey = "nature"; settings.whiteBalancePolicy = .preset
             let recipe = ProcessingRecipe(mode: .hncs, exposureEV: -0.05, illuminantKelvin: 6504,
                 simulationIndex: 0, seed: 0, hncs: settings, photoWhiteBalance: .renderedD65)

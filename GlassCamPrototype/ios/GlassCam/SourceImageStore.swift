@@ -54,7 +54,8 @@ struct PhotoMetadata: @unchecked Sendable {
         kCGImagePropertyExifExposureMode, kCGImagePropertyExifWhiteBalance,
         kCGImagePropertyExifDigitalZoomRatio, kCGImagePropertyExifLensSpecification,
         kCGImagePropertyExifLensMake, kCGImagePropertyExifLensModel,
-        kCGImagePropertyExifBodySerialNumber, kCGImagePropertyExifLensSerialNumber
+        kCGImagePropertyExifBodySerialNumber, kCGImagePropertyExifLensSerialNumber,
+        kCGImagePropertyExifUserComment
     ]
 
     init(properties: [String: Any]) {
@@ -70,6 +71,12 @@ struct PhotoMetadata: @unchecked Sendable {
             throw PipelineError.invalidImage
         }
         return PhotoMetadata(properties: properties)
+    }
+    func addingCaptureProvenance(_ text: String) -> PhotoMetadata {
+        var updated = exif
+        updated[kCGImagePropertyExifUserComment as String] = text
+        return PhotoMetadata(properties: [kCGImagePropertyTIFFDictionary as String: tiff,
+            kCGImagePropertyExifDictionary as String: updated, kCGImagePropertyGPSDictionary as String: gps])
     }
     private static func snapshotValue(_ value: Any) -> Any? {
         if let string = value as? String { return string.isEmpty ? nil : string }
@@ -159,6 +166,8 @@ struct PhotoMetadata: @unchecked Sendable {
                     kCGImagePropertyExifDateTimeOriginal] {
             if exif[key as String] != nil, copiedExif[key as String] == nil { throw PipelineError.metadata }
         }
+        if let comment = exif[kCGImagePropertyExifUserComment as String] as? String,
+           copiedExif[kCGImagePropertyExifUserComment as String] as? String != comment { throw PipelineError.metadata }
         if let originalDate = captureDate {
             guard let writtenDate = PhotoMetadata(properties: properties).captureDate,
                   abs(writtenDate.timeIntervalSince(originalDate)) < 0.01 else { throw PipelineError.metadata }

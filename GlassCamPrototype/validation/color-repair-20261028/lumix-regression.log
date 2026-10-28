@@ -1,0 +1,13 @@
+test_gray_ramps_have_no_large_reversals_and_preserve_endpoints (test_lumix_iphone.LUMIXIPhone.test_gray_ramps_have_no_large_reversals_and_preserve_endpoints) ... ok
+test_iphone_iso_does_not_select_panasonic_sensor_compensation (test_lumix_iphone.LUMIXIPhone.test_iphone_iso_does_not_select_panasonic_sensor_compensation) ... ok
+test_nonfinite_input_is_rejected_before_writing (test_lumix_iphone.LUMIXIPhone.test_nonfinite_input_is_rejected_before_writing) ... ok
+test_original_rgb48_fixtures_remain_bit_exact (test_lumix_iphone.LUMIXIPhone.test_original_rgb48_fixtures_remain_bit_exact) ... ok
+test_saturated_ramps_cannot_wrap_to_black (test_lumix_iphone.LUMIXIPhone.test_saturated_ramps_cannot_wrap_to_black) ... ok
+test_signed_gamut_inputs_strips_and_exposure (test_lumix_iphone.LUMIXIPhone.test_signed_gamut_inputs_strips_and_exposure) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 4.274s
+
+OK
+Verified 16 LUMIX Photo Style LUTs in /var/folders/_t/h6vv268j65s166v4flh5yzdc0000gn/T/glasscam-lumix-iphone-o9nfwb5i/LUMIX
+Verified 17 LUMIX Photo Style LUTs in /var/folders/_t/h6vv268j65s166v4flh5yzdc0000gn/T/glasscam-lumix-iphone-o9nfwb5i/LUMIX

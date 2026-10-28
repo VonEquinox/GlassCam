@@ -102,6 +102,10 @@ struct CaptureFraming: Codable, Equatable, Sendable {
 struct CapturedCameraPhoto: Sendable {
     let data: Data
     let framing: CaptureFraming
+    let burst: F5BurstSource?
+    init(data: Data, framing: CaptureFraming, burst: F5BurstSource? = nil) {
+        self.data = data; self.framing = framing; self.burst = burst
+    }
 }
 
 /// Lets lifecycle changes stop work at the pipeline's existing safe boundaries.

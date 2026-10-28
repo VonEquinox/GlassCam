@@ -28,9 +28,10 @@ private func require(_ condition: Bool, _ message: String) throws {
             try require(a.count == b.count, "Image dimensions changed during processing")
             return zip(a, b).map { abs($0 - $1) }.max() ?? 0
         }
-        func lumixRecipe(_ settings: LUMIXSettings = .standard, ev: Double = 0) -> ProcessingRecipe {
+        func lumixRecipe(_ settings: LUMIXSettings = .standard, ev: Double = 0,
+                         pipelineRevision: Int = ProcessingRecipe.currentPipelineRevision) -> ProcessingRecipe {
             ProcessingRecipe(mode: .lumix, exposureEV: ev, illuminantKelvin: 6500,
-                simulationIndex: 0, seed: 0, hncs: .standard, lumix: settings)
+                simulationIndex: 0, seed: 0, hncs: .standard, lumix: settings, pipelineRevision: pipelineRevision)
         }
         // An image taller than two export strips, with saturated colors and >1 headroom.
         let width = 33, height = 131
@@ -146,12 +147,12 @@ private func require(_ condition: Bool, _ message: String) throws {
                         "Positive exposure stopped increasing HDR white")
         }
         // Frozen photos keep their original rendering; only new camera recipes
-        // migrate to revision 3, including preferences saved by revision 2.
+        // migrate to the current revision, including preferences saved by v2.
         let v2 = try JSONDecoder().decode(LUMIXSettings.self,
             from: Data("{\"photoStyle\":\"standard\",\"renderRevision\":2}".utf8))
         try require(v2.isValid, "Saved LUMIX v2 is no longer supported")
         for ev: Double in [0, 1, 2] {
-            let result = try ImagePipeline.process(bright, recipe: lumixRecipe(v2, ev: ev))
+            let result = try ImagePipeline.process(bright, recipe: lumixRecipe(v2, ev: ev, pipelineRevision: 1))
             try require(pixels(result.image.image).prefix(3).allSatisfy { $0 == 2 },
                         "A saved LUMIX v2 photo changed its exposure behavior")
         }
@@ -170,7 +171,7 @@ private func require(_ condition: Bool, _ message: String) throws {
         try require(reloaded.colorMode == .lumix && reloaded.lumix == lumix, "Camera preferences lost LUMIX")
         defaults.set(try JSONEncoder().encode(lumixRecipe(v2)), forKey: "editor.processingRecipe.revision8.v1")
         let migratedCamera = CameraSettingsStore(defaults: defaults)
-        try require(migratedCamera.recipe.lumix.renderRevision == 3 && v2.renderRevision == 2,
+        try require(migratedCamera.recipe.lumix.renderRevision == LUMIXSettings.currentRenderRevision && v2.renderRevision == 2,
                     "Migrating future camera captures changed a saved v2 recipe")
         settings.colorMode = .ffcs
         try require(settings.lumix == lumix && frozen.lumix == lumix, "Switching engines changed a frozen recipe")
@@ -207,8 +208,27 @@ private func require(_ condition: Bool, _ message: String) throws {
             simulationIndex: 0, seed: 0, hncs: .standard).resolvingLUMIXSourceISO(80)
         try require(currentISO.lumix.sourceISO == 80, "Capture ISO was not bound")
         let resolvedPolicy = currentISO.sourceDecodeRecipe(RAWDecodeRecipe.current.withoutDecoderSharpness)
-        try require(resolvedPolicy.rendering == .sceneLinear && resolvedPolicy.sharpnessAmount == nil,
+        try require(resolvedPolicy.rendering == .cameraNeutral && resolvedPolicy.sharpnessAmount == nil,
                     "LUMIX inherited a previous HNCS decoder override")
+        // Input policy is durable independently of native engine revisions.
+        // A journal written before this field existed must replay its old look.
+        for mode in ColorMode.allCases {
+            let neutral = ProcessingRecipe(mode: mode, exposureEV: 0, illuminantKelvin: 6500,
+                simulationIndex: 0, seed: 0, hncs: .standard)
+            var object = try JSONSerialization.jsonObject(with: JSONEncoder().encode(neutral)) as! [String: Any]
+            object.removeValue(forKey: "rawInputPolicy")
+            let old = try JSONDecoder().decode(ProcessingRecipe.self, from: JSONSerialization.data(withJSONObject: object))
+            try require(old.rawInputPolicy == .legacy && neutral.rawInputPolicy == .cameraNeutral,
+                        "A missing input policy silently changed an old photo")
+            let bound = old.resolvingWhiteBalance(.renderedD65).resolvingLUMIXSourceISO(80)
+            try require(bound.rawInputPolicy == .legacy, "Binding capture metadata replaced the old input policy")
+            try require(neutral.sourceDecodeRecipe(.current).rendering == .cameraNeutral,
+                        "A new \(mode.title) capture kept Apple's global tone curve")
+            defaults.set(try JSONEncoder().encode(old), forKey: "editor.processingRecipe.revision8.v1")
+            try require(CameraSettingsStore(defaults: defaults).recipe.rawInputPolicy == .cameraNeutral &&
+                        old.rawInputPolicy == .legacy, "Future camera migration changed a frozen photo")
+        }
+        print("PASS input policy: all engines, old journals, metadata binding and camera-only migration")
         // Optional real retained ProRAW. This reads an existing capture only.
         if CommandLine.arguments.count > 2 {
             let rawURL = URL(fileURLWithPath: CommandLine.arguments[2])
@@ -242,7 +262,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             let recipe = ProcessingRecipe(mode: .lumix, exposureEV: 0, illuminantKelvin: 6500,
                 simulationIndex: 0, seed: 0, hncs: .standard)
             let processed = try ImagePipeline.process(photo, recipe: recipe)
-            try require(processed.source.rawDecode.rendering == .sceneLinear, "ProRAW kept Apple's display tone map")
+            try require(processed.source.rawDecode.rendering == .cameraNeutral, "ProRAW kept Apple's global contrast curve")
             try require(processed.recipe.lumix.sourceISO == photo.sourceISO ?? 100, "ProRAW ISO was not frozen")
             try require(processed.recipe.photoWhiteBalance == processed.source.whiteBalance, "ProRAW white point changed")
             let output = directory.appendingPathComponent("existing-proraw-lumix.heic")
@@ -254,12 +274,62 @@ private func require(_ condition: Bool, _ message: String) throws {
             try require(final == processed.recipe, "ProRAW direct export changed the durable recipe")
             try require((try Data(contentsOf: output)).count > 1000, "ProRAW output is empty")
             let evidence: [String: Any] = ["source": rawURL.path, "output": output.path, "width": dimensions[0],
-                "height": dimensions[1], "sourceISO": final.lumix.sourceISO!, "inputRendering": "sceneLinear",
+                "height": dimensions[1], "sourceISO": final.lumix.sourceISO!, "inputRendering": "cameraNeutral",
                 "previewWidth": processed.image.width, "previewHeight": processed.image.height,
                 "recipe": String(data: try JSONEncoder().encode(final), encoding: .utf8)!]
             try JSONSerialization.data(withJSONObject: evidence, options: [.prettyPrinted, .sortedKeys])
                 .write(to: directory.appendingPathComponent("existing-proraw.json"))
             print("PASS existing ProRAW → full-size LUMIX HEIF: \(dimensions), ISO \(final.lumix.sourceISO!)")
+            // Same retained capture, real decoder settings and full-resolution
+            // direct/review exports for all three camera engines.
+            let auditInput = try ImagePipeline.load(data: rawData, fileExtension: "dng", previewMaximumEdge: 512)
+            var audit = [[String: Any]]()
+            for mode in ColorMode.allCases {
+                let target = ProcessingRecipe(mode: mode, exposureEV: 0, illuminantKelvin: 6500,
+                    simulationIndex: 0, seed: 0, hncs: .standard)
+                let after = try ImagePipeline.process(auditInput, recipe: target)
+                let inspection = try ImagePipeline.inspectRAW(sourceFile: auditInput.sourceFile,
+                    recipe: after.source.rawDecode)
+                let configured = inspection["configured"] as! [String: Any]
+                let original = inspection["defaults"] as! [String: Any]
+                try require((configured["boost_amount"] as! NSNumber).floatValue == 0 &&
+                            (configured["baseline_exposure"] as! NSNumber) == (original["baseline_exposure"] as! NSNumber) &&
+                            (configured["local_tone_map_amount"] as! NSNumber) == (original["local_tone_map_amount"] as! NSNumber) &&
+                            (configured["edr_amount"] as! NSNumber).floatValue == 1,
+                            "\(mode.title) removed the photo's exposure/local map or retained global contrast")
+                var legacyLUMIX = LUMIXSettings.standard; legacyLUMIX.renderRevision = 3
+                let previous = ProcessingRecipe(mode: mode, exposureEV: 0, illuminantKelvin: 6500,
+                    simulationIndex: 0, seed: 0, hncs: .standard, lumix: legacyLUMIX, rawInputPolicy: .legacy)
+                let before = try ImagePipeline.process(auditInput, recipe: previous)
+                for (label, raster) in [("before", before.image), ("after", after.image)] {
+                    let name = mode.rawValue+"-"+label
+                    let values = pixels(raster.image)
+                    try values.withUnsafeBytes { try Data($0).write(to: directory.appendingPathComponent(name+".rgba32f")) }
+                    let diagnostic = raster.image.applyingFilter("CIColorClamp", parameters: [
+                        "inputMinComponents": CIVector(x: 0, y: 0, z: 0, w: 1),
+                        "inputMaxComponents": CIVector(x: 1, y: 1, z: 1, w: 1)]).cropped(to: raster.image.extent)
+                    try context.writePNGRepresentation(of: diagnostic, to: directory.appendingPathComponent(name+".png"),
+                        format: .RGBA8, colorSpace: CGColorSpace(name: CGColorSpace.sRGB)!, options: [:])
+                }
+                let output = directory.appendingPathComponent(mode.rawValue+"-neutral-full.heic")
+                let direct = directory.appendingPathComponent(mode.rawValue+"-neutral-direct.heic")
+                try ImagePipeline.writeHEIF(after, to: output)
+                let bound = try ImagePipeline.writeHEIF(sourceFile: auditInput.sourceFile, recipe: target,
+                    to: direct, settings: .native)
+                try require(bound == after.recipe && (try Data(contentsOf: output)) == (try Data(contentsOf: direct)),
+                            "\(mode.title) direct/review real ProRAW exports differ")
+                let props = CGImageSourceCopyPropertiesAtIndex(CGImageSourceCreateWithURL(output as CFURL, nil)!, 0, nil)! as NSDictionary
+                try require((props[kCGImagePropertyDepth] as! NSNumber).intValue == 10,
+                            "\(mode.title) lost 10-bit output")
+                audit.append(["mode": mode.rawValue, "inspection": inspection,
+                    "previewWidth": after.image.width, "previewHeight": after.image.height,
+                    "fullWidth": props[kCGImagePropertyPixelWidth]!, "fullHeight": props[kCGImagePropertyPixelHeight]!,
+                    "directReviewBytesIdentical": true, "output": output.path])
+                print("PASS \(mode.title) camera-neutral RAW; full-source direct/review HEIF bytes identical")
+                fflush(stdout)
+            }
+            try JSONSerialization.data(withJSONObject: audit, options: [.prettyPrinted, .sortedKeys])
+                .write(to: directory.appendingPathComponent("camera-neutral-audit.json"))
         }
         print("PASS 16 LUMIX previews, HDR export, immutable recipes, preference restoration, HNCS/FFCS compatibility")
     }

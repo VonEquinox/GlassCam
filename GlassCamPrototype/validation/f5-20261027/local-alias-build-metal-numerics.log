@@ -1,0 +1,7 @@
+F5 GPU test: compile library
+2026-10-27 17:27:54.649 metal-tests[81928:3946142] Metal API Validation Enabled
+2026-10-27 17:27:54.649 metal-tests[81928:3946142] Metal GPU Validation Enabled
+F5 GPU test: operator completed
+F5 GPU test: operator matched
+F5 GPU test: likelihood completed
+F5 Metal spline max error 1.1078056222357802e-07 PG NLL error 4.085494449412863e-06 standardized score error 3.662317565589566e-05

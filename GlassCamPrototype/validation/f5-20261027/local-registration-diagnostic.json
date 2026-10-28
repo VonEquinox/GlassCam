@@ -1,0 +1,272 @@
+{
+  "camera_used": false,
+  "qualification": "UNQUALIFIED_DIAGNOSTIC",
+  "guide": "96x96 half-native green, sigma0.6, cubic robust translation",
+  "results": [
+    {
+      "roi": "flat_bright",
+      "local_alignment": [
+        {
+          "index": 0,
+          "phase_translation_native": [
+            -0.4399999976158142,
+            0.07999999821186066
+          ],
+          "refined_translation_native": [
+            -0.9890196089246034,
+            0.8910581327174723
+          ],
+          "residual_median": 0.3416444659233093
+        },
+        {
+          "index": 1,
+          "phase_translation_native": [
+            0.0,
+            -0.05999999865889549
+          ],
+          "refined_translation_native": [
+            0.00018596649684900026,
+            -0.0009786500629234487
+          ],
+          "residual_median": 0.00012279525981284678
+        },
+        {
+          "index": 3,
+          "phase_translation_native": [
+            -0.07999999821186066,
+            0.25999999046325684
+          ],
+          "refined_translation_native": [
+            -0.9022242436328878,
+            0.9050376767166546
+          ],
+          "residual_median": 0.316864013671875
+        },
+        {
+          "index": 4,
+          "phase_translation_native": [
+            0.9200000166893005,
+            0.11999999731779099
+          ],
+          "refined_translation_native": [
+            1.0334309790195078,
+            0.9716415750518678
+          ],
+          "residual_median": 0.32418757677078247
+        }
+      ]
+    },
+    {
+      "roi": "flat_dark",
+      "local_alignment": [
+        {
+          "index": 0,
+          "phase_translation_native": [
+            0.47999998927116394,
+            0.019999999552965164
+          ],
+          "refined_translation_native": [
+            0.7376325294521622,
+            -0.034933583037859026
+          ],
+          "residual_median": 0.38080674409866333
+        },
+        {
+          "index": 1,
+          "phase_translation_native": [
+            0.0,
+            0.0
+          ],
+          "refined_translation_native": [
+            0.0,
+            0.0
+          ],
+          "residual_median": 0.0
+        },
+        {
+          "index": 3,
+          "phase_translation_native": [
+            -0.46000000834465027,
+            -0.7599999904632568
+          ],
+          "refined_translation_native": [
+            -0.7317867444932245,
+            -1.029610777976888
+          ],
+          "residual_median": 0.3723776340484619
+        },
+        {
+          "index": 4,
+          "phase_translation_native": [
+            -0.20000000298023224,
+            -0.25999999046325684
+          ],
+          "refined_translation_native": [
+            -0.3811737835711702,
+            -0.40475705774503606
+          ],
+          "residual_median": 0.39055174589157104
+        }
+      ]
+    },
+    {
+      "roi": "texture_left",
+      "local_alignment": [
+        {
+          "index": 0,
+          "phase_translation_native": [
+            0.05999999865889549,
+            0.14000000059604645
+          ],
+          "refined_translation_native": [
+            0.055796099350486426,
+            0.14183578145252562
+          ],
+          "residual_median": 0.535921573638916
+        },
+        {
+          "index": 1,
+          "phase_translation_native": [
+            0.0,
+            0.0
+          ],
+          "refined_translation_native": [
+            0.0,
+            0.0
+          ],
+          "residual_median": 0.0
+        },
+        {
+          "index": 3,
+          "phase_translation_native": [
+            -0.07999999821186066,
+            -0.30000001192092896
+          ],
+          "refined_translation_native": [
+            -0.10011047223739876,
+            -0.303385978036223
+          ],
+          "residual_median": 0.4856557846069336
+        },
+        {
+          "index": 4,
+          "phase_translation_native": [
+            0.03999999910593033,
+            -0.14000000059604645
+          ],
+          "refined_translation_native": [
+            0.03873455687757865,
+            -0.15559605881903685
+          ],
+          "residual_median": 0.41411688923835754
+        }
+      ]
+    },
+    {
+      "roi": "texture_right",
+      "local_alignment": [
+        {
+          "index": 0,
+          "phase_translation_native": [
+            0.05999999865889549,
+            0.03999999910593033
+          ],
+          "refined_translation_native": [
+            0.07691678220172894,
+            0.05788275738167904
+          ],
+          "residual_median": 0.4354560077190399
+        },
+        {
+          "index": 1,
+          "phase_translation_native": [
+            0.0,
+            0.0
+          ],
+          "refined_translation_native": [
+            0.0,
+            0.0
+          ],
+          "residual_median": 0.0
+        },
+        {
+          "index": 3,
+          "phase_translation_native": [
+            -0.10000000149011612,
+            0.4000000059604645
+          ],
+          "refined_translation_native": [
+            -0.12023054239135322,
+            0.4627792643153306
+          ],
+          "residual_median": 0.5472549200057983
+        },
+        {
+          "index": 4,
+          "phase_translation_native": [
+            0.0,
+            0.1599999964237213
+          ],
+          "refined_translation_native": [
+            -0.005317679120647147,
+            0.1841370536365363
+          ],
+          "residual_median": 0.43699878454208374
+        }
+      ]
+    },
+    {
+      "roi": "moving_subject",
+      "local_alignment": [
+        {
+          "index": 0,
+          "phase_translation_native": [
+            5.220000267028809,
+            0.46000000834465027
+          ],
+          "refined_translation_native": [
+            5.322863630595223,
+            0.33986596351190096
+          ],
+          "residual_median": 0.7231768369674683
+        },
+        {
+          "index": 1,
+          "phase_translation_native": [
+            0.0,
+            0.0
+          ],
+          "refined_translation_native": [
+            0.0,
+            0.0
+          ],
+          "residual_median": 0.0
+        },
+        {
+          "index": 3,
+          "phase_translation_native": [
+            -10.640000343322754,
+            0.1599999964237213
+          ],
+          "refined_translation_native": [
+            -10.60938074447864,
+            0.5112565850543244
+          ],
+          "residual_median": 0.8684995174407959
+        },
+        {
+          "index": 4,
+          "phase_translation_native": [
+            -15.039999961853027,
+            0.10000000149011612
+          ],
+          "refined_translation_native": [
+            -14.890546612676106,
+            0.4923550778696367
+          ],
+          "residual_median": 0.961650013923645
+        }
+      ]
+    }
+  ]
+}

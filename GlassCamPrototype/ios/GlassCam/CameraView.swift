@@ -111,7 +111,7 @@ struct CameraView: View {
                         .frame(width: framing.photo.width, height: framing.photo.height)
                         .position(x: framing.photo.midX, y: framing.photo.midY)
                         .gesture(MagnificationGesture().onChanged { value in
-                            guard workflow.canCapture, !camera.isCapturing else { return }
+                            guard workflow.canCapture, !camera.isCapturing, settings.captureQuality != .f5 else { return }
                             if pinchStartZoom == nil { pinchStartZoom = camera.requestedZoom }
                             camera.setZoom((pinchStartZoom ?? camera.requestedZoom) * Double(value))
                         }.onEnded { _ in pinchStartZoom = nil })
@@ -176,6 +176,9 @@ struct CameraView: View {
             else if phase == .active { restartCamera() }
         }
         .onChange(of: settings.centerPreviewLongEdge) { _, _ in restartCamera() }
+        .onChange(of: settings.captureQuality, initial: true) { _, quality in
+            if quality == .f5 { camera.selectF5MainCamera() }
+        }
         .onChange(of: workflow.phase) { _, phase in
             if phase == .idle || phase == .failed || phase == .paused {
                 if let reservation = shutterReservation { camera.releaseCaptureReservation(reservation) }
@@ -185,7 +188,7 @@ struct CameraView: View {
         .fullScreenCover(item: $destination, onDismiss: { restartCamera() }) { page in
             switch page {
             case .settings(let options, let cameraID):
-                CameraSettingsView(settings: settings, options: options,
+                CameraSettingsView(settings: settings, camera: camera, canRecordF5: workflow.canCapture, options: options,
                                    physicalCameraID: cameraID, mode: selectedLens.rawValue,
                                    onBack: { destination = nil })
             case .photo(let capture):
@@ -403,12 +406,12 @@ struct CameraView: View {
                 settings.setOutputMegapixels(next, physicalCameraID: id, mode: selectedLens.rawValue)
             }
         } label: {
-            Text("\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP")
+            Text(settings.captureQuality == .f5 ? "2× sampling" : "\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP")
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .modifier(CameraPill())
-        }.disabled(!workflow.canCapture || camera.physicalCameraID == nil || settings.captureQuality == .speed)
+        }.disabled(!workflow.canCapture || camera.physicalCameraID == nil || settings.captureQuality == .f5)
             .accessibilityLabel("Photo resolution").accessibilityIdentifier("camera.resolution")
-            .accessibilityValue(Text("\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP"))
+            .accessibilityValue(Text(settings.captureQuality == .f5 ? "2× sampling" : "\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP"))
     }
 
     private var qualityButton: some View {
@@ -416,9 +419,9 @@ struct CameraView: View {
             ForEach(CaptureQuality.allCases, id: \.self) { quality in
                 Button { settings.captureQuality = quality } label: {
                     if settings.captureQuality == quality {
-                        Label(quality == .speed ? "Speed · 12 MP" : quality.title, systemImage: "checkmark")
+                        Label(quality == .f5 ? "F5 · 5 RAW" : quality.title, systemImage: "checkmark")
                     } else {
-                        Text(quality == .speed ? "Speed · 12 MP" : quality.title)
+                        Text(quality == .f5 ? "F5 · 5 RAW" : quality.title)
                     }
                 }.accessibilityIdentifier("camera.quality.\(quality.rawValue)")
             }
@@ -431,7 +434,7 @@ struct CameraView: View {
         .accessibilityLabel("Capture priority")
         .accessibilityValue(settings.captureQuality.title)
         .accessibilityIdentifier("camera.quality")
-        .accessibilityHint("Choose Speed at 12 MP, Balanced, or Quality")
+        .accessibilityHint("Choose F5 five-frame RAW, Balanced, or Quality")
     }
 
     private var statusButton: some View {
@@ -448,6 +451,7 @@ struct CameraView: View {
     }
 
     private var summaryStatus: String {
+        if settings.captureQuality == .f5, !camera.f5ProfileAvailable, !camera.isCapturing, workflow.canCapture { return "F5 · Main-camera calibration required" }
         if camera.isCapturing || camera.isPreviewFrozen { return "Capturing RAW" }
         switch workflow.phase {
         case .authorizing: return "Preparing photo"
@@ -480,13 +484,14 @@ struct CameraView: View {
             Text(CameraZoomRange.label(camera.requestedZoom)).font(.system(size: 12, weight: .semibold))
                 .frame(minWidth: 44, minHeight: 44)
         }
-        .disabled(!workflow.canCapture || camera.isCapturing)
+        .disabled(!workflow.canCapture || camera.isCapturing || settings.captureQuality == .f5)
         .accessibilityLabel("Focal length controls")
         .accessibilityValue(CameraZoomRange.label(camera.appliedZoom))
         .accessibilityIdentifier("camera.zoom")
     }
 
     private var estimatedOutputLabel: String {
+        if settings.captureQuality == .f5 { return "F5 · 5 RAW · 2× output grid" }
         guard let source = camera.sourceCaptureDimensions else { return "HDR" }
         let mode = selectedOutput?.megapixels ?? settings.captureQuality.outputMegapixels(preferred: settings.preferredOutputMegapixels)
         let output = ExportSettings.camera(mode, framing: camera.currentFraming)
@@ -516,7 +521,7 @@ struct CameraView: View {
             .accessibilityValue(CameraZoomRange.label(stop.factor))
             .accessibilityIdentifier("camera.zoom.\(stop.title)")
         }
-        .disabled(!workflow.canCapture || camera.isCapturing || camera.isConfiguring)
+        .disabled(!workflow.canCapture || camera.isCapturing || camera.isConfiguring || settings.captureQuality == .f5)
     }
 
     private var zoomRuler: some View {
@@ -528,7 +533,7 @@ struct CameraView: View {
                 Slider(value: Binding(get: { log2(camera.requestedZoom) },
                                       set: { camera.setZoom(pow(2, $0)) }),
                        in: log2(camera.zoomRange.lowerBound)...log2(camera.zoomRange.upperBound))
-                    .disabled(!workflow.canCapture)
+                    .disabled(!workflow.canCapture || settings.captureQuality == .f5)
                     .accessibilityLabel("Continuous focal length")
                     .accessibilityValue(CameraZoomRange.label(camera.appliedZoom))
                     .accessibilityIdentifier("camera.zoom.ruler")
@@ -613,11 +618,7 @@ struct CameraView: View {
 
     private var selectedOutput: CameraController.OutputOption? {
         guard let cameraID = camera.physicalCameraID else { return nil }
-        if settings.captureQuality == .speed {
-            guard let source = camera.sourceCaptureDimensions,
-                  let size = try? ExportSettings.camera(12).dimensions(sourceWidth: Int(source.width), sourceHeight: Int(source.height)) else { return nil }
-            return .init(megapixels: 12, width: size.width, height: size.height)
-        }
+        if settings.captureQuality == .f5 { return nil }
         let saved = settings.outputMegapixels(physicalCameraID: cameraID, mode: selectedLens.rawValue)
         // Unsupported choices never fall back to lower resolution or upsampling.
         return camera.supportedOutputOptions.first { $0.megapixels == saved }
@@ -642,16 +643,17 @@ struct CameraView: View {
 
     private func shutter(diameter: CGFloat) -> some View {
         Button {
-            guard workflow.canCapture, let output = selectedOutput, let reservation = camera.reserveCapture() else { return }
+            guard workflow.canCapture, settings.captureQuality == .f5 || selectedOutput != nil, let reservation = camera.reserveCapture() else { return }
             activePanel = nil
             shutterReservation = reservation
-            let export = ExportSettings.camera(output.megapixels, framing: camera.currentFraming)
-            let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality)
+            let export = settings.captureQuality == .f5 ? ExportSettings.native.withFraming(camera.currentFraming) :
+                ExportSettings.camera(selectedOutput!.megapixels, framing: camera.currentFraming)
+            let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality,archiveF5RAW:settings.archiveF5RAW)
             workflow.capturePhoto(snapshot: snapshot) { completion in
                 guard scenePhase == .active, !settingsPresented, reviewedCapture == nil else {
                     completion(.failure(CaptureUIError.cameraInactive)); return
                 }
-                camera.capturePhoto(reservation: reservation, quality: snapshot.quality, completion: completion)
+                camera.capturePhoto(reservation: reservation, quality: snapshot.quality, snapshot: snapshot, completion: completion)
             }
         } label: {
             ZStack {
@@ -663,7 +665,7 @@ struct CameraView: View {
             .frame(width: diameter, height: diameter)
             .contentShape(Circle())
         }
-        .disabled(!camera.canReserveCapture || selectedOutput == nil || !workflow.canCapture)
+        .disabled(!camera.canReserveCapture || (settings.captureQuality != .f5 && selectedOutput == nil) || !workflow.canCapture || (settings.captureQuality == .f5 && !camera.f5ProfileAvailable))
         .accessibilityLabel("Take photo and save to Photos")
         .accessibilityIdentifier("camera.shutter")
         .accessibilityHint("Apply your saved settings and automatically save an HDR photo")
@@ -849,6 +851,8 @@ private final class CameraOrientationView: UIView {
 /// An independent page; all controls update the same persisted shutter settings.
 private struct CameraSettingsView: View {
     @ObservedObject var settings: CameraSettingsStore
+    @ObservedObject var camera: CameraController
+    let canRecordF5: Bool
     let options: [CameraController.OutputOption]
     let physicalCameraID: String?
     let mode: String
@@ -859,7 +863,7 @@ private struct CameraSettingsView: View {
         Binding(get: { settings.captureQuality.outputMegapixels(preferred:
                     physicalCameraID.map { settings.outputMegapixels(physicalCameraID: $0, mode: mode) } ?? settings.preferredOutputMegapixels) },
                 set: { value in
-                    guard settings.captureQuality != .speed, let id = physicalCameraID,
+                    guard settings.captureQuality != .f5, let id = physicalCameraID,
                           options.contains(where: { $0.megapixels == value }) else { return }
                     settings.setOutputMegapixels(value, physicalCameraID: id, mode: mode)
                 })
@@ -889,18 +893,23 @@ private struct CameraSettingsView: View {
             Picker("Capture priority", selection: $settings.captureQuality) {
                 ForEach(CaptureQuality.allCases, id: \.self) { quality in Text(quality.title).tag(quality) }
             }.pickerStyle(.segmented).accessibilityIdentifier("settings.captureQuality")
-            Picker("Resolution", selection: outputSelection) {
-                ForEach(settings.captureQuality == .speed ? [12] : [24, 48], id: \.self) { value in Text("\(value) MP").tag(value) }
-            }.pickerStyle(.segmented).disabled(physicalCameraID == nil || options.isEmpty || settings.captureQuality == .speed)
-                .accessibilityIdentifier("settings.resolution")
-            if settings.captureQuality == .speed {
-                Text("Speed captures and saves at 12 MP. Balanced and Quality restore your 24/48 MP selection.")
+            if settings.captureQuality == .f5 {
+                HStack { Text("Sampling"); Spacer(); Text("2× in each dimension").foregroundStyle(.secondary) }
+                Text("F5 combines four main exposures and one short exposure. It uses the main camera’s native view and a 2× output grid. Detail can fall back locally when motion or highlights cannot be recovered.")
                     .font(.caption).foregroundStyle(.white.opacity(0.6))
+            } else {
+                Picker("Resolution", selection: outputSelection) {
+                    ForEach([24,48],id:\.self) { value in Text("\(value) MP").tag(value) }
+                }.pickerStyle(.segmented).disabled(physicalCameraID == nil || options.isEmpty)
+                    .accessibilityIdentifier("settings.resolution")
             }
             HStack { Text("Format"); Spacer(); Text("10-bit HDR HEIF").foregroundStyle(.secondary) }.font(.subheadline)
-            Text("Photos save automatically. In 48 MP mode, smaller framed sources save at 24 MP.")
-                .font(.caption).foregroundStyle(.white.opacity(0.45))
+            if settings.captureQuality != .f5 {
+                Text("Photos save automatically. In 48 MP mode, smaller framed sources save at 24 MP.")
+                    .font(.caption).foregroundStyle(.white.opacity(0.45))
+            }
         }
+        if settings.captureQuality == .f5 { F5SettingsCard(camera: camera, settings: settings, canRecord: canRecordF5) }
         CameraCard(title: "Photo style", symbol: "camera.filters") {
             Picker("Color engine", selection: $settings.colorMode) {
                 ForEach(ColorMode.allCases) { mode in Text(mode.title).tag(mode) }

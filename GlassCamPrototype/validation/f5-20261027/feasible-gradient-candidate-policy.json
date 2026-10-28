@@ -1,0 +1,39 @@
+{
+  "revision": "f5-feasible-gradient-development-policy-v6",
+  "qualification": "UNQUALIFIED_DIAGNOSTIC",
+  "production_default": false,
+  "policies": [
+    {
+      "name": "candidate-v6",
+      "parameters": {
+        "lambdaY": 0.001,
+        "lambdaC": 0.04,
+        "colorGuide": true,
+        "adaptiveColorGuide": true,
+        "flatPriorBoost": 256,
+        "cardinalInitialization": true,
+        "malvarInitialization": true,
+        "protectFineDetail": true,
+        "harmonicPrior": true,
+        "localStepLimit": true,
+        "parallelMotion": true,
+        "geometryMode": "joint",
+        "attemptHigh": false,
+        "localDenoise": true,
+        "feasibleGradientFallback": true
+      }
+    }
+  ],
+  "local_frequency": {
+    "patch": 32,
+    "stride": 8,
+    "threshold_sigma": 2.7
+  },
+  "limitations": [
+    "Only the numerically equivalent bounded motion cache is enabled by default in production.",
+    "The initializer remains a single-tile diagnostic.",
+    "Local step limiting still requires descent, positivity and true-objective Armijo acceptance.",
+    "Reconstruction covariance, joint convergence, real quality and full phone performance remain unaccepted.",
+    "The diagonal fallback is used when physical limiting cannot provide a usable descent direction from the first PCG result. True Armijo and physical positivity remain required."
+  ]
+}

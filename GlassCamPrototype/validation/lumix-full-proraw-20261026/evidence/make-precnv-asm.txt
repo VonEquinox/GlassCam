@@ -1,0 +1,59 @@
+            ;-- method.IslVEISFilter3DLUT.MakeUpCnvPreLUT_IslZCnvPolyLine__IslVEISFilter3DLUT::LowISOCorrectLUT_const__double__double_:
+            ;-- func.0082d48a:
+            ;-- IslVEISFilter3DLUT::MakeUpCnvPreLUT(IslZCnvPolyLine&, IslVEISFilter3DLUT::LowISOCorrectLUT const&, double, double):
+            0x0082d48a      55             push rbp
+            0x0082d48b      4889e5         mov rbp, rsp
+            0x0082d48e      4881ec2003..   sub rsp, 0x320
+            0x0082d495      4889f7         mov rdi, rsi
+            0x0082d498      488b05e1eb..   mov rax, qword [reloc.__stack_chk_guard] ; [0x122c080:8]=0
+            0x0082d49f      488b00         mov rax, qword [rax]
+            0x0082d4a2      488945f8       mov qword [rbp - 8], rax
+            0x0082d4a6      31c0           xor eax, eax
+        ┌─> 0x0082d4a8      0fb70c02       movzx ecx, word [rdx + rax]
+        ╎   0x0082d4ac      0f57d2         xorps xmm2, xmm2
+        ╎   0x0082d4af      f20f2ad1       cvtsi2sd xmm2, ecx
+        ╎   0x0082d4b3      f20f59d0       mulsd xmm2, xmm0
+        ╎   0x0082d4b7      f20f1194c5..   movsd qword [rbp + rax*8 - 0x320], xmm2
+        ╎   0x0082d4c0      0fb74c0262     movzx ecx, word [rdx + rax + 0x62]
+        ╎   0x0082d4c5      0f57d2         xorps xmm2, xmm2
+        ╎   0x0082d4c8      f20f2ad1       cvtsi2sd xmm2, ecx
+        ╎   0x0082d4cc      f20f59d1       mulsd xmm2, xmm1
+        ╎   0x0082d4d0      f20f1194c5..   movsd qword [rbp + rax*8 - 0x318], xmm2
+        ╎   0x0082d4d9      4883c002       add rax, 2
+        ╎   0x0082d4dd      4883f862       cmp rax, 0x62               ; 'b'
+        └─< 0x0082d4e1      75c5           jne 0x82d4a8
+            0x0082d4e3      488b07         mov rax, qword [rdi]
+            0x0082d4e6      488db5e0fc..   lea rsi, [rbp - 0x320]
+            0x0082d4ed      ba31000000     mov edx, 0x31               ; '1'
+            0x0082d4f2      31c9           xor ecx, ecx
+            0x0082d4f4      ff5020         call qword [rax + mach0_segment64_0] ; mach0_cmd_0
+                                                                       ; 0x20
+            0x0082d4f7      488b0582eb..   mov rax, qword [reloc.__stack_chk_guard] ; [0x122c080:8]=0
+            0x0082d4fe      488b00         mov rax, qword [rax]
+            0x0082d501      483b45f8       cmp rax, qword [rbp - 8]
+        ┌─< 0x0082d505      750b           jne 0x82d512
+        │   0x0082d507      31c0           xor eax, eax
+        │   0x0082d509      4881c42003..   add rsp, 0x320
+        │   0x0082d510      5d             pop rbp
+        │   0x0082d511      c3             ret
+        └─> 0x0082d512      e8996f5800     call sym.imp.__stack_chk_fail
+            0x0082d517      90             nop
+            ;-- method.IslVEISFilter3DLUT.OpenSequentialRead__ISLZRECT_const__IslZProgress_:
+            ;-- func.0082d518:
+            ;-- IslVEISFilter3DLUT::OpenSequentialRead(_ISLZRECT const*, IslZProgress*):
+            0x0082d518      55             push rbp
+            0x0082d519      4889e5         mov rbp, rsp
+            0x0082d51c      4157           push r15
+            0x0082d51e      4156           push r14
+            0x0082d520      53             push rbx
+            0x0082d521      4883ec18       sub rsp, 0x18
+            0x0082d525      4989fe         mov r14, rdi
+            0x0082d528      e82bf02b00     call method.IslEISFilterNxNBase.OpenSequentialRead__ISLZRECT_const__IslZProgress_
+            0x0082d52d      89c3           mov ebx, eax
+            0x0082d52f      6685c0         test ax, ax
+        ┌─< 0x0082d532      0f859e000000   jne 0x82d5d6
+        │   0x0082d538      488d5dd0       lea rbx, [rbp - 0x30]
+        │   0x0082d53c      4889df         mov rdi, rbx
+        │   0x0082d53f      4c89f6         mov rsi, r14
+        │   0x0082d542      e8b9da2a00     call method.const.IslEImageServerFilter.GetPixelWhiteValue___const
+        │   0x0082d547      f20f104b10     movsd xmm1, qword [rbx + 0x10]

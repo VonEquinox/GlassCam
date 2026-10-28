@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:f5:burst:1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_id",
+    "synthetic",
+    "hardware_model",
+    "os_build",
+    "profile_id",
+    "budget",
+    "frames"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "bundle_id": {
+      "type": "string"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "hardware_model": {
+      "type": "string"
+    },
+    "os_build": {
+      "type": "string"
+    },
+    "profile_id": {
+      "type": "string"
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw_exposures",
+        "main_frames",
+        "short_frames",
+        "preview_pixels_used_for_reconstruction"
+      ],
+      "properties": {
+        "raw_exposures": {
+          "const": 5
+        },
+        "main_frames": {
+          "const": 4
+        },
+        "short_frames": {
+          "const": 1
+        },
+        "preview_pixels_used_for_reconstruction": {
+          "const": false
+        }
+      }
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "role",
+          "request_index",
+          "sequence_count",
+          "physical_camera_id",
+          "raw_path",
+          "sha256",
+          "storage",
+          "width",
+          "height",
+          "row_bytes",
+          "byte_order",
+          "active_area",
+          "cfa_pattern",
+          "cfa_origin",
+          "timestamp_seconds",
+          "clock_id",
+          "requested_exposure_s",
+          "actual_exposure_s",
+          "actual_iso",
+          "aperture",
+          "focus_value",
+          "ois_policy"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "L",
+              "S"
+            ]
+          },
+          "request_index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4
+          },
+          "sequence_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "physical_camera_id": {
+            "type": "string"
+          },
+          "raw_path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "storage": {
+            "enum": [
+              "dng",
+              "raw_u16_mosaic_fixture"
+            ]
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 2
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 2
+          },
+          "row_bytes": {
+            "type": "integer",
+            "minimum": 4
+          },
+          "byte_order": {
+            "enum": [
+              "little",
+              "big"
+            ]
+          },
+          "active_area": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 4,
+            "maxItems": 4,
+            "description": "top,left,bottom,right; exclusive bottom/right in stored sensor coordinates"
+          },
+          "cfa_pattern": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "R",
+                "G1",
+                "G2",
+                "B"
+              ]
+            },
+            "minItems": 4,
+            "maxItems": 4
+          },
+          "cfa_origin": {
+            "const": "active_area_top_left"
+          },
+          "timestamp_seconds": {
+            "type": "number"
+          },
+          "clock_id": {
+            "type": "string"
+          },
+          "requested_exposure_s": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "actual_exposure_s": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "actual_iso": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "aperture": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "focus_value": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ois_policy": {
+            "enum": [
+              "on",
+              "off",
+              "unavailable"
+            ]
+          }
+        }
+      },
+      "minItems": 5,
+      "maxItems": 5
+    }
+  }
+}

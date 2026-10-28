@@ -1,0 +1,18 @@
+test_id,work_package,evidence_type,criterion,current_status
+P0-01,W0,real_device,five independent Bayer deliverables; no hidden RAW,NOT_RUN
+P0-02,W0,real_device,actual exposures and timestamp identity; 4L+S tolerance,NOT_RUN
+G1-01,W1,fixture,stride endian CFA odd ActiveArea and interval semantics,PARTIAL_EXECUTED
+G1-02,W2,real_device,linearity noise independence and censor thresholds,NOT_RUN
+G1-03,W2,real_device,color matrix and opcode ledger,NOT_RUN
+G2-01,W3,algebra,forward/adjoint inner product FP64 <1e-10,EXECUTED_SMALL_MODEL
+G2-02,W3,algebra,motion derivative finite difference <1e-4,EXECUTED_SMALL_MODEL
+G2-03,W3,statistics,quantized/censored PG score and selection bias,EXECUTED_SMALL_MODEL
+G2-04,W3,algebra,independent nuisance equivalence and double-use counterexample,EXECUTED_SMALL_MODEL
+G2-05,W4,algebra,global solver and multilevel equivalence,EXECUTED_1D_ONLY
+G2-06,W6,real_device,GPU vs FP64 and tile-order invariance,NOT_RUN
+G3-01,W5,blind_test,same-five-frame B0-B5 matched noise and tone,NOT_RUN
+G3-02,W5,independent_target,frequency amplitude phase false color HDR radiometry,NOT_RUN
+G3-03,W5,blind_test,moving objects flicker occlusion negative tests,NOT_RUN
+G4-01,W6,real_device,peak memory latency and thermal repetitions,NOT_RUN
+G4-02,W7,real_device,HDR metadata cross-viewer and old color recipes regression,NOT_RUN
+G4-03,W7,real_device,permissions cancellation lifecycle durable save,NOT_RUN

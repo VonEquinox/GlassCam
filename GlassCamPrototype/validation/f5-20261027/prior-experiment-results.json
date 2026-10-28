@@ -1,0 +1,1384 @@
+{
+  "revision": "f5-prior-experiments-v1",
+  "camera_used": false,
+  "goal_complete": false,
+  "qualification": "UNQUALIFIED_DIAGNOSTIC",
+  "decision": "Neither experiment is accepted. Native information-density noise scaling is substantially worse in 7 of 8 simulated pilot cases. Temporal guide changes fail the two natural-content pilots.",
+  "experiments": {
+    "temporal_guide": [
+      {
+        "group": "natural",
+        "name": "dark_fur",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/runs/natural/dark_fur/dark_fur-metal-report.json",
+        "report_sha256": "18e66928256d39a8ca391787064a42df29e97d67e801a30e51c78e41cc3e3c98",
+        "input_sha256": "8ce4422b37f07a6fd33d2240db2e9ee76f5b6a57fa8b0c320d9d6637fd70bcfb",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "66a52da6a3a2a0929095ea4b74cd2667a87d92459fa2fc61e16a0c566e7cf49c",
+        "previous_report_sha256": "26506aec3ae298f72994b90ab6bf6fa7c5e6d63703fcac81720dcddaf6bf72ac",
+        "native_stop": "NUMERICAL_STALL",
+        "seconds": 16.710922624974046,
+        "negative_components": 0,
+        "native_rgb_sha256": "3c2e4c57dcef35ba1ec1426e5bd49ade211e4848393e5e0305b83964a2963b07",
+        "filtered_rgb_sha256": "02f63d56bbffc680defad2e313ba976863d8506b75205fd20f9ce04eb80dbbf3",
+        "truth_sha256": "3f1aea645e1d252dac6f539d025345ca77f7f4c5961183cf6aea0724940b7234",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.0005302053629099763,
+            "luma_rmse": 0.0004232651176622149,
+            "chroma_rmse": 0.0005530760355382191,
+            "lowband_rmse": 0.0003209656006896263,
+            "maximum_error": 0.0030061876240450704,
+            "mean_error": 1.8368103661363853e-05
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.0005069677402050559,
+            "luma_rmse": 0.0004008245607429726,
+            "chroma_rmse": 0.0005376503355727331,
+            "lowband_rmse": 0.0003155998223808025,
+            "maximum_error": 0.0029191327695165274,
+            "mean_error": 1.769840445182027e-05
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.00047799158312598943,
+            "luma_rmse": 0.0003944473040132669,
+            "chroma_rmse": 0.0004676129100953747,
+            "lowband_rmse": 0.00029953694526635465,
+            "maximum_error": 0.0027973069606563924,
+            "mean_error": 7.281084294542177e-06
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.0004933061017960428,
+            "luma_rmse": 0.00042469984253718526,
+            "chroma_rmse": 0.0004346755818473055,
+            "lowband_rmse": 0.0003094619899367739,
+            "maximum_error": 0.0030723490259472845,
+            "mean_error": 2.1397434898068625e-07
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.0004929548225598053,
+            "luma_rmse": 0.0004251344411786365,
+            "chroma_rmse": 0.0004321984405641612,
+            "lowband_rmse": 0.0003114092229181052,
+            "maximum_error": 0.0029921900360472212,
+            "mean_error": -4.939747306940393e-07
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.00047320066880364783,
+            "luma_rmse": 0.00039090171839896166,
+            "chroma_rmse": 0.0004618919338188051,
+            "lowband_rmse": 0.0002991686434731334,
+            "maximum_error": 0.002747803268827077,
+            "mean_error": 6.589884588036021e-06
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-1",
+        "native": {
+          "rmse": 0.00039418781575296154,
+          "luma_rmse": 0.0002868545205094931,
+          "chroma_rmse": 0.00046829003240948726,
+          "lowband_rmse": 0.00019807688936585602,
+          "maximum_error": 0.0028655433118435214,
+          "mean_error": -2.418602557092349e-05
+        },
+        "filtered": {
+          "rmse": 0.00034981414393864697,
+          "luma_rmse": 0.0002916874560609855,
+          "chroma_rmse": 0.0003344623892586387,
+          "lowband_rmse": 0.00018221326362246825,
+          "maximum_error": 0.002010687380738417,
+          "mean_error": -2.427383957916954e-05
+        },
+        "previous": {
+          "rmse": 0.00033668780892112465,
+          "luma_rmse": 0.0002835836514229162,
+          "chroma_rmse": 0.0003143516819825545,
+          "lowband_rmse": 0.0001704158720918255,
+          "maximum_error": 0.0018740824538062053,
+          "mean_error": -2.45514848508155e-05
+        },
+        "filtered_to_best_lucky_rmse": 0.7392511612949569,
+        "previous_to_best_lucky_rmse": 0.7115116928561053
+      },
+      {
+        "group": "natural",
+        "name": "portrait",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/runs/natural/portrait/portrait-metal-report.json",
+        "report_sha256": "dfa0e5ec754d52e485efdb97b8d405155b3356a5b8455ccfe2aaa8ac31d1b4c5",
+        "input_sha256": "523ecef6587ed2a1fb4480d4333a10ad0bb064356b79747a1ebfbfafa70483de",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "66a52da6a3a2a0929095ea4b74cd2667a87d92459fa2fc61e16a0c566e7cf49c",
+        "previous_report_sha256": "de1b4b071829b8be60b7314edc3e39ce837fcc55e64ef21d4066864a3c633f8b",
+        "native_stop": "CYCLE_LIMIT",
+        "seconds": 19.942453041672707,
+        "negative_components": 2,
+        "native_rgb_sha256": "cfe0633d028fe4f87edfb6797de58a7c4d2ce7a72381463fe68db8a732f1af57",
+        "filtered_rgb_sha256": "239bd399e6cb97ec9955d3e53534dde6ae047643173d2224a145211fd79eec4c",
+        "truth_sha256": "ddac4fe9267fdbb2df872bd3a6cf49e2963a8cf3d368c6d6583b8a2acdff1279",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.0102841123846353,
+            "luma_rmse": 0.007558514243554214,
+            "chroma_rmse": 0.01207872054107519,
+            "lowband_rmse": 0.004800702803699088,
+            "maximum_error": 0.09762918417897182,
+            "mean_error": 1.0127091205098681e-05
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.010571069291824463,
+            "luma_rmse": 0.008079631743751037,
+            "chroma_rmse": 0.011806827286522582,
+            "lowband_rmse": 0.004718205423674446,
+            "maximum_error": 0.09919011036162001,
+            "mean_error": 4.281190374720234e-05
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.010279132203086988,
+            "luma_rmse": 0.007554961107090784,
+            "chroma_rmse": 0.012072670150246658,
+            "lowband_rmse": 0.004796411751863371,
+            "maximum_error": 0.09749962625079231,
+            "mean_error": 2.492126986178996e-06
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.01027416453886741,
+            "luma_rmse": 0.007552958412850246,
+            "chroma_rmse": 0.012063740239097728,
+            "lowband_rmse": 0.004790656574430347,
+            "maximum_error": 0.09732201106728287,
+            "mean_error": -7.4766563975248665e-06
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.010599065047580831,
+            "luma_rmse": 0.00812094676762996,
+            "chroma_rmse": 0.011797084828062838,
+            "lowband_rmse": 0.004724636025943643,
+            "maximum_error": 0.09958370863192426,
+            "mean_error": 2.5164435913479234e-05
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.01058255712796351,
+            "luma_rmse": 0.008096481137696215,
+            "chroma_rmse": 0.011803072721144362,
+            "lowband_rmse": 0.004721083100692071,
+            "maximum_error": 0.09936464135017781,
+            "mean_error": 3.5163153584945795e-05
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-1.25-sharpened",
+        "native": {
+          "rmse": 0.010539743928806602,
+          "luma_rmse": 0.008859616082756004,
+          "chroma_rmse": 0.009888387879374492,
+          "lowband_rmse": 0.004442469812432005,
+          "maximum_error": 0.09543061713056933,
+          "mean_error": 0.0001014619439339636
+        },
+        "filtered": {
+          "rmse": 0.010477009955798203,
+          "luma_rmse": 0.008872817074462143,
+          "chroma_rmse": 0.00965000333321617,
+          "lowband_rmse": 0.004432899298893857,
+          "maximum_error": 0.09402433494406115,
+          "mean_error": 0.00010174794039780824
+        },
+        "previous": {
+          "rmse": 0.010323592762977158,
+          "luma_rmse": 0.008759337190017888,
+          "chroma_rmse": 0.009463178038169397,
+          "lowband_rmse": 0.004379901069666364,
+          "maximum_error": 0.09363592127638232,
+          "mean_error": 0.00011336923176643985
+        },
+        "filtered_to_best_lucky_rmse": 1.0197432517421172,
+        "previous_to_best_lucky_rmse": 1.0048109239367113
+      },
+      {
+        "group": "real",
+        "name": "flat_dark",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/runs/real/flat_dark/flat_dark-metal-report.json",
+        "report_sha256": "d45d42dc84c16b05b045a23bba38d9a37c454ec7bcd6d427ab34576ab5b918e2",
+        "input_sha256": "a2907151d500211c72f8442aff76cef8a00039ec617e72f8179cbdccba0f21e9",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "66a52da6a3a2a0929095ea4b74cd2667a87d92459fa2fc61e16a0c566e7cf49c",
+        "previous_report_sha256": "97a8668e8645a47e687ea4ee79211fb7b578c3cc8cb0bdc0ab22228ea0ae3fe2",
+        "native_stop": "GEOMETRY_PENDING",
+        "seconds": 1.5092763749998994,
+        "negative_components": 0,
+        "native_rgb_sha256": "f5d7996375439dc2d8ab235e958901ba3e90f35b4a47e1ebc25e2c9c202e1971",
+        "filtered_rgb_sha256": "d1c37d7ab83b469f0e7f5846248cc091feda72ec2a7c2c0db92c4984b8f9681e",
+        "truth_available": false
+      },
+      {
+        "group": "real",
+        "name": "moving_subject",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/runs/real/moving_subject/moving_subject-metal-report.json",
+        "report_sha256": "45cadc948ec98088736cdc17370947bfa57341500fc4ebc9199526fb17abe43f",
+        "input_sha256": "08e12ad7ea9755ee7f585524f989aaeacbc5b8b85b2445cfbf84e42b05148fb7",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "66a52da6a3a2a0929095ea4b74cd2667a87d92459fa2fc61e16a0c566e7cf49c",
+        "previous_report_sha256": "ead145457c86c49c29afaa09f79ea606015dd8ae81397a88dc7b5c8c56a0662c",
+        "native_stop": "CYCLE_LIMIT",
+        "seconds": 13.98309600003995,
+        "negative_components": 0,
+        "native_rgb_sha256": "0fa57efd7e40e6f3c61eaa5d2aae66eaf4b9157b4557af45f00917a2864e7600",
+        "filtered_rgb_sha256": "d9fee2bd0583624cd8fc9538ee9e36e68b42e5a01d1602ad419be48333a82d16",
+        "truth_available": false
+      },
+      {
+        "group": "real",
+        "name": "texture_left",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/runs/real/texture_left/texture_left-metal-report.json",
+        "report_sha256": "d68de217dd0397bd99c5588469501d9dc5ccfc49f762f6ec56e4e583fae6f808",
+        "input_sha256": "229e37de82d15fb2ef02a3f43cdfa433649574b087c7ca8bdda924d91de1af82",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "66a52da6a3a2a0929095ea4b74cd2667a87d92459fa2fc61e16a0c566e7cf49c",
+        "previous_report_sha256": "d25066477741378158d5c8e57215dc949d045a0a36618ef56737ae034ceb8553",
+        "native_stop": "CYCLE_LIMIT",
+        "seconds": 16.493582791648805,
+        "negative_components": 0,
+        "native_rgb_sha256": "4fc2cea8c916d8fee3e64dabd5832983f415e180a109f6abd0182b724d4a9d0b",
+        "filtered_rgb_sha256": "3ef41c221337ec1ad6984d8a9853ae7d50790a32b114f6a9ff5015e335a3ab15",
+        "truth_available": false
+      },
+      {
+        "group": "real",
+        "name": "texture_right",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/runs/real/texture_right/texture_right-metal-report.json",
+        "report_sha256": "5a1082e0734b792f93d351472da3e317fe4d7ca4854c1860c174e3ccdd165fc7",
+        "input_sha256": "3695abaaeac3464f432cb0ff9f83c4b9ccd7c969d6247930887d42fbabab6eae",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "66a52da6a3a2a0929095ea4b74cd2667a87d92459fa2fc61e16a0c566e7cf49c",
+        "previous_report_sha256": "76af8eafc8c91bff5f444c3a30fc3e45f973a2bf27cb15bef315aa9c524fcef9",
+        "native_stop": "CYCLE_LIMIT",
+        "seconds": 12.385713416617364,
+        "negative_components": 0,
+        "native_rgb_sha256": "ddae764fd44b3486289aeffe2069dca409242c65e07d21a6d3f5d8a98eea28d8",
+        "filtered_rgb_sha256": "dd642f5de730c09289104d03afdaad37627af671e24a780cd442eef197a731da",
+        "truth_available": false
+      },
+      {
+        "group": "synthetic",
+        "name": "chromatic_texture",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/runs/synthetic/chromatic_texture/chromatic_texture-metal-report.json",
+        "report_sha256": "c1960559f8d86e9cf56d19a43a8030a61ae3a71bc21450fc6cb81edd9a361f83",
+        "input_sha256": "27c5d06521d7d5c419ea4031ad1e529a5356ee522da1d6b4e79ac88fb9f90d8b",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "66a52da6a3a2a0929095ea4b74cd2667a87d92459fa2fc61e16a0c566e7cf49c",
+        "previous_report_sha256": "c6584a1eb7bdfa85d5fae4b9a6f7e1378aee9f04433c2f82d528b85a68f1acd2",
+        "native_stop": "GEOMETRY_PENDING",
+        "seconds": 3.4428234583465382,
+        "negative_components": 0,
+        "native_rgb_sha256": "fb4a4f548bea391c1233943f708d0f7eb557a3dd65bf942474d503e10dddcf1b",
+        "filtered_rgb_sha256": "d24d8de030f1587ec62ee375ca15e960ac0681c2a04951ccdba2a530680bf20d",
+        "truth_sha256": "fb3637cc54f0b643d5e8ae24bc1216ad511b4f6b0f09f0c1f6d7e57cab413711",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.03686774278015285,
+            "luma_rmse": 0.019300357700985187,
+            "chroma_rmse": 0.05440753579195259,
+            "lowband_rmse": 0.012836057135938777,
+            "maximum_error": 0.12310974274397443,
+            "mean_error": 8.104776087996016e-05
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.03622066493786153,
+            "luma_rmse": 0.01627354353025883,
+            "chroma_rmse": 0.056047524909926295,
+            "lowband_rmse": 0.013482880195433318,
+            "maximum_error": 0.11526824558413903,
+            "mean_error": 9.108201219211192e-05
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.036843652893177814,
+            "luma_rmse": 0.019279728362876888,
+            "chroma_rmse": 0.05438051579656036,
+            "lowband_rmse": 0.01281233237332021,
+            "maximum_error": 0.12006630872788632,
+            "mean_error": 7.089813800203294e-05
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.036841840138501884,
+            "luma_rmse": 0.019283128883404634,
+            "chroma_rmse": 0.0543732137708523,
+            "lowband_rmse": 0.012808367237242858,
+            "maximum_error": 0.11955276839312723,
+            "mean_error": 6.04365894466927e-05
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.036199378403911436,
+            "luma_rmse": 0.01625973082135722,
+            "chroma_rmse": 0.056018286758341036,
+            "lowband_rmse": 0.01345862512226781,
+            "maximum_error": 0.1116688759668969,
+            "mean_error": 7.115634847282329e-05
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.03620130953840972,
+            "luma_rmse": 0.016256560633703204,
+            "chroma_rmse": 0.05602479045900535,
+            "lowband_rmse": 0.01346219104037052,
+            "maximum_error": 0.1121043294503663,
+            "mean_error": 8.151370526815188e-05
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-1.25",
+        "native": {
+          "rmse": 0.01169264659288765,
+          "luma_rmse": 0.005156895857429193,
+          "chroma_rmse": 0.01817617199482307,
+          "lowband_rmse": 0.0051217215886545245,
+          "maximum_error": 0.046395216039786746,
+          "mean_error": -0.00018164577004179007
+        },
+        "filtered": {
+          "rmse": 0.011545782638064724,
+          "luma_rmse": 0.00502160388764326,
+          "chroma_rmse": 0.018007381080077378,
+          "lowband_rmse": 0.005107032796741507,
+          "maximum_error": 0.04359948997891944,
+          "mean_error": -0.00018730869204761452
+        },
+        "previous": {
+          "rmse": 0.011551481621037037,
+          "luma_rmse": 0.00501442696772571,
+          "chroma_rmse": 0.01802433769877564,
+          "lowband_rmse": 0.005110992626695417,
+          "maximum_error": 0.04351109629071753,
+          "mean_error": -0.0001878873856059385
+        },
+        "filtered_to_best_lucky_rmse": 0.31894974850775815,
+        "previous_to_best_lucky_rmse": 0.31910718167991714
+      }
+    ],
+    "signal_noise_prior": [
+      {
+        "group": "natural",
+        "name": "brick",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/natural/brick/render/brick-metal-report.json",
+        "report_sha256": "7f250f128472f856ccfd1e63d76037c8461b5216f7bdef2650366a9a7ae4db71",
+        "input_sha256": "1817a86a3b9253711fee3b374948e1c93235c1795d4c0d1db9b0e09702b69568",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "6e3a85173a79048d4475437a82090c666c050a6e1bb44bc32810fa6b404210c6",
+        "native_stop": "NUMERICAL_STALL",
+        "seconds": 2.3025733333197422,
+        "negative_components": 0,
+        "native_rgb_sha256": "dbbf9bc53438a4b14e3a66b3516266afdd265b411818d8464a4928938b914c69",
+        "filtered_rgb_sha256": "17c8b2b62f71330e3d15597f8e7125ff0c15246cbb69db7c5f7c6a11a80d4563",
+        "native_noise_scale": {
+          "maximum": 0.004093685187399387,
+          "median": 0.00198750919662416,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.0016271620988845825
+        },
+        "truth_sha256": "69c2bb6be8a0e07d10a3a8fc8d8bfdbcfe2c2a4685f51a93420f2f8046faa9e3",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.004232577722015032,
+            "luma_rmse": 0.003236647554362078,
+            "chroma_rmse": 0.0047240322125510345,
+            "lowband_rmse": 0.0018046825183285827,
+            "maximum_error": 0.024412408291438648,
+            "mean_error": -6.40161692270176e-05
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.004530964001991518,
+            "luma_rmse": 0.003682438816206453,
+            "chroma_rmse": 0.004572508879894825,
+            "lowband_rmse": 0.0018745817252473248,
+            "maximum_error": 0.02946319490366292,
+            "mean_error": -2.460611297673922e-05
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.004177197534516836,
+            "luma_rmse": 0.003203915842164553,
+            "chroma_rmse": 0.004642381668508266,
+            "lowband_rmse": 0.0017730398697031627,
+            "maximum_error": 0.02367429736068688,
+            "mean_error": -7.477581579255727e-05
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.004199240834595803,
+            "luma_rmse": 0.003254949796193086,
+            "chroma_rmse": 0.004595299362783488,
+            "lowband_rmse": 0.001781816423048739,
+            "maximum_error": 0.026388505304823007,
+            "mean_error": -8.837467694008314e-05
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.0045516336336596935,
+            "luma_rmse": 0.003753700357046703,
+            "chroma_rmse": 0.004458845937426947,
+            "lowband_rmse": 0.0018796906841697235,
+            "maximum_error": 0.03232672397620423,
+            "mean_error": -4.931337891385924e-05
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.004510385791965478,
+            "luma_rmse": 0.003686727136942072,
+            "chroma_rmse": 0.004500540970849713,
+            "lowband_rmse": 0.0018581775479555383,
+            "maximum_error": 0.029911079682533398,
+            "mean_error": -3.5580531437375045e-05
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-1-sharpened",
+        "native": {
+          "rmse": 0.005006869122161159,
+          "luma_rmse": 0.003922747529633759,
+          "chroma_rmse": 0.005389097389694245,
+          "lowband_rmse": 0.0023883472591035696,
+          "maximum_error": 0.04158378350448627,
+          "mean_error": 0.00011057389239650702
+        },
+        "filtered": {
+          "rmse": 0.004941791462849559,
+          "luma_rmse": 0.003913489450887881,
+          "chroma_rmse": 0.005226634628539301,
+          "lowband_rmse": 0.0023789981510264242,
+          "maximum_error": 0.040299683389187047,
+          "mean_error": 0.00011142580092541269
+        },
+        "previous": {
+          "rmse": 0.003972708616741215,
+          "luma_rmse": 0.0037969137825009814,
+          "chroma_rmse": 0.002024247624514342,
+          "lowband_rmse": 0.0017332219392684656,
+          "maximum_error": 0.022838471690907247,
+          "mean_error": 1.82036049365958e-06
+        },
+        "filtered_to_best_lucky_rmse": 1.183039926174131,
+        "previous_to_best_lucky_rmse": 0.9510463855046601
+      },
+      {
+        "group": "natural",
+        "name": "dark_fur",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/natural/dark_fur/render/dark_fur-metal-report.json",
+        "report_sha256": "424dca522ec4d37499d3b58e9a4534843f3b972699f048d3f9a8cee093b92978",
+        "input_sha256": "3c9ea80a9d54b4e72057925b3bf5a342f2418a4782b126d89b9a90980b3de2b8",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "26506aec3ae298f72994b90ab6bf6fa7c5e6d63703fcac81720dcddaf6bf72ac",
+        "native_stop": "CYCLE_LIMIT",
+        "seconds": 25.345374166674446,
+        "negative_components": 1,
+        "native_rgb_sha256": "79a562761fdd2757888b50941bad5df6c3e8488ceb88acefc51072222a0580ae",
+        "filtered_rgb_sha256": "99cfe8c307bbcd7f949f3a6b3b80c6381c0d992c2de27d5415d4beba25ed7fb2",
+        "native_noise_scale": {
+          "maximum": 0.0010792206740006804,
+          "median": 0.0007034997688606381,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.000521040172316134
+        },
+        "truth_sha256": "3f1aea645e1d252dac6f539d025345ca77f7f4c5961183cf6aea0724940b7234",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.0005302053629099763,
+            "luma_rmse": 0.0004232651176622149,
+            "chroma_rmse": 0.0005530760355382191,
+            "lowband_rmse": 0.0003209656006896263,
+            "maximum_error": 0.0030061876240450704,
+            "mean_error": 1.8368103661363853e-05
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.0005069677402050559,
+            "luma_rmse": 0.0004008245607429726,
+            "chroma_rmse": 0.0005376503355727331,
+            "lowband_rmse": 0.0003155998223808025,
+            "maximum_error": 0.0029191327695165274,
+            "mean_error": 1.769840445182027e-05
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.00047799158312598943,
+            "luma_rmse": 0.0003944473040132669,
+            "chroma_rmse": 0.0004676129100953747,
+            "lowband_rmse": 0.00029953694526635465,
+            "maximum_error": 0.0027973069606563924,
+            "mean_error": 7.281084294542177e-06
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.0004933061017960428,
+            "luma_rmse": 0.00042469984253718526,
+            "chroma_rmse": 0.0004346755818473055,
+            "lowband_rmse": 0.0003094619899367739,
+            "maximum_error": 0.0030723490259472845,
+            "mean_error": 2.1397434898068625e-07
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.0004929548225598053,
+            "luma_rmse": 0.0004251344411786365,
+            "chroma_rmse": 0.0004321984405641612,
+            "lowband_rmse": 0.0003114092229181052,
+            "maximum_error": 0.0029921900360472212,
+            "mean_error": -4.939747306940393e-07
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.00047320066880364783,
+            "luma_rmse": 0.00039090171839896166,
+            "chroma_rmse": 0.0004618919338188051,
+            "lowband_rmse": 0.0002991686434731334,
+            "maximum_error": 0.002747803268827077,
+            "mean_error": 6.589884588036021e-06
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-1",
+        "native": {
+          "rmse": 0.00034037154523495626,
+          "luma_rmse": 0.00027867041375193887,
+          "chroma_rmse": 0.0003385066733682887,
+          "lowband_rmse": 0.00017635521959858888,
+          "maximum_error": 0.002269502276572539,
+          "mean_error": -2.6115249934263434e-05
+        },
+        "filtered": {
+          "rmse": 0.00032901944406488095,
+          "luma_rmse": 0.0002755605043481492,
+          "chroma_rmse": 0.00031138498526497854,
+          "lowband_rmse": 0.00016976410281532232,
+          "maximum_error": 0.0019234068913450263,
+          "mean_error": -2.6407623565313903e-05
+        },
+        "previous": {
+          "rmse": 0.00033668780892112465,
+          "luma_rmse": 0.0002835836514229162,
+          "chroma_rmse": 0.0003143516819825545,
+          "lowband_rmse": 0.0001704158720918255,
+          "maximum_error": 0.0018740824538062053,
+          "mean_error": -2.45514848508155e-05
+        },
+        "filtered_to_best_lucky_rmse": 0.6953063800537566,
+        "previous_to_best_lucky_rmse": 0.7115116928561053
+      },
+      {
+        "group": "natural",
+        "name": "fur",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/natural/fur/render/fur-metal-report.json",
+        "report_sha256": "3340f98d5589d11810c924efed69568d66efe1963b73113ebec95569771f1a41",
+        "input_sha256": "163f2a5a06600b07e5eb831cced5466be38bed87e1cc52f11c2523a6d408575a",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "2e9469fe272da7b5278ff022d7c0b625f16043f121c874e59a86ff7edc5ee9e0",
+        "native_stop": "CYCLE_LIMIT",
+        "seconds": 20.856736666697543,
+        "negative_components": 0,
+        "native_rgb_sha256": "090478cc936ec1bb13d3886c5acdc09371c9ad102d4995e86a305e7d130ded51",
+        "filtered_rgb_sha256": "0d373f4b59eea90b49df55c222967fdb02e8c74b33cbd3882bcae664fece80d8",
+        "native_noise_scale": {
+          "maximum": 0.004230184480547905,
+          "median": 0.0024462842848151922,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.0005994042730890214
+        },
+        "truth_sha256": "16945559ea8d48ab836b1f9c97a4c687ee545e2b5c33e4c98999b57595cff663",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.005962529944431318,
+            "luma_rmse": 0.004265087662781391,
+            "chroma_rmse": 0.00721681174072667,
+            "lowband_rmse": 0.0026872697930823176,
+            "maximum_error": 0.044335223755480935,
+            "mean_error": 1.0974169915722646e-05
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.0059197853964174955,
+            "luma_rmse": 0.004231221474936485,
+            "chroma_rmse": 0.007170904539109585,
+            "lowband_rmse": 0.002664355658737258,
+            "maximum_error": 0.04490368805167158,
+            "mean_error": -8.164177800701774e-06
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.005947097542618904,
+            "luma_rmse": 0.004260134813762585,
+            "chroma_rmse": 0.007187326460511968,
+            "lowband_rmse": 0.0026748329996140628,
+            "maximum_error": 0.04423728328873722,
+            "mean_error": -3.8006997697369556e-07
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.005936110917225558,
+            "luma_rmse": 0.004268558259932711,
+            "chroma_rmse": 0.007144961134218577,
+            "lowband_rmse": 0.002659492634342254,
+            "maximum_error": 0.04408059587341895,
+            "mean_error": -1.4360553386129665e-05
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.005940575309052325,
+            "luma_rmse": 0.004291957253423191,
+            "chroma_rmse": 0.007113973138263213,
+            "lowband_rmse": 0.002653856896193516,
+            "maximum_error": 0.04465348989897655,
+            "mean_error": -3.32795235080248e-05
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.005924192275521718,
+            "luma_rmse": 0.004250498040233555,
+            "chroma_rmse": 0.007147584317933278,
+            "lowband_rmse": 0.002659202837014064,
+            "maximum_error": 0.044807034355689584,
+            "mean_error": -1.9412948314293703e-05
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-0.75",
+        "native": {
+          "rmse": 0.005340302521680781,
+          "luma_rmse": 0.003758820640200808,
+          "chroma_rmse": 0.006570410584857805,
+          "lowband_rmse": 0.002252364321931347,
+          "maximum_error": 0.041184580298933016,
+          "mean_error": 0.00010262484614063851
+        },
+        "filtered": {
+          "rmse": 0.005272491947278022,
+          "luma_rmse": 0.00376217969768437,
+          "chroma_rmse": 0.006398087665023776,
+          "lowband_rmse": 0.002238822894335306,
+          "maximum_error": 0.040208330723318086,
+          "mean_error": 0.00010301505566959066
+        },
+        "previous": {
+          "rmse": 0.004680764336058547,
+          "luma_rmse": 0.003577733638923997,
+          "chroma_rmse": 0.005227631426935892,
+          "lowband_rmse": 0.001965914008113497,
+          "maximum_error": 0.03580568135733861,
+          "mean_error": 6.517142200848109e-05
+        },
+        "filtered_to_best_lucky_rmse": 0.8906559265592299,
+        "previous_to_best_lucky_rmse": 0.7906983146536405
+      },
+      {
+        "group": "natural",
+        "name": "portrait",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/natural/portrait/render/portrait-metal-report.json",
+        "report_sha256": "c1aea854dbce6bbc4b07e8f2364503ae9789c497ed3d258edaa170c5e4a28b00",
+        "input_sha256": "01a9a6d37dfeb92651e81d1cb4e30b9876a215e3e33e1b4d6d5e605090c92059",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "de1b4b071829b8be60b7314edc3e39ce837fcc55e64ef21d4066864a3c633f8b",
+        "native_stop": "CYCLE_LIMIT",
+        "seconds": 21.525361083331518,
+        "negative_components": 1,
+        "native_rgb_sha256": "7ba64074b865045484b05eb8c6148f309cfc3aaf645cc30be1dec221ecfc3867",
+        "filtered_rgb_sha256": "e53a8b9f8506f23d3fd3f128d5e20f766145992c0a4640076f91fd8aefee0c96",
+        "native_noise_scale": {
+          "maximum": 0.006365958135575056,
+          "median": 0.0032142908312380314,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.0006373393698595464
+        },
+        "truth_sha256": "ddac4fe9267fdbb2df872bd3a6cf49e2963a8cf3d368c6d6583b8a2acdff1279",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.0102841123846353,
+            "luma_rmse": 0.007558514243554214,
+            "chroma_rmse": 0.01207872054107519,
+            "lowband_rmse": 0.004800702803699088,
+            "maximum_error": 0.09762918417897182,
+            "mean_error": 1.0127091205098681e-05
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.010571069291824463,
+            "luma_rmse": 0.008079631743751037,
+            "chroma_rmse": 0.011806827286522582,
+            "lowband_rmse": 0.004718205423674446,
+            "maximum_error": 0.09919011036162001,
+            "mean_error": 4.281190374720234e-05
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.010279132203086988,
+            "luma_rmse": 0.007554961107090784,
+            "chroma_rmse": 0.012072670150246658,
+            "lowband_rmse": 0.004796411751863371,
+            "maximum_error": 0.09749962625079231,
+            "mean_error": 2.492126986178996e-06
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.01027416453886741,
+            "luma_rmse": 0.007552958412850246,
+            "chroma_rmse": 0.012063740239097728,
+            "lowband_rmse": 0.004790656574430347,
+            "maximum_error": 0.09732201106728287,
+            "mean_error": -7.4766563975248665e-06
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.010599065047580831,
+            "luma_rmse": 0.00812094676762996,
+            "chroma_rmse": 0.011797084828062838,
+            "lowband_rmse": 0.004724636025943643,
+            "maximum_error": 0.09958370863192426,
+            "mean_error": 2.5164435913479234e-05
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.01058255712796351,
+            "luma_rmse": 0.008096481137696215,
+            "chroma_rmse": 0.011803072721144362,
+            "lowband_rmse": 0.004721083100692071,
+            "maximum_error": 0.09936464135017781,
+            "mean_error": 3.5163153584945795e-05
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-1.25-sharpened",
+        "native": {
+          "rmse": 0.01667100453036695,
+          "luma_rmse": 0.011141706916066994,
+          "chroma_rmse": 0.021479159134936844,
+          "lowband_rmse": 0.007603626264136131,
+          "maximum_error": 0.1412021130113374,
+          "mean_error": 0.0002919177527833717
+        },
+        "filtered": {
+          "rmse": 0.0166315318689315,
+          "luma_rmse": 0.011139283340619753,
+          "chroma_rmse": 0.021390948012980308,
+          "lowband_rmse": 0.007594040705514208,
+          "maximum_error": 0.14023006556317913,
+          "mean_error": 0.0002911283585875342
+        },
+        "previous": {
+          "rmse": 0.010323592762977158,
+          "luma_rmse": 0.008759337190017888,
+          "chroma_rmse": 0.009463178038169397,
+          "lowband_rmse": 0.004379901069666364,
+          "maximum_error": 0.09363592127638232,
+          "mean_error": 0.00011336923176643985
+        },
+        "filtered_to_best_lucky_rmse": 1.6187721936916641,
+        "previous_to_best_lucky_rmse": 1.0048109239367113
+      },
+      {
+        "group": "real",
+        "name": "flat_dark",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/real/flat_dark/render/flat_dark-metal-report.json",
+        "report_sha256": "bc29898dab8eca1447fc3dc6c86ae8df0215d9a2597827a34764b0616625564f",
+        "input_sha256": "58d52b79da1ff5fff630cc5539dae688a048214e22a85ad813b4240955b9db3e",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "97a8668e8645a47e687ea4ee79211fb7b578c3cc8cb0bdc0ab22228ea0ae3fe2",
+        "native_stop": "GEOMETRY_PENDING",
+        "seconds": 1.6062825416447595,
+        "negative_components": 0,
+        "native_rgb_sha256": "7aa5a2ccdeb11a74a4f82ae193178774b3b4e3835ef14c80236823bf18640bc3",
+        "filtered_rgb_sha256": "bf66d6d4f9ed01bf3f7d6375a72b79345823c7a143890979d6a19405bcdd3a70",
+        "native_noise_scale": {
+          "maximum": 0.0023000934161245823,
+          "median": 0.00151609827298671,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.001356719178147614
+        },
+        "truth_available": false
+      },
+      {
+        "group": "real",
+        "name": "moving_subject",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/real/moving_subject/render/moving_subject-metal-report.json",
+        "report_sha256": "43e185ceefa9726b750fc588bf68e078672f4c98173acc0bbeef1bdffb9c2211",
+        "input_sha256": "1874232363e4e4d82db0f218b0da1f05c5fa516a7056df523f707900ffc6ddf8",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "ead145457c86c49c29afaa09f79ea606015dd8ae81397a88dc7b5c8c56a0662c",
+        "native_stop": "CYCLE_LIMIT",
+        "seconds": 18.054137166647706,
+        "negative_components": 0,
+        "native_rgb_sha256": "d28bfbaf09cfbfaca0d3e78963ecce857085800fe4f73769275ae1ed6a6d68f1",
+        "filtered_rgb_sha256": "b81042b97e9d5a1b1c3c0de33ce6e99e39e63e5b04734a5b4618c8e13f5c3109",
+        "native_noise_scale": {
+          "maximum": 0.00839306227862835,
+          "median": 0.002380101243034005,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.0010083679808303714
+        },
+        "truth_available": false
+      },
+      {
+        "group": "real",
+        "name": "texture_left",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/real/texture_left/render/texture_left-metal-report.json",
+        "report_sha256": "cef98b5bb8268ad51d43806be9efd476b68d6608dba3c01e60cfeb0651f37734",
+        "input_sha256": "ab4e9e0bbe723f136365a6ac778e4493f7016c3993ce6fdd04fea215a0b536e2",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "d25066477741378158d5c8e57215dc949d045a0a36618ef56737ae034ceb8553",
+        "native_stop": "NUMERICAL_STALL",
+        "seconds": 9.130493375007063,
+        "negative_components": 0,
+        "native_rgb_sha256": "3dca33a7266519077a39c7521ddd2305249fcb2fef43f18ea6608b9867d67aba",
+        "filtered_rgb_sha256": "57c9e01353ffca65989f696322fc29f763d75cb7ac6c33857a6c6854c6249c02",
+        "native_noise_scale": {
+          "maximum": 0.006414261646568775,
+          "median": 0.003075847402215004,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.0013722488656640053
+        },
+        "truth_available": false
+      },
+      {
+        "group": "synthetic",
+        "name": "chromatic_texture",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/synthetic/chromatic_texture/render/chromatic_texture-metal-report.json",
+        "report_sha256": "725495208ac2ccb98e0b78ca746dce156be954ff82a06a3691cb7d29821b6ed9",
+        "input_sha256": "0593a6ee4cfd2de2c75ec3859f1328eb7621634be819609877bcd49eeb614407",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "c6584a1eb7bdfa85d5fae4b9a6f7e1378aee9f04433c2f82d528b85a68f1acd2",
+        "native_stop": "GEOMETRY_PENDING",
+        "seconds": 3.4341705833212472,
+        "negative_components": 0,
+        "native_rgb_sha256": "308dd12a6a83ccbbf757f2f0343d89b3d605b552e5668cfb37b7770dd4ee38b1",
+        "filtered_rgb_sha256": "8b4a50d480003fd37988f507a4e3d573be8118b15ae010b4f509801222bb4c0c",
+        "native_noise_scale": {
+          "maximum": 0.005239715334028006,
+          "median": 0.004472632892429829,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.0038631001953035593
+        },
+        "truth_sha256": "fb3637cc54f0b643d5e8ae24bc1216ad511b4f6b0f09f0c1f6d7e57cab413711",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.03686774278015285,
+            "luma_rmse": 0.019300357700985187,
+            "chroma_rmse": 0.05440753579195259,
+            "lowband_rmse": 0.012836057135938777,
+            "maximum_error": 0.12310974274397443,
+            "mean_error": 8.104776087996016e-05
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.03622066493786153,
+            "luma_rmse": 0.01627354353025883,
+            "chroma_rmse": 0.056047524909926295,
+            "lowband_rmse": 0.013482880195433318,
+            "maximum_error": 0.11526824558413903,
+            "mean_error": 9.108201219211192e-05
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.036843652893177814,
+            "luma_rmse": 0.019279728362876888,
+            "chroma_rmse": 0.05438051579656036,
+            "lowband_rmse": 0.01281233237332021,
+            "maximum_error": 0.12006630872788632,
+            "mean_error": 7.089813800203294e-05
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.036841840138501884,
+            "luma_rmse": 0.019283128883404634,
+            "chroma_rmse": 0.0543732137708523,
+            "lowband_rmse": 0.012808367237242858,
+            "maximum_error": 0.11955276839312723,
+            "mean_error": 6.04365894466927e-05
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.036199378403911436,
+            "luma_rmse": 0.01625973082135722,
+            "chroma_rmse": 0.056018286758341036,
+            "lowband_rmse": 0.01345862512226781,
+            "maximum_error": 0.1116688759668969,
+            "mean_error": 7.115634847282329e-05
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.03620130953840972,
+            "luma_rmse": 0.016256560633703204,
+            "chroma_rmse": 0.05602479045900535,
+            "lowband_rmse": 0.01346219104037052,
+            "maximum_error": 0.1121043294503663,
+            "mean_error": 8.151370526815188e-05
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-1.25",
+        "native": {
+          "rmse": 0.015222461005702443,
+          "luma_rmse": 0.00779423140480145,
+          "chroma_rmse": 0.022647733388478745,
+          "lowband_rmse": 0.0059494172959785275,
+          "maximum_error": 0.11858049321194675,
+          "mean_error": -3.3520627902476356e-05
+        },
+        "filtered": {
+          "rmse": 0.015149312234986933,
+          "luma_rmse": 0.0077395653529710425,
+          "chroma_rmse": 0.02255664797838201,
+          "lowband_rmse": 0.005935397278633235,
+          "maximum_error": 0.11842707085629489,
+          "mean_error": -3.4813670667682286e-05
+        },
+        "previous": {
+          "rmse": 0.011551481621037037,
+          "luma_rmse": 0.00501442696772571,
+          "chroma_rmse": 0.01802433769877564,
+          "lowband_rmse": 0.005110992626695417,
+          "maximum_error": 0.04351109629071753,
+          "mean_error": -0.0001878873856059385
+        },
+        "filtered_to_best_lucky_rmse": 0.41849647433034404,
+        "previous_to_best_lucky_rmse": 0.31910718167991714
+      },
+      {
+        "group": "synthetic",
+        "name": "color_edge",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/synthetic/color_edge/render/color_edge-metal-report.json",
+        "report_sha256": "197f4519f4e13eed8c40046a17ac20a99fca75d0314df9abbef73af0e59951f4",
+        "input_sha256": "0478595e214781ebcea6547e1709e8c2d70aca43aa9f6759e32497caa4ae48c9",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "e0cf9f7d1b5aaeb00c397048360f6ae1b612776369e6ddcf273d7ecf151af5b7",
+        "native_stop": "GEOMETRY_PENDING",
+        "seconds": 2.063737125019543,
+        "negative_components": 0,
+        "native_rgb_sha256": "0df177ebadc8e5d8e9e522d46c559965bc30453d8d84b42db394ae26b6423cba",
+        "filtered_rgb_sha256": "1ad1cda1ba8156b01f7e4c6bd804b23e1610ba5f81fda514d1a5ffb5e7cd82bc",
+        "native_noise_scale": {
+          "maximum": 0.004988378379493952,
+          "median": 0.0037993057630956173,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.0033447002060711384
+        },
+        "truth_sha256": "aaf286b3f02f53a5c0d7d8f87c37d71b01ff982dfa61fa82e6a00a9c4db1e35e",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.009814931332952434,
+            "luma_rmse": 0.005071385324500092,
+            "chroma_rmse": 0.014554785600724238,
+            "lowband_rmse": 0.00386968388853101,
+            "maximum_error": 0.10820114466241337,
+            "mean_error": -7.2963097299970035e-06
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.009707852680685952,
+            "luma_rmse": 0.004380790520755436,
+            "chroma_rmse": 0.015005106938955222,
+            "lowband_rmse": 0.0042533059213071605,
+            "maximum_error": 0.09804674455656953,
+            "mean_error": -1.0445748854514602e-05
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.009639889772786184,
+            "luma_rmse": 0.00483967253484436,
+            "chroma_rmse": 0.01444005310796406,
+            "lowband_rmse": 0.00373648052827419,
+            "maximum_error": 0.10636521943940003,
+            "mean_error": -1.5502879180081335e-05
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.009590619753165759,
+            "luma_rmse": 0.004770380938665855,
+            "chroma_rmse": 0.014410772319673927,
+            "lowband_rmse": 0.0037017576716723683,
+            "maximum_error": 0.10477240280080741,
+            "mean_error": -2.165302651972356e-05
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.009534128293924762,
+            "luma_rmse": 0.004138340157580676,
+            "chroma_rmse": 0.014876868931180226,
+            "lowband_rmse": 0.004117465550723908,
+            "maximum_error": 0.09715699771996605,
+            "mean_error": -2.3614826085993357e-05
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.009568047862783974,
+            "luma_rmse": 0.00418562573817152,
+            "chroma_rmse": 0.014902490773472847,
+            "lowband_rmse": 0.004143277820368219,
+            "maximum_error": 0.09748359426448983,
+            "mean_error": -1.7788556166724515e-05
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-1.25",
+        "native": {
+          "rmse": 0.0063173563680289525,
+          "luma_rmse": 0.003597981668012314,
+          "chroma_rmse": 0.008993917844408512,
+          "lowband_rmse": 0.002711142026224736,
+          "maximum_error": 0.06344923066600303,
+          "mean_error": -0.00018558045921742848
+        },
+        "filtered": {
+          "rmse": 0.005993762043043007,
+          "luma_rmse": 0.0034014368112434295,
+          "chroma_rmse": 0.00854787886807152,
+          "lowband_rmse": 0.002637325577157985,
+          "maximum_error": 0.06015780257686118,
+          "mean_error": -0.000190435809752619
+        },
+        "previous": {
+          "rmse": 0.004560384972478918,
+          "luma_rmse": 0.002739885311090159,
+          "chroma_rmse": 0.006314302711927248,
+          "lowband_rmse": 0.00219833177275842,
+          "maximum_error": 0.04609724490431599,
+          "mean_error": -0.0001516175580553241
+        },
+        "filtered_to_best_lucky_rmse": 0.6286638755283259,
+        "previous_to_best_lucky_rmse": 0.4783221739720913
+      },
+      {
+        "group": "synthetic",
+        "name": "constant_color",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/synthetic/constant_color/render/constant_color-metal-report.json",
+        "report_sha256": "75f29afb485bfda7b828bfc8333a29b8fd031161adc0e1b700bbd3f4bed0bd2e",
+        "input_sha256": "07e325c34f1ab006ea1a0b219f8d0ae5890d688c88832656f508905e986b3a49",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "39131595989cfe194ec15b32de10c23a0aeb4875a74c9f9c14361c4539809741",
+        "native_stop": "GEOMETRY_PENDING",
+        "seconds": 3.0208999167080037,
+        "negative_components": 0,
+        "native_rgb_sha256": "d622ab40b8caf458e2da6aad985e93b9a1434b4da058ec606a0b67f1d56bf4e5",
+        "filtered_rgb_sha256": "6069b4f699723c25ca320e8e6df5779a6189e7d431b946ae0d5031435155eb2c",
+        "native_noise_scale": {
+          "maximum": 0.005725757218897343,
+          "median": 0.004345193039625883,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.0028515036683529615
+        },
+        "truth_sha256": "b561def13c6509630ea314802ca18c748dcbc41feb3ae806ddf9ba1d4fe0b5ff",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.014941911719453553,
+            "luma_rmse": 0.010880652089456346,
+            "chroma_rmse": 0.017737429571966116,
+            "lowband_rmse": 0.00547135575754034,
+            "maximum_error": 0.04596094030264353,
+            "mean_error": -0.00010040987204769472
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.01592129150713677,
+            "luma_rmse": 0.012326961912112957,
+            "chroma_rmse": 0.017452810656671484,
+            "lowband_rmse": 0.005813893541818803,
+            "maximum_error": 0.05456492224641418,
+            "mean_error": -8.905494129461356e-05
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.014876309897121598,
+            "luma_rmse": 0.010816102642744624,
+            "chroma_rmse": 0.017690380417911655,
+            "lowband_rmse": 0.005424093877853806,
+            "maximum_error": 0.0450385762045486,
+            "mean_error": -0.00010896483681568551
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.014814030326351372,
+            "luma_rmse": 0.010753091639633708,
+            "chroma_rmse": 0.0176487830770026,
+            "lowband_rmse": 0.005382624054875226,
+            "maximum_error": 0.04446239459967116,
+            "mean_error": -0.00011505997038327257
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.015830690048192944,
+            "luma_rmse": 0.012247556338662795,
+            "chroma_rmse": 0.01737309222331211,
+            "lowband_rmse": 0.005740148206708979,
+            "maximum_error": 0.053184388058338694,
+            "mean_error": -0.00010381264750833955
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.015874210016727414,
+            "luma_rmse": 0.012286211031690539,
+            "chroma_rmse": 0.017410304030079544,
+            "lowband_rmse": 0.0057740603484988245,
+            "maximum_error": 0.053844344117793486,
+            "mean_error": -9.768525360945772e-05
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-1.25-sharpened",
+        "native": {
+          "rmse": 0.01636772130464545,
+          "luma_rmse": 0.013482810242744045,
+          "chroma_rmse": 0.016073219527963353,
+          "lowband_rmse": 0.006351772016079916,
+          "maximum_error": 0.08531558891932395,
+          "mean_error": -0.00018497288746459532
+        },
+        "filtered": {
+          "rmse": 0.016294425814224172,
+          "luma_rmse": 0.013463341588996534,
+          "chroma_rmse": 0.01589780606309418,
+          "lowband_rmse": 0.006333240255849688,
+          "maximum_error": 0.08439366673080628,
+          "mean_error": -0.00018537464482461745
+        },
+        "previous": {
+          "rmse": 0.013188275619444797,
+          "luma_rmse": 0.012569523929273312,
+          "chroma_rmse": 0.006914697825473128,
+          "lowband_rmse": 0.005160905744015946,
+          "maximum_error": 0.04674666735429178,
+          "mean_error": -0.00014190631729794168
+        },
+        "filtered_to_best_lucky_rmse": 1.0999319871270585,
+        "previous_to_best_lucky_rmse": 0.8902557459994757
+      },
+      {
+        "group": "synthetic",
+        "name": "shadow",
+        "report_path": "/tmp/GlassCam-F5-Temporal-20261027/noise-prior/synthetic/shadow/render/shadow-metal-report.json",
+        "report_sha256": "9488eb143735176afe1482870b76f401bba6ba48a0960d89fbed88508de3e559",
+        "input_sha256": "82a058aa961c759b2157cb2900bcc9cd43caed14d08ef3da448568ebe848a30c",
+        "shader_sha256": "a409b698d9d8fd45c9058a0a2b7dbc022d77db4ba1ef46c3fcd1c3c913ae7b16",
+        "executable_sha256": "3bfbd5286b08716fa7133ff23b16aba240bc6edb218e7c37883438eec13a0879",
+        "previous_report_sha256": "663a1d82767486b16033f91f0f882809b0df3bb9cf07d0413a00cb34f898cfee",
+        "native_stop": "GEOMETRY_PENDING",
+        "seconds": 1.3069408333394676,
+        "negative_components": 0,
+        "native_rgb_sha256": "c76a00515dd308b974caac32dd3a174cea8e58ba4b818cd1979f215368212f80",
+        "filtered_rgb_sha256": "9a647564ba4d3fb7eaff8b1aa9746158d0b67078c9cecfbcdcb48a3f166e9fd8",
+        "native_noise_scale": {
+          "maximum": 0.0009692058665677905,
+          "median": 0.0007964751566760242,
+          "method": "frozen_initial_information_density",
+          "minimum": 0.0006250619189813733
+        },
+        "truth_sha256": "90d718835448580965291e8bb05771a6bd6e9145c4d8bbc5e00f2fee72119042",
+        "competitors": {
+          "lucky-bm3d-0.75-sharpened": {
+            "rmse": 0.0003462085174573307,
+            "luma_rmse": 0.00026281568862029144,
+            "chroma_rmse": 0.0003903392807867723,
+            "lowband_rmse": 0.00023106485677759436,
+            "maximum_error": 0.0015264195023479109,
+            "mean_error": -1.8099728607437002e-05
+          },
+          "lucky-bm3d-0.75": {
+            "rmse": 0.00032085161401712337,
+            "luma_rmse": 0.0002354823327122403,
+            "chroma_rmse": 0.00037746720068554905,
+            "lowband_rmse": 0.00022635863441406942,
+            "maximum_error": 0.0013695016229456469,
+            "mean_error": -1.8360077224984064e-05
+          },
+          "lucky-bm3d-1-sharpened": {
+            "rmse": 0.00019806826550213872,
+            "luma_rmse": 0.00013651457046392449,
+            "chroma_rmse": 0.00024856473915305793,
+            "lowband_rmse": 0.00015119750314828554,
+            "maximum_error": 0.0008204043849689832,
+            "mean_error": -2.1817610048470515e-05
+          },
+          "lucky-bm3d-1.25-sharpened": {
+            "rmse": 0.0001640269771622335,
+            "luma_rmse": 0.00011339369824983029,
+            "chroma_rmse": 0.00020528067444993195,
+            "lowband_rmse": 0.0001275485239008987,
+            "maximum_error": 0.0006558962263229625,
+            "mean_error": -2.416852974410499e-05
+          },
+          "lucky-bm3d-1.25": {
+            "rmse": 0.00016027546780707753,
+            "luma_rmse": 0.00011052653125988715,
+            "chroma_rmse": 0.00020103814166795364,
+            "lowband_rmse": 0.00012958543111965336,
+            "maximum_error": 0.0006282828868908533,
+            "mean_error": -2.4382463447828543e-05
+          },
+          "lucky-bm3d-1": {
+            "rmse": 0.00018965423625344634,
+            "luma_rmse": 0.00012757214626708403,
+            "chroma_rmse": 0.00024306836585015186,
+            "lowband_rmse": 0.00015062843449901428,
+            "maximum_error": 0.0007726429303615678,
+            "mean_error": -2.2040437755603243e-05
+          }
+        },
+        "best_lucky_by_rmse": "lucky-bm3d-1.25",
+        "native": {
+          "rmse": 0.00026217076596539267,
+          "luma_rmse": 0.00023377954880146414,
+          "chroma_rmse": 0.00020552834176140681,
+          "lowband_rmse": 0.00015809395523041624,
+          "maximum_error": 0.0012792479678580288,
+          "mean_error": -1.2479035761773619e-05
+        },
+        "filtered": {
+          "rmse": 0.00016803777643582073,
+          "luma_rmse": 0.00014400158668272404,
+          "chroma_rmse": 0.00015000237340475096,
+          "lowband_rmse": 0.00013328896644914723,
+          "maximum_error": 0.000617010781557392,
+          "mean_error": -1.26683301740832e-05
+        },
+        "previous": {
+          "rmse": 0.0001545027661018558,
+          "luma_rmse": 0.00013338277191952272,
+          "chroma_rmse": 0.00013505710890052413,
+          "lowband_rmse": 0.00012705021143444807,
+          "maximum_error": 0.0005460693983734711,
+          "mean_error": -1.1720226975893907e-05
+        },
+        "filtered_to_best_lucky_rmse": 1.0484310464661168,
+        "previous_to_best_lucky_rmse": 0.9639826245138757
+      }
+    ]
+  },
+  "guide_bias_control": {
+    "camera_used": false,
+    "synthetic": true,
+    "qualification": "DEVELOPMENT_GUIDE_CONTROL_NOT_IMAGE_QUALITY",
+    "results": [
+      {
+        "true_rgb": [
+          0.0002,
+          0.0005,
+          0.0003
+        ],
+        "trials": 30,
+        "angle_error_degrees": {
+          "clipped_reference": 8.321974416976456,
+          "signed_reference": 4.46475806049701,
+          "signed_burst": 2.471015128365197
+        },
+        "relative_channel_bias": {
+          "clipped_reference": [
+            0.6539403968027582,
+            0.10911123284840807,
+            0.3074618608143991
+          ],
+          "signed_reference": [
+            0.012777361966058498,
+            -0.0096498971325083,
+            -0.025224824306831928
+          ],
+          "signed_burst": [
+            0.022435952186602437,
+            0.004723822729550742,
+            -0.026050847971097246
+          ]
+        }
+      },
+      {
+        "true_rgb": [
+          0.01,
+          0.02,
+          0.015
+        ],
+        "trials": 30,
+        "angle_error_degrees": {
+          "clipped_reference": 0.2286842883344906,
+          "signed_reference": 0.2286842883344906,
+          "signed_burst": 0.11079460371209866
+        },
+        "relative_channel_bias": {
+          "clipped_reference": [
+            -0.0018324753887521972,
+            0.0007004622225117441,
+            -0.0016190441934574862
+          ],
+          "signed_reference": [
+            -0.0018324753887521972,
+            0.0007004622225117441,
+            -0.0016190441934574862
+          ],
+          "signed_burst": [
+            -0.0006455693844603649,
+            0.0007679321817677387,
+            0.00028252253502958347
+          ]
+        }
+      }
+    ]
+  },
+  "temporal_guide_manifest": {
+    "camera_used": false,
+    "truth_used": false,
+    "method": "signed RAW guide and cross-frame color covariance",
+    "results": [
+      {
+        "group": "real",
+        "scene": "flat_dark",
+        "source_input_sha256": "9e56a16041e02e99c4f8a0022fabc550e6d9cf7a6f191a7dd3570e5490ef17e5",
+        "derived_input_sha256": "a2907151d500211c72f8442aff76cef8a00039ec617e72f8179cbdccba0f21e9",
+        "nodes": 49,
+        "old_confidence": 0.8988362344905877,
+        "new_confidence": 1.0
+      },
+      {
+        "group": "real",
+        "scene": "texture_left",
+        "source_input_sha256": "57586bad726466d9feb93ffb3b9c23a6662cda13cdbd64284c7a501f922398b5",
+        "derived_input_sha256": "229e37de82d15fb2ef02a3f43cdfa433649574b087c7ca8bdda924d91de1af82",
+        "nodes": 49,
+        "old_confidence": 0.0027558711118944213,
+        "new_confidence": 0.00033602760134745195
+      },
+      {
+        "group": "real",
+        "scene": "texture_right",
+        "source_input_sha256": "7bff1776122638f438cf8fda4f55345183c9a8e9a19f8fc7c8ef50943d11509f",
+        "derived_input_sha256": "3695abaaeac3464f432cb0ff9f83c4b9ccd7c969d6247930887d42fbabab6eae",
+        "nodes": 49,
+        "old_confidence": 0.0018124011200319832,
+        "new_confidence": 0.0003185473660197201
+      },
+      {
+        "group": "real",
+        "scene": "moving_subject",
+        "source_input_sha256": "4cab089a7513a6facd4de18ff78c0ee13fc9f5cbb55ca18d422514fd126041f2",
+        "derived_input_sha256": "08e12ad7ea9755ee7f585524f989aaeacbc5b8b85b2445cfbf84e42b05148fb7",
+        "nodes": 49,
+        "old_confidence": 0.06002606702515798,
+        "new_confidence": 0.24344189346449133
+      },
+      {
+        "group": "synthetic",
+        "scene": "chromatic_texture",
+        "source_input_sha256": "8b59b2676745921e2058c74db47dcf3eb18153ab17f7e146f4ecbb82ac512d30",
+        "derived_input_sha256": "27c5d06521d7d5c419ea4031ad1e529a5356ee522da1d6b4e79ac88fb9f90d8b",
+        "nodes": 49,
+        "old_confidence": 0.0005866333755928905,
+        "new_confidence": 5.0237944412702e-05
+      },
+      {
+        "group": "natural",
+        "scene": "portrait",
+        "source_input_sha256": "22a60024a3f9c46b8f6af945535674dba26b17be8475c59dac31693729d265ad",
+        "derived_input_sha256": "523ecef6587ed2a1fb4480d4333a10ad0bb064356b79747a1ebfbfafa70483de",
+        "nodes": 49,
+        "old_confidence": 0.0008407534621894024,
+        "new_confidence": 7.216582170602278e-05
+      },
+      {
+        "group": "natural",
+        "scene": "dark_fur",
+        "source_input_sha256": "54e3484bb67d9c5a6d5891884f05d179ae72a073837fdb40a8db433313ad5dd5",
+        "derived_input_sha256": "8ce4422b37f07a6fd33d2240db2e9ee76f5b6a57fa8b0c320d9d6637fd70bcfb",
+        "nodes": 49,
+        "old_confidence": 0.7468297419214832,
+        "new_confidence": 0.17765237455140245
+      }
+    ]
+  },
+  "noise_scale_checks": {
+    "synthetic": true,
+    "camera_used": false,
+    "real_device_samples_audited": false,
+    "results": [
+      {
+        "name": "compile-core",
+        "exit_code": 0,
+        "seconds": 3.9460787909920327
+      },
+      {
+        "name": "compile-contract-tests",
+        "exit_code": 0,
+        "seconds": 25.973289250046946
+      },
+      {
+        "name": "contracts",
+        "exit_code": 0,
+        "seconds": 2.882137375010643
+      },
+      {
+        "name": "compile-desktop-quality",
+        "exit_code": 0,
+        "seconds": 21.292525625030976
+      }
+    ]
+  },
+  "limitations": [
+    "Temporal prior fingerprint binds raw codes only; input report hash binds the complete diagnostic input.",
+    "Information-density scale is not a posterior marginal variance. Changing it without the prior weights changes smoothing strength.",
+    "Only partial development sets were used to reject these variants. Neither changes production defaults.",
+    "Natural-content scenes are simulated RAW, not real-scene truth."
+  ]
+}

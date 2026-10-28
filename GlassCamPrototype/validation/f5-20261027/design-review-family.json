@@ -1,0 +1,1688 @@
+{
+  "revision": "f5-native-family-diagnostic-v1",
+  "camera_used": false,
+  "qualification": "CONTROLLED_NATIVE_REPEATED_PHASE_DIAGNOSTIC",
+  "seed": 6102711,
+  "code_sha256": "80ee2214d0fd5e91895e827441f721359e63234801225441d0d442d931d9ec3a",
+  "sources": [
+    {
+      "name": "portrait",
+      "input_sha256": "af7b88afe10670f7d0ac391cb3bcc48c3506aca5863b8b488a591d3db130055f",
+      "truth_sha256": "276a8fc0887bcc2020e42e1e518fa3145d714797f8b5c864bb8fd2758ff28b8a",
+      "frozen_report_sha256": "e3012623a3b604e095378710ff4b72ec4b950e5aa1706c5b2771329b5d14e51a"
+    },
+    {
+      "name": "color_edge",
+      "input_sha256": "e11e252329c0bc18267296e003a4f8c482cb459d1ed405f7c8cfb6d9abbe9ff5",
+      "truth_sha256": "c651b20068c0e8f233dc127c34f71e9f57d98e6e895f585f0a0b3fd578da5a33",
+      "frozen_report_sha256": "e6b9544dff7ef899a5b078ba53cf45101673bc5807731f8a06d572db3cfb2dbb"
+    },
+    {
+      "name": "chromatic_texture",
+      "input_sha256": "06494e5adef261196e0c95c9d934e38e395c2073aff0493f7a887205dc6951fa",
+      "truth_sha256": "aa91be53349bba6e403f26ec46c3a4acdfdea6f885f4a6a47e657353d40f82d6",
+      "frozen_report_sha256": "0f0f20475079fc2d554106bc89d6c8322fc9b27a9fba7f69d49597d190890b1d"
+    }
+  ],
+  "results": [
+    {
+      "name": "portrait",
+      "calibration_repetitions": 16,
+      "evaluation_repetitions": 16,
+      "noise_profiles": {
+        "single": {
+          "repetitions": 16,
+          "opponent_noise_rms": [
+            0.0047508597602233605,
+            0.002106276981562663,
+            0.0017797154724386397
+          ],
+          "nearest_neighbor_correlation_xy": [
+            [
+              0.23942597841264446,
+              0.5599699520603212,
+              0.6504468543381692
+            ],
+            [
+              0.2410357680487221,
+              0.5339180519911014,
+              0.647758086393704
+            ]
+          ],
+          "variance_p90_to_p10": [
+            4.7016522723320024,
+            5.535789887289999,
+            3.3229715451844335
+          ],
+          "assumption": "Global stationary PSD approximates the measured spatially varying output covariance; not an exact posterior covariance."
+        },
+        "mean4": {
+          "repetitions": 16,
+          "opponent_noise_rms": [
+            0.0023523437978830923,
+            0.0010497770158624184,
+            0.0009321011961964886
+          ],
+          "nearest_neighbor_correlation_xy": [
+            [
+              0.24105145044848036,
+              0.5511710468703815,
+              0.6777110691473526
+            ],
+            [
+              0.23822451163714659,
+              0.5530022986637604,
+              0.6480255518571171
+            ]
+          ],
+          "variance_p90_to_p10": [
+            5.252883457751998,
+            5.802117402226159,
+            3.7016694298568558
+          ],
+          "assumption": "Global stationary PSD approximates the measured spatially varying output covariance; not an exact posterior covariance."
+        },
+        "f5": {
+          "repetitions": 16,
+          "opponent_noise_rms": [
+            0.0016190636260275794,
+            0.001385282043627749,
+            0.0013220073601827172
+          ],
+          "nearest_neighbor_correlation_xy": [
+            [
+              0.42151040713227034,
+              0.6123694906426921,
+              0.5034266419149971
+            ],
+            [
+              0.4675257490155884,
+              0.6480650487509327,
+              0.5040497569806913
+            ]
+          ],
+          "variance_p90_to_p10": [
+            4.820847765703506,
+            4.662348211970227,
+            5.324889499999504
+          ],
+          "assumption": "Global stationary PSD approximates the measured spatially varying output covariance; not an exact posterior covariance."
+        }
+      },
+      "scores": {
+        "single": {
+          "mse": [
+            3.701480591288175e-05,
+            4.573334981640815e-05,
+            3.99447346453184e-05,
+            4.123633444937876e-05,
+            4.333776488671857e-05,
+            3.852017091977371e-05,
+            3.765603747011992e-05,
+            4.178521970812433e-05,
+            4.331042998558727e-05,
+            3.9362878946887116e-05,
+            4.2811230529090114e-05,
+            4.31876594428369e-05,
+            4.23376702391332e-05,
+            4.420704097176279e-05,
+            3.949335436309207e-05,
+            3.8158242353803844e-05
+          ],
+          "mean_mse": 4.113105779005731e-05,
+          "root_mean_mse": 0.00641334996628574,
+          "mean_image_bias_rms": 0.005826536170901841,
+          "noise_rms": 0.002680025007202325
+        },
+        "single_bm3d": {
+          "mse": [
+            3.408385328617024e-05,
+            4.2531167571729065e-05,
+            3.711291529170301e-05,
+            3.7747803134401455e-05,
+            3.9670835793822265e-05,
+            3.501029761366835e-05,
+            3.40148951981121e-05,
+            3.822655320575238e-05,
+            3.954834008530645e-05,
+            3.6259266195343816e-05,
+            3.877177318549519e-05,
+            3.970935056143878e-05,
+            3.905394357636509e-05,
+            4.025710645093049e-05,
+            3.5945553244623605e-05,
+            3.447788245096307e-05
+          ],
+          "mean_mse": 3.765134605286408e-05,
+          "root_mean_mse": 0.006136069267280486,
+          "mean_image_bias_rms": 0.005616632118794182,
+          "noise_rms": 0.0024707872621886457
+        },
+        "mean4": {
+          "mse": [
+            3.358304701712192e-05,
+            3.7027517481515067e-05,
+            3.38372862443968e-05,
+            3.592618647667957e-05,
+            3.500007540739138e-05,
+            3.491360319833831e-05,
+            3.243099605860761e-05,
+            3.686436825445151e-05,
+            3.3581248331637456e-05,
+            3.3181321196457655e-05,
+            3.6064473718528494e-05,
+            3.360350242806202e-05,
+            3.506957854863916e-05,
+            3.325051294021903e-05,
+            3.1781557628345855e-05,
+            3.526123853646992e-05
+          ],
+          "mean_mse": 3.446103209167886e-05,
+          "root_mean_mse": 0.005870351956371854,
+          "mean_image_bias_rms": 0.005719976494249734,
+          "noise_rms": 0.0013201897579171618
+        },
+        "mean4_bm3d": {
+          "mse": [
+            3.2832418799574474e-05,
+            3.607039964162206e-05,
+            3.315363046996354e-05,
+            3.515697505943022e-05,
+            3.433548830719838e-05,
+            3.416112408393283e-05,
+            3.161565366598867e-05,
+            3.602365386372878e-05,
+            3.284308314569076e-05,
+            3.2417116914796575e-05,
+            3.510565243952133e-05,
+            3.2952025226499043e-05,
+            3.431534730600277e-05,
+            3.2496387752277364e-05,
+            3.094220787560023e-05,
+            3.442143348891583e-05
+          ],
+          "mean_mse": 3.367766237754643e-05,
+          "root_mean_mse": 0.005803245848449506,
+          "mean_image_bias_rms": 0.00565748100956019,
+          "noise_rms": 0.0012925057075356557
+        },
+        "f5": {
+          "mse": [
+            7.950458568488345e-05,
+            7.562403039933204e-05,
+            7.71352641896709e-05,
+            7.970390882893135e-05,
+            7.776680921360848e-05,
+            7.39351119583369e-05,
+            7.644628224196983e-05,
+            7.74741717232408e-05,
+            7.554803447167782e-05,
+            7.691479310764313e-05,
+            7.844915662526561e-05,
+            7.893630681173085e-05,
+            7.874851868919511e-05,
+            7.599236667793156e-05,
+            7.144366349880626e-05,
+            7.205060345609917e-05
+          ],
+          "mean_mse": 7.66046004736452e-05,
+          "root_mean_mse": 0.00875240541072254,
+          "mean_image_bias_rms": 0.00867814017441751,
+          "noise_rms": 0.001137753746118207
+        },
+        "f5_bm3d": {
+          "mse": [
+            7.880975075653226e-05,
+            7.482844966179529e-05,
+            7.645457886307573e-05,
+            7.881387303196418e-05,
+            7.715154509987485e-05,
+            7.311813455209184e-05,
+            7.564818664659123e-05,
+            7.676004193396545e-05,
+            7.48935551717528e-05,
+            7.61592452427494e-05,
+            7.755628237439818e-05,
+            7.805415860024781e-05,
+            7.804431388659117e-05,
+            7.526251118521865e-05,
+            7.088299028530584e-05,
+            7.10863341624217e-05
+          ],
+          "mean_mse": 7.584524696591102e-05,
+          "root_mean_mse": 0.008708917669028168,
+          "mean_image_bias_rms": 0.00863730733112358,
+          "noise_rms": 0.0011145263718862195
+        },
+        "lucky_fixed_raw_bm3d_1": {
+          "mse": [
+            3.642158578531045e-05,
+            4.50257223105885e-05,
+            3.962939837914736e-05,
+            4.090486769848562e-05,
+            4.267008470583485e-05,
+            3.7902064365303374e-05,
+            3.703736870180368e-05,
+            4.119745625322716e-05,
+            4.2471945538830914e-05,
+            3.8868550916964745e-05,
+            4.192298020119116e-05,
+            4.288519268201971e-05,
+            4.190263248988796e-05,
+            4.36404641334324e-05,
+            3.9051433239705906e-05,
+            3.7550131814707205e-05
+          ],
+          "mean_mse": 4.056761745102756e-05,
+          "root_mean_mse": 0.006369271343805943,
+          "mean_image_bias_rms": 0.005786261951812991,
+          "noise_rms": 0.0026621025667747794
+        }
+      },
+      "paired_comparisons": {
+        "mean4 minus single": {
+          "mean_mse_difference": -6.670025698378446e-06,
+          "paired_95_percent_t_interval": [
+            -7.94784377320651e-06,
+            -5.392207623550382e-06
+          ]
+        },
+        "f5 minus mean4": {
+          "mean_mse_difference": 4.214356838196634e-05,
+          "paired_95_percent_t_interval": [
+            4.0787275666163264e-05,
+            4.349986109776942e-05
+          ]
+        },
+        "mean4_bm3d minus single_bm3d": {
+          "mean_mse_difference": -3.973683675317655e-06,
+          "paired_95_percent_t_interval": [
+            -5.1996043582381375e-06,
+            -2.7477629923971727e-06
+          ]
+        },
+        "f5_bm3d minus mean4_bm3d": {
+          "mean_mse_difference": 4.216758458836459e-05,
+          "paired_95_percent_t_interval": [
+            4.0825763721898524e-05,
+            4.350940545483066e-05
+          ]
+        },
+        "f5_bm3d minus lucky_fixed_raw_bm3d_1": {
+          "mean_mse_difference": 3.527762951488346e-05,
+          "paired_95_percent_t_interval": [
+            3.363208360629415e-05,
+            3.692317542347277e-05
+          ]
+        }
+      },
+      "observations": [
+        {
+          "trial": 0,
+          "phase": "calibration",
+          "observations_sha256": "c657f45e801ed454e4c0fd73881e7853c95f100ce5cb4272563b01a9b472f4d1",
+          "reference_report_sha256": "1ab65652c848d221d38c72e89418459cbd5e0331fca5fd34759b61ee5ee1c0d2",
+          "standardized_gradient": 7.545344240539746e-14,
+          "seconds": 0.017708708008285612
+        },
+        {
+          "trial": 1,
+          "phase": "calibration",
+          "observations_sha256": "5f610cec055ab7d16a3633957aacba01aa13a3426d15eef6705bc4f625b6ff50",
+          "reference_report_sha256": "b06bb67accdea5f8280f8c23e163c20b2541255982c840e08fd2df1112fd500f",
+          "standardized_gradient": 1.0063239691102004e-13,
+          "seconds": 0.016701417043805122
+        },
+        {
+          "trial": 2,
+          "phase": "calibration",
+          "observations_sha256": "709587fe83dbf5e2ff77eac441d75e793f18b10773b538cd2019efb0a75e9648",
+          "reference_report_sha256": "2cd4f8f74db3fbd04ac661e874f429f1e01640b3216bb1acc58ff62df2706a15",
+          "standardized_gradient": 8.414963407776483e-09,
+          "seconds": 0.016512875037733465
+        },
+        {
+          "trial": 3,
+          "phase": "calibration",
+          "observations_sha256": "e766b4c9eae84343f11fabc1f6f6346dd45230185c93b989001f6823b2a0a286",
+          "reference_report_sha256": "f2927a08b43e7ab94f354531861394626531aecd309d6275d0dc884fda9e6f83",
+          "standardized_gradient": 1.1085792996236675e-13,
+          "seconds": 0.016262249962892383
+        },
+        {
+          "trial": 4,
+          "phase": "calibration",
+          "observations_sha256": "ad8d96e5b39ecc75063225a373e5feb6d5229949d0643e075394c73a6b1532b6",
+          "reference_report_sha256": "23384409ca973ddcd3879adb13517caac28e3ac45fdc2a6c53ab5e3b6c2b1493",
+          "standardized_gradient": 2.801724631415456e-09,
+          "seconds": 0.01634520897641778
+        },
+        {
+          "trial": 5,
+          "phase": "calibration",
+          "observations_sha256": "57631e20aa802598fc01d0d0d04b13bf40c8a200b7e8dc027e260fc25b594d20",
+          "reference_report_sha256": "c9eb843850f98f122dce4eca3982ba399accea3e6556969535f7ded669656809",
+          "standardized_gradient": 1.4815105286260794e-12,
+          "seconds": 0.01631920802174136
+        },
+        {
+          "trial": 6,
+          "phase": "calibration",
+          "observations_sha256": "55f78b375240f9aace8c8d876e9c2bd4962268186b792c6208a5d28cb4b63200",
+          "reference_report_sha256": "7641ad903b8fcebba41fa6dad02633f21ee833396db0ca1438a59d033582dec8",
+          "standardized_gradient": 9.201444638947503e-14,
+          "seconds": 0.016346707998309284
+        },
+        {
+          "trial": 7,
+          "phase": "calibration",
+          "observations_sha256": "8f3ee0816e48dbb2506f2572879e4f2a95c3cbd000930ddfa57bca569c7ef603",
+          "reference_report_sha256": "6b558e7c28272b430eb47bffaa76e75e7827edfc212fdd84acbe652a492417e3",
+          "standardized_gradient": 3.8733849595783435e-13,
+          "seconds": 0.016180667036678642
+        },
+        {
+          "trial": 8,
+          "phase": "calibration",
+          "observations_sha256": "4088e5ed4cdc827fbc9fb814924e5fba5811bf8e52d7523192b7a4ad4bb57b6d",
+          "reference_report_sha256": "96cdf4ed8112d681e61b6db0772522d108bb5cf0e4083409079c880c5a96441d",
+          "standardized_gradient": 7.711846419525228e-14,
+          "seconds": 0.016529374988749623
+        },
+        {
+          "trial": 9,
+          "phase": "calibration",
+          "observations_sha256": "791e05d5c7c65c9e840d412750132c540a803aa4785ba3b7b2d337949999cd54",
+          "reference_report_sha256": "fa2306865613b0cbbb7823133adf0f9b6f81315040557099c60a4da780bf1e12",
+          "standardized_gradient": 7.287389375402679e-13,
+          "seconds": 0.01606666698353365
+        },
+        {
+          "trial": 10,
+          "phase": "calibration",
+          "observations_sha256": "25dd906898d4d5b4d7cd420f0f378eb78fcc6c96fb9d52329cf85b0c7440ff11",
+          "reference_report_sha256": "00db48b65ed5eaaf17a86259b9068ece5a1682d09d9ddd900c436e458a163404",
+          "standardized_gradient": 1.148465011222298e-13,
+          "seconds": 0.0162965000490658
+        },
+        {
+          "trial": 11,
+          "phase": "calibration",
+          "observations_sha256": "58b9744703c1c79be2549bee5fc0b49a844d2046fccf9208b7eede560facdb39",
+          "reference_report_sha256": "1d8d3bda17ddb82685186dc15606d8ab967f8da4973291ac998eb89b7e406af9",
+          "standardized_gradient": 1.3155325595734465e-12,
+          "seconds": 0.016275124973617494
+        },
+        {
+          "trial": 12,
+          "phase": "calibration",
+          "observations_sha256": "c520107d8266a2eea66d9d61dcc26fd04d9539dc760fb7173d18ecd61c82e6a8",
+          "reference_report_sha256": "97f8e941a4416bc7dcadcfdcc57bda34b93cb5feb6a1f39226f16f03d4c2396e",
+          "standardized_gradient": 6.982722956748668e-13,
+          "seconds": 0.01622345799114555
+        },
+        {
+          "trial": 13,
+          "phase": "calibration",
+          "observations_sha256": "f66488b94a37bc0bd0fe570e342b64507d59f59c95aabc6ded738a57dc53e12e",
+          "reference_report_sha256": "3bcca7edd323036913e747ab0f5ce657db053ab4dbbd7a2546574583bc1a5454",
+          "standardized_gradient": 2.2802587445801745e-13,
+          "seconds": 0.016139500017743558
+        },
+        {
+          "trial": 14,
+          "phase": "calibration",
+          "observations_sha256": "94c73bf9abadb2cdcecde8e1835a45664d9db0f5d9134bcf48df3455e6e69d05",
+          "reference_report_sha256": "da3b16192ee77719eff0e1e637a2d58519f555235fd54293bd78f098884bc902",
+          "standardized_gradient": 1.0258289282263937e-13,
+          "seconds": 0.016273709014058113
+        },
+        {
+          "trial": 15,
+          "phase": "calibration",
+          "observations_sha256": "000d245005c62e1cd5d5df74611a230fa90290bf8c1bdf3d7282cd29faf28731",
+          "reference_report_sha256": "eea28c2205ab835377cbfd39abe914a5a561388662c38672430b70cfe3146316",
+          "standardized_gradient": 9.781018510379261e-14,
+          "seconds": 0.017263667017687112
+        },
+        {
+          "trial": 16,
+          "phase": "evaluation",
+          "observations_sha256": "ca166fa98a5f5453e54c047fc795a8e712fd04e11e947e658b4e441bbe1e4118",
+          "reference_report_sha256": "f341d29a6cd490f9287246dbccf1388e241d318ad1307f79efe90251b8062ccc",
+          "standardized_gradient": 7.631773932503373e-14,
+          "seconds": 0.986880625016056
+        },
+        {
+          "trial": 17,
+          "phase": "evaluation",
+          "observations_sha256": "8c6f0c61b7ea08799fd35de28fdacb19d0c0e407fb983a04a5f8a70cbb8b9045",
+          "reference_report_sha256": "53f139c47cf9736c5056ba0d84356c6f303d6e3facb7a6a5a20dd5c04f7ca684",
+          "standardized_gradient": 8.556348757165637e-14,
+          "seconds": 0.9898285000235774
+        },
+        {
+          "trial": 18,
+          "phase": "evaluation",
+          "observations_sha256": "b607ba9a9df30c7cd4b5cf5994088d6f761770d02b5bcfd1623eabf26ed1a17b",
+          "reference_report_sha256": "92131c3fce48a23896cb594d36d96fc5287c0bb266a49b5c31287ac888ff9f01",
+          "standardized_gradient": 5.621632248702893e-13,
+          "seconds": 1.0108280419954099
+        },
+        {
+          "trial": 19,
+          "phase": "evaluation",
+          "observations_sha256": "92d9fb3dfd5392e3b479f92abaae4bc4c52598be919188717598b46b606c08fc",
+          "reference_report_sha256": "467dbbc59a1e2decb706c9b61a6f7846d365c49964cf384dd222166808defe99",
+          "standardized_gradient": 1.2968935922510548e-13,
+          "seconds": 1.0065646250150166
+        },
+        {
+          "trial": 20,
+          "phase": "evaluation",
+          "observations_sha256": "1e18354f5e44706809d96af7644e9d689096ff38003c85cae5288961fdab80ad",
+          "reference_report_sha256": "5a651e56cb2f5bbbd17e4e9882bfe62b71d79b5a78cbc0c2a7e2cf7d44d4ef36",
+          "standardized_gradient": 7.662400171557068e-14,
+          "seconds": 1.008160792000126
+        },
+        {
+          "trial": 21,
+          "phase": "evaluation",
+          "observations_sha256": "c3a98437dbdf6174e4a5d01c63c615f177571dda8733f82b4ace9f6bdb11ae9e",
+          "reference_report_sha256": "7b584f93edf47d9c93c421c6599ceabd62bcfe8787cde722e5b90c5a8ffbb22e",
+          "standardized_gradient": 8.211259824179208e-14,
+          "seconds": 1.0249455830198713
+        },
+        {
+          "trial": 22,
+          "phase": "evaluation",
+          "observations_sha256": "cac8970e305c778c341fe03d4580ec9c383cfae9f5cec40f002806b6978863a2",
+          "reference_report_sha256": "910f8ce1a315e0b0f1b3ea27b5d9241068267835eca9888873567ef26b2b9e70",
+          "standardized_gradient": 8.333014397612197e-14,
+          "seconds": 0.9941797080100514
+        },
+        {
+          "trial": 23,
+          "phase": "evaluation",
+          "observations_sha256": "5f41ecad72cb97c351c69809bed95869c7a1fa00f13939e7cfca41248382d4f3",
+          "reference_report_sha256": "3c394d7102587a675580dca2bb5026201bf362bb34dfa4b3ee31e724ec88a288",
+          "standardized_gradient": 9.759169930442377e-14,
+          "seconds": 1.0341388329979964
+        },
+        {
+          "trial": 24,
+          "phase": "evaluation",
+          "observations_sha256": "a01281263fa6ea5369027e2a28f592c234fa7156826d231306a0f17ba2dc1f21",
+          "reference_report_sha256": "51b0edf9c92588f4ea15b19ea8628c26b8c949df80e50de7af7e31521d4d4b34",
+          "standardized_gradient": 1.0283831255291209e-13,
+          "seconds": 1.0099367080256343
+        },
+        {
+          "trial": 25,
+          "phase": "evaluation",
+          "observations_sha256": "68facd8ffddf0880578c4236ccccf8035dabd4140bd9d4a0e9638e9d5ee97862",
+          "reference_report_sha256": "75fb878b8e5fb80d2952802e588c4727aef53410f7d8aed0b9f6cef740b12fed",
+          "standardized_gradient": 1.1145353991667694e-13,
+          "seconds": 1.022983041999396
+        },
+        {
+          "trial": 26,
+          "phase": "evaluation",
+          "observations_sha256": "6b4740b2635328d1d60baaf517bfad9719c3af15dd83fe045c68132f089ce9de",
+          "reference_report_sha256": "d465e62b03b4e3e29efb680ec5ac50be01a1829ad45257e1d449d5258aed0bfd",
+          "standardized_gradient": 7.037341789200147e-14,
+          "seconds": 0.9837799170054495
+        },
+        {
+          "trial": 27,
+          "phase": "evaluation",
+          "observations_sha256": "677569e1d0e8bd97f9cbc4fb8a035e67375bd333bfe44d255dfc4e76cb1da07e",
+          "reference_report_sha256": "daae3b4c0fe6eabc0961ec9da2fcf9284dd61cd1c29df1168afbad623c5c6868",
+          "standardized_gradient": 1.873083074177894e-09,
+          "seconds": 1.0251200830098242
+        },
+        {
+          "trial": 28,
+          "phase": "evaluation",
+          "observations_sha256": "ab80678512c03eb2e6a54f0fbcd4ed646450e115055e0da0688e3e8ccd082d54",
+          "reference_report_sha256": "6fdcd9a98ce2810745c621e5c5cb688169b58ed69c0fdd8027bce51edb7098e7",
+          "standardized_gradient": 4.0230391311613177e-13,
+          "seconds": 1.0210517080267891
+        },
+        {
+          "trial": 29,
+          "phase": "evaluation",
+          "observations_sha256": "4d6e1af0ac2d32bb8b37b040c20e9c5147eb9dfcc745e0516bfbb770acb488e5",
+          "reference_report_sha256": "11b7d85b73c1500abb62ad3c591616670e41938a0138b32391be0bc9aa90e31b",
+          "standardized_gradient": 1.3973827714444285e-13,
+          "seconds": 1.0232128329807892
+        },
+        {
+          "trial": 30,
+          "phase": "evaluation",
+          "observations_sha256": "d14ca96051e72aa752d76f25a4b5a887f251fbbeb78e59a9f4559ba0f85cc762",
+          "reference_report_sha256": "5ed6c0977384a1a1996c35ec2bec97fcf49e0bb12919dbf3f0d93b875a8dc79d",
+          "standardized_gradient": 2.341412360846386e-13,
+          "seconds": 1.0223502919543535
+        },
+        {
+          "trial": 31,
+          "phase": "evaluation",
+          "observations_sha256": "140cf2a305dd069d46737c80fc9035ea68382f69623471dc134e362348e3a8df",
+          "reference_report_sha256": "90358daad4737832f17ff831bed1f479be27e91ac11af1b1b0a2494cc13e3ea5",
+          "standardized_gradient": 1.6739787171916494e-13,
+          "seconds": 0.9808538749930449
+        }
+      ]
+    },
+    {
+      "name": "color_edge",
+      "calibration_repetitions": 16,
+      "evaluation_repetitions": 16,
+      "noise_profiles": {
+        "single": {
+          "repetitions": 16,
+          "opponent_noise_rms": [
+            0.007482668850484716,
+            0.0028656458342314673,
+            0.002822473862674038
+          ],
+          "nearest_neighbor_correlation_xy": [
+            [
+              0.20778206864141432,
+              0.4791812546310903,
+              0.6600381817358293
+            ],
+            [
+              0.23550125301397012,
+              0.47768129255630115,
+              0.6693361198471914
+            ]
+          ],
+          "variance_p90_to_p10": [
+            4.168834090108129,
+            7.567660388064512,
+            2.4065143822525847
+          ],
+          "assumption": "Global stationary PSD approximates the measured spatially varying output covariance; not an exact posterior covariance."
+        },
+        "mean4": {
+          "repetitions": 16,
+          "opponent_noise_rms": [
+            0.003772038379207407,
+            0.0014007784034496238,
+            0.0014439122740144373
+          ],
+          "nearest_neighbor_correlation_xy": [
+            [
+              0.23109930855152092,
+              0.4955832190855437,
+              0.6580935669970681
+            ],
+            [
+              0.241382859223243,
+              0.4893648174503337,
+              0.6812218089285281
+            ]
+          ],
+          "variance_p90_to_p10": [
+            3.8743254544975536,
+            6.78097722990315,
+            2.6602624459505493
+          ],
+          "assumption": "Global stationary PSD approximates the measured spatially varying output covariance; not an exact posterior covariance."
+        },
+        "f5": {
+          "repetitions": 16,
+          "opponent_noise_rms": [
+            0.001985350048679894,
+            0.001973409000876073,
+            0.002625673595972373
+          ],
+          "nearest_neighbor_correlation_xy": [
+            [
+              0.6445982310052647,
+              0.592738402871799,
+              0.4031952513173312
+            ],
+            [
+              0.50678933859234,
+              0.5092280460788439,
+              0.34645877882074133
+            ]
+          ],
+          "variance_p90_to_p10": [
+            4.348643614407168,
+            6.486222443090199,
+            6.130196947996039
+          ],
+          "assumption": "Global stationary PSD approximates the measured spatially varying output covariance; not an exact posterior covariance."
+        }
+      },
+      "scores": {
+        "single": {
+          "mse": [
+            0.00020744108170149252,
+            0.00019812125776445125,
+            0.00022469029477728477,
+            0.00021344853235687753,
+            0.00020089249967051055,
+            0.00021043946103328694,
+            0.00021283971342122784,
+            0.000208007269372803,
+            0.0002132580440830406,
+            0.00021012704765428596,
+            0.00019178873459836546,
+            0.00021555806358604675,
+            0.00021532731011900022,
+            0.00021160348988795422,
+            0.00020907006781353742,
+            0.00020732183389004434
+          ],
+          "mean_mse": 0.00020937091885813808,
+          "root_mean_mse": 0.014469655105016778,
+          "mean_image_bias_rms": 0.013758062480122603,
+          "noise_rms": 0.0044818116483382854
+        },
+        "single_bm3d": {
+          "mse": [
+            0.00018590828132803813,
+            0.00018146241311009547,
+            0.00020062398327744444,
+            0.0001904376869252427,
+            0.00018276855195268563,
+            0.00018923111618431918,
+            0.00019272805283506906,
+            0.00018658767114670437,
+            0.00018727181287146751,
+            0.00019371053429120363,
+            0.00017491197511384715,
+            0.00019226662763393277,
+            0.0001945764556997224,
+            0.00018917740348837447,
+            0.00019153935285049625,
+            0.00018655678336809884
+          ],
+          "mean_mse": 0.0001887349188797964,
+          "root_mean_mse": 0.01373808279490979,
+          "mean_image_bias_rms": 0.013483381891885407,
+          "noise_rms": 0.002633122032373943
+        },
+        "mean4": {
+          "mse": [
+            0.00019610036330904002,
+            0.0001932688283890798,
+            0.0001979044849613609,
+            0.00019516808560909903,
+            0.0001993013713760725,
+            0.00019945413488771523,
+            0.00019915892028551308,
+            0.0001952355984971816,
+            0.00019347957113122365,
+            0.0001926005272584275,
+            0.00019148723356489781,
+            0.00019481499402512095,
+            0.00019842981579568734,
+            0.00020070647889155037,
+            0.00019506720028960353,
+            0.0001987122523723737
+          ],
+          "mean_mse": 0.0001963056162902467,
+          "root_mean_mse": 0.014010910616025166,
+          "mean_image_bias_rms": 0.013810947576131164,
+          "noise_rms": 0.002358674063876443
+        },
+        "mean4_bm3d": {
+          "mse": [
+            0.0001915314262533922,
+            0.00018826268026169747,
+            0.00019205115019644203,
+            0.00018973694965641606,
+            0.0001948666383557352,
+            0.0001947139177269015,
+            0.00019224865366885148,
+            0.00019021925775118868,
+            0.0001881843135838735,
+            0.00018751641176819047,
+            0.0001864213508374857,
+            0.00019054600734553056,
+            0.00019308980638988173,
+            0.00019488001314222334,
+            0.0001893623868691698,
+            0.00019323500507992936
+          ],
+          "mean_mse": 0.0001910541230554318,
+          "root_mean_mse": 0.013822232925813102,
+          "mean_image_bias_rms": 0.01371572620988889,
+          "noise_rms": 0.0017125938195610806
+        },
+        "f5": {
+          "mse": [
+            4.2454194624058396e-05,
+            4.9362935152566284e-05,
+            5.9255167771927286e-05,
+            5.4269451039166816e-05,
+            4.9412330457268084e-05,
+            4.654251485832208e-05,
+            5.56829524848821e-05,
+            5.144996121940492e-05,
+            5.8383441005958795e-05,
+            4.3521201914912184e-05,
+            5.275386613862854e-05,
+            4.852699873608097e-05,
+            4.703715385997252e-05,
+            5.12216637517745e-05,
+            5.5828616748152455e-05,
+            5.3379478097682475e-05
+          ],
+          "mean_mse": 5.11926204912974e-05,
+          "root_mean_mse": 0.007154901850570517,
+          "mean_image_bias_rms": 0.0068785050474202665,
+          "noise_rms": 0.0019694640905361365
+        },
+        "f5_bm3d": {
+          "mse": [
+            3.857502554662247e-05,
+            4.4978781496520256e-05,
+            5.466617327743814e-05,
+            4.970205896830039e-05,
+            4.583387160683949e-05,
+            4.219322648678503e-05,
+            5.0377915093674856e-05,
+            4.756355494295349e-05,
+            5.336376184295104e-05,
+            4.060583711728756e-05,
+            4.833342143242321e-05,
+            4.524381836217256e-05,
+            4.26865161063367e-05,
+            4.6301405450803854e-05,
+            5.117867280800607e-05,
+            4.9746975749755064e-05
+          ],
+          "mean_mse": 4.695943851805439e-05,
+          "root_mean_mse": 0.0068526957117658735,
+          "mean_image_bias_rms": 0.006697367530135895,
+          "noise_rms": 0.0014507607260798802
+        },
+        "lucky_fixed_raw_bm3d_1": {
+          "mse": [
+            0.0001891463876096233,
+            0.0001882563209056804,
+            0.0002003855173303746,
+            0.00019485905817068032,
+            0.00018978632416566063,
+            0.00019056450473903795,
+            0.00019834765044025776,
+            0.00019309090368745306,
+            0.00019163848777489594,
+            0.00019775307951584557,
+            0.0001832558792661436,
+            0.0001971468599317144,
+            0.00019613132205134005,
+            0.00019510072012461884,
+            0.00019413692276814472,
+            0.00019173545882828887
+          ],
+          "mean_mse": 0.00019320846233186,
+          "root_mean_mse": 0.013899944688086353,
+          "mean_image_bias_rms": 0.013773987470279647,
+          "noise_rms": 0.001867011381979033
+        }
+      },
+      "paired_comparisons": {
+        "mean4 minus single": {
+          "mean_mse_difference": -1.3065302567891394e-05,
+          "paired_95_percent_t_interval": [
+            -1.6831387209488257e-05,
+            -9.29921792629453e-06
+          ]
+        },
+        "f5 minus mean4": {
+          "mean_mse_difference": -0.0001451129957989493,
+          "paired_95_percent_t_interval": [
+            -0.0001481056928045339,
+            -0.0001421202987933647
+          ]
+        },
+        "mean4_bm3d minus single_bm3d": {
+          "mean_mse_difference": 2.31920417563544e-06,
+          "paired_95_percent_t_interval": [
+            -8.010388580601404e-07,
+            5.439447209331021e-06
+          ]
+        },
+        "f5_bm3d minus mean4_bm3d": {
+          "mean_mse_difference": -0.00014409468453737743,
+          "paired_95_percent_t_interval": [
+            -0.00014707674027693296,
+            -0.0001411126287978219
+          ]
+        },
+        "f5_bm3d minus lucky_fixed_raw_bm3d_1": {
+          "mean_mse_difference": -0.00014624902381380563,
+          "paired_95_percent_t_interval": [
+            -0.0001492385339150726,
+            -0.00014325951371253865
+          ]
+        }
+      },
+      "observations": [
+        {
+          "trial": 0,
+          "phase": "calibration",
+          "observations_sha256": "28757eacd750199188577e5761ca720d217ce245065ace052edc6687bb6410eb",
+          "reference_report_sha256": "42c39d4bfd3c10d3694303ab0fe0b79548362c9d4e1ef150a51fdb20cf14ff95",
+          "standardized_gradient": 1.3155307188141508e-13,
+          "seconds": 0.01759837503777817
+        },
+        {
+          "trial": 1,
+          "phase": "calibration",
+          "observations_sha256": "dabb669e49b00f1abfc83d289641bc1e5817e16a1e8ab0b536f953dc23506aae",
+          "reference_report_sha256": "0cac038e8aa9a3db1f74e2878e32489a808866c0e1e55f6173fa5ca726aee715",
+          "standardized_gradient": 3.781957991233345e-13,
+          "seconds": 0.01694245799444616
+        },
+        {
+          "trial": 2,
+          "phase": "calibration",
+          "observations_sha256": "58679b3507942a4e1dcc616d71aade6a5b62c91b6ec7e53f6bcf21b1dbd4be1f",
+          "reference_report_sha256": "89feaeb3f19169170563ca058aa9dd0127cbc3c4cb50255c44a535a918689a03",
+          "standardized_gradient": 1.7385941291226895e-12,
+          "seconds": 0.016833000001497567
+        },
+        {
+          "trial": 3,
+          "phase": "calibration",
+          "observations_sha256": "62a447334a25d117301b1bf990e3ab15b69397471779d5fd86295eb2584d6640",
+          "reference_report_sha256": "8781618b9a168dda145a6e23d9c52e47240121faf50fa5368c53d3d5d10fdcb8",
+          "standardized_gradient": 1.2041311595772077e-13,
+          "seconds": 0.016906750039197505
+        },
+        {
+          "trial": 4,
+          "phase": "calibration",
+          "observations_sha256": "bc78ad47a655880ad0691b66b297b7bd52d6a3adef8336ae3594e4581d3a73ed",
+          "reference_report_sha256": "73d2ac3bda936a669df75bab8ab68f89d93e4e22fbdaaf05cabe0b85643bb64a",
+          "standardized_gradient": 1.782564222840562e-13,
+          "seconds": 0.016716916987206787
+        },
+        {
+          "trial": 5,
+          "phase": "calibration",
+          "observations_sha256": "911e5ca28d2bb94932ef97084885e4690bf22fb22cea441b50f7760749938939",
+          "reference_report_sha256": "bf2058fa1dd9c7780cb092db295527c6df4c8c7140df90041c6d32b4535906ad",
+          "standardized_gradient": 1.1472362713683591e-13,
+          "seconds": 0.016809542023111135
+        },
+        {
+          "trial": 6,
+          "phase": "calibration",
+          "observations_sha256": "0e4940c0eebf3d64f512df0dd6d6c96c1bea65f885a9ff9e51b7ac8ed7920ddd",
+          "reference_report_sha256": "d3f02ea27e6329460f0853eb590df9f53898b25294b8a0ec98234302066251ea",
+          "standardized_gradient": 1.1874684773050958e-13,
+          "seconds": 0.016629874997306615
+        },
+        {
+          "trial": 7,
+          "phase": "calibration",
+          "observations_sha256": "0026a26ff5c57a60f4dc836713037c5a2ebe9eb0c31c14b0a6699a6c20e84f92",
+          "reference_report_sha256": "a6738f5b18119b1fd8b05ed64387d73a1de1f3413010c7a38a79056aa45df3b8",
+          "standardized_gradient": 8.013114251868866e-07,
+          "seconds": 0.01669737498741597
+        },
+        {
+          "trial": 8,
+          "phase": "calibration",
+          "observations_sha256": "0e2ebaf0547cf6ac2c0dcbc649c5be072e14b88440f57645f11f9659a54e7f1d",
+          "reference_report_sha256": "824375878bdf1ea6ca725e1b261d2354cc6b8b553e9d29153e831d5661e0007a",
+          "standardized_gradient": 1.4332102657911202e-13,
+          "seconds": 0.016748499998357147
+        },
+        {
+          "trial": 9,
+          "phase": "calibration",
+          "observations_sha256": "75365baffbd5b3248f976e0c02003476faccd260b564c0a4216807d046429bb4",
+          "reference_report_sha256": "44ddb85168f3cc5f8b5b169a8e4e689626c5fc0bed06abf4b253b9906ec8ae32",
+          "standardized_gradient": 1.29884637329174e-13,
+          "seconds": 0.016742249950766563
+        },
+        {
+          "trial": 10,
+          "phase": "calibration",
+          "observations_sha256": "683102a6c143d95b7401aaa87dd9f0454e364aaf8bfd1a06f6e75ab89f613a16",
+          "reference_report_sha256": "2f44a352fd9f6c313e956ceadd1abc322ed253e2f09e25ca9580e467dd380774",
+          "standardized_gradient": 1.68067574180465e-13,
+          "seconds": 0.016571624961216003
+        },
+        {
+          "trial": 11,
+          "phase": "calibration",
+          "observations_sha256": "ac860663985d8d446bb761dda2416055b065f7d2218d507c6fb8919e069da6fc",
+          "reference_report_sha256": "ca114406750669a3e7ef12334cb83f1444275e926daefc5d08e62c54e754e4ee",
+          "standardized_gradient": 1.9979666290732606e-12,
+          "seconds": 0.016747792018577456
+        },
+        {
+          "trial": 12,
+          "phase": "calibration",
+          "observations_sha256": "8049ebd55e365de529ac4952b25446ffa72ef1c1641561821c98c9eeaffd93ec",
+          "reference_report_sha256": "d342a406d4d5d4e08847e364b7f8323d73db604c58be74bb881f042d629dd211",
+          "standardized_gradient": 1.5819509023176767e-13,
+          "seconds": 0.016615959000773728
+        },
+        {
+          "trial": 13,
+          "phase": "calibration",
+          "observations_sha256": "4909c5d5ed7ce34f60d213d2d52be34e06fde1bc36531f080fd7005acf364e32",
+          "reference_report_sha256": "6f1ce55f685ae500dc289a986c41fa6f4bf0a805fb497e9167d5231836bb2e37",
+          "standardized_gradient": 1.2192486446637027e-12,
+          "seconds": 0.016583416960202157
+        },
+        {
+          "trial": 14,
+          "phase": "calibration",
+          "observations_sha256": "cb45c4e474ba3fd2e9e2aa894efa806ebb89358c288f3206bac85c282efaaf70",
+          "reference_report_sha256": "d3872284c22b367d919b2d5815c31ce0a968e554f575f7777d46c9c648616553",
+          "standardized_gradient": 4.1850407686505925e-13,
+          "seconds": 0.01676179195055738
+        },
+        {
+          "trial": 15,
+          "phase": "calibration",
+          "observations_sha256": "87e15ea18edafae7abe220f02261d235752f11bea0ec35b2b9832ca557a5aab1",
+          "reference_report_sha256": "23fbffd80d3d81b2edb554752e3c6e5eee6d39de0521409d551f449ff6338247",
+          "standardized_gradient": 5.92215705662697e-07,
+          "seconds": 0.016544375044759363
+        },
+        {
+          "trial": 16,
+          "phase": "evaluation",
+          "observations_sha256": "34ab621c25f17355a90f50ccd7508a9979060a81b43a8edaa292d501bd18ae32",
+          "reference_report_sha256": "59f1d0793d563b4fcd3897594e94cbe756bbbcb91a4c6d3f74b761223c1d05c6",
+          "standardized_gradient": 1.3762545433230008e-13,
+          "seconds": 1.1999232500093058
+        },
+        {
+          "trial": 17,
+          "phase": "evaluation",
+          "observations_sha256": "9b1457160951c943f307518d392ad67ea5dac30a66dc345f6803d392985996b1",
+          "reference_report_sha256": "71d2d1e449e72b9654c14d3257e90a007fa85e43b3beb80f38862d83f2e7a6f2",
+          "standardized_gradient": 1.7900082812967752e-13,
+          "seconds": 1.0926550410222262
+        },
+        {
+          "trial": 18,
+          "phase": "evaluation",
+          "observations_sha256": "6b54518eb46d1750b6b046dc276f5ef5ac45621aacfea4aa46e8f4a290e4a2a4",
+          "reference_report_sha256": "6135e59fbd9e968cc65f938fccb11f17493dd711372980843bc5ca1422ee7b2d",
+          "standardized_gradient": 1.7229781620494722e-13,
+          "seconds": 1.0450522499741055
+        },
+        {
+          "trial": 19,
+          "phase": "evaluation",
+          "observations_sha256": "bdead42e682f733acea2b431d403eb45d8b8f5f923ce9a9f88a18799e5577bd1",
+          "reference_report_sha256": "63c774e8fec8af0c16b8a05213fff68eef91c9af2d86f2c7c276ff88748a96c6",
+          "standardized_gradient": 1.4252783632873693e-13,
+          "seconds": 1.0632654590299353
+        },
+        {
+          "trial": 20,
+          "phase": "evaluation",
+          "observations_sha256": "d91a7ece15da82ba8e104ac44f2f28c817b54dd1516e9129be7c1de2cab66557",
+          "reference_report_sha256": "5490c8274f0e775da7c4dfbb747585a9c052830f97cbb3799b83802c66157477",
+          "standardized_gradient": 1.3170034385516052e-13,
+          "seconds": 1.1288362079649232
+        },
+        {
+          "trial": 21,
+          "phase": "evaluation",
+          "observations_sha256": "e7fdb84ebe0c0cbf363a03a1630f07bbeded99d2ac1864d8566f366030b95b06",
+          "reference_report_sha256": "769a833a5168e3250c2ed1c94ee54b3e1d4998def44ceadfc6717011a8c81b16",
+          "standardized_gradient": 7.547099325357335e-07,
+          "seconds": 1.1163224159972742
+        },
+        {
+          "trial": 22,
+          "phase": "evaluation",
+          "observations_sha256": "1a0e375e701ca842e75b737dd4b1ffe4acfd22b1f2d369f7488c52ce042df02b",
+          "reference_report_sha256": "d80703e04ef0929547d5b20b1594465b8e9f7936c4cd16e84468901bd7be75a3",
+          "standardized_gradient": 1.4063958746883874e-13,
+          "seconds": 1.137914124992676
+        },
+        {
+          "trial": 23,
+          "phase": "evaluation",
+          "observations_sha256": "980cfd7ce15185394f7f321fada8d8086a2d64dae5be51256fed4af02bb223fb",
+          "reference_report_sha256": "da079b98d1f4e4dc295bcc2c5e21715b4d8c737bc170f09b1b794d7b5c9a9c86",
+          "standardized_gradient": 7.606580572579816e-13,
+          "seconds": 1.1312896250165068
+        },
+        {
+          "trial": 24,
+          "phase": "evaluation",
+          "observations_sha256": "125a2424fe30734d095aec0f53ec6ed063f8d0b5d1261b02eb5aa91f5fdffcf6",
+          "reference_report_sha256": "92218bd6b882ffca548bd8f2c45d80132c98a83a194e8dcad9d4e1cfaa1f4644",
+          "standardized_gradient": 2.176843295017746e-13,
+          "seconds": 1.209425833018031
+        },
+        {
+          "trial": 25,
+          "phase": "evaluation",
+          "observations_sha256": "55d68bb33c7d6615fcd657d39f6948541d0265b50138b2e50d529d7a3c00f30f",
+          "reference_report_sha256": "c670bbb89306caff96421aa2503792960f2910cca7ba686c79103d820af62cf6",
+          "standardized_gradient": 1.2104956455680156e-13,
+          "seconds": 1.1895619999850169
+        },
+        {
+          "trial": 26,
+          "phase": "evaluation",
+          "observations_sha256": "796646f4c91f9127c4f40709e3416ba145463694f689bf49ca6b2a373645f5f1",
+          "reference_report_sha256": "d31d572e0e23484250cc3bb5bfe325dbd2cfebed8159bb37ca240b8ddff1704c",
+          "standardized_gradient": 1.3023599351696356e-13,
+          "seconds": 1.108516625012271
+        },
+        {
+          "trial": 27,
+          "phase": "evaluation",
+          "observations_sha256": "c5fd377d80e50fb49acf8e6e64984ce7d6cd4784eda1a68a02827b2f255094a5",
+          "reference_report_sha256": "6e49976ef053876cd59868fa632296f52ada8c6c4cadeb00e518269056adf6e8",
+          "standardized_gradient": 1.452855815173707e-13,
+          "seconds": 1.0716736660106108
+        },
+        {
+          "trial": 28,
+          "phase": "evaluation",
+          "observations_sha256": "d35497bf7e5dd8c561ea6f0ff1933df866dcd64a36834e707b41e26572f8a4ec",
+          "reference_report_sha256": "e008b7f3d570cf6b350605be46ddd2532a0a2f65f4f3f0125cd23310e9632077",
+          "standardized_gradient": 1.4674364640413945e-13,
+          "seconds": 1.030218917003367
+        },
+        {
+          "trial": 29,
+          "phase": "evaluation",
+          "observations_sha256": "3590c3d2c8597c2b3dabc951b16cb9963d5b06541fa3aa81d18bc4c03300bb46",
+          "reference_report_sha256": "24912539ae74b67dc7fbdf6d90e92a8ca033b3034dd1281b686eeab27cb23947",
+          "standardized_gradient": 1.490860560325116e-13,
+          "seconds": 1.0962456249981187
+        },
+        {
+          "trial": 30,
+          "phase": "evaluation",
+          "observations_sha256": "e3bc793663ae2c11c044d5da7fe416afc6517d2190710f9746472ffe5823c1a6",
+          "reference_report_sha256": "5678ba079e357fff28d10804347d5d1784e042d1ea320fdde7b8115eee6d3fc8",
+          "standardized_gradient": 9.11231917477703e-09,
+          "seconds": 1.0834458749741316
+        },
+        {
+          "trial": 31,
+          "phase": "evaluation",
+          "observations_sha256": "24fb1ad4509664191e888f08c1bb3e4408b6793c660446ee7fb103912147fed4",
+          "reference_report_sha256": "e0a4b231e33324224772025df827c99bcfadf478dd4834900db20a24745e735f",
+          "standardized_gradient": 1.228376096683421e-13,
+          "seconds": 1.0770472080330364
+        }
+      ]
+    },
+    {
+      "name": "chromatic_texture",
+      "calibration_repetitions": 16,
+      "evaluation_repetitions": 16,
+      "noise_profiles": {
+        "single": {
+          "repetitions": 16,
+          "opponent_noise_rms": [
+            0.00762476392141265,
+            0.0034183667650382016,
+            0.0029679266328896912
+          ],
+          "nearest_neighbor_correlation_xy": [
+            [
+              0.25931862148481233,
+              0.5489073964385505,
+              0.6635799421369734
+            ],
+            [
+              0.24108634336320262,
+              0.5390660096133619,
+              0.6549862578670937
+            ]
+          ],
+          "variance_p90_to_p10": [
+            3.020644628412788,
+            5.1787967073888925,
+            2.6267588113880587
+          ],
+          "assumption": "Global stationary PSD approximates the measured spatially varying output covariance; not an exact posterior covariance."
+        },
+        "mean4": {
+          "repetitions": 16,
+          "opponent_noise_rms": [
+            0.0038164525454585517,
+            0.0017175267164144877,
+            0.0015251419332760687
+          ],
+          "nearest_neighbor_correlation_xy": [
+            [
+              0.2467054914802363,
+              0.5477500923587673,
+              0.6683494736672201
+            ],
+            [
+              0.2504057239383637,
+              0.5580076087076791,
+              0.6962364416776575
+            ]
+          ],
+          "variance_p90_to_p10": [
+            2.8874097232654217,
+            4.843851541931091,
+            2.7505392801422004
+          ],
+          "assumption": "Global stationary PSD approximates the measured spatially varying output covariance; not an exact posterior covariance."
+        },
+        "f5": {
+          "repetitions": 16,
+          "opponent_noise_rms": [
+            0.0015961825583348495,
+            0.0025874317973819836,
+            0.0027241632070126097
+          ],
+          "nearest_neighbor_correlation_xy": [
+            [
+              0.7331322972553788,
+              0.5584154046461471,
+              0.3968502754654045
+            ],
+            [
+              0.7455382361033137,
+              0.5364948219781751,
+              0.29636269690678446
+            ]
+          ],
+          "variance_p90_to_p10": [
+            4.963448354834152,
+            3.904702048890339,
+            4.343986167987275
+          ],
+          "assumption": "Global stationary PSD approximates the measured spatially varying output covariance; not an exact posterior covariance."
+        }
+      },
+      "scores": {
+        "single": {
+          "mse": [
+            0.0017262069680716583,
+            0.0017369141392009145,
+            0.0017572238242178101,
+            0.0017575989979048085,
+            0.0017484440231650073,
+            0.0017712528983129642,
+            0.0017423392973931948,
+            0.0017355188694253862,
+            0.001751595401238876,
+            0.001732737924328458,
+            0.001703766939619997,
+            0.0017713771277476035,
+            0.001735455864181623,
+            0.0017439655888492882,
+            0.0017527076206971665,
+            0.0017230019585896498
+          ],
+          "mean_mse": 0.0017431317151840255,
+          "root_mean_mse": 0.04175082891613082,
+          "mean_image_bias_rms": 0.04147111941790648,
+          "noise_rms": 0.004824724801453979
+        },
+        "single_bm3d": {
+          "mse": [
+            0.0017107245317486983,
+            0.0017203328852125738,
+            0.001739411886717632,
+            0.0017413527113380705,
+            0.0017278616411553975,
+            0.0017515922686042876,
+            0.0017298882023376067,
+            0.001720945047155239,
+            0.001734352473085168,
+            0.0017171058639898667,
+            0.001698200768337795,
+            0.0017513826022951262,
+            0.0017213661211679119,
+            0.0017267777125782537,
+            0.001738779731620636,
+            0.0017083481942065046
+          ],
+          "mean_mse": 0.001727401415096923,
+          "root_mean_mse": 0.04156201890063719,
+          "mean_image_bias_rms": 0.04134552916712276,
+          "noise_rms": 0.004236582701603267
+        },
+        "mean4": {
+          "mse": [
+            0.0017345078598959552,
+            0.0017247512015129377,
+            0.001739302192318478,
+            0.0017471287862015075,
+            0.0017261986228537217,
+            0.0017388729545801413,
+            0.001721699002946691,
+            0.0017199348386393552,
+            0.0017280079152368864,
+            0.0017230732018907232,
+            0.001716587682209546,
+            0.0017495179984983553,
+            0.0017368470135189073,
+            0.0017145032199899735,
+            0.001734495293868768,
+            0.0017058279050124485
+          ],
+          "mean_mse": 0.0017288284805733996,
+          "root_mean_mse": 0.04157918326005695,
+          "mean_image_bias_rms": 0.04151071175406749,
+          "noise_rms": 0.002385223311164655
+        },
+        "mean4_bm3d": {
+          "mse": [
+            0.0017300123278347348,
+            0.001720883799092953,
+            0.0017361059568791082,
+            0.001743443482681587,
+            0.0017233095901332239,
+            0.0017333234273981327,
+            0.0017184416939562454,
+            0.0017184928525486984,
+            0.0017251671308273738,
+            0.001720380698619333,
+            0.0017148873116255563,
+            0.001745751242475049,
+            0.001731392679596929,
+            0.0017126413836308866,
+            0.0017323716034279048,
+            0.001705079100484657
+          ],
+          "mean_mse": 0.0017257302675757731,
+          "root_mean_mse": 0.04154190977285196,
+          "mean_image_bias_rms": 0.04147929815528616,
+          "noise_rms": 0.0022799324815985403
+        },
+        "f5": {
+          "mse": [
+            0.00031130435198049134,
+            0.0003060311078280507,
+            0.0002968348607957629,
+            0.0002958866704723485,
+            0.00031342898268138736,
+            0.0003097270199469882,
+            0.00030411423376059993,
+            0.00030913750265666924,
+            0.0003038542102477788,
+            0.00031182561979161143,
+            0.00030662217628395325,
+            0.00030801970273892064,
+            0.00032376976452614287,
+            0.00031175281398529474,
+            0.0003076227751776461,
+            0.000310804175760942
+          ],
+          "mean_mse": 0.00030817099803966174,
+          "root_mean_mse": 0.017554799857579174,
+          "mean_image_bias_rms": 0.017430304260265594,
+          "noise_rms": 0.002086981416838389
+        },
+        "f5_bm3d": {
+          "mse": [
+            0.00031172539617933733,
+            0.0003057852236871378,
+            0.0002968179217814795,
+            0.00029656302483660257,
+            0.0003130820963439385,
+            0.0003098087990278087,
+            0.00030425196807020094,
+            0.00030887366339772167,
+            0.00030367334127824407,
+            0.000311943456289779,
+            0.00030693463047585997,
+            0.00030806038877753943,
+            0.00032339302089286524,
+            0.00031174176861850216,
+            0.00030761635399619854,
+            0.0003109893310695697
+          ],
+          "mean_mse": 0.00030820377404517404,
+          "root_mean_mse": 0.017555733366771496,
+          "mean_image_bias_rms": 0.017442175419122064,
+          "noise_rms": 0.0019935623124818767
+        },
+        "lucky_fixed_raw_bm3d_1": {
+          "mse": [
+            0.0017116262261790346,
+            0.0017207467171098951,
+            0.0017314165525160743,
+            0.0017210305593663231,
+            0.0017149009396428862,
+            0.0017269270245716109,
+            0.0017298422718409476,
+            0.0017279664488858493,
+            0.0017230465502255004,
+            0.0017162813981028275,
+            0.001717411275920487,
+            0.001723143327673722,
+            0.0017198534932601423,
+            0.0017283878528976601,
+            0.0017169526917697195,
+            0.0017118672421140482
+          ],
+          "mean_mse": 0.0017213375357547954,
+          "root_mean_mse": 0.0414890049983703,
+          "mean_image_bias_rms": 0.0414746162231539,
+          "noise_rms": 0.0010925863338407268
+        }
+      },
+      "paired_comparisons": {
+        "mean4 minus single": {
+          "mean_mse_difference": -1.4303234610625633e-05,
+          "paired_95_percent_t_interval": [
+            -2.1008423477098616e-05,
+            -7.59804574415265e-06
+          ]
+        },
+        "f5 minus mean4": {
+          "mean_mse_difference": -0.0014206574825337379,
+          "paired_95_percent_t_interval": [
+            -0.0014286628751447625,
+            -0.0014126520899227133
+          ]
+        },
+        "mean4_bm3d minus single_bm3d": {
+          "mean_mse_difference": -1.671147521149652e-06,
+          "paired_95_percent_t_interval": [
+            -7.16042954602252e-06,
+            3.8181345037232165e-06
+          ]
+        },
+        "f5_bm3d minus mean4_bm3d": {
+          "mean_mse_difference": -0.0014175264935305993,
+          "paired_95_percent_t_interval": [
+            -0.0014251495271180956,
+            -0.001409903459943103
+          ]
+        },
+        "f5_bm3d minus lucky_fixed_raw_bm3d_1": {
+          "mean_mse_difference": -0.0014131337617096214,
+          "paired_95_percent_t_interval": [
+            -0.00141878033125846,
+            -0.0014074871921607827
+          ]
+        }
+      },
+      "observations": [
+        {
+          "trial": 0,
+          "phase": "calibration",
+          "observations_sha256": "a8c5b0e61c1b6dd117c51da98fbc7b1cdc8c78b526f0f85b7c2023f85096d878",
+          "reference_report_sha256": "8e1793f4e4f8e74c02dd4cd8b640c52a4c8956826d4787fdebd41711c54e7d03",
+          "standardized_gradient": 1.6324472957397453e-13,
+          "seconds": 0.017554333026055247
+        },
+        {
+          "trial": 1,
+          "phase": "calibration",
+          "observations_sha256": "2bf54a1a591ec30708914dbe7f31e183bcb533e47816dd43a80b696ecbce4379",
+          "reference_report_sha256": "e55f302b97f0f16483f70632c43fa84fd99f13c4188e4338c2245b4d85562f5e",
+          "standardized_gradient": 1.0503599167557164e-13,
+          "seconds": 0.017035916971508414
+        },
+        {
+          "trial": 2,
+          "phase": "calibration",
+          "observations_sha256": "d4b5a1a4a71141ca3246b9358082fced8b2380d9391dddb909f3f925a53af036",
+          "reference_report_sha256": "f7694c4883ae17a35e153e5fcea5f638d456aaa54ed9f0178ac247f624866b96",
+          "standardized_gradient": 1.3602574483644516e-13,
+          "seconds": 0.01703787496080622
+        },
+        {
+          "trial": 3,
+          "phase": "calibration",
+          "observations_sha256": "fe3dd5e8488dcec7562f11e44d688fad7222c20fbced6878ed1d035dafb3da1c",
+          "reference_report_sha256": "99e7b28899bbe06bcb63449c71b4d4db66ac4c3a65fa987a322b60d0a38038ee",
+          "standardized_gradient": 7.483065705807124e-13,
+          "seconds": 0.01677120802924037
+        },
+        {
+          "trial": 4,
+          "phase": "calibration",
+          "observations_sha256": "cf52fa6c8aabbdc0bfa54ba88cb7b905bec3faca2643671ddff9101e775e5397",
+          "reference_report_sha256": "4e288c9db3fe1b0411fb70db16377183e00c2c2e507c83339476b8e600d1ef37",
+          "standardized_gradient": 1.1481329111787772e-13,
+          "seconds": 0.016613249958027154
+        },
+        {
+          "trial": 5,
+          "phase": "calibration",
+          "observations_sha256": "e4e42729d58ba8176a0ba57d84619bc6198a4eac7d61511e0fb4dd122eb89aa7",
+          "reference_report_sha256": "0f5a43c0f4ce8d2ec4f8c82285942a334246c90af65c9a2f98752423be6235ed",
+          "standardized_gradient": 1.0029277520416103e-13,
+          "seconds": 0.016923165996558964
+        },
+        {
+          "trial": 6,
+          "phase": "calibration",
+          "observations_sha256": "6637922721a2f1539688f2a12c690ddc17594fc7ea006533ff08321f52196976",
+          "reference_report_sha256": "1c3368226026dc50ce0aee51b5aa42297d45a75af9300bc2d8e9b8fd5d5ef745",
+          "standardized_gradient": 1.2282345080641408e-13,
+          "seconds": 1.4082367079681717
+        },
+        {
+          "trial": 7,
+          "phase": "calibration",
+          "observations_sha256": "d1f4b94968766e104791626562166116ad03d9d843ab6f3ff23f698e5629b97d",
+          "reference_report_sha256": "554fcd009f08c63ac99d2308fe0c353667549b4c5833a25e14ec48b03ff308db",
+          "standardized_gradient": 1.0562131799722063e-13,
+          "seconds": 1.7294032499776222
+        },
+        {
+          "trial": 8,
+          "phase": "calibration",
+          "observations_sha256": "130488ff026231a0542d63203807ceb8435c73f4f388a0a7e12e18a00af86f30",
+          "reference_report_sha256": "b3247e5e610136f9d7659047a571c07c5857cdbdf3f33be985a4b17d003496bb",
+          "standardized_gradient": 8.352210653173797e-14,
+          "seconds": 1.3409890829934739
+        },
+        {
+          "trial": 9,
+          "phase": "calibration",
+          "observations_sha256": "92aeb441a4299d9006b35b2a9a4cb95f55dc6a7942ef616b6a1df75c01151c1e",
+          "reference_report_sha256": "4842e96cccc7c7e31e6142242d3d238d56ea3b2bf473203bae149364504cb42c",
+          "standardized_gradient": 7.769352682423297e-09,
+          "seconds": 1.6560517500038259
+        },
+        {
+          "trial": 10,
+          "phase": "calibration",
+          "observations_sha256": "3405c9794cb9a54577cf98fba17da28f283336d7195f63c935e1b366829b3298",
+          "reference_report_sha256": "61853c9ebb82540b1027bb0f3191b12ead3135915e448fdf81ef7818de389f28",
+          "standardized_gradient": 9.956995630515929e-14,
+          "seconds": 1.5809512080159038
+        },
+        {
+          "trial": 11,
+          "phase": "calibration",
+          "observations_sha256": "78aaf18861582cf3bcc0b13206b96a4c79332b692ba44e959740569fc09d9093",
+          "reference_report_sha256": "462c9b926213e9f490e7a623305f40c75a83989fa2bc3b8e5597c5a71d89fb01",
+          "standardized_gradient": 1.0966268289119146e-13,
+          "seconds": 1.3991341670043766
+        },
+        {
+          "trial": 12,
+          "phase": "calibration",
+          "observations_sha256": "53f6419a2112c6290479fd6bccbabccad9ce3d07d230ae05461678220399109a",
+          "reference_report_sha256": "5085214ed1754a8e8255bda6a8fcc304cbb44e5b54e283bfdb47f4a2dd3aade6",
+          "standardized_gradient": 9.362737492476167e-14,
+          "seconds": 1.9471064579556696
+        },
+        {
+          "trial": 13,
+          "phase": "calibration",
+          "observations_sha256": "984ce3eed607be4b9d218ecbb1f2ee9b3714d3f505b18be5874206b25b7c88ad",
+          "reference_report_sha256": "624f213495b9dac76e85b69ae62cacee4251ef894047e284babf4578026ac8ac",
+          "standardized_gradient": 9.305638453363618e-14,
+          "seconds": 1.6648418750264682
+        },
+        {
+          "trial": 14,
+          "phase": "calibration",
+          "observations_sha256": "9ccb715b148d84086c12a8a1cd618f4b2ea54be2ada0e4a3d6a4b5f3598eba98",
+          "reference_report_sha256": "324c5aeb50fdc747725ef76514be5122d8082d9afbb0685945ea2056dca79b8c",
+          "standardized_gradient": 1.0822431559121618e-13,
+          "seconds": 1.3898850419791415
+        },
+        {
+          "trial": 15,
+          "phase": "calibration",
+          "observations_sha256": "ef836f6c90b6ff8798348abf3d67175698ef907612dcba4c91133afa7bf5a02b",
+          "reference_report_sha256": "33fe0f9104249a77548ca3a3c175235939a01e5ceaee4c61d738f0b43ce42596",
+          "standardized_gradient": 1.1412522390278893e-13,
+          "seconds": 1.5756384170381352
+        },
+        {
+          "trial": 16,
+          "phase": "evaluation",
+          "observations_sha256": "b60e4e61913700a14619c2f92119137abef798abcc7ae8283555245a59ff6b79",
+          "reference_report_sha256": "852f97188d2e3a6a5df9c584b42062cacc3672efe56954c6b9899b2d758afad3",
+          "standardized_gradient": 8.790738655984583e-14,
+          "seconds": 2.485337541962508
+        },
+        {
+          "trial": 17,
+          "phase": "evaluation",
+          "observations_sha256": "1a733daa39a6e9547f34331c1c75a964bd517a43178554c228650657db704e6e",
+          "reference_report_sha256": "1932ab9683c153825340d60b85034c210ced1a1765a72f1df40dfcddba6f24fc",
+          "standardized_gradient": 1.2526309961718475e-13,
+          "seconds": 4.418912041990552
+        },
+        {
+          "trial": 18,
+          "phase": "evaluation",
+          "observations_sha256": "730feb8b8385d1b672b6dba605263bef6fc89ddbe32c83a5b17fd6f6b709e94e",
+          "reference_report_sha256": "6edbedab5f2e0b945ecd651feec162ebd1b96f6fce4464b725cc6ea00c7ff1bc",
+          "standardized_gradient": 8.914386152819318e-14,
+          "seconds": 2.580228333012201
+        },
+        {
+          "trial": 19,
+          "phase": "evaluation",
+          "observations_sha256": "cbd14c332bfdb71736703d241aaa281a2431a14f55239be4205362d64a4a3875",
+          "reference_report_sha256": "b07f77e2a142f83a6e7510c345af04f206e9b37e90823aab67e2541df18b762e",
+          "standardized_gradient": 9.241070494385956e-14,
+          "seconds": 5.871472416969482
+        },
+        {
+          "trial": 20,
+          "phase": "evaluation",
+          "observations_sha256": "1a485b9e0bd4da1ba68d4b8486aec211d541571d270de569374b689a440fc39e",
+          "reference_report_sha256": "a5f022ac388bf722a9b7b3628635002112573cd44c5cbd64d408c218b74d6312",
+          "standardized_gradient": 1.1019943422520639e-13,
+          "seconds": 2.299333124945406
+        },
+        {
+          "trial": 21,
+          "phase": "evaluation",
+          "observations_sha256": "ccd3ba2d3c349ac324a6c5fda44ca1b6baaa49f737f41e96bf8f9c61ff2dd941",
+          "reference_report_sha256": "b7746a8afaa2516aa11eba72d681e0a3a0711856a20d8581f2a6a486f501519f",
+          "standardized_gradient": 9.26306198986525e-14,
+          "seconds": 2.292478999996092
+        },
+        {
+          "trial": 22,
+          "phase": "evaluation",
+          "observations_sha256": "863a856e8d7dccd7878eb2c35af96a69267fb4e765ca24dba870e7e14695c4b0",
+          "reference_report_sha256": "281466dab2ce74075bc8d67d0e222e41854b31f5ba71d11dfecc73339dbe189d",
+          "standardized_gradient": 9.144767285413393e-14,
+          "seconds": 2.5051904169959016
+        },
+        {
+          "trial": 23,
+          "phase": "evaluation",
+          "observations_sha256": "740a2b6d196cb0fdde2179c2865b71526f0cb34064700cb34ed8a4abadf85b30",
+          "reference_report_sha256": "954e097f78aa15bbfe05f7b72a2f0fba4d7588f020d8c3da6bc0d8e3757f8caf",
+          "standardized_gradient": 1.0437075401597541e-13,
+          "seconds": 2.5648524170392193
+        },
+        {
+          "trial": 24,
+          "phase": "evaluation",
+          "observations_sha256": "cc7849491f765608fa812daaa7eddeda5f1277b59053aec17308156975d360cb",
+          "reference_report_sha256": "d4396835e64b58483c86e6cba6911cd58453a8c24f211d7afc9369e35c4005c3",
+          "standardized_gradient": 1.0204939006241923e-13,
+          "seconds": 2.4964627920417115
+        },
+        {
+          "trial": 25,
+          "phase": "evaluation",
+          "observations_sha256": "609b798b4db643e128135d13ef7e82c77bafb5d4586def708f0d3859eaba82e1",
+          "reference_report_sha256": "0128d41ec05804251f8a5bbf9e7a14bf002aff0d55f42511118bcc8c2fabf627",
+          "standardized_gradient": 9.508869131754593e-14,
+          "seconds": 2.7541876250179484
+        },
+        {
+          "trial": 26,
+          "phase": "evaluation",
+          "observations_sha256": "dfbdf85d7dec7ce466782d89fe6b9724ba9d47e1abfc5b55c28f0f9dbc2b0b9c",
+          "reference_report_sha256": "701e502f85d68255df101131fe48340fdfe6747d4eaad2a642b5fbf122709c23",
+          "standardized_gradient": 1.0907047016900831e-13,
+          "seconds": 2.336485709005501
+        },
+        {
+          "trial": 27,
+          "phase": "evaluation",
+          "observations_sha256": "dd1d8367866238e57c2b2af96a0fc9ccb57c1ed66f6adf672e3ed96e69b4acbc",
+          "reference_report_sha256": "21bf47951f1692dd0289f0d72e03808a7db75ac9f317990ad90d83860538490c",
+          "standardized_gradient": 8.784031664977007e-14,
+          "seconds": 2.9515052909846418
+        },
+        {
+          "trial": 28,
+          "phase": "evaluation",
+          "observations_sha256": "204af3b5c5af07090f90ed73454d1870917dddbd933d3676ee9fe7fa66c0f436",
+          "reference_report_sha256": "58394071fe8c4f3d493f4dab139769a9346db0fb7e79d1565634215a5c2588b2",
+          "standardized_gradient": 9.299177591038527e-14,
+          "seconds": 2.948503084015101
+        },
+        {
+          "trial": 29,
+          "phase": "evaluation",
+          "observations_sha256": "369d0530ee43eab9018b3fd196247508f28da23f97e1a18c84b1d7a10c5237ef",
+          "reference_report_sha256": "e6d073d4c52eabc3a1c8b8fc29a4d35ef7d7fe0c4086f4b8c09be8f88c683379",
+          "standardized_gradient": 1.7672170889851694e-13,
+          "seconds": 2.7587565839639865
+        },
+        {
+          "trial": 30,
+          "phase": "evaluation",
+          "observations_sha256": "1379b9f79d84d32cc9da7228cd00a352277da94f7ff60200b76d17a6ee2152f3",
+          "reference_report_sha256": "16f9ae1b1c88bb8e02fb798df1a8c078b6c439d102670602f0899541f2aff6ca",
+          "standardized_gradient": 1.1328778736814777e-13,
+          "seconds": 2.506431167013943
+        },
+        {
+          "trial": 31,
+          "phase": "evaluation",
+          "observations_sha256": "4b24c0685ac939d30b4b5c99311a5ed8d245060306f23576b250c85856c76b23",
+          "reference_report_sha256": "8108afe2e1f334ba4894aaece1220ea0f7222b0cb801e37b19d753423e1de0cd",
+          "standardized_gradient": 1.0721820984668537e-13,
+          "seconds": 2.5349201660137624
+        }
+      ]
+    }
+  ],
+  "denoiser": "BM3D 4.0.3, fixed strength 1, independent opponent channels with separately measured PSDs",
+  "limitations": [
+    "Three 16x16 crops, with 8x8 native evaluation interiors; these are mechanism controls, not scene-generalization evidence.",
+    "Four main frames, repeated sampling, no short exposure, no SR, no motion update and no DCT.",
+    "The v5 guide/noise/prior remain frozen across independent noise repetitions of each scene.",
+    "A global stationary PSD approximates nonstationary and nonlinear output noise; variance spread is reported.",
+    "The fixed reference and BM3D strength never use evaluation truth. Best-of-six Lucky remains a separate oracle baseline.",
+    "This offline reference and BM3D timing are not mobile implementation timings."
+  ]
+}

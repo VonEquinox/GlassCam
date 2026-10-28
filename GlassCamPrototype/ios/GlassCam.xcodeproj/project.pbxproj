@@ -51,6 +51,25 @@
         A00000000000000000000044 /* LUMIXEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000044; };
         A00000000000000000000045 /* lumix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000045; settings = {COMPILER_FLAGS = "-O3 -fno-fast-math -ffp-contract=off"; }; };
         A00000000000000000000046 /* Resources/LUMIX in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000046; };
+        A50000000000000000000001 /* F5BurstStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000001; };
+        A50000000000000000000002 /* F5CaptureDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000002; };
+        A50000000000000000000003 /* F5ColorBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000003; };
+        A50000000000000000000004 /* F5Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000004; };
+        A50000000000000000000005 /* F5ImagePipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000005; };
+        A50000000000000000000006 /* F5Metal.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000006; };
+        A50000000000000000000007 /* F5MetalOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000007; };
+        A5D000000000000000000001 /* F5LocalDenoise.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D000000000000000000001; };
+        A50000000000000000000008 /* F5MetalRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000008; };
+        A50000000000000000000009 /* F5MetalSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000009; };
+        A5000000000000000000000A /* F5Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5000000000000000000000A; };
+        A5000000000000000000000B /* F5RAW.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5000000000000000000000B; };
+        A5000000000000000000000C /* F5Reconstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5000000000000000000000C; };
+        A5000000000000000000000D /* F5Kernels.metal in Sources */ = {isa = PBXBuildFile; fileRef = B5000000000000000000000D; settings = {COMPILER_FLAGS = "-fno-fast-math"; }; };
+        A5000000000000000000000E /* f5_math.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5000000000000000000000E; settings = {COMPILER_FLAGS = "-O2 -fno-fast-math -ffp-contract=off"; }; };
+        A5000000000000000000000F /* f5_registration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5000000000000000000000F; settings = {COMPILER_FLAGS = "-O2 -fno-fast-math -ffp-contract=off"; }; };
+        A50000000000000000000010 /* f5_quality.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000010; settings = {COMPILER_FLAGS = "-O2 -fno-fast-math -ffp-contract=off"; }; };
+        A50000000000000000000011 /* f5_c.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000011; settings = {COMPILER_FLAGS = "-O2 -fno-fast-math -ffp-contract=off"; }; };
+        A50000000000000000000012 /* F5SettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50000000000000000000012; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,6 +125,25 @@
         B00000000000000000000044 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LUMIXEngine.swift; sourceTree = "<group>"; };
         B00000000000000000000045 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lumix.cpp; sourceTree = "<group>"; };
         B00000000000000000000046 = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources/LUMIX; sourceTree = "<group>"; };
+        B50000000000000000000001 /* F5BurstStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5BurstStore.swift; sourceTree = "<group>"; };
+        B50000000000000000000002 /* F5CaptureDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5CaptureDriver.swift; sourceTree = "<group>"; };
+        B50000000000000000000003 /* F5ColorBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5ColorBridge.swift; sourceTree = "<group>"; };
+        B50000000000000000000004 /* F5Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5Errors.swift; sourceTree = "<group>"; };
+        B50000000000000000000005 /* F5ImagePipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5ImagePipeline.swift; sourceTree = "<group>"; };
+        B50000000000000000000006 /* F5Metal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5Metal.swift; sourceTree = "<group>"; };
+        B50000000000000000000007 /* F5MetalOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5MetalOutput.swift; sourceTree = "<group>"; };
+        B5D000000000000000000001 /* F5LocalDenoise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5LocalDenoise.swift; sourceTree = "<group>"; };
+        B50000000000000000000008 /* F5MetalRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5MetalRuntime.swift; sourceTree = "<group>"; };
+        B50000000000000000000009 /* F5MetalSolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5MetalSolver.swift; sourceTree = "<group>"; };
+        B5000000000000000000000A /* F5Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5Models.swift; sourceTree = "<group>"; };
+        B5000000000000000000000B /* F5RAW.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5RAW.swift; sourceTree = "<group>"; };
+        B5000000000000000000000C /* F5Reconstruction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5Reconstruction.swift; sourceTree = "<group>"; };
+        B5000000000000000000000D /* F5Kernels.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = F5Kernels.metal; sourceTree = "<group>"; };
+        B5000000000000000000000E /* f5_math.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = f5_math.cpp; sourceTree = "<group>"; };
+        B5000000000000000000000F /* f5_registration.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = f5_registration.cpp; sourceTree = "<group>"; };
+        B50000000000000000000010 /* f5_quality.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = f5_quality.cpp; sourceTree = "<group>"; };
+        B50000000000000000000011 /* f5_c.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = f5_c.cpp; sourceTree = "<group>"; };
+        B50000000000000000000012 /* F5SettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F5SettingsCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +173,21 @@
 		C00000000000000000000002 /* GlassCam */ = {
 			isa = PBXGroup;
 			children = (
+                B50000000000000000000012 /* F5SettingsCard.swift */,
+                B50000000000000000000001 /* F5BurstStore.swift */,
+                B50000000000000000000002 /* F5CaptureDriver.swift */,
+                B50000000000000000000003 /* F5ColorBridge.swift */,
+                B50000000000000000000004 /* F5Errors.swift */,
+                B50000000000000000000005 /* F5ImagePipeline.swift */,
+                B50000000000000000000006 /* F5Metal.swift */,
+                B50000000000000000000007 /* F5MetalOutput.swift */,
+                B5D000000000000000000001 /* F5LocalDenoise.swift */,
+                B50000000000000000000008 /* F5MetalRuntime.swift */,
+                B50000000000000000000009 /* F5MetalSolver.swift */,
+                B5000000000000000000000A /* F5Models.swift */,
+                B5000000000000000000000B /* F5RAW.swift */,
+                B5000000000000000000000C /* F5Reconstruction.swift */,
+                B5000000000000000000000D /* F5Kernels.metal */,
 				B00000000000000000000001 /* GlassCamApp.swift */,
 				B00000000000000000000002 /* ContentView.swift */,
 				B00000000000000000000003 /* ImagePipeline.swift */,
@@ -188,6 +241,10 @@
 		C00000000000000000000004 /* ../core */ = {
 			isa = PBXGroup;
 			children = (
+                B5000000000000000000000E /* f5_math.cpp */,
+                B5000000000000000000000F /* f5_registration.cpp */,
+                B50000000000000000000010 /* f5_quality.cpp */,
+                B50000000000000000000011 /* f5_c.cpp */,
 				B00000000000000000000005 /* hncs.cpp */,
 				B00000000000000000000008 /* ffcs.cpp */,
                 B00000000000000000000045 /* lumix.cpp */,
@@ -316,6 +373,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                A50000000000000000000012 /* F5SettingsCard.swift in Sources */,
+                A50000000000000000000001 /* F5BurstStore.swift in Sources */,
+                A50000000000000000000002 /* F5CaptureDriver.swift in Sources */,
+                A50000000000000000000003 /* F5ColorBridge.swift in Sources */,
+                A50000000000000000000004 /* F5Errors.swift in Sources */,
+                A50000000000000000000005 /* F5ImagePipeline.swift in Sources */,
+                A50000000000000000000006 /* F5Metal.swift in Sources */,
+                A50000000000000000000007 /* F5MetalOutput.swift in Sources */,
+                A5D000000000000000000001 /* F5LocalDenoise.swift in Sources */,
+                A50000000000000000000008 /* F5MetalRuntime.swift in Sources */,
+                A50000000000000000000009 /* F5MetalSolver.swift in Sources */,
+                A5000000000000000000000A /* F5Models.swift in Sources */,
+                A5000000000000000000000B /* F5RAW.swift in Sources */,
+                A5000000000000000000000C /* F5Reconstruction.swift in Sources */,
+                A5000000000000000000000D /* F5Kernels.metal in Sources */,
+                A5000000000000000000000E /* f5_math.cpp in Sources */,
+                A5000000000000000000000F /* f5_registration.cpp in Sources */,
+                A50000000000000000000010 /* f5_quality.cpp in Sources */,
+                A50000000000000000000011 /* f5_c.cpp in Sources */,
 				A00000000000000000000001 /* GlassCamApp.swift in Sources */,
 				A00000000000000000000002 /* ContentView.swift in Sources */,
 				A00000000000000000000003 /* ImagePipeline.swift in Sources */,

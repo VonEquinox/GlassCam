@@ -44,6 +44,13 @@ uv run --python 3.12 --with numpy python GlassCamPrototype/tools/verify_lumix_pi
 
 ## Adapter boundary
 
+Current camera captures use revision 4's separate bounded float adapter and a
+camera-neutral RAW input policy. The original UInt16 oracle is preserved for
+native verification and legacy recipes. The iPhone adapter keeps the original
+cubes and style registers but omits Panasonic sensor-specific low-ISO
+compensation and replaces wraparound with continuous gamut compression.
+See [the 2026-10-28 repair](../docs/COLOR_INPUT_REPAIR_20261028.md).
+
 Revision 2 uses Apple scene-linear ProRAW input and retains the source white point. Source ISO and CCT are bound into the durable photo recipe. The full original SDR VE branch runs with a scalar RGB48 white of 65535, using both complete cubes and native registers. Input/output HDR splitting/restoration and final HEIF encoding remain GlassCam policies. The SDR output is decoded with the standard sRGB EOTF into Float32.
 
 Saved revision-1 recipes keep their first native LUT and prior Apple-rendered input. Camera preferences migrate future captures to revision 2.

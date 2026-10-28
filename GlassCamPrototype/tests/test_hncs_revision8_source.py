@@ -86,7 +86,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertEqual(members['rawFilmCurveType'][2], '2')
         self.assertEqual(members['factoryKelvinOverride'][2], 'nil')
         recipe = stored_members(self.pipeline, 'struct ProcessingRecipe:')
-        self.assertEqual(set(recipe), {'mode', 'exposureEV', 'illuminantKelvin', 'simulationIndex', 'seed', 'hncs', 'effects', 'ffcs', 'photoWhiteBalance', 'lumix'})
+        self.assertEqual(set(recipe), {'mode', 'exposureEV', 'illuminantKelvin', 'simulationIndex', 'seed', 'hncs', 'effects', 'ffcs', 'photoWhiteBalance', 'lumix', 'rawInputPolicy', 'pipelineRevision'})
         self.assertTrue(all(member[0] == 'let' for member in recipe.values()))
         self.assertEqual(recipe['hncs'][1], 'HNCSSettings')
         self.assertEqual(recipe['effects'][1], 'EffectToggles')
@@ -149,7 +149,7 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertIn('Stepper("Factory CCT:', controls)
 
     def test_import_and_rerender_freeze_recipe_before_background_work(self):
-        self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality)', self.view)
+        self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality,', self.view)
         self.assertIn('ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe', self.workflow)
         self.assertIn('settings: snapshot.output', self.workflow)
         self.assertIn('let snapshot: CaptureSnapshot', self.workflow)
@@ -157,12 +157,13 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
 
     def test_preview_and_export_dispatch_the_same_frozen_hncs_recipe(self):
         preview = compact(body(self.pipeline, 'static func process('))
-        export = compact(body(self.pipeline, 'private static func exportFullSource('))
+        export = compact((body(self.pipeline, 'private static func exportFullSource(') + body(self.pipeline, 'private static func exportLinearSource(')))
         self.assertIn('recipe: recipe)', preview)
         self.assertIn('recipe: processed.recipe', self.pipeline)
         self.assertIn('guard recipe.isValid', export)
         for method in [preview, export]:
-            self.assertIn('exposureEV: recipe.exposureEV', method)
+            self.assertIn('exposureEV: recipe.backendExposureEV', method)
+            self.assertIn('applyExposure(', method)
             self.assertIn('illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs', method)
             self.assertNotIn('settings: .standard', method)
             self.assertNotIn('UserDefaults', method)
@@ -222,8 +223,8 @@ class Revision8IntegrationSourceContracts(unittest.TestCase):
         self.assertIn('PrecisionPreview(source: capture.preview)', self.view)
 
     def test_export_resolves_full_source_crop_before_output_selection_and_processing(self):
-        export = body(self.pipeline, 'private static func exportFullSource(')
-        self.assertOrdered(export, 'fullSourceImage(sourceFile, whiteBalance: whiteBalance, rawDecode: rawDecode)',
+        export = (body(self.pipeline, 'private static func exportFullSource(') + body(self.pipeline, 'private static func exportLinearSource('))
+        self.assertOrdered(export, 'fullSourceImage(sourceFile, whiteBalance: whiteBalance, rawDecode: rawDecode,',
                            'let sourceWidth = Int(decoded.extent.width.rounded(.down))',
                            'let sourceHeight = Int(decoded.extent.height.rounded(.down))',
                            'guard recipe.isValid',

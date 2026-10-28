@@ -1,0 +1,30 @@
+{
+  "revision": "f5-detail-initialization-development-policy-v4",
+  "qualification": "UNQUALIFIED_DIAGNOSTIC",
+  "production_default": false,
+  "policies": [
+    {
+      "name": "detail-protected",
+      "parameters": {
+        "lambdaY": 0.001,
+        "lambdaC": 0.04,
+        "colorGuide": true,
+        "adaptiveColorGuide": true,
+        "flatPriorBoost": 256,
+        "cardinalInitialization": true,
+        "malvarInitialization": true,
+        "protectFineDetail": true,
+        "geometryMode": "joint",
+        "attemptHigh": false,
+        "localDenoise": true
+      }
+    }
+  ],
+  "local_frequency": {"patch": 32, "stride": 8, "threshold_sigma": 2.7},
+  "limitations": [
+    "The initializer is currently a single-tile diagnostic.",
+    "The raw-green texture check is a heuristic noise-aware prior gate, not a calibrated confidence interval.",
+    "The post-filter still approximates reconstructed spatial covariance.",
+    "Natural-image cases are simulated RAW and do not constitute real-image acceptance."
+  ]
+}

@@ -45,6 +45,7 @@ private final class WorkflowHarness {
         switch source {
         case .file(let file): try check(try Data(contentsOf: file.url) == data, "Retained source changed")
         case .memory(let bytes): sawMemoryFallback = true; try check(bytes == data, "Memory fallback changed")
+        case .burst: try check(false, "A legacy single-photo workflow unexpectedly received an F5 burst")
         }
         progress(0.5)
         await Task.yield()
@@ -192,8 +193,8 @@ enum CaptureWorkflowChecks {
             try harness.check(settings.outputMegapixels(physicalCameraID: "physical-main", mode: "main") == 48,
                               "Unsupported 12MP output was accepted")
             settings.captureQuality = .speed
-            try harness.check(CameraSettingsStore(defaults: defaults).captureQuality == .speed,
-                              "Speed priority did not survive relaunch")
+            try harness.check(CameraSettingsStore(defaults: defaults).captureQuality == .f5,
+                              "Legacy Speed preference did not migrate to F5")
         }
         print("PASS: production capture workflow permission/admission, duplicate/late callbacks, immutable settings, processing/save retry, in-flight Photos ownership, and persisted 24/48MP migration")
     }

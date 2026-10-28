@@ -256,12 +256,13 @@ private func require(_ condition: Bool, _ message: String) throws {
                 parameters: [kCIInputScaleKey: scale, kCIInputAspectRatioKey: 1.0])
                 .cropped(to: CGRect(x: 0, y: 0, width: Double(processed.image.width) * scale,
                                     height: Double(processed.image.height) * scale))
-                .applyingFilter("CIColorClamp", parameters: [
-                    "inputMinComponents": CIVector(x: 0, y: 0, z: 0, w: 1),
-                    "inputMaxComponents": CIVector(x: CGFloat(ImagePipeline.maximumHDRValue), y: CGFloat(ImagePipeline.maximumHDRValue), z: CGFloat(ImagePipeline.maximumHDRValue), w: 1)])
-                .cropped(to: CGRect(x: 0, y: 0, width: Double(processed.image.width) * scale,
-                                    height: Double(processed.image.height) * scale))
         }
+        // Both native and resized exports clamp in the destination primaries.
+        // Leaving this out lets ImageIO choose a different gamut mapping.
+        expected = expected.applyingFilter("CIColorClamp",parameters:[
+            "inputMinComponents":CIVector(x:0,y:0,z:0,w:1),
+            "inputMaxComponents":CIVector(x:CGFloat(ImagePipeline.maximumHDRValue),y:CGFloat(ImagePipeline.maximumHDRValue),z:CGFloat(ImagePipeline.maximumHDRValue),w:1)])
+            .cropped(to:CGRect(x:0,y:0,width:Double(processed.image.width)*scale,height:Double(processed.image.height)*scale))
         if #available(macOS 26, *) {
             let peak = pixels(oracle.image.image).max() ?? 1
             expected = expected.settingContentHeadroom(max(1, peak))
@@ -275,7 +276,7 @@ private func require(_ condition: Bool, _ message: String) throws {
         }
         try require(actualImage.extent == expectedImage.extent, "HEIF output dimensions differ")
         let maximum = try error(pixels(actualImage), pixels(expectedImage))
-        try require(maximum < 0.02, "Full-source HEIF differs from the whole-frame oracle: \(maximum)")
+        try require(maximum < 0.02, "Full-source HEIF \(name) differs from the whole-frame oracle: \(maximum)")
         print("  \(name): maximum decoded HEIF difference \(maximum)")
     }
 

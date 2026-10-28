@@ -1,0 +1,191 @@
+{
+  "schema_version": "1.0",
+  "bundle_id": "synthetic-contract-fixture-only",
+  "synthetic": true,
+  "hardware_model": "SYNTHETIC_NOT_IPHONE",
+  "os_build": "not-applicable",
+  "profile_id": "SYNTHETIC_UNIT_TEST_ONLY",
+  "budget": {
+    "raw_exposures": 5,
+    "main_frames": 4,
+    "short_frames": 1,
+    "preview_pixels_used_for_reconstruction": false
+  },
+  "frames": [
+    {
+      "id": "synthetic-0",
+      "role": "L",
+      "request_index": 0,
+      "sequence_count": 1,
+      "physical_camera_id": "SYNTHETIC_CAMERA_NOT_IPHONE",
+      "raw_path": "fixtures/frame_0_L.raw",
+      "sha256": "2fc3e324d1c6e3edad22b188e389bfba5ab6ff3e21c16eb77202313502f8b688",
+      "storage": "raw_u16_mosaic_fixture",
+      "width": 10,
+      "height": 8,
+      "row_bytes": 24,
+      "byte_order": "little",
+      "active_area": [
+        1,
+        1,
+        7,
+        9
+      ],
+      "cfa_pattern": [
+        "R",
+        "G1",
+        "G2",
+        "B"
+      ],
+      "cfa_origin": "active_area_top_left",
+      "timestamp_seconds": 0.0,
+      "clock_id": "SYNTHETIC_CLOCK",
+      "requested_exposure_s": 0.008,
+      "actual_exposure_s": 0.008,
+      "actual_iso": 100.0,
+      "aperture": null,
+      "focus_value": null,
+      "ois_policy": "unavailable"
+    },
+    {
+      "id": "synthetic-1",
+      "role": "L",
+      "request_index": 1,
+      "sequence_count": 2,
+      "physical_camera_id": "SYNTHETIC_CAMERA_NOT_IPHONE",
+      "raw_path": "fixtures/frame_1_L.raw",
+      "sha256": "9ab91eec73af73fc8096135aac3dc20447f332f936cb171d952fc78ac89ae299",
+      "storage": "raw_u16_mosaic_fixture",
+      "width": 10,
+      "height": 8,
+      "row_bytes": 24,
+      "byte_order": "little",
+      "active_area": [
+        1,
+        1,
+        7,
+        9
+      ],
+      "cfa_pattern": [
+        "R",
+        "G1",
+        "G2",
+        "B"
+      ],
+      "cfa_origin": "active_area_top_left",
+      "timestamp_seconds": 0.035,
+      "clock_id": "SYNTHETIC_CLOCK",
+      "requested_exposure_s": 0.008,
+      "actual_exposure_s": 0.008,
+      "actual_iso": 100.0,
+      "aperture": null,
+      "focus_value": null,
+      "ois_policy": "unavailable"
+    },
+    {
+      "id": "synthetic-2",
+      "role": "S",
+      "request_index": 2,
+      "sequence_count": 3,
+      "physical_camera_id": "SYNTHETIC_CAMERA_NOT_IPHONE",
+      "raw_path": "fixtures/frame_2_S.raw",
+      "sha256": "dcb52a3bfdb8a824b73c0b6b6f957dad24cd536837f671e91af87968c058cd45",
+      "storage": "raw_u16_mosaic_fixture",
+      "width": 10,
+      "height": 8,
+      "row_bytes": 24,
+      "byte_order": "little",
+      "active_area": [
+        1,
+        1,
+        7,
+        9
+      ],
+      "cfa_pattern": [
+        "R",
+        "G1",
+        "G2",
+        "B"
+      ],
+      "cfa_origin": "active_area_top_left",
+      "timestamp_seconds": 0.07,
+      "clock_id": "SYNTHETIC_CLOCK",
+      "requested_exposure_s": 0.001,
+      "actual_exposure_s": 0.001,
+      "actual_iso": 100.0,
+      "aperture": null,
+      "focus_value": null,
+      "ois_policy": "unavailable"
+    },
+    {
+      "id": "synthetic-3",
+      "role": "L",
+      "request_index": 3,
+      "sequence_count": 4,
+      "physical_camera_id": "SYNTHETIC_CAMERA_NOT_IPHONE",
+      "raw_path": "fixtures/frame_3_L.raw",
+      "sha256": "440cf1a954d07a58c7e7d049e2a5d9e51197547c5f845536e534acd1bbcbcc84",
+      "storage": "raw_u16_mosaic_fixture",
+      "width": 10,
+      "height": 8,
+      "row_bytes": 24,
+      "byte_order": "little",
+      "active_area": [
+        1,
+        1,
+        7,
+        9
+      ],
+      "cfa_pattern": [
+        "R",
+        "G1",
+        "G2",
+        "B"
+      ],
+      "cfa_origin": "active_area_top_left",
+      "timestamp_seconds": 0.10500000000000001,
+      "clock_id": "SYNTHETIC_CLOCK",
+      "requested_exposure_s": 0.008,
+      "actual_exposure_s": 0.008,
+      "actual_iso": 100.0,
+      "aperture": null,
+      "focus_value": null,
+      "ois_policy": "unavailable"
+    },
+    {
+      "id": "synthetic-4",
+      "role": "L",
+      "request_index": 4,
+      "sequence_count": 5,
+      "physical_camera_id": "SYNTHETIC_CAMERA_NOT_IPHONE",
+      "raw_path": "fixtures/frame_4_L.raw",
+      "sha256": "d469565fd18efdf95f99df6b31dd5ffe138a4e5fa12ba8a927bc964ea76aca46",
+      "storage": "raw_u16_mosaic_fixture",
+      "width": 10,
+      "height": 8,
+      "row_bytes": 24,
+      "byte_order": "little",
+      "active_area": [
+        1,
+        1,
+        7,
+        9
+      ],
+      "cfa_pattern": [
+        "R",
+        "G1",
+        "G2",
+        "B"
+      ],
+      "cfa_origin": "active_area_top_left",
+      "timestamp_seconds": 0.14,
+      "clock_id": "SYNTHETIC_CLOCK",
+      "requested_exposure_s": 0.008,
+      "actual_exposure_s": 0.008,
+      "actual_iso": 100.0,
+      "aperture": null,
+      "focus_value": null,
+      "ois_policy": "unavailable"
+    }
+  ]
+}

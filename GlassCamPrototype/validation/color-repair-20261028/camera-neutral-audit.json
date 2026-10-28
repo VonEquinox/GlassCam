@@ -1,0 +1,237 @@
+[
+  {
+    "directReviewBytesIdentical" : true,
+    "fullHeight" : 7222,
+    "fullWidth" : 5416,
+    "inspection" : {
+      "configured" : {
+        "baseline_exposure" : 2.8934221267700195,
+        "boost_amount" : 0,
+        "boost_shadow_amount" : 0.89999997615814209,
+        "decoder_version" : "8.dng",
+        "draft_mode" : false,
+        "edr_amount" : 1,
+        "exposure" : 0,
+        "gamut_mapping" : true,
+        "local_tone_map_amount" : 1,
+        "local_tone_map_supported" : true,
+        "native_height" : 5416,
+        "native_width" : 7222,
+        "orientation" : 6,
+        "shadow_bias" : 0,
+        "sharpness_amount" : 0,
+        "sharpness_supported" : true,
+        "supported_decoder_versions" : [
+          "6.dng",
+          "7.dng",
+          "8.dng",
+          "9.dng"
+        ],
+        "temperature" : 5984.09228515625,
+        "tint" : -12.387198448181152,
+        "white_xy" : [
+          0.32285809516906738,
+          0.3244759738445282
+        ]
+      },
+      "defaults" : {
+        "baseline_exposure" : 2.8934221267700195,
+        "boost_amount" : 1,
+        "boost_shadow_amount" : 0.89999997615814209,
+        "decoder_version" : "8.dng",
+        "draft_mode" : false,
+        "edr_amount" : 0,
+        "exposure" : 0,
+        "gamut_mapping" : true,
+        "local_tone_map_amount" : 1,
+        "local_tone_map_supported" : true,
+        "native_height" : 5416,
+        "native_width" : 7222,
+        "orientation" : 6,
+        "shadow_bias" : 0,
+        "sharpness_amount" : 1,
+        "sharpness_supported" : true,
+        "supported_decoder_versions" : [
+          "6.dng",
+          "7.dng",
+          "8.dng",
+          "9.dng"
+        ],
+        "temperature" : 5984.09228515625,
+        "tint" : -12.387198448181152,
+        "white_xy" : [
+          0.32285809516906738,
+          0.3244759738445282
+        ]
+      },
+      "recipe" : {
+        "baselineSharpness" : 1.5,
+        "decoderExposureEV" : 0,
+        "decoderVersion" : "8.dng",
+        "linearExposureEV" : 0,
+        "rendering" : "cameraNeutral",
+        "sharpnessAmount" : 0
+      }
+    },
+    "mode" : "hncs",
+    "output" : "\/Users\/vonequinox\/Library\/Developer\/GlassCamDiagnostics\/color-repair-20261028\/apple\/fixtures\/hncs-neutral-full.heic",
+    "previewHeight" : 512,
+    "previewWidth" : 384
+  },
+  {
+    "directReviewBytesIdentical" : true,
+    "fullHeight" : 7222,
+    "fullWidth" : 5416,
+    "inspection" : {
+      "configured" : {
+        "baseline_exposure" : 2.8934221267700195,
+        "boost_amount" : 0,
+        "boost_shadow_amount" : 0.89999997615814209,
+        "decoder_version" : "8.dng",
+        "draft_mode" : false,
+        "edr_amount" : 1,
+        "exposure" : 0,
+        "gamut_mapping" : true,
+        "local_tone_map_amount" : 1,
+        "local_tone_map_supported" : true,
+        "native_height" : 5416,
+        "native_width" : 7222,
+        "orientation" : 6,
+        "shadow_bias" : 0,
+        "sharpness_amount" : 1,
+        "sharpness_supported" : true,
+        "supported_decoder_versions" : [
+          "6.dng",
+          "7.dng",
+          "8.dng",
+          "9.dng"
+        ],
+        "temperature" : 5984.09228515625,
+        "tint" : -12.387198448181152,
+        "white_xy" : [
+          0.32285809516906738,
+          0.3244759738445282
+        ]
+      },
+      "defaults" : {
+        "baseline_exposure" : 2.8934221267700195,
+        "boost_amount" : 1,
+        "boost_shadow_amount" : 0.89999997615814209,
+        "decoder_version" : "8.dng",
+        "draft_mode" : false,
+        "edr_amount" : 0,
+        "exposure" : 0,
+        "gamut_mapping" : true,
+        "local_tone_map_amount" : 1,
+        "local_tone_map_supported" : true,
+        "native_height" : 5416,
+        "native_width" : 7222,
+        "orientation" : 6,
+        "shadow_bias" : 0,
+        "sharpness_amount" : 1,
+        "sharpness_supported" : true,
+        "supported_decoder_versions" : [
+          "6.dng",
+          "7.dng",
+          "8.dng",
+          "9.dng"
+        ],
+        "temperature" : 5984.09228515625,
+        "tint" : -12.387198448181152,
+        "white_xy" : [
+          0.32285809516906738,
+          0.3244759738445282
+        ]
+      },
+      "recipe" : {
+        "baselineSharpness" : 1.5,
+        "decoderExposureEV" : 0,
+        "decoderVersion" : "8.dng",
+        "linearExposureEV" : 0,
+        "rendering" : "cameraNeutral"
+      }
+    },
+    "mode" : "ffcs",
+    "output" : "\/Users\/vonequinox\/Library\/Developer\/GlassCamDiagnostics\/color-repair-20261028\/apple\/fixtures\/ffcs-neutral-full.heic",
+    "previewHeight" : 512,
+    "previewWidth" : 384
+  },
+  {
+    "directReviewBytesIdentical" : true,
+    "fullHeight" : 7222,
+    "fullWidth" : 5416,
+    "inspection" : {
+      "configured" : {
+        "baseline_exposure" : 2.8934221267700195,
+        "boost_amount" : 0,
+        "boost_shadow_amount" : 0.89999997615814209,
+        "decoder_version" : "8.dng",
+        "draft_mode" : false,
+        "edr_amount" : 1,
+        "exposure" : 0,
+        "gamut_mapping" : true,
+        "local_tone_map_amount" : 1,
+        "local_tone_map_supported" : true,
+        "native_height" : 5416,
+        "native_width" : 7222,
+        "orientation" : 6,
+        "shadow_bias" : 0,
+        "sharpness_amount" : 1,
+        "sharpness_supported" : true,
+        "supported_decoder_versions" : [
+          "6.dng",
+          "7.dng",
+          "8.dng",
+          "9.dng"
+        ],
+        "temperature" : 5984.09228515625,
+        "tint" : -12.387198448181152,
+        "white_xy" : [
+          0.32285809516906738,
+          0.3244759738445282
+        ]
+      },
+      "defaults" : {
+        "baseline_exposure" : 2.8934221267700195,
+        "boost_amount" : 1,
+        "boost_shadow_amount" : 0.89999997615814209,
+        "decoder_version" : "8.dng",
+        "draft_mode" : false,
+        "edr_amount" : 0,
+        "exposure" : 0,
+        "gamut_mapping" : true,
+        "local_tone_map_amount" : 1,
+        "local_tone_map_supported" : true,
+        "native_height" : 5416,
+        "native_width" : 7222,
+        "orientation" : 6,
+        "shadow_bias" : 0,
+        "sharpness_amount" : 1,
+        "sharpness_supported" : true,
+        "supported_decoder_versions" : [
+          "6.dng",
+          "7.dng",
+          "8.dng",
+          "9.dng"
+        ],
+        "temperature" : 5984.09228515625,
+        "tint" : -12.387198448181152,
+        "white_xy" : [
+          0.32285809516906738,
+          0.3244759738445282
+        ]
+      },
+      "recipe" : {
+        "baselineSharpness" : 1.5,
+        "decoderExposureEV" : 0,
+        "decoderVersion" : "8.dng",
+        "linearExposureEV" : 0,
+        "rendering" : "cameraNeutral"
+      }
+    },
+    "mode" : "lumix",
+    "output" : "\/Users\/vonequinox\/Library\/Developer\/GlassCamDiagnostics\/color-repair-20261028\/apple\/fixtures\/lumix-neutral-full.heic",
+    "previewHeight" : 512,
+    "previewWidth" : 384
+  }
+]

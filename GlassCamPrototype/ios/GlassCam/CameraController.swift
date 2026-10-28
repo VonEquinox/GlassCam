@@ -52,6 +52,8 @@ final class CameraController: ObservableObject {
     @Published private(set) var appliedZoom = 1.0
     @Published private(set) var currentFraming = CaptureFraming()
     @Published private(set) var isUpdatingZoom = false
+    @Published private(set) var f5ProfileAvailable = false
+    @Published private(set) var f5SampleDirectory: URL?
     private var captureReservation: UUID?
     private let backend = CameraBackend()
     private var generation = UUID()
@@ -148,11 +150,48 @@ final class CameraController: ObservableObject {
         appliedZoom = bundle.framing.displayZoom
         currentFraming = bundle.framing
         requestedZoom = zoomRange.clamped(requestedZoom)
+        refreshF5ProfileStatus()
+    }
+    func refreshF5ProfileStatus() {
+        guard let id = physicalCameraID else { f5ProfileAvailable = false; return }
+        let hashed = F5Hash.data(Data(id.utf8))
+        let main = currentFraming.lensName == "Main"
+        f5ProfileAvailable = false
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            let available = main && !F5ProfileStore.candidates(hardware: F5DeviceFacts.hardware, os: F5DeviceFacts.osBuild, physicalCameraID: hashed).isEmpty
+            DispatchQueue.main.async { [weak self] in
+                guard let self, self.physicalCameraID == id else { return }
+                self.f5ProfileAvailable = available
+            }
+        }
+    }
+    func selectF5MainCamera() {
+        if let main = zoomRange.stops.first(where: { $0.title == "Main" }) { requestedZoom = main.factor; applyPendingZoom() }
+    }
+    func recordF5Sample() {
+        guard !isCapturing else { return }
+        selectF5MainCamera()
+        let token = generation
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            for _ in 0..<160 {
+                guard self.generation == token, !self.lifetime.isCancelled else { return }
+                if self.canReserveCapture { break }
+                try? await Task.sleep(nanoseconds: 50_000_000)
+            }
+            guard self.generation == token, let reservation = self.reserveCapture() else { return }
+            self.capturePhoto(reservation: reservation, quality: .f5, f5Purpose: "probe") { [weak self] result in
+                guard let self, self.generation == token else { return }
+                if case .success(let photo) = result { self.f5SampleDirectory = photo.burst?.directory; self.status = "Five RAW samples recorded. Main-camera calibration is still required." }
+                else if case .failure(let error) = result { self.status = error.localizedDescription }
+            }
+        }
     }
     private func clearPreview() {
         centerPreviewLayer = nil; geometry = nil; peripheralSource = nil
         centerLiveSource?.setEnabled(false); centerLiveSource = nil
         supportedOutputOptions = []; sourceCaptureDimensions = nil; physicalCameraID = nil
+        f5ProfileAvailable = false
         centerPreviewDimensions = nil
         centerPreviewEncoding = nil
     }
@@ -260,7 +299,8 @@ final class CameraController: ObservableObject {
         }
     }
 
-    func capturePhoto(reservation: UUID, quality: CaptureQuality = .quality,
+    func capturePhoto(reservation: UUID, quality: CaptureQuality = .quality, snapshot: CaptureSnapshot? = nil,
+                      f5Purpose: String = "product",
                       completion: @escaping (Result<CapturedCameraPhoto, Error>) -> Void) {
         dispatchPrecondition(condition: .onQueue(.main))
         guard captureReservation == reservation, isReady, !isCapturing, !isConfiguring,
@@ -270,21 +310,22 @@ final class CameraController: ObservableObject {
         }
         isCapturing = true; isReady = false; isPreviewFrozen = false
         capturePhase = .preparing; actualCapturedDimensions = nil
-        status = "Preparing full-resolution ProRAW…"
+        status = quality == .f5 ? "Preparing five Bayer RAW exposures…" : "Preparing full-resolution ProRAW…"
         let token = generation
         backend.queue.async { [weak self, backend] in
-            backend.capture(quality: quality, progress: { phase, message in
+            backend.capture(quality: quality, snapshot: snapshot, f5Purpose: f5Purpose, progress: { phase, message in
                 DispatchQueue.main.async { [weak self] in
                     guard let self, self.generation == token else { return }
                     self.capturePhase = phase; self.status = message
                 }
             }) { outcome in
                 DispatchQueue.main.async { [weak self] in
-                    let photoResult = outcome.result.map { CapturedCameraPhoto(data: $0.data, framing: $0.framing) }
+                    let photoResult = outcome.result.map { CapturedCameraPhoto(data: $0.data, framing: $0.framing, burst: $0.burst) }
                     // Stop/background can invalidate view state, never a completed DNG.
                     guard let self, self.generation == token else { completion(photoResult); return }
                     if let bundle = outcome.bundle { self.install(bundle) }
                     if case .success(let photo) = outcome.result { self.actualCapturedDimensions = photo.dimensions }
+                    if f5Purpose == "probe", case .success(let photo) = outcome.result { self.f5SampleDirectory = photo.burst?.directory }
                     self.isCapturing = false; self.captureReservation = nil; self.capturePhase = .idle
                     self.isPreviewFrozen = false
                     self.isReady = outcome.previewReady
@@ -320,6 +361,7 @@ private struct CapturedProRAW {
     let data: Data
     let dimensions: CGSize
     let framing: CaptureFraming
+    var burst: F5BurstSource? = nil
 }
 
 private final class CameraBackend {
@@ -390,6 +432,7 @@ private final class CameraBackend {
     private var observations: [NSKeyValueObservation] = []
     private var notifications: [NSObjectProtocol] = []
     private var captureDelegate: ProRAWCapture?
+    private var f5Capture: F5CaptureDriver?
     private var currentRequest: CaptureRequest?
     private var failureHandler: ((String) -> Void)?
     private var failed = false
@@ -823,7 +866,7 @@ private final class CameraBackend {
     private func buildSinglePhotoGraph(configuration plan: PreviewConfiguration, orientation value: UIInterfaceOrientation,
                                        expected: PhotoCapability?, includePreview: Bool,
                                        forcedDevice: AVCaptureDevice? = nil,
-                                       matchingFieldOfViewTangent: Double? = nil) throws -> PhotoCapability {
+                                       matchingFieldOfViewTangent: Double? = nil, bayer: Bool = false) throws -> PhotoCapability {
         try checkLifetime()
         guard session == nil else { throw CameraFailure("A camera graph still owns the device.") }
         let center = try forcedDevice ?? captureDevice(displayedZoom: plan.displayedZoom)
@@ -841,7 +884,10 @@ private final class CameraBackend {
         try center.lockForConfiguration()
         let multiplier = displayMultiplier(center)
         let desired = CGFloat(plan.displayedZoom / multiplier)
-        center.videoZoomFactor = expected?.zoom ?? min(center.maxAvailableVideoZoomFactor, max(center.minAvailableVideoZoomFactor, desired))
+        center.videoZoomFactor = bayer ? 1 : (expected?.zoom ?? min(center.maxAvailableVideoZoomFactor, max(center.minAvailableVideoZoomFactor, desired)))
+        if center.isExposureModeSupported(.continuousAutoExposure) { center.exposureMode = .continuousAutoExposure }
+        if center.isFocusModeSupported(.continuousAutoFocus) { center.focusMode = .continuousAutoFocus }
+        if center.isWhiteBalanceModeSupported(.continuousAutoWhiteBalance) { center.whiteBalanceMode = .continuousAutoWhiteBalance }
         center.unlockForConfiguration()
         let output = AVCapturePhotoOutput()
         guard newSession.canAddOutput(output) else { throw CameraFailure("Single-camera photo capture is unavailable.") }
@@ -851,11 +897,18 @@ private final class CameraBackend {
         newSession.addConnection(photoConnection)
         guard photoConnection.isVideoOrientationSupported else { throw CameraFailure("Photo orientation control is unavailable.") }
         photoOutput = output
-        output.maxPhotoQualityPrioritization = .quality
-        guard output.isAppleProRAWSupported else {
+        output.maxPhotoQualityPrioritization = bayer ? .speed : .quality
+        guard bayer || output.isAppleProRAWSupported else {
             throw CameraFailure("Apple ProRAW is unavailable on this camera. Try another focal length.", allowsPhysicalFallback: center.isVirtualDevice)
         }
-        output.isAppleProRAWEnabled = true
+        output.isAppleProRAWEnabled = !bayer
+        if bayer {
+            if output.isZeroShutterLagSupported { output.isZeroShutterLagEnabled = false }
+            if output.isResponsiveCaptureSupported { output.isResponsiveCaptureEnabled = false }
+            if output.isFastCapturePrioritizationSupported { output.isFastCapturePrioritizationEnabled = false }
+            if output.isAutoDeferredPhotoDeliverySupported { output.isAutoDeferredPhotoDeliveryEnabled = false }
+            if output.isLivePhotoCaptureSupported { output.isLivePhotoCaptureEnabled = false }
+        }
         if output.isContentAwareDistortionCorrectionSupported { output.isContentAwareDistortionCorrectionEnabled = false }
         if let tangent = matchingFieldOfViewTangent {
             let exactZoom = tan(Double(center.activeFormat.videoFieldOfView) * .pi / 360) / tangent
@@ -872,7 +925,7 @@ private final class CameraBackend {
         if let expected { try validate(photo, matches: expected) }
         dimensions = photo.dimensions
         output.maxPhotoDimensions = dimensions
-        guard output.availableRawPhotoPixelFormatTypes.contains(where: AVCapturePhotoOutput.isAppleProRAWPixelFormat) else {
+        guard output.availableRawPhotoPixelFormatTypes.contains(where: bayer ? AVCapturePhotoOutput.isBayerRAWPixelFormat : AVCapturePhotoOutput.isAppleProRAWPixelFormat) else {
             throw CameraFailure("This camera exposes no Apple ProRAW format. Try another focal length.", allowsPhysicalFallback: center.isVirtualDevice)
         }
         if includePreview { try addPreview(port: port, device: center, cap: plan.centerPreviewLongEdge, to: newSession) }
@@ -893,7 +946,7 @@ private final class CameraBackend {
         newSession.startRunning()
         try validateRunningGraph()
         guard newSession.sessionPreset == .photo, center.activeFormat === finalFormat,
-              output.isAppleProRAWSupported, output.isAppleProRAWEnabled else {
+              (bayer ? !output.isAppleProRAWEnabled : (output.isAppleProRAWSupported && output.isAppleProRAWEnabled)) else {
             throw CameraFailure("Starting the photo graph changed its source configuration. No lower-resolution capture was substituted.")
         }
         try validate(try photoCapability(center), matches: photo)
@@ -1173,7 +1226,8 @@ private final class CameraBackend {
                       centerPreviewEncoding: Self.previewEncoding(previewPixelFormats[0]),
                       zoomRange: zoomRange(for: center), framing: framing)
     }
-    func capture(quality: CaptureQuality, progress: @escaping (CameraController.CapturePhase, String) -> Void,
+    func capture(quality: CaptureQuality, snapshot: CaptureSnapshot? = nil, f5Purpose: String = "product",
+                 progress: @escaping (CameraController.CapturePhase, String) -> Void,
                  completion: @escaping (CaptureOutcome) -> Void) {
         dispatchPrecondition(condition: .onQueue(queue))
         guard phase == .preview, currentRequest == nil, let configuration, let capability, let lifetime else {
@@ -1185,6 +1239,32 @@ private final class CameraBackend {
         currentRequest = request; phase = .preparingPhoto
         do {
             try validateRunningGraph()
+            if quality == .f5 {
+                guard let main = lensCatalog.first(where:{$0.device.deviceType == .builtInWideAngleCamera && !$0.device.isVirtualDevice}),
+                      abs(request.configuration.displayedZoom-main.displayedZoom)<0.0001 else {
+                    throw F5Failure(.mainCameraOnly, "Select the main camera's native view for F5.")
+                }
+                let current=main.device
+                request.restoresPreviewGraph = true
+                request.progress(.preparing, "Preparing five Bayer RAW exposures…")
+                tearDownGraph(preservingPreview: true)
+                let photo = try buildSinglePhotoGraph(configuration: request.configuration, orientation: request.orientation,
+                    expected: nil, includePreview: false, forcedDevice: current, bayer: true)
+                self.capability = photo; dimensions = photo.dimensions; request.capability = photo
+                guard let output = photoOutput else { throw F5Failure(.unsupportedRAW, "Missing Bayer photo output.") }
+                let catalog = lensCatalog
+                let driver = try F5CaptureDriver(queue: queue, camera: current, output: output,
+                    snapshot: snapshot, purpose: f5Purpose, framing: { Self.framing(for: current, catalog: catalog) },
+                    cancelled: { request.lifetime.isCancelled }, progress: { request.progress(.capturing, $0) }) { [weak self, weak request] result in
+                    guard let self, let request else { return }
+                    self.queue.async { [weak self, weak request] in
+                        guard let self, let request, self.currentRequest === request else { return }
+                        self.finishPhoto(result.map(Self.burstPhoto), request: request)
+                    }
+                }
+                f5Capture = driver; phase = .capturing; driver.start()
+                return
+            }
             if session is AVCaptureMultiCamSession {
                 guard let center = devices.first else { throw CameraFailure("The selected physical camera is unavailable.") }
                 let primary = center
@@ -1253,6 +1333,7 @@ private final class CameraBackend {
         let captureDimensions = CMVideoDimensions(width: Int32(selected.width), height: Int32(selected.height))
         settings.maxPhotoDimensions = captureDimensions
         switch request.quality {
+        case .f5: throw F5Failure(.unsupportedRAW, "F5 must use its independent Bayer transaction.")
         case .speed: settings.photoQualityPrioritization = .speed
         case .balanced: settings.photoQualityPrioritization = .balanced
         case .quality: settings.photoQualityPrioritization = .quality
@@ -1280,7 +1361,7 @@ private final class CameraBackend {
     private func finishPhoto(_ result: Result<CapturedProRAW, Error>, request: CaptureRequest) {
         dispatchPrecondition(condition: .onQueue(queue))
         guard currentRequest === request, request.completion != nil else { return }
-        request.result = result; captureDelegate = nil
+        request.result = result; captureDelegate = nil; f5Capture = nil
         var bundle: Bundle?
         var previewReady = false
         var previewError: String?
@@ -1325,7 +1406,7 @@ private final class CameraBackend {
     private func finishRequest(_ request: CaptureRequest, result: Result<CapturedProRAW, Error>, bundle: Bundle?,
                                previewReady: Bool, message: String?) {
         guard currentRequest === request, let callback = request.completion else { return }
-        request.completion = nil; currentRequest = nil; captureDelegate = nil
+        request.completion = nil; currentRequest = nil; captureDelegate = nil; f5Capture = nil
         callback(CaptureOutcome(result: result, bundle: bundle, previewReady: previewReady, message: message))
     }
     private func failSession(_ message: String, stopRunning: Bool = false) {
@@ -1336,7 +1417,7 @@ private final class CameraBackend {
         if stopRunning { session?.stopRunning() }
         failureHandler?(message)
         if let request = currentRequest {
-            let result = request.result ?? captureDelegate?.cancel(reason: message) ?? .failure(CameraFailure(message))
+            let result = request.result ?? f5Capture?.cancel().map(Self.burstPhoto) ?? captureDelegate?.cancel(reason: message) ?? .failure(CameraFailure(message))
             // Preserve only a successfully committed terminal photo result, even
             // if its queued callback or preview restoration has not run yet.
             finishPhoto(result, request: request)
@@ -1446,13 +1527,20 @@ private final class CameraBackend {
         dispatchPrecondition(condition: .onQueue(queue))
         lifetime?.cancel(); phase = .stopped; failed = true
         let request = currentRequest
-        let result = request?.result ?? captureDelegate?.cancel() ?? .failure(CameraFailure("Camera capture cancelled."))
+        let result = request?.result ?? f5Capture?.cancel().map(Self.burstPhoto) ?? captureDelegate?.cancel() ?? .failure(CameraFailure("Camera capture cancelled."))
         tearDownGraph(preservingPreview: false)
         frozenDeliveries.forEach { $0.invalidate() }; frozenDeliveries.removeAll()
         if let request { finishRequest(request, result: result, bundle: nil, previewReady: false, message: "Camera stopped.") }
-        captureDelegate = nil; configuration = nil; capability = nil; lifetime = nil
+        captureDelegate = nil; f5Capture = nil; configuration = nil; capability = nil; lifetime = nil
         dimensions = CMVideoDimensions(width: 0, height: 0); failureHandler = nil
         stateChanged = nil; tripleCamera = nil; lensCatalog = []; nativePhotoHints.removeAll()
+    }
+    private static func burstPhoto(_ source: F5BurstSource) -> CapturedProRAW {
+        let frame = source.manifest.frames.first(where: { $0.burstIndex == 1 }) ?? source.manifest.frames[0]
+        var framing = source.manifest.framing
+        framing.deliveredWidth = frame.raster.activeArea.width; framing.deliveredHeight = frame.raster.activeArea.height
+        framing.nativePixelCount = frame.raster.activeArea.width * frame.raster.activeArea.height
+        return .init(data: Data(), dimensions: CGSize(width: frame.raster.activeArea.width, height: frame.raster.activeArea.height), framing: framing, burst: source)
     }
 }
 

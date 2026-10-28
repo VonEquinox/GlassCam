@@ -39,6 +39,17 @@ int lumix_process_linear_rgba(const LUMIXContext *context, const float *input,
                               size_t input_count, size_t pixels, double exposure_ev,
                               float *output, size_t output_count,
                               char *error, size_t error_size);
+/* Revision 4 iPhone adapter: complete Photo Style cubes and native CCT,
+ * contrast/saturation/monochrome registers, with bounded RGB12 coordinates,
+ * float chroma/tone output and continuous, luma-preserving gamut compression.
+ * Omits Panasonic sensor-specific low-ISO compensation. No UInt16 wraparound.
+ * Input is linear sRGB after caller-owned HDR splitting; finite signed values
+ * are projected into the LUT gamut. Output is linear RGBA in [0,1], alpha=1.
+ * Legacy/oracle APIs above retain their exact original arithmetic. */
+int lumix_process_iphone_rgba(const LUMIXContext *context, const float *input,
+                              size_t input_count, size_t pixels, double exposure_ev,
+                              float *output, size_t output_count,
+                              char *error, size_t error_size);
 #ifdef __cplusplus
 }
 #endif

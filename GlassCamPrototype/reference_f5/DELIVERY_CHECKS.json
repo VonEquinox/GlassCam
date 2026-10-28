@@ -1,0 +1,24 @@
+{
+  "all_four_portable_scripts_executed_again": true,
+  "saved_json_matches_at_1e_minus12_tolerance": {
+    "design_results.json": true,
+    "likelihood_results.json": true,
+    "prior_reproduced.json": true,
+    "contract_results.json": true
+  },
+  "floating_point_last_digit_differences": [
+    {
+      "field": "design_results.json/checks/noisy_weights/inverse_observed_signal_weighted_mean",
+      "absolute_difference": 1.0658141036401503e-14
+    }
+  ],
+  "pdf_pages": 35,
+  "pdf_qa": {
+    "pages": 35,
+    "bookmarks": 106,
+    "outside_safe_bounds": [],
+    "replacement_character_count": 0,
+    "total_extracted_text_chars": 52970
+  },
+  "phone_evidence": false
+}

@@ -1,0 +1,8 @@
+operator_adjoint_relative_error=6.5724e-16
+pg_score_standardized_fd_error=2.58982e-06
+objective_gradient_relative_fd_error=2.43072e-08
+guided_color_gradient_relative_fd_error=1.71731e-08
+common_chromatic_edge_penalty=48.3752 -> 0; isolated color residual penalized
+physical_constraint_step=2.52026e-06 -> 1 rounds=1
+native_objective=263.771 -> 263.651 stop=CONVERGED
+F5 CPU numerical contracts passed

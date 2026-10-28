@@ -1,0 +1,201 @@
+{
+  "seed": 20261026,
+  "scope": "controlled mechanism tests, not iPhone results",
+  "complementarity": {
+    "main_shifts_pixels": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.48,
+        0.02
+      ],
+      [
+        0.02,
+        0.48
+      ],
+      [
+        0.12,
+        0.18
+      ]
+    ],
+    "short_to_main_exposure": 0.125,
+    "four_main": {
+      "eigenvalues": [
+        0.011175479187327864,
+        0.9218295565062877,
+        0.9862000043379486,
+        2.0807949599684363
+      ],
+      "trace": 4.0,
+      "minimum_eigenvalue": 0.011175479187327864,
+      "condition_number": 186.19290726503237,
+      "unit_noise_unregularized_trace_covariance": 92.06099950695113
+    },
+    "redundant_short": {
+      "short_shift_pixels": [
+        0.0,
+        0.0
+      ],
+      "eigenvalues": [
+        0.011542640980726021,
+        0.9656418191221741,
+        0.9878689162713638,
+        2.1599466236257356
+      ],
+      "trace": 4.125,
+      "minimum_eigenvalue": 0.011542640980726021,
+      "condition_number": 187.12759300340613,
+      "unit_noise_unregularized_trace_covariance": 89.14612090381814
+    },
+    "complementary_short": {
+      "short_shift_pixels": [
+        0.5,
+        0.5
+      ],
+      "eigenvalues": [
+        0.13351352415440992,
+        0.9224550448744806,
+        0.9862082537992959,
+        2.0828231771718135
+      ],
+      "trace": 4.125,
+      "minimum_eigenvalue": 0.13351352415440992,
+      "condition_number": 15.600091379229902,
+      "unit_noise_unregularized_trace_covariance": 10.068043801382656
+    }
+  },
+  "random_complementarity": {
+    "count": 10000,
+    "distribution": "independent uniform shifts; synthetic, not measured",
+    "min_eigenvalue_ratio_percentiles_10_50_90": [
+      1.013038863258453,
+      1.4980684929950348,
+      23.441218372522712
+    ]
+  },
+  "blur_information": {
+    "exposure_ratio": 0.125,
+    "rows": [
+      {
+        "long_blur_length_input_pixels": 0.0,
+        "frequency_cycles_per_input_pixel": 0.0,
+        "short_information_fraction": 0.030303030303030304
+      },
+      {
+        "long_blur_length_input_pixels": 0.0,
+        "frequency_cycles_per_input_pixel": 0.25,
+        "short_information_fraction": 0.030303030303030304
+      },
+      {
+        "long_blur_length_input_pixels": 0.0,
+        "frequency_cycles_per_input_pixel": 0.5,
+        "short_information_fraction": 0.030303030303030304
+      },
+      {
+        "long_blur_length_input_pixels": 0.0,
+        "frequency_cycles_per_input_pixel": 0.6,
+        "short_information_fraction": 0.030303030303030304
+      },
+      {
+        "long_blur_length_input_pixels": 0.0,
+        "frequency_cycles_per_input_pixel": 0.75,
+        "short_information_fraction": 0.030303030303030304
+      },
+      {
+        "long_blur_length_input_pixels": 0.8,
+        "frequency_cycles_per_input_pixel": 0.0,
+        "short_information_fraction": 0.030303030303030304
+      },
+      {
+        "long_blur_length_input_pixels": 0.8,
+        "frequency_cycles_per_input_pixel": 0.25,
+        "short_information_fraction": 0.03440902905542837
+      },
+      {
+        "long_blur_length_input_pixels": 0.8,
+        "frequency_cycles_per_input_pixel": 0.5,
+        "short_information_fraction": 0.05133292990701117
+      },
+      {
+        "long_blur_length_input_pixels": 0.8,
+        "frequency_cycles_per_input_pixel": 0.6,
+        "short_information_fraction": 0.06585836474422962
+      },
+      {
+        "long_blur_length_input_pixels": 0.8,
+        "frequency_cycles_per_input_pixel": 0.75,
+        "short_information_fraction": 0.10754145400339375
+      },
+      {
+        "long_blur_length_input_pixels": 1.5,
+        "frequency_cycles_per_input_pixel": 0.0,
+        "short_information_fraction": 0.030303030303030304
+      },
+      {
+        "long_blur_length_input_pixels": 1.5,
+        "frequency_cycles_per_input_pixel": 0.25,
+        "short_information_fraction": 0.04802480181873268
+      },
+      {
+        "long_blur_length_input_pixels": 1.5,
+        "frequency_cycles_per_input_pixel": 0.5,
+        "short_information_fraction": 0.2520908410430007
+      },
+      {
+        "long_blur_length_input_pixels": 1.5,
+        "frequency_cycles_per_input_pixel": 0.6,
+        "short_information_fraction": 0.7150235023364486
+      },
+      {
+        "long_blur_length_input_pixels": 1.5,
+        "frequency_cycles_per_input_pixel": 0.75,
+        "short_information_fraction": 0.7140012530194869
+      },
+      {
+        "long_blur_length_input_pixels": 2.0,
+        "frequency_cycles_per_input_pixel": 0.0,
+        "short_information_fraction": 0.030303030303030304
+      },
+      {
+        "long_blur_length_input_pixels": 2.0,
+        "frequency_cycles_per_input_pixel": 0.25,
+        "short_information_fraction": 0.07073600938596739
+      },
+      {
+        "long_blur_length_input_pixels": 2.0,
+        "frequency_cycles_per_input_pixel": 0.5,
+        "short_information_fraction": 1.0
+      },
+      {
+        "long_blur_length_input_pixels": 2.0,
+        "frequency_cycles_per_input_pixel": 0.6,
+        "short_information_fraction": 0.5440297574747502
+      },
+      {
+        "long_blur_length_input_pixels": 2.0,
+        "frequency_cycles_per_input_pixel": 0.75,
+        "short_information_fraction": 0.381691859211982
+      }
+    ]
+  },
+  "correlated_registration": {
+    "pixels_sharing_error": 64,
+    "monte_carlo_draws": 100000,
+    "sensor_noise_sigma": 1.0,
+    "shared_error_sigma": 1.0,
+    "true_patch_mean_variance": 1.015625,
+    "diagonal_assumption_patch_mean_variance": 0.03125,
+    "monte_carlo_patch_mean_variance": 1.01959120351142,
+    "variance_underestimation_factor": 32.5,
+    "woodbury_relative_error": 2.2069794094946945e-16
+  },
+  "alias_aware_prediction": {
+    "frequency": 0.75,
+    "shift": 0.5,
+    "wrong_lr_bandlimited_warp_rmse": 0.4244131815783879,
+    "correct_forward_prediction_rmse": 0.0,
+    "note": "Known ground truth and shift; demonstrates mechanism, not solver performance."
+  }
+}

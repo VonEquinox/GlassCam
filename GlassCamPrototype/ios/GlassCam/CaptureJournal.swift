@@ -21,6 +21,7 @@ final class CaptureJournal: @unchecked Sendable {
         var snapshot: CaptureSnapshot
         var stage: Stage
         var raw: Blob
+        var sourceKind: String?
         var encoded: Blob?
         var width: Int?
         var height: Int?
@@ -41,11 +42,13 @@ final class CaptureJournal: @unchecked Sendable {
 
     let directory: URL
     var rawURL: URL { directory.appendingPathComponent("source.dng") }
+    var burstURL: URL { directory.appendingPathComponent("burst", isDirectory: true) }
     var encodedURL: URL { directory.appendingPathComponent("result.heic") }
     private var manifestURL: URL { directory.appendingPathComponent("capture.json") }
     private let lock = NSLock()
     private let beforeOperation: (@Sendable (Operation) throws -> Void)?
     private let afterOperation: (@Sendable (Operation) throws -> Void)?
+    private let recoversF5Staging: Bool
 
     init(directory: URL? = nil, beforeOperation: (@Sendable (Operation) throws -> Void)? = nil,
          afterOperation: (@Sendable (Operation) throws -> Void)? = nil) {
@@ -53,6 +56,63 @@ final class CaptureJournal: @unchecked Sendable {
             .appendingPathComponent("GlassCam/PendingCapture", isDirectory: true)
         self.beforeOperation = beforeOperation
         self.afterOperation = afterOperation
+        recoversF5Staging = directory == nil
+    }
+
+    func retainBurst(_ source: F5BurstSource, id: UUID, snapshot: CaptureSnapshot) throws -> Record {
+        lock.lock(); defer { lock.unlock() }
+        try beforeOperation?(.retain)
+        let record = try retainBurstUnlocked(source, id: id, snapshot: snapshot)
+        try afterOperation?(.retain)
+        return record
+    }
+    private func retainBurstUnlocked(_ source: F5BurstSource, id: UUID, snapshot: CaptureSnapshot) throws -> Record {
+        guard snapshot.quality == .f5, snapshot.recipe.isValid else { throw Failure.damaged }
+        _ = try source.manifest.validate(directory: source.directory)
+        if try directoryExists() {
+            let old = try readRecord()
+            guard old.id == id, old.stage == .rawReady, old.sourceKind == "f5" else { throw Failure.anotherPhoto }
+            try validate(old.raw, at: burstURL.appendingPathComponent("burst.json"))
+            _ = try F5BurstSource(directory: burstURL)
+            return old
+        }
+        let parent = directory.deletingLastPathComponent()
+        try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true, attributes: ImageFileProtection.attributes)
+        let staging = parent.appendingPathComponent("IncomingF5-\(id.uuidString)", isDirectory: true)
+        // This temporary copy belongs to this same transaction and is safe to
+        // rebuild. The original F5Staging directory remains durable throughout.
+        if FileManager.default.fileExists(atPath: staging.path) { try FileManager.default.removeItem(at: staging) }
+        let destination = staging.appendingPathComponent("burst", isDirectory: true)
+        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true, attributes: ImageFileProtection.attributes)
+        do {
+            var files = ["burst.json", "intent.json"]
+            files += source.manifest.frames.flatMap { [$0.dng.path, $0.mosaic.path] }
+            if source.manifest.profile != nil { files.append("profile.json") }
+            if let table = source.manifest.profile?.likelihood.table { files.append(table.path) }
+            for path in files {
+                let input = source.directory.appendingPathComponent(path).resolvingSymlinksInPath()
+                guard input.path.hasPrefix(source.directory.resolvingSymlinksInPath().path + "/") else { throw Failure.damaged }
+                let output = destination.appendingPathComponent(path)
+                try FileManager.default.createDirectory(at: output.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: ImageFileProtection.attributes)
+                try Self.writeProtected(Data(contentsOf: input, options: .mappedIfSafe), to: output)
+            }
+            _ = try F5BurstSource(directory: destination)
+            let bytes = try Data(contentsOf: destination.appendingPathComponent("burst.json"))
+            var record = Record(id: id, createdAt: source.manifest.createdAt, snapshot: snapshot, stage: .rawReady,
+                raw: Blob(bytes), sourceKind: "f5")
+            record.schemaVersion = 2
+            try Self.writeProtected(F5Hash.json(record), to: staging.appendingPathComponent("capture.json"))
+            try FileManager.default.moveItem(at: staging, to: directory)
+            removeDuplicateF5Staging(source.manifest)
+            return record
+        } catch { try? FileManager.default.removeItem(at: staging); throw error }
+    }
+    private func removeDuplicateF5Staging(_ manifest: F5BurstManifest) {
+        guard recoversF5Staging else { return }
+        let original = F5BurstTransaction.stagingRoot.appendingPathComponent(manifest.id.uuidString)
+        guard let source = try? F5BurstSource(directory: original), source.manifest.id == manifest.id,
+              (try? F5Hash.json(source.manifest)) == (try? F5Hash.json(manifest)) else { return }
+        try? FileManager.default.removeItem(at: original)
     }
 
     func retain(_ data: Data, id: UUID, snapshot: CaptureSnapshot) throws -> Record {
@@ -151,10 +211,22 @@ final class CaptureJournal: @unchecked Sendable {
         lock.lock(); defer { lock.unlock() }
         try beforeOperation?(.load)
         cleanRetiredDirectories()
-        guard try directoryExists() else { return nil }
+        if try !directoryExists() {
+            if recoversF5Staging, let (path, intent) = try F5BurstTransaction.pendingProduct(), let snapshot = intent.snapshot {
+                guard intent.state == .committed else {
+                    throw F5Failure(.frameMissing, "F5 capture was interrupted after \(intent.frames.count) of 5 frames. Its diagnostic files were retained; discard this interrupted capture before taking another.")
+                }
+                return try retainBurstUnlocked(F5BurstSource(directory: path), id: intent.id, snapshot: snapshot)
+            }
+            return nil
+        }
         let record = try readRecord()
         if record.stage == .savedConfirmed { return record }
-        try validate(record.raw, at: rawURL)
+        if record.sourceKind == "f5" {
+            try validate(record.raw, at: burstURL.appendingPathComponent("burst.json"))
+            let source = try F5BurstSource(directory: burstURL)
+            removeDuplicateF5Staging(source.manifest)
+        } else { try validate(record.raw, at: rawURL) }
         if record.stage != .rawReady {
             guard let encoded = record.encoded, let width = record.width, let height = record.height,
                   width > 0, height > 0 else { throw Failure.damaged }
@@ -167,7 +239,10 @@ final class CaptureJournal: @unchecked Sendable {
         lock.lock(); defer { lock.unlock() }
         try beforeOperation?(.clear)
         guard try directoryExists() else { return }
-        _ = try matching(id)
+        let record = try matching(id)
+        if record.stage == .savedConfirmed,record.sourceKind == "f5",record.snapshot.archiveF5RAW {
+            try F5ArchiveStore.retain(F5BurstSource(directory:burstURL),captureID:id)
+        }
         try retireDirectory()
         try afterOperation?(.clear)
     }
@@ -176,7 +251,14 @@ final class CaptureJournal: @unchecked Sendable {
     func discardUnreadable() throws {
         lock.lock(); defer { lock.unlock() }
         try beforeOperation?(.clear)
-        guard try directoryExists() else { return }
+        guard try directoryExists() else {
+            if recoversF5Staging, let (path, _) = try F5BurstTransaction.pendingProduct() {
+                let retired = path.deletingLastPathComponent().appendingPathComponent("Discarded-\(UUID().uuidString)")
+                try FileManager.default.moveItem(at: path, to: retired)
+                try? FileManager.default.removeItem(at: retired)
+            }
+            return
+        }
         try retireDirectory()
     }
 
@@ -214,7 +296,7 @@ final class CaptureJournal: @unchecked Sendable {
     }
     private func readRecord() throws -> Record {
         let record = try JSONDecoder().decode(Record.self, from: Data(contentsOf: manifestURL))
-        guard record.schemaVersion == 1 else { throw Failure.unsupportedVersion }
+        guard record.schemaVersion == 1 || (record.schemaVersion == 2 && record.sourceKind == "f5") else { throw Failure.unsupportedVersion }
         guard record.snapshot.recipe.isValid, record.snapshot.output.framing?.isValid != false,
               record.raw.bytes > 0, record.raw.sha256.count == 64 else { throw Failure.damaged }
         return record

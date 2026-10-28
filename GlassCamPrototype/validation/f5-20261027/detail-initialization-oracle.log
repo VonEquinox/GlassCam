@@ -1,0 +1,7 @@
+/private/tmp/GlassCam-F5-Python/lib/python3.14/site-packages/colour/utilities/verbose.py:340: ColourUsageWarning: "Matplotlib" related API features are not available: "No module named 'matplotlib'".
+See the installation guide for more information: https://www.colour-science.org/installation-guide/
+  warn(*args, **kwargs)
+RGGB 3.371926793338531e-07
+BGGR 3.612382921680535e-07
+GRBG 2.947842228095965e-07
+GBRG 3.8472151131507815e-07

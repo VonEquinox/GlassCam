@@ -1,0 +1,53 @@
+Verified 16 LUMIX Photo Style LUTs in /var/folders/_t/h6vv268j65s166v4flh5yzdc0000gn/T/glasscam-apple-images-falh00xp/LUMIX
+Verified 17 LUMIX Photo Style LUTs in /var/folders/_t/h6vv268j65s166v4flh5yzdc0000gn/T/glasscam-apple-images-falh00xp/LUMIX
+PASS: asymmetric 7x131 markers, 64/64/3-row strip ordering and RGBAf reconstruction. Maximum error 0.0
+/Users/vonequinox/Program/ProgramDev/GlassCam/GlassCamPrototype/ios/GlassCam/F5MetalRuntime.swift:24:56: warning: 'fastMathEnabled' was deprecated in macOS 15.0: Use mathMode instead [#DeprecatedDeclaration]
+ 22 |         self.device = device; self.queue = queue; self.maximumBytes = maximumBytes; self.isCancelled = isCancelled
+ 23 |         if let shaderURL {
+ 24 |             let options = MTLCompileOptions(); options.fastMathEnabled = false; options.languageVersion = .version3_1
+    |                                                        `- warning: 'fastMathEnabled' was deprecated in macOS 15.0: Use mathMode instead [#DeprecatedDeclaration]
+ 25 |             library = try device.makeLibrary(source: String(contentsOf: shaderURL, encoding: .utf8), options: options)
+ 26 |         } else if let compiled = device.makeDefaultLibrary() { library = compiled }
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+PASS: revision 12 preserves old photo rendering/WB, migrates future camera defaults, and rejects unknown revisions
+PASS: missing, varied and malformed RAW sharpness metadata
+PASS: Foundation work-file row order and uneven partitions
+PASS: odd portrait/landscape crops select identical before/after pixels
+PASS: Swift native-USM/portable-grain file route matches memory with per-RAW baseline
+PASS: actual Metal preview destination preserves quadrant coordinates and 2×/4×/8× HDR pixels
+PASS: real Metal display layer receives per-photo HDR headroom, enables tone mapping, and resets for SDR
+PASS: production automatic WB snapshot, Codable, cache invalidation and per-photo binding
+PASS: production capture workflow permission/admission, duplicate/late callbacks, immutable settings, processing/save retry, in-flight Photos ownership, and persisted 24/48MP migration
+PASS: 24/48MP thresholds, post-crop policy, interpolation dimensions/aspect, zoom limits, native compatibility and Codable replay
+PASS: durable RAW/HEIF recovery, unknown Photos outcomes, receipts/cleanup failures, foreground suspension, corruption preservation and one-photo admission
+  hncs-standard: maximum decoded HEIF difference 0.0
+  hncs-square-crop: maximum decoded HEIF difference 0.0
+  hncs-film-grain-artistic: maximum decoded HEIF difference 0.0
+  hncs-high: maximum decoded HEIF difference 0.0
+  ffcs-false: maximum decoded HEIF difference 0.0
+  ffcs-true: maximum decoded HEIF difference 0.0
+  hncs-downsample: maximum decoded HEIF difference 0.0
+PASS: 7 real HEIF exports match full-frame processing; direct export has identical decoded pixels
+  camera-interpolated-24: maximum decoded HEIF difference 0.0
+PASS: adaptive 24MP interpolation matches independent full-frame linear-light HEIF output
+  hdr-hncs-standard: maximum decoded HEIF difference 0.0
+  hdr-hncs-square-crop: maximum decoded HEIF difference 0.0
+  hdr-hncs-film-grain-artistic: maximum decoded HEIF difference 0.0
+  hdr-hncs-high: maximum decoded HEIF difference 0.0
+  hdr-ffcs-false: maximum decoded HEIF difference 0.0
+  hdr-ffcs-true: maximum decoded HEIF difference 0.0
+  hdr-downsample: maximum decoded HEIF difference 0.0
+PASS: HDR import, highlight ratios, 10-bit PQ metadata, and 7 HDR exports; direct export has identical decoded pixels
+PASS: neutral HDR detail participates in the production sharpening pass
+PASS: capture metadata in the initial encode, timestamp, HDR encoding and JPEG metadata retention
+PASS: cancellation discards output while retaining the source
+  JPEG HDR tone-map samples: [0.7608107, 0.69927067, 0.6239054], [0.96732235, 0.8935741, 0.8042654]
+PASS: real share provider preserves HEIF and delivers cached full-size JPEG
+PASS: per-RAW BaselineSharpness 1.5, decoder sharpness disabled, policy/retry stable
+PASS: RAW Auto WB · 5984 K · Tint -12.4; xy (0.3228580951690674, 0.3244759738445282); virtual model CCT 5984.0
+  real RAW export progress: 0.0
+  real RAW export progress: 0.9
+PASS: real RAW 5416×7222 → 10-bit PQ HEIF; decoded peak 23.399618; bytes 3155601; seconds 4.504672050476074
+PASS: real RAW camera 24MP policy → 4242×5658, 10-bit; native-sized output preserves original HEIF bytes
+PASS: real RAW camera 48MP policy → 6000×8000, 10-bit; native-sized output preserves original HEIF bytes

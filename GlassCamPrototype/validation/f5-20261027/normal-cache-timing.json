@@ -1,0 +1,22 @@
+{
+  "scope": "64x64 desktop diagnostic ROIs; not phone/full-photo timing",
+  "camera_used": false,
+  "results": [
+    {
+      "name": "texture_left",
+      "before_seconds": 21.637596291664522,
+      "after_seconds": 16.817637458327226,
+      "maximum_absolute_rgb_difference": 0.0,
+      "rmse": 0.0,
+      "identical": true
+    },
+    {
+      "name": "flat_dark",
+      "before_seconds": 13.571885625016876,
+      "after_seconds": 12.57263549999334,
+      "maximum_absolute_rgb_difference": 0.0,
+      "rmse": 0.0,
+      "identical": true
+    }
+  ]
+}

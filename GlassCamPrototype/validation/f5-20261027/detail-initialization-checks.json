@@ -1,0 +1,79 @@
+{
+  "camera_used": false,
+  "metal": {
+    "synthetic": true,
+    "camera_used": false,
+    "real_device_samples_audited": false,
+    "results": [
+      {
+        "name": "compile-core",
+        "exit_code": 0,
+        "seconds": 4.278367916005664
+      },
+      {
+        "name": "compile-metal-tests",
+        "exit_code": 0,
+        "seconds": 2.672788667026907
+      },
+      {
+        "name": "metal-numerics",
+        "exit_code": 0,
+        "seconds": 1.7746824999921955
+      },
+      {
+        "name": "compile-desktop-quality",
+        "exit_code": 0,
+        "seconds": 21.72250220796559
+      }
+    ]
+  },
+  "initializer_oracle": {
+    "camera_used": false,
+    "oracle": "colour-demosaicing Malvar2004 plus common bilinear sampling",
+    "shader_sha256": "4f6d029d6326fe97fad17bd749cd5c48af171444625fc9e27e1ce03ef8e3b86f",
+    "renderer_sha256": "4d13c291778056e71e2f0c585eca106c0b92cbbca0394c2c09cbd8e23d3ca0a4",
+    "results": [
+      {
+        "pattern": "RGGB",
+        "width": 35,
+        "height": 33,
+        "maximum_error": 3.371926793338531e-07,
+        "input_sha256": "6ce6ad89273218dc076d6ed13def9a4195e66560ac3e207e3607ce17d80996f6"
+      },
+      {
+        "pattern": "BGGR",
+        "width": 35,
+        "height": 33,
+        "maximum_error": 3.612382921680535e-07,
+        "input_sha256": "e3dfd3e1b1fb5952b9962d6d5feadf4f7b55e1d72d3f69e58b1d8089485aa654"
+      },
+      {
+        "pattern": "GRBG",
+        "width": 35,
+        "height": 33,
+        "maximum_error": 2.947842228095965e-07,
+        "input_sha256": "4941362843dd5101ece8381fbb2cde10175935309ed52ec74d2623b97f026eb9"
+      },
+      {
+        "pattern": "GBRG",
+        "width": 35,
+        "height": 33,
+        "maximum_error": 3.8472151131507815e-07,
+        "input_sha256": "a78acb89131658cca6d0a975a22d87f6cdbe39b54c58ab6bee19a997e0fa7d25"
+      }
+    ]
+  },
+  "ios_release": {
+    "status": "PASS",
+    "code_signing": false,
+    "device_used": false,
+    "log_sha256": "7710bf65e9fc2d78d1c6587bd912aeffdfb909dbd358c98e37f21a54b3eb7459"
+  },
+  "experiment_counts": {
+    "analytic": 8,
+    "natural_synthetic": 4,
+    "real_crops": 5,
+    "lucky_variants_per_case": 6
+  },
+  "goal_complete": false
+}

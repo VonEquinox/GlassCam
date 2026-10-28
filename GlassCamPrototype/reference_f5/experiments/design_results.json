@@ -1,0 +1,90 @@
+{
+  "status": "executed synthetic and algebraic design checks, no iPhone measurements",
+  "seed": 2026102603,
+  "environment": {
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0"
+  },
+  "checks": {
+    "effective_image_equivalence": {
+      "quadrature_vs_effective_field_max_error": 1.2212453270876722e-15,
+      "double_pixel_integration_rmse": 0.015565309785266225,
+      "optics_pixel_factorization_nonidentifiability_max_error": 0.0,
+      "scope": "translation, fixed spatial response; no proof for arbitrary affine warps"
+    },
+    "censored_bias": {
+      "count": 400000,
+      "true_mean": 0.99,
+      "sigma": 0.04,
+      "threshold": 1.0,
+      "masked_mean": 0.9641529709735475,
+      "naive_clipped_mean": 0.9785645520530522,
+      "censored_MLE": 0.990045013942703,
+      "saturated_fraction": 0.40203,
+      "scope": "known Gaussian sigma; isolates selection bias, not a Poisson sensor validation"
+    },
+    "noisy_weights": {
+      "true_mean_electrons": 20.0,
+      "count": 400000,
+      "inverse_observed_signal_weighted_mean": 18.923787552752884,
+      "ordinary_sample_mean": 19.983642714351642,
+      "warning": "using fitted expected signal, not each noisy observation, prevents this particular weight bias"
+    },
+    "nuisance_consistency": {
+      "joint_vs_schur_relative_error": 5.171699340307578e-16,
+      "woodbury_relative_error": 1.3593825061035992e-15,
+      "double_use_same_measurement_claimed_95_interval_actual_coverage": 0.834042,
+      "scope": "independent nuisance prior in equivalence; same-data posterior must NOT become another prior"
+    },
+    "operator_checks": {
+      "shape": [
+        3435,
+        9216
+      ],
+      "nnz_A": 54960,
+      "nnz_F": 296520,
+      "adjoint_relative_error": 9.832957962675427e-16,
+      "constant_preservation_max_error": 4.440892098500626e-16,
+      "motion_jacobian_relative_error": 7.420628411408849e-10,
+      "normal_equation_relative_error": 2.67209542187516e-16,
+      "csr_bytes_A": 673264,
+      "csr_bytes_F": 3595108,
+      "matvec_nonzero_visits_AtWA": 109920,
+      "matvec_nonzero_visits_F": 296520,
+      "scope": "2D, CFA odd crop, 4+1 exposure, B-spline effective image; FP64 CPU only"
+    },
+    "sampling_shift_value": {
+      "none": {
+        "lambda_min": 0.011175479187327864,
+        "trace": 4.0
+      },
+      "repeat": {
+        "lambda_min": 0.011542640980726021,
+        "trace": 4.125
+      },
+      "complement": {
+        "lambda_min": 0.13351352415440992,
+        "trace": 4.125
+      }
+    },
+    "tile_consistency": {
+      "independent_halo_max_error": 0.3630974597427459,
+      "global_block_descent_errors_1_4_12_24": [
+        0.5095089175490911,
+        0.27314177108934273,
+        0.05181861750890465,
+        0.004285346779474231
+      ],
+      "two_level_errors_1_4_8": [
+        0.07697267578201217,
+        2.4372359685997935e-10,
+        4.218847493575595e-15
+      ],
+      "initial_24_sweep_1_percent_relative_gate_failed": true,
+      "monotonic_energy": true,
+      "scope": "known convex quadratic; shows halo alone does not make independently converged tiles globally equivalent"
+    }
+  },
+  "script_sha256": "3e771245c6c3abffe37417ba20f75dcc8dbe8c87c2c059d0e0a9facadcd3a054"
+}

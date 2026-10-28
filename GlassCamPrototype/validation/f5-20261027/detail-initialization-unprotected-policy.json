@@ -1,0 +1,32 @@
+{
+  "revision": "f5-detail-initialization-development-v1",
+  "qualification": "UNQUALIFIED_DIAGNOSTIC",
+  "production_default": false,
+  "policies": [
+    {
+      "name": "detail-init",
+      "parameters": {
+        "lambdaY": 0.001,
+        "lambdaC": 0.04,
+        "colorGuide": true,
+        "adaptiveColorGuide": true,
+        "flatPriorBoost": 256,
+        "cardinalInitialization": true,
+        "geometryMode": "joint",
+        "attemptHigh": false,
+        "localDenoise": true,
+        "malvarInitialization": true
+      }
+    }
+  ],
+  "local_frequency": {
+    "patch": 32,
+    "stride": 8,
+    "threshold_sigma": 2.7
+  },
+  "limitations": [
+    "The variance approximation ignores reconstructed spatial covariance.",
+    "Filtering is a separate output candidate, not evidence of RAW objective convergence.",
+    "Desktop performance is not phone performance."
+  ]
+}

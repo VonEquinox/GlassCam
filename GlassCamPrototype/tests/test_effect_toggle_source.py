@@ -146,7 +146,7 @@ class EffectToggleSourceContracts(unittest.TestCase):
         self.assertEqual(counts['HNCSEngine.exportLinearRGBA'], 2)
         self.assertEqual(counts['FFCSEngine.exportLinearRGBA'], 1)
         self.assertEqual(counts['FFCSEngine.exportLinearRGBStrip'], 1)
-        export = body(self.pipeline, 'private static func exportFullSource(')
+        export = (body(self.pipeline, 'private static func exportFullSource(') + body(self.pipeline, 'private static func exportLinearSource('))
         self.assertIn('recipe: processed.recipe', self.pipeline)
         self.assertIn('guard recipe.isValid', export)
         self.assertIn('recipe.hncs.requiresSpatial(effects: recipe.effects)', export)
@@ -180,7 +180,7 @@ class EffectToggleSourceContracts(unittest.TestCase):
 
     def test_shutter_retention_render_and_save_use_complete_immutable_snapshot(self):
         shutter = body(self.camera, 'private func shutter(')
-        self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality)', shutter)
+        self.assertIn('let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality,', shutter)
         self.assertLess(shutter.index('let snapshot'), shutter.index('camera.capturePhoto'))
         self.assertIn('let snapshot: CaptureSnapshot', self.workflow)
         self.assertIn('ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe', self.workflow)
@@ -206,7 +206,7 @@ class EffectToggleSourceContracts(unittest.TestCase):
         self.assertIn('recipe.crop.resolve(width: input.width, height: input.height)', process)
         self.assertIn('input.original.cropped(to: crop)', process)
         self.assertIn('comparisonSource: comparisonSource', process)
-        export = body(self.pipeline, 'private static func exportFullSource(')
+        export = (body(self.pipeline, 'private static func exportFullSource(') + body(self.pipeline, 'private static func exportLinearSource('))
         self.assertIn('recipe.crop.resolve(width: sourceWidth, height: sourceHeight)', export)
         self.assertIn('settings.dimensions(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: recipe.crop)', export)
         self.assertIn('decoded.cropped(to: crop.ciRect)', export)

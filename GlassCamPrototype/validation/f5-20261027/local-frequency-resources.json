@@ -1,0 +1,39 @@
+{
+  "camera_used": false,
+  "scope": "Isolated local filter on desktop, synthetic 4032x3024 raster; not full F5 or phone timing",
+  "output_bit_identical": true,
+  "measurements": [
+    {
+      "camera_used": false,
+      "height": 3024,
+      "peak_allocated_bytes": 49210768,
+      "qualified": false,
+      "seconds": 2.4782867500325665,
+      "streaming": true,
+      "tile": 256,
+      "timing_includes_file_io": true,
+      "width": 4032,
+      "maximum_resident_bytes": 655769600,
+      "peak_process_footprint_bytes": 715768912,
+      "autorelease_pool_per_tile": false,
+      "output_sha256": "af208c930efe875d2a91ac3b7d74b2999af2da117024f7765380302bad143ca0",
+      "log_sha256": "398c80c314d65a4071b35ef5483f8e8779e18cd6e1c1e6717de7757f996f23ef"
+    },
+    {
+      "camera_used": false,
+      "height": 3024,
+      "peak_allocated_bytes": 49210768,
+      "qualified": false,
+      "seconds": 3.0768144582980312,
+      "streaming": true,
+      "tile": 256,
+      "timing_includes_file_io": true,
+      "width": 4032,
+      "maximum_resident_bytes": 25788416,
+      "peak_process_footprint_bytes": 85820064,
+      "autorelease_pool_per_tile": true,
+      "output_sha256": "af208c930efe875d2a91ac3b7d74b2999af2da117024f7765380302bad143ca0",
+      "log_sha256": "ab40d0b152bae84fa4bc77b09a59f8cadec8a0b54cfcbdb8dd67a837dd82f830"
+    }
+  ]
+}
