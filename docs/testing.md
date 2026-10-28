@@ -36,6 +36,30 @@
 | 用户操作流程 | XCUITest，在模拟器上运行 | `App/GlassCamUITests/` |
 | 相机硬件、成片观感 | 手动验收清单 | 不写成自动测试 |
 
+## 运行命令
+
+在仓库根目录运行；Apple 平台检查需要 macOS 和 Xcode 27，数值检查使用 `uv` 准备 [Python 依赖](../tests/numeric/requirements.txt)。[Makefile](../Makefile) 是统一入口。
+
+| 命令 | 执行内容 |
+|---|---|
+| `make test` | 原生内存安全、数值、package Swift Testing 与 App 模拟器单元测试 |
+| `make test-native` | C++ 原生检查与 AddressSanitizer / UBSan |
+| `make test-numeric` | C++ 内核与固定 golden、边界输入及分条一致性 |
+| `make test-swift` | package Swift Testing；先准备 FFCS／LUMIX 资源并注入资源、夹具路径 |
+| `make test-app` | `GlassCamUnitTests` scheme 的 App 模拟器单元测试 |
+| `make test-ui` | `GlassCamCaptureTests` scheme 中明确筛选的模拟器操作测试 |
+| `make test-baseline` | 固定完整色彩链检查，以及显式开启的本地 ProRAW 基线 |
+
+模拟器命令可用 `SIMULATOR_ID` 指定已有模拟器的 UUID，例如 `make test-app SIMULATOR_ID=SIMULATOR_UUID`；其中 `SIMULATOR_UUID` 需替换为实际值。`DIAGNOSTICS` 可指定 App 测试和基线产物目录；`DEVELOPER_DIR` 可选择其他 Xcode 安装。`make test-ui` 的筛选项只覆盖模拟器流程，设备测试需按[发布说明](release.md)另行授权。
+
+本地 ProRAW 基线通过 `GLASSCAM_DNG_DIR` 开启。目录应至少包含主摄、超广角、长焦的三份 DNG；测试按文件名排序读取前三份。将 `DNG_DIR` 设为自己的素材目录后运行：
+
+```sh
+GLASSCAM_DNG_DIR="$DNG_DIR" make test-baseline
+```
+
+未设置 `GLASSCAM_DNG_DIR` 时跳过 `BaselineTests`，固定 `ColorChainTests` 仍运行。其他可选检查通过 `GLASSCAM_LARGE_NUMERICS=1` 开启大尺寸数值样本、`GLASSCAM_DENSE_FLOW=1` 开启 Vision 光流，或以 `F5_TEST_LUT_PACKAGE` 指定已准备的 F5 似然表目录。
+
 ## Golden 数据
 
 - 放在 `tests/fixtures/<主题>/`。每个目录有一个 `README.md`，写明来源、生成命令和对应的算法版本。

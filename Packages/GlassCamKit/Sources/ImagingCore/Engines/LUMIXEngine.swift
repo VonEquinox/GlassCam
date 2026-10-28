@@ -2,7 +2,7 @@ import CLUMIX
 import Foundation
 
 /// Portable original SDR VE execution; the ProRAW source adapter is documented
-/// in docs/LUMIX_PRORAW_20261026.md. Full export uses the complete original cubes.
+/// in docs/color/lumix.md. Full export uses the complete original cubes.
 public enum LUMIXEngine {
     typealias Look = LUMIXPhotoStyleCatalog.Look
     public static let looks = LUMIXPhotoStyleCatalog.looks

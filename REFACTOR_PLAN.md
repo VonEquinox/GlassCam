@@ -532,6 +532,8 @@ FFCS 原生测试资源由既有固定哈希资源脚本准备到 `Packages/Glas
 
 ### 旧约定核实事项
 
+T11 核实 B59：列出的 0.05/0.10/0.08 与 0.30/0.40 秒属于保留的严格证据回放策略；当前 App 直接拼接使用 `PeripheralPreviewPolicy`。当前路径与兼容接口的阈值分别记录在 `docs/peripheral-glass.md`，本次仅修正文档与验收清单的范围说明，保留产品行为。
+
 T09 核实 B57：`LiveColorProxy.Renderer.mtkView(_:drawableSizeWillChange:)` 仅撤销呈现 revision 并隐藏旧画面，不清空来源邮箱；离窗、暂停和停止另通过 `setEnabled(false)` 清空来源。测试按各事件的原有边界执行，未改变产品行为。B60 的 60/30/15 回退针对独立外围取景；单摄预览格式不支持 60 Hz 时保留系统默认帧率。
 
 旧效果模型把 Standard 空间阶段视为外层旁路，但当前原生锐化入口不同；T09 核实当前实现，不恢复旧旁路。来源：`test_effect_toggle_models/EffectToggleCombinationModels.test_exactly_eight_independent_combinations_for_every_required_preset_and_ffcs`。
@@ -761,3 +763,7 @@ sys.exit(1 if violations else 0)
 诊断命令的 Swift 实现位于 `Packages/GlassCamKit/SwiftTools/`，由 SwiftPM executable targets 构建；Python入口仍在 `tools/diagnostics/`。原 `--sources` 历史源码拼装分支保存在研究仓库 `tools/studies/peripheral-source-comparison`，提交 `329b9473c82a66dac4b9c7ae657eb0f43d2dc7cb`。
 
 `make test` 包括原生、数值、package Swift Testing及App模拟器单元测试。`make test-swift`将资源准备到package的`.build/test-resources`，通过环境变量注入。App的边界测试scheme为`GlassCamUnitTests`；UI为`GlassCamCaptureTests`，可用`SIMULATOR_ID`选择已有模拟器。独立资源bundle保存F5 Metal源码供测试；App仍将同一Metal源文件预编译进默认库。
+
+## T11 文档归档定位
+
+75 份旧主题材料、原根 README 和原 LUMIX ORIGIN 共 77 份原文按 SHA-256 核对后保存在研究仓库 `docs/reports/`，提交 `3cb81d1674f6f68e1aab016a6c40d95c8b07ecd1`。新主题的链接、章节与实际测试引用均已核对。措辞检查排除写作规范中的反例及原 ADR0001/0002 的不可改决定正文；原 ADR 仅维护已归档来源的定位信息。上游 vendor 文档保持原文。

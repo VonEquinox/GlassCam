@@ -4,4 +4,4 @@
 
 这项决定替代本轮早先提出的“有效像素原样输出、最低 12MP”方案，以及旧输出策略中适用于所有情况的禁止上采样约束；原有 HNCS／FFCS 颜色数学不因输出尺寸政策而修改。
 
-依据：[首版日常试用 Q11 与最终输出表](../IPHONE_FIRST_USABLE_20261018.md)。
+依据：首版日常试用 Q11 与最终输出表（历史文档 `IPHONE_FIRST_USABLE_20261018.md`，git `72a4ac7:docs/legacy/IPHONE_FIRST_USABLE_20261018.md`）。

@@ -14,11 +14,11 @@ Only user-authorized private repository development is performed here. This prot
 
 FFCS derives from the user-supplied private technical delivery, source commit `3c0a85eeb3893764ae92fc0fe52ebb62fd9f6ac5`. Exact archive provenance and preserved materials are documented in [vendor/ffcs/ORIGIN.md](vendor/ffcs/ORIGIN.md). Original code, documents, validation and recovered LUT/ICC bytes are retained. Factory SilkyPix/Fujifilm data do not acquire public redistribution rights through this port. No proof of commercial redistribution clearance has been established. Private development authorization does not authorize public release of these assets. This prototype is not endorsed by Fujifilm or SilkyPix.
 
-Revision 8 preset source/catalog and the six UInt16 post-curve tables retain the same private provenance boundary. Native post-curve vectors validate recovered color controls, not proprietary Phocus spatial kernels. Legacy numerical reports remain historical evidence. See [revision 8 contract](docs/legacy/HNCS_REVISION8.md).
+Revision 8 preset source/catalog and the six UInt16 post-curve tables retain the same private provenance boundary. Native post-curve vectors validate recovered color controls, not proprietary Phocus spatial kernels. Legacy numerical reports remain historical evidence. See [HNCS data and compatibility contract](docs/color/hncs.md).
 
 ## NumPy / SciPy compatibility components
 
-The revision-8 portable spatial port retains the applicable NumPy/SciPy BSD and PCG/random-generator license notices and source URLs directly in `core/hncs_numpy_rng.cpp` and `core/hncs_spatial.cpp`. These notices must accompany redistributions, including compiled distributions where the licenses require it. This is distinct from the unresolved rights to recovered Phocus/Fujifilm factory data.
+The revision-8 portable spatial port retains the applicable NumPy/SciPy BSD and PCG/random-generator license notices and source URLs directly in `Packages/GlassCamKit/Sources/CHNCS/hncs_numpy_rng.cpp` and `Packages/GlassCamKit/Sources/CHNCS/hncs_spatial.cpp`. These notices must accompany redistributions, including compiled distributions where the licenses require it. This is distinct from the unresolved rights to recovered Phocus/Fujifilm factory data.
 
 ## LUMIX / SILKYPIX reference data
 
