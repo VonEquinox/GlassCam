@@ -1,3 +1,7 @@
+import ImagingCore
+import Capture
+import F5
+import Peripheral
 #if os(iOS)
 import SwiftUI
 import UniformTypeIdentifiers

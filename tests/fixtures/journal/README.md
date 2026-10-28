@@ -17,15 +17,14 @@
 运行兼容测试：
 
 ```sh
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-python3 -B scripts/test_journal_fixtures.py --work <临时构建目录>
+make test-swift
 ```
 
-生成到一个不存在的目标目录，供人工审查；正常测试只读本目录，不重新生成 golden：
+生成到仓库外一个不存在的目标目录，供人工审查；正常测试只读本目录，不重新生成 golden：
 
 ```sh
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-python3 -B scripts/test_journal_fixtures.py --work <另一临时构建目录> --generate <新样本目录>
+GLASSCAM_GENERATE_JOURNAL_FIXTURES=<仓库外的新样本目录> \
+swift test -c release --package-path Packages/GlassCamKit --filter generateJournalFixtureCandidate
 ```
 
-生成器在 [`tests/support/JournalFixtures.swift`](../../support/JournalFixtures.swift)，Swift Testing 用例在 [`tests/swift-legacy/journal_compatibility.swift`](../../swift-legacy/journal_compatibility.swift)。T09 将用例与生成支持代码一起迁入 package 测试目标。
+生成器在 [JournalFixtures.swift](../../../Packages/GlassCamKit/Tests/F5Tests/JournalFixtures.swift)，兼容测试在 [JournalCompatibilityTests.swift](../../../Packages/GlassCamKit/Tests/F5Tests/JournalCompatibilityTests.swift)。候选生成入口默认跳过，不会覆盖已有目录。

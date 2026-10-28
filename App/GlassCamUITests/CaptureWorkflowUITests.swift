@@ -42,6 +42,25 @@ final class CaptureWorkflowUITests: XCTestCase {
 #endif
     }
 
+    func testCompactControlsCanReopenAfterDismissalOnSimulator() throws {
+#if targetEnvironment(simulator)
+        let app = makeApp()
+        app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        app.launch()
+        let controls = app.buttons["Open camera controls"]
+        XCTAssertTrue(controls.waitForExistence(timeout: 20))
+        controls.tap()
+        let back = app.buttons["camera.panel.back"]
+        XCTAssertTrue(back.waitForExistence(timeout: 10))
+        back.tap()
+        XCTAssertTrue(back.waitForNonExistence(timeout: 10))
+        controls.tap()
+        XCTAssertTrue(back.waitForExistence(timeout: 10))
+#else
+        throw XCTSkip("This check is restricted to a simulator.")
+#endif
+    }
+
     /// Simulator-only: manual diagnosis must work even when no camera can start.
     func testManualStateRecordsWithoutCameraOnSimulator() throws {
 #if targetEnvironment(simulator)
@@ -386,14 +405,14 @@ final class CaptureWorkflowUITests: XCTestCase {
             XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: shutter)], timeout: 30), .completed, app.debugDescription)
             tap(shutter)
             // The already-installed app may have no add-only authorization yet.
-            for _ in 0..<20 {
-                if springboard.alerts.firstMatch.exists {
-                    for label in ["Allow Adding Photos", "允许添加照片", "允许添加", "Allow", "允许"] {
-                        if springboard.alerts.buttons[label].exists { springboard.alerts.buttons[label].tap(); break }
-                    }
+            let permissionOrSave = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+                springboard.alerts.firstMatch.exists || self.savedStatus(app).exists
+            }, object: app)
+            _ = XCTWaiter.wait(for: [permissionOrSave], timeout: 20)
+            if springboard.alerts.firstMatch.exists {
+                for label in ["Allow Adding Photos", "允许添加照片", "允许添加", "Allow", "允许"] {
+                    if springboard.alerts.buttons[label].exists { springboard.alerts.buttons[label].tap(); break }
                 }
-                if savedStatus(app).exists { break }
-                Thread.sleep(forTimeInterval: 1)
             }
             let saved = savedStatus(app)
             XCTAssertTrue(saved.waitForExistence(timeout: 100), app.debugDescription)

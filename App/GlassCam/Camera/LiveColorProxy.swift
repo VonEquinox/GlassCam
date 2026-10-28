@@ -1,3 +1,7 @@
+import ImagingCore
+import Capture
+import F5
+import Peripheral
 import CHNCS
 import CFFCS
 import Foundation
@@ -67,7 +71,7 @@ private enum LiveProxyFailure: LocalizedError {
     }
 }
 
-private final class LiveColorCube {
+final class LiveColorCube {
     let recipe: LiveColorRecipe
     let rgbaFloat32Data: Data
     init(recipe: LiveColorRecipe, rgbaFloat32Data: Data) {
@@ -77,13 +81,14 @@ private final class LiveColorCube {
 
 /// One utility worker + one replaceable requested recipe, with a two-cube LRU.
 /// Cancellation is checked between 65²-node slabs, never a CPU camera-frame job.
-private final class LiveColorCubeStore {
+final class LiveColorCubeStore {
     private struct Request {
         let recipe: LiveColorRecipe
         let revision: UInt64
         let completion: (Result<LiveColorCube, Error>) -> Void
     }
-    private let queue = DispatchQueue(label: "dev.glasscam.live-color-bake", qos: .utility)
+    private let queue: DispatchQueue
+    init(queue: DispatchQueue = DispatchQueue(label: "dev.glasscam.live-color-bake", qos: .utility)) { self.queue = queue }
     private let lock = NSLock()
     private var pending: Request?
     private var running = false
@@ -205,7 +210,7 @@ private final class LiveColorCubeStore {
     }
 }
 
-private enum LiveSourceValidation {
+enum LiveSourceValidation {
     /// Require authoritative buffer tags. Format-description tags detect conflicts;
     /// they are never a reason to silently relabel an untagged buffer as Rec.709.
     static func validate(_ frame: LiveCameraFrame) -> String? {
@@ -262,9 +267,11 @@ private enum LiveSourceValidation {
         }
         let raster = CGRect(x: 0, y: 0, width: CGFloat(CVPixelBufferGetWidth(buffer)),
                             height: CGFloat(CVPixelBufferGetHeight(buffer)))
-        guard !frame.cleanRect.isEmpty, !frame.cleanRect.isInfinite, !frame.cleanRect.isNull,
-              raster.contains(frame.cleanRect) else { return "Live color received an invalid clean aperture." }
+        guard validAperture(frame.cleanRect, in: raster) else { return "Live color received an invalid clean aperture." }
         return nil
+    }
+    static func validAperture(_ aperture: CGRect, in raster: CGRect) -> Bool {
+        !aperture.isEmpty && !aperture.isInfinite && !aperture.isNull && raster.contains(aperture)
     }
 }
 
@@ -402,18 +409,21 @@ struct LiveColorProxy: UIViewRepresentable {
         private var requestedEnabled = false
         private var cameraReady = false
         private var inFlight = false
-        private var revision: UInt64 = 0
+        private(set) var revision: UInt64 = 0
         private var sessionGeneration: UInt64 = 0
-        private var presentationRevision: UInt64 = 0
+        private(set) var presentationRevision: UInt64 = 0
         private var hasWindow = false
         private var lastPresentedReceiptTime: CFTimeInterval?
         private static let maximumFrameAge: CFTimeInterval = 0.5
+        private let now: () -> CFTimeInterval
         private var onStatus: ((LiveColorProxyStatus) -> Void)?
         private var lastStatus: LiveColorProxyStatus?
         // Retained timing for instrumentation, never used to manufacture timestamps.
         private(set) var lastPresentedTimestamp: CMTime = .invalid
 
-        override init() {
+        override convenience init() { self.init(now: CACurrentMediaTime) }
+        init(now: @escaping () -> CFTimeInterval) {
+            self.now = now
             // Use locals during phase-one initialization; do not read self until
             // every stored property is initialized.
             let device = MTLCreateSystemDefaultDevice()
@@ -440,7 +450,7 @@ struct LiveColorProxy: UIViewRepresentable {
             displayTarget = target; displayLink = link
             updateWindowAvailability()
         }
-        fileprivate func updateWindowAvailability() {
+        func updateWindowAvailability() {
             let available = view?.window != nil
             guard available != hasWindow else { return }
             hasWindow = available
@@ -501,7 +511,7 @@ struct LiveColorProxy: UIViewRepresentable {
                 }
             }
         }
-        fileprivate func tick() {
+        func tick() {
             guard active, hasWindow, let source, let view else { return }
             let generation = source.currentGeneration()
             if generation != sessionGeneration || !source.isCurrent(generation) {
@@ -509,7 +519,7 @@ struct LiveColorProxy: UIViewRepresentable {
                 waitForFrame("Live color waiting for a current camera frame · system preview")
                 guard source.isCurrent(generation) else { return }
             }
-            if let receipt = lastPresentedReceiptTime, CACurrentMediaTime() - receipt > Self.maximumFrameAge {
+            if let receipt = lastPresentedReceiptTime, now() - receipt > Self.maximumFrameAge {
                 waitForFrame("Live color paused: camera frame expired · system preview")
             }
             // With no new frame draw() returns before asking for a drawable.
@@ -524,7 +534,7 @@ struct LiveColorProxy: UIViewRepresentable {
                   let source, let cube, let filter = cubeFilter, let context, let queue,
                   view.drawableSize.width > 0, view.drawableSize.height > 0,
                   let frame = source.takeLatest(), source.isCurrent(frame.generation) else { return }
-            guard CACurrentMediaTime() - frame.receivedHostTime <= Self.maximumFrameAge else {
+            guard now() - frame.receivedHostTime <= Self.maximumFrameAge else {
                 waitForFrame("Live color paused: camera frame expired · system preview"); return
             }
             if let reason = LiveSourceValidation.validate(frame) {
@@ -535,7 +545,7 @@ struct LiveColorProxy: UIViewRepresentable {
                 waitForFrame("Live color waiting for a GPU drawable · system preview"); return
             }
             // Drawable acquisition may wait; reject a frame that aged during it.
-            guard CACurrentMediaTime() - frame.receivedHostTime <= Self.maximumFrameAge else {
+            guard now() - frame.receivedHostTime <= Self.maximumFrameAge else {
                 waitForFrame("Live color paused: camera frame expired · system preview"); return
             }
             guard let commandBuffer = queue.makeCommandBuffer() else {
@@ -565,15 +575,7 @@ struct LiveColorProxy: UIViewRepresentable {
             ])
             let aperture = frame.cleanRect
             let size = CGSize(width: CGFloat(drawable.texture.width), height: CGFloat(drawable.texture.height))
-            let bounds = CGRect(origin: .zero, size: size)
-            let scale = min(size.width / aperture.width, size.height / aperture.height)
-            output = output.cropped(to: aperture)
-                .transformed(by: CGAffineTransform(translationX: -aperture.minX, y: -aperture.minY))
-                .transformed(by: CGAffineTransform(scaleX: scale, y: scale))
-                .transformed(by: CGAffineTransform(translationX: (size.width - aperture.width * scale) / 2,
-                                                   y: (size.height - aperture.height * scale) / 2))
-                .composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
-                .cropped(to: bounds)
+            output = Self.fit(output, aperture: aperture, size: size)
             let ticket = revision, presentationTicket = presentationRevision
             let renderTask: CIRenderTask
             do {
@@ -592,22 +594,38 @@ struct LiveColorProxy: UIViewRepresentable {
                 let failed = buffer.status == .error
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
-                    self.inFlight = false
-                    guard self.active, self.hasWindow, self.view?.window != nil, self.revision == ticket,
-                          self.presentationRevision == presentationTicket,
-                          source.isCurrent(frame.generation) else { return }
-                    if failed { self.fail("Live color failed on the GPU. Showing system preview."); return }
-                    guard CACurrentMediaTime() - frame.receivedHostTime <= Self.maximumFrameAge else {
-                        self.waitForFrame("Live color paused: GPU frame expired · system preview"); return
-                    }
-                    self.lastPresentedTimestamp = frame.presentationTime
-                    self.lastPresentedReceiptTime = frame.receivedHostTime
-                    self.view?.alpha = 1
-                    self.report(.init(isShowingEffect: true, text: "EXPERIMENTAL APPROX. COLOR · 8-BIT SOURCE · COLOR ONLY"))
+                    self.completeFrame(frame, source: source, revision: ticket,
+                                       presentation: presentationTicket, failed: failed)
                 }
             }
             commandBuffer.present(drawable)
             commandBuffer.commit()
+        }
+        static func fit(_ image: CIImage, aperture: CGRect, size: CGSize) -> CIImage {
+            let bounds = CGRect(origin: .zero, size: size)
+            let scale = min(size.width / aperture.width, size.height / aperture.height)
+            return image.cropped(to: aperture)
+                .transformed(by: CGAffineTransform(translationX: -aperture.minX, y: -aperture.minY))
+                .transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+                .transformed(by: CGAffineTransform(translationX: (size.width - aperture.width * scale) / 2,
+                                                   y: (size.height - aperture.height * scale) / 2))
+                .composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
+                .cropped(to: bounds)
+        }
+        func completeFrame(_ frame: LiveCameraFrame, source: LiveCameraFrameSource,
+                   revision ticket: UInt64, presentation presentationTicket: UInt64, failed: Bool) {
+            inFlight = false
+            guard active, hasWindow, view?.window != nil, revision == ticket,
+                  presentationRevision == presentationTicket,
+                  source.isCurrent(frame.generation) else { return }
+            if failed { fail("Live color failed on the GPU. Showing system preview."); return }
+            guard now() - frame.receivedHostTime <= Self.maximumFrameAge else {
+                waitForFrame("Live color paused: GPU frame expired · system preview"); return
+            }
+            lastPresentedTimestamp = frame.presentationTime
+            lastPresentedReceiptTime = frame.receivedHostTime
+            view?.alpha = 1
+            report(.init(isShowingEffect: true, text: "EXPERIMENTAL APPROX. COLOR · 8-BIT SOURCE · COLOR ONLY"))
         }
         private func report(_ status: LiveColorProxyStatus) {
             guard status != lastStatus else { return }

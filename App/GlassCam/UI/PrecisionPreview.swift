@@ -1,3 +1,7 @@
+import ImagingCore
+import Capture
+import F5
+import Peripheral
 import Foundation
 import CoreImage
 import MetalKit
@@ -134,17 +138,7 @@ struct PrecisionPreview: UIViewRepresentable {
             view.setNeedsDisplay()
         }
 
-        func draw(in view: MTKView) {
-            guard let source, let context, let queue,
-                  view.drawableSize.width > 0, view.drawableSize.height > 0,
-                  let drawable = view.currentDrawable else { return }
-            guard let commandBuffer = queue.makeCommandBuffer() else {
-                showStatus("High-precision preview is unavailable: Metal could not create a render command.")
-                return
-            }
-            renderSequence &+= 1
-            let sequence = renderSequence
-            let size = CGSize(width: CGFloat(drawable.texture.width), height: CGFloat(drawable.texture.height))
+        static func composition(source: PreviewRaster, processed: PreviewRaster?, fraction: CGFloat?, size: CGSize) -> CIImage {
             let bounds = CGRect(origin: .zero, size: size)
             let scale = min(size.width / CGFloat(source.width), size.height / CGFloat(source.height))
             let fitted = CGRect(x: (size.width - CGFloat(source.width) * scale) / 2,
@@ -179,6 +173,21 @@ struct PrecisionPreview: UIViewRepresentable {
                 "inputMaxComponents": CIVector(x: CGFloat(ImagePipeline.maximumHDRValue), y: CGFloat(ImagePipeline.maximumHDRValue), z: CGFloat(ImagePipeline.maximumHDRValue), w: 1)
             ]).composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
                 .cropped(to: bounds)
+            return output
+        }
+
+        func draw(in view: MTKView) {
+            guard let source, let context, let queue,
+                  view.drawableSize.width > 0, view.drawableSize.height > 0,
+                  let drawable = view.currentDrawable else { return }
+            guard let commandBuffer = queue.makeCommandBuffer() else {
+                showStatus("High-precision preview is unavailable: Metal could not create a render command.")
+                return
+            }
+            renderSequence &+= 1
+            let sequence = renderSequence
+            let size = CGSize(width: CGFloat(drawable.texture.width), height: CGFloat(drawable.texture.height))
+            let output = Self.composition(source: source, processed: processed, fraction: fraction, size: size)
             let renderTask: CIRenderTask
             do {
                 renderTask = try PreviewRendering.render(output, with: context, to: drawable.texture,

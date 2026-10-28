@@ -1,3 +1,7 @@
+import ImagingCore
+import Capture
+import F5
+import Peripheral
 import Foundation
 import Photos
 import SwiftUI
@@ -15,14 +19,37 @@ enum HEIFSaveDelivery {
             }
         }
     }
-    static func authorizePhotos() async throws {
-        let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+    struct PhotoImport {
+        let type: PHAssetResourceType
+        let url: URL
+        let options: PHAssetResourceCreationOptions
+        let captureDate: Date?
+    }
+    struct Dependencies {
+        var authorize: (PHAccessLevel) async -> PHAuthorizationStatus
+        var status: (PHAccessLevel) -> PHAuthorizationStatus
+        var isActive: @MainActor () -> Bool
+        var importPhoto: (PhotoImport, @escaping (Bool, Swift.Error?) -> Void) -> Void
+        static let system = Dependencies(
+            authorize: { await PHPhotoLibrary.requestAuthorization(for: $0) },
+            status: { PHPhotoLibrary.authorizationStatus(for: $0) },
+            isActive: { UIApplication.shared.applicationState != .background && UIApplication.shared.isProtectedDataAvailable },
+            importPhoto: { photo, completion in
+                PHPhotoLibrary.shared().performChanges({
+                    let request = PHAssetCreationRequest.forAsset()
+                    if let date = photo.captureDate { request.creationDate = date }
+                    request.addResource(with: photo.type, fileURL: photo.url, options: photo.options)
+                }, completionHandler: completion)
+            })
+    }
+    static func authorizePhotos(dependencies: Dependencies = .system) async throws {
+        let status = await dependencies.authorize(.addOnly)
         guard status == .authorized || status == .limited else { throw Error.permissionDenied }
     }
-    @MainActor static func saveToPhotos(_ file: TemporaryHEIFFile) async throws {
-        guard PHPhotoLibrary.authorizationStatus(for: .addOnly) == .authorized ||
-              PHPhotoLibrary.authorizationStatus(for: .addOnly) == .limited else { throw Error.permissionDenied }
-        guard UIApplication.shared.applicationState != .background, UIApplication.shared.isProtectedDataAvailable else { throw Error.inactive }
+    @MainActor static func saveToPhotos(_ file: TemporaryHEIFFile, dependencies: Dependencies = .system) async throws {
+        guard dependencies.status(.addOnly) == .authorized ||
+              dependencies.status(.addOnly) == .limited else { throw Error.permissionDenied }
+        guard dependencies.isActive() else { throw Error.inactive }
         let captureDate: Date?
         if let date = file.captureDate { captureDate = date }
         else {
@@ -30,17 +57,14 @@ enum HEIFSaveDelivery {
                 try PhotoMetadata.read(from: file.url).captureDate
             }.value
         }
-        guard UIApplication.shared.applicationState != .background, UIApplication.shared.isProtectedDataAvailable else { throw Error.inactive }
+        guard dependencies.isActive() else { throw Error.inactive }
         // Keep the original HEIF owner alive until Photos finishes importing it.
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
-            PHPhotoLibrary.shared().performChanges({
-                let options = PHAssetResourceCreationOptions()
-                options.originalFilename = file.url.lastPathComponent
-                options.shouldMoveFile = false
-                let request = PHAssetCreationRequest.forAsset()
-                if let captureDate { request.creationDate = captureDate }
-                request.addResource(with: .photo, fileURL: file.url, options: options)
-            }, completionHandler: { [file] success, error in
+            let options = PHAssetResourceCreationOptions()
+            options.originalFilename = file.url.lastPathComponent
+            options.shouldMoveFile = false
+            let photo = PhotoImport(type: .photo, url: file.url, options: options, captureDate: captureDate)
+            dependencies.importPhoto(photo, { [file] success, error in
                 withExtendedLifetime(file) {
                     if let error { continuation.resume(throwing: error) }
                     else if success { continuation.resume() }

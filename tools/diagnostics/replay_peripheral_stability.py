@@ -10,11 +10,14 @@ import os
 from pathlib import Path
 import subprocess
 import tempfile
+import sys
 import zipfile
 
 from analyze_peripheral_records import analyze
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+from native_build import build_product
 
 
 def main():
@@ -22,8 +25,6 @@ def main():
     parser.add_argument("archives", nargs="+", type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--tolerance", type=float, default=1)
-    parser.add_argument("--sources", type=Path, default=ROOT / "App/GlassCam",
-                        help="Optional preserved source snapshot for a before/after comparison")
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -47,19 +48,7 @@ def main():
                     if path.is_absolute() or ".." in path.parts:
                         raise SystemExit("Invalid input path")
                 container.extractall(inputs / str(index))
-        library = work / "ReplayLibrary.swift"
-        library.write_text((ROOT / "tools/diagnostics/replay_peripheral_native.swift").read_text().replace(
-            "@main\nstruct NativeFieldReplay", "struct NativeFieldReplay"))
-        names = ("Peripheral/PeripheralGlassPolicy.swift", "Peripheral/PeripheralVisibleSeam.swift", "Peripheral/PeripheralDenseRefinement.swift",
-                 "Peripheral/PeripheralLiveDisplay.swift", "Peripheral/PeripheralAlignment.swift", "Peripheral/PeripheralFrameInput.swift", "Peripheral/LiveCameraFrame.swift", "Peripheral/PeripheralStateRecording.swift",
-                 "Peripheral/PeripheralGlassShader.swift")
-        executable = work / "stability"
-        with (output / "compile.log").open("w") as log:
-            subprocess.run(["xcrun", "swiftc", "-swift-version", "5", "-O",
-                            "-module-cache-path", str(work / "modules"),
-                            *[str(args.sources / name) for name in names], str(library),
-                            str(ROOT / "tools/diagnostics/replay_peripheral_stability.swift"), "-o", str(executable)],
-                           check=True, env=env, stdout=log, stderr=subprocess.STDOUT)
+        executable = build_product("replay_peripheral_stability")
         subprocess.run([str(executable), str(inputs), str(output / "motion.json"), str(args.tolerance)],
                        check=True, env=env)
         (output / "inputs.json").write_text(json.dumps(fingerprints, indent=2) + "\n")

@@ -1,3 +1,7 @@
+import ImagingCore
+import Capture
+import F5
+import Peripheral
 import SwiftUI
 import AVFoundation
 import UIKit
@@ -14,7 +18,7 @@ struct CameraView: View {
     private let selectedLens: CameraController.Mode = .main
     @State private var liveProxyStatus = LiveColorProxyStatus.off
     @State private var activePanel: CameraPanel?
-    @State private var compactPanelOffered = false
+    @State private var compactPanel = CompactCameraPanel()
     @State private var destination: CameraDestination?
     private var settingsPresented: Bool { if case .settings = destination { return true }; return false }
     private var reviewedCapture: SavedCapture? { if case .photo(let photo) = destination { return photo }; return nil }
@@ -565,7 +569,7 @@ struct CameraView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.white.opacity(0.5), lineWidth: 0.7))
         }
-        .disabled(workflow.latest == nil || workflow.isWorking)
+        .disabled(!CameraControlsAvailability.canReview(hasPhoto: workflow.latest != nil, working: workflow.isWorking))
         .accessibilityLabel("View latest saved photo")
         .accessibilityIdentifier("camera.thumbnail")
     }
@@ -622,17 +626,15 @@ struct CameraView: View {
         if settings.captureQuality == .f5 { return nil }
         let saved = settings.outputMegapixels(physicalCameraID: cameraID, mode: selectedLens.rawValue)
         // Unsupported choices never fall back to lower resolution or upsampling.
-        return camera.supportedOutputOptions.first { $0.megapixels == saved }
+        return CameraController.OutputOption.matching(saved, in: camera.supportedOutputOptions)
     }
 
     private func offerCompactPanel(for style: CameraChromeLayout.Style) {
-        // Wait for the negotiated camera geometry before offering compact UI.
-        guard camera.geometry != nil else { return }
-        guard style == .separate else { compactPanelOffered = false; return }
-        guard !compactPanelOffered, !settingsPresented, reviewedCapture == nil, !camera.isCapturing,
-              !camera.isPreviewFrozen else { return }
-        compactPanelOffered = true
-        activePanel = .compact
+        if compactPanel.offer(hasGeometry: camera.geometry != nil, style: style,
+                              settingsPresented: settingsPresented, reviewing: reviewedCapture != nil,
+                              capturing: camera.isCapturing, frozen: camera.isPreviewFrozen) {
+            activePanel = .compact
+        }
     }
 
     private func restartCamera() {
@@ -698,7 +700,7 @@ private enum CameraPanel: String, Identifiable {
 /// Controls use only the intersection of natural spare regions and the safe area.
 /// When that space cannot hold real touch targets, a separate plain panel takes
 /// over. Crucially, this helper never returns or changes a photograph rectangle.
-private struct CameraChromeLayout {
+struct CameraChromeLayout {
     enum Style: Equatable { case portrait, landscape, compactHorizontal, compactVertical, separate }
     let style: Style
     let first: CGRect
@@ -768,20 +770,23 @@ private struct PhotoFrameBoundary: View {
     }
 }
 
-private struct PhotoFrameGuide: View {
+struct PhotoFrameGuide: View {
+    static func grid(size: CGSize) -> Path {
+                    Path { path in
+                        for fraction in [CGFloat(1) / 3, CGFloat(2) / 3] {
+                            path.move(to: CGPoint(x: size.width * fraction, y: 0))
+                            path.addLine(to: CGPoint(x: size.width * fraction, y: size.height))
+                            path.move(to: CGPoint(x: 0, y: size.height * fraction))
+                            path.addLine(to: CGPoint(x: size.width, y: size.height * fraction))
+                        }
+                    }
+    }
     let gridVisible: Bool
     var body: some View {
         GeometryReader { proxy in
             ZStack {
                 if gridVisible {
-                    Path { path in
-                        for fraction in [CGFloat(1) / 3, CGFloat(2) / 3] {
-                            path.move(to: CGPoint(x: proxy.size.width * fraction, y: 0))
-                            path.addLine(to: CGPoint(x: proxy.size.width * fraction, y: proxy.size.height))
-                            path.move(to: CGPoint(x: 0, y: proxy.size.height * fraction))
-                            path.addLine(to: CGPoint(x: proxy.size.width, y: proxy.size.height * fraction))
-                        }
-                    }.stroke(.white.opacity(0.24), lineWidth: 0.5)
+                    Self.grid(size: proxy.size).stroke(.white.opacity(0.24), lineWidth: 0.5)
                 }
             }
         }
@@ -1088,4 +1093,20 @@ private struct CaptureReview: View {
         }.preferredColorScheme(.dark).tint(.white)
             .sheet(isPresented: $sharing) { ShareSheet(file: capture.file) }
     }
+}
+
+struct CompactCameraPanel {
+    private(set) var offered = false
+    mutating func offer(hasGeometry: Bool, style: CameraChromeLayout.Style, settingsPresented: Bool,
+                        reviewing: Bool, capturing: Bool, frozen: Bool) -> Bool {
+        guard hasGeometry else { return false }
+        guard style == .separate else { offered = false; return false }
+        guard !offered, !settingsPresented, !reviewing, !capturing, !frozen else { return false }
+        offered = true
+        return true
+    }
+}
+
+enum CameraControlsAvailability {
+    static func canReview(hasPhoto: Bool, working: Bool) -> Bool { hasPhoto && !working }
 }

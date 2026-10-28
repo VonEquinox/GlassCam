@@ -1,3 +1,7 @@
+import ImagingCore
+import Capture
+import F5
+import Peripheral
 #if GLASSCAM_PERFORMANCE
 import SwiftUI
 import Foundation

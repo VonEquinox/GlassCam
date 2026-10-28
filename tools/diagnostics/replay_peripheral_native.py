@@ -10,10 +10,13 @@ import json
 import os
 import subprocess
 import tempfile
+import sys
 import zipfile
 from analyze_peripheral_records import analyze
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+from native_build import build_product
 
 
 def main():
@@ -33,12 +36,7 @@ def main():
     env.setdefault("DEVELOPER_DIR", "/Applications/Xcode.app/Contents/Developer")
     with tempfile.TemporaryDirectory(prefix="glasscam-native-field-replay-") as temp:
         work = Path(temp)
-        sources = ROOT / "App/GlassCam"
-        names = ("Peripheral/PeripheralGlassPolicy.swift", "Peripheral/PeripheralVisibleSeam.swift", "Peripheral/PeripheralDenseRefinement.swift", "Peripheral/PeripheralLiveDisplay.swift", "Peripheral/PeripheralAlignment.swift", "Peripheral/PeripheralFrameInput.swift", "Peripheral/LiveCameraFrame.swift", "Peripheral/PeripheralStateRecording.swift", "Peripheral/PeripheralGlassShader.swift")
-        executable = work / "replay"
-        subprocess.run(["xcrun", "swiftc", "-swift-version", "5", "-O", "-module-cache-path", str(work / "modules"),
-                        *[str(sources / name) for name in names], str(ROOT / "tools/diagnostics/replay_peripheral_native.swift"),
-                        "-o", str(executable)], env=env, check=True)
+        executable = build_product("replay_peripheral_native")
         inputs = work / "inputs"
         inputs.mkdir()
         with zipfile.ZipFile(args.archive) as archive:

@@ -1,3 +1,7 @@
+import ImagingCore
+import Capture
+import F5
+import Peripheral
 import AVFoundation
 import CoreMedia
 import CoreVideo
@@ -21,10 +25,27 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
         lock.lock(); submissionObserver = observer; lock.unlock()
     }
     private var firstFrame: (() -> Void)?
+    private let renderer: PreviewRenderer
+    private let scheduleMain: (@escaping @MainActor () -> Void) -> Void
 
-    @MainActor private init(makeLayer: Void) {
-        layer = AVSampleBufferDisplayLayer()
+    struct PreviewRenderer {
+        var needsFlush: @MainActor () -> Bool
+        var ready: @MainActor () -> Bool
+        var flush: @MainActor () -> Void
+        var enqueue: @MainActor (CMSampleBuffer) -> Void
+    }
+
+    @MainActor init(makeLayer: Void, renderer: PreviewRenderer? = nil,
+                    scheduleMain: @escaping (@escaping @MainActor () -> Void) -> Void = { DispatchQueue.main.async(execute: $0) }) {
+        let layer = AVSampleBufferDisplayLayer()
         layer.videoGravity = .resizeAspect
+        self.layer = layer
+        self.renderer = renderer ?? PreviewRenderer(
+            needsFlush: { layer.sampleBufferRenderer.status == .failed || layer.sampleBufferRenderer.requiresFlushToResumeDecoding },
+            ready: { layer.sampleBufferRenderer.isReadyForMoreMediaData },
+            flush: { layer.sampleBufferRenderer.flush(removingDisplayedImage: true, completionHandler: nil) },
+            enqueue: { layer.sampleBufferRenderer.enqueue($0) })
+        self.scheduleMain = scheduleMain
         super.init()
     }
     /// Only called by the session queue, which never blocks the main queue waiting
@@ -39,11 +60,11 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
         let ticket = generation
         lock.unlock()
         liveSource.reset(generation: ticket)
-        DispatchQueue.main.async { [weak self] in
+        scheduleMain { [weak self] in
             guard let self else { return }
             self.lock.lock(); defer { self.lock.unlock() }
             guard self.active, self.generation == ticket else { return }
-            self.layer.sampleBufferRenderer.flush(removingDisplayedImage: true, completionHandler: nil)
+            self.renderer.flush()
         }
     }
     /// Stop accepting frames and revoke pending main/GPU work without flushing
@@ -55,8 +76,8 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
     func invalidate() {
         lock.lock(); active = false; generation &+= 1; latestPending=nil; lock.unlock()
         liveSource.invalidate()
-        DispatchQueue.main.async { [weak self] in
-            self?.layer.sampleBufferRenderer.flush(removingDisplayedImage: true, completionHandler: nil)
+        scheduleMain { [weak self] in
+            self?.renderer.flush()
         }
     }
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer,
@@ -81,7 +102,7 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
         // The sample attachment, rather than a buffer-level attachment, makes
         // live frames display immediately without introducing a playback timebase.
         // One queued main closure, reading the newest available sample.
-        DispatchQueue.main.async { [weak self] in
+        scheduleMain { [weak self] in
             guard let self else { return }
             // The lock covers renderer mutation too. freeze() cannot return
             // while a previously admitted main closure can still enqueue/flush.
@@ -96,11 +117,11 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
                 CFDictionarySetValue(entry,Unmanaged.passUnretained(kCMSampleAttachmentKey_DisplayImmediately).toOpaque(),
                     Unmanaged.passUnretained(kCFBooleanTrue).toOpaque())
             }
-            let renderer = self.layer.sampleBufferRenderer
-            if renderer.status == .failed || renderer.requiresFlushToResumeDecoding {
-                renderer.flush(removingDisplayedImage: true, completionHandler: nil)
+            let renderer = self.renderer
+            if renderer.needsFlush() {
+                renderer.flush()
             }
-            guard renderer.isReadyForMoreMediaData else {
+            guard renderer.ready() else {
                 self.pending = false; self.lock.unlock(); return
             }
             renderer.enqueue(sampleBuffer)

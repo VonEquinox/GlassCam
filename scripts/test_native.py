@@ -21,7 +21,8 @@ def main():
             if os.uname().sysname == 'Darwin':
                 env['ASAN_OPTIONS'] = 'detect_leaks=0' + (':' + env['ASAN_OPTIONS'] if env.get('ASAN_OPTIONS') else '')
             env['UBSAN_OPTIONS'] = 'halt_on_error=1:print_stacktrace=1'
-        subprocess.run(build_command(sanitize=sanitize), env=env, check=True)
+        for name in CHECKS:
+            subprocess.run([*build_command(sanitize=sanitize), "--product", name], env=env, check=True)
         directory = binary_directory(sanitize=sanitize)
         for name in CHECKS:
             print(f'{name}: {"ASan + UBSan" if sanitize else "release"}', flush=True)

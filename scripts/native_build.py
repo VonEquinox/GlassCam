@@ -42,15 +42,6 @@ def build_product(product='GlassCamNative', *, sanitize=False):
     return directory / product
 
 
-def swift_native_flags(library):
-    """Import the same C modules and link the dynamic SwiftPM product."""
-    flags = []
-    for module in ('CHNCS', 'CFFCS', 'CLUMIX', 'CF5'):
-        flags += ['-I', str(PACKAGE / 'Sources' / module / 'include')]
-    return flags + ['-L', str(library.parent), '-lGlassCamNative',
-                    '-Xlinker', '-rpath', '-Xlinker', str(library.parent)]
-
-
 def prepare_ffcs_resources(output):
     subprocess.run(['bash', str(ROOT / 'scripts/prepare_ffcs_resources.sh'),
                     str(ROOT / 'vendor/ffcs/source.zip'), str(output)], check=True)

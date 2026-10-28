@@ -1,3 +1,7 @@
+import ImagingCore
+import Capture
+import F5
+import Peripheral
 import AVFoundation
 import Combine
 import OSLog
@@ -25,6 +29,9 @@ final class CameraController: ObservableObject {
         let width: Int
         let height: Int
         var id: String { "\(megapixels)-\(width)x\(height)" }
+        static func matching(_ megapixels: Int, in options: [Self]) -> Self? {
+            options.first { $0.megapixels == megapixels }
+        }
     }
     struct CameraGeometry {
         let sensorPhotoDimensions: CGSize
@@ -55,7 +62,8 @@ final class CameraController: ObservableObject {
     @Published private(set) var f5ProfileAvailable = false
     @Published private(set) var f5SampleDirectory: URL?
     private var captureReservation: UUID?
-    private let backend = CameraBackend()
+    private let backend: any CameraBackendServing
+    private let cameraAccess: CameraAccess
     private var generation = UUID()
     private var lifetime = CameraLifetime()
     private var orientation: UIInterfaceOrientation = .portrait
@@ -63,6 +71,10 @@ final class CameraController: ObservableObject {
     private var orientationRevision: UInt64 = 0
     private var isApplyingOrientation = false
     private var requestedPreviewLongEdge = 1920
+
+    init(backend: any CameraBackendServing = CameraBackend(), cameraAccess: CameraAccess = .system) {
+        self.backend = backend; self.cameraAccess = cameraAccess
+    }
 
     func start(mode: Mode = .main, centerPreviewLongEdge: Int = 1920) {
         dispatchPrecondition(condition: .onQueue(.main))
@@ -74,11 +86,11 @@ final class CameraController: ObservableObject {
         isConfiguring = true; isReady = false; isPreviewFrozen = false; capturePhase = .idle
         status = "Checking camera access…"; appliedOrientation = .unknown; isApplyingOrientation = false
         clearPreview()
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        switch cameraAccess.status() {
         case .authorized:
             configure(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, token: token)
         case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { [weak self] allowed in
+            cameraAccess.request { [weak self] allowed in
                 DispatchQueue.main.async {
                     guard let self, self.generation == token else { return }
                     if allowed { self.configure(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, token: token) }
@@ -339,7 +351,7 @@ final class CameraController: ObservableObject {
     deinit { lifetime.cancel(); let engine = backend; engine.queue.async { engine.stop() } }
 }
 
-private struct CameraFailure: LocalizedError {
+struct CameraFailure: LocalizedError {
     let message: String
     let allowsPhysicalFallback: Bool
     init(_ message: String, allowsPhysicalFallback: Bool = false) {
@@ -348,8 +360,30 @@ private struct CameraFailure: LocalizedError {
     var errorDescription: String? { message }
 }
 
+struct CameraAccess {
+    var status: () -> AVAuthorizationStatus
+    var request: (@escaping (Bool) -> Void) -> Void
+    static let system = CameraAccess(status: { AVCaptureDevice.authorizationStatus(for: .video) },
+                                     request: { AVCaptureDevice.requestAccess(for: .video, completionHandler: $0) })
+}
+
+protocol CameraBackendServing: AnyObject {
+    var queue: DispatchQueue { get }
+    func configure(mode: CameraController.Mode, centerPreviewLongEdge: Int,
+                   orientation: UIInterfaceOrientation, lifetime: CameraLifetime, displayedZoom: Double,
+                   stateChanged: @escaping (CameraBackend.Bundle) -> Void,
+                   failure: @escaping (String) -> Void) throws -> CameraBackend.Bundle
+    func stop()
+    func rotatePreview(_ value: UIInterfaceOrientation) throws
+    func geometry() -> CameraController.CameraGeometry?
+    func setZoom(_ displayedZoom: Double) throws -> CameraBackend.Bundle
+    func capture(quality: CaptureQuality, snapshot: CaptureSnapshot?, f5Purpose: String,
+                 progress: @escaping (CameraController.CapturePhase, String) -> Void,
+                 completion: @escaping (CameraBackend.CaptureOutcome) -> Void)
+}
+
 /// Cross-queue cancellation only. All AVFoundation state stays on backend.queue.
-private final class CameraLifetime {
+final class CameraLifetime {
     private let lock = NSLock()
     private var cancelled = false
     var isCancelled: Bool { lock.lock(); defer { lock.unlock() }; return cancelled }
@@ -357,14 +391,15 @@ private final class CameraLifetime {
     func check() throws { if isCancelled { throw CameraFailure("Camera operation cancelled.") } }
 }
 
-private struct CapturedProRAW {
+struct CapturedProRAW {
     let data: Data
     let dimensions: CGSize
     let framing: CaptureFraming
     var burst: F5BurstSource? = nil
 }
 
-private final class CameraBackend {
+final class CameraBackend: CameraBackendServing {
+    static let previewFrameRates: [Int32] = [60, 30, 15]
     private static let logger = Logger(subsystem: "dev.glasscam.prototype", category: "Camera")
     struct Bundle {
         let center: AVSampleBufferDisplayLayer
@@ -503,7 +538,7 @@ private final class CameraBackend {
             let physicalPairSupported=supportedSets.contains(where: { $0.contains(center.uniqueID) && $0.contains(outer.uniqueID) })
             // Prefer hardware synchronization at the same frame rate; do not
             // choose 15 Hz constituent streams ahead of a working 60 Hz pair.
-            for fps: Int32 in [60, 30, 15] {
+            for fps in Self.previewFrameRates {
                 if abs(photo.zoom-1)<0.0001 {
                     do {
                         if try buildSynchronizedPreview(configuration:plan,orientation:value,photo:photo,center:center,outer:outer,fps:fps) {
@@ -1165,13 +1200,8 @@ private final class CameraBackend {
     /// each main-thread display layer. Cancellation is checked while waiting.
     private func waitForPreviewFrames() throws {
         let deadline = DispatchTime.now() + 5
-        while previewReadiness.wait(timeout: .now() + 0.05) != .success {
-            try validateRunningGraph()
-            if DispatchTime.now() >= deadline {
-                throw CameraFailure("A physical camera preview did not deliver its negotiated frame within 5 seconds. Select the lens again to retry.")
-            }
-        }
-        try validateRunningGraph()
+        try CameraPreviewReadiness.wait(next: { self.previewReadiness.wait(timeout: .now() + 0.05) },
+                                        expired: { DispatchTime.now() >= deadline }, validate: validateRunningGraph)
         let encodings = previewPixelFormats.map(Self.previewEncoding).joined(separator: ", ")
         Self.logger.info("Preview ready after matching frames: \(encodings, privacy: .public)")
     }
@@ -1186,7 +1216,7 @@ private final class CameraBackend {
         }
     }
 
-    private static func scaledPreviewDimensions(source: CMVideoDimensions, cap: Int) throws -> CMVideoDimensions {
+    static func scaledPreviewDimensions(source: CMVideoDimensions, cap: Int) throws -> CMVideoDimensions {
         guard source.width > 0, source.height > 0, (640...4096).contains(cap) else {
             throw CameraFailure("Invalid source dimensions or preview long-edge limit.")
         }
@@ -1547,7 +1577,7 @@ private final class CameraBackend {
 /// Exactly one committed DNG per request. Processing bytes are provisional until
 /// didFinishCaptureFor succeeds. A stop preserves that terminal result, including
 /// when its backend-queue callback has not run yet; late callbacks cannot restore.
-private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
+final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
     private static let logger = Logger(subsystem: "dev.glasscam.prototype", category: "Capture")
     private let lock = NSLock()
     private var completion: ((Result<CapturedProRAW, Error>) -> Void)?
@@ -1566,17 +1596,22 @@ private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
         framing = framingProvider()
     }
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        receivePhoto(isRaw: photo.isRawPhoto, buffer: photo.pixelBuffer,
+                     data: { photo.fileDataRepresentation() }, actual: photo.resolvedSettings.rawPhotoDimensions,
+                     metadata: photo.metadata, error: error)
+    }
+    func receivePhoto(isRaw: Bool, buffer: CVPixelBuffer?, data: () -> Data?, actual: CMVideoDimensions,
+                      metadata: [String: Any], error: Error?) {
         lock.lock(); defer { lock.unlock() }
         guard completion != nil else { return }
         if let error { result = .failure(error); return }
-        guard photo.isRawPhoto, let buffer = photo.pixelBuffer,
+        guard isRaw, let buffer,
               AVCapturePhotoOutput.isAppleProRAWPixelFormat(CVPixelBufferGetPixelFormatType(buffer)),
-              let data = photo.fileDataRepresentation(), !data.isEmpty else {
+              let data = data(), !data.isEmpty else {
             result = .failure(CameraFailure("The camera did not return an Apple ProRAW DNG.")); return
         }
-        let actual = photo.resolvedSettings.rawPhotoDimensions
         let bufferWidth = CVPixelBufferGetWidth(buffer), bufferHeight = CVPixelBufferGetHeight(buffer)
-        let exif = photo.metadata[kCGImagePropertyExifDictionary as String] as? [String: Any]
+        let exif = metadata[kCGImagePropertyExifDictionary as String] as? [String: Any]
         func number(_ key: CFString) -> Double? {
             guard let value = (exif?[key as String] as? NSNumber)?.doubleValue, value.isFinite, value > 0 else { return nil }
             return value
@@ -1595,6 +1630,9 @@ private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
         result = .success(CapturedProRAW(data: data, dimensions: CGSize(width: CGFloat(actual.width), height: CGFloat(actual.height)), framing: framing))
     }
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
+        finishCapture(error: error)
+    }
+    func finishCapture(error: Error?) {
         lock.lock()
         guard completion != nil else { lock.unlock(); return }
         let finalResult: Result<CapturedProRAW, Error> = error.map { .failure($0) } ?? result ?? .failure(CameraFailure("No Apple ProRAW photo was delivered."))
@@ -1612,5 +1650,19 @@ private final class ProRAWCapture: NSObject, AVCapturePhotoCaptureDelegate {
         lock.unlock()
         callback?(value)
         return value
+    }
+}
+
+/// The session queue waits for an actual frame; lifecycle and timeout checks stay
+/// separate so tests can advance either event without a wall-clock delay.
+enum CameraPreviewReadiness {
+    static func wait(next: () -> DispatchTimeoutResult, expired: () -> Bool, validate: () throws -> Void) throws {
+        while next() != .success {
+            try validate()
+            if expired() {
+                throw CameraFailure("A physical camera preview did not deliver its negotiated frame within 5 seconds. Select the lens again to retry.")
+            }
+        }
+        try validate()
     }
 }
