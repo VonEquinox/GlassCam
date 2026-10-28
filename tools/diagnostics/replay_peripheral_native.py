@@ -34,7 +34,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="glasscam-native-field-replay-") as temp:
         work = Path(temp)
         sources = ROOT / "App/GlassCam"
-        names = ("PeripheralGlassPolicy.swift", "PeripheralVisibleSeam.swift", "PeripheralDenseRefinement.swift", "PeripheralLiveDisplay.swift", "PeripheralAlignment.swift", "PeripheralStateRecording.swift", "PeripheralGlassShader.swift")
+        names = ("Peripheral/PeripheralGlassPolicy.swift", "Peripheral/PeripheralVisibleSeam.swift", "Peripheral/PeripheralDenseRefinement.swift", "Peripheral/PeripheralLiveDisplay.swift", "Peripheral/PeripheralAlignment.swift", "Peripheral/PeripheralStateRecording.swift", "Peripheral/PeripheralGlassShader.swift")
         executable = work / "replay"
         subprocess.run(["xcrun", "swiftc", "-swift-version", "5", "-O", "-module-cache-path", str(work / "modules"),
                         *[str(sources / name) for name in names], str(ROOT / "tools/diagnostics/replay_peripheral_native.swift"),

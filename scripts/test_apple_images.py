@@ -37,15 +37,14 @@ def main():
         run(work / "strips")
         sources = ROOT / "App/GlassCam"
         run(*swift, *swift_native_flags(library),
-            *(sources / name for name in ["ExportSettings.swift", "SourceImageStore.swift",
-                                          "PhotoWhiteBalance.swift", "HNCSEngine.swift", "FFCSEngine.swift", "LUMIXEngine.swift",
-                                          "ImagePipeline.swift", "PreviewRaster.swift", "ShareDelivery.swift",
-                                          "CameraSettingsStore.swift", "CaptureGeometry.swift", "CaptureJournal.swift", "CaptureWorkflow.swift"]), *sorted(sources.glob("F5*.swift")),
+            *sorted((sources / "ImagingCore").rglob("*.swift")),
+            *sorted((sources / "Capture").glob("*.swift")),
+            *sorted((sources / "F5").glob("*.swift")),
             ROOT / "tests/swift-legacy/apple_image_pipeline.swift", ROOT / "tests/swift-legacy/apple_capture_workflow.swift",
             ROOT / "tests/swift-legacy/apple_capture_recovery.swift", "-o", work / "images")
         fixtures = work / "fixtures"
         fixtures.mkdir()
-        run(work / "images", fixtures, *([args.raw_source.resolve()] if args.raw_source else []))
+        run(work / "images", fixtures, work, *([args.raw_source.resolve()] if args.raw_source else []))
 
 
 if __name__ == "__main__":

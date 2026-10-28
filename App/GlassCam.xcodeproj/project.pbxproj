@@ -83,7 +83,7 @@
         C04000000000000000000001 = {
             isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
             additionalCompilerFlagsByRelativePath = {
-                "F5Kernels.metal" = "-fno-fast-math";
+                "F5/F5Kernels.metal" = "-fno-fast-math";
             };
             membershipExceptions = (
                 Info.plist,

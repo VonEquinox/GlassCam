@@ -37,13 +37,13 @@ struct F5LinearImage {
 
 enum F5ImagePipeline {
     struct Result { let file: TemporaryHEIFFile, snapshot: CaptureSnapshot }
-    static func render(_ source: F5BurstSource, snapshot: CaptureSnapshot, progress: @escaping @Sendable (Double)->Void,
+    static func render(resources: ColorResources, _ source: F5BurstSource, snapshot: CaptureSnapshot, progress: @escaping @Sendable (Double)->Void,
                        isCancelled: @escaping @Sendable ()->Bool) throws -> Result {
         let reconstruction=try F5Reconstructor.reconstruct(source,progress:{progress($0*0.7)},isCancelled:isCancelled)
         let provenance=reconstruction.provenance(source.manifest)
         let metadata=reconstruction.photoMetadata.addingCaptureProvenance("GlassCam F5\n" + String(decoding:try F5Hash.json(provenance),as:UTF8.self))
         let output=TemporaryHEIFFile(captureDate:metadata.captureDate)
-        let recipe=try ImagePipeline.writeF5HEIF(reconstruction,metadata:metadata,recipe:snapshot.recipe,to:output.url,
+        let recipe=try ImagePipeline.writeF5HEIF(resources: resources, reconstruction,metadata:metadata,recipe:snapshot.recipe,to:output.url,
             isCancelled:isCancelled,progress:{progress(0.7+0.3*$0)})
         return .init(file:output,snapshot:CaptureSnapshot(recipe:recipe,output:snapshot.output,quality:.f5,f5:provenance,archiveF5RAW:snapshot.archiveF5RAW))
     }

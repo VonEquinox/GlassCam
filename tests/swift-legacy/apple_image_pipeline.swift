@@ -17,6 +17,7 @@ private func require(_ condition: Bool, _ message: String) throws {
 }
 
 @main struct AppleImageChecks {
+    static let resources = ColorResources(resourceDirectory: URL(fileURLWithPath: CommandLine.arguments[2], isDirectory: true))
     static let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
     static let sRGB = CGColorSpace(name: CGColorSpace.sRGB)!
     static let pq = CGColorSpace(name: CGColorSpace.itur_2100_PQ)!
@@ -100,7 +101,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             rgb.append(contentsOf: triplet)
             originalRGBA.append(contentsOf: triplet); originalRGBA.append(1)
         } }
-        let processed = try ImagePipeline.process(input, recipe: recipe)
+        let processed = try ImagePipeline.process(resources: resources, input, recipe: recipe)
         let expected = try HNCSEngine.exportLinearRGBA(linearSRGB: rgb, width: side, height: side,
             exposureEV: 0, illuminantKelvin: processed.recipe.illuminantKelvin, settings: settings, effects: effects,
             whiteBalance: processed.recipe.photoWhiteBalance)
@@ -217,7 +218,7 @@ private func require(_ condition: Bool, _ message: String) throws {
     static func checkExport(_ input: ImportedImage, recipe: ProcessingRecipe,
                             directory: URL, name: String, scale requestedScale: Double = 1,
                             settings explicitSettings: ExportSettings? = nil) throws {
-        let processed = try ImagePipeline.process(input, recipe: recipe)
+        let processed = try ImagePipeline.process(resources: resources, input, recipe: recipe)
         // The preview thumbnail and full-source ImageIO/CI decoders can differ,
         // especially for HDR chroma. The whole-frame oracle must use full pixels.
         let decoded = CIImage(contentsOf: input.sourceFile.url,
@@ -229,17 +230,17 @@ private func require(_ condition: Bool, _ message: String) throws {
             linearRGB: fullRGB, width: Int(decoded.extent.width), height: Int(decoded.extent.height),
             original: try PreviewRaster(linearRGBA: fullRGBA, width: Int(decoded.extent.width), height: Int(decoded.extent.height)),
             sourceDescription: "Full-frame oracle")
-        let oracle = try ImagePipeline.process(full, recipe: recipe)
+        let oracle = try ImagePipeline.process(resources: resources, full, recipe: recipe)
         let actualURL = directory.appendingPathComponent(name + "-actual.heic")
         let expectedURL = directory.appendingPathComponent(name + "-expected.heic")
         let settings: ExportSettings = explicitSettings ?? (requestedScale == 1 ? .native : .init(
             targetWidth: Int(Double(input.width) * requestedScale), targetHeight: Int(Double(input.height) * requestedScale)))
         let outputSize = try settings.dimensions(sourceWidth: full.width, sourceHeight: full.height, crop: recipe.crop)
         let scale = explicitSettings == nil ? requestedScale : Double(outputSize.height) / Double(processed.image.height)
-        try ImagePipeline.writeHEIF(processed, to: actualURL, settings: settings)
+        try ImagePipeline.writeHEIF(resources: resources, processed, to: actualURL, settings: settings)
         let directURL = directory.appendingPathComponent(name + "-direct.heic")
         var sourceDimensions: (Int, Int)?
-        let directRecipe = try ImagePipeline.writeHEIF(sourceFile: input.sourceFile, recipe: recipe,
+        let directRecipe = try ImagePipeline.writeHEIF(resources: resources, sourceFile: input.sourceFile, recipe: recipe,
             to: directURL, settings: settings, onSourceDimensions: { sourceDimensions = ($0, $1) })
         try require(sourceDimensions?.0 == full.width && sourceDimensions?.1 == full.height,
                     "Reported source size differs from the full decoder extent before recipe cropping")
@@ -305,7 +306,7 @@ private func require(_ condition: Bool, _ message: String) throws {
         // has independent HDR-domain/edge checks, not this formula as an oracle.
         let legacyRecipe = ProcessingRecipe(mode: .hncs, exposureEV: 0, illuminantKelvin: 6500,
             simulationIndex: 0, seed: 0, hncs: .legacyStandard)
-        let processed = try ImagePipeline.process(input, recipe: legacyRecipe)
+        let processed = try ImagePipeline.process(resources: resources, input, recipe: legacyRecipe)
         let source = input.linearRGB
         var base = source
         for i in stride(from: 0, to: base.count, by: 3) {
@@ -323,7 +324,7 @@ private func require(_ condition: Bool, _ message: String) throws {
         try require(try error(pixels(processed.image.image), expected) < 1e-5,
                     "HDR preview did not preserve source highlight ratios through the effect")
         let file = directory.appendingPathComponent("hdr-metadata.heic")
-        try ImagePipeline.writeHEIF(processed, to: file)
+        try ImagePipeline.writeHEIF(resources: resources, processed, to: file)
         guard let container = CGImageSourceCreateWithURL(file as CFURL, nil),
               let metadata = CGImageSourceCopyPropertiesAtIndex(container, 0, nil) as? [String: Any],
               let decoded = CGImageSourceCreateImageAtIndex(container, 0,
@@ -366,7 +367,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             let recipe = ProcessingRecipe(mode: .hncs, exposureEV: 0, illuminantKelvin: 6500,
                 simulationIndex: 0, seed: 0, hncs: .standard,
                 effects: EffectToggles(applyGrain: false, applySharpness: sharp, applyExtraCrop: false))
-            return pixels(try ImagePipeline.process(input, recipe: recipe).image.image)
+            return pixels(try ImagePipeline.process(resources: resources, input, recipe: recipe).image.image)
         }
         let off = try render(false), on = try render(true)
         let dark = ((height / 2) * width + 14) * 4
@@ -453,7 +454,7 @@ private func require(_ condition: Bool, _ message: String) throws {
         }
         let retained = try SourceImageFile(data: Data(contentsOf: file.url), fileExtension: "heic")
         let output = TemporaryHEIFFile(captureDate: retained.metadata.captureDate)
-        try ImagePipeline.writeHEIF(sourceFile: retained, recipe: .standard, to: output.url, settings: .native)
+        try ImagePipeline.writeHEIF(resources: resources, sourceFile: retained, recipe: .standard, to: output.url, settings: .native)
         let container = CGImageSourceCreateWithURL(output.url as CFURL, nil)!
         let properties = CGImageSourceCopyPropertiesAtIndex(container, 0, nil) as! [String: Any]
         try metadata.validate(in: properties)
@@ -474,11 +475,11 @@ private func require(_ condition: Bool, _ message: String) throws {
     }
 
     static func checkCancellation(_ input: ImportedImage, directory: URL) throws {
-        let processed = try ImagePipeline.process(input, recipe: .standard)
+        let processed = try ImagePipeline.process(resources: resources, input, recipe: .standard)
         let cancellation = ImageOperationCancellation()
         let url = directory.appendingPathComponent("cancelled.heic")
         do {
-            try ImagePipeline.writeHEIF(processed, to: url, isCancelled: { cancellation.isCancelled }) {
+            try ImagePipeline.writeHEIF(resources: resources, processed, to: url, isCancelled: { cancellation.isCancelled }) {
                 if $0 > 0.1 { cancellation.cancel() }
             }
             throw CheckFailure(description: "Cancelled export completed")
@@ -489,8 +490,8 @@ private func require(_ condition: Bool, _ message: String) throws {
 
     static func checkShare(_ input: ImportedImage) async throws {
         let file = TemporaryHEIFFile()
-        let processed = try ImagePipeline.process(input, recipe: .standard)
-        try ImagePipeline.writeHEIF(processed, to: file.url)
+        let processed = try ImagePipeline.process(resources: resources, input, recipe: .standard)
+        try ImagePipeline.writeHEIF(resources: resources, processed, to: file.url)
         let original = try Data(contentsOf: file.url)
         let provider = ShareDelivery.makeProvider(for: file)
         func load(_ type: UTType) async throws -> Data {
@@ -631,7 +632,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             height: input.height, exposureEV: 0, illuminantKelvin: 6500, whiteBalance: warm)
         try require(try error(a, b) > 0.001, "Changed white point reused stale context")
         try require(a == again, "Returning to frozen white point changed render")
-        let direct = try ImagePipeline.process(input, recipe: .standard)
+        let direct = try ImagePipeline.process(resources: resources, input, recipe: .standard)
         try require(direct.recipe.photoWhiteBalance == input.whiteBalance,
                     "Pipeline failed to bind the photo's white point")
 
@@ -668,7 +669,7 @@ private func require(_ condition: Bool, _ message: String) throws {
 
     static func checkRAW(_ source: URL, directory: URL) throws {
         let input = try ImagePipeline.load(data: Data(contentsOf: source), fileExtension: "dng")
-        let processed = try ImagePipeline.process(input, recipe: .standard)
+        let processed = try ImagePipeline.process(resources: resources, input, recipe: .standard)
         let asShot = PhotoWhiteBalance.asShot(CIRAWFilter(imageURL: source)!)
         try require(asShot.origin == .appleRAW && asShot == input.whiteBalance &&
                     processed.recipe.photoWhiteBalance == asShot, "RAW as-shot WB was not frozen")
@@ -683,14 +684,14 @@ private func require(_ condition: Bool, _ message: String) throws {
                     "Apple sharpness remains active before native USM")
         let decoded = try JSONDecoder().decode(RAWDecodeRecipe.self, from: JSONEncoder().encode(rawRecipe))
         try require(decoded == rawRecipe, "Frozen RAW policy did not survive Codable")
-        let again = try ImagePipeline.process(processed.source, recipe: .standard)
+        let again = try ImagePipeline.process(resources: resources, processed.source, recipe: .standard)
         try require(again.source.rawDecode == rawRecipe && again.source.linearRGB == processed.source.linearRGB,
                     "Retry reconfigured the decoded RAW or repeated its decoder pass")
         print("PASS: per-RAW BaselineSharpness \(sourceBaseline), decoder sharpness disabled, policy/retry stable")
         print("PASS: RAW \(asShot.description); xy (\(asShot.x), \(asShot.y)); virtual model CCT \(processed.recipe.illuminantKelvin)")
         let output = directory.appendingPathComponent("raw-hdr.heic")
         let started = Date()
-        try ImagePipeline.writeHEIF(processed, to: output, progress: { progress in
+        try ImagePipeline.writeHEIF(resources: resources, processed, to: output, progress: { progress in
             if progress == 0 || progress == 0.9 { print("  real RAW export progress: \(progress)"); fflush(stdout) }
         })
         let raw = CIRAWFilter(imageURL: source)!
@@ -714,7 +715,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             let settings = ExportSettings.camera(mode, framing: captureFraming)
             let target = directory.appendingPathComponent("raw-camera-\(mode).heic")
             var sourceDimensions: (Int, Int)?
-            try ImagePipeline.writeHEIF(sourceFile: processed.source.sourceFile, recipe: processed.recipe,
+            try ImagePipeline.writeHEIF(resources: resources, sourceFile: processed.source.sourceFile, recipe: processed.recipe,
                 to: target, settings: settings, rawDecode: processed.source.rawDecode,
                 onSourceDimensions: { sourceDimensions = ($0, $1) })
             try require(sourceDimensions?.0 == width && sourceDimensions?.1 == height,
@@ -736,7 +737,7 @@ private func require(_ condition: Bool, _ message: String) throws {
 
     static func main() async {
         do {
-            guard (2...3).contains(CommandLine.arguments.count) else { throw CheckFailure(description: "Pass a temporary fixture directory and optional DNG") }
+            guard (3...4).contains(CommandLine.arguments.count) else { throw CheckFailure(description: "Pass fixture and resource directories and optional DNG") }
             let directory = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
             try checkNativeGradationMigration()
             print("PASS: revision 12 preserves old photo rendering/WB, migrates future camera defaults, and rejects unknown revisions")
@@ -802,8 +803,8 @@ private func require(_ condition: Bool, _ message: String) throws {
             try await checkShare(full)
             try await checkShare(hdr)
             print("PASS: real share provider preserves HEIF and delivers cached full-size JPEG")
-            if CommandLine.arguments.count == 3 {
-                try checkRAW(URL(fileURLWithPath: CommandLine.arguments[2]), directory: directory)
+            if CommandLine.arguments.count == 4 {
+                try checkRAW(URL(fileURLWithPath: CommandLine.arguments[3]), directory: directory)
             }
         } catch {
             FileHandle.standardError.write(Data("FAIL: \(error)\n".utf8))

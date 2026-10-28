@@ -1,6 +1,5 @@
 import CHNCS
 import Foundation
-import CoreImage
 
 /// The decoder's as-shot white point, before evaluating either reduced or full
 /// RAW output. Apple applies the RAW WB; HNCS uses xy to construct its virtual
@@ -17,13 +16,6 @@ struct PhotoWhiteBalance: Codable, Equatable, Sendable {
                                               tint: 0, x: 0.3127, y: 0.3290)
     static let fallbackD65 = PhotoWhiteBalance(origin: .fallbackD65, temperature: 6504,
                                               tint: 0, x: 0.3127, y: 0.3290)
-
-    static func asShot(_ raw: CIRAWFilter) -> PhotoWhiteBalance {
-        let point = raw.neutralChromaticity
-        let value = PhotoWhiteBalance(origin: .appleRAW, temperature: Double(raw.neutralTemperature),
-                                     tint: Double(raw.neutralTint), x: point.x, y: point.y)
-        return value.isValid ? value : .fallbackD65
-    }
 
     var isValid: Bool {
         temperature.isFinite && (2000...50000).contains(temperature) &&

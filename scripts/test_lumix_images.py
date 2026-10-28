@@ -34,11 +34,11 @@ def main():
         sources = args.swift_source_root.resolve()
         run("xcrun", "swiftc", "-swift-version", "5", "-O", "-module-cache-path", work / "modules",
             *swift_native_flags(library),
-            *(sources / name for name in ["ExportSettings.swift", "SourceImageStore.swift", "PhotoWhiteBalance.swift",
-                "HNCSEngine.swift", "FFCSEngine.swift", "LUMIXEngine.swift", "ImagePipeline.swift", "PreviewRaster.swift",
-                "ShareDelivery.swift", "CameraSettingsStore.swift", "CaptureGeometry.swift", "CaptureJournal.swift", "CaptureWorkflow.swift"]), *sorted(sources.glob("F5*.swift")),
+            *sorted((sources / "ImagingCore").rglob("*.swift")),
+            *sorted((sources / "Capture").glob("*.swift")),
+            *sorted((sources / "F5").glob("*.swift")),
             args.test_source.resolve(), "-o", work / "images")
-        run(work / "images", work / "fixtures", *([p.resolve() for p in args.proraw] if args.proraw else []))
+        run(work / "images", work / "fixtures", work, *([p.resolve() for p in args.proraw] if args.proraw else []))
 
 
 if __name__ == "__main__":

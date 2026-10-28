@@ -13,6 +13,7 @@ import UIKit
 /// Experimental pointwise viewfinder only. Never used by ImagePipeline/export.
 /// CPU studies cover [0,1] linear sRGB, EV=0 and HNCS CCT=5500 or 6500.
 struct LiveColorRecipe: Equatable {
+    let resources: ColorResources
     let mode: ColorMode
     let simulationIndex: Int
     let exposureEV: Double
@@ -23,9 +24,9 @@ struct LiveColorRecipe: Equatable {
     let effects: EffectToggles
     let ffcs: FFCSSettings
     let lumix: LUMIXSettings
-    init(mode: ColorMode, simulationIndex: Int, exposureEV: Double, illuminantKelvin: Double,
+    init(resources: ColorResources, mode: ColorMode, simulationIndex: Int, exposureEV: Double, illuminantKelvin: Double,
          hncs: HNCSSettings, effects: EffectToggles, ffcs: FFCSSettings, lumix: LUMIXSettings = .standard) {
-        self.mode = mode; self.simulationIndex = simulationIndex; self.exposureEV = exposureEV
+        self.resources = resources; self.mode = mode; self.simulationIndex = simulationIndex; self.exposureEV = exposureEV
         self.illuminantKelvin = illuminantKelvin; self.hncs = hncs; self.effects = effects
         self.ffcs = ffcs; self.lumix = lumix
     }
@@ -44,7 +45,7 @@ struct LiveColorRecipe: Equatable {
         if mode == .ffcs {
             guard ffcs.isValid,
                   (0..<Int(ffcs_simulation_count())).contains(simulationIndex),
-                  FFCSEngine.isSimulationAvailable(simulationIndex, family: ffcs.cameraFamily) else {
+                  FFCSEngine.isSimulationAvailable(resources: resources, simulationIndex, family: ffcs.cameraFamily) else {
                 return "This FFCS recipe or native LUT asset is unavailable. Showing system preview."
             }
             guard ffcs.cameraFamily == .xh2s, !ffcs.applyReferenceAdjustments,
@@ -210,10 +211,9 @@ private final class LiveColorCubeStore {
             hncs = hncs_create(recipe.exposureEV, recipe.illuminantKelvin)
             guard hncs != nil else { throw LiveProxyFailure.unavailable("HNCS live-color core could not initialize.") }
         } else if recipe.mode == .ffcs {
-            guard let resources = Bundle.main.resourceURL else {
+            guard let directory = recipe.resources.ffcsDirectory else {
                 throw LiveProxyFailure.unavailable("Original FFCS resources are unavailable.")
             }
-            let directory = resources.appendingPathComponent("FFCS", isDirectory: true)
             ffcs = directory.path.withCString { path in
                 recipe.ffcs.cameraFamily.rawValue.withCString { family in
                     message.withUnsafeMutableBufferPointer { error in

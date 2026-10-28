@@ -3,147 +3,15 @@ import Foundation
 
 /// Persisted selections describe the render, not just labels in a menu. Apple
 /// inputs have no Phocus FilmCurve metadata: As Shot resolves explicitly to type 2.
-enum HNCSFilmCurve: Int, CaseIterable, Codable, Identifiable, Sendable {
-    case asShot = 4, standard = 2, lowContrast = 6, highContrast = 1, oldStandard = 0, linear = 7
-    var id: Self { self }
-    var title: String {
-        switch self {
-        case .asShot: return "As Shot (Standard fallback)"
-        case .standard: return "Standard"
-        case .lowContrast: return "Low Contrast"
-        case .highContrast: return "High Contrast"
-        case .oldStandard: return "Old Standard"
-        case .linear: return "Linear"
-        }
-    }
-}
-
-enum HNCSWorkingSpace: String, CaseIterable, Codable, Identifiable, Sendable {
-    case legacy, lstar
-    var id: Self { self }
-    var title: String { self == .legacy ? "Hasselblad RGB (legacy)" : "Hasselblad L*RGB" }
-}
-
-enum HNCSIntent: String, CaseIterable, Codable, Identifiable, Sendable {
-    case standard, reproduction
-    var id: Self { self }
-    var title: String { self == .standard ? "Standard" : "Reproduction (pure curve)" }
-}
-
-enum HNCSWhiteBalancePolicy: String, CaseIterable, Codable, Identifiable, Sendable {
-    case photo, preset
-    var id: Self { self }
-    var title: String { self == .photo ? "Photo · Automatic" : "Original preset" }
-}
-
-struct HNCSSettings: Codable, Equatable, Sendable {
-    static let currentRenderRevision = 12
-    var renderRevision = currentRenderRevision
-    var presetKey = "standard"
-    var filmCurve: HNCSFilmCurve = .asShot
-    var rawFilmCurveType = 2
-    var workingSpace: HNCSWorkingSpace = .legacy
-    var intent: HNCSIntent = .standard
-    var whiteBalancePolicy: HNCSWhiteBalancePolicy = .photo
-    // This selects factory matrix/LUT interpolation only. It does not replace
-    // capture CCT or the selected target-camera white-balance gains.
-    var factoryKelvinOverride: Double? = nil
-    var applyToneCurve = true
-    static let standard = HNCSSettings()
-    static let legacyStandard: HNCSSettings = {
-        var value = HNCSSettings()
-        value.renderRevision = 11
-        return value
-    }()
-
-    init() {}
-    private enum CodingKeys: String, CodingKey {
-        case renderRevision, presetKey, filmCurve, rawFilmCurveType, workingSpace, intent
-        case factoryKelvinOverride, applyToneCurve, whiteBalancePolicy
-    }
-    init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        let savedRevision = try values.decodeIfPresent(Int.self, forKey: .renderRevision) ?? 11
-        // Old durable recipes must keep their original preset WB when replayed.
-        // Camera preferences migrate separately to photo WB for future shots.
-        renderRevision = [8, 9, 10].contains(savedRevision) ? 11 : savedRevision
-        presetKey = try values.decodeIfPresent(String.self, forKey: .presetKey) ?? "standard"
-        filmCurve = try values.decodeIfPresent(HNCSFilmCurve.self, forKey: .filmCurve) ?? .asShot
-        rawFilmCurveType = try values.decodeIfPresent(Int.self, forKey: .rawFilmCurveType) ?? 2
-        workingSpace = try values.decodeIfPresent(HNCSWorkingSpace.self, forKey: .workingSpace) ?? .legacy
-        intent = try values.decodeIfPresent(HNCSIntent.self, forKey: .intent) ?? .standard
-        whiteBalancePolicy = try values.decodeIfPresent(HNCSWhiteBalancePolicy.self, forKey: .whiteBalancePolicy) ?? .preset
-        factoryKelvinOverride = try values.decodeIfPresent(Double.self, forKey: .factoryKelvinOverride)
-        applyToneCurve = try values.decodeIfPresent(Bool.self, forKey: .applyToneCurve) ?? true
-    }
-
-    func crop(effects: EffectToggles) -> ImageCrop {
-        effects.applyExtraCrop && presetKey == "square-crop" ? .centeredSquare : .none
-    }
-    var usesExtendedWorkingDomain: Bool { renderRevision == 12 }
-    func requiresSpatial(effects: EffectToggles) -> Bool {
-        guard let flags = HNCSEngine.presets.first(where: { $0.id == presetKey })?.flags else { return false }
-        let nativeSharpness = presetKey.withCString { hncs_native_sharpness_enabled($0) == 1 }
-        return (effects.applyGrain && flags & 4 != 0) || (effects.applySharpness && nativeSharpness)
-    }
-    var presetTitle: String { HNCSEngine.presets.first { $0.id == presetKey }?.name ?? "Unavailable preset" }
-    var presetWhiteBalanceKelvin: Int? {
-        HNCSEngine.presets.first { $0.id == presetKey }?.whiteBalanceKelvin
-    }
-    var whiteBalanceExplanation: String {
-        if whiteBalancePolicy == .photo {
-            if let kelvin = presetWhiteBalanceKelvin {
-                return "Keeps this photo's own temperature and tint. \(presetTitle)'s fixed \(kelvin) K white balance is not applied."
-            }
-            return "Keeps each photo's own temperature and tint while applying the preset's tone and detail settings."
-        }
-        if let kelvin = presetWhiteBalanceKelvin {
-            return "Applies \(presetTitle)'s fixed \(kelvin) K white balance and tint."
-        }
-        return "\(presetTitle) has no fixed white balance, so the photo's own temperature and tint are preserved."
-    }
-    var isValid: Bool {
-        [11, Self.currentRenderRevision].contains(renderRevision) && rawFilmCurveType == 2 &&
-        (factoryKelvinOverride == nil || (factoryKelvinOverride!.isFinite && (2000...10000).contains(factoryKelvinOverride!))) &&
-        HNCSEngine.presets.contains { $0.id == presetKey }
-    }
-}
-
 /// Thin Swift ownership/buffer bridge. All color processing lives in portable C++17.
 /// Binary-verified presets, film curves and working spaces use an experimental source
 /// adapter. This does not claim a calibrated iPhone/Apple RAW-to-X2D camera profile.
 enum HNCSEngine {
     enum Quality { case exactReference, fastPreview }
 
-    struct Preset: Identifiable, Sendable {
-        let id: String
-        let name: String
-        let flags: UInt32
-        let whiteBalanceKelvin: Int?
-        var hasOptionalSharpness: Bool { flags & 16 != 0 }
-    }
-
-    private struct PresetWhiteBalance: Decodable {
-        let color_temperature: Int?
-    }
-
-    /// Catalog names come from the exact backend assets. Source-defined no-op
-    /// tools are not presented as fake effects; spatial looks use a separate pass.
-    /// New camera UI excludes the legacy square look; saved photo recipes still decode it.
-    static var cameraPresets: [Preset] { presets.filter { $0.id != "square-crop" } }
-
-    static let presets: [Preset] = (0..<Int(hncs_preset_count())).compactMap { index in
-        guard let key = hncs_preset_key(index), let name = hncs_preset_name(index) else { return nil }
-        let flags = hncs_preset_flags(key)
-        let id = String(cString: key)
-        guard id == "standard" || flags & (1 | 2 | 4 | 8) != 0 else { return nil }
-        guard let json = hncs_preset_settings_json(key),
-              let white = try? JSONDecoder().decode(PresetWhiteBalance.self,
-                  from: Data(String(cString: json).utf8)) else { return nil }
-        let kelvin = white.color_temperature ?? 0
-        return Preset(id: id, name: String(cString: name), flags: flags,
-                      whiteBalanceKelvin: kelvin > 0 ? kelvin : nil)
-    }
+    typealias Preset = HNCSPresetCatalog.Preset
+    static let presets = HNCSPresetCatalog.presets
+    static var cameraPresets: [Preset] { HNCSPresetCatalog.cameraPresets }
 
     private struct ContextKey: Equatable {
         let exposure: Double

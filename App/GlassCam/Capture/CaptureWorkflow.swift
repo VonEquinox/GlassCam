@@ -70,27 +70,27 @@ final class CaptureWorkflow: ObservableObject {
                                            CaptureProcessingControl) async throws -> SavedCapture)? = nil
         var reload: (@Sendable (URL, CaptureSnapshot, CaptureProcessingControl) async throws -> SavedCapture)? = nil
 
-        static func live(authorize: @escaping @MainActor () async throws -> Void,
+        static func live(resources: ColorResources, authorize: @escaping @MainActor () async throws -> Void,
                          save: @escaping @MainActor (TemporaryHEIFFile) async throws -> Void) -> Services {
             Services(authorize: authorize, retain: { data in
                 try await Task.detached(priority: .userInitiated) {
                     try SourceImageFile(data: data, fileExtension: "dng")
                 }.value
             }, process: { source, snapshot, progress in
-                try await processCapture(source, snapshot: snapshot, progress: progress, control: CaptureProcessingControl())
+                try await processCapture(resources: resources, source, snapshot: snapshot, progress: progress, control: CaptureProcessingControl())
             }, save: save, processWithControl: { source, snapshot, progress, control in
-                try await processCapture(source, snapshot: snapshot, progress: progress, control: control)
+                try await processCapture(resources: resources, source, snapshot: snapshot, progress: progress, control: control)
             }, reload: { url, snapshot, control in
                 try await reloadCapture(url, snapshot: snapshot, control: control)
             })
         }
 
-        nonisolated private static func processCapture(_ source: RetainedCaptureSource, snapshot: CaptureSnapshot,
+        nonisolated private static func processCapture(resources: ColorResources, _ source: RetainedCaptureSource, snapshot: CaptureSnapshot,
             progress: @escaping @Sendable (Double) -> Void, control: CaptureProcessingControl) async throws -> SavedCapture {
             try await Task.detached(priority: .userInitiated) {
                 if control.isStopped { throw CancellationError() }
                 if case .burst(let burst) = source {
-                    let result = try F5ImagePipeline.render(burst, snapshot: snapshot, progress: progress, isCancelled: { control.isStopped })
+                    let result = try F5ImagePipeline.render(resources: resources, burst, snapshot: snapshot, progress: progress, isCancelled: { control.isStopped })
                     return try review(result.file, snapshot: result.snapshot, control: control)
                 }
                 let input: SourceImageFile
@@ -101,7 +101,7 @@ final class CaptureWorkflow: ObservableObject {
                 }
                 let file = TemporaryHEIFFile(captureDate: input.metadata.captureDate)
                 var framing = snapshot.output.framing
-                let recipe = try ImagePipeline.writeHEIF(sourceFile: input, recipe: snapshot.recipe,
+                let recipe = try ImagePipeline.writeHEIF(resources: resources, sourceFile: input, recipe: snapshot.recipe,
                     to: file.url, settings: snapshot.output, isCancelled: { control.isStopped }, progress: progress,
                     onSourceDimensions: { width, height in
                         framing?.decodedWidth = width; framing?.decodedHeight = height

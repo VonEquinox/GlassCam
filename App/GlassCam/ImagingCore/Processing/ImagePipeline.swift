@@ -1,4 +1,3 @@
-import CFFCS
 import Foundation
 import CoreImage
 import ImageIO
@@ -22,59 +21,6 @@ final class PipelineTiming: @unchecked Sendable {
         if firstSeconds[stage] == nil { firstSeconds[stage] = elapsed }
         maximumSeconds[stage] = max(maximumSeconds[stage, default: 0], elapsed)
         if stage == "raw_render" { thermalStates.insert(ProcessInfo.processInfo.thermalState.rawValue) }
-    }
-}
-
-/// The source look is independent of a color engine's native render revision.
-/// Missing policy in a saved photo preserves the original input for retries.
-enum RAWInputPolicy: String, Codable, Sendable { case legacy, cameraNeutral }
-
-/// Immutable RAW input policy. Camera-neutral input removes Apple's global
-/// contrast curve while retaining this photo's exposure and local tone mapping.
-/// HNCS disables decoder sharpening before its own native sharpness stage.
-struct RAWDecodeRecipe: Codable, Equatable, Sendable {
-    enum Rendering: String, Codable, Sendable { case appleRendered, sceneLinear, cameraNeutral }
-    let rendering: Rendering
-    let decoderVersion: String?
-    let linearExposureEV: Double
-    let decoderExposureEV: Float
-    let edrAmount: Float?
-    /// nil keeps the decoder default; HNCS explicitly requests zero before its
-    /// own sharpness stage. BaselineSharpness belongs to this RAW, not a preset.
-    let sharpnessAmount: Float?
-    let baselineSharpness: Double?
-
-    init(rendering: Rendering = .appleRendered, decoderVersion: String? = nil,
-         linearExposureEV: Double = 0, decoderExposureEV: Float = 0, edrAmount: Float? = nil,
-         sharpnessAmount: Float? = nil, baselineSharpness: Double? = nil) {
-        self.rendering = rendering; self.decoderVersion = decoderVersion
-        self.linearExposureEV = linearExposureEV; self.decoderExposureEV = decoderExposureEV
-        self.edrAmount = edrAmount
-        self.sharpnessAmount = sharpnessAmount; self.baselineSharpness = baselineSharpness
-    }
-    static let current = RAWDecodeRecipe()
-    static let sceneLinear = RAWDecodeRecipe(rendering: .sceneLinear)
-    var cameraNeutralInput: RAWDecodeRecipe {
-        RAWDecodeRecipe(rendering: .cameraNeutral, decoderVersion: decoderVersion,
-            linearExposureEV: linearExposureEV, decoderExposureEV: decoderExposureEV,
-            edrAmount: edrAmount, sharpnessAmount: sharpnessAmount, baselineSharpness: baselineSharpness)
-    }
-    var withoutDecoderSharpness: RAWDecodeRecipe {
-        RAWDecodeRecipe(rendering: rendering, decoderVersion: decoderVersion,
-            linearExposureEV: linearExposureEV, decoderExposureEV: decoderExposureEV,
-            edrAmount: edrAmount, sharpnessAmount: 0, baselineSharpness: baselineSharpness)
-    }
-    var sceneLinearInput: RAWDecodeRecipe {
-        RAWDecodeRecipe(rendering: .sceneLinear, decoderVersion: decoderVersion,
-            linearExposureEV: linearExposureEV, decoderExposureEV: decoderExposureEV,
-            edrAmount: nil, sharpnessAmount: nil, baselineSharpness: baselineSharpness)
-    }
-    var isValid: Bool {
-        linearExposureEV.isFinite && (-10...10).contains(linearExposureEV) &&
-        decoderExposureEV.isFinite && (-10...10).contains(decoderExposureEV) &&
-        (edrAmount == nil || (edrAmount!.isFinite && (0...2).contains(edrAmount!))) &&
-        (sharpnessAmount == nil || (sharpnessAmount!.isFinite && (0...1).contains(sharpnessAmount!))) &&
-        (baselineSharpness == nil || (baselineSharpness!.isFinite && baselineSharpness! >= 0))
     }
 }
 
@@ -117,214 +63,6 @@ struct ImportedImage: @unchecked Sendable {
     }
 }
 
-/// Only implemented, audited backends belong in this list. Adding a mode must
-/// implement both preview and float export dispatch before exposing it in the UI.
-enum ColorMode: String, CaseIterable, Identifiable, Codable, Sendable {
-    case hncs, ffcs, lumix
-    var id: Self { self }
-    var title: String {
-        switch self {
-        case .hncs: return "HNCS"
-        case .ffcs: return "FFCS"
-        case .lumix: return "LUMIX"
-        }
-    }
-}
-
-/// Independent, persisted stage gates. Enabling a gate uses only the selected
-/// preset's existing parameters; it never invents grain, sharpening or crop.
-struct EffectToggles: Codable, Equatable, Sendable {
-    var applyGrain = true
-    var applySharpness = true
-    var applyExtraCrop = true
-    static let standard = EffectToggles()
-
-    init(applyGrain: Bool = true, applySharpness: Bool = true, applyExtraCrop: Bool = true) {
-        self.applyGrain = applyGrain
-        self.applySharpness = applySharpness
-        self.applyExtraCrop = applyExtraCrop
-    }
-
-    private enum CodingKeys: String, CodingKey { case applyGrain, applySharpness, applyExtraCrop }
-    init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        applyGrain = try values.decodeIfPresent(Bool.self, forKey: .applyGrain) ?? true
-        applySharpness = try values.decodeIfPresent(Bool.self, forKey: .applySharpness) ?? true
-        applyExtraCrop = try values.decodeIfPresent(Bool.self, forKey: .applyExtraCrop) ?? true
-    }
-}
-
-/// FFCS 0.2 native asset defaults. Missing fields deliberately adopt the corrected
-/// neutral reference behavior; the independent user stage gates remain intact.
-enum FFCSCameraFamily: String, Codable, CaseIterable, Identifiable, Sendable {
-    case xh2s = "XH2S", xa3 = "XA3", gfx100 = "GFX100", gfx100s = "GFX100S", gfx100ii = "GFX100II"
-    var id: String { rawValue }
-}
-
-struct FFCSSettings: Codable, Equatable, Sendable {
-    static let currentRenderRevision = 2 // FFCS reference 0.2.0 native-default contract.
-    var renderRevision = currentRenderRevision
-    var cameraFamily: FFCSCameraFamily = .xh2s
-    var applyReferenceAdjustments = false
-    var sharpenRadius = 1.0
-    static let standard = FFCSSettings()
-    var isValid: Bool {
-        renderRevision == Self.currentRenderRevision &&
-        sharpenRadius.isFinite && (0.1...5.0).contains(sharpenRadius)
-    }
-
-    init(cameraFamily: FFCSCameraFamily = .xh2s, applyReferenceAdjustments: Bool = false,
-         sharpenRadius: Double = 1.0) {
-        self.cameraFamily = cameraFamily
-        self.applyReferenceAdjustments = applyReferenceAdjustments
-        self.sharpenRadius = sharpenRadius
-    }
-    private enum CodingKeys: String, CodingKey { case renderRevision, cameraFamily, applyReferenceAdjustments, sharpenRadius }
-    init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        renderRevision = try values.decodeIfPresent(Int.self, forKey: .renderRevision) ?? Self.currentRenderRevision
-        cameraFamily = try values.decodeIfPresent(FFCSCameraFamily.self, forKey: .cameraFamily) ?? .xh2s
-        applyReferenceAdjustments = try values.decodeIfPresent(Bool.self, forKey: .applyReferenceAdjustments) ?? false
-        sharpenRadius = try values.decodeIfPresent(Double.self, forKey: .sharpenRadius) ?? 1.0
-    }
-}
-
-/// Immutable settings captured before background work starts. Export must use
-/// the rendered recipe, including every stage gate, rather than current controls.
-struct ProcessingRecipe: Codable, Equatable, Sendable {
-    static let currentPipelineRevision = 2
-    let pipelineRevision: Int
-    let mode: ColorMode
-    let exposureEV: Double
-    let illuminantKelvin: Double
-    let simulationIndex: Int
-    let seed: UInt32
-    let hncs: HNCSSettings
-    let effects: EffectToggles
-    let ffcs: FFCSSettings
-    let lumix: LUMIXSettings
-    let photoWhiteBalance: PhotoWhiteBalance?
-    let rawInputPolicy: RAWInputPolicy
-    // Only the HNCS square preset defines a crop. FFCS has no extra-crop stage.
-    var crop: ImageCrop { mode == .hncs ? hncs.crop(effects: effects) : .none }
-
-    init(mode: ColorMode, exposureEV: Double, illuminantKelvin: Double,
-         simulationIndex: Int, seed: UInt32, hncs: HNCSSettings,
-         effects: EffectToggles = .standard, ffcs: FFCSSettings = .standard,
-         photoWhiteBalance: PhotoWhiteBalance? = nil, lumix: LUMIXSettings = .standard,
-         rawInputPolicy: RAWInputPolicy = .cameraNeutral,
-         pipelineRevision: Int = Self.currentPipelineRevision) {
-        self.pipelineRevision = pipelineRevision
-        self.mode = mode; self.exposureEV = exposureEV; self.illuminantKelvin = illuminantKelvin
-        self.simulationIndex = simulationIndex; self.seed = seed; self.hncs = hncs
-        self.effects = effects; self.ffcs = ffcs; self.photoWhiteBalance = photoWhiteBalance
-        self.lumix = lumix
-        self.rawInputPolicy = rawInputPolicy
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case mode, exposureEV, illuminantKelvin, simulationIndex, seed, hncs, effects, ffcs, photoWhiteBalance, lumix, rawInputPolicy, pipelineRevision
-    }
-    private enum LegacyEffectKeys: String, CodingKey { case applyGrain, applySharpness }
-    init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        pipelineRevision = try values.decodeIfPresent(Int.self, forKey: .pipelineRevision) ?? 1
-        mode = try values.decodeIfPresent(ColorMode.self, forKey: .mode) ?? .hncs
-        exposureEV = try values.decodeIfPresent(Double.self, forKey: .exposureEV) ?? 0
-        illuminantKelvin = try values.decodeIfPresent(Double.self, forKey: .illuminantKelvin) ?? 6500
-        simulationIndex = try values.decodeIfPresent(Int.self, forKey: .simulationIndex) ?? 0
-        seed = try values.decodeIfPresent(UInt32.self, forKey: .seed) ?? 0
-        hncs = try values.decodeIfPresent(HNCSSettings.self, forKey: .hncs) ?? .legacyStandard
-        photoWhiteBalance = try values.decodeIfPresent(PhotoWhiteBalance.self, forKey: .photoWhiteBalance)
-        ffcs = try values.decodeIfPresent(FFCSSettings.self, forKey: .ffcs) ?? .standard
-        lumix = try values.decodeIfPresent(LUMIXSettings.self, forKey: .lumix) ?? .standard
-        rawInputPolicy = try values.decodeIfPresent(RAWInputPolicy.self, forKey: .rawInputPolicy) ?? .legacy
-        if let savedEffects = try values.decodeIfPresent(EffectToggles.self, forKey: .effects) {
-            effects = savedEffects
-        } else if mode == .hncs, values.contains(.hncs), try !values.decodeNil(forKey: .hncs) {
-            // revision8.v1 stored the two old switches inside HNCS. Preserve
-            // explicit false choices for the active HNCS render. Old FFCS always
-            // applied both stages, so its saved stage gates stay enabled. The
-            // separate FFCS 0.2 setting now defaults to neutral native LUT output.
-            let legacy = try values.nestedContainer(keyedBy: LegacyEffectKeys.self, forKey: .hncs)
-            effects = EffectToggles(
-                applyGrain: try legacy.decodeIfPresent(Bool.self, forKey: .applyGrain) ?? true,
-                applySharpness: try legacy.decodeIfPresent(Bool.self, forKey: .applySharpness) ?? true,
-                applyExtraCrop: true)
-        } else {
-            effects = .standard
-        }
-    }
-
-    func resolvingWhiteBalance(_ value: PhotoWhiteBalance) -> ProcessingRecipe {
-        // An already resolved render/retry keeps the original photo white point.
-        guard photoWhiteBalance == nil else { return self }
-        return ProcessingRecipe(mode: mode, exposureEV: exposureEV,
-            illuminantKelvin: value.modelKelvin ?? 6500, simulationIndex: simulationIndex,
-            seed: seed, hncs: hncs, effects: effects, ffcs: ffcs, photoWhiteBalance: value, lumix: lumix,
-            rawInputPolicy: rawInputPolicy, pipelineRevision: pipelineRevision)
-    }
-    func resolvingLUMIXSourceISO(_ value: Int?) -> ProcessingRecipe {
-        guard mode == .lumix, lumix.renderRevision >= 2, lumix.sourceISO == nil else { return self }
-        var resolved = lumix; resolved.sourceISO = value ?? 100
-        return ProcessingRecipe(mode: mode, exposureEV: exposureEV,
-            illuminantKelvin: illuminantKelvin, simulationIndex: simulationIndex, seed: seed,
-            hncs: hncs, effects: effects, ffcs: ffcs, photoWhiteBalance: photoWhiteBalance, lumix: resolved,
-            rawInputPolicy: rawInputPolicy, pipelineRevision: pipelineRevision)
-    }
-
-    func sourceDecodeRecipe(_ original: RAWDecodeRecipe) -> RAWDecodeRecipe {
-        if rawInputPolicy == .cameraNeutral {
-            let neutral = original.cameraNeutralInput
-            // Do not inherit another engine's decoder-sharpening override.
-            if mode == .hncs { return neutral.withoutDecoderSharpness }
-            if mode == .ffcs { return neutral }
-            return RAWDecodeRecipe(rendering: neutral.rendering, decoderVersion: neutral.decoderVersion,
-                linearExposureEV: neutral.linearExposureEV, decoderExposureEV: neutral.decoderExposureEV,
-                edrAmount: neutral.edrAmount, baselineSharpness: neutral.baselineSharpness)
-        }
-        if mode == .hncs { return original.withoutDecoderSharpness }
-        if mode == .lumix && lumix.renderRevision >= 2 { return original.sceneLinearInput }
-        return original
-    }
-
-    static let standard = ProcessingRecipe(mode: .hncs, exposureEV: 0, illuminantKelvin: 6500,
-                                            simulationIndex: 0, seed: 0, hncs: .standard)
-    var isValid: Bool {
-        (1...Self.currentPipelineRevision).contains(pipelineRevision) &&
-        exposureEV.isFinite && (-2...2).contains(exposureEV) &&
-        illuminantKelvin.isFinite && (2000...10000).contains(illuminantKelvin) &&
-        (photoWhiteBalance == nil || photoWhiteBalance!.isValid) &&
-        (0..<Int(ffcs_simulation_count())).contains(simulationIndex) && hncs.isValid && ffcs.isValid && lumix.isValid
-    }
-
-    var displayName: String {
-        if mode == .lumix { return "LUMIX · \(lumix.title)" }
-        guard mode == .ffcs else { return "HNCS · \(hncs.presetTitle) · \(hncs.filmCurve.title)" }
-        let actual = FFCSEngine.resolvedAssetFamily(simulationIndex, family: ffcs.cameraFamily)
-        let family = actual.map { $0 == ffcs.cameraFamily.rawValue ? $0 : "\(ffcs.cameraFamily.rawValue) / \($0) asset" }
-            ?? "\(ffcs.cameraFamily.rawValue) / asset unavailable"
-        return "FFCS · \(family) · \(FFCSEngine.simulationName(at: simulationIndex))"
-    }
-
-    var whiteBalanceDescription: String? {
-        if mode == .hncs, hncs.whiteBalancePolicy == .preset, let kelvin = hncs.presetWhiteBalanceKelvin {
-            return "Preset WB · \(hncs.presetTitle) · \(kelvin) K"
-        }
-        return photoWhiteBalance?.description
-    }
-
-    var usesExtendedHNCSWorkingDomain: Bool { mode == .hncs && hncs.usesExtendedWorkingDomain }
-
-    /// Revision 3 includes user exposure in the restored HDR magnitude. Saved
-    /// revision 1/2 photos retain their previous exposure and clipping behavior.
-    var appliesLUMIXExposureBeforeHighlights: Bool { mode == .lumix && lumix.renderRevision >= 3 }
-    /// New photos apply EV to the complete linear source, before either the
-    /// shared split or HNCS's internal split. Old recipes keep their arithmetic.
-    var appliesExposureBeforeHighlights: Bool { pipelineRevision >= 2 || appliesLUMIXExposureBeforeHighlights }
-    var backendExposureEV: Double { appliesExposureBeforeHighlights ? 0 : exposureEV }
-}
-
 struct ProcessedImage: @unchecked Sendable {
     let image: PreviewRaster
     let comparisonSource: PreviewRaster
@@ -334,19 +72,6 @@ struct ProcessedImage: @unchecked Sendable {
     let recipe: ProcessingRecipe
     var exposureEV: Double { recipe.exposureEV }
     var illuminantKelvin: Double { recipe.illuminantKelvin }
-}
-
-enum PipelineError: LocalizedError {
-    case invalidImage, rendering, encoding, unsupportedOutput, metadata
-    var errorDescription: String? {
-        switch self {
-        case .invalidImage: return "This image could not be decoded. Try a JPEG, PNG, HEIC, or supported DNG."
-        case .rendering: return "The image renderer could not create an output."
-        case .unsupportedOutput: return "The selected sensor output exceeds the genuine source or changes its uncropped aspect ratio. Capture at a supported resolution; upsampling is disabled."
-        case .encoding: return "The processed image could not be encoded as 10-bit HDR HEIF. No lower-bit-depth fallback was saved."
-        case .metadata: return "The photo's capture information could not be preserved. Its source has been retained for retry."
-        }
-    }
 }
 
 /// Experimental source adaptation. This is not a calibrated camera-native RGB profile.
@@ -594,7 +319,7 @@ enum ImagePipeline {
                              baseRAWDecode: baseRAWDecode ?? resolvedRAWDecode, previewMaximumEdge: Int(maximumEdge))
     }
 
-    static func process(_ input: ImportedImage, recipe: ProcessingRecipe) throws -> ProcessedImage {
+    static func process(resources: ColorResources, _ input: ImportedImage, recipe: ProcessingRecipe) throws -> ProcessedImage {
         guard recipe.isValid else { throw HNCSEngine.Error.invalidSettings }
         var input = input
         let sourcePolicy = recipe.sourceDecodeRecipe(input.baseRAWDecode)
@@ -651,11 +376,11 @@ enum ImagePipeline {
                                                    illuminantKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance,
                                                    baselineSharpness: input.rawDecode.baselineSharpness ?? 0)
         case .ffcs:
-            rgba = try FFCSEngine.exportLinearRGBA(linearSRGB: effectInput, width: crop.width,
+            rgba = try FFCSEngine.exportLinearRGBA(resources: resources, linearSRGB: effectInput, width: crop.width,
                                                    height: crop.height, exposureEV: recipe.backendExposureEV,
                                                    simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects, settings: recipe.ffcs)
         case .lumix:
-            rgba = try LUMIXEngine.exportLinearRGBA(linearSRGB: effectInput, width: crop.width,
+            rgba = try LUMIXEngine.exportLinearRGBA(resources: resources, linearSRGB: effectInput, width: crop.width,
                                                     height: crop.height,
                                                     exposureEV: recipe.backendExposureEV,
                                                     settings: recipe.lumix, illuminantKelvin: recipe.illuminantKelvin)
@@ -669,14 +394,14 @@ enum ImagePipeline {
     /// Exact color processing precedes any reduction to the requested output size.
     /// App-owned scratch is O(width * stripRows); Apple RAW/ImageIO/CI/HEIF may
     /// allocate full-size internal surfaces. Device peak-RSS validation is required.
-    static func writeHEIF(_ processed: ProcessedImage, to url: URL,
+    static func writeHEIF(resources: ColorResources, _ processed: ProcessedImage, to url: URL,
                           settings: ExportSettings? = nil,
                           isCancelled: @escaping @Sendable () -> Bool = { false },
                           progress: @escaping @Sendable (Double) -> Void = { _ in },
                           timing: PipelineTiming? = nil) throws {
         try decodeQueue.sync {
             try autoreleasepool {
-                try exportFullSource(processed.source.sourceFile, whiteBalance: processed.source.whiteBalance,
+                try exportFullSource(resources: resources, processed.source.sourceFile, whiteBalance: processed.source.whiteBalance,
                     recipe: processed.recipe, to: url, settings: settings ?? processed.source.exportSettings, rawDecode: processed.source.rawDecode,
                     isCancelled: isCancelled, progress: progress, timing: timing)
             }
@@ -686,7 +411,7 @@ enum ImagePipeline {
     /// Automatic capture needs only the final HEIF and its review image. Read
     /// the as-shot metadata without decoding/processing a discarded RAW preview.
     @discardableResult
-    static func writeHEIF(sourceFile: SourceImageFile, recipe: ProcessingRecipe, to url: URL,
+    static func writeHEIF(resources: ColorResources, sourceFile: SourceImageFile, recipe: ProcessingRecipe, to url: URL,
                           settings: ExportSettings, rawDecode: RAWDecodeRecipe = .current,
                           isCancelled: @escaping @Sendable () -> Bool = { false },
                           progress: @escaping @Sendable (Double) -> Void = { _ in },
@@ -709,7 +434,7 @@ enum ImagePipeline {
                 }
                 let resolved = recipe.resolvingWhiteBalance(whiteBalance).resolvingLUMIXSourceISO(captureISO)
                 timing?.record("metadata_bind", since: metadataStarted)
-                try exportFullSource(sourceFile, whiteBalance: whiteBalance, recipe: resolved,
+                try exportFullSource(resources: resources, sourceFile, whiteBalance: whiteBalance, recipe: resolved,
                     to: url, settings: settings, rawDecode: resolvedRAWDecode, isCancelled: isCancelled, progress: progress,
                     timing: timing, onSourceDimensions: onSourceDimensions)
                 return resolved
@@ -719,13 +444,13 @@ enum ImagePipeline {
 
     /// F5 has already reconstructed and characterized scene-linear RGB. This
     /// entry never invokes CIRAWFilter and preserves the old ProRAW recipes.
-    static func writeF5HEIF(_ image: F5LinearImage, metadata: PhotoMetadata, recipe: ProcessingRecipe, to url: URL,
+    static func writeF5HEIF(resources: ColorResources, _ image: F5LinearImage, metadata: PhotoMetadata, recipe: ProcessingRecipe, to url: URL,
                            isCancelled: @escaping @Sendable () -> Bool, progress: @escaping @Sendable (Double) -> Void) throws -> ProcessingRecipe {
         try decodeQueue.sync {
             let white = image.color.whiteBalance
             guard white.isValid, image.color.whiteBalanceOwner == "matrix" else { throw F5Failure(.colorTransformInvalid,"Invalid F5 white-balance ownership.") }
             let resolved = recipe.resolvingWhiteBalance(white).resolvingLUMIXSourceISO(Int(image.reference.actualISO.rounded()))
-            try exportLinearSource(image.image,metadata:metadata,recipe:resolved,to:url,settings:.native,rawDecode:.sceneLinear,
+            try exportLinearSource(resources: resources, image.image,metadata:metadata,recipe:resolved,to:url,settings:.native,rawDecode:.sceneLinear,
                 isCancelled:isCancelled,progress:progress)
             return resolved
         }
@@ -764,7 +489,7 @@ enum ImagePipeline {
         try Task.checkCancellation()
     }
 
-    private static func exportFullSource(_ sourceFile: SourceImageFile, whiteBalance: PhotoWhiteBalance,
+    private static func exportFullSource(resources: ColorResources, _ sourceFile: SourceImageFile, whiteBalance: PhotoWhiteBalance,
                                           recipe: ProcessingRecipe, to url: URL,
                                           settings: ExportSettings, rawDecode: RAWDecodeRecipe, isCancelled: @escaping @Sendable () -> Bool,
                                           progress: @escaping @Sendable (Double) -> Void,
@@ -778,12 +503,12 @@ enum ImagePipeline {
         let decoded = try fullSourceImage(sourceFile, whiteBalance: whiteBalance, rawDecode: rawDecode,
             stabilizeRAWDecode: stabilizeRAWDecode)
         timing?.record("source_graph_setup", since: sourceStarted)
-        try exportLinearSource(decoded, metadata: sourceFile.metadata, recipe: recipe, to: url, settings: settings,
+        try exportLinearSource(resources: resources, decoded, metadata: sourceFile.metadata, recipe: recipe, to: url, settings: settings,
             rawDecode: rawDecode, isCancelled: isCancelled, progress: progress, timing: timing,
             onSourceDimensions: onSourceDimensions, releaseSourceCache: stabilizeRAWDecode)
     }
 
-    private static func exportLinearSource(_ decoded: CIImage, metadata: PhotoMetadata,
+    private static func exportLinearSource(resources: ColorResources, _ decoded: CIImage, metadata: PhotoMetadata,
                                           recipe: ProcessingRecipe, to url: URL,
                                           settings: ExportSettings, rawDecode: RAWDecodeRecipe, isCancelled: @escaping @Sendable () -> Bool,
                                           progress: @escaping @Sendable (Double) -> Void,
@@ -844,7 +569,7 @@ enum ImagePipeline {
         var maximumWorkValue: Float = 0
         let halo: Int
         if recipe.mode == .ffcs {
-            halo = try FFCSEngine.requiredHalo(simulationIndex: recipe.simulationIndex,
+            halo = try FFCSEngine.requiredHalo(resources: resources, simulationIndex: recipe.simulationIndex,
                                                effects: recipe.effects, settings: recipe.ffcs)
         } else { halo = 0 }
         timing?.record("context_scratch_setup", since: setupStarted)
@@ -909,7 +634,7 @@ enum ImagePipeline {
                     timing?.record("color_engine", since: colorStarted)
                 case .ffcs:
                     let colorStarted = timing?.start()
-                    let rendered = try FFCSEngine.exportLinearRGBStrip(
+                    let rendered = try FFCSEngine.exportLinearRGBStrip(resources: resources,
                         linearSRGB: rgb, fullWidth: width, fullHeight: height,
                         inputOriginY: inputStart, inputRows: inputRows,
                         outputOriginY: start, outputRows: rows,
@@ -924,7 +649,7 @@ enum ImagePipeline {
                     timing?.record("rgba_pack", since: expansionStarted)
                 case .lumix:
                     let colorStarted = timing?.start()
-                    rgba = try LUMIXEngine.exportLinearRGBA(linearSRGB: rgb, width: width, height: rows,
+                    rgba = try LUMIXEngine.exportLinearRGBA(resources: resources, linearSRGB: rgb, width: width, height: rows,
                         exposureEV: recipe.backendExposureEV,
                         settings: recipe.lumix, illuminantKelvin: recipe.illuminantKelvin)
                     timing?.record("color_engine", since: colorStarted)

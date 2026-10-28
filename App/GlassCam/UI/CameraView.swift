@@ -6,6 +6,7 @@ import UIKit
 /// An opt-in approximate GPU color proxy affects the central viewfinder only.
 /// Paired Metal preview presents both lenses together; glass stays outside.
 struct CameraView: View {
+    @Environment(\.colorResources) private var resources
     @ObservedObject var settings: CameraSettingsStore
     @ObservedObject var workflow: CaptureWorkflow
     @StateObject private var camera = CameraController()
@@ -383,7 +384,7 @@ struct CameraView: View {
     private var selectedStyleTitle: String {
         switch colorMode {
         case .hncs: return hncs.presetTitle
-        case .ffcs: return FFCSEngine.simulations(for: settings.ffcs.cameraFamily)
+        case .ffcs: return FFCSEngine.simulations(resources: resources, for: settings.ffcs.cameraFamily)
             .first { $0.id == settings.simulationIndex }?.name ?? "FFCS"
         case .lumix: return settings.lumix.title
         }
@@ -580,7 +581,7 @@ struct CameraView: View {
     }
 
     private var liveRecipe: LiveColorRecipe {
-        LiveColorRecipe(mode: colorMode, simulationIndex: colorMode == .ffcs ? settings.simulationIndex : 0,
+        LiveColorRecipe(resources: resources, mode: colorMode, simulationIndex: colorMode == .ffcs ? settings.simulationIndex : 0,
                         exposureEV: settings.exposure, illuminantKelvin: 5500,
                         hncs: colorMode == .hncs ? hncs : .standard, effects: effects,
                         ffcs: colorMode == .ffcs ? settings.ffcs : .standard,
@@ -850,6 +851,7 @@ private final class CameraOrientationView: UIView {
 
 /// An independent page; all controls update the same persisted shutter settings.
 private struct CameraSettingsView: View {
+    @Environment(\.colorResources) private var resources
     @ObservedObject var settings: CameraSettingsStore
     @ObservedObject var camera: CameraController
     let canRecordF5: Bool
@@ -927,7 +929,7 @@ private struct CameraSettingsView: View {
                     .font(.caption).foregroundStyle(.white.opacity(0.45))
             } else if settings.colorMode == .ffcs {
                 Picker("Film simulation", selection: $settings.simulationIndex) {
-                    ForEach(FFCSEngine.simulations(for: settings.ffcs.cameraFamily)) { look in Text(look.name).tag(look.id) }
+                    ForEach(FFCSEngine.simulations(resources: resources, for: settings.ffcs.cameraFamily)) { look in Text(look.name).tag(look.id) }
                 }.pickerStyle(.menu).accessibilityIdentifier("ffcs.simulation")
             } else {
                 LUMIXPhotoStyleControls(settings: $settings.lumix)
@@ -989,6 +991,7 @@ private struct CameraSettingsView: View {
 }
 
 private struct CameraLookPicker: View {
+    @Environment(\.colorResources) private var resources
     @ObservedObject var settings: CameraSettingsStore
     let selected: () -> Void
     var body: some View {
@@ -1003,7 +1006,7 @@ private struct CameraLookPicker: View {
                     }
                 }
             } else if settings.colorMode == .ffcs {
-                ForEach(FFCSEngine.simulations(for: settings.ffcs.cameraFamily)) { look in
+                ForEach(FFCSEngine.simulations(resources: resources, for: settings.ffcs.cameraFamily)) { look in
                     lookButton(look.name, active: settings.simulationIndex == look.id) {
                         settings.simulationIndex = look.id; selected()
                     }

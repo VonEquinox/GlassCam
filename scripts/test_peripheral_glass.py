@@ -29,7 +29,7 @@ def main():
         command = ["xcrun", "swiftc", "-swift-version", "5", "-O", "-module-cache-path", str(work / "modules")]
         if args.sanitize:
             command += ["-sanitize=address"]
-        command += [str(sources / name) for name in ["CameraSessionRecovery.swift", "PeripheralGlassPolicy.swift", "PeripheralGlassShader.swift", "PeripheralAlignment.swift", "PeripheralStateRecording.swift", "PeripheralVisibleSeam.swift", "PeripheralDenseRefinement.swift", "PeripheralLiveDisplay.swift"]]
+        command += [str(sources / name) for name in ["Capture/CameraSessionRecovery.swift", "Peripheral/PeripheralGlassPolicy.swift", "Peripheral/PeripheralGlassShader.swift", "Peripheral/PeripheralAlignment.swift", "Peripheral/PeripheralStateRecording.swift", "Peripheral/PeripheralVisibleSeam.swift", "Peripheral/PeripheralDenseRefinement.swift", "Peripheral/PeripheralLiveDisplay.swift"]]
         command += [str(ROOT / "tests/swift-legacy/apple_peripheral_glass.swift"), "-o", str(work / "peripheral")]
         subprocess.run(command, check=True, env=env)
         if args.sanitize:
@@ -39,7 +39,7 @@ def main():
             timing_command = ["xcrun", "swiftc", "-swift-version", "5", "-O", "-module-cache-path", str(work / "modules")]
             if args.sanitize:
                 timing_command += ["-sanitize=address"]
-            subprocess.run([*timing_command, str(sources / "PeripheralGlassPolicy.swift"),
+            subprocess.run([*timing_command, str(sources / "Peripheral/PeripheralGlassPolicy.swift"),
                             str(ROOT / "tests/swift-legacy/apple_peripheral_timing.swift"), "-o", str(work / "timing")], check=True, env=env)
             subprocess.run([str(work / "timing"), str(ROOT / "tests/fixtures/peripheral/phone-glass-timing-20261023.json"),
                             str(work / "timing-result.json")], check=True, env=env)

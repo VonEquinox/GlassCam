@@ -50,9 +50,9 @@ def main():
         library = work / "ReplayLibrary.swift"
         library.write_text((ROOT / "tools/diagnostics/replay_peripheral_native.swift").read_text().replace(
             "@main\nstruct NativeFieldReplay", "struct NativeFieldReplay"))
-        names = ("PeripheralGlassPolicy.swift", "PeripheralVisibleSeam.swift", "PeripheralDenseRefinement.swift",
-                 "PeripheralLiveDisplay.swift", "PeripheralAlignment.swift", "PeripheralStateRecording.swift",
-                 "PeripheralGlassShader.swift")
+        names = ("Peripheral/PeripheralGlassPolicy.swift", "Peripheral/PeripheralVisibleSeam.swift", "Peripheral/PeripheralDenseRefinement.swift",
+                 "Peripheral/PeripheralLiveDisplay.swift", "Peripheral/PeripheralAlignment.swift", "Peripheral/PeripheralStateRecording.swift",
+                 "Peripheral/PeripheralGlassShader.swift")
         executable = work / "stability"
         with (output / "compile.log").open("w") as log:
             subprocess.run(["xcrun", "swiftc", "-swift-version", "5", "-O",

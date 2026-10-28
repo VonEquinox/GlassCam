@@ -10,6 +10,7 @@ private func require(_ condition: Bool, _ message: String) throws {
 
 @main struct LUMIXPipelineChecks {
     static func main() throws {
+        let resources = ColorResources(resourceDirectory: URL(fileURLWithPath: CommandLine.arguments[2], isDirectory: true))
         let directory = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
@@ -69,7 +70,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             let recipe = ProcessingRecipe(mode: .lumix, exposureEV: 0, illuminantKelvin: 6500,
                 simulationIndex: 0, seed: 0, hncs: .standard, lumix: LUMIXSettings(photoStyle: look.id))
             try require(recipe.isValid, "Invalid listed LUMIX recipe")
-            let processed = try ImagePipeline.process(input, recipe: recipe)
+            let processed = try ImagePipeline.process(resources: resources, input, recipe: recipe)
             try require(processed.recipe.mode == .lumix && processed.recipe.lumix.photoStyle == look.id,
                         "The rendered recipe lost the selected Photo Style")
             try require(processed.recipe.photoWhiteBalance == input.whiteBalance && processed.recipe.crop == .none,
@@ -80,7 +81,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             previews.append(values)
             if ["standard", "l-monochrome"].contains(look.id) {
                 let output = directory.appendingPathComponent(look.id+".heic")
-                try ImagePipeline.writeHEIF(processed, to: output)
+                try ImagePipeline.writeHEIF(resources: resources, processed, to: output)
                 guard let image = CIImage(contentsOf: output, options: [.expandToHDR: true]),
                       let container = CGImageSourceCreateWithURL(output as CFURL, nil),
                       let properties = CGImageSourceCopyPropertiesAtIndex(container, 0, nil) as? [String: Any] else {
@@ -92,7 +93,7 @@ private func require(_ condition: Bool, _ message: String) throws {
                             "LUMIX export lost 10-bit encoding")
                 let actual = pixels(image)
                 try require((actual.max() ?? 0) > 1 && actual.allSatisfy(\.isFinite), "Export lost HDR pixels")
-                let oracle = try ImagePipeline.process(full, recipe: recipe)
+                let oracle = try ImagePipeline.process(resources: resources, full, recipe: recipe)
                 var expected = oracle.image.image
                 if #available(macOS 26, *) { expected = expected.settingContentHeadroom(max(1, pixels(expected).max() ?? 1)) }
                 let expectedURL = directory.appendingPathComponent(look.id+"-expected.heic")
@@ -101,7 +102,7 @@ private func require(_ condition: Bool, _ message: String) throws {
                 let maximumError = zip(expectedPixels, actual).map { abs($0-$1) }.max() ?? 0
                 try require(maximumError < 0.02, "Strip export differs from full-frame original LUT output: \(maximumError)")
                 let directURL = directory.appendingPathComponent(look.id+"-direct.heic")
-                let directRecipe = try ImagePipeline.writeHEIF(sourceFile: input.sourceFile, recipe: recipe,
+                let directRecipe = try ImagePipeline.writeHEIF(resources: resources, sourceFile: input.sourceFile, recipe: recipe,
                     to: directURL, settings: .native)
                 let directPixels = pixels(CIImage(contentsOf: directURL, options: [.expandToHDR: true])!)
                 try require(directRecipe == processed.recipe, "Skipping the preview changed the frozen LUMIX recipe: \(directRecipe) versus \(processed.recipe)")
@@ -117,11 +118,11 @@ private func require(_ condition: Bool, _ message: String) throws {
         for style in ["standard", "l-monochrome"] {
             for ev: Double in [-2, -1, 1, 2] {
                 let recipe = lumixRecipe(LUMIXSettings(photoStyle: style), ev: ev)
-                let actual = try ImagePipeline.process(full, recipe: recipe)
+                let actual = try ImagePipeline.process(resources: resources, full, recipe: recipe)
                 var scaled = fullRGBA
                 let scale = Float(exp2(ev))
                 for pixel in 0..<(width*height) { for channel in 0..<3 { scaled[pixel*4+channel] *= scale } }
-                let expected = try ImagePipeline.process(floatInput(scaled, width: width, height: height),
+                let expected = try ImagePipeline.process(resources: resources, floatInput(scaled, width: width, height: height),
                     recipe: lumixRecipe(LUMIXSettings(photoStyle: style)))
                 try require(try maximumDifference(pixels(actual.image.image), pixels(expected.image.image)) == 0,
                             "LUMIX exposure clipped HDR magnitude or changed highlight color")
@@ -129,8 +130,8 @@ private func require(_ condition: Bool, _ message: String) throws {
                 let output = directory.appendingPathComponent(label+".heic")
                 let direct = directory.appendingPathComponent(label+"-direct.heic")
                 let oracle = directory.appendingPathComponent(label+"-expected.heic")
-                try ImagePipeline.writeHEIF(actual, to: output)
-                _ = try ImagePipeline.writeHEIF(sourceFile: retained, recipe: recipe, to: direct, settings: .native)
+                try ImagePipeline.writeHEIF(resources: resources, actual, to: output)
+                _ = try ImagePipeline.writeHEIF(resources: resources, sourceFile: retained, recipe: recipe, to: direct, settings: .native)
                 try context.writeHEIF10Representation(of: expected.image.image, to: oracle, colorSpace: pq, options: [:])
                 let outputPixels = pixels(CIImage(contentsOf: output, options: [.expandToHDR: true])!)
                 try require(try maximumDifference(outputPixels, pixels(CIImage(contentsOf: direct, options: [.expandToHDR: true])!)) == 0,
@@ -141,7 +142,7 @@ private func require(_ condition: Bool, _ message: String) throws {
         }
         let bright = try floatInput([2, 2, 2, 1], width: 1, height: 1)
         for ev: Double in [0, 1, 2] {
-            let result = try ImagePipeline.process(bright, recipe: lumixRecipe(ev: ev))
+            let result = try ImagePipeline.process(resources: resources, bright, recipe: lumixRecipe(ev: ev))
             let value = Float(2 * exp2(ev))
             try require(pixels(result.image.image).prefix(3).allSatisfy { abs($0 - value) < 0.0001 },
                         "Positive exposure stopped increasing HDR white")
@@ -152,7 +153,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             from: Data("{\"photoStyle\":\"standard\",\"renderRevision\":2}".utf8))
         try require(v2.isValid, "Saved LUMIX v2 is no longer supported")
         for ev: Double in [0, 1, 2] {
-            let result = try ImagePipeline.process(bright, recipe: lumixRecipe(v2, ev: ev, pipelineRevision: 1))
+            let result = try ImagePipeline.process(resources: resources, bright, recipe: lumixRecipe(v2, ev: ev, pipelineRevision: 1))
             try require(pixels(result.image.image).prefix(3).allSatisfy { $0 == 2 },
                         "A saved LUMIX v2 photo changed its exposure behavior")
         }
@@ -183,7 +184,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             object.removeValue(forKey: "lumix")
             let migrated = try JSONDecoder().decode(ProcessingRecipe.self, from: JSONSerialization.data(withJSONObject: object))
             try require(migrated == old, "Old \(mode.title) recipe migrated to different pixels")
-            _ = try ImagePipeline.process(input, recipe: migrated)
+            _ = try ImagePipeline.process(resources: resources, input, recipe: migrated)
         }
         var invalid = LUMIXSettings.standard; invalid.photoStyle = "not-a-real-look"
         try require(!invalid.isValid, "Unknown Photo Style was accepted")
@@ -196,7 +197,7 @@ private func require(_ condition: Bool, _ message: String) throws {
         let oldRecipe = ProcessingRecipe(mode: .lumix, exposureEV: 0, illuminantKelvin: 6500,
             simulationIndex: 0, seed: 0, hncs: .standard, lumix: v1)
         try require(oldRecipe.resolvingLUMIXSourceISO(50).lumix == v1, "A saved v1 photo gained a new ISO correction")
-        _ = try ImagePipeline.process(input, recipe: oldRecipe)
+        _ = try ImagePipeline.process(resources: resources, input, recipe: oldRecipe)
         var adjusted = LUMIXSettings(photoStyle: "standard", contrast: 1.5, saturation: -2)
         adjusted.sourceISO = 64
         let adjustedRecipe = ProcessingRecipe(mode: .lumix, exposureEV: 0, illuminantKelvin: 4000,
@@ -230,8 +231,8 @@ private func require(_ condition: Bool, _ message: String) throws {
         }
         print("PASS input policy: all engines, old journals, metadata binding and camera-only migration")
         // Optional real retained ProRAW. This reads an existing capture only.
-        if CommandLine.arguments.count > 2 {
-            let rawURL = URL(fileURLWithPath: CommandLine.arguments[2])
+        if CommandLine.arguments.count > 3 {
+            let rawURL = URL(fileURLWithPath: CommandLine.arguments[3])
             let rawData = try Data(contentsOf: rawURL)
             // Reuse each processed source, as a same-photo editor would. Compare
             // both dimensions and actual pixels with independently selected engines.
@@ -244,8 +245,8 @@ private func require(_ condition: Bool, _ message: String) throws {
                 for mode: ColorMode in [.lumix, .hncs, .ffcs, .lumix] {
                     let target = ProcessingRecipe(mode: mode, exposureEV: 0, illuminantKelvin: 6500,
                         simulationIndex: 0, seed: 0, hncs: .standard)
-                    let direct = try ImagePipeline.process(source, recipe: target)
-                    let switched = try ImagePipeline.process(reused, recipe: target)
+                    let direct = try ImagePipeline.process(resources: resources, source, recipe: target)
+                    let switched = try ImagePipeline.process(resources: resources, reused, recipe: target)
                     try require(switched.source.baseRAWDecode == source.rawDecode &&
                                 switched.source.previewMaximumEdge == 256 &&
                                 switched.source.rawDecode == direct.source.rawDecode,
@@ -261,13 +262,13 @@ private func require(_ condition: Bool, _ message: String) throws {
             let photo = try ImagePipeline.load(data: rawData, fileExtension: "dng")
             let recipe = ProcessingRecipe(mode: .lumix, exposureEV: 0, illuminantKelvin: 6500,
                 simulationIndex: 0, seed: 0, hncs: .standard)
-            let processed = try ImagePipeline.process(photo, recipe: recipe)
+            let processed = try ImagePipeline.process(resources: resources, photo, recipe: recipe)
             try require(processed.source.rawDecode.rendering == .cameraNeutral, "ProRAW kept Apple's global contrast curve")
             try require(processed.recipe.lumix.sourceISO == photo.sourceISO ?? 100, "ProRAW ISO was not frozen")
             try require(processed.recipe.photoWhiteBalance == processed.source.whiteBalance, "ProRAW white point changed")
             let output = directory.appendingPathComponent("existing-proraw-lumix.heic")
             var dimensions = [Int]()
-            let final = try ImagePipeline.writeHEIF(sourceFile: photo.sourceFile, recipe: processed.recipe,
+            let final = try ImagePipeline.writeHEIF(resources: resources, sourceFile: photo.sourceFile, recipe: processed.recipe,
                 to: output, settings: .native, onSourceDimensions: { dimensions = [$0, $1] })
             let image = CIImage(contentsOf: output, options: [.expandToHDR: true])!
             try require(dimensions == [Int(image.extent.width), Int(image.extent.height)], "ProRAW export used a preview")
@@ -287,7 +288,7 @@ private func require(_ condition: Bool, _ message: String) throws {
             for mode in ColorMode.allCases {
                 let target = ProcessingRecipe(mode: mode, exposureEV: 0, illuminantKelvin: 6500,
                     simulationIndex: 0, seed: 0, hncs: .standard)
-                let after = try ImagePipeline.process(auditInput, recipe: target)
+                let after = try ImagePipeline.process(resources: resources, auditInput, recipe: target)
                 let inspection = try ImagePipeline.inspectRAW(sourceFile: auditInput.sourceFile,
                     recipe: after.source.rawDecode)
                 let configured = inspection["configured"] as! [String: Any]
@@ -300,7 +301,7 @@ private func require(_ condition: Bool, _ message: String) throws {
                 var legacyLUMIX = LUMIXSettings.standard; legacyLUMIX.renderRevision = 3
                 let previous = ProcessingRecipe(mode: mode, exposureEV: 0, illuminantKelvin: 6500,
                     simulationIndex: 0, seed: 0, hncs: .standard, lumix: legacyLUMIX, rawInputPolicy: .legacy)
-                let before = try ImagePipeline.process(auditInput, recipe: previous)
+                let before = try ImagePipeline.process(resources: resources, auditInput, recipe: previous)
                 for (label, raster) in [("before", before.image), ("after", after.image)] {
                     let name = mode.rawValue+"-"+label
                     let values = pixels(raster.image)
@@ -313,8 +314,8 @@ private func require(_ condition: Bool, _ message: String) throws {
                 }
                 let output = directory.appendingPathComponent(mode.rawValue+"-neutral-full.heic")
                 let direct = directory.appendingPathComponent(mode.rawValue+"-neutral-direct.heic")
-                try ImagePipeline.writeHEIF(after, to: output)
-                let bound = try ImagePipeline.writeHEIF(sourceFile: auditInput.sourceFile, recipe: target,
+                try ImagePipeline.writeHEIF(resources: resources, after, to: output)
+                let bound = try ImagePipeline.writeHEIF(resources: resources, sourceFile: auditInput.sourceFile, recipe: target,
                     to: direct, settings: .native)
                 try require(bound == after.recipe && (try Data(contentsOf: output)) == (try Data(contentsOf: direct)),
                             "\(mode.title) direct/review real ProRAW exports differ")

@@ -11,6 +11,7 @@ import Darwin
 /// calls the production export/review APIs without a camera session or Photos
 /// transaction, and writes every sample before starting the next one.
 struct DevicePerformanceView: View {
+    let resources: ColorResources
     @State private var status = "Preparing device measurement…"
     @State private var started = false
     var body: some View {
@@ -24,7 +25,7 @@ struct DevicePerformanceView: View {
             UIApplication.shared.isIdleTimerDisabled = true
             UIDevice.current.isBatteryMonitoringEnabled = true
             let result = await Task.detached(priority: .userInitiated) {
-                Result { try DevicePerformance.run { message in
+                Result { try DevicePerformance.run(resources: resources) { message in
                     Task { @MainActor in status = message }
                 } }
             }.value
@@ -76,7 +77,7 @@ private enum DevicePerformance {
                     "application_state": UIApplication.shared.applicationState.rawValue]
         }
     }
-    static func run(update: @escaping @Sendable (String) -> Void) throws {
+    static func run(resources: ColorResources, update: @escaping @Sendable (String) -> Void) throws {
 #if targetEnvironment(simulator)
         throw NSError(domain: "DevicePerformance", code: 1,
                       userInfo: [NSLocalizedDescriptionKey: "Physical iPhone required."])
@@ -177,7 +178,7 @@ private enum DevicePerformance {
                     let started = info.systemUptime, cpuStarted = cpuSeconds()
                     let retained = try timed("retain_raw") { try SourceImageFile(data: input, fileExtension: "dng") }
                     let resolved = try timed("full_export") {
-                        try ImagePipeline.writeHEIF(sourceFile: retained, recipe: recipe, to: path,
+                        try ImagePipeline.writeHEIF(resources: resources, sourceFile: retained, recipe: recipe, to: path,
                             settings: output, timing: timing)
                     }
                     let review = try timed("review_decode") {

@@ -629,8 +629,8 @@ FFCS 原生测试资源由既有固定哈希资源脚本准备到 `Packages/Glas
 
 | 层（目录） | 文件 | 允许依赖 |
 |---|---|---|
-| `ImagingCore/Model` | `ExportSettings`、`CaptureGeometry`，以及从 `ImagePipeline` 拆出的类型（见 T06） | 无 |
-| `ImagingCore/Engines` | `HNCSEngine`、`FFCSEngine`、`LUMIXEngine`、`PhotoWhiteBalance` | Model |
+| `ImagingCore/Model` | `ExportSettings`、`CaptureGeometry`、`RAWDecodeRecipe`、`ProcessingRecipe`、`PipelineError`、`HNCSSettings`、`LUMIXSettings`、`PhotoWhiteBalance`、`HNCSPresetCatalog`、`LUMIXPhotoStyleCatalog` | 无 |
+| `ImagingCore/Engines` | `HNCSEngine`、`FFCSEngine`、`LUMIXEngine`、`RAWWhiteBalance`、`HNCSPresetWorkFile`、`ImageFileProtection`、`ColorResources`、`ProcessingRecipeDisplay` | Model |
 | `ImagingCore/Processing` | `ImagePipeline`（剩余部分）、`PreviewRaster`、`SourceImageStore`、`ShareDelivery` | Model、Engines |
 | `Capture` | `CaptureWorkflow`、`CaptureJournal`、`CameraSettingsStore`、`CameraSessionRecovery` | ImagingCore |
 | `F5` | `F5BurstStore`、`F5ColorBridge`、`F5Errors`、`F5ImagePipeline`、`F5LocalDenoise`、`F5Metal`、`F5MetalOutput`、`F5MetalRuntime`、`F5MetalSolver`、`F5Models`、`F5RAW`、`F5Reconstruction`、`F5Kernels.metal` | ImagingCore、Capture |
@@ -638,6 +638,10 @@ FFCS 原生测试资源由既有固定哈希资源脚本准备到 `Packages/Glas
 | `Camera`（App） | `CameraController`、`CameraFrameDelivery`、`F5CaptureDriver`、`LiveColorProxy` | 以上全部 |
 | `UI`（App） | `GlassCamApp`、`ContentView`、`CameraView`、`CameraDesign`、`F5SettingsCard`、`PeripheralGlassView`、`PeripheralRecordingControls`、`PrecisionPreview`、`HEIFSaveDelivery` | 以上全部 |
 | `Bench`（App） | `DevicePerformance` | 以上全部 |
+
+`RAWInputPolicy` 与 `RAWDecodeRecipe` 同文件；`ColorMode`、`EffectToggles`、`FFCSCameraFamily`、`FFCSSettings` 与 `ProcessingRecipe` 同文件。白平衡的持久化值与原生白点计算在 Model，`CIRAWFilter` 适配扩展在 Engines。`HNCSPresetWorkFile` 从 `SourceImageStore` 拆出，共用的文件保护策略在 Engines。
+
+`ColorResources` 只表示运行时资源目录，由 `GlassCamApp` 提供并传入拍摄服务、图像管线和取景配方；持久化照片配方不包含资源路径。旧 Swift 图像 runner 的位置参数为 fixture 目录、已准备的资源根目录、可选 DNG。T07 保留这项依赖注入，T09 迁移 runner 时同步传入 package 测试资源目录。
 
 T06–T08 期间使用的检查脚本，保存为 `scripts/check_layers.py`，T09 删除：
 

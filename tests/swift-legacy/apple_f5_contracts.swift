@@ -50,7 +50,7 @@ enum Check {
             let comment="GlassCam F5\n" + String(decoding:try F5Hash.json(image.provenance(fixture.source.manifest)),as:UTF8.self)
             let metadata=image.photoMetadata.addingCaptureProvenance(comment)
             let output=root.appendingPathComponent("f5-result.heic")
-            _ = try ImagePipeline.writeF5HEIF(image,metadata:metadata,recipe:.standard,to:output,isCancelled:{false},progress:{_ in})
+            _ = try ImagePipeline.writeF5HEIF(resources: ColorResources(resourceDirectory: nil), image,metadata:metadata,recipe:.standard,to:output,isCancelled:{false},progress:{_ in})
             guard let source=CGImageSourceCreateWithURL(output as CFURL,nil),let properties=CGImageSourceCopyPropertiesAtIndex(source,0,nil) as? [String:Any] else {throw PipelineError.encoding}
             try Check.that((properties[kCGImagePropertyDepth as String] as? NSNumber)?.intValue==10,"F5 HEIF is not 10-bit")
             try metadata.validate(in:properties)

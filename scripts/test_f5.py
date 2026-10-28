@@ -8,11 +8,10 @@ import subprocess
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-F5_SWIFT = sorted((ROOT / "App/GlassCam").glob("F5*.swift"))
-SWIFT_BASE = ["ExportSettings.swift", "SourceImageStore.swift", "PhotoWhiteBalance.swift",
-              "HNCSEngine.swift", "FFCSEngine.swift", "LUMIXEngine.swift", "ImagePipeline.swift",
-              "PreviewRaster.swift", "ShareDelivery.swift", "CameraSettingsStore.swift",
-              "CaptureGeometry.swift", "CaptureJournal.swift", "CaptureWorkflow.swift"]
+SOURCES = ROOT / "App/GlassCam"
+F5_SWIFT = sorted((SOURCES / "F5").glob("*.swift"))
+SWIFT_BASE = [*sorted((SOURCES / "ImagingCore").rglob("*.swift")),
+              *sorted((SOURCES / "Capture").glob("*.swift"))]
 
 
 def main():
@@ -57,26 +56,26 @@ def main():
         base += ["-sanitize=address", "-g"]
     link = []
     if args.suite in ("all", "metal"):
-        run("compile-metal-tests", [*base, ROOT / "App/GlassCam/F5Errors.swift", ROOT / "App/GlassCam/F5MetalRuntime.swift",
+        run("compile-metal-tests", [*base, ROOT / "App/GlassCam/F5/F5Errors.swift", ROOT / "App/GlassCam/F5/F5MetalRuntime.swift",
             ROOT / "tests/swift-legacy/apple_f5_metal.swift", *link, "-o", work / "metal-tests"])
-        run("metal-numerics", [work / "metal-tests", ROOT / "App/GlassCam/F5Kernels.metal"],
+        run("metal-numerics", [work / "metal-tests", ROOT / "App/GlassCam/F5/F5Kernels.metal"],
             {"MTL_DEBUG_LAYER": "1", "MTL_SHADER_VALIDATION": "1"})
     if args.suite in ("all", "contracts", "pipeline"):
-        run("compile-contract-tests", [*base, *(ROOT / "App/GlassCam" / name for name in SWIFT_BASE), *F5_SWIFT,
+        run("compile-contract-tests", [*base, *SWIFT_BASE, *F5_SWIFT,
             ROOT / "tests/swift-legacy/F5Fixtures.swift", ROOT / "tests/swift-legacy/apple_f5_contracts.swift", *link, "-o", work / "contract-tests"])
-        run("contracts", [work / "contract-tests", work / "fixtures", ROOT / "App/GlassCam/F5Kernels.metal", args.suite],
+        run("contracts", [work / "contract-tests", work / "fixtures", ROOT / "App/GlassCam/F5/F5Kernels.metal", args.suite],
             {"MTL_DEBUG_LAYER": "1", "MTL_SHADER_VALIDATION": "1"})
     if args.build_offline:
-        run("compile-offline", [*base, *(ROOT / "App/GlassCam" / name for name in SWIFT_BASE), *F5_SWIFT,
+        run("compile-offline", [*base, *SWIFT_BASE, *F5_SWIFT,
             ROOT / "tests/swift-legacy/F5Fixtures.swift", ROOT / "tools/F5OfflineMain.swift", *link, "-o", work / "f5-offline"])
     if args.build_desktop_quality:
-        run("compile-desktop-quality", [*base, *(ROOT / "App/GlassCam" / name for name in SWIFT_BASE), *F5_SWIFT,
+        run("compile-desktop-quality", [*base, *SWIFT_BASE, *F5_SWIFT,
             ROOT / "tools/F5DesktopQualityMain.swift", *link, "-o", work / "f5-desktop-quality"])
     if args.build_local_denoise:
-        run("compile-local-denoise", [*base, ROOT / "App/GlassCam/F5Errors.swift", ROOT / "App/GlassCam/F5MetalRuntime.swift",
-            ROOT / "App/GlassCam/F5LocalDenoise.swift", ROOT / "tools/F5LocalDenoiseMain.swift", *link, "-o", work / "f5-local-denoise"])
+        run("compile-local-denoise", [*base, ROOT / "App/GlassCam/F5/F5Errors.swift", ROOT / "App/GlassCam/F5/F5MetalRuntime.swift",
+            ROOT / "App/GlassCam/F5/F5LocalDenoise.swift", ROOT / "tools/F5LocalDenoiseMain.swift", *link, "-o", work / "f5-local-denoise"])
     if args.build_gaussian_audit:
-        run("compile-gaussian-audit", [*base, ROOT / "App/GlassCam/F5Errors.swift", ROOT / "App/GlassCam/F5MetalRuntime.swift",
+        run("compile-gaussian-audit", [*base, ROOT / "App/GlassCam/F5/F5Errors.swift", ROOT / "App/GlassCam/F5/F5MetalRuntime.swift",
             ROOT / "tools/F5GaussianAuditMain.swift", "-o", work / "f5-gaussian-audit"])
 
 

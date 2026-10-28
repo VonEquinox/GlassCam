@@ -6,6 +6,7 @@ private enum AuditFailure: Error { case checks([String]) }
 
 @main struct ColorChainChecks {
     static func main() throws {
+        let resources = ColorResources(resourceDirectory: URL(fileURLWithPath: CommandLine.arguments[2], isDirectory: true))
         let directory = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
@@ -56,10 +57,10 @@ private enum AuditFailure: Error { case checks([String]) }
         }
         for mode in ColorMode.allCases {
             for ev: Double in [-2,-1,-0.3,0,0.7,1,2] {
-                let result = try ImagePipeline.process(source, recipe: recipe(mode, ev))
+                let result = try ImagePipeline.process(resources: resources, source, recipe: recipe(mode, ev))
                 var scaled = decoded
                 for pixel in 0..<(width*height) { for c in 0..<3 { scaled[pixel*4+c] *= Float(exp2(ev)) } }
-                let expected = try ImagePipeline.process(input(scaled), recipe: recipe(mode, 0))
+                let expected = try ImagePipeline.process(resources: resources, input(scaled), recipe: recipe(mode, 0))
                 let actualPixels = pixels(result.image.image), expectedPixels = pixels(expected.image.image)
                 let delta = error(actualPixels, expectedPixels)
                 records.append(["mode": mode.rawValue, "exposureEV": ev, "maxErrorFromScalingSource": delta,
@@ -77,7 +78,7 @@ private enum AuditFailure: Error { case checks([String]) }
             var object = try JSONSerialization.jsonObject(with: JSONEncoder().encode(recipe(mode, ev))) as! [String: Any]
             object.removeValue(forKey: "pipelineRevision")
             let legacy = try JSONDecoder().decode(ProcessingRecipe.self, from: JSONSerialization.data(withJSONObject: object))
-            let output = try ImagePipeline.process(source, recipe: legacy)
+            let output = try ImagePipeline.process(resources: resources, source, recipe: legacy)
             let values = pixels(output.image.image)
             check(output.recipe.pipelineRevision == 1, "Binding metadata migrated a frozen pipeline")
             check(error(Array(values[16..<19]), (row["gray2"] as! [NSNumber]).map(\.floatValue)) < 0.00001 &&
@@ -90,17 +91,17 @@ private enum AuditFailure: Error { case checks([String]) }
             for spatial in [false, true] {
                 for ev: Double in [-1,1] {
                     let target = recipe(mode, ev, spatial: spatial)
-                    let processed = try ImagePipeline.process(source, recipe: target)
+                    let processed = try ImagePipeline.process(resources: resources, source, recipe: target)
                     var scaled = decoded
                     for p in 0..<(width*height) { for c in 0..<3 { scaled[p*4+c] *= Float(exp2(ev)) } }
-                    let oracle = try ImagePipeline.process(input(scaled), recipe: recipe(mode, 0, spatial: spatial))
+                    let oracle = try ImagePipeline.process(resources: resources, input(scaled), recipe: recipe(mode, 0, spatial: spatial))
                     check(error(pixels(processed.image.image), pixels(oracle.image.image)) < 0.00001,
                           "\(mode) spatial exposure differs from scaling the source")
                     let stem = "\(mode.rawValue)-\(spatial)-\(ev)"
                     let output = directory.appendingPathComponent(stem+".heic")
                     let direct = directory.appendingPathComponent(stem+"-direct.heic")
-                    try ImagePipeline.writeHEIF(processed, to: output)
-                    let bound = try ImagePipeline.writeHEIF(sourceFile: retained, recipe: target, to: direct, settings: .native)
+                    try ImagePipeline.writeHEIF(resources: resources, processed, to: output)
+                    let bound = try ImagePipeline.writeHEIF(resources: resources, sourceFile: retained, recipe: target, to: direct, settings: .native)
                     let outputData = try Data(contentsOf: output), directData = try Data(contentsOf: direct)
                     check(outputData == directData && bound == processed.recipe,
                           "\(stem) direct and previewed full-source exports differ")
@@ -121,7 +122,7 @@ private enum AuditFailure: Error { case checks([String]) }
             }
         }
         var rawRecords = [[String: Any]]()
-        for (index, path) in CommandLine.arguments.dropFirst(2).enumerated() {
+        for (index, path) in CommandLine.arguments.dropFirst(3).enumerated() {
             let rawURL = URL(fileURLWithPath: path), rawData = try Data(contentsOf: rawURL)
             let photo = try ImagePipeline.load(data: rawData, fileExtension: "dng", previewMaximumEdge: 512)
             let raw = CIRAWFilter(imageURL: rawURL)!
@@ -129,7 +130,7 @@ private enum AuditFailure: Error { case checks([String]) }
             let frozen = PhotoWhiteBalance.asShot(raw)
             for mode in ColorMode.allCases {
                 let target = recipe(mode, 0)
-                let actual = try ImagePipeline.process(photo, recipe: target)
+                let actual = try ImagePipeline.process(resources: resources, photo, recipe: target)
                 let inspection = try ImagePipeline.inspectRAW(sourceFile: photo.sourceFile, recipe: actual.source.rawDecode)
                 let configured = inspection["configured"] as! [String: Any], defaults = inspection["defaults"] as! [String: Any]
                 check((configured["boost_amount"] as! NSNumber).floatValue == 0 &&
@@ -137,7 +138,7 @@ private enum AuditFailure: Error { case checks([String]) }
                       (configured["local_tone_map_amount"] as! NSNumber) == (defaults["local_tone_map_amount"] as! NSNumber),
                       "\(mode) did not retain the contrast repair on RAW \(index)")
                 let frozenRecipe = recipe(mode, 0.7, white: frozen)
-                let replay = try ImagePipeline.process(actual.source, recipe: frozenRecipe)
+                let replay = try ImagePipeline.process(resources: resources, actual.source, recipe: frozenRecipe)
                 check(replay.source.whiteBalance == frozen && replay.recipe.photoWhiteBalance == frozen,
                       "\(mode) decoder and color engine disagree on frozen WB")
                 // Independent Core Image decode with the frozen xy, to ensure
@@ -158,8 +159,8 @@ private enum AuditFailure: Error { case checks([String]) }
                       "\(mode) frozen WB was not applied to actual decoded pixels")
                 let afterURL = directory.appendingPathComponent("raw-\(index)-\(mode.rawValue)-frozen.heic")
                 let directURL = directory.appendingPathComponent("raw-\(index)-\(mode.rawValue)-direct.heic")
-                try ImagePipeline.writeHEIF(replay, to: afterURL)
-                let direct = try ImagePipeline.writeHEIF(sourceFile: photo.sourceFile, recipe: frozenRecipe,
+                try ImagePipeline.writeHEIF(resources: resources, replay, to: afterURL)
+                let direct = try ImagePipeline.writeHEIF(resources: resources, sourceFile: photo.sourceFile, recipe: frozenRecipe,
                     to: directURL, settings: .native)
                 let afterData = try Data(contentsOf: afterURL), directData = try Data(contentsOf: directURL)
                 let replayError: Float = afterData == directData ? 0 : error(

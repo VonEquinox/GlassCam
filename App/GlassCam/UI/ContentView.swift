@@ -5,9 +5,15 @@ import UIKit
 /// workflow, so opening settings/review never dismisses or retargets a shot.
 struct ContentView: View {
     @StateObject private var settings = CameraSettingsStore()
-    @StateObject private var workflow = CaptureWorkflow(services: .live(
-        authorize: { try await HEIFSaveDelivery.authorizePhotos() },
-        save: { try await HEIFSaveDelivery.saveToPhotos($0) }), journal: CaptureJournal(), initiallyActive: false)
+    @StateObject private var workflow: CaptureWorkflow
+    private let resources: ColorResources
+
+    init(resources: ColorResources) {
+        self.resources = resources
+        _workflow = StateObject(wrappedValue: CaptureWorkflow(services: .live(resources: resources,
+            authorize: { try await HEIFSaveDelivery.authorizePhotos() },
+            save: { try await HEIFSaveDelivery.saveToPhotos($0) }), journal: CaptureJournal(), initiallyActive: false))
+    }
     @Environment(\.scenePhase) private var scenePhase
 
     private func updateProcessingAvailability() {
@@ -16,6 +22,7 @@ struct ContentView: View {
 
     var body: some View {
         CameraView(settings: settings, workflow: workflow)
+            .environment(\.colorResources, resources)
             .preferredColorScheme(.dark)
             .onAppear { updateProcessingAvailability() }
             .onChange(of: scenePhase) { _, _ in updateProcessingAvailability() }
@@ -120,6 +127,7 @@ struct ShareSheet: UIViewControllerRepresentable {
 
 /// Native research asset selection, separate from the physical capture camera.
 struct FFCSReferenceControls: View {
+    @Environment(\.colorResources) private var resources
     @Binding var settings: FFCSSettings
     @Binding var simulationIndex: Int
 
@@ -128,18 +136,18 @@ struct FFCSReferenceControls: View {
             ForEach(FFCSCameraFamily.allCases) { family in Text(family.rawValue).tag(family) }
         }.accessibilityIdentifier("ffcs.cameraFamily")
         .onChange(of: settings.cameraFamily) { _, family in
-            if !FFCSEngine.isSimulationAvailable(simulationIndex, family: family) {
-                simulationIndex = FFCSEngine.simulations(for: family).first?.id ?? 0
+            if !FFCSEngine.isSimulationAvailable(resources: resources, simulationIndex, family: family) {
+                simulationIndex = FFCSEngine.simulations(resources: resources, for: family).first?.id ?? 0
             }
         }
         Picker("Film simulation", selection: $simulationIndex) {
-            ForEach(FFCSEngine.simulations(for: settings.cameraFamily)) { simulation in
+            ForEach(FFCSEngine.simulations(resources: resources, for: settings.cameraFamily)) { simulation in
                 Text(simulation.name).tag(simulation.id)
             }
         }.pickerStyle(.menu).accessibilityIdentifier("ffcs.simulation")
         Text("Choose the camera color reference for this look.")
             .font(.caption).foregroundStyle(.secondary)
-        if let actualFamily = FFCSEngine.resolvedAssetFamily(simulationIndex, family: settings.cameraFamily) {
+        if let actualFamily = FFCSEngine.resolvedAssetFamily(resources: resources, simulationIndex, family: settings.cameraFamily) {
             Text("Color reference: \(actualFamily)")
                 .font(.caption).foregroundStyle(.secondary)
                 .accessibilityIdentifier("ffcs.actualAssetFamily")
