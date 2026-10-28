@@ -6,7 +6,6 @@
 
 - 写文档：[writing-docs.md](docs/writing-docs.md)
 - 写测试：[testing.md](docs/testing.md)
-- 仓库正在按 [REFACTOR_PLAN.md](REFACTOR_PLAN.md) 重构。执行其中的任务时，以计划为准。
 
 ## 硬性规则
 
