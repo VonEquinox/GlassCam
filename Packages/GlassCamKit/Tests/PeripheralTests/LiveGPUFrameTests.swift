@@ -215,7 +215,7 @@ struct LiveGPUFrameTests {
         let aspect = try #require(document["aspect"] as? Double), tiles = try #require(document["tiles"] as? [[String: Any]])
         var result = PeripheralAlignmentResult(epoch: 1, receipt: 0, photoAspectRatio: aspect,
             photoToOuter: matrix_identity_float3x3, residual: .nan, gain: SIMD3(repeating: 1), seams: .horizontal, expiresAt: 0.2)
-        result.nativeSeam = PeripheralNativeSeam(strips: [], gains: .init(), evidence: .init(compatible: false, coverage: 0,
+        result.nativeSeam = PeripheralNativeSeam(gains: .init(), evidence: .init(compatible: false, coverage: 0,
             maximumObservableError: nil, reason: "actual-direct-pixel-observations", nativeSupportChecked: true), diagnostics: tiles)
         let maximum = try #require((0...1).map { PeripheralPaneAssessment.measure(result, edge: $0).darkness(tolerance: input.1 ? 4 : 1) }.max())
         if input.1 { #expect(maximum > 0.999) } else { #expect(maximum < 0.001) }

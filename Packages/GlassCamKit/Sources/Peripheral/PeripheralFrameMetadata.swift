@@ -17,7 +17,6 @@ public struct PeripheralFrameMetadata {
     public let width: Int, height: Int
     let frameInterval: Double
     public let pixelFormat: UInt32
-    public let colorAttachments: [String:String]
     let intrinsic: simd_float3x3?
     public init(_ sample: CMSampleBuffer, id: UInt64, clock: CMClock?) {
         self.id = id
@@ -32,14 +31,6 @@ public struct PeripheralFrameMetadata {
         let pixel = CMSampleBufferGetImageBuffer(sample)
         width = pixel.map(CVPixelBufferGetWidth) ?? 0; height = pixel.map(CVPixelBufferGetHeight) ?? 0
         pixelFormat = pixel.map(CVPixelBufferGetPixelFormatType) ?? 0
-        var colors: [String:String] = [:]
-        if let pixel {
-            for (name,key) in [("primaries",kCVImageBufferColorPrimariesKey),
-                              ("transferFunction",kCVImageBufferTransferFunctionKey),("ycbcrMatrix",kCVImageBufferYCbCrMatrixKey)] {
-                if let value = CVBufferCopyAttachment(pixel,key,nil) { colors[name] = String(describing:value) }
-            }
-        }
-        colorAttachments = colors
         var matrix = matrix_identity_float3x3
         if let data = CMGetAttachment(sample, key: kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix,
                                       attachmentModeOut: nil) as? Data,

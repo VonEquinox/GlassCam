@@ -42,7 +42,7 @@ FFCS 使用 FFCS 0.2.0 交付的相机表族与模拟风格 LUT，将已显影�
 
 新处理配方先在完整线性输入上施加曝光，再由公共管线分离高光幅度，传给 FFCS 的后端曝光为零。FFCS 返回颜色后，公共管线恢复高光幅度；旧配方依据保存的 `pipelineRevision` 保留对应的曝光顺序。完整规则见 [ProcessingRecipe](../../Packages/GlassCamKit/Sources/ImagingCore/Model/ProcessingRecipe.swift) 与 [导出管线](../../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline+Export.swift)。
 
-成片导出重新读取完整源照片，每次处理 `64` 个输出行，并向 `ffcs_required_halo` 查询上下所需邻域。活动 Gaussian USM 的 halo 为 `ceil(3 × sharpenRadius)`，半径 `1` 对应 `3` 行；关闭锐化或使用中性默认时 halo 为零。邻域仅在整图边缘截断和归一化，条带使用整图坐标计算颗粒。
+成片导出在 Core Image 的 Metal 纹理上执行矩阵、原始 LUT、颜色控制、颗粒与锐化，并按 [GPU 色彩处理](../gpu-color.md)的 HDR 预算验收。活动 Gaussian USM 的 halo 为 `ceil(3 × sharpenRadius)`，半径 `1` 对应 `3` 行；关闭锐化或使用中性默认时 halo 为零。邻域仅在整图边缘截断和归一化，颗粒使用整图坐标。CPU 分条入口与完整帧入口保留精确参考语义。
 
 条带输出保持 Float32，先完成颜色和空间处理，再交给公共线性光缩放与 HEIF 编码链；成片导出不经过字节图像中间缓冲区。输入条带须包含所请求输出行及完整 halo，尺寸、有限值、缓冲区和邻域检查失败时返回诊断。
 
@@ -72,7 +72,7 @@ FFCS 参考版本为 `0.2.0`，来源 commit、归档及资产哈希、权利说
 
 在仓库根目录运行 `python3 scripts/materialize_ffcs_reference.py` 可从固定归档恢复保留的参考文件与 LUT。四份已迁出的调查工具和二进制清单由原始归档校验，不重新展开到主仓库；其余交付文件校验工作区内容。Xcode 的资源阶段只按校验清单展开运行时表，不需要网络。
 
-内核读取 `FFCSLUT1`、`FFCSLUT2` 容器，检查头部、矩阵与 scale 的有限性、通道标志、压缩长度和完整 zlib 数据。参考源码与上游文档保存在 `vendor/ffcs/`；C++ 的 SwiftPM 编译设置保留 `-fno-fast-math -ffp-contract=off`。
+内核读取 `FFCSLUT1`、`FFCSLUT2` 容器，检查头部、矩阵与 scale 的有限性、通道标志、压缩长度和完整 zlib 数据。参考源码保存在 `vendor/ffcs/implementation/ffcs/`，上游文档与历史报告保存在固定 `source.zip` 中；C++ 的 SwiftPM 编译设置保留 `-fno-fast-math -ffp-contract=off`。
 
 处理配方的 `ffcs` 对象保存 `renderRevision`、`cameraFamily`、`applyReferenceAdjustments`、`sharpenRadius`；模拟风格索引、随机种子和 `effects` 保存在处理配方中。字段缺失时按各字段默认值解码，显式 FFCS 版本仅接受 `2`。公共 `pipelineRevision` 当前为 `2`，旧 JSON 缺少该字段时恢复为 `1`，用于重放旧曝光行为。
 

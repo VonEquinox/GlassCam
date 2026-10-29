@@ -20,10 +20,6 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
     private var expectedWidth = 0
     private var expectedHeight = 0
     private var expectedPixelFormat: OSType = 0
-    private var submissionObserver: ((Double) -> Void)?
-    func observeSubmissions(_ observer: @escaping (Double) -> Void) {
-        lock.lock(); submissionObserver = observer; lock.unlock()
-    }
     private var firstFrame: (() -> Void)?
     private let renderer: PreviewRenderer
     private let scheduleMain: (@escaping @MainActor () -> Void) -> Void
@@ -125,7 +121,6 @@ final class CameraFrameDelivery: NSObject, AVCaptureVideoDataOutputSampleBufferD
                 self.pending = false; self.lock.unlock(); return
             }
             renderer.enqueue(sampleBuffer)
-            self.submissionObserver?(CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)))
             // A first-frame signal follows enqueue, so shutter readiness cannot
             // precede the layer's first actual negotiated-size image.
             let first = self.firstFrame; self.firstFrame = nil

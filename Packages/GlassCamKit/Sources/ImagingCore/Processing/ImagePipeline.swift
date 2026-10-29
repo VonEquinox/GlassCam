@@ -65,19 +65,18 @@ public enum ImagePipeline {
     static let decodeQueue = DispatchQueue(label: "dev.glasscam.decode", qos: .userInitiated)
 
     /// Export from the retained full-resolution capture, with its immutable recipe.
-    /// Exact color processing precedes any reduction to the requested output size.
-    /// App-owned scratch is O(width * stripRows); Apple RAW/ImageIO/CI/HEIF may
-    /// allocate full-size internal surfaces. Device peak-RSS validation is required.
+    /// Full-resolution color processing precedes reduction to the output size.
+    /// Native processing reuses bounded buffers; system RAW/CI/HEIF operations
+    /// may allocate full-size internal surfaces.
     public static func writeHEIF(resources: ColorResources, _ processed: ProcessedImage, to url: URL,
                           settings: ExportSettings? = nil,
                           isCancelled: @escaping @Sendable () -> Bool = { false },
-                          progress: @escaping @Sendable (Double) -> Void = { _ in },
-                          timing: PipelineTiming? = nil) throws {
+                          progress: @escaping @Sendable (Double) -> Void = { _ in }) throws {
         try decodeQueue.sync {
             try autoreleasepool {
                 try exportFullSource(resources: resources, processed.source.sourceFile, whiteBalance: processed.source.whiteBalance,
                     recipe: processed.recipe, to: url, settings: settings ?? processed.source.exportSettings, rawDecode: processed.source.rawDecode,
-                    isCancelled: isCancelled, progress: progress, timing: timing)
+                    isCancelled: isCancelled, progress: progress)
             }
         }
     }
@@ -89,11 +88,9 @@ public enum ImagePipeline {
                           settings: ExportSettings, rawDecode: RAWDecodeRecipe = .current,
                           isCancelled: @escaping @Sendable () -> Bool = { false },
                           progress: @escaping @Sendable (Double) -> Void = { _ in },
-                          timing: PipelineTiming? = nil,
                           onSourceDimensions: ((Int, Int) -> Void)? = nil) throws -> ProcessingRecipe {
         try decodeQueue.sync {
             try autoreleasepool {
-                let metadataStarted = timing?.start()
                 try checkExportCancellation(isCancelled)
                 guard recipe.isValid else { throw HNCSEngine.Error.invalidSettings }
                 var whiteBalance = PhotoWhiteBalance.renderedD65
@@ -107,10 +104,9 @@ public enum ImagePipeline {
                     captureISO = sourceISO(in: raw.properties)
                 }
                 let resolved = recipe.resolvingWhiteBalance(whiteBalance).resolvingLUMIXSourceISO(captureISO)
-                timing?.record("metadata_bind", since: metadataStarted)
                 try exportFullSource(resources: resources, sourceFile, whiteBalance: whiteBalance, recipe: resolved,
                     to: url, settings: settings, rawDecode: resolvedRAWDecode, isCancelled: isCancelled, progress: progress,
-                    timing: timing, onSourceDimensions: onSourceDimensions)
+                    onSourceDimensions: onSourceDimensions)
                 return resolved
             }
         }
@@ -137,19 +133,17 @@ public enum ImagePipeline {
                                           recipe: ProcessingRecipe, to url: URL,
                                           settings: ExportSettings, rawDecode: RAWDecodeRecipe, isCancelled: @escaping @Sendable () -> Bool,
                                           progress: @escaping @Sendable (Double) -> Void,
-                                          timing: PipelineTiming? = nil,
                                           onSourceDimensions: ((Int, Int) -> Void)? = nil) throws {
         try checkExportCancellation(isCancelled)
         progress(0)
-        let sourceStarted = timing?.start()
         let stabilizeRAWDecode = recipe.pipelineRevision >= 2 && rawDecode.sharpnessAmount != 0 &&
             ["dng", "raw"].contains(sourceFile.fileExtension?.lowercased() ?? "")
         let decoded = try fullSourceImage(sourceFile, whiteBalance: whiteBalance, rawDecode: rawDecode,
             stabilizeRAWDecode: stabilizeRAWDecode)
-        timing?.record("source_graph_setup", since: sourceStarted)
         try exportLinearSource(resources: resources, decoded, metadata: sourceFile.metadata, recipe: recipe, to: url, settings: settings,
-            rawDecode: rawDecode, isCancelled: isCancelled, progress: progress, timing: timing,
-            onSourceDimensions: onSourceDimensions, releaseSourceCache: stabilizeRAWDecode)
+            rawDecode: rawDecode, isCancelled: isCancelled, progress: progress,
+            onSourceDimensions: onSourceDimensions, releaseSourceCache: stabilizeRAWDecode,
+            sourceIsRAW: ["dng", "raw"].contains(sourceFile.fileExtension?.lowercased() ?? ""))
     }
 
 }

@@ -1,9 +1,12 @@
 import CHNCS
+import CMetalImage
+import CoreImage
 import Foundation
 
 /// Persisted selections describe the render, not just labels in a menu. Apple
 /// inputs have no Phocus FilmCurve metadata: As Shot resolves explicitly to type 2.
-/// Thin Swift ownership/buffer bridge. All color processing lives in portable C++17.
+/// Thin Swift ownership/buffer bridge. C++17 retains the reference color equations;
+/// Metal consumes the native integer sharpness tables.
 /// Binary-verified presets, film curves and working spaces use an experimental source
 /// adapter. This does not claim a calibrated iPhone/Apple RAW-to-X2D camera profile.
 public enum HNCSEngine {
@@ -88,6 +91,26 @@ public enum HNCSEngine {
         }
     }
     private static let contextCache = ContextCache()
+
+    static func renderWorkFile(_ source: CIImage, context: CIContext, to file: HNCSPresetWorkFile,
+                               recipe: ProcessingRecipe, isCancelled: @escaping () -> Bool,
+                               progress: @escaping (Double) -> Void) throws -> Float {
+        let owner = try contextCache.context(exposure: recipe.backendExposureEV, kelvin: recipe.illuminantKelvin,
+            settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
+        var maximum: Float = 0
+        do {
+            try withExtendedLifetime(owner) {
+                try GCMetalColor.renderHNCS(source, context: context, reference: owner.pointer,
+                    sourceExposure: Float(exp2(recipe.appliesExposureBeforeHighlights ? recipe.exposureEV : 0)),
+                    workers: workerCount(), toPath: file.url.path, maximum: &maximum,
+                    cancelled: isCancelled, progress: progress)
+            }
+        } catch {
+            if isCancelled() { throw CancellationError() }
+            throw error
+        }
+        return maximum
+    }
 
     /// Bounded CPU concurrency shared by preview and exact Float export.
     /// A device performance/energy claim still requires hardware measurement.
@@ -228,7 +251,33 @@ public enum HNCSEngine {
 
     private final class SpatialCancellation {
         let isCancelled: () -> Bool
-        init(_ isCancelled: @escaping () -> Bool) { self.isCancelled = isCancelled }
+        let progress: (Double) -> Void
+        init(_ isCancelled: @escaping () -> Bool, progress: @escaping (Double) -> Void = { _ in }) {
+            self.isCancelled = isCancelled; self.progress = progress
+        }
+    }
+
+    static func finishPresetWorkFile(_ work: HNCSPresetWorkFile, to output: ExportRasterFile,
+                                     recipe: ProcessingRecipe, workScale: Double,
+                                     isCancelled: @escaping () -> Bool, progress: @escaping (Double) -> Void) throws -> Float {
+        let owner = try contextCache.context(exposure: recipe.backendExposureEV, kelvin: recipe.illuminantKelvin,
+            settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance, workScale: workScale)
+        let callbacks = SpatialCancellation(isCancelled, progress: progress)
+        var maximum: Float = 1
+        let status = work.url.path.withCString { input in output.url.path.withCString { destination in
+            hncs_finish_apple_hdr_work_file(owner.pointer, input, destination, work.width * work.height,
+                workScale, workerCount(), &maximum, { context in
+                    guard let context else { return 0 }
+                    return Unmanaged<SpatialCancellation>.fromOpaque(context).takeUnretainedValue().isCancelled() ? 1 : 0
+                }, { value, context in
+                    guard let context else { return }
+                    Unmanaged<SpatialCancellation>.fromOpaque(context).takeUnretainedValue().progress(value)
+                }, Unmanaged.passUnretained(callbacks).toOpaque())
+        } }
+        withExtendedLifetime((owner, callbacks)) {}
+        if status == -3 || isCancelled() { throw CancellationError() }
+        guard status == 0 else { throw status == -2 ? Error.spatialIO : Error.invalidPixels }
+        return maximum
     }
 
     static func applySpatial(to file: HNCSPresetWorkFile, settings: HNCSSettings, effects: EffectToggles = .standard,
@@ -244,7 +293,7 @@ public enum HNCSEngine {
             settings.presetKey.withCString { key in
                 FileManager.default.temporaryDirectory.path.withCString { scratch in
                     if settings.usesExtendedWorkingDomain {
-                        return hncs_prepare_apple_hdr_spatial_file(path, file.width, file.height, key,
+                        return gc_metal_spatial_prepare_file(MetalSpatialEngine.shared.context, path, file.width, file.height, key,
                             effects.applyGrain ? 1 : 0, effects.applySharpness ? 1 : 0,
                             baselineSharpness, workScale, scratch, { context in
                                 guard let context else { return 0 }
@@ -263,21 +312,5 @@ public enum HNCSEngine {
         withExtendedLifetime(cancellation) {}
         if status == -3 || isCancelled() { throw CancellationError() }
         guard status == 0 else { throw status == -2 ? Error.spatialIO : Error.invalidPixels }
-    }
-
-    /// Golden-test boundary: packed white-balanced native X2D RGB doubles in;
-    /// packed original 16-bit legacy RGB codes out. No adapter or display conversion.
-    static func renderNative(native: [Double], illuminantKelvin: Double) throws -> [UInt16] {
-        guard native.count % 3 == 0 else { throw Error.invalidDimensions }
-        guard let context = hncs_create(0, illuminantKelvin) else { throw Error.invalidSettings }
-        defer { hncs_destroy(context) }
-        var codes = [UInt16](repeating: 0, count: native.count)
-        let status = native.withUnsafeBufferPointer { source in
-            codes.withUnsafeMutableBufferPointer { destination in
-                hncs_render_native(context, source.baseAddress, destination.baseAddress, native.count / 3)
-            }
-        }
-        guard status == 0 else { throw Error.invalidPixels }
-        return codes
     }
 }

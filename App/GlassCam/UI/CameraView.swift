@@ -14,7 +14,6 @@ struct CameraView: View {
     @ObservedObject var settings: CameraSettingsStore
     @ObservedObject var workflow: CaptureWorkflow
     @StateObject var camera = CameraController()
-    @StateObject private var stateRecords = PeripheralRecordingModel()
     let selectedLens: CameraController.Mode = .main
     @State var liveProxyStatus = LiveColorProxyStatus.off
     @State var activePanel: CameraPanel?
@@ -110,7 +109,6 @@ struct CameraView: View {
                                         .frame(minHeight: 44)
                                 }
                             }
-                            recordingControls
                         }
                         .padding(16)
                         .frame(maxWidth: .infinity)
@@ -139,10 +137,6 @@ struct CameraView: View {
                     // Clear glass transmits bright scenes; a soft glyph shadow
                     // keeps controls legible without dimming the periphery.
                     .shadow(color: .black.opacity(0.45), radius: 3, y: 0.5)
-                if !showsUnavailableCamera {
-                    recordingControls
-                        .position(x: framing.photo.midX, y: max(62, framing.photo.maxY - 62))
-                }
                 CameraOrientationObserver { camera.updateOrientation($0) }
                     .frame(width: proxy.size.width, height: proxy.size.height)
                     .allowsHitTesting(false)
@@ -204,24 +198,6 @@ struct CameraView: View {
         .confirmationDialog("Save this photo again? Check Photos first to avoid a duplicate.", isPresented: $repeatSaveConfirmation,
                             titleVisibility: .visible) {
             Button("Save to Photos again") { workflow.saveAgain() }
-        }
-    }
-
-    private var recordingControls: some View {
-        PeripheralRecordingControls(model: stateRecords) {
-            stateRecords.record(source: camera.peripheralSource, camera: [
-                "status": camera.status, "isReady": camera.isReady,
-                "isCapturing": camera.isCapturing, "isPreviewFrozen": camera.isPreviewFrozen,
-                "isConfiguring": camera.isConfiguring, "capturePhase": camera.capturePhase.rawValue,
-                "requestedZoom": camera.requestedZoom, "appliedZoom": camera.appliedZoom,
-                "physicalCameraID": camera.physicalCameraID ?? "none",
-                "previewEncoding": camera.centerPreviewEncoding ?? "none",
-                "sceneActive": scenePhase == .active, "settingsPresented": settingsPresented,
-                "experimentalLiveColor": experimentalLiveColor,
-                "tolerance": PeripheralTolerance.shared.value,
-                "liveColorShowing": liveProxyStatus.isShowingEffect,
-                "workflowPhase": String(describing: workflow.phase),
-                "sourceState": camera.peripheralSource?.diagnosticState() ?? "no-source"])
         }
     }
 

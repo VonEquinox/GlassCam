@@ -2,6 +2,7 @@
 // FFCS 0.2.0 native LUT path and explicit analytic modes. Preserve clipping,
 // BGR axes, header matrix, all look parameters, grain and float sharpening.
 #include "ffcs_c.h"
+#include "ffcs_color_data.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -213,6 +214,15 @@ RGB mobilePixel(const FFCSContext &ctx, const float *in, size_t x, size_t y,
 uint8_t quantize(double x){double v=clip(x)*255,base=std::floor(v),f=v-base;if(f>.5||(f==.5&&std::fmod(base,2.)!=0))++base;return uint8_t(base);}
 }
 extern "C" {
+int ffcs_get_color_data(const FFCSContext *c,ffcs_color_data *out) {
+ if(!c||!out)return -1;
+ *out={};std::copy_n(c->matrix,9,out->matrix);
+ const auto &s=c->look;out->contrast=s.contrast;out->saturation=s.saturation;out->hue=s.hue;
+ out->shoulder=s.shoulder;out->toe=s.toe;out->grain=s.grain;out->grain_size=s.size;
+ out->chroma=s.chroma;out->sharp=s.sharp;out->size=uint32_t(c->size);out->rgb_channels=c->rgbChannels;
+ out->acros=s.acros;out->grain_enabled=c->grainEnabled;out->reach=uint32_t(c->reach);
+ out->lut=c->lut.data();out->normalized_codes=c->normalized_codes.data();out->kernel=c->kernel.data();return 0;
+}
 size_t ffcs_simulation_count(void){return sizeof(looks)/sizeof(looks[0]);}
 const char *ffcs_simulation_name(size_t i){return i<ffcs_simulation_count()?looks[i].name:nullptr;}
 const char *ffcs_simulation_asset(size_t i){return i<ffcs_simulation_count()?looks[i].asset:nullptr;}

@@ -250,15 +250,6 @@ final class CameraController: ObservableObject {
         clearPreview(); status = "Camera stopped"
         backend.queue.async { [backend] in backend.stop() }
     }
-    /// Delivers only the validated Apple ProRAW DNG. Preview restore errors are
-    /// reported through status/isReady and cannot replace a completed photo.
-    func captureProRAW(completion: @escaping (Result<Data, Error>) -> Void) {
-        guard let reservation = reserveCapture() else {
-            completion(.failure(CameraFailure("Wait for the camera to finish adjusting."))); return
-        }
-        capturePhoto(reservation: reservation) { completion($0.map(\.data)) }
-    }
-
     var canReserveCapture: Bool {
         isReady && !isCapturing && !isConfiguring && !isUpdatingZoom &&
         !isApplyingOrientation && captureReservation == nil

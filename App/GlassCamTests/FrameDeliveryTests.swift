@@ -69,13 +69,12 @@ struct FrameDeliveryTests {
     }
     @Test func queuedPreview_usesNewestFrameAndOriginalPTS() throws {
         let display = Display(); display.configure(); display.drain()
-        var submissions: [Double] = []
-        display.delivery.observeSubmissions { submissions.append($0) }
         display.delivery.receive(try SampleFixture.sample(pts: 120))
         display.delivery.receive(try SampleFixture.sample(pts: 180))
         display.drain()
         #expect(display.received.count == 1)
-        #expect(submissions == [3])
+        let sample = try #require(display.received.first)
+        #expect(CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sample)) == 3)
     }
     @Test func missingPeripheralSample_doesNotBlockCenterSubmission() throws {
         let display = Display(); display.configure(); display.drain()
@@ -89,7 +88,6 @@ struct FrameDeliveryTests {
 
         #expect(display.received.count == 1)
         #expect(display.firstFrames == 1)
-        #expect(source.displaySkew(outerPTS: 2) == 0)
     }
 
     @Test func mismatchedFormat_neverSignalsReadiness() throws {

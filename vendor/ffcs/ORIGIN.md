@@ -13,6 +13,8 @@
 
 最初接入参考提交为 `3c0a85eeb3893764ae92fc0fe52ebb62fd9f6ac5`。旧 0.1.0 归档可从提交 `d5145c5e8f59522ed6e3905c7d42a41d0e144994` 的 `GlassCamPrototype/reference_ffcs/source.zip` 恢复，其 Git blob 为 `ecc0ebc69b94d10f8b3f63cac5659d58886efeea`，SHA-256 为 `bc8c9b4d7691f3ecef03a79e3b1a7ddd8364647e97877ee02ceefa8e50e2ea02`。
 
-保留的参考源码和上游文档使用原始内容。原厂二进制调查工具及二进制清单保存在 `GlassCam-research` 提交 `799f5a6a560a7be4c3a520b0f5359a9e1758a53b` 的 `upstream/ffcs/`；提取与审计工具位于 `tools/reverse-engineering/`，调查证据位于 `evidence/`。
+保留的参考源码、资源元数据与交付清单使用原始内容。上游文档、测试、打包文件和历史报告保存在固定 `source.zip` 中；来源校验仍核对完整交付清单，未展开的文件直接从归档校验。`scripts/materialize_ffcs_reference.py` 只展开当前参考实现需要的文件。
+
+迁出的材料及产品提交 `1eac23801da57b4b6b4fd13cff9037cc062c8afb` 的完整恢复入口位于 `GlassCam-research` 的 `tools/studies/product-tooling/`。原厂二进制调查工具及二进制清单保存在研究仓库提交 `799f5a6a560a7be4c3a520b0f5359a9e1758a53b` 的 `upstream/ffcs/`；提取与审计工具位于 `tools/reverse-engineering/`，调查证据位于 `evidence/`。
 
 原厂数据与参考源码保留各自的权利与许可，统一分发说明见 [NOTICE](../../NOTICE.md)。

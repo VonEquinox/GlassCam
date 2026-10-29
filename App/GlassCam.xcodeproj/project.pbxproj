@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
         A09000000000000000000001 /* F5Kernels.metal in Sources */ = {isa = PBXBuildFile; fileRef = B09000000000000000000001; settings = {COMPILER_FLAGS = "-fno-fast-math"; }; };
+        A09000000000000000000002 /* NativeSharpness.metal in Sources */ = {isa = PBXBuildFile; fileRef = B09000000000000000000003; settings = {COMPILER_FLAGS = "-fno-fast-math -ffp-contract=off"; }; };
+        A09000000000000000000003 /* ColorKernels.metal in Sources */ = {isa = PBXBuildFile; fileRef = B09000000000000000000004; settings = {COMPILER_FLAGS = "-fno-fast-math -ffp-contract=off"; }; };
 		A00000000000000000000008 /* Resources/FFCS in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000009 /* Resources/FFCS */; };
 		A00000000000000000000009 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* libz.tbd */; };
         A00000000000000000000046 /* Resources/LUMIX in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000046; };
@@ -22,6 +24,8 @@
 /* End PBXTargetDependency section */
 /* Begin PBXFileReference section */
         B09000000000000000000001 /* F5Kernels.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ../Packages/GlassCamKit/Sources/F5/F5Kernels.metal; sourceTree = SOURCE_ROOT; };
+        B09000000000000000000003 /* NativeSharpness.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ../Packages/GlassCamKit/Sources/ImagingCore/Metal/NativeSharpness.metal; sourceTree = SOURCE_ROOT; };
+        B09000000000000000000004 /* ColorKernels.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ../Packages/GlassCamKit/Sources/ImagingCore/Metal/ColorKernels.metal; sourceTree = SOURCE_ROOT; };
 		B00000000000000000000006 /* GlassCam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GlassCam.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000009 /* Resources/FFCS */ = {isa = PBXFileReference; lastKnownFileType = folder; path = GlassCam/Resources/FFCS; sourceTree = "<group>"; };
 		B00000000000000000000010 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -222,6 +226,8 @@
 			buildActionMask = 2147483647;
 			files = (
                 A09000000000000000000001 /* F5Kernels.metal in Sources */,
+                A09000000000000000000002 /* NativeSharpness.metal in Sources */,
+                A09000000000000000000003 /* ColorKernels.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

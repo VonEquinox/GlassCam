@@ -364,15 +364,15 @@ private struct CheckFailure: Error, CustomStringConvertible {
         }
         // Compare through the same codec to separate row/effect errors from HEIF loss.
         let expectedContext = recipe.usesExtendedHNCSWorkingDomain ? targetContext : context
-        try expectedContext.writeHEIF10Representation(of: expected, to: expectedURL, colorSpace: pq, options: [:])
+        try expectedContext.writeHEIF10Representation(of: expected, to: expectedURL, colorSpace: pq,
+            options: [CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): 1.0])
         guard let actualImage = CIImage(contentsOf: actualURL, options: [.expandToHDR: true]),
               let expectedImage = CIImage(contentsOf: expectedURL, options: [.expandToHDR: true]) else {
             throw CheckFailure(description: "HEIF output cannot be reopened")
         }
         #expect(actualImage.extent == expectedImage.extent, "HEIF output dimensions differ")
-        let maximum = try error(pixels(actualImage), pixels(expectedImage))
-        #expect(maximum < 0.02, "Full-source HEIF \(name) differs from the whole-frame oracle: \(maximum)")
-        print("  \(name): maximum decoded HEIF difference \(maximum)")
+        let maximum = try HDRColorMetric.maximum(reference: expectedImage, actual: actualImage)
+        #expect(maximum < HDRColorMetric.encodedMaximum)
     }
 
     @Test func absentBaselineSharpness_usesNativeZero() throws {

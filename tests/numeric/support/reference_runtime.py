@@ -45,8 +45,7 @@ RENDER_PATH_REVISION = revisions['RENDER_PATH_REVISION']
 if COLOUR_PATH_REVISION != 2 or RENDER_PATH_REVISION != 8:
     raise ValueError('Unexpected pinned HNCS source revision')
 wanted = {'lerp_table', 'expand_lut', 'lookup_chroma', 'kernel_matrices',
-          'hncs_codes', 'lstar_decode', 'srgb_from_hncs', 'estimate_cct',
-          'bridge_white_balance', 'render_colour_parameters', 'apply_target_white_balance'}
+          'hncs_codes', 'lstar_decode', 'srgb_from_hncs', 'estimate_cct'}
 functions = [node for node in ast.parse(source).body
              if isinstance(node, ast.FunctionDef) and node.name in wanted]
 if {node.name for node in functions} != wanted:
@@ -56,9 +55,6 @@ exec(compile(ast.Module(body=functions, type_ignores=[]), 'pinned_hncs_functions
 hncs_codes = namespace['hncs_codes']
 srgb_from_hncs = namespace['srgb_from_hncs']
 estimate_cct = namespace['estimate_cct']
-bridge_white_balance = namespace['bridge_white_balance']
-render_colour_parameters = namespace['render_colour_parameters']
-apply_target_white_balance = namespace['apply_target_white_balance']
 
 SRGB_TO_XYZ = np.array([[.4124564,.3575761,.1804375],
                         [.2126729,.7151522,.0721750],

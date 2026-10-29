@@ -29,7 +29,7 @@ flowchart TD
     B --> C[HNCS 颜色核与 film curve]
     C --> D[预设 gradation 与 RecoverHue]
     D --> E[还原高光幅值并确定全图工作尺度]
-    E --> F[原生 CPU 锐化，再执行便携颗粒]
+    E --> F[原生整数锐化，再执行便携颗粒]
     F --> G[后置饱和度与灰度]
     G --> H[解码工作值并转换为扩展线性 sRGB]
     H --> I[目标色域转换、输出缩放与编码]
@@ -40,6 +40,8 @@ flowchart TD
 `asShot` 是曲线选择哨兵。Apple 输入没有 Phocus FilmCurve 元数据，因此明确以 `rawFilmCurveType = 2` 解析为 Standard；其他选择为 Old Standard（0）、High Contrast（1）、Standard（2）、Low Contrast（6）和 Linear（7）。`reproduction` 始终解析为 type 7；Old Standard 只在 legacy 工作空间中有独立曲线。预设 gradation 在没有用户曲线调整时仍执行原表和 RecoverHue；关闭 `applyToneCurve` 只跳过 Points 对应的曲线，Gamma 和 contrast 阶段继续执行。
 
 原生锐化使用预设参数、完整分辨率像素尺度、复制边缘和 RAW 的 `BaselineSharpness`，缺失该元数据时取 0。HNCS 输入关闭 Apple 解码器锐化，防止重复施加细节处理。只含单个工具的预设叠加原厂 Standard 参数，因此 Standard 和工具预设也可能启用原生锐化。
+
+成片的源矩阵、原始颜色 LUT、gradation 和高光工作域转换保留精确 C++，原生整数锐化由 Metal 执行并与 CPU 逐值一致。原生渲染器复用缓冲并直接读写工作文件，颗粒和后置颜色结束阶段也使用 C++；数据流与误差预算见 [GPU 色彩处理](../gpu-color.md)。
 
 颗粒采用保留的便携模型：预设键与裁剪后整图尺寸决定 SHA-256／PCG64 随机流，随后执行 wrap Gaussian 和全图 Float32 统计。工作文件按自上而下的 RGB Float32 行序读写；分条只改变 I/O 大小，空间处理始终看到同一张完整工作图。取消或错误时丢弃部分结果，工作文件所有者释放暂存文件。
 
@@ -110,7 +112,7 @@ HNCS 的 `renderRevision` 与共享 `pipelineRevision`、上游资产版本分�
 
 ### 工厂资产与原生接口
 
-选取的上游交付固定为 colour revision 2、render revision 8；来源、提交和校验清单见 [HNCS 来源](../../vendor/hncs/ORIGIN.md)。原始矩阵、色度 LUT、ICC、预设 JSON、曲线表及上游说明保留在 [vendor/hncs](../../vendor/hncs/)，构建使用 `CHNCS/generated/` 中的静态资产。应用版本 12 没有改写上游交付的版本号。
+选取的上游交付固定为 colour revision 2、render revision 8；来源、提交和校验清单见 [HNCS 来源](../../vendor/hncs/ORIGIN.md)。参考源码、原始矩阵、色度 LUT、ICC、预设 JSON、曲线表及固定数值样本保留在 [vendor/hncs](../../vendor/hncs/)，构建使用 `CHNCS/generated/` 中的静态资产。应用版本 12 没有改写上游交付的版本号。
 
 预设 catalog 保存原厂 XML 对应的参数和别名，界面只展示 Standard 或具有实际效果的条目。原版六张 UInt16 曲线表保留 65536 项精度；Standard 也执行 gradation。便携 revision-8 的逐点／空间 C ABI 为参考兼容保留，应用照片路径使用颜色／空间／后置颜色分段接口。
 

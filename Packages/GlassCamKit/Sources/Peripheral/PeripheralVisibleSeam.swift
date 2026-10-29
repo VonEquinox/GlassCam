@@ -4,8 +4,7 @@ import CoreImage
 import simd
 
 /// Bounded per-edge linear gains and sRGB affine models. Metal and the native
-/// verifier apply the selected model in the same transfer-function domain;
-/// the retained verification rasters contain the unadjusted input pixels.
+/// verifier apply the selected model in the same transfer-function domain.
 public struct PeripheralEdgeGains {
     public var top = SIMD3<Float>(repeating: 1)
     public var bottom = SIMD3<Float>(repeating: 1)
@@ -29,7 +28,6 @@ package struct PeripheralNativeSeam {
         package let reference: [UInt8], outer: [UInt8]
         package let nativeScale: Double
     }
-    package let strips: [Strip]
     package let gains: PeripheralEdgeGains
     package let evidence: PeripheralVisibleEvidence
     package let diagnostics: [[String: Any]]
@@ -96,8 +94,8 @@ package struct PeripheralNativeSeam {
     static func evaluate(_ strips: [Strip], gains: PeripheralEdgeGains,
                          segments: [PeripheralAlignmentWorker.SegmentEvidence],
                          analysisWidth: Int,analysisHeight: Int,
-                         geometryVerified: Bool, severe: Double?, tolerance requestedTolerance: Double = PeripheralTolerance.defaultValue) -> Self {
-        let tolerance = PeripheralTolerance.normalized(requestedTolerance)
+                         geometryVerified: Bool, severe: Double?, tolerance requestedTolerance: Double = PeripheralAlignmentWorker.matchingTolerance) -> Self {
+        let tolerance = requestedTolerance.isFinite && requestedTolerance > 0 ? requestedTolerance : PeripheralAlignmentWorker.matchingTolerance
         let factor = Float(tolerance)
         let visibleDistanceScale=pow(tolerance,0.25)
         let minimumNCC = Float(max(0.5,1-0.10*tolerance))
@@ -421,7 +419,7 @@ package struct PeripheralNativeSeam {
         }
         let coverage = Double(passed)/Double(max(1,total))
         let good = total > 0 && passed == total && (severe ?? 0) <= PeripheralEvidence.displayErrorThreshold
-        return .init(strips:strips,gains:gains,evidence:.init(compatible:good,coverage:coverage,
+        return .init(gains:gains,evidence:.init(compatible:good,coverage:coverage,
             maximumObservableError:observableUpper > 0 ? observableUpper : nil,
             reason:good ? "native-visible-seam" : "native-seam-unresolved-or-mismatch",
             nativeSupportChecked:total > 0),diagnostics:diagnostics)

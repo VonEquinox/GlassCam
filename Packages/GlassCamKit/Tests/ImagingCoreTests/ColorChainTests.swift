@@ -41,7 +41,6 @@ struct ColorChainFixture {
     static let pixels = ImagePipelineTests.pixels
     // Pre-migration Float32 color-chain and HEIF codec tolerances.
     static let floatTolerance: Float = 0.00001
-    static let codecTolerance: Float = 0.02
     static func recipe(_ mode: ColorMode, _ ev: Double, revision: Int = ProcessingRecipe.currentPipelineRevision,
                        spatial: Bool = false, white: PhotoWhiteBalance? = nil) -> ProcessingRecipe {
         ProcessingRecipe(mode: mode, exposureEV: ev, illuminantKelvin: white?.modelKelvin ?? 6500,
@@ -97,17 +96,18 @@ struct ColorChainFixture {
                     #expect(outputData == directData, "\(stem) direct and previewed full-source exports differ")
                     #expect(bound == processed.recipe, "\(stem) direct and previewed full-source exports differ")
                     let fullReference = directory.appendingPathComponent(stem+"-whole.heic")
-                    let targetContext = CIContext(options: [.workingColorSpace: CGColorSpace(name: CGColorSpace.extendedLinearITUR_2020)!,
-                                                           .workingFormat: CIFormat.RGBAf.rawValue])
+                    let targetContext = target.usesExtendedHNCSWorkingDomain
+                        ? ImagePipelineTests.targetContext : ImagePipelineTests.context
                     var expected = oracle.image.image.applyingFilter("CIColorClamp", parameters: [
                         "inputMinComponents": CIVector(x: 0,y: 0,z: 0,w: 1),
                         "inputMaxComponents": CIVector(x: CGFloat(ImagePipeline.maximumHDRValue), y: CGFloat(ImagePipeline.maximumHDRValue),
                                                         z: CGFloat(ImagePipeline.maximumHDRValue), w: 1)]).cropped(to: oracle.image.image.extent)
                     if #available(macOS 26, *) { expected = expected.settingContentHeadroom(oracle.image.headroom) }
                     try targetContext.writeHEIF10Representation(of: expected, to: fullReference,
-                        colorSpace: CGColorSpace(name: CGColorSpace.itur_2100_PQ)!, options: [:])
-                    let stripError = try ImagePipelineTests.error(pixels(CIImage(contentsOf: output, options: [.expandToHDR: true])!),
-                                           pixels(CIImage(contentsOf: fullReference, options: [.expandToHDR: true])!))
-                    #expect(stripError < codecTolerance, "\(stem) strip/halo export differs from the whole-image oracle: \(stripError)")
+                        colorSpace: CGColorSpace(name: CGColorSpace.itur_2100_PQ)!,
+                        options: [CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): 1.0])
+                    let stripError = try HDRColorMetric.maximum(reference: CIImage(contentsOf: fullReference, options: [.expandToHDR: true])!,
+                        actual: CIImage(contentsOf: output, options: [.expandToHDR: true])!)
+                    #expect(stripError < HDRColorMetric.encodedMaximum)
     }
 }

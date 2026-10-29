@@ -10,7 +10,7 @@
 | `x2dii_phocus_422.npz` | SHA-256：`3291628ef8787a20082eaebb7e50fccac0a89bbce14dc5619ecf1277d816c1b9` |
 | 应用使用的固定数值样本 | [tests/fixtures/hncs](../../tests/fixtures/hncs/README.md)，各样本保留自身来源与版本 |
 
-[上游 README](README.md)、[完整交付清单](validation/delivery_manifest.json)、[源码索引](validation/source_index.json)与[原始测试日志](validation/tests.log)保留上游原文；本目录所选文件范围由逐文件 SHA-256 清单界定。
+本目录保留数值测试和资产生成需要的固定参考源码、数据与向量，所选范围由逐文件 SHA-256 清单界定。[参考加载器](../../tests/numeric/support/reference_runtime.py)只载入原始颜色函数；Sony 跨相机标定、上游测试、说明和历史报告保存在 `GlassCam-research` 的 `tools/studies/product-tooling/`，来源为产品提交 `1eac23801da57b4b6b4fd13cff9037cc062c8afb`。
 
 提取脚本和调查证据保存在本机 `GlassCam-research` 仓库提交 `799f5a6a560a7be4c3a520b0f5359a9e1758a53b`，分别位于 `tools/reverse-engineering/` 和 `evidence/`。
 

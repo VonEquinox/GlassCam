@@ -67,11 +67,8 @@ struct PeripheralGlassView: UIViewRepresentable {
         private let textures = PeripheralLiveTextureStore()
         private var sourceRevision: UInt64 = 0
         private var sourceEpoch: UInt64 = .max
-        private var commandID: UInt64 = 0
         private var inFlight = false
-        private var tolerance = PeripheralTolerance.shared.value
         private var lastOpacity = 1.0
-        private let recordingRendererID = UUID().uuidString
         private let colorSpace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
         var isBlack: Bool { lastOpacity >= 0.9999 }
 
@@ -132,13 +129,6 @@ struct PeripheralGlassView: UIViewRepresentable {
             lastDrawPair=0;lastDrawAt = -.infinity
         }
         func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
-        static func coversWindow(_ matrix: simd_float3x3, framing: CameraFraming,
-                                 outerWidth: Int, outerHeight: Int, minimumMargin: Float = 2) -> Bool {
-            let r = framing.photo, w = framing.window
-            guard r.width > 0, r.height > 0 else { return false }
-            let window = CGRect(x:-r.minX/r.width,y:-r.minY/r.height,width:w.width/r.width,height:w.height/r.height)
-            return (PeripheralProjection.margin(matrix,window: window,width: outerWidth,height: outerHeight) ?? -.infinity) >= minimumMargin
-        }
         func draw(in view: MTKView) {
             guard !inFlight, view.window != nil, let device, let queue, let context, let pipeline,
                   view.drawableSize.width > 0, view.drawableSize.height > 0,
@@ -150,7 +140,6 @@ struct PeripheralGlassView: UIViewRepresentable {
                   let command=queue.makeCommandBuffer() else {return}
             let now = CACurrentMediaTime(), pair = source?.latest(), epoch = source?.selection().epoch ?? 0
             if epoch != sourceEpoch { reset(epoch:epoch) }
-            tolerance = PeripheralTolerance.shared.value
             let seams = PeripheralSeams(photo:framing.photo,window:framing.window.size)
             let activeEdges = (0..<4).filter { $0 < 2 ? seams.contains(.horizontal) : seams.contains(.vertical) }
             let window = CGRect(x:-framing.photo.minX/framing.photo.width,y:-framing.photo.minY/framing.photo.height,
@@ -159,30 +148,25 @@ struct PeripheralGlassView: UIViewRepresentable {
             if sourceAvailable, let pair { worker.request(pair,seams:seams,window:window) }
             let alignment = worker.latest()
             let currentFrame = live.update(pair:pair,analysis:alignment,enabled:enabled,epoch:epoch,
-                seams:seams,window:window,tolerance:tolerance,at:now)
-            commandID &+= 1
+                seams:seams,window:window,at:now)
             lastDrawPair=pair?.serial ?? 0;lastDrawAt=now
-            let identity = commandID, revision = sourceRevision
-            var uploading: PeripheralLiveTextureStore.Bundle?, task: CIRenderTask?, failedUpload = false
-            var reasons: [String] = []
+            let revision = sourceRevision
+            var uploading: PeripheralLiveTextureStore.Bundle?, task: CIRenderTask?
             if let currentFrame {
                 do {
                     let prepared = try textures.prepare(currentFrame,revision:revision,at:now,
                         device:device,context:context,command:command,colorSpace:colorSpace,includeCenter:true,
                         centerImage:color.image(for:currentFrame.pair))
                     uploading = prepared?.0; task = prepared?.1
-                } catch { failedUpload = true; reasons.append("live-texture-encode-failed") }
+                } catch { PeripheralDiagnostics.trace("preview upload failed: \(error.localizedDescription)") }
             }
             let colorRevision=color.revision,colorApplied=uploading != nil && color.currentFrameUsesEffect
             // CI encodes uploads before this render encoder in the SAME command.
             // Use them immediately instead of waiting for next draw's completion.
             let bundle = uploading ?? textures.completed
-            if let failure = textures.failureReason { reasons.append(failure) }
             let resourceValid = live.resourceValid(bundle,revision:revision,at:now)
-            if !resourceValid { reasons.append(bundle == nil ? "live-texture-not-ready" : "live-source-or-texture-unavailable") }
-            let edgeOpacity = live.opacities(bundle:bundle,revision:revision,at:now,tolerance:tolerance)
+            let edgeOpacity = live.opacities(bundle:bundle,revision:revision,at:now)
             let minimumOpacity = activeEdges.map { edgeOpacity[$0] }.min() ?? 1
-            let maximumOpacity = activeEdges.map { edgeOpacity[$0] }.max() ?? 1
             lastOpacity = minimumOpacity
             let alpha = Float(minimumOpacity)
             guard let sampled = bundle?.texture ?? blackTexture,
@@ -207,52 +191,9 @@ struct PeripheralGlassView: UIViewRepresentable {
             encoder.setFragmentTexture(sampled,index:0)
             encoder.setFragmentTexture(bundle?.centerTexture ?? blackTexture,index:1)
             encoder.drawPrimitives(type:.triangle,vertexStart:0,vertexCount:3); encoder.endEncoding()
-            PeripheralStateRecorder.shared.updateRenderer([
-                "phase":"submitted","hostTime":now,"rendererID":recordingRendererID,
-                "commandID":identity,"sourceRevision":revision,"epoch":epoch,
-                "tolerance":tolerance,"textureTolerance":bundle?.frame.tolerance ?? .nan,
-                "enabled":enabled,"sourceAvailable":sourceAvailable,"alignmentValid":alignment?.isFresh(for:epoch,at:now) == true,
-                "policyMode":"fixed-direct-stitch-with-raw-seam-shading",
-                "evidenceBasis":"display-preference-separate-from-physical-certification",
-                "rejectionReasons":reasons,"analysisGateReasons":alignment?.gateReasons ?? [],
-                "effectiveBlackOpacity":alpha,"opacityMode":"per-edge","opacityCoupling":"top-bottom-maximum",
-                "effectiveBlackOpacityRange":[minimumOpacity,maximumOpacity],
-                "edgeBlackOpacities":edgeOpacity,"activeEdges":activeEdges,"edgePolicyReasons":live.reasons,
-                "directStitch":true,"edgeAssessments":live.assessments,
-                "presentationMode":"single-command-paired-preview",
-                "centerTexturePairID":uniforms.centerEnabled > 0 ? bundle?.frame.pair.serial ?? 0:0,
-                "renderedCenterPTS":uniforms.centerEnabled > 0 ? bundle?.frame.pair.centerMetadata?.pts ?? .nan:Double.nan,
-                "renderedOuterPTS":bundle?.frame.pair.outerMetadata?.pts ?? .nan,
-                "cameraExposureSkew":bundle?.frame.pair.ptsDelta ?? .nan,
-                "captureMode":bundle?.frame.pair.captureMode ?? "unavailable",
-                "applicationAddedFrameSkew":uniforms.centerEnabled > 0 ? 0:Double.nan,
-                "usesCurrentCommandUpload":uploading != nil,
-                "targetOpacity":activeEdges.map {live.targets[$0]}.min() ?? 0,
-                "policyReason":live.lastReason,"forcedBlack":!resourceValid,"latched":false,
-                "textureValid":resourceValid,"textureReadiness":uploading != nil ? "encoding" : (bundle == nil ? "notPreparedYet" : "completed"),
-                "texturePairID":bundle?.frame.pair.serial ?? 0,"textureEpoch":bundle?.frame.pair.epoch ?? 0,
-                "textureAnalysisPairID":bundle?.frame.analysisPairID ?? 0,
-                "textureAnalysisObservedAt":bundle?.frame.analysisObservedAt ?? .nan,
-                "textureRefinementID":bundle?.frame.refinement?.id ?? 0,
-                "textureRefinementStrength":bundle?.frame.refinementStrength ?? 0,
-                "textureMappingBasis":bundle?.frame.mappingBasis ?? "no-resource",
-                "texturePhotoToOuter_columns":bundle.map { PeripheralRecordJSON.matrix($0.frame.matrix) } ?? [],
-                "textureEdgeGains":bundle.map { PeripheralRecordJSON.edgeGains($0.frame.gains) } ?? [:],
-                "analysisAge":live.lastAnalysisAge,"worker":worker.runtimeState(),
-                "textureAge":now-(bundle?.frame.pair.observedAt ?? -.infinity),"failedUpload":failedUpload,
-                "submittedDisplaySkew":source?.displaySkew(outerPTS:bundle?.frame.pair.outerMetadata?.pts) ?? .nan,
-                "alignment":PeripheralRecordJSON.alignment(alignment),
-                "sourceState":source?.diagnosticState() ?? "no-source",
-                "photoRect":[r.minX,r.minY,r.width,r.height],"windowSize":[w.width,w.height]],
-                pair:pair,texturePair:bundle?.frame.pair,analysis:worker.latestDiagnostic(),renderedFrame:bundle?.frame)
             inFlight = true
-            let recordingID = recordingRendererID
             command.addCompletedHandler { [weak self, uploading, task, bundle, sampled, currentFrame] completed in
                 withExtendedLifetime((task,bundle,sampled,currentFrame)) {}
-                PeripheralStateRecorder.shared.gpuEvent(["rendererID":recordingID,"commandID":identity,
-                    "epoch":epoch,"sourceRevision":revision,"event":"gpu-completed",
-                    "hostTime":CACurrentMediaTime(),"status":completed.status.rawValue,
-                    "error":completed.error?.localizedDescription ?? ""])
                 DispatchQueue.main.async {
                     guard let self else { return }; self.inFlight = false
                     guard self.sourceRevision == revision, self.source?.selection().epoch == epoch else { return }
@@ -261,16 +202,8 @@ struct PeripheralGlassView: UIViewRepresentable {
                         self.textures.complete(uploading,success:completed.status == .completed,
                             revision:revision,epoch:epoch,at:CACurrentMediaTime())
                     }
-                    if completed.status == .error { PeripheralDiagnosticRecorder.shared.trigger("gpu-command-error") }
                 }
             }
-#if !targetEnvironment(simulator)
-            drawable.addPresentedHandler { value in
-                PeripheralStateRecorder.shared.gpuEvent(["rendererID":recordingID,"commandID":identity,
-                    "epoch":epoch,"sourceRevision":revision,"event":"peripheral-drawable-presented",
-                    "hostTime":CACurrentMediaTime(),"presentedTime":value.presentedTime])
-            }
-#endif
             command.present(drawable); command.commit()
             if (!enabled || source == nil) && isBlack { view.isPaused = true }
         }

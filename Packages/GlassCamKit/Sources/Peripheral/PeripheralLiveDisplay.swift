@@ -66,7 +66,8 @@ package struct PeripheralPaneAssessment {
     }
 
     package func darkness(tolerance: Double) -> Double {
-        let scale = pow(PeripheralTolerance.normalized(tolerance),0.25)
+        let factor = tolerance.isFinite && tolerance > 0 ? tolerance : PeripheralAlignmentWorker.matchingTolerance
+        let scale = pow(factor,0.25)
         func ramp(_ value: Double, _ low: Double, _ high: Double) -> Double {
             let t = max(0,min(1,(value-low)/(high-low)))
             return t*t*(3-2*t)
@@ -290,18 +291,15 @@ package struct PeripheralPreviewPolicy {
     private var shownSince: Double?
     private var missingSince: Double?
     private var observations = [PeripheralPaneAssessment](repeating:.init(),count:4)
-    private var rawObservations=[PeripheralPaneAssessment](repeating:.init(),count:4)
     private var estimates=[PeripheralSeamEstimate](repeating:.init(),count:4)
     private var checked = [Bool](repeating:false,count:4)
     private var recheckNeeded=[Bool](repeating:false,count:4)
     private var recheckSince=[Double?](repeating:nil,count:4)
     private var recheckLast=[Double?](repeating:nil,count:4)
-    public private(set) var reasons = [String](repeating:"live-preview-awaiting-analysis",count:4)
 
     package mutating func observe(_ values: [PeripheralPaneAssessment], at time: Double,
-                          tolerance:Double = PeripheralTolerance.defaultValue) {
+                          tolerance:Double = PeripheralAlignmentWorker.matchingTolerance) {
         guard values.count == 4, time.isFinite, lastSample.map({time>$0}) ?? true else { return }
-        rawObservations=values
         var inputs=values
         if values[0].reason != "unobserved",values[1].reason != "unobserved" {
             let a=values[0].darkness(tolerance:tolerance),b=values[1].darkness(tolerance:tolerance)
@@ -340,9 +338,6 @@ package struct PeripheralPreviewPolicy {
             let rate = target[edge] > alpha[edge] ? 1/0.14 : 1/0.60
             let travel = dt*rate
             alpha[edge] += max(-travel,min(travel,target[edge]-alpha[edge]))
-            reasons[edge] = !checked[edge] ? "awaiting-first-direct-seam-check" : !recent[edge] ? "direct-seam-check-overdue" :
-                recheckNeeded[edge] ? "waiting-for-continuous-current-evidence" :
-                target[edge] > 0 ? "persistent-broad-mismatch" : "within-display-tolerance"
         }
         if !ready || !checked.contains(true) {
             if missingSince == nil { missingSince = time }
@@ -362,26 +357,7 @@ package struct PeripheralPreviewPolicy {
         return shared
     }
     package var targets: [Double] { sharingTopBottom((0..<4).map { checked[$0] ? target[$0]:1 }) }
-    package var diagnostics: [[String:Any]] {
-        observations.enumerated().map { edge,value -> [String:Any] in
-            var row:[String:Any] = ["edge":edge,"checked":checked[edge],"visibleError":value.error ?? .nan,
-             "mismatchFraction":value.mismatchFraction,"supportFraction":value.supportFraction,
-             "missingStructureFraction":value.missingStructureFraction,
-             "corroboratedShiftLower":value.corroboratedShiftLower ?? .nan,
-             "observationCoverage":value.observationCoverage,
-             "rawVisibleError":rawObservations[edge].error ?? .nan,
-             "rawMissingStructureFraction":rawObservations[edge].missingStructureFraction,
-             "rawObservationCoverage":rawObservations[edge].observationCoverage,
-             "affectedFraction":value.affectedFraction,"rawAffectedFraction":rawObservations[edge].affectedFraction,
-             "localizedError":value.localizedError ?? .nan,"rawLocalizedError":rawObservations[edge].localizedError ?? .nan,
-             "transitionDecision":estimates[edge].decision,
-             "recheckNeeded":recheckNeeded[edge],"recheckSince":recheckSince[edge] ?? .nan,
-             "reason":value.reason,"observedAt":estimates[edge].observedAt ?? .nan]
-            row["deformation"]=value.deformation ?? .nan
-            row["rawDeformation"]=rawObservations[edge].deformation ?? .nan
-            return row
-        }
-    }
+
 }
 
 /// Current pixels with fixed FOV scale/centering. An earlier raw-seam analysis
@@ -394,7 +370,6 @@ public struct PeripheralLiveFrame {
     public var refinementStrength: Float
     public let analysisPairID: UInt64
     public let analysisObservedAt: Double?
-    let modelPair: PeripheralFrameSource.Pair?
     public var mappingBasis: String
     public let seams: PeripheralSeams
     public let tolerance: Double
@@ -418,12 +393,10 @@ public final class PeripheralLivePipeline {
     public private(set) var sourceAvailable = false
     public private(set) var lastReason = "no-live-source"
     public private(set) var lastAnalysisAge = Double.infinity
-    public var targets: [Double] { policy.targets }
-    public var reasons: [String] { policy.reasons }
-    public var assessments: [[String:Any]] { policy.diagnostics }
 
     public func update(pair: PeripheralFrameSource.Pair?, analysis: PeripheralAlignmentResult?, enabled: Bool,
-                epoch: UInt64, seams: PeripheralSeams, window: CGRect, tolerance: Double,
+                epoch: UInt64, seams: PeripheralSeams, window: CGRect,
+                tolerance: Double = PeripheralAlignmentWorker.matchingTolerance,
                 at time: Double) -> PeripheralLiveFrame? {
         currentWindow = window; mappingAvailable = false
         let size = pair.map { SIMD4(CVPixelBufferGetWidth($0.center),CVPixelBufferGetHeight($0.center),
@@ -453,7 +426,7 @@ public final class PeripheralLivePipeline {
         lastAnalysisAge = accepted.map { time-$0.receipt } ?? .infinity
         lastReason = "live-direct-field-of-view-stitch"; mappingAvailable = true
         return .init(pair:pair,matrix:fixed,gains:.init(),refinement:nil,
-            refinementStrength:0,analysisPairID:accepted?.pairID ?? 0,analysisObservedAt:accepted?.receipt,modelPair:accepted?.inputPair,
+            refinementStrength:0,analysisPairID:accepted?.pairID ?? 0,analysisObservedAt:accepted?.receipt,
             mappingBasis:lastReason,seams:seams,tolerance:tolerance,margin:margin)
     }
 
@@ -464,7 +437,8 @@ public final class PeripheralLivePipeline {
         return bundle.revision == revision && bundle.frame.pair.epoch == epoch && bundle.frame.seams == seams &&
             time >= bundle.frame.pair.observedAt && time-bundle.frame.pair.observedAt <= Self.pixelLifetime && margin >= required
     }
-    public func opacities(bundle: PeripheralLiveTextureStore.Bundle?, revision: UInt64, at time: Double, tolerance: Double) -> [Double] {
+    public func opacities(bundle: PeripheralLiveTextureStore.Bundle?, revision: UInt64, at time: Double,
+                         tolerance: Double = PeripheralAlignmentWorker.matchingTolerance) -> [Double] {
         policy.update(at:time,ready:resourceValid(bundle,revision:revision,at:time),tolerance:tolerance)
     }
 }

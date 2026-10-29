@@ -101,10 +101,10 @@ private struct LUMIXFixture {
                 var expected = oracle.image.image
                 if #available(macOS 26, *) { expected = expected.settingContentHeadroom(max(1, pixels(expected).max() ?? 1)) }
                 let expectedURL = directory.appendingPathComponent(style+"-expected.heic")
-                try context.writeHEIF10Representation(of: expected, to: expectedURL, colorSpace: pq, options: [:])
-                let expectedPixels = pixels(CIImage(contentsOf: expectedURL, options: [.expandToHDR: true])!)
-                let maximumError = zip(expectedPixels, actual).map { abs($0-$1) }.max() ?? 0
-                #expect(maximumError < 0.02, "Strip export differs from full-frame original LUT output: \(maximumError)")
+                try context.writeHEIF10Representation(of: expected, to: expectedURL, colorSpace: pq,
+                    options: [CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): 1.0])
+                let maximumError = try HDRColorMetric.maximum(reference: CIImage(contentsOf: expectedURL, options: [.expandToHDR: true])!, actual: image)
+                #expect(maximumError < HDRColorMetric.encodedMaximum)
                 let directURL = directory.appendingPathComponent(style+"-direct.heic")
                 let directRecipe = try ImagePipeline.writeHEIF(resources: resources, sourceFile: input.sourceFile, recipe: recipe,
                     to: directURL, settings: .native)
@@ -131,10 +131,13 @@ private struct LUMIXFixture {
                 let oracle = directory.appendingPathComponent(label+"-expected.heic")
                 try ImagePipeline.writeHEIF(resources: resources, actual, to: output)
                 _ = try ImagePipeline.writeHEIF(resources: resources, sourceFile: retained, recipe: recipe, to: direct, settings: .native)
-                try context.writeHEIF10Representation(of: expected.image.image, to: oracle, colorSpace: pq, options: [:])
+                try context.writeHEIF10Representation(of: expected.image.image, to: oracle, colorSpace: pq,
+                    options: [CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): 1.0])
                 let outputPixels = pixels(CIImage(contentsOf: output, options: [.expandToHDR: true])!)
-                #expect(try ImagePipelineTests.error(outputPixels, pixels(CIImage(contentsOf: direct, options: [.expandToHDR: true])!)) == 0, "Direct and previewed LUMIX exposure exports differ")
-                #expect(try ImagePipelineTests.error(outputPixels, pixels(CIImage(contentsOf: oracle, options: [.expandToHDR: true])!)) < 0.02, "Strip export did not apply exposure before HDR splitting")
+                let directError = try ImagePipelineTests.error(outputPixels, pixels(CIImage(contentsOf: direct, options: [.expandToHDR: true])!))
+                #expect(directError == 0)
+                #expect(try HDRColorMetric.maximum(reference: CIImage(contentsOf: oracle, options: [.expandToHDR: true])!,
+                    actual: CIImage(contentsOf: output, options: [.expandToHDR: true])!) < HDRColorMetric.encodedMaximum)
     }
     @Test static func standardAndVivid_produceDistinctPixels() throws {
         let fixture = try LUMIXFixture()

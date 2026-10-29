@@ -34,7 +34,7 @@ private struct PairedObservation {
             let o=try PeripheralFixtures.pixelBuffer(rgba:(0..<48*64).flatMap {_ in [20,v,30,255]},width:48,height:64)
             let pair=PeripheralFrameSource.Pair(center:c,outer:o,receipt:Double(i),configuration:.init(outputIndex:1,fieldOfViewRatio:2,epoch:1),serial:UInt64(i+1))
             let frame=PeripheralLiveFrame(pair:pair,matrix:simd_float3x3(SIMD3(0.5,0,0),SIMD3(0,0.5,0),SIMD3(0.25,0.25,1)),
-                gains:.init(),refinement:nil,refinementStrength:0,analysisPairID:0,analysisObservedAt:nil,modelPair:nil,
+                gains:.init(),refinement:nil,refinementStrength:0,analysisPairID:0,analysisObservedAt:nil,
                 mappingBasis:"test-fixed-FOV",seams:.horizontal,tolerance:1,margin:8)
             let command=queue.makeCommandBuffer()!
             let upload=try store.prepare(frame,revision:1,at:Double(i),device:device,context:context,command:command,

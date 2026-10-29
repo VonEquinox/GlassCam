@@ -31,6 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hncs_spatial.h"
+#include "hncs_spatial_backend.h"
 #include "hncs_numpy_rng.h"
 #include "hncs_phocus_sharpness.hpp"
 #include <algorithm>
@@ -70,6 +71,8 @@ struct Operation {
     const char *directory;
     hncs_spatial_cancel_fn callback;
     void *context;
+    hncs_sharpness_backend_fn sharpness_backend = nullptr;
+    void *backend_context = nullptr;
     void check() const { if(callback && callback(context)) throw Failure{-3}; }
 };
 
@@ -78,6 +81,7 @@ public:
     virtual ~Store()=default;
     virtual void read(size_t offset,float *p,size_t n)=0;
     virtual void write(size_t offset,const float *p,size_t n)=0;
+    virtual int flushed_descriptor() { return -1; }
 };
 class Memory final:public Store {
     float *data_;
@@ -123,6 +127,14 @@ public:
         seek(o,'w');if(std::fwrite(p,sizeof(float),n,file_)!=n)throw Failure{-2};position_+=n;
     }
     void flush() {if(std::fflush(file_))throw Failure{-2};}
+    int flushed_descriptor() override {
+        flush();
+        // An external backend uses positional I/O. Discard stdio's read cache
+        // before the grain pass reads pixels modified by that backend.
+        if(fseeko(file_,0,SEEK_SET))throw Failure{-2};
+        last_=0;position_=0;
+        return fileno(file_);
+    }
 };
 
 std::string canonical(const char *key) {
@@ -337,6 +349,16 @@ uint16_t native_work_code(float value) {
 void apply_native_usm(Store &work,size_t w,size_t h,const NativeSharpnessPreset &cfg,
                       double baseline,const Operation &op,double work_scale=1.) {
     const hncs_phocus_sharpness::Context kernel(cfg.amount,cfg.radius,cfg.noise,cfg.dark,baseline,work_scale);
+    if(op.sharpness_backend) {
+        const int descriptor=work.flushed_descriptor();
+        if(descriptor>=0) {
+            const hncs_sharpness_tables tables={kernel.amount_table.data(),kernel.noise_table.data(),
+                kernel.weights.data(),kernel.count,kernel.weight_sum,kernel.amount!=0};
+            const int status=op.sharpness_backend(descriptor,w,h,&tables,op.backend_context);
+            if(status==0)return;
+            if(status!=1)throw Failure{status<0?status:-2};
+        }
+    }
     const size_t radius=kernel.radius();
     // One immutable horizontal-luma plane makes in-place output safe across
     // tile boundaries. Integer luma <=16383 is exactly represented by Float32.
@@ -468,5 +490,10 @@ extern "C" int hncs_prepare_apple_hdr_spatial(float *work,size_t w,size_t h,cons
 }
 extern "C" int hncs_prepare_apple_hdr_spatial_file(const char *path,size_t w,size_t h,const char *key,int grain,int sharp,double baseline,double scale,const char *directory,hncs_spatial_cancel_fn cancelled,void *context) {
     try{const size_t n=dimensions(w,h,grain,sharp);if(!path||!path[0])throw Failure{-1};const auto &cfg=preset(key);File store(path,n*3);prepare_apple_hdr_spatial(store,w,h,cfg,grain,sharp,baseline,scale,{directory,cancelled,context});store.flush();return 0;}
+    catch(const Failure &e){return e.code;}catch(const std::invalid_argument&){return -1;}catch(...){return -2;}
+}
+
+extern "C" int hncs_prepare_apple_hdr_spatial_file_with_backend(const char *path,size_t w,size_t h,const char *key,int grain,int sharp,double baseline,double scale,const char *directory,hncs_spatial_cancel_fn cancelled,void *context,hncs_sharpness_backend_fn backend,void *backend_context) {
+    try{const size_t n=dimensions(w,h,grain,sharp);if(!path||!path[0])throw Failure{-1};const auto &cfg=preset(key);File store(path,n*3);prepare_apple_hdr_spatial(store,w,h,cfg,grain,sharp,baseline,scale,{directory,cancelled,context,backend,backend_context});store.flush();return 0;}
     catch(const Failure &e){return e.code;}catch(const std::invalid_argument&){return -1;}catch(...){return -2;}
 }

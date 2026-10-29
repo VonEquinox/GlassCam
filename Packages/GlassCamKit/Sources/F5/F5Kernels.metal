@@ -226,7 +226,6 @@ F5Event f5canonical(uint2 p,uint frame,device const ushort *raw,constant F5Frame
     F5Event e;e.at=float4(float2(p)+0.5f,f.scale.x*eta,(hiCode-loCode)/f.scale.y);e.interval=float4(kind==1?f.high[phase]:(loCode-black)/f.scale.y,kind==2?f.low[phase]:(hiCode-black)/f.scale.y,f.kappa[phase],f.readSigma[phase]);e.info=uint4(phase==0?0:phase==3?2:1,phase,frame,kind);e.score=0;e.source=float4(uniform,float2(p)+0.5f,1);e.frozenScore=0;return e;
 }
 
-kernel void f5_clear(device float *values [[buffer(0)]],constant uint &count [[buffer(1)]],uint i [[thread_position_in_grid]]) {if(i<count)values[i]=0;}
 kernel void f5_load_events(device const ushort *raw [[buffer(0)]],device const float *table [[buffer(1)]],device F5Event *events [[buffer(2)]],device const float2 *motion [[buffer(3)]],device const float2 *motionDelta [[buffer(4)]],device const uint *eligibility [[buffer(5)]],constant F5Frame &f [[buffer(6)]],constant F5Grid &g [[buffer(7)]],constant uint4 &rect [[buffer(8)]],constant uint &offset [[buffer(9)]],uint i [[thread_position_in_grid]]) {
     if(i>=rect.z*rect.w)return;uint2 p=rect.xy+uint2(i%rect.z,i/rect.z);F5Event e=f5canonical(p,g.options.w,raw,f,table);
     uint inputIndex=p.y*f.active.z+p.x;if((eligibility[inputIndex/32]&(1u<<(inputIndex%32)))==0)e.info.w=3;
@@ -282,51 +281,6 @@ float3 f5colorTransform(float3 rgb,float3 axis) {
 float3 f5colorTranspose(float3 v,float3 axis) {
     if(axis.y==0)return f5rgb(v);
     float3 tangent=normalize(float3(axis.y,-axis.x,0));return axis*v.x+tangent*v.y+cross(axis,tangent)*v.z;
-}
-kernel void f5_initialize_color_axis(device const float *coefficients [[buffer(0)]],device float4 *guide [[buffer(1)]],constant F5Grid &g [[buffer(2)]],constant uint4 &shape [[buffer(3)]],device const ushort *raw [[buffer(4)]],device const float *table [[buffer(5)]],constant F5Frame &frame [[buffer(6)]],constant float &flatPriorBoost [[buffer(7)]],constant uint &protectFineDetail [[buffer(8)]],uint i [[thread_position_in_grid]]) {
-    if(i>=shape.x*shape.y)return;int2 center=int2(i%shape.x,i/shape.x)*int(shape.z);float3 value=0;
-    float3 second=0,crossMoment=0,noise=0;
-    // The native initializer is a known weighted linear guide before its
-    // positivity clamp. Propagate the same per-CFA weights to estimate guide
-    // variance, instead of comparing a smoothed guide with raw-pixel noise.
-    int step=shape.w>=2?2:1;float samples=0;
-    for(int y=-4;y<4;y+=step)for(int x=-4;x<4;x+=step){float3 v;samples+=1;
-        for(uint c=0;c<3;++c)v[c]=max(0.0f,coefficients[f5index(center+int2(x,y),c,g)]);
-        value+=v;second+=v*v;crossMoment+=v.xxy*v.yzz;
-        if(shape.w>=2){float3 variance=0,mass=0;int2 p=center+int2(x,y);p=int2(f5mirror(p.x,g.shape.x),f5mirror(p.y,g.shape.y));
-            for(int dy=-2;dy<=2;++dy)for(int dx=-2;dx<=2;++dx){
-                uint2 q=uint2(f5mirror(p.x+dx,g.shape.x),f5mirror(p.y+dy,g.shape.y));F5Event e=f5canonical(q,0,raw,frame,table);if(e.info.w>=3)continue;
-                float mu=max(0.0f,(e.interval.x+e.interval.y)/2),weight=1/(1.0f+dx*dx+dy*dy);
-                variance[e.info.x]+=weight*weight*(e.interval.z*mu+e.interval.w*e.interval.w)/(e.at.z*e.at.z);mass[e.info.x]+=weight;
-            }
-            noise+=variance/max(mass*mass,float3(1e-20f));
-        }
-    }
-    float3 axis=normalize(max(value,float3(1e-6f)));
-    float perpendicular=max(0.0f,dot(second,float3(1))-dot(second,axis*axis)-2*dot(crossMoment,axis.xxy*axis.yzz));
-    float noiseEnergy=dot(noise,1-axis*axis);
-    float confidence=min(1.0f,noiseEnergy/max(1e-12f,perpendicular));confidence*=confidence;
-    float luminanceEnergy=max(0.0f,dot(second,axis*axis)+2*dot(crossMoment,axis.xxy*axis.yzz)-pow(dot(value,axis),2.0f)/samples);
-    float luminanceNoise=dot(noise,axis*axis),flatness=shape.w>=2?min(1.0f,luminanceNoise/max(1e-12f,luminanceEnergy)):0;
-    if(protectFineDetail!=0&&shape.w>=2){
-        // A smoothed guide can hide fine green texture. Check original green
-        // samples before boosting flat-region regularization. Boundaries use
-        // unique sensor sites so reflected copies are not independent evidence.
-        float count=0,sum=0,squared=0,variance=0;
-        for(int y=-4;y<4;++y)for(int x=-4;x<4;++x){
-            int2 p=center+int2(x,y);if(any(p<0)||any(p>=int2(g.shape.xy)))continue;
-            F5Event e=f5canonical(uint2(p),0,raw,frame,table);if(e.info.w!=0||e.info.x!=1)continue;
-            float mu=(e.interval.x+e.interval.y)/2,v=mu/e.at.z;
-            count+=1;sum+=v;squared+=v*v;variance+=(e.interval.z*max(0.0f,mu)+e.interval.w*e.interval.w)/(e.at.z*e.at.z);
-        }
-        if(count>=8){
-            float energy=max(0.0f,squared-sum*sum/count),expected=variance*(1-1/count);
-            float evidence=max(0.0f,energy-expected*(1+3*sqrt(2/(count-1))));
-            float ratio=expected/max(1e-20f,expected+evidence);flatness=min(flatness,ratio*ratio);
-        }
-    }
-    guide[i*2]=float4(axis,shape.w>=2?confidence:1);
-    guide[i*2+1]=float4(1+(flatPriorBoost-1)*flatness,0,0,0);
 }
 uint f5fieldIndex(int2 p,constant F5Grid &g) {int2 n=int2(g.shape.xy*g.shape.z);p=int2(f5mirror(p.x,n.x),f5mirror(p.y,n.y));p=clamp(p,g.field.xy,g.field.xy+g.field.zw-1);return (p.y-g.field.y)*g.field.z+p.x-g.field.x;}
 float3 f5fieldAt(device const float4 *field,int2 p,constant F5Grid &g) {return field[f5fieldIndex(p,g)].xyz;}
@@ -466,28 +420,6 @@ kernel void f5_initialize_cardinal_samples(device const ushort *raw [[buffer(0)]
         if(observed.info.w<3&&observed.info.x==c){float v=observed.info.w==1?observed.interval.x:observed.info.w==2?0:(observed.interval.x+observed.interval.y)/2;sample=max(1e-6f,v/observed.at.z);}
         samples[c*pixels+i]=sample;
     }
-}
-kernel void f5_initializer_direction(device float *candidate [[buffer(0)]],device const float *coefficients [[buffer(1)]],constant uint &n [[buffer(2)]],uint i [[thread_position_in_grid]]) {if(i<n)candidate[i]-=coefficients[i];}
-// Optional 5x5 gradient-corrected linear initializer (Malvar, He, Cutler 2004).
-// This changes an initial RGB estimate only, never the retained RAW events.
-kernel void f5_initialize_detail_samples(device const ushort *raw [[buffer(0)]],device const float *table [[buffer(1)]],device float *samples [[buffer(2)]],constant F5Frame &frame [[buffer(3)]],uint i [[thread_position_in_grid]]) {
-    uint w=frame.active.z,h=frame.active.w,pixels=w*h;if(i>=pixels)return;int2 p=int2(i%w,i/w);float v[25];
-    for(int y=-2;y<=2;++y)for(int x=-2;x<=2;++x){
-        uint2 q=uint2(f5mirror(p.x+x,w),f5mirror(p.y+y,h));F5Event e=f5canonical(q,0,raw,frame,table);
-        if(e.info.w!=0)return;v[(y+2)*5+x+2]=(e.interval.x+e.interval.y)/(2*e.at.z);
-    }
-    float center=v[12],horizontal=v[11]+v[13],vertical=v[7]+v[17],horizontal2=v[10]+v[14],vertical2=v[2]+v[22],diagonal=v[6]+v[8]+v[16]+v[18];
-    uint phase=frame.cfa[(p.y&1)*2+(p.x&1)],observed=phase==0?0:phase==3?2:1;
-    float3 result=0;result[observed]=center;
-    if(observed!=1){
-        result[1]=(4*center+2*(horizontal+vertical)-horizontal2-vertical2)/8;
-        result[2-observed]=(6*center+2*diagonal-1.5f*(horizontal2+vertical2))/8;
-    }else{
-        uint horizontalPhase=frame.cfa[(p.y&1)*2+((p.x+1)&1)],horizontalColor=horizontalPhase==0?0:2;
-        result[horizontalColor]=(5*center+4*horizontal-horizontal2-diagonal+0.5f*vertical2)/8;
-        result[2-horizontalColor]=(5*center+4*vertical-vertical2-diagonal+0.5f*horizontal2)/8;
-    }
-    for(uint c=0;c<3;++c)samples[c*pixels+i]=max(1e-6f,result[c]);
 }
 kernel void f5_initialize_high(device const float *native [[buffer(0)]],device float *high [[buffer(1)]],device const float *dummy [[buffer(2)]],constant F5Grid &grid [[buffer(3)]],uint i [[thread_position_in_grid]]) {
     uint pixels=grid.shape.x*grid.shape.y*4;if(i>=pixels*3)return;uint c=i/pixels,w=grid.shape.x*2;float2 p=float2(i%w,(i%pixels)/w)*0.5f+0.25f;

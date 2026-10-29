@@ -10,15 +10,7 @@ struct GlassCamApp: App {
     private let resources = ColorResources(resourceDirectory: Bundle.main.resourceURL)
     var body: some Scene {
         WindowGroup {
-#if GLASSCAM_PERFORMANCE
-            if ProcessInfo.processInfo.environment["GLASSCAM_PERFORMANCE_RUN"] != nil {
-                DevicePerformanceView(resources: resources).preferredColorScheme(.dark)
-            } else {
-                ContentView(resources: resources, formats: formats).preferredColorScheme(.dark)
-            }
-#else
             ContentView(resources: resources, formats: formats).preferredColorScheme(.dark)
-#endif
         }
     }
 }

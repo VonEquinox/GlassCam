@@ -1,6 +1,6 @@
 # 外围玻璃
 
-外围玻璃在照片区外显示较广物理镜头的取景画面，并依据两路原始接缝的可见差异调整遮黑。实时显示采用固定视场缩放和居中采样；状态记录保存当时的相机输入、分析证据、纹理来源与提交状态。
+外围玻璃在照片区外显示较广物理镜头的取景画面，并依据两路原始接缝的可见差异调整遮黑。实时显示采用固定视场缩放和居中采样。
 
 ## 工作方式
 
@@ -12,7 +12,7 @@
 
 `PeripheralFrameSynchronizer` 先把有效中心帧交给中心取景，再把中心和外围样本送入配对器。配对器优先使用同一同步集合，每路最多暂存三个样本、保留 50 ms；分离回调留出 8 ms 的最近邻窗口，接受的双路 PTS 差最多为 1/60 秒。已消费的样本和旧 `epoch` 回调被丢弃。
 
-帧元数据保存原始 PTS、尺寸、格式、色彩标签、帧间隔与内参；有会话时钟时另存转换后的主机捕获时间。`observedAt` 在两路均有主机时间时取两者和接收时间的最早值，否则采用接收时间。像素年龄、分析截止和恢复历时使用此时间基准，原始 PTS 保留用于双路曝光时差及显示提交差的记录。
+帧元数据保存原始 PTS、尺寸、格式、色彩标签、帧间隔与内参；有会话时钟时另存转换后的主机捕获时间。`observedAt` 在两路均有主机时间时取两者和接收时间的最早值，否则采用接收时间。像素年龄、分析截止和恢复历时使用此时间基准，原始 PTS 用于判断双路曝光时差。
 
 ### 固定视场与可见接缝
 
@@ -22,7 +22,7 @@
 
 `PeripheralAlignmentWorker` 使用单工作队列，最多每 1/12 秒接纳一次分析；每次分析从观测时间起有 0.20 秒发布期限。分析图宽为 192 像素，按中心画面比例计算高度，以固定视场映射建立带搜索余量的外围图。两路归一化灰度匹配输出位移区间、对应状态、反向检查、覆盖率和搜索完整性。
 
-原生接缝检查另读取相机分辨率的窄条，保存未调整的 RGBA 输入，检查细线、平坦区域、周期结构、对应位置和缺失结构。`PeripheralPaneAssessment` 从每边的原生分块汇总可见距离、匹配支持、结构缺失、局部一致位移与相对形变；受支持的局部严重错位有独立分支，平坦多数区域不会稀释该分支。
+原生接缝检查另读取相机分辨率的窄条，读取未调整的 RGBA 输入，检查细线、平坦区域、周期结构、对应位置和缺失结构。`PeripheralPaneAssessment` 从每边的原生分块汇总可见距离、匹配支持、结构缺失、局部一致位移与相对形变；受支持的局部严重错位有独立分支，平坦多数区域不会稀释该分支。
 
 ### 遮黑与恢复
 
@@ -30,7 +30,7 @@
 
 | 参数 | 当前实时路径 |
 |---|---|
-| 容差 | 默认 1.00，范围 0.25–4.00，步长 0.05 |
+| 容差 | 固定为 0.10 |
 | 位移渐暗区间 | 画面短边的 0.025–0.065，乘以容差的四次方根 |
 | 结构缺失渐暗区间 | 受影响比例 0.08–0.22 |
 | 广泛失配渐暗区间 | 受影响比例 0.18–0.45 |
@@ -48,7 +48,7 @@
 
 [PeripheralGlassView](../App/GlassCam/UI/PeripheralGlassView.swift) 取得 drawable 后再读取当前帧对，将中心与外围的 Core Image 上传排在同一个 Metal command 的绘制之前，当前 command 直接使用正在上传的纹理束。`pairedPreviewFragment` 在照片区采样同一帧对的中心纹理，在外围使用各边遮黑；中心取景独立投递仍能处理缺少外围样本的情况。
 
-GPU 完成只有在待处理束、ticket、源 revision 和 `epoch` 一致时才更新完成资源。源停止、镜头代次变化、窗口覆盖不足或像素过期使资源失效。GPU 完成事件和 drawable 呈现事件分别记录，提交状态保存 `renderedCenterPTS`、`renderedOuterPTS`、`cameraExposureSkew` 与 `applicationAddedFrameSkew`。
+GPU 完成只有在待处理束、ticket、源 revision 和 `epoch` 一致时才更新完成资源。源停止、镜头代次变化、窗口覆盖不足或像素过期使资源失效。
 
 ## 不变量
 
@@ -68,36 +68,17 @@ GPU 完成只有在待处理束、ticket、源 revision 和 `epoch` 一致时才
 12. 分析暂缺时当前像素继续刷新，重置后的晚到 GPU 完成不能恢复旧资源。— `PeripheralTests/LiveGPUFrameTests.currentPixels_continueRefreshingWithoutAnalysis`、`PeripheralTests/LiveGPUFrameTests.lateGPUCompletion_cannotResurrectResetSource`
 13. 视场不足和窗口改变不能复用覆盖无效的纹理。— `PeripheralTests/LiveGPUFrameTests.insufficientFieldOfViewAndResize_cannotReuseTexture`
 14. 逐边线性与仿射光度接口按各自传递函数域作用于外围。— `PeripheralTests/GlassShaderTests.independentEdgeGains_applyVerifiedLinearPhotometry`、`PeripheralTests/GlassShaderTests.affinePhotometry_appliesTransferFunctionOnce`
-15. 录制保留各角色的真实来源、PTS、内参和每个像素平面的全部字节，包括行尾填充。— `PeripheralTests/RecordingTests.distinctSources_preserveTheirRolesAndTolerance`、`PeripheralTests/RecordingTests.originalMetadata_preservesCapturePTSAndIntrinsics`、`PeripheralTests/RecordingTests.originalPlanes_preserveEveryByteIncludingPadding`
-16. 停止相机和只有未配对帧时仍可记录；重启后可导出且保留原件，空间不足报告失败并清理未完成目录。— `PeripheralTests/RecordingTests.stoppedCameraRecord_preservesEmptyPairAndNonfiniteValue`、`PeripheralTests/RecordingTests.unmatchedOriginal_isVisibleAndCanBeRecorded`、`PeripheralTests/RecordingTests.restartedRecorder_exportsWithoutRemovingOriginals`、`PeripheralTests/RecordingTests.storageLimit_reportsFailureWithoutPartialDirectory`
 
-## 数据与版本
+## 运行参数
 
-容差沿用 UserDefaults 键 `peripheralMatchingTolerance`，输入被限制到有效范围并按步长取整，非有限值恢复默认值。实时改变容差会更新遮黑判断；相机、分析、提交状态和纹理各自保存实际使用值。
-
-“记录状态”在按钮触发时固定缓冲区所有权和状态快照，后台保存完整内容；保存与导出共用单事务准入。记录放在应用文稿目录的 `GlassCamStateRecords/record-<毫秒时间>-<标识>/`，清单名为 `manifest.json`，`schemaVersion` 为 1。当前实现标识为 `manual-native-recording-20261025`，直接接缝分析标识为 `fixed-field-of-view-direct-stitch-v5`。
-
-| 清单内容 | 含义 |
-|---|---|
-| `roles` / `pairs` | `tapPair`、`renderCandidatePair`、`texturePair`、`analysisPair`、`renderModelPair` 分别关联帧对，重复帧对共用文件 |
-| `unpairedInputs` | 尚未配成对的中心或外围原始输入 |
-| 像素平面文件 | 相机交付格式、平面尺寸、行跨度、完整字节、色彩附件及 SHA-256 |
-| `analysis` | 完成分析或拒绝原因、192 宽分析图、原生边界窄条及可用的修正字段 |
-| `renderModel` | 真实显示映射、光度、容差，以及模型来源和当前像素来源 |
-| `renderer` / `renderHistory` / `gpuEvents` | 当前提交、最多 180 条渲染状态和 90 条 GPU 事件 |
-
-JSON 将非有限数值保存为 `NaN`、`+Infinity`、`-Infinity` 字符串。分析和实际显示的稠密字段分别使用 `dense-refinement.rgba32f` 与 `render-refinement.rgba32f`；已有角色、文件名、拟合矩阵、逐边光度及稠密字段保持兼容；`PeripheralDenseRefinement` 只保存字段数据，实时显示继续使用单位增益与空修正。
-
-单次记录估算必须小于 256 MiB，总保存预算默认 512 MiB。所有文件先写入 `.pending-<记录标识>`，清单与容量检查完成后才重命名为正式记录；写入失败清理该临时目录，已有记录保留。重启通过正式目录中的清单发现记录，导出全部记录生成保留文件字节的 ZIP。
-
-可选诊断环由 `GLASSCAM_PERIPHERAL_FRAME_RING=1` 开启，保存分析输入与事件到缓存目录 `GlassCamPeripheralEvents`；`GLASSCAM_PERIPHERAL_TRACE=1` 开启运行日志。手动状态记录与该诊断环分别管理。
+实时匹配容差固定为 0.10。`GLASSCAM_PERIPHERAL_TRACE=1` 开启运行日志。
 
 ## 已知限制
 
 - 近景视差、遮挡、重复纹理和缺乏可见结构可能使外围持续遮黑。
 - 容差和经验位移区间表达显示接受范围，未经过设备留出集的概率覆盖率标定。
 - 同一帧对和同一 command 的呈现仍保留两路原始曝光时差与滚动快门差异。
-- 状态记录保存相机交付的视频像素，最终 Liquid Glass 合成效果、真机帧率、功耗和运动稳定性需要设备端验收。
+- 最终 Liquid Glass 合成效果、真机帧率、功耗和运动稳定性需要设备端验收。
 
 ## 代码入口
 
@@ -106,8 +87,6 @@ JSON 将非有限数值保存为 `NaN`、`+Infinity`、`-Infinity` 字符串。�
 - [PeripheralAlignmentWorker.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralAlignmentWorker.swift)、[PeripheralAlignmentWorker+Seams.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralAlignmentWorker+Seams.swift)：固定视场分析、可观测位移与发布期限。
 - [PeripheralVisibleSeam.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralVisibleSeam.swift)：原生接缝验证与逐边光度数据。
 - [PeripheralLiveDisplay.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralLiveDisplay.swift)：实时观测汇总、遮黑恢复、当前帧和纹理身份。
-- [PeripheralTolerance.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralTolerance.swift)、[PeripheralEvidence.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralEvidence.swift)：容差持久化与分析证据。
-- [PeripheralDenseRefinement.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralDenseRefinement.swift)：已保存记录使用的稠密字段数据。
+- [PeripheralEvidence.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralEvidence.swift)：分析证据。
 - [PeripheralGlassShader.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralGlassShader.swift)、[PeripheralGlassView.swift](../App/GlassCam/UI/PeripheralGlassView.swift)：中心与外围合成、GPU 提交及外围 Liquid Glass。
-- [PeripheralStateRecording.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralStateRecording.swift)、[PeripheralRecordingControls.swift](../App/GlassCam/UI/PeripheralRecordingControls.swift)：状态快照、持久化、列表与 ZIP 分享。
-- [PeripheralDiagnosticRecorder.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralDiagnosticRecorder.swift)：可选有界诊断环。
+- [PeripheralDiagnostics.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralDiagnostics.swift)：可选运行日志。

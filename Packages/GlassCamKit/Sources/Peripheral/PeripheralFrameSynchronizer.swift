@@ -20,7 +20,6 @@ public final class PeripheralFrameSynchronizer: NSObject, AVCaptureDataOutputSyn
     private var lastDiagnosticTime = -Double.infinity
     public init(source: PeripheralFrameSource, outputs: [AVCaptureVideoDataOutput], deliveries: [any PeripheralFrameInput], clock: @escaping () -> CMClock?) {
         self.source = source; self.outputs = outputs; self.deliveries = deliveries; self.clockProvider = clock
-        deliveries.first?.observeSubmissions { [weak source] pts in source?.recordSubmittedCenter(pts) }
     }
     public func dataOutputSynchronizer(_ synchronizer: AVCaptureDataOutputSynchronizer,
                                 didOutput collection: AVCaptureSynchronizedDataCollection) {

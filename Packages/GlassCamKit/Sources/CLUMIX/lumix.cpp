@@ -1,4 +1,5 @@
 #include "lumix_c.h"
+#include "lumix_color_data.h"
 #include <zlib.h>
 #include <algorithm>
 #include <array>
@@ -203,6 +204,14 @@ static std::vector<uint16_t> loadCube(const char *directory, const std::string &
 }
 
 extern "C" {
+int lumix_get_color_data(const LUMIXContext *c,lumix_color_data *out) {
+    if(!c||!out||!c->fullPipeline)return -1;
+    *out={};out->cube=c->cube.data();const auto tone=c->contrastCurve(1.);
+    out->tone_count=uint32_t(tone.count);for(size_t i=0;i<tone.count;++i){out->tone_x[i]=tone.points[i].x;out->tone_y[i]=tone.points[i].y;}
+    out->saturation=c->saturation;out->monochrome=c->monochrome[0];
+    out->blue_chroma=int(c->monochrome[2])-(c->monochrome[2]>=128?256:0);
+    out->red_chroma=int(c->monochrome[1])-(c->monochrome[1]>=128?256:0);return 0;
+}
 size_t lumix_look_count(void) { return sizeof(looks) / sizeof(looks[0]); }
 const char *lumix_look_key(size_t i) { return i < lumix_look_count() ? looks[i].key : nullptr; }
 const char *lumix_look_name(size_t i) { return i < lumix_look_count() ? looks[i].name : nullptr; }

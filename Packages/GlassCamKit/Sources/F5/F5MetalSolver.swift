@@ -482,45 +482,6 @@ final class F5MetalLevel {
             }
         }
     }
-    func freezeColorAxis(adaptive: Bool = false, flatPriorBoost: Float = 1, protectFineDetail: Bool = false, harmonicPrior: Bool = false) throws {
-        guard scale == 1 else { throw F5Failure(.profileMismatch,"Color guide must be frozen at native density.") }
-        guard flatPriorBoost.isFinite,flatPriorBoost>=1,flatPriorBoost<=256 else {throw F5Failure(.profileMismatch,"Invalid flat-region prior multiplier.")}
-        let columns=(width+7)/8+1,rows=(height+7)/8+1
-        colorAxisShape=SIMD4(UInt32(columns),UInt32(rows),8,adaptive ? (harmonicPrior ? 3:2):1)
-        let buffer=try device.allocate(columns*rows*32,label:"F5 frozen local RGB directions and noise confidence")
-        let frame=frames[reference]
-        try device.run {command in
-            try device.encode("f5_initialize_color_axis",count:columns*rows,buffers:[coefficients.metal,buffer.metal],command:command) { e in
-                value(grid,2,e);value(colorAxisShape,3,e);e.setBuffer(frame.raw.metal,offset:0,index:4)
-                e.setBuffer(frame.table.metal,offset:0,index:5);value(frame.uniforms,6,e);value(flatPriorBoost,7,e);value(UInt32(protectFineDetail ? 1:0),8,e)
-            }
-        }
-        colorAxis=buffer
-    }
-    func initializeCardinalReference(detailCorrection: Bool = false) throws -> Float {
-        guard scale==1,tiles.count==1 else {throw F5Failure(.profileMismatch,"Cardinal initializer experiment needs a single native tile.")}
-        try prepare(tiles[0],tau:0)
-        let frame=frames[reference],n=width*height*3
-        let temporary=try device.allocate(n*4,label:"F5 cardinal initializer temporary")
-        let recurrence=try device.allocate(n*4,label:"F5 cardinal initializer recurrence")
-        try device.run {command in
-            try device.encode("f5_initialize_cardinal_samples",count:width*height,buffers:[frame.raw.metal,frame.table.metal,scratch.fine.solution.metal],command:command) {value(frame.uniforms,3,$0)}
-            if detailCorrection {
-                try device.encode("f5_initialize_detail_samples",count:width*height,buffers:[frame.raw.metal,frame.table.metal,scratch.fine.solution.metal],command:command) {value(frame.uniforms,3,$0)}
-            }
-            try device.encode("f5_spline_inverse",count:height*3,buffers:[scratch.fine.solution.metal,temporary.metal,recurrence.metal],command:command) {e in
-                value(grid.core,3,e);value(grid.shape,4,e);value(UInt32(0),5,e)
-            }
-            try device.encode("f5_spline_inverse",count:width*3,buffers:[temporary.metal,scratch.fine.solution.metal,recurrence.metal],command:command) {e in
-                value(grid.core,3,e);value(grid.shape,4,e);value(UInt32(1),5,e)
-            }
-            try device.encode("f5_initializer_direction",count:n,buffers:[scratch.fine.solution.metal,coefficients.metal],command:command) {value(UInt32(n),2,$0)}
-        }
-        let alpha=try positiveStep(scratch.fine.solution,coarse:false)
-        try commit(scratch.fine.solution,alpha:alpha,coarse:false)
-        return alpha
-    }
-
     func encodeMotion(command: MTLCommandBuffer, direction: F5MetalBuffer, mode: Float, target: F5MetalBuffer) throws {
         guard let weights = motionEdgeWeights else { throw F5Failure(.profileMismatch,"Missing fixed guide edge weights.") }
         for f in frames.indices {

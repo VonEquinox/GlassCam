@@ -94,7 +94,7 @@ struct LivePolicyTests {
     @Test func ambiguousCorrespondence_doesNotInventZeroVisibleError() {
         var result = PeripheralAlignmentResult(epoch: 1, receipt: 0, photoAspectRatio: 0.75,
             photoToOuter: matrix_identity_float3x3, residual: .nan, gain: SIMD3(repeating: 1), seams: .horizontal, expiresAt: 1)
-        result.nativeSeam = PeripheralNativeSeam(strips: [], gains: .init(), evidence: .init(compatible: false, coverage: 0,
+        result.nativeSeam = PeripheralNativeSeam(gains: .init(), evidence: .init(compatible: false, coverage: 0,
             maximumObservableError: nil, reason: "ambiguous", nativeSupportChecked: true), diagnostics: [
                 ["edge": 0, "flatBothNative": false, "nativeEdgeSupport": [0, 0], "nativeWeakEdgeSupport": [0, 0],
                  "nativePeriodicProfile": true, "segmentSearchComplete": false]])

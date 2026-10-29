@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 import numpy as np
 
-from materialize_ffcs_reference import PREFIX, RESEARCH_FILES, verified_archive
+from materialize_ffcs_reference import PREFIX, retained_reference_file, verified_archive
 from native_build import build_product, build_command
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -34,8 +34,8 @@ def source_stamp(source):
     with verified_archive(source / 'source.zip') as archive:
         for entry in manifest['files']:
             path = entry['path']
-            actual = (hashlib.sha256(archive.read(PREFIX + path)).hexdigest()
-                if path in RESEARCH_FILES else sha(source / path))
+            actual = (sha(source / path) if retained_reference_file(path)
+                else hashlib.sha256(archive.read(PREFIX + path)).hexdigest())
             if actual != entry['sha256']:
                 raise ValueError(f'Reference asset hash mismatch: {path}')
     return {

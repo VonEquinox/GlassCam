@@ -33,6 +33,7 @@
 | C++ 内存安全 | 冒烟程序，在 AddressSanitizer / UBSan 下运行 | `Packages/GlassCamKit/NativeTests/` |
 | Swift 逻辑：配方编解码与迁移、拍摄流程状态机、记录恢复、外围策略 | Swift Testing 单元测试 | `Packages/GlassCamKit/Tests/` |
 | 图像管线端到端 | 少量集成测试；完整色彩链用本地 DNG 基线，显式开启 | `Packages/GlassCamKit/Tests/` |
+| Metal 成片内核 | 调用真实 GPU，与 CPU 参考比较；整数锐化逐位一致，颜色使用 HDR 预算 | `Packages/GlassCamKit/Tests/ImagingCoreTests/MetalColorTests.swift` |
 | 用户操作流程 | XCUITest，在模拟器上运行 | `App/GlassCamUITests/` |
 | 相机硬件、成片观感 | 手动验收清单 | 不写成自动测试 |
 
@@ -43,12 +44,12 @@
 | 命令 | 执行内容 |
 |---|---|
 | `make test` | 开发工具、原生内存安全、数值、package Swift Testing 与 App 模拟器单元测试 |
-| `make test-tools` | 模拟器选择策略：可用性、系统版本、显式 UUID 与稳定排序 |
+| `make test-tools` | 模拟器选择策略，以及 FFCS 参考资源的选择性展开与归档校验 |
 | `make test-native` | C++ 原生检查与 AddressSanitizer / UBSan |
 | `make test-numeric` | C++ 内核与固定 golden、边界输入及分条一致性 |
 | `make test-swift` | package Swift Testing；先准备 FFCS／LUMIX 资源并注入资源、夹具路径 |
 | `make test-app` | `GlassCamUnitTests` scheme 的 App 模拟器单元测试 |
-| `make test-ui` | `GlassCamCaptureTests` scheme 的模拟器用户流程：质量选择持久化、控件重开与手动状态记录 |
+| `make test-ui` | `GlassCamCaptureTests` scheme 的模拟器用户流程：质量选择持久化与控件重开 |
 | `make test-baseline` | 固定完整色彩链检查，以及显式开启的本地 ProRAW 基线 |
 
 模拟器命令默认读取已有设备和运行时清单，选择可用且运行 iOS 27 或更高版本的 iPhone 模拟器：优先已启动项，再按系统版本从新到旧、设备类型和 UUID 稳定排序。找不到合适目标时直接报错，不安装运行时或创建模拟器。可用 `SIMULATOR_ID` 指定已有模拟器的 UUID，例如 `make test-app SIMULATOR_ID=SIMULATOR_UUID`；显式目标也必须满足上述条件。`DIAGNOSTICS` 可指定 App 测试和基线产物目录；`DEVELOPER_DIR` 可选择其他 Xcode 安装。
@@ -70,6 +71,10 @@ GLASSCAM_DNG_DIR="$DNG_DIR" make test-baseline
 - 修改 golden 时，提交说明必须写明原因和受影响的版本号。
 
 数值测试将固定参考实现作为真实 C++ 输出的 oracle，逐组比较阶段数组、线性与预览输出、并行和分条结果。输入样本、随机种子、数据类型及容差由测试保留；`tests/numeric/support/` 负责加载参考数据、绑定 C ABI 和返回观察结果，行为断言写在参数化用例中。
+
+GPU 颜色遵守 [HDR 预算](gpu-color.md)，不放宽 CPU golden。`NativeTestSupport` 的 BT.2124 指标只负责比较真实输出，不实现颜色管线副本。完整分辨率 RAW、HEIF 编码后色差与手机性能的测量由研究仓库完成。
+
+FFCS 只展开参考代码、资源与来源清单；交付文档、上游测试和历史报告保存在固定 `source.zip` 中。来源校验同时检查保留文件与归档内的其余交付项，冻结 golden 的来源身份保持不变。性能和诊断命令在 `GlassCam-research` 的 `tools/studies/product-tooling/` 使用固定产品源码快照运行。
 
 拍摄记录候选由独立 [journal-fixtures 工具包](../tools/journal-fixtures/Package.swift)生成；命令见[样本说明](../tests/fixtures/journal/README.md)。它复用测试输入和真实产品序列化器，只接受仓库外不存在的目标目录。正常 `make test` 不执行生成器。
 

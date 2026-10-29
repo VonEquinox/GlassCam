@@ -1,5 +1,6 @@
 module CHNCS {
     header "hncs_c.h"
     header "hncs_spatial.h"
+    header "hncs_files.h"
     export *
 }

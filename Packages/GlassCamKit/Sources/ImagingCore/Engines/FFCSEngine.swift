@@ -1,4 +1,6 @@
 import CFFCS
+import CMetalImage
+import CoreImage
 import Foundation
 
 /// Ownership and layout bridge only. The portable C++ FFCS backend loads the
@@ -114,6 +116,16 @@ public enum FFCSEngine {
         }
     }
     private static let contextCache = ContextCache()
+
+    static func metalImage(resources: ColorResources, _ source: CIImage, recipe: ProcessingRecipe) throws -> CIImage {
+        let owner = try contextCache.context(directory: resourceDirectory(resources: resources),
+            simulationIndex: recipe.simulationIndex, effects: recipe.effects, settings: recipe.ffcs)
+        return try withExtendedLifetime(owner) {
+            try GCMetalColor.ffcs(source, context: owner.pointer,
+                sourceExposure: Float(exp2(recipe.appliesExposureBeforeHighlights ? recipe.exposureEV : 0)),
+                backendExposure: Float(exp2(recipe.backendExposureEV)), seed: recipe.seed, shaderPath: MetalColorEngine.shaderPath)
+        }
+    }
 
     // Keep the exact tiled low-scratch path, but use one worker until measured
     // on Apple hardware. The C ABI retains 1–4 worker support for device tuning.

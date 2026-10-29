@@ -17,7 +17,6 @@ __pycache__/
 /App/GlassCam/Resources/FFCS/.verified
 /vendor/ffcs/implementation/ffcs/data/**/*.lutz
 /vendor/ffcs/implementation/ffcs/data/**/*.icc
-/vendor/ffcs/examples/generated/
 
 # Materialized from the checked, self-contained LUMIX archive at build time
 /App/GlassCam/Resources/LUMIX/
@@ -36,12 +35,6 @@ __pycache__/
 
 # Small synthetic journal payloads required by persistence compatibility tests
 !/tests/fixtures/journal/**/*.dng
-
-# Diagnostic previews; application image assets remain trackable
-/validation/**/*.png
-/validation/**/*.jpg
-/validation/**/*.jpeg
-/validation/**/*.webp
 
 # Local distributions and signing material
 *.dmg

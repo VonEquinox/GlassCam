@@ -10,7 +10,7 @@
 
 `CameraChromeLayout` 使用外围与安全区的交集，并根据实际剩余空间选择上下布局、左右布局或紧凑布局。空间不足或使用辅助功能字号时，控制项进入独立操作面板；面板关闭后可点按取景画面重新打开。首次自动展示面板要等待相机几何可用，并避开设置、回看、拍摄和冻结状态。
 
-相机不可用时，照片区内的状态提示、恢复操作和手动记录控件按纵向顺序排列；大字号或横向窗口容纳不下时可滚动查看，记录控件不覆盖操作按钮。相机可用时，记录控件保留取景浮层位置。
+相机不可用时，照片区内的状态提示和恢复操作按纵向顺序排列；大字号或横向窗口容纳不下时可滚动查看。
 
 照片区有边界角标和可关闭的三分网格。网格、快门、风格、焦距、输出规格、缩略图及状态入口都属于界面层。设置与回看使用独立全屏页面；详细拍摄状态、风格和焦距操作使用面板。
 
@@ -86,7 +86,7 @@
 18. 浮点回看保留图像方向和超白值，显示配置不改变拥有的浮点像素。— `ImagingCoreTests/ImagePipelineTests.metalPreview_preservesQuadrantsAndHDRValues`；`ImagingCoreTests/PreviewDisplayTests.configuringDisplay_doesNotChangeOwnedFloatPixels`
 19. 显示 headroom 由当前可见输入决定，更换照片时同步更新显示层范围。— `ImagingCoreTests/PreviewDisplayTests.comparisonHeadroom_usesOnlyVisibleInputs`、`replacingHDRPhoto_updatesLayerRangeAndToneMapping`
 20. 对照比例合成既有浮点图像，尺寸不一致的结果不会扭曲源图。— `GlassCamTests/PrecisionPreviewTests.comparisonFraction_compositesExistingFloatRasters`、`mismatchedResult_keepsUndistortedSource`
-21. 相机不可用且使用辅助功能字号时，操作面板可打开、关闭后再打开；手动记录在重启后保留。— `GlassCamUITests/CaptureWorkflowUITests.testCompactControlsCanReopenAfterDismissalOnSimulator`、`testManualStateRecordsWithoutCameraOnSimulator`
+21. 相机不可用且使用辅助功能字号时，操作面板可打开、关闭后再打开。— `GlassCamUITests/CaptureWorkflowUITests.testCompactControlsCanReopenAfterDismissalOnSimulator`
 
 ## 数据与版本
 

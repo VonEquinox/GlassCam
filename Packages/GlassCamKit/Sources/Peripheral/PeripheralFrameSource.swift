@@ -75,29 +75,11 @@ public final class PeripheralFrameSource {
     private var previousRasterPTS: Double?
     private var motionDistance = 0.0
     private var motionGeneration: UInt64 = 0
-    private var submittedCenterPTS: Double?
     private var frameObserver:(()->Void)?
     public func observeFrames(_ observer:(()->Void)?) {lock.lock();frameObserver=observer;lock.unlock()}
     public func diagnosticState() -> String {
         lock.lock(); defer { lock.unlock() }
         return "epoch=\(configuration.epoch) serial=\(serial) offer=\(lastOffer) ptsDelta=\(pair?.ptsDelta ?? .nan) buffered=\(centers.count),\(outers.count)"
-    }
-    public func recordingSnapshot() -> PeripheralSourceSnapshot {
-        lock.lock(); defer { lock.unlock() }
-        var pending: [PeripheralUnpairedInput] = []
-        for (name, value) in [("center", centers.last), ("outer", outers.last)] {
-            if let value, let buffer = CMSampleBufferGetImageBuffer(value.sample) {
-                pending.append(.init(stream: name, buffer: buffer, metadata: value.metadata, receipt: value.receipt))
-            }
-        }
-        return .init(pair: pair, pending: pending, state: ["active": active,
-            "epoch": configuration.epoch, "serial": serial, "lastOffer": lastOffer,
-            "outputIndex": configuration.outputIndex ?? -1, "fieldOfViewRatio": configuration.fieldOfViewRatio,
-            "geometryIdentity": configuration.geometryIdentity,
-            "captureMode":configuration.captureMode,
-            "pendingCenterCount": centers.count, "pendingOuterCount": outers.count,
-            "lastCenterPTS": lastCenterPTS, "lastOuterPTS": lastOuterPTS,
-            "submittedCenterPTS": submittedCenterPTS ?? .nan])
     }
     public func configure(outputIndex: Int?, ratio: Float, calibration: PeripheralCalibration? = nil,
                    captureMode:String = "independent-physical-inputs") {
@@ -113,15 +95,10 @@ public final class PeripheralFrameSource {
     }
     private func clear() {
         flushScheduled = false; previousRaster = nil; previousRasterPTS = nil; motionDistance = 0; motionGeneration &+= 1
-        pair = nil; centers = []; outers = []; lastCenterPTS = -.infinity; lastOuterPTS = -.infinity; submittedCenterPTS = nil
+        pair = nil; centers = []; outers = []; lastCenterPTS = -.infinity; lastOuterPTS = -.infinity
     }
     public func selection() -> Configuration { lock.lock(); defer { lock.unlock() }; return configuration }
     public func latest() -> Pair? { lock.lock(); defer { lock.unlock() }; return active ? pair : nil }
-    func recordSubmittedCenter(_ pts: Double) { lock.lock(); defer { lock.unlock() }; submittedCenterPTS = pts }
-    public func displaySkew(outerPTS: Double?) -> Double? {
-        lock.lock(); defer { lock.unlock() }
-        guard let outerPTS, let submittedCenterPTS else { return nil }; return outerPTS-submittedCenterPTS
-    }
     public func invalidate() { lock.lock(); defer { lock.unlock() }; active = false; configuration.epoch &+= 1; clear() }
     public func reset() { lock.lock(); defer { lock.unlock() }; configuration.epoch &+= 1; clear() }
     public func offer(center: CMSampleBuffer?, outer: CMSampleBuffer?, selection: Configuration,

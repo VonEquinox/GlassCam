@@ -76,14 +76,4 @@ struct NativeSeamTests {
         #expect(!native.evidence.compatible)
         #expect(PeripheralPaneAssessment.measure(alignment, edge: 0).darkness(tolerance: 1) == 0)
     }
-    @Test func tolerance_persistsAtDisplayedPrecisionAndRejectsNaN() throws {
-        let suite = "GlassCamToleranceTests.\(UUID().uuidString)", defaults = try #require(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
-        let tolerance = PeripheralTolerance(defaults: defaults)
-        #expect(tolerance.value == 1)
-        tolerance.value = 2.13
-        #expect(abs(PeripheralTolerance(defaults: defaults).value - 2.15) < 0.00001)
-        tolerance.value = .nan
-        #expect(tolerance.value == 1)
-    }
 }

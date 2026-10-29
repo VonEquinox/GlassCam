@@ -50,7 +50,7 @@ public struct PeripheralAlignmentResult {
     package var nativeSeam: PeripheralNativeSeam?
     package var visiblePhotometryID: UInt64 = 0
     public var refinement: PeripheralDenseRefinement?
-    public var tolerance = PeripheralTolerance.defaultValue
+    public var tolerance = PeripheralAlignmentWorker.matchingTolerance
     public var directStitch = false
     public func isFresh(for epoch: UInt64, at time: Double) -> Bool {
         self.epoch == epoch && time.isFinite && time >= receipt && time <= expiresAt

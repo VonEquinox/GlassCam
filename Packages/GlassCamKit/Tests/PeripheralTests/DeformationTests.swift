@@ -22,7 +22,7 @@ struct DeformationTests {
             change?(&rows)
             var result=PeripheralAlignmentResult(epoch:1,receipt:0,photoAspectRatio:0.75,
                 photoToOuter:matrix_identity_float3x3,residual:.nan,gain:SIMD3(repeating:1),seams:.horizontal,expiresAt:0.2)
-            result.nativeSeam=PeripheralNativeSeam(strips:[],gains:.init(),evidence:.init(compatible:false,coverage:1,
+            result.nativeSeam=PeripheralNativeSeam(gains:.init(),evidence:.init(compatible:false,coverage:1,
                 maximumObservableError:nil,reason:"controlled-matches",nativeSupportChecked:true),diagnostics:rows)
             return PeripheralPaneAssessment.measure(result,edge:0)
         }

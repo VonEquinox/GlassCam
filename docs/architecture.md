@@ -10,7 +10,7 @@ GlassCam 以相机为首页，将取得源照片、生成成片和保存到系�
 
 ```mermaid
 flowchart TD
-    App[App：Camera / UI / Bench] --> Capture
+    App[App：Camera / UI] --> Capture
     App --> F5
     App --> Peripheral
     App --> ImagingCore
@@ -22,22 +22,30 @@ flowchart TD
     ImagingCore --> CHNCS
     ImagingCore --> CFFCS
     ImagingCore --> CLUMIX
+    ImagingCore --> CMetalImage
+    CMetalImage --> CHNCS
+    CMetalImage --> CFFCS
+    CMetalImage --> CLUMIX
 ```
 
 | 层或模块 | 职责 | 主要边界 |
 |---|---|---|
 | `App/GlassCam/UI` | SwiftUI 相机首页、设置、回看、系统相册和文件交付 | `ContentView` 持有设置与拍摄事务；`HEIFSaveDelivery` 连接 Photos |
 | `App/GlassCam/Camera` | AVFoundation 会话、三摄接力、取景帧、方向、ProRAW 与 F5 捕获 | `CameraController` 发布界面状态；`CameraBackend` 在专用队列操作设备 |
-| `App/GlassCam/Bench` | 通过生产导出和回看接口执行设备性能测量入口 | 由 `GLASSCAM_PERFORMANCE` 编译条件和 `GLASSCAM_PERFORMANCE_RUN` 启动环境共同启用 |
 | `ImagingCore` | 处理配方、源照片与工作文件、RAW 解码、色彩引擎、浮点图像、HEIF 和分享表示 | 为其他 Swift 模块提供共用图像模型，调用 `CHNCS`、`CFFCS`、`CLUMIX` |
 | `Capture` | 相机设置、输出选择、拍摄状态机、持久化记录与恢复 | 通过 `Services` 注入授权、处理和保存，通过 `CaptureFormat` 扩展源照片格式 |
 | `F5` | 五帧 Bayer RAW 的解码、重建、颜色桥、来源记录、暂存和归档 | 实现 `F5CaptureFormat`，使用 `CF5` 与 Metal，输出交给 `ImagingCore` 编码 |
-| `Peripheral` | 照片区几何、中心与外围帧配对、可见接缝测量、遮罩、Metal 呈现和记录 | 接收 App 提供的帧及元数据，输出取景显示状态 |
+| `Peripheral` | 照片区几何、中心与外围帧配对、可见接缝测量、遮罩和 Metal 呈现 | 接收 App 提供的帧及元数据，输出取景显示状态 |
 | `CHNCS`、`CFFCS`、`CLUMIX`、`CF5` | C++17 数值处理和 C ABI | 编译使用 `-fno-fast-math -ffp-contract=off` |
+| `CMetalImage` | 成片颜色、原生整数锐化、GPU 调度与分块落盘 | 复用 C++ 参考上下文的数据；颜色按 HDR 预算验收，整数锐化逐值一致 |
 
 `ImagingCore` 是 Swift 依赖图的底层；`Capture` 与 `Peripheral` 互不依赖。`F5` 依赖 `Capture` 定义的格式接口，`Capture` 通过注册表调用格式实现。App 的组合入口创建 `CaptureFormats([F5CaptureFormat()])`，并把同一注册表传给处理服务与拍摄记录。
 
 色彩资源通过 `ColorResources` 从 App 资源目录注入。资源位置属于运行依赖，处理配方保存色彩选择与版本；HNCS、FFCS、LUMIX 的细节分别见 [HNCS](color/hncs.md)、[FFCS](color/ffcs.md) 和 [LUMIX](color/lumix.md)。
+
+成片的 GPU 路径、缓冲上限和精度预算见 [GPU 色彩处理](gpu-color.md)。CPU 数值 API 与固定 golden 保留，Metal 颜色实现单独与它们比较。
+
+性能测量、设备诊断与实验入口由 `GlassCam-research` 的 `tools/studies/product-tooling/` 和 `tools/studies/product-experiments/` 使用固定源码快照构建。
 
 ## 从快门到保存
 
@@ -94,4 +102,3 @@ App 的相机后端向中心显示层和 `Peripheral` 投递视频帧。中心�
 - [ImagePipeline+Export.swift](../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline+Export.swift)、[F5ImagePipeline.swift](../Packages/GlassCamKit/Sources/F5/F5ImagePipeline.swift)：完整源处理、F5 重建与成片生成。
 - [HEIFSaveDelivery.swift](../App/GlassCam/UI/HEIFSaveDelivery.swift)、[ShareDelivery.swift](../Packages/GlassCamKit/Sources/ImagingCore/Processing/ShareDelivery.swift)：系统相册、文件导出与分享表示。
 - [PeripheralFrameSource.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralFrameSource.swift)、[PeripheralLiveDisplay.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralLiveDisplay.swift)：取景帧处理与同步呈现。
-- [DevicePerformance.swift](../App/GlassCam/Bench/DevicePerformance.swift)：条件编译的设备性能入口。

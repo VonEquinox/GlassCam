@@ -21,16 +21,6 @@
         }
       }
     },
-    "A recording is still being saved. Try again shortly.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "上一条记录还在保存，请稍后再按。"
-          }
-        }
-      }
-    },
     "Adjustments": {
       "localizations": {
         "zh-Hans": {
@@ -291,16 +281,6 @@
         }
       }
     },
-    "Choose Speed at 12 MP, Balanced, or Quality": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "选择 Speed 12MP、Balanced 或 Quality"
-          }
-        }
-      }
-    },
     "Choose photo style": {
       "localizations": {
         "zh-Hans": {
@@ -371,26 +351,6 @@
         }
       }
     },
-    "Composition grid off": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "构图网格已关闭"
-          }
-        }
-      }
-    },
-    "Composition grid on": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "构图网格已开启"
-          }
-        }
-      }
-    },
     "Continuous focal length": {
       "localizations": {
         "zh-Hans": {
@@ -407,26 +367,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "对比度：%.1f"
-          }
-        }
-      }
-    },
-    "Could not copy the original camera pixels. Please record again.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未能复制原始相机数据，请再记录一次。"
-          }
-        }
-      }
-    },
-    "Could not save records": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "记录未能保存"
           }
         }
       }
@@ -471,16 +411,6 @@
         }
       }
     },
-    "Each tap saves original camera frames and the glass decision. Records stay on this iPhone until you copy or export them.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "每按一次都会保存原始双摄画面和玻璃的判定数据。记录保存在本机，供之后复制或导出。"
-          }
-        }
-      }
-    },
     "Effect exposure": {
       "localizations": {
         "zh-Hans": {
@@ -497,26 +427,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "实验性实时色彩（近似）"
-          }
-        }
-      }
-    },
-    "Export all records": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "导出全部记录"
-          }
-        }
-      }
-    },
-    "Export state records": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "导出状态记录"
           }
         }
       }
@@ -711,16 +621,6 @@
         }
       }
     },
-    "Higher values accept larger differences.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "数值越大，允许的差异越大。"
-          }
-        }
-      }
-    },
     "Import accepted main-camera profile": {
       "localizations": {
         "zh-Hans": {
@@ -817,26 +717,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "已导入主摄配置。"
-          }
-        }
-      }
-    },
-    "No saved records to export.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "没有可以导出的记录。"
-          }
-        }
-      }
-    },
-    "No saved records yet.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "还没有记录。"
           }
         }
       }
@@ -971,16 +851,6 @@
         }
       }
     },
-    "Photo effects": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "照片效果"
-          }
-        }
-      }
-    },
     "Photo needs attention": {
       "localizations": {
         "zh-Hans": {
@@ -1091,16 +961,6 @@
         }
       }
     },
-    "Preparing records…": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在整理记录…"
-          }
-        }
-      }
-    },
     "Preset tone curve": {
       "localizations": {
         "zh-Hans": {
@@ -1147,26 +1007,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "记录五帧 RAW 样本"
-          }
-        }
-      }
-    },
-    "Record state": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "记录状态"
-          }
-        }
-      }
-    },
-    "Recording storage is full. Existing records are preserved.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "记录空间已满，已有原始数据全部保留。请先导出，再到“文件”中清理旧记录。"
           }
         }
       }
@@ -1391,16 +1231,6 @@
         }
       }
     },
-    "Saved records": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已保存的记录"
-          }
-        }
-      }
-    },
     "Saved to Photos": {
       "localizations": {
         "zh-Hans": {
@@ -1427,16 +1257,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在存入相册…"
-          }
-        }
-      }
-    },
-    "Send the ZIP to this Mac with AirDrop, or copy GlassCamStateRecords from GlassCam in Files or Finder.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "用隔空投送将压缩包发到这台 Mac，或在“文件”或 Mac 的访达中复制 GlassCam 下的 GlassCamStateRecords 文件夹。"
           }
         }
       }
@@ -1511,32 +1331,12 @@
         }
       }
     },
-    "Speed captures and saves at 12 MP. Balanced and Quality restore your 24/48 MP selection.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Speed 使用 12MP 拍摄和保存；切回 Balanced 或 Quality 后恢复原来的 24／48MP 选择。"
-          }
-        }
-      }
-    },
     "Speed requires a 12 MP ProRAW format on this camera.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "此摄像头需要支持 12MP ProRAW 才能使用 Speed。"
-          }
-        }
-      }
-    },
-    "State records": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "状态记录"
           }
         }
       }
@@ -1591,16 +1391,6 @@
         }
       }
     },
-    "The recording archive is too large.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "记录压缩包过大。"
-          }
-        }
-      }
-    },
     "This native LUT asset is unavailable. Choose another look or family.": {
       "localizations": {
         "zh-Hans": {
@@ -1617,16 +1407,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "要为 FFCS 风格添加锐化或颗粒，请在高级设置中开启参考解析调整。"
-          }
-        }
-      }
-    },
-    "Tolerance": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "容差"
           }
         }
       }
@@ -1677,16 +1457,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "查看最近保存的照片"
-          }
-        }
-      }
-    },
-    "View records": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "查看记录"
           }
         }
       }

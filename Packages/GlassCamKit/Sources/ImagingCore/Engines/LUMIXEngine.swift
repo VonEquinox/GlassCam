@@ -1,4 +1,6 @@
 import CLUMIX
+import CMetalImage
+import CoreImage
 import Foundation
 
 /// Portable original SDR VE execution; the ProRAW source adapter is documented
@@ -56,6 +58,15 @@ public enum LUMIXEngine {
         }
     }
     private static let cache = ContextCache()
+
+    static func metalImage(resources: ColorResources, _ source: CIImage, recipe: ProcessingRecipe) throws -> CIImage {
+        let owner = try cache.context(resources: resources, settings: recipe.lumix, kelvin: recipe.illuminantKelvin)
+        return try withExtendedLifetime(owner) {
+            try GCMetalColor.lumix(source, context: owner.pointer,
+                sourceExposure: Float(exp2(recipe.appliesExposureBeforeHighlights ? recipe.exposureEV : 0)),
+                backendExposure: Float(exp2(recipe.backendExposureEV)), shaderPath: MetalColorEngine.shaderPath)
+        }
+    }
 
     static func exportLinearRGBA(resources: ColorResources, linearSRGB: [Float], width: Int, height: Int,
                                  exposureEV: Double, settings: LUMIXSettings = .standard,

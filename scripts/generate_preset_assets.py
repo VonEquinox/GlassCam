@@ -95,5 +95,4 @@ for key,rel in s.FACTORY_SETTING_FILES.items(): out+=['{'+jstr(key)+','+str(cano
 for key,dest in s.FACTORY_SETTING_ALIASES.items(): out+=['{'+jstr(key)+','+str(canonical.index(unique[s.FACTORY_SETTING_FILES[dest]]))+'},']
 out += ['};','}']
 (ROOT/'Packages/GlassCamKit/Sources/CHNCS/generated/hncs_preset_assets.inc').write_text('\n'.join(out)+'\n')
-(ROOT/'scripts/hncs_preset_catalog.json').write_text(json.dumps(dict(render_path_revision=8,source_sha256=hashlib.sha256((a.source_root/'phocus_presets.py').read_bytes()).hexdigest(),post_curves_sha256=evidence['curves_sha256'],presets=records),ensure_ascii=False,indent=2)+'\n')
 print(f'Generated six exact 65536-entry UInt16 postcurves, original-gamma table, and {len(records)} canonical payload records.')

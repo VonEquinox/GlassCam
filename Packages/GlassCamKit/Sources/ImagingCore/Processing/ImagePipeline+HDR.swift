@@ -33,9 +33,8 @@ extension ImagePipeline {
                           output: (width: Int, height: Int), linear: CGColorSpace, pq: CGColorSpace,
                           outputHeadroom: Float, encodingContext: CIContext, metadata: PhotoMetadata,
                           recipe: ProcessingRecipe, to url: URL, isCancelled: @escaping @Sendable () -> Bool,
-                          progress: @escaping @Sendable (Double) -> Void, timing: PipelineTiming?) throws {
+                          progress: @escaping @Sendable (Double) -> Void) throws {
         try checkExportCancellation(isCancelled)
-        let outputGraphStarted = timing?.start()
         let data = try raster.mappedData(expectedBytes: rasterBytes)
         var image = CIImage(bitmapData: data, bytesPerRow: width * 16,
                             size: CGSize(width: CGFloat(width), height: CGFloat(height)), format: .RGBAf, colorSpace: linear)
@@ -57,23 +56,18 @@ extension ImagePipeline {
             "inputMaxComponents": CIVector(x: CGFloat(maximumHDRValue), y: CGFloat(maximumHDRValue), z: CGFloat(maximumHDRValue), w: 1)
         ]).cropped(to: CGRect(x: 0, y: 0, width: CGFloat(output.width), height: CGFloat(output.height)))
         if #available(iOS 26, macOS 26, *) { image = image.settingContentHeadroom(outputHeadroom) }
-        timing?.record("output_graph", since: outputGraphStarted)
         do {
             // Encode actual extended-linear pixels into BT.2020/PQ 10-bit HDR.
             // Keep mapped storage and file alive until synchronous encoding returns.
             progress(0.9)
             try checkExportCancellation(isCancelled)
-            let metadataStarted = timing?.start()
             image = image.settingProperties(metadata.encodingProperties(
                 width: output.width, height: output.height,
                 presetWhiteBalance: recipe.mode == .hncs && recipe.hncs.whiteBalancePolicy == .preset && recipe.hncs.presetWhiteBalanceKelvin != nil))
-            timing?.record("capture_metadata", since: metadataStarted)
-            let encodeStarted = timing?.start()
             try withExtendedLifetime((data, raster)) {
-                try encodingContext.writeHEIF10Representation(of: image, to: url, colorSpace: pq, options: [:])
+                try encodingContext.writeHEIF10Representation(of: image, to: url, colorSpace: pq,
+                    options: [CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): 1.0])
             }
-            timing?.record("heif_encode_ci", since: encodeStarted)
-            let validationStarted = timing?.start()
             try ImageFileProtection.apply(to: url)
             try checkExportCancellation(isCancelled)
             guard let result = CGImageSourceCreateWithURL(url as CFURL, nil),
@@ -85,7 +79,6 @@ extension ImagePipeline {
                 throw PipelineError.encoding
             }
             try metadata.validate(in: properties)
-            timing?.record("output_validate", since: validationStarted)
             progress(1)
         } catch {
             try? FileManager.default.removeItem(at: url)
