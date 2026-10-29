@@ -52,30 +52,6 @@ public struct PeripheralAlignmentResult {
     public var refinement: PeripheralDenseRefinement?
     public var tolerance = PeripheralTolerance.defaultValue
     public var directStitch = false
-    package func evidence(forEdge edge:Int) -> PeripheralEvidence {
-        guard let nativeSeam else { return evidence }
-        if evidence.reliable && (evidence.interval?.upperBound ?? 1) > PeripheralGlassPolicy.darkeningThreshold {
-            return .unknown("physical-candidate-set-crosses-darkening-threshold")
-        }
-        guard !gateReasons.contains("capture-skew-outside-pair-domain") else { return .unknown("capture-skew-outside-pair-domain") }
-        let rows = nativeSeam.diagnostics.filter { $0["edge"] as? Int == edge }
-        guard !rows.isEmpty else { return .unknown("no-peripheral-pane-on-this-edge") }
-        let passed = rows.filter { $0["passed"] as? Bool == true }.count
-        var result = PeripheralEvidence.unknown("current-native-grayscale-edge")
-        result.confirmedSevereLowerBound = evidence.confirmedSevereLowerBound
-        result.visibleSeam = .init(compatible:passed == rows.count,coverage:Double(passed)/Double(rows.count),
-            maximumObservableError:rows.compactMap { $0["visibleErrorUpper"] as? Double }.max(),
-            reason:"current-native-grayscale-edge",nativeSupportChecked:true)
-        return result
-    }
-    package var permitsAnyDisplay:Bool { evidence.permitsDisplay || (0..<4).contains { evidence(forEdge:$0).permitsDisplay } }
-    package func renderOuterImage() -> CIImage? {
-        guard let pair = inputPair else { return nil }
-        let raw = CIImage(cvPixelBuffer:pair.outer)
-        guard let refinement else { return raw }
-        return refinement.outerImage(raw,centerSize:CGSize(width:CVPixelBufferGetWidth(pair.center),
-            height:CVPixelBufferGetHeight(pair.center)),ratio:pair.ratio)
-    }
     public func isFresh(for epoch: UInt64, at time: Double) -> Bool {
         self.epoch == epoch && time.isFinite && time >= receipt && time <= expiresAt
     }

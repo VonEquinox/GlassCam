@@ -68,19 +68,6 @@ struct NativeSeamTests {
         }
         #expect(!Self.measure(pixels, pixels, geometry: false).evidence.compatible)
     }
-    @Test func robustPhotometry_recoversKnownSlopeAndBiasDespiteOutliers() {
-        var source = Self.flat, reference = Self.flat
-        for y in 0..<Self.height { for x in 0..<Self.width { for channel in 0..<3 {
-            let value = 0.1 + 0.8 * Float(x) / Float(Self.width - 1)
-            source[(y * Self.width + x) * 4 + channel] = UInt8((255 * value).rounded())
-            var target = value * 0.7 + 0.06
-            if x % 19 == 0 { target = min(0.9, target + 0.25) }
-            reference[(y * Self.width + x) * 4 + channel] = UInt8((255 * target).rounded())
-        } } }
-        let fitted = PeripheralNativeSeam.estimate([.init(edge: 0, width: Self.width, height: Self.height, reference: reference, outer: source, nativeScale: 1)])
-        #expect(abs(fitted.encodedSlope[0].x - 0.7) < 0.025)
-        #expect(abs(fitted.encodedBias[0].x - 0.06) < 0.015)
-    }
     @Test func isolatedMissingLine_doesNotBlackenWholePane() {
         let native = Self.measure(Self.line(x: 70), Self.flat, geometry: false)
         var alignment = PeripheralAlignmentResult(epoch: 1, receipt: 0, photoAspectRatio: 0.75,

@@ -12,15 +12,6 @@ enum PeripheralFixtures {
     static func good(_ error: Double = 0.01) -> PeripheralEvidence {
         .init(status: .measured,interval: error...error,appearance: .compatible,reason: "fixture",searchComplete: true,coverage: 1)
     }
-    static func feed(_ policy: inout PeripheralGlassPolicy,_ evidence: PeripheralEvidence?,_ time: Double,
-                     id: UInt64,epoch: UInt64 = 1,observed: Double? = nil,source: Bool = true,interval: Double = 1.0/12) {
-        let observed = observed ?? time
-        policy.update(evidence: evidence,sampleID: id,sampleEpoch: epoch,observedAt: observed,
-            expiresAt: observed+0.2,at: time,sourceAvailable: source,currentEpoch: epoch,expectedInterval:interval)
-    }
-    static func warm(_ policy: inout PeripheralGlassPolicy,from: Double = 0,id: UInt64 = 0) {
-        for i in 0...12 { feed(&policy,good(),from+Double(i)/12,id: id+UInt64(i)) }
-    }
     static func texture(width: Int, height: Int, seed: UInt64) -> [UInt8] {
         var state = seed
         var image = [UInt8](repeating: 255, count: width*height*4)

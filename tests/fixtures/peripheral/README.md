@@ -12,4 +12,4 @@ for name in phone-glass-timing-20261023 direct-stitch-distant-scene-20261025 dir
 done
 ```
 
-时序消费入口为 [PhoneTimingTests.swift](../../../Packages/GlassCamKit/Tests/PeripheralTests/PhoneTimingTests.swift)和[LiveGPUFrameTests.swift](../../../Packages/GlassCamKit/Tests/PeripheralTests/LiveGPUFrameTests.swift)。接缝夹具保留原始数据供后续行为测试使用。
+时序消费入口为 [LiveGPUFrameTests.swift](../../../Packages/GlassCamKit/Tests/PeripheralTests/LiveGPUFrameTests.swift)。接缝夹具保留原始数据供后续行为测试使用。

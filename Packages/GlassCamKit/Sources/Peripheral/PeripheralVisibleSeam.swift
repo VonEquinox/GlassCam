@@ -1,133 +1,7 @@
 import ImagingCore
 import Foundation
 import CoreImage
-import Metal
 import simd
-
-enum PeripheralTemporalAppearance {
-    /// Same-camera native boundary comparison for the otherwise unobservable
-    /// stationary/flat case. Includes chroma and every native pixel in the band.
-    /// It authorizes visible temporal consistency, never a zero motion estimate.
-    static func compatible(_ a:CVPixelBuffer,_ b:CVPixelBuffer,seams:PeripheralSeams) -> Bool {
-        let format = CVPixelBufferGetPixelFormatType(a)
-        guard format == CVPixelBufferGetPixelFormatType(b),CVPixelBufferGetWidth(a) == CVPixelBufferGetWidth(b),
-              CVPixelBufferGetHeight(a) == CVPixelBufferGetHeight(b),CVPixelBufferLockBaseAddress(a,.readOnly) == kCVReturnSuccess else { return false }
-        defer { CVPixelBufferUnlockBaseAddress(a,.readOnly) }
-        guard CVPixelBufferLockBaseAddress(b,.readOnly) == kCVReturnSuccess else { return false }
-        defer { CVPixelBufferUnlockBaseAddress(b,.readOnly) }
-        let planar = CVPixelBufferIsPlanar(a)
-        let ten = format == kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange || format == kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
-        guard planar || format == kCVPixelFormatType_32BGRA else { return false }
-        var sum = 0.0, count = 0
-        for p in 0..<(planar ? CVPixelBufferGetPlaneCount(a) : 1) {
-            let width = planar ? CVPixelBufferGetWidthOfPlane(a,p) : CVPixelBufferGetWidth(a)
-            let height = planar ? CVPixelBufferGetHeightOfPlane(a,p) : CVPixelBufferGetHeight(a)
-            let strideA = planar ? CVPixelBufferGetBytesPerRowOfPlane(a,p) : CVPixelBufferGetBytesPerRow(a)
-            let strideB = planar ? CVPixelBufferGetBytesPerRowOfPlane(b,p) : CVPixelBufferGetBytesPerRow(b)
-            guard let baseA = planar ? CVPixelBufferGetBaseAddressOfPlane(a,p) : CVPixelBufferGetBaseAddress(a),
-                  let baseB = planar ? CVPixelBufferGetBaseAddressOfPlane(b,p) : CVPixelBufferGetBaseAddress(b) else { return false }
-            let channels = planar ? (p == 0 ? 1 : 2) : 4
-            let bandX = max(1,Int(ceil(Double(width)*8/192))), bandY = min(height,bandX)
-            for y in 0..<height {
-                let horizontal = seams.contains(.horizontal) && (y < bandY || y >= height-bandY)
-                let rowA = baseA+y*strideA, rowB = baseB+y*strideB
-                for x in 0..<width where horizontal || (seams.contains(.vertical) && (x < bandX || x >= width-bandX)) {
-                    for c in 0..<(planar ? channels : 3) {
-                        let i = x*channels+c
-                        let difference:Double
-                        if ten {
-                            difference = Double(abs(Int(rowA.assumingMemoryBound(to:UInt16.self)[i] >> 6)-Int(rowB.assumingMemoryBound(to:UInt16.self)[i] >> 6)))/1023
-                        } else {
-                            difference = Double(abs(Int(rowA.assumingMemoryBound(to:UInt8.self)[i])-Int(rowB.assumingMemoryBound(to:UInt8.self)[i])))/255
-                        }
-                        if difference > 0.06 { return false }
-                        sum += difference; count += 1
-                    }
-                }
-            }
-        }
-        return count > 0 && sum/Double(count) <= 0.015
-    }
-}
-
-/// Legacy analyzed-frame transport retained for strict evidence regressions
-/// and comparisons. The live renderer uses PeripheralLiveTextureStore; these
-/// certificate gates no longer control whether fresh preview pixels upload.
-final class PeripheralTextureStore {
-    final class Bundle {
-        let texture: MTLTexture
-        let alignment: PeripheralAlignmentResult
-        let pair: PeripheralFrameSource.Pair
-        let revision: UInt64, command: UInt64, ticket: UInt64
-        let centerRaster: PeripheralMotion.Raster?
-        init(texture:MTLTexture,alignment:PeripheralAlignmentResult,pair:PeripheralFrameSource.Pair,
-             revision:UInt64,command:UInt64,ticket:UInt64) {
-            self.texture = texture; self.alignment = alignment; self.pair = pair
-            self.revision = revision; self.command = command; self.ticket = ticket
-            centerRaster = PeripheralMotion.raster(pair.center)
-        }
-    }
-    private(set) var completed: Bundle?
-    private(set) var displayable: Bundle?
-    private var spare: MTLTexture?
-    private var pending: Bundle?
-    private var ticket: UInt64 = 0
-    private var failures = 0
-    private(set) var nextAttempt = 0.0
-    private(set) var failureReason: String?
-    func reset() {
-        ticket &+= 1; completed = nil; displayable = nil; pending = nil; spare = nil; failures = 0; nextAttempt = 0; failureReason = nil
-    }
-    func prepare(alignment:PeripheralAlignmentResult,revision:UInt64,epoch:UInt64,commandID:UInt64,
-                 at time:Double,device:MTLDevice,context:CIContext,command:MTLCommandBuffer,
-                 colorSpace:CGColorSpace,samplingLegal:Bool) throws -> (Bundle,CIRenderTask)? {
-        guard pending == nil, time >= nextAttempt, samplingLegal,
-              let pair = alignment.inputPair, pair.epoch == epoch, alignment.epoch == epoch,
-              pair.serial == alignment.pairID, time >= pair.observedAt, time-pair.observedAt <= 0.20,
-              completed?.pair.serial != pair.serial || completed?.alignment.geometryID != alignment.geometryID ||
-              completed?.alignment.photometryID != alignment.photometryID ||
-              completed?.alignment.tolerance != alignment.tolerance ||
-              completed?.alignment.visiblePhotometryID != alignment.visiblePhotometryID else { return nil }
-        let width = CVPixelBufferGetWidth(pair.outer), height = CVPixelBufferGetHeight(pair.outer)
-        if spare?.width != width || spare?.height != height {
-            let d = MTLTextureDescriptor.texture2DDescriptor(pixelFormat:.rgba16Float,width:width,height:height,mipmapped:false)
-            d.usage = [.shaderRead,.shaderWrite,.renderTarget]; spare = device.makeTexture(descriptor:d)
-        }
-        guard let texture = spare else { failed(at:time,reason:"texture-allocation-failed"); return nil }
-        do {
-            // CI render task carries its command buffer and original pixels.
-            let destination = CIRenderDestination(mtlTexture:texture,commandBuffer:command)
-            destination.colorSpace = colorSpace; destination.isFlipped = true
-            guard let image = alignment.renderOuterImage() else { failed(at:time,reason:"refinement-kernel-unavailable"); return nil }
-            let task = try context.startTask(toRender:image,to:destination)
-            ticket &+= 1
-            let value = Bundle(texture:texture,alignment:alignment,pair:pair,revision:revision,command:commandID,ticket:ticket)
-            pending = value; spare = nil
-            return (value,task)
-        } catch { failed(at:time,reason:"ci-encode-failed"); throw error }
-    }
-    @discardableResult
-    func complete(_ bundle:Bundle,success:Bool,revision:UInt64,epoch:UInt64,at time:Double) -> Bool {
-        guard pending === bundle, bundle.ticket == ticket, bundle.revision == revision, bundle.pair.epoch == epoch else { return false }
-        pending = nil
-        if success {
-            let previous = completed
-            completed = bundle
-            if bundle.alignment.permitsAnyDisplay { displayable = bundle }
-            // Keep a still-valid good resource when a new UNKNOWN is prepared.
-            // Its own absolute deadline is enforced by the draw caller.
-            spare = previous !== displayable ? previous?.texture : nil
-            failures = 0; failureReason = nil
-        }
-        else { spare = bundle.texture; failed(at:time,reason:"gpu-upload-failed") }
-        return true
-    }
-    private func failed(at time:Double,reason:String) {
-        failureReason = reason
-        failures += 1; nextAttempt = time+(failures >= 3 ? 1.0 : 0.05)
-        if failures >= 3 { failures = 0 }
-    }
-}
 
 /// Bounded per-edge linear gains and sRGB affine models. Metal and the native
 /// verifier apply the selected model in the same transfer-function domain;
@@ -213,59 +87,6 @@ package struct PeripheralNativeSeam {
                 reference:bytes(center,bounds),outer:bytes(outer,bounds),nativeScale:scale))
         }
         return result
-    }
-
-    /// Robust independent per-edge photometry, using many paired native tiles.
-    /// Reject clipped/dark samples and strong local structural disagreement.
-    /// No global tone offset is subtracted from the subsequent display check.
-    static func estimate(_ strips: [Strip]) -> PeripheralEdgeGains {
-        var gains = PeripheralEdgeGains()
-        gains.usesEncodedAffine = true
-        for strip in strips {
-            var logs: [[Float]] = [[],[],[]]
-            var pairs: [[SIMD2<Float>]] = [[],[],[]]
-            for y in stride(from:1,to:strip.height-1,by:4) {
-                for x in stride(from:1,to:strip.width-1,by:4) {
-                    let i = (y*strip.width+x)*4
-                    guard strip.reference[i+3] == 255, strip.outer[i+3] == 255 else { continue }
-                    for c in 0..<3 {
-                        let a = Float(strip.reference[i+c])/255, b = Float(strip.outer[i+c])/255
-                        if a > 0.06 && b > 0.06 && a < 0.94 && b < 0.94 {
-                            logs[c].append(log(linear(a)/linear(b)))
-                            pairs[c].append(SIMD2(b,a))
-                        }
-                    }
-                }
-            }
-            if logs.allSatisfy({ $0.count >= 32 }) {
-                let gain = SIMD3(exp(median(logs[0])),exp(median(logs[1])),exp(median(logs[2])))
-                if (0..<3).allSatisfy({ gain[$0].isFinite }) {
-                    // Saturation of one channel must not discard the other two
-                    // estimates and silently revert an entire edge to unity.
-                    // The actually clamped result is verified below.
-                    gains[strip.edge] = simd_clamp(gain,SIMD3(repeating:0.5),SIMD3(repeating:2))
-                }
-            }
-            for c in 0..<3 where pairs[c].count >= 32 {
-                let samples = pairs[c]
-                var slope:Float = 1, bias:Float = median(samples.map { $0.y-$0.x })
-                for _ in 0..<4 {
-                    var weight:Double = 0, sx:Double = 0, sy:Double = 0, sxx:Double = 0, sxy:Double = 0
-                    for sample in samples {
-                        let residual = abs(sample.y-slope*sample.x-bias)
-                        let w = Double(min(1,0.03/max(0.0001,residual)))
-                        weight += w; sx += w*Double(sample.x); sy += w*Double(sample.y)
-                        sxx += w*Double(sample.x*sample.x); sxy += w*Double(sample.x*sample.y)
-                    }
-                    let variance = sxx-sx*sx/max(1,weight)
-                    if variance/weight > 0.0001 { slope = max(0.5,min(2,Float((sxy-sx*sy/weight)/variance))) }
-                    bias = max(-0.12,min(0.12,Float((sy-Double(slope)*sx)/max(1,weight))))
-                }
-                gains.encodedSlope[strip.edge][c] = slope
-                gains.encodedBias[strip.edge][c] = bias
-            }
-        }
-        return gains
     }
 
     /// Complete native support is divided into fixed tiles. Bounded ambiguous
@@ -599,48 +420,11 @@ package struct PeripheralNativeSeam {
             }
         }
         let coverage = Double(passed)/Double(max(1,total))
-        let good = total > 0 && passed == total && (severe ?? 0) <= PeripheralGlassPolicy.darkeningThreshold
+        let good = total > 0 && passed == total && (severe ?? 0) <= PeripheralEvidence.displayErrorThreshold
         return .init(strips:strips,gains:gains,evidence:.init(compatible:good,coverage:coverage,
             maximumObservableError:observableUpper > 0 ? observableUpper : nil,
             reason:good ? "native-visible-seam" : "native-seam-unresolved-or-mismatch",
             nativeSupportChecked:total > 0),diagnostics:diagnostics)
     }
 
-    /// Both candidates are bounded radiometric models, fitted on a fixed 1/16
-    /// pixel grid. A separate holdout selects one; full native support then
-    /// validates that model and the independent grayscale geometry. Select one model
-    /// per WHOLE edge, never a convenient residual per pixel. Equal results keep
-    /// the previous model; actual gains/bias travel with the immutable texture.
-    static func selectPhotometry(_ strips:[Strip],candidate:PeripheralEdgeGains,preferred:PeripheralEdgeGains?,
-        segments:[PeripheralAlignmentWorker.SegmentEvidence],analysisWidth:Int,analysisHeight:Int,
-        geometryVerified:Bool,severe:Double?,tolerance:Double = PeripheralTolerance.defaultValue) -> Self {
-        var linear = candidate; linear.usesEncodedAffine = false
-        linear.encodedAffineEdges = [Bool](repeating:false,count:4)
-        var selected=linear
-        for strip in strips {
-            let side=strip.edge
-            let tables=(0..<2).map { model in (0..<3).map { c in (0..<256).map { code -> Float in
-                let value=Float(code)/255
-                return model == 0 ? encode(self.linear(value)*candidate[side][c]) :
-                    max(0,value*candidate.encodedSlope[side][c]+candidate.encodedBias[side][c])
-            } } }
-            var scores=[Float](repeating:0,count:2),count:Float=0
-            // Independent from the fit grid (offset 1, step 4): choose ONE
-            // whole-edge model using offset 2, then validate ALL native pixels.
-            for y in stride(from:2,to:strip.height,by:4) {for x in stride(from:2,to:strip.width,by:4) {
-                let i=(y*strip.width+x)*4
-                guard strip.reference[i+3] == 255,strip.outer[i+3] == 255 else {continue}
-                for c in 0..<3 {for model in 0..<2 {
-                    let error=abs(Float(strip.reference[i+c])/255-tables[model][c][Int(strip.outer[i+c])])
-                    scores[model] += error<=0.05 ? error*error:0.1*error-0.0025
-                }}
-                count += 3
-            }}
-            let a=scores[0]/max(1,count),b=scores[1]/max(1,count)
-            selected.encodedAffineEdges[side] = b<a*0.95-0.00001 ||
-                (!(a<b*0.95-0.00001) && preferred?.affine(side) == true)
-        }
-        return evaluate(strips,gains:selected,segments:segments,analysisWidth:analysisWidth,analysisHeight:analysisHeight,
-            geometryVerified:geometryVerified,severe:severe,tolerance:tolerance)
-    }
 }

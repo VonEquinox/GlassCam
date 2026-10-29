@@ -159,11 +159,6 @@ public struct PhotoMetadata: @unchecked Sendable {
     }
 }
 
-struct ExportFile: Identifiable {
-    let id = UUID()
-    let file: TemporaryHEIFFile
-}
-
 /// Owns an immutable copy of the genuine capture/import bytes. Previews never
 /// replace this file. Shared recipes retain this owner until exports finish.
 public final class SourceImageFile: @unchecked Sendable {

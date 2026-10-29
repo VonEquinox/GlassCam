@@ -61,7 +61,7 @@ UI target 只包含模拟器用户流程。真机取证脚本和来源提交位�
 GLASSCAM_DNG_DIR="$DNG_DIR" make test-baseline
 ```
 
-未设置 `GLASSCAM_DNG_DIR` 时跳过 `BaselineTests`，固定 `ColorChainTests` 仍运行。其他可选检查通过 `GLASSCAM_LARGE_NUMERICS=1` 开启大尺寸数值样本、`GLASSCAM_DENSE_FLOW=1` 开启 Vision 光流，或以 `F5_TEST_LUT_PACKAGE` 指定已准备的 F5 似然表目录。
+未设置 `GLASSCAM_DNG_DIR` 时跳过 `BaselineTests`，固定 `ColorChainTests` 仍运行。其他可选检查通过 `GLASSCAM_LARGE_NUMERICS=1` 开启大尺寸数值样本，或以 `F5_TEST_LUT_PACKAGE` 指定已准备的 F5 似然表目录。
 
 ## Golden 数据
 

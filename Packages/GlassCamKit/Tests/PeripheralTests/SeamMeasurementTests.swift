@@ -45,7 +45,7 @@ struct SeamMeasurementTests {
         let incorrectlyCertified = [blind.evidence].filter(\.reliable).filter { $0.appearance != .mismatch }
         #expect(incorrectlyCertified.isEmpty)
     }
-    @Test func thinLineSevereShift_latchesWithoutWaitingForUnknownExpiry() throws {
+    @Test func thinLineSevereShift_keepsConfirmedDisplacement() throws {
         var lineA = [UInt8](repeating:255,count:192*256*4), lineB = [UInt8](repeating:255,count:256*320*4)
         for i in stride(from:0,to:lineA.count,by:4) { for c in 0..<3 { lineA[i+c] = 128 } }
         for i in stride(from:0,to:lineB.count,by:4) { for c in 0..<3 { lineB[i+c] = 128 } }
@@ -53,10 +53,6 @@ struct SeamMeasurementTests {
         for y in 0..<320 { for c in 0..<3 { lineB[(y*256+152)*4+c] = 0 } }
         let line = try F.measure(lineA,lineB)
         #expect((line.evidence.confirmedSevereLowerBound ?? 0) > 0.10)
-        var linePolicy = PeripheralGlassPolicy(); F.warm(&linePolicy)
-        F.feed(&linePolicy,line.evidence,1.08,id:13)
-        #expect(linePolicy.latched)
-        #expect(linePolicy.reason == "confirmed-local-displacement")
         let understatedResiduals = [line].filter { $0.evidence.reliable }.map(\.residual).filter { !($0 > 0.1) }
         #expect(understatedResiduals.isEmpty)
     }

@@ -22,11 +22,6 @@ let package = Package(
         .library(name: "GlassCamNativeTestSupport", type: .dynamic, targets: ["NativeTestSupport"]),
     ],
     targets: [
-        .target(name: "PeripheralReplaySupport", dependencies: ["Peripheral"], path: "SwiftTools/PeripheralReplaySupport"),
-        .executableTarget(name: "replay_peripheral_native", dependencies: ["Peripheral", "PeripheralReplaySupport"], path: "SwiftTools/replay_peripheral_native"),
-        .executableTarget(name: "replay_peripheral_records", dependencies: ["Peripheral", "PeripheralReplaySupport"], path: "SwiftTools/replay_peripheral_records"),
-        .executableTarget(name: "replay_peripheral_stability", dependencies: ["Peripheral", "PeripheralReplaySupport"], path: "SwiftTools/replay_peripheral_stability"),
-        .executableTarget(name: "replay_peripheral_transitions", dependencies: ["Peripheral", "PeripheralReplaySupport"], path: "SwiftTools/replay_peripheral_transitions"),
         .target(name: "GlassCamTestSupport", dependencies: ["ImagingCore"], path: "Tests/TestSupport"),
         .testTarget(name: "ImagingCoreTests", dependencies: ["ImagingCore", "Capture", "GlassCamTestSupport"]),
         .testTarget(name: "CaptureTests", dependencies: ["Capture", "ImagingCore", "GlassCamTestSupport"]),
