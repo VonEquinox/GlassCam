@@ -69,6 +69,8 @@ GLASSCAM_DNG_DIR="$DNG_DIR" make test-baseline
 - 测试不能现场生成 golden 再和自己比较。
 - 修改 golden 时，提交说明必须写明原因和受影响的版本号。
 
+数值测试将固定参考实现作为真实 C++ 输出的 oracle，逐组比较阶段数组、线性与预览输出、并行和分条结果。输入样本、随机种子、数据类型及容差由测试保留；`tests/numeric/support/` 负责加载参考数据、绑定 C ABI 和返回观察结果，行为断言写在参数化用例中。
+
 拍摄记录候选由独立 [journal-fixtures 工具包](../tools/journal-fixtures/Package.swift)生成；命令见[样本说明](../tests/fixtures/journal/README.md)。它复用测试输入和真实产品序列化器，只接受仓库外不存在的目标目录。正常 `make test` 不执行生成器。
 
 ## 产品代码里的断言

@@ -30,11 +30,13 @@ def test_parallel_boundaries_match_serial_bits(native, parallel_samples, lstar, 
     exposure, kelvin = exposure_kelvin
     source = parallel_samples[0][lstar, repro, exposure_kelvin, count]
     with context(native, kelvin=kelvin, ev=exposure, lstar=lstar, repro=repro) as ctx:
-        expected = render(native, 'hncs_process_linear_rgba', ctx, source)
+        expected_status, expected = render(native, 'hncs_process_linear_rgba', ctx, source)
+        assert expected_status == 0
 
-        output = render(native, 'hncs_process_linear_rgba_parallel', ctx, source, np.float32, 4, workers)
+        output_status, output = render(native, 'hncs_process_linear_rgba_parallel', ctx, source, np.float32, 4, workers)
+        assert output_status == 0
 
-    assert output.tobytes() == expected.tobytes()
+    np.testing.assert_array_equal(output.view(np.uint32), expected.view(np.uint32))
 
 
 @pytest.mark.parametrize('width,height', [(8064, 64), (4000, 3000)])
@@ -42,11 +44,13 @@ def test_parallel_boundaries_match_serial_bits(native, parallel_samples, lstar, 
 def test_large_parallel_raster_matches_serial_bits(native, parallel_samples, width, height, workers):
     source = parallel_samples[1][width, height]
     with context(native, kelvin=5500) as ctx:
-        expected = render(native, 'hncs_process_linear_rgba', ctx, source)
+        expected_status, expected = render(native, 'hncs_process_linear_rgba', ctx, source)
+        assert expected_status == 0
 
-        output = render(native, 'hncs_process_linear_rgba_parallel', ctx, source, np.float32, 4, workers)
+        output_status, output = render(native, 'hncs_process_linear_rgba_parallel', ctx, source, np.float32, 4, workers)
+        assert output_status == 0
 
-    assert output.tobytes() == expected.tobytes()
+    np.testing.assert_array_equal(output.view(np.uint32), expected.view(np.uint32))
 
 
 @pytest.mark.parametrize('lstar,repro,exposure_kelvin', MODES)

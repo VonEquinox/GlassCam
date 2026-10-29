@@ -16,4 +16,4 @@ git show eb4e551:GlassCamPrototype/validation/ffcs-v020-stage-goldens.json > tes
 git show eb4e551:GlassCamPrototype/validation/ffcs_mobile_stage_goldens.json > tests/fixtures/ffcs/ffcs_mobile_stage_goldens.json
 ```
 
-消费入口为 [FFCS 参考测试](../../numeric/test_ffcs_source.py)及其[参考支持模块](../../numeric/support/verify_ffcs.py)。
+消费入口为 [FFCS 参考测试](../../numeric/test_ffcs_source.py)及其[参考支持模块](../../numeric/support/verify_ffcs_v020.py)。

@@ -45,8 +45,7 @@ def apply(spatial, tmp_path, source, key, grain, sharp, filemode):
         output = np.fromfile(path, np.float32).reshape(source.shape)
     else:
         status = spatial.hncs_apply_spatial_preset(output.ctypes.data, width, height, key.encode(), grain, sharp)
-    assert status == 0
-    return output
+    return status, output
 
 
 @pytest.mark.parametrize('key', PRESETS)
@@ -55,8 +54,9 @@ def test_file_spatial_flags_match_reference_bits(spatial, spatial_inputs, tmp_pa
     source = spatial_inputs[0]
     expected = reference_apply(r.presets, source.copy(), key, grain, sharp)
 
-    output = apply(spatial, tmp_path, source, key, grain, sharp, True)
+    status, output = apply(spatial, tmp_path, source, key, grain, sharp, True)
 
+    assert status == 0
     np.testing.assert_array_equal(output.view(np.uint32), expected.view(np.uint32))
 
 
@@ -67,8 +67,9 @@ def test_spatial_edge_shapes_match_reference_bits(spatial, spatial_inputs, tmp_p
     source = spatial_inputs[1][shape]
     expected = reference_apply(r.presets, source.copy(), key, grain, sharp)
 
-    output = apply(spatial, tmp_path, source, key, grain, sharp, bool(grain and shape[1] > 4096))
+    status, output = apply(spatial, tmp_path, source, key, grain, sharp, bool(grain and shape[1] > 4096))
 
+    assert status == 0
     np.testing.assert_array_equal(output.view(np.uint32), expected.view(np.uint32))
 
 
@@ -78,8 +79,9 @@ def test_megapixel_spatial_matches_reference_bits(spatial, spatial_inputs, tmp_p
     source = spatial_inputs[2]
     expected = reference_apply(r.presets, source.copy(), key, 1, 1)
 
-    output = apply(spatial, tmp_path, source, key, 1, 1, filemode)
+    status, output = apply(spatial, tmp_path, source, key, 1, 1, filemode)
 
+    assert status == 0
     np.testing.assert_array_equal(output.view(np.uint32), expected.view(np.uint32))
 
 
@@ -157,6 +159,7 @@ def test_large_file_spatial_matches_reference_bits(spatial, spatial_inputs, tmp_
         source = rng.random(shape, dtype=np.float32)
     expected = reference_apply(r.presets, source.copy(), key, 1, 1)
 
-    output = apply(spatial, tmp_path, source, key, 1, 1, True)
+    status, output = apply(spatial, tmp_path, source, key, 1, 1, True)
 
+    assert status == 0
     np.testing.assert_array_equal(output.view(np.uint32), expected.view(np.uint32))

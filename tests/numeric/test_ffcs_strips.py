@@ -84,10 +84,10 @@ def test_invalid_strip_preserves_output_and_returns_diagnostic(native, ffcs_cont
     elif case == 'missing-lower-halo': args[6] = 5
     elif case == 'alias': args[11] = source.ctypes.data
     elif case == 'nonfinite': source.fill(np.inf)
-    before = output.tobytes()
+    before = output.copy()
 
     status = native.ffcs_process_linear_rgb_strip(*args)
 
     assert status == 0
-    assert output.tobytes() == before
+    np.testing.assert_array_equal(output.view(np.uint32), before.view(np.uint32))
     assert error.value

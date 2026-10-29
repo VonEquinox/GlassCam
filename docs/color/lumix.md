@@ -59,15 +59,15 @@ LUMIX 上下文保存不可变 LUT 与风格参数；缓存身份包含资源目
 2. Standard 与 Vivid 对同一输入产生不同像素。— `ImagingCoreTests/LUMIXPipelineTests.standardAndVivid_produceDistinctPixels`
 3. 色温、ISO、对比度与饱和度随配方编解码保持一致，已经绑定的 ISO 不被后续元数据替换。— `ImagingCoreTests/LUMIXPipelineTests.adjustedRecipe_roundtripKeepsCCTISOAndLookControls`
 4. 当前 LUMIX 配方绑定 ISO 后使用 cameraNeutral 输入，并清除继承的 HNCS 解码器锐化覆盖。— `ImagingCoreTests/LUMIXPipelineTests.captureISO_bindsWithoutInheritingHNCSDecoderOverride`
-5. revision 4 的 iPhone 输出不随 ISO 50、64、80、100、400 切换松下低 ISO 补偿。— `LUMIXIPhone.test_iphone_iso_does_not_select_panasonic_sensor_compensation`
-6. revision 4 的饱和色渐变不发生整数回绕造成的黑色突变，灰阶保持端点且无大幅反转。— `LUMIXIPhone.test_saturated_ramps_cannot_wrap_to_black`、`LUMIXIPhone.test_gray_ramps_have_no_large_reversals_and_preserve_endpoints`
-7. 相同上下文的有符号输入并发分条与整段输出逐值一致。— `LUMIXIPhone.test_signed_gamut_inputs_strips_and_exposure`
+5. revision 4 的 iPhone 输出不随 ISO 50、64、80、100、400 切换松下低 ISO 补偿。— `test_lumix_iphone.test_iphone_iso_does_not_select_panasonic_sensor_compensation`
+6. revision 4 的饱和色渐变不发生整数回绕造成的黑色突变，灰阶保持端点且无大幅反转。— `test_lumix_iphone.test_saturated_ramp_has_no_wraparound_discontinuity`、`test_lumix_iphone.test_gray_ramp_preserves_local_steps_and_endpoints`
+7. 相同上下文的有符号输入并发分条与整段输出逐值一致。— `test_lumix_iphone.test_signed_gamut_concurrent_strips_preserve_full_output`
 8. 当前曝光作用于 HDR 分离之前，增加曝光也增加超白高光幅度。— `ImagingCoreTests/LUMIXPipelineTests.exposure_scalesSceneLinearHighlightsBeforeStripExport`、`ImagingCoreTests/LUMIXPipelineTests.currentExposure_increasesSuperwhiteMagnitude`
 9. Standard 与 L.Monochrome 的分条导出和整图参考在编码容差内一致，直接导出与先生成成片回看图再导出的解码像素相同，并保留尺寸、HDR 与 10-bit 编码。— `ImagingCoreTests/LUMIXPipelineTests.stripHEIF_matchesFullFrameAndDirectExport`
 10. revision 1 照片不绑定 ISO 修正，缺少 RAW 输入策略的旧配方在绑定元数据后仍保持 legacy 语义。— `ImagingCoreTests/LUMIXPipelineTests.savedV1Photo_doesNotAdoptISOCorrection`、`ImagingCoreTests/LUMIXPipelineTests.absentInputPolicy_keepsLegacyPhotoSemanticsDuringMetadataBinding`
 11. 保存的 revision 2、共享管线 revision 1 配方重放原有超白曝光行为。— `ImagingCoreTests/LUMIXPipelineTests.savedV2Exposure_replaysOriginalSuperwhiteMagnitude`
-12. 原始 RGB12 插值和 RGB48 整数路径分别与固定原程序样本逐值一致。— `test_lumix_reference.test_rgb12_interpolation_matches_native_vectors`、`LUMIXIPhone.test_original_rgb48_fixtures_remain_bit_exact`
-13. 非有限 iPhone 输入在写入输出之前失败，缺失、截断、损坏或网格错误的 LUT 被拒绝。— `LUMIXIPhone.test_nonfinite_input_is_rejected_before_writing`、`test_lumix_reference.test_invalid_lumix_resource_fails`
+12. 原始 RGB12 插值和 RGB48 整数路径分别与固定原程序样本逐值一致。— `test_lumix_reference.test_rgb12_interpolation_matches_native_vectors`、`test_lumix_iphone.test_original_rgb48_fixture_remains_bit_exact`
+13. 非有限 iPhone 输入在写入输出之前失败，缺失、截断、损坏或网格错误的 LUT 被拒绝。— `test_lumix_iphone.test_nonfinite_input_is_rejected_before_writing`、`test_lumix_reference.test_invalid_lumix_resource_fails`
 
 测试入口为 [Swift 管线测试](../../Packages/GlassCamKit/Tests/ImagingCoreTests/LUMIXPipelineTests.swift)、[原始 LUT 数值测试](../../tests/numeric/test_lumix_reference.py)和 [iPhone 适配器测试](../../tests/numeric/test_lumix_iphone.py)；固定样本的来源见 [LUMIX 数值夹具](../../tests/fixtures/lumix/README.md)。
 

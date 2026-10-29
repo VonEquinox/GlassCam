@@ -66,7 +66,8 @@ def context(lib, *, key=None, ev=0, kelvin=6500, lstar=0, repro=0, film=4, raw=2
     else:
         value = lib.hncs_create_preset(ev, kelvin, factory, lstar, repro, film, raw, key.encode(), tone,
             None if baseline is None else baseline.ctypes.data, None if target is None else target.ctypes.data)
-    assert value
+    if not value:
+        raise RuntimeError(f'Failed to create HNCS context: {value!r}')
     try:
         yield value
     finally:
@@ -76,17 +77,16 @@ def context(lib, *, key=None, ev=0, kelvin=6500, lstar=0, repro=0, film=4, raw=2
 def render(lib, name, ctx, pixels, dtype=np.float32, channels=4, *extra):
     output = np.empty((*pixels.shape[:-1], channels), dtype=dtype)
     status = getattr(lib, name)(ctx, pixels.ctypes.data, output.ctypes.data, pixels.size // 3, *extra)
-    assert status == 0
-    return output
+    return status, output
 
 
 def preset(lib, name, key, tone, pixels, dtype=np.uint16):
     output = np.empty_like(pixels, dtype=dtype)
-    assert getattr(lib, name)(key.encode(), tone, pixels.ctypes.data, output.ctypes.data, pixels.size // 3) == 0
-    return output
+    status = getattr(lib, name)(key.encode(), tone, pixels.ctypes.data, output.ctypes.data, pixels.size // 3)
+    return status, output
 
 
 def bridge(lib, ctx):
     output = np.empty((3, 3), dtype=np.float64)
-    assert lib.hncs_source_to_native_matrix(ctx, output.ctypes.data) == 0
-    return output
+    status = lib.hncs_source_to_native_matrix(ctx, output.ctypes.data)
+    return status, output

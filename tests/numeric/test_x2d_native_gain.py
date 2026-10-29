@@ -1,80 +1,94 @@
-"""Regression vectors produced by original Phocus at non-unit input gains."""
+"""Frozen original Phocus vectors and ownership of native-gain contexts."""
 import ctypes as c
-import hashlib
-import json
-from pathlib import Path
-from native_build import build_product
-import tempfile
-import unittest
 
 import numpy as np
+import pytest
 
-ROOT = Path(__file__).resolve().parents[2]
+from support import golden_vectors
 
-
-class X2DNativeGainTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.temp = tempfile.TemporaryDirectory(prefix="x2d-native-gain-")
-        path = build_product()
-        cls.lib = c.CDLL(str(path))
-        cls.lib.hncs_create_mode.argtypes = [c.c_double, c.c_double, c.c_int, c.c_int]
-        cls.lib.hncs_create_mode.restype = c.c_void_p
-        cls.lib.hncs_clone_with_native_gain.argtypes = [c.c_void_p, c.c_double]
-        cls.lib.hncs_clone_with_native_gain.restype = c.c_void_p
-        cls.lib.hncs_render_native.argtypes = [c.c_void_p] * 3 + [c.c_size_t]
-        cls.lib.hncs_destroy.argtypes = [c.c_void_p]
-        cls.manifest = json.loads((ROOT / "tests/fixtures/hncs/x2d-native-gain-goldens.json").read_text())
-        vectors = ROOT / "tests/fixtures/hncs" / cls.manifest["vectors"]
-        assert hashlib.sha256(vectors.read_bytes()).hexdigest() == cls.manifest["sha256"]
-        cls.vectors = np.load(vectors, allow_pickle=False)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.vectors.close()
-        cls.temp.cleanup()
-
-    def render(self, context, codes):
-        source = np.ascontiguousarray(codes.astype(np.float64) / 65535.)
-        output = np.empty_like(codes)
-        self.assertEqual(self.lib.hncs_render_native(context, source.ctypes.data,
-                                                   output.ctypes.data, codes.size // 3), 0)
-        return output
-
-    def test_original_nonunit_gain_outputs(self):
-        for case in self.manifest["cases"]:
-            with self.subTest(gain=case["gain"]):
-                key = case["golden_prefix"]
-                source, expected = self.vectors[key + "_input"], self.vectors[key + "_expected"]
-                parent = self.lib.hncs_create_mode(0., case["cct"], case["space"], case["model"])
-                self.assertTrue(parent)
-                original = self.render(parent, source)
-                child = self.lib.hncs_clone_with_native_gain(parent, case["gain"])
-                self.assertTrue(child)
-                try:
-                    np.testing.assert_array_equal(self.render(child, source), expected)
-                    np.testing.assert_array_equal(self.render(parent, source), original)
-                finally:
-                    self.lib.hncs_destroy(child)
-                    self.lib.hncs_destroy(parent)
-
-    def test_invalid_gain_and_parent_lifetime(self):
-        self.assertFalse(self.lib.hncs_clone_with_native_gain(None, 1.))
-        parent = self.lib.hncs_create_mode(0., 7523., 0, 0)
-        source = self.vectors[self.manifest["cases"][0]["golden_prefix"] + "_input"]
-        before = self.render(parent, source)
-        try:
-            for gain in [0., -1., float("nan"), float("inf"), -float("inf"), 1e-308, 1e308]:
-                self.assertFalse(self.lib.hncs_clone_with_native_gain(parent, gain))
-            child = self.lib.hncs_clone_with_native_gain(parent, 1.)
-            self.assertTrue(child)
-        finally:
-            self.lib.hncs_destroy(parent)
-        try:
-            np.testing.assert_array_equal(self.render(child, source), before)
-        finally:
-            self.lib.hncs_destroy(child)
+GOLDEN = golden_vectors.manifest("x2d-native-gain-goldens.json")
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.fixture(scope="module")
+def gain_library(native):
+    native.hncs_clone_with_native_gain.argtypes = [c.c_void_p, c.c_double]
+    native.hncs_clone_with_native_gain.restype = c.c_void_p
+    return native
+
+
+@pytest.fixture(scope="module")
+def vectors():
+    return golden_vectors.vectors(GOLDEN)
+
+
+@pytest.mark.parametrize("case", GOLDEN["cases"], ids=lambda case: case["golden_prefix"])
+def test_gain_clone_matches_original_vectors_and_preserves_parent(gain_library, vectors, case):
+    lib = gain_library
+    key = case["golden_prefix"]
+    source = np.ascontiguousarray(vectors[key + "_input"].astype(np.float64) / 65535.)
+    expected = vectors[key + "_expected"]
+    original, actual, after = [np.empty_like(expected) for _ in range(3)]
+    parent = lib.hncs_create_mode(0., case["cct"], case["space"], case["model"])
+    assert parent
+    child = None
+    try:
+        before_status = lib.hncs_render_native(parent, source.ctypes.data, original.ctypes.data, source.size // 3)
+        child = lib.hncs_clone_with_native_gain(parent, case["gain"])
+        assert child
+
+        child_status = lib.hncs_render_native(child, source.ctypes.data, actual.ctypes.data, source.size // 3)
+        after_status = lib.hncs_render_native(parent, source.ctypes.data, after.ctypes.data, source.size // 3)
+    finally:
+        lib.hncs_destroy(child)
+        lib.hncs_destroy(parent)
+
+    assert [before_status, child_status, after_status] == [0, 0, 0]
+    np.testing.assert_array_equal(actual, expected)
+    np.testing.assert_array_equal(after, original)
+
+
+@pytest.mark.parametrize("gain", [0., -1., float("nan"), float("inf"), -float("inf"), 1e-308, 1e308])
+def test_invalid_native_gain_rejects_clone(gain_library, gain):
+    lib = gain_library
+    parent = lib.hncs_create_mode(0., 7523., 0, 0)
+    assert parent
+    try:
+        child = lib.hncs_clone_with_native_gain(parent, gain)
+        if child:
+            lib.hncs_destroy(child)
+    finally:
+        lib.hncs_destroy(parent)
+
+    assert child is None
+
+
+def test_null_parent_rejects_gain_clone(gain_library):
+    child = gain_library.hncs_clone_with_native_gain(None, 1.)
+    if child:
+        gain_library.hncs_destroy(child)
+
+    assert child is None
+
+
+def test_gain_clone_remains_valid_after_parent_destruction(gain_library, vectors):
+    lib = gain_library
+    key = GOLDEN["cases"][0]["golden_prefix"]
+    codes = vectors[key + "_input"]
+    source = np.ascontiguousarray(codes.astype(np.float64) / 65535.)
+    before, after = np.empty_like(codes), np.empty_like(codes)
+    parent = lib.hncs_create_mode(0., 7523., 0, 0)
+    assert parent
+    try:
+        before_status = lib.hncs_render_native(parent, source.ctypes.data, before.ctypes.data, source.size // 3)
+        child = lib.hncs_clone_with_native_gain(parent, 1.)
+        assert child
+    finally:
+        lib.hncs_destroy(parent)
+
+    try:
+        after_status = lib.hncs_render_native(child, source.ctypes.data, after.ctypes.data, source.size // 3)
+    finally:
+        lib.hncs_destroy(child)
+
+    assert [before_status, after_status] == [0, 0]
+    np.testing.assert_array_equal(after, before)

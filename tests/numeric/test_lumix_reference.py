@@ -40,9 +40,9 @@ def lumix_case(request, native, lumix_resources, lumix_manifest):
 def linear(native, ctx, source):
     output = np.empty((len(source), 4), np.float32)
     error = c.create_string_buffer(1024)
-    assert native.lumix_process_linear_rgba(ctx, source.ctypes.data, source.size, len(source), 0,
-                                          output.ctypes.data, output.size, error, len(error)), error.value
-    return output
+    status = native.lumix_process_linear_rgba(ctx, source.ctypes.data, source.size, len(source), 0,
+        output.ctypes.data, output.size, error, len(error))
+    return status, output, error.value
 
 
 def test_lumix_catalog_matches_manifest(native, lumix_manifest):
@@ -67,23 +67,26 @@ def test_linear_adapter_matches_native_vector_decode(native, lumix_case):
     encoded = np.clip(golden.astype(np.float64) / 4095, 0, 1)
     expected = np.where(encoded <= .04045, encoded / 12.92, ((encoded + .055) / 1.055)**2.4)
 
-    output = linear(native, ctx, source)
+    status, output, error = linear(native, ctx, source)
 
-    assert np.max(np.abs(output[:, :3] - expected)) < LINEAR_TOLERANCE
+    assert status == 1, error
+    np.testing.assert_array_less(np.abs(output[:, :3] - expected), LINEAR_TOLERANCE)
     np.testing.assert_array_equal(output[:, 3], 1)
 
 
 def test_concurrent_linear_strips_preserve_full_raster(native, lumix_case):
     ctx, rgb, _ = lumix_case
     source = (rgb.astype(np.float64) / 4095).astype(np.float32)
-    expected = linear(native, ctx, source)
+    expected_status, expected, expected_error = linear(native, ctx, source)
     split = [0, 1, 64, 131, 4096, len(source)]
 
     with ThreadPoolExecutor(max_workers=4) as executor:
         chunks = list(executor.map(lambda pair: linear(native, ctx, source[pair[0]:pair[1]]), zip(split, split[1:])))
-    output = np.concatenate(chunks)
+    output = np.concatenate([pixels for _, pixels, _ in chunks])
 
-    assert output.tobytes() == expected.tobytes()
+    assert expected_status == 1, expected_error
+    assert [status for status, _, _ in chunks] == [1] * len(chunks)
+    np.testing.assert_array_equal(output.view(np.uint32), expected.view(np.uint32))
 
 
 @pytest.mark.parametrize('case', ['nonfinite-exposure', 'nonfinite-pixel', 'rgb12-overflow'])

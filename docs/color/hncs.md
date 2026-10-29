@@ -80,10 +80,10 @@ revision 11 仍沿用旧 HDR 适配：先分离每像素高光幅值，在有界
 2. 照片白点只绑定一次，经过配方编解码后保持原值。— `ImagingCoreTests/WhiteBalanceTests.automaticWhiteBalance_bindsPhotoOnceAndSurvivesCodable`
 3. Nature 的 `preset` 策略保留旧白平衡输出，`photo` 策略在固定长焦灰色夹具上保持近中性且不受策略切换污染。— `ImagingCoreTests/WhiteBalanceTests.presetNature_replaysOriginalTelephotoWhiteBalance`、`photoNature_keepsTelephotoGrayNeutralAcrossPolicyChanges`
 4. pipeline revision 2 的曝光等价于先对完整线性源图施加曝光，旧管线按冻结曝光 golden 重放。— `ImagingCoreTests/ColorChainTests.exposure_matchesScalingSceneLinearSource`、`unversionedRecipe_replaysFrozenExposureGolden`
-5. 原生工作值、锐化和后置颜色依次匹配冻结的 Phocus 向量。— `tests/numeric/test_phocus_native_chain.py::NativePhocusChainTests::test_original_binary_work_sharpness_and_final_codes`
-6. revision 12 在空间处理前保留高光幅值，并让锐化作用于参考白以上的中性细节。— `tests/numeric/test_hncs_hdr_domain.py::HNCSHDRDomainTests::test_hdr_magnitude_is_present_before_spatial_processing`、`ImagingCoreTests/ImagePipelineTests.hdrSpatialProcessing_sharpensNeutralHighlightDetail`
-7. 工作原色转换保留扩展 sRGB 的负分量与超单位值。— `tests/numeric/test_hncs_hdr_domain.py::HNCSHDRDomainTests::test_working_primaries_survive_as_signed_extended_srgb`
-8. 全图共用尺度时，分条、内存与文件路径结果一致；非法尺度或未绑定相同尺度的结束调用失败。— `tests/numeric/test_hncs_hdr_domain.py::HNCSHDRDomainTests::test_one_frame_scale_matches_all_strip_partitions_and_file_storage`、`test_invalid_scale_and_missing_scale_binding_are_rejected`
+5. 原生工作值、锐化和后置颜色依次匹配冻结的 Phocus 向量。— `tests/numeric/test_phocus_native_chain.py::test_native_chain_stage_matches_frozen_output`
+6. revision 12 在空间处理前保留高光幅值，并让锐化作用于参考白以上的中性细节。— `tests/numeric/test_hncs_hdr_domain.py::test_hdr_magnitude_is_present_before_spatial_processing`、`ImagingCoreTests/ImagePipelineTests.hdrSpatialProcessing_sharpensNeutralHighlightDetail`
+7. 工作原色转换保留扩展 sRGB 的负分量与超单位值。— `tests/numeric/test_hncs_hdr_domain.py::test_working_primaries_survive_as_signed_extended_srgb`
+8. 全图共用尺度时，分条、内存与文件路径结果一致；非法尺度或未绑定相同尺度的结束调用失败。— `tests/numeric/test_hncs_hdr_domain.py::test_one_frame_scale_matches_work_strip_partitions`、`test_one_frame_scale_matches_memory_and_file_storage`、`test_one_frame_scale_matches_finish_strip_partitions`、`test_invalid_hdr_scale_rejects_clone`、`test_missing_hdr_scale_binding_rejects_finish`
 9. 显式 `effects` 优先于旧 HNCS 标志，缺失的旧标志独立默认，只有活动 HNCS 方形预设执行额外裁剪。— `ImagingCoreTests/RecipeTests.explicitEffects_overrideLegacyFlagsAndRoundtrip`、`missingLegacyFlag_defaultsWithoutErasingExplicitFalse`、`extraCrop_onlyAffectsActiveHNCSSquarePreset`
 10. 给没有颗粒的 Standard 打开颗粒开关，像素与原预设参数保持不变。— `ImagingCoreTests/CropGeometryTests.enablingAbsentGrain_preservesStandardPixelsAndPreset`
 11. 配方变化区分缓存身份，替换缓存不使既有原生上下文失效。— `ImagingCoreTests/ContextCacheTests.hncsChangedRequest_keepsAllRequestedSettings`、`replacedHNCSEntry_keepsInFlightNativeOwnerUsable`

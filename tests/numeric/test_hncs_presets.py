@@ -69,7 +69,8 @@ def test_native_postcurves_match_original_vectors(native, postcurve_vectors, key
     original = postcurve_vectors[prefix + ('_output' if group == 'source' else '_ramp')]
     expected, _ = presets.apply_post_curves(source, key, apply_tone_curve=bool(tone))
 
-    output = preset(native, 'hncs_apply_post_curves', key, tone, source)
+    output_status, output = preset(native, 'hncs_apply_post_curves', key, tone, source)
+    assert output_status == 0
 
     np.testing.assert_array_equal(output, expected)
     np.testing.assert_array_equal(output, original)
@@ -81,7 +82,8 @@ def test_pointwise_preset_matches_reference(native, preset_inputs, key, tone):
     source = preset_inputs[0]
     expected, _ = presets.apply_preset(source, key, apply_sharpness=False, apply_grain=False, apply_tone_curve=bool(tone))
 
-    output = preset(native, 'hncs_apply_preset_pointwise', key, tone, source)
+    output_status, output = preset(native, 'hncs_apply_preset_pointwise', key, tone, source)
+    assert output_status == 0
 
     np.testing.assert_array_equal(output, expected)
 
@@ -92,7 +94,8 @@ def test_all_neutral_codes_match_preset_reference(native, key, tone):
     source = np.repeat(np.arange(65536, dtype=np.uint16)[:, None], 3, axis=1)
     expected, _ = presets.apply_preset(source.reshape(256, 256, 3), key, apply_sharpness=False, apply_grain=False, apply_tone_curve=bool(tone))
 
-    output = preset(native, 'hncs_apply_preset_pointwise', key, tone, source)
+    output_status, output = preset(native, 'hncs_apply_preset_pointwise', key, tone, source)
+    assert output_status == 0
 
     np.testing.assert_array_equal(output.reshape(256, 256, 3), expected)
 
@@ -105,7 +108,8 @@ def test_film_resolution_matches_reference(native, reference_assets, preset_inpu
         working_space='lstar' if lstar else 'legacy', film_curve=FILMS[film], raw_film_curve=raw)
 
     with context(native, key='standard', kelvin=kelvin, lstar=lstar, repro=repro, film=film, raw=raw) as ctx:
-        output = render(native, 'hncs_render_native', ctx, source, np.uint16, 3)
+        output_status, output = render(native, 'hncs_render_native', ctx, source, np.uint16, 3)
+        assert output_status == 0
 
     np.testing.assert_array_equal(output, expected)
 
@@ -119,7 +123,8 @@ def test_native_core_and_preset_composition_matches_reference(native, reference_
     expected, _ = presets.apply_preset(codes, key, apply_sharpness=False, apply_grain=False, apply_tone_curve=bool(tone))
 
     with context(native, key=key, tone=tone) as ctx:
-        output = render(native, 'hncs_render_native_preset', ctx, source, np.uint16, 3)
+        output_status, output = render(native, 'hncs_render_native_preset', ctx, source, np.uint16, 3)
+        assert output_status == 0
 
     np.testing.assert_array_equal(output, expected)
 
@@ -136,7 +141,8 @@ def test_standard_display_matches_corrected_gradation(native, reference_assets, 
     expected = np.where(encoded <= .04045, encoded / 12.92, ((encoded + .055) / 1.055)**2.4) if dtype == np.float32 else np.rint(encoded * 255).astype(np.uint8)
 
     with context(native, key='standard', kelvin=kelvin, ev=exposure) as ctx:
-        output = render(native, function, ctx, source, dtype, 4)
+        output_status, output = render(native, function, ctx, source, dtype, 4)
+        assert output_status == 0
 
     np.testing.assert_allclose(output[..., :3], expected, rtol=0, atol=tolerance)
     np.testing.assert_array_equal(output[..., 3], 1 if dtype == np.float32 else 255)
@@ -145,9 +151,11 @@ def test_standard_display_matches_corrected_gradation(native, reference_assets, 
 @pytest.mark.parametrize('kelvin,exposure', tuple(itertools.product((1000, 2000, 5500, 6500, 10000, 15000), (-2, 0, 2))))
 def test_standard_preset_preserves_bare_adapter_matrix(native, kelvin, exposure):
     with context(native, kelvin=kelvin, ev=exposure) as old, context(native, key='standard', kelvin=kelvin, ev=exposure) as new:
-        expected = bridge(native, old)
+        expected_status, expected = bridge(native, old)
+        assert expected_status == 0
 
-        actual = bridge(native, new)
+        actual_status, actual = bridge(native, new)
+        assert actual_status == 0
 
     np.testing.assert_array_equal(actual, expected)
 
@@ -156,10 +164,13 @@ def test_standard_preset_preserves_bare_adapter_matrix(native, kelvin, exposure)
 def test_work_finish_split_preserves_direct_output(native, preset_inputs, key):
     source = np.ascontiguousarray(preset_inputs[2][:13, :19])
     with context(native, key=key) as ctx:
-        expected = render(native, 'hncs_process_linear_rgba', ctx, source)
+        expected_status, expected = render(native, 'hncs_process_linear_rgba', ctx, source)
+        assert expected_status == 0
 
-        work = render(native, 'hncs_process_preset_work_float', ctx, source, np.float32, 3)
-        output = render(native, 'hncs_finish_preset_work_linear', ctx, work)
+        work_status, work = render(native, 'hncs_process_preset_work_float', ctx, source, np.float32, 3)
+        assert work_status == 0
+        output_status, output = render(native, 'hncs_finish_preset_work_linear', ctx, work)
+        assert output_status == 0
 
     np.testing.assert_array_equal(output, expected)
 
@@ -168,9 +179,11 @@ def test_work_finish_split_preserves_direct_output(native, preset_inputs, key):
 def test_preset_parallel_output_matches_direct(native, preset_inputs, workers):
     source = preset_inputs[2]
     with context(native, key='extra-contrast') as ctx:
-        expected = render(native, 'hncs_process_linear_rgba', ctx, source)
+        expected_status, expected = render(native, 'hncs_process_linear_rgba', ctx, source)
+        assert expected_status == 0
 
-        output = render(native, 'hncs_process_linear_rgba_parallel', ctx, source, np.float32, 4, workers)
+        output_status, output = render(native, 'hncs_process_linear_rgba_parallel', ctx, source, np.float32, 4, workers)
+        assert output_status == 0
 
     np.testing.assert_array_equal(output, expected)
 
@@ -183,12 +196,14 @@ def test_absolute_preset_white_balance_replaces_capture_gain(native, reference_a
     baseline = baseline / baseline[1]
     desired = cfg['native_wb_gains']
     with context(native, key='standard', kelvin=capture) as plain:
-        expected = bridge(native, plain)
+        expected_status, expected = bridge(native, plain)
+        assert expected_status == 0
     if desired is not None: expected = expected * (np.asarray(desired) / baseline)[:, None]
     with context(native, key=key, kelvin=capture) as ctx:
         actual_baseline, actual_target, factory = np.empty(3), np.empty(3), np.empty(1)
 
-        actual = bridge(native, ctx)
+        actual_status, actual = bridge(native, ctx)
+        assert actual_status == 0
         status = native.hncs_preset_white_balance(ctx, actual_baseline.ctypes.data, actual_target.ctypes.data, factory.ctypes.data)
 
     assert status == 0
@@ -202,10 +217,13 @@ def test_absolute_preset_white_balance_replaces_capture_gain(native, reference_a
 def test_explicit_gain_ratio_is_independent_of_factory_kelvin(native, factory):
     baseline, target = np.array([4., 2., 3.]), np.array([9., 3., 6.])
     with context(native, key='standard') as plain:
-        expected = bridge(native, plain) * ((target / target[1]) / (baseline / baseline[1]))[:, None]
+        expected_status, expected = bridge(native, plain)
+        assert expected_status == 0
+        expected = expected * ((target / target[1]) / (baseline / baseline[1]))[:, None]
 
     with context(native, key='standard', baseline=baseline, target=target, factory=factory) as ctx:
-        actual = bridge(native, ctx)
+        actual_status, actual = bridge(native, ctx)
+        assert actual_status == 0
 
     np.testing.assert_array_equal(actual, expected)
 

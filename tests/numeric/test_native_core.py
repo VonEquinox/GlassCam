@@ -22,7 +22,8 @@ def test_original_native_golden_vectors_match(native, key):
         expected = vectors[key.replace('_source', '_output')]
 
     with context(native, kelvin=int(kelvin), lstar=int(space == 'lstar'), repro=int(intent == 'reproduction')) as ctx:
-        output = render(native, 'hncs_render_native', ctx, source, np.uint16, 3)
+        output_status, output = render(native, 'hncs_render_native', ctx, source, np.uint16, 3)
+        assert output_status == 0
 
     np.testing.assert_array_equal(output, expected)
 
@@ -44,7 +45,8 @@ def test_random_and_boundary_native_codes_match_reference(native, reference_asse
     expected = r.reference.render(source, kelvin, reference_assets, space, intent)
 
     with context(native, kelvin=kelvin, lstar=int(space == 'lstar'), repro=int(intent == 'reproduction')) as ctx:
-        output = render(native, 'hncs_render_native', ctx, source, np.uint16, 3)
+        output_status, output = render(native, 'hncs_render_native', ctx, source, np.uint16, 3)
+        assert output_status == 0
 
     np.testing.assert_array_equal(output, expected)
 
@@ -56,7 +58,8 @@ def test_display_adapter_matches_reference_with_byte_rounding(native, reference_
     expected = np.uint8(np.rint(r.effect(source, kelvin, reference_assets, exposure) * 255))
 
     with context(native, kelvin=kelvin, ev=exposure) as ctx:
-        output = render(native, 'hncs_process_srgb', ctx, source, np.uint8, 4)
+        output_status, output = render(native, 'hncs_process_srgb', ctx, source, np.uint8, 4)
+        assert output_status == 0
 
     assert np.abs(output[..., :3].astype(int) - expected.astype(int)).max() <= DISPLAY_CODE_TOLERANCE
     np.testing.assert_array_equal(output[..., 3], 255)
@@ -65,10 +68,13 @@ def test_display_adapter_matches_reference_with_byte_rounding(native, reference_
 def test_display_tiles_preserve_full_output(native, core_samples):
     source = core_samples[1]
     with context(native, kelvin=5500) as ctx:
-        expected = render(native, 'hncs_process_srgb', ctx, source, np.uint8, 4)
+        expected_status, expected = render(native, 'hncs_process_srgb', ctx, source, np.uint8, 4)
+        assert expected_status == 0
 
-        output = np.concatenate([render(native, 'hncs_process_srgb', ctx, part, np.uint8, 4)
-                                 for part in np.array_split(source, 11)])
+        results = [render(native, 'hncs_process_srgb', ctx, part, np.uint8, 4)
+                   for part in np.array_split(source, 11)]
+        output = np.concatenate([pixels for _, pixels in results])
+        assert [status for status, _ in results] == [0] * len(results)
 
     np.testing.assert_array_equal(output, expected)
 

@@ -1,66 +1,58 @@
 """Replay original native HDR colors without loading vendor frameworks."""
 import ctypes as c
-import hashlib
-import json
-from pathlib import Path
-from native_build import build_product
-import tempfile
-import unittest
 
 import numpy as np
+import pytest
 
-ROOT=Path(__file__).resolve().parents[2]
+from support import golden_vectors
 
-
-class X2DHDRTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.temp=tempfile.TemporaryDirectory(prefix="x2d-hdr-")
-        library=Path(cls.temp.name)/"core.so"
-        library = build_product()
-        cls.lib=c.CDLL(str(library))
-        cls.lib.hncs_create_mode.argtypes=[c.c_double,c.c_double,c.c_int,c.c_int]
-        cls.lib.hncs_create_mode.restype=c.c_void_p
-        cls.lib.hncs_destroy.argtypes=[c.c_void_p]
-        cls.lib.hncs_render_x2d_hdr_color.argtypes=[c.c_void_p,c.c_double,c.c_void_p,c.c_void_p,c.c_size_t]
-        cls.manifest=json.loads((ROOT/"tests/fixtures/hncs/x2d-hdr-goldens.json").read_text())
-        path=ROOT/"tests/fixtures/hncs"/cls.manifest["vectors"]
-        assert hashlib.sha256(path.read_bytes()).hexdigest()==cls.manifest["vectors_sha256"]
-        cls.vectors=np.load(path,allow_pickle=False)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.vectors.close();cls.temp.cleanup()
-
-    def test_original_hdr_colors_and_context_reuse(self):
-        for case in self.manifest["cases"]:
-            with self.subTest(space=case["space"],gain=case["gain"]):
-                key=case["prefix"]
-                source=np.ascontiguousarray(self.vectors[key+"_input"].astype(np.float64)/65535.)
-                expected=self.vectors[key+"_expected"];actual=np.empty_like(expected)
-                context=self.lib.hncs_create_mode(0.,case["cct"],case["space"],0)
-                self.assertTrue(context)
-                try:
-                    for _ in range(2):
-                        self.assertEqual(self.lib.hncs_render_x2d_hdr_color(context,case["gain"],source.ctypes.data,
-                                                                          actual.ctypes.data,source.size//3),0)
-                        np.testing.assert_array_equal(actual,expected)
-                finally:self.lib.hncs_destroy(context)
-
-    def test_unsupported_gain_reproduction_and_nonfinite_input(self):
-        source=np.zeros((2,3),np.float64);actual=np.full((2,3),1773,np.uint16)
-        context=self.lib.hncs_create_mode(0.,5500.,0,0)
-        reproduction=self.lib.hncs_create_mode(0.,5500.,0,1)
-        try:
-            for ctx,gain in [(None,1.),(reproduction,1.),(context,.24),(context,32.01),
-                              (context,float("inf")),(context,float("nan"))]:
-                self.assertEqual(self.lib.hncs_render_x2d_hdr_color(ctx,gain,source.ctypes.data,actual.ctypes.data,2),-1)
-                self.assertTrue(np.all(actual==1773))
-            source[1,2]=np.nan
-            self.assertEqual(self.lib.hncs_render_x2d_hdr_color(context,1.,source.ctypes.data,actual.ctypes.data,2),-1)
-            self.assertTrue(np.all(actual==1773))
-        finally:
-            self.lib.hncs_destroy(context);self.lib.hncs_destroy(reproduction)
+GOLDEN = golden_vectors.manifest("x2d-hdr-goldens.json")
+OUTPUT_SENTINEL = 1773
 
 
-if __name__=="__main__":unittest.main()
+@pytest.fixture(scope="module")
+def hdr(native):
+    native.hncs_render_x2d_hdr_color.argtypes = [c.c_void_p, c.c_double, c.c_void_p, c.c_void_p, c.c_size_t]
+    return native
+
+
+@pytest.fixture(scope="module")
+def vectors():
+    return golden_vectors.vectors(GOLDEN)
+
+
+@pytest.mark.parametrize("case", GOLDEN["cases"], ids=lambda case: case["prefix"])
+def test_original_hdr_colors_survive_context_reuse(hdr, vectors, case):
+    key = case["prefix"]
+    source = np.ascontiguousarray(vectors[key + "_input"].astype(np.float64) / 65535.)
+    expected = vectors[key + "_expected"]
+    outputs = np.empty((2, *expected.shape), dtype=expected.dtype)
+    context = hdr.hncs_create_mode(0., case["cct"], case["space"], 0)
+    assert context
+    try:
+        statuses = [hdr.hncs_render_x2d_hdr_color(context, case["gain"], source.ctypes.data,
+                    output.ctypes.data, source.size // 3) for output in outputs]
+    finally:
+        hdr.hncs_destroy(context)
+
+    assert statuses == [0, 0]
+    np.testing.assert_array_equal(outputs, np.stack([expected, expected]))
+
+
+@pytest.mark.parametrize("kind,gain", [("null", 1.), ("reproduction", 1.), ("standard", .24),
+    ("standard", 32.01), ("standard", float("inf")), ("standard", float("nan")), ("nonfinite", 1.)])
+def test_invalid_hdr_color_call_preserves_output(hdr, kind, gain):
+    source = np.zeros((2, 3), np.float64)
+    if kind == "nonfinite":
+        source[1, 2] = np.nan
+    output = np.full((2, 3), OUTPUT_SENTINEL, np.uint16)
+    context = None if kind == "null" else hdr.hncs_create_mode(0., 5500., 0, int(kind == "reproduction"))
+    if kind != "null":
+        assert context
+    try:
+        status = hdr.hncs_render_x2d_hdr_color(context, gain, source.ctypes.data, output.ctypes.data, 2)
+    finally:
+        hdr.hncs_destroy(context)
+
+    assert status == -1
+    np.testing.assert_array_equal(output, np.full_like(output, OUTPUT_SENTINEL))

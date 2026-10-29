@@ -56,7 +56,7 @@ FFCS 使用 FFCS 0.2.0 交付的相机表族与模拟风格 LUT，将已显影�
 
 1. 配方缺少 FFCS 设置时采用版本 `2` 的中性默认，并保留已有三个效果开关。— [ImagingCoreTests/RecipeTests.absentFFCSSettings_useNeutralDefaultsWithoutLosingEffects](../../Packages/GlassCamKit/Tests/ImagingCoreTests/RecipeTests.swift)
 2. 默认 C 构造器的线性输出、字节输出及编码输入阶段结果与显式中性配置一致。— [test_ffcs_defaults.test_default_linear_and_preview_equal_explicit_neutral / test_default_encoded_stages_equal_explicit_neutral](../../tests/numeric/test_ffcs_defaults.py)
-3. C++ 的各表族与风格阶段结果符合冻结的 FFCS 0.2.0 golden 及其数值容差。— [FFCSReferenceTests.test_cpp_all_presets_stages_and_linear_mobile_contract](../../tests/numeric/test_ffcs_source.py)
+3. C++ 的各表族与风格阶段结果符合冻结的 FFCS 0.2.0 golden 及其数值容差。— [test_ffcs_source.test_frozen_native_stage_matches_reference / test_switch_encoded_stage_matches_reference / test_mobile_linear_output_matches_both_reference_input_domains](../../tests/numeric/test_ffcs_source.py)
 4. 颗粒和锐化开关只旁路对应阶段，保持原风格系数不变，零系数保持无效果。— [NativeTests/ffcs_effect_switches_test](../../Packages/GlassCamKit/NativeTests/ffcs_effect_switches_test/ffcs_effect_switches_test.cpp)
 5. FFCS 忽略额外裁剪标志，即使配方同时保存 HNCS square-crop 设置。— [ImagingCoreTests/RecipeTests.extraCrop_onlyAffectsActiveHNCSSquarePreset](../../Packages/GlassCamKit/Tests/ImagingCoreTests/RecipeTests.swift)
 6. 带足 halo 的分条结果与完整帧输出逐位相同。— [test_ffcs_strips.test_strips_match_full_frame](../../tests/numeric/test_ffcs_strips.py)

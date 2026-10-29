@@ -52,16 +52,19 @@ def test_default_linear_and_preview_equal_explicit_neutral(ffcs_defaults, look, 
     source = sample(look, width, height)
     error = c.create_string_buffer(1024)
     outputs = []
+    statuses = []
     with contexts(ffcs_defaults, look) as pair:
         for ctx in pair:
             linear = np.empty_like(source)
             preview = np.empty(width * height * 4, np.uint8)
             status = ffcs_defaults.ffcs_process_linear_rgb(ctx, source.ctypes.data, source.size, width, height,
                 exposure, seed, linear.ctypes.data, linear.size, preview.ctypes.data, preview.size, error, len(error))
-            assert status == 1, error.value
-            outputs.append((linear.tobytes(), preview.tobytes()))
+            statuses.append((status, error.value))
+            outputs.append((linear, preview))
 
-    assert outputs[0] == outputs[1]
+    assert [status for status, _ in statuses] == [1, 1], statuses
+    np.testing.assert_array_equal(outputs[0][0].view(np.uint32), outputs[1][0].view(np.uint32))
+    np.testing.assert_array_equal(outputs[0][1], outputs[1][1])
 
 
 @pytest.mark.parametrize('look', range(19))
@@ -70,16 +73,24 @@ def test_default_encoded_stages_equal_explicit_neutral(ffcs_defaults, look, widt
     source = sample(look, width, height).astype(np.float64)
     error = c.create_string_buffer(1024)
     outputs = []
+    statuses = []
     with contexts(ffcs_defaults, look) as pair:
         for ctx in pair:
             stages = []
             @CALLBACK
             def record(stage, values, stage_width, stage_height, _):
-                stages.append((stage, c.string_at(values, stage_width * stage_height * 3 * c.sizeof(c.c_double))))
+                pointer = c.cast(values, c.POINTER(c.c_double))
+                pixels = np.ctypeslib.as_array(pointer, shape=(stage_width * stage_height * 3,)).copy()
+                stages.append((stage, pixels))
             output = np.empty_like(source)
             status = ffcs_defaults.ffcs_process_encoded_double(ctx, source.ctypes.data, source.size, width, height,
                 0xffffffff, output.ctypes.data, output.size, record, None, error, len(error))
-            assert status == 1, error.value
-            outputs.append((output.tobytes(), stages))
+            statuses.append((status, error.value))
+            outputs.append((output, stages))
 
-    assert outputs[0] == outputs[1]
+    assert [status for status, _ in statuses] == [1, 1], statuses
+    np.testing.assert_array_equal(outputs[0][0].view(np.uint64), outputs[1][0].view(np.uint64))
+    assert [name for name, _ in outputs[0][1]] == [name for name, _ in outputs[1][1]]
+    np.testing.assert_array_equal(
+        np.stack([pixels for _, pixels in outputs[0][1]]).view(np.uint64),
+        np.stack([pixels for _, pixels in outputs[1][1]]).view(np.uint64))

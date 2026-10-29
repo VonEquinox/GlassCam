@@ -27,7 +27,8 @@ def test_dense_standard_gradation_matches_reference(native, reference_assets, de
     expected = np.where(encoded <= .04045, encoded / 12.92, ((encoded + .055) / 1.055)**2.4)
 
     with context(native, key='standard', kelvin=kelvin) as ctx:
-        output = render(native, 'hncs_process_linear_rgba', ctx, dense_pixels)
+        output_status, output = render(native, 'hncs_process_linear_rgba', ctx, dense_pixels)
+        assert output_status == 0
 
     np.testing.assert_allclose(output[:, :3], expected, rtol=0, atol=REFERENCE_TOLERANCE)
     np.testing.assert_array_equal(output[:, 3], 1)

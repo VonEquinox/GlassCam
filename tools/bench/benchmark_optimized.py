@@ -1,6 +1,6 @@
 """Compare exact CPU output against explicitly bounded display-encoding optimization."""
 import ctypes as c
-import hashlib, json, time
+import hashlib, json, subprocess, time
 import numpy as np
 import sys
 from pathlib import Path
@@ -16,7 +16,9 @@ def main():
     for name in ('hncs_process_srgb_fast','hncs_process_srgb_fast_parallel'):
         f=getattr(lib,name);f.argtypes=lib.hncs_process_srgb.argtypes+([c.c_uint] if name.endswith('parallel') else []);f.restype=c.c_int
     # Re-run final native and source-adapter parity on the code under benchmark.
-    verification=v.verify(lib)
+    verification_command = [sys.executable, '-m', 'pytest', 'tests/numeric/test_native_core.py']
+    subprocess.run(verification_command, cwd=ROOT, check=True)
+    verification = {'command': verification_command, 'status': 'passed'}
     cases=[];max_diff=0;changed=0;channels=0
     rng=np.random.default_rng(432)
     for cct in (2000,5500,10000):
