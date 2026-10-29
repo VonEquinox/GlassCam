@@ -1,6 +1,6 @@
 # FFCS 色彩处理
 
-FFCS 使用 FFCS 0.2.0 交付的相机表族与模拟风格 LUT，将已显影的 linear-sRGB 源照片转换为成片颜色。`FFCSEngine` 负责 Swift 与 C ABI 的资源、缓冲区和上下文所有权，`CFFCS` 负责颜色与空间阶段；RAW 解码及成片编码由 `ImagePipeline` 承担。
+FFCS 使用 FFCS 0.2.0 交付的相机表族与模拟风格 LUT，将已显影的 linear-sRGB 源照片转换为成片颜色。Apple 输入由 Core Image RAW 解码，进入 FFCS 时已经完成源色彩配置转换；上游 Python 的传感器 CFA／RAF 解码器不参与 App 拍摄。`FFCSEngine` 负责 Swift 与 C ABI 的资源、缓冲区和上下文所有权，`CFFCS` 负责颜色与空间阶段；RAW 解码及成片编码由 `ImagePipeline` 承担。
 
 ## 工作方式
 
@@ -69,6 +69,8 @@ FFCS 使用 FFCS 0.2.0 交付的相机表族与模拟风格 LUT，将已显影�
 ## 数据与版本
 
 FFCS 参考版本为 `0.2.0`，来源 commit、归档及资产哈希、权利说明集中记录在 [vendor/ffcs/ORIGIN.md](../../vendor/ffcs/ORIGIN.md)。构建脚本按固定 [SHA-256 清单](../../scripts/ffcs_native_SHA256SUMS) 从原始归档离线准备 LUT，并核对归档和逐表内容；生成资源由 Git 忽略。
+
+在仓库根目录运行 `python3 scripts/materialize_ffcs_reference.py` 可从固定归档恢复保留的参考文件与 LUT。四份已迁出的调查工具和二进制清单由原始归档校验，不重新展开到主仓库；其余交付文件校验工作区内容。Xcode 的资源阶段只按校验清单展开运行时表，不需要网络。
 
 内核读取 `FFCSLUT1`、`FFCSLUT2` 容器，检查头部、矩阵与 scale 的有限性、通道标志、压缩长度和完整 zlib 数据。参考源码与上游文档保存在 `vendor/ffcs/`；C++ 的 SwiftPM 编译设置保留 `-fno-fast-math -ffp-contract=off`。
 

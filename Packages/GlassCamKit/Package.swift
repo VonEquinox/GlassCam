@@ -31,7 +31,7 @@ let package = Package(
         .testTarget(name: "ImagingCoreTests", dependencies: ["ImagingCore", "Capture", "GlassCamTestSupport"]),
         .testTarget(name: "CaptureTests", dependencies: ["Capture", "ImagingCore", "GlassCamTestSupport"]),
         .testTarget(name: "F5Tests", dependencies: ["F5", "Capture", "ImagingCore", "GlassCamTestSupport"]),
-        .testTarget(name: "PeripheralTests", dependencies: ["Peripheral", "Capture", "GlassCamTestSupport"]),
+        .testTarget(name: "PeripheralTests", dependencies: ["Peripheral", "GlassCamTestSupport"]),
         .target(name: "ImagingCore", dependencies: ["CHNCS", "CFFCS", "CLUMIX"]),
         .target(name: "Capture", dependencies: ["ImagingCore"]),
         .target(name: "F5", dependencies: ["CF5", "ImagingCore", "Capture"], resources: [.copy("F5Kernels.metal")]),

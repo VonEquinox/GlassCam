@@ -1,7 +1,6 @@
 @testable import F5
 @testable import Capture
 @testable import ImagingCore
-import GlassCamTestSupport
 import Foundation
 
 enum F5Fixtures {

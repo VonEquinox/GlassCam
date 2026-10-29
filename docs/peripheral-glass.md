@@ -100,6 +100,13 @@ JSON 将非有限数值保存为 `NaN`、`+Infinity`、`-Infinity` 字符串。�
 
 可选诊断环由 `GLASSCAM_PERIPHERAL_FRAME_RING=1` 开启，保存分析输入与事件到缓存目录 `GlassCamPeripheralEvents`；`GLASSCAM_PERIPHERAL_TRACE=1` 开启运行日志。手动状态记录与该诊断环分别管理。
 
+## 已知限制
+
+- 近景视差、遮挡、重复纹理和缺乏可见结构可能使外围持续遮黑。
+- 容差和经验位移区间表达显示接受范围，未经过设备留出集的概率覆盖率标定。
+- 同一帧对和同一 command 的呈现仍保留两路原始曝光时差与滚动快门差异。
+- 状态记录保存相机交付的视频像素，最终 Liquid Glass 合成效果、真机帧率、功耗和运动稳定性需要设备端验收。
+
 ## 代码入口
 
 - [CameraBackend+Preview.swift](../App/GlassCam/Camera/CameraBackend+Preview.swift)：双摄取景组合、帧率、有效视场和标定。
@@ -111,10 +118,3 @@ JSON 将非有限数值保存为 `NaN`、`+Infinity`、`-Infinity` 字符串。�
 - [PeripheralGlassShader.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralGlassShader.swift)、[PeripheralGlassView.swift](../App/GlassCam/UI/PeripheralGlassView.swift)：中心与外围合成、GPU 提交及外围 Liquid Glass。
 - [PeripheralStateRecording.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralStateRecording.swift)、[PeripheralRecordingControls.swift](../App/GlassCam/UI/PeripheralRecordingControls.swift)：状态快照、持久化、列表与 ZIP 分享。
 - [PeripheralDiagnosticRecorder.swift](../Packages/GlassCamKit/Sources/Peripheral/PeripheralDiagnosticRecorder.swift)：可选有界诊断环。
-
-## 已知限制
-
-- 近景视差、遮挡、重复纹理和缺乏可见结构可能使外围持续遮黑。
-- 容差和经验位移区间表达显示接受范围，未经过设备留出集的概率覆盖率标定。
-- 同一帧对和同一 command 的呈现仍保留两路原始曝光时差与滚动快门差异。
-- 状态记录保存相机交付的视频像素，最终 Liquid Glass 合成效果、真机帧率、功耗和运动稳定性需要设备端验收。

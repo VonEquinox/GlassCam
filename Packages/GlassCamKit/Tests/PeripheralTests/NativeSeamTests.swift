@@ -28,8 +28,9 @@ struct NativeSeamTests {
     @Test func flatNativeSupport_canEstablishVisibleEvidence() {
         #expect(Self.measure(Self.flat, Self.flat, geometry: false).evidence.compatible)
     }
-    @Test(arguments: ["outer-row", "one-pixel-line", "absent-counterpart", "uncovered-counterpart"])
-    func missingNativeStructure_isRejected(kind: String) {
+    @Test(arguments: [("outer-row", true), ("one-pixel-line", true),
+                      ("absent-counterpart", false), ("uncovered-counterpart", false)])
+    func missingNativeStructure_isRejected(kind: String, geometry: Bool) {
         var reference = Self.line(x: 70), outer = Self.flat
         var tolerance = 1.0
         switch kind {
@@ -38,7 +39,8 @@ struct NativeSeamTests {
         case "uncovered-counterpart": outer = Self.line(x: 77); outer[3] = 0; tolerance = 4
         default: break
         }
-        #expect(!Self.measure(reference, outer, geometry: kind == "outer-row" || kind == "one-pixel-line", tolerance: tolerance).evidence.compatible)
+        let measured = Self.measure(reference, outer, geometry: geometry, tolerance: tolerance)
+        #expect(!measured.evidence.compatible)
     }
     @Test(arguments: [(70, true), (86, false)])
     func weakBlurredCounterpart_requiresMatchingLocation(input: (Int, Bool)) {

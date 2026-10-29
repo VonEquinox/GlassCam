@@ -1,13 +1,17 @@
-# Selected HNCS reference source
+# HNCS 数据来源与权利
 
-This directory preserves selected original files from the user's private `VonEquinox/GlassCam` repository, `HNCS技术交付/`, pinned commit `34fa10f42bc32efea0ca5559f006ebe9a8bf6489` (colour revision 2, render revision 8). The original port used `c3595d776fe07ceda4c06793618bbe7456e02f04`; its core numerical assets and legacy golden vectors remain unchanged.
+本目录选取用户私有仓库 `VonEquinox/GlassCam` 的 `HNCS技术交付/` 材料，固定源提交为 `34fa10f42bc32efea0ca5559f006ebe9a8bf6489`。参考颜色路径为 revision 2，渲染路径为 revision 8；最初移植基线为 `c3595d776fe07ceda4c06793618bbe7456e02f04`。
 
-提取脚本和调查证据保存在本地 `GlassCam-research` 仓库的提交 `799f5a6a560a7be4c3a520b0f5359a9e1758a53b`，分别位于 `tools/reverse-engineering/` 和 `evidence/`。
+| 材料 | 来源与校验记录 |
+|---|---|
+| 参考实现 | [hncs_pipeline.py](hncs_pipeline.py)；独立参考入口为 [reference_color_core.py](tools/reference_color_core.py) |
+| 所选源码与数据 | [逐文件 SHA-256 清单](validation/revision8-selected-source-sha256.json) |
+| 工厂数值资产 | [provenance.json](work/hncs-pipeline/assets/provenance.json)，记录 Phocus 4.2.2 来源及矩阵、LUT、ICC 的哈希 |
+| `x2dii_phocus_422.npz` | SHA-256：`3291628ef8787a20082eaebb7e50fccac0a89bbce14dc5619ecf1277d816c1b9` |
+| 应用使用的固定数值样本 | [tests/fixtures/hncs](../../tests/fixtures/hncs/README.md)，各样本保留自身来源与版本 |
 
-`README.md`, `validation/delivery_manifest.json`, `source_index.json`, and `tests.log` are original upstream documents/evidence. They describe the complete upstream delivery and are not a statement that every upstream file or RAW input is bundled here, or that all upstream tests were run in this environment. Current selected-file hashes are in `validation/revision8-selected-source-sha256.json`.
+[上游 README](README.md)、[完整交付清单](validation/delivery_manifest.json)、[源码索引](validation/source_index.json)与[原始测试日志](validation/tests.log)保留上游原文；本目录所选文件范围由逐文件 SHA-256 清单界定。
 
-应用的 golden 数据保留在原型顶层的 `validation/`；调查记录位于上述研究仓库的 `evidence/`。
+提取脚本和调查证据保存在本机 `GlassCam-research` 仓库提交 `799f5a6a560a7be4c3a520b0f5359a9e1758a53b`，分别位于 `tools/reverse-engineering/` 和 `evidence/`。
 
-Runtime reproduction uses retained source assets without installing or running Phocus. No original photography or RAW image is added. Current cloud package versions may differ from upstream's locked requirements; each newly executed report must state its actual environment. No automatic dependency upgrade or new calibration is implied by this sync.
-
-The original recovered factory data retain their existing rights boundary. See [NOTICE](../NOTICE.md). Private repository development does not establish commercial redistribution permission or complete Phocus equivalence.
+原厂资产和第三方代码保留各自的权利与许可，统一分发说明见 [NOTICE](../../NOTICE.md)。

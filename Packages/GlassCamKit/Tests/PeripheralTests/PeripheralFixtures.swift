@@ -6,7 +6,6 @@ import Metal
 import QuartzCore
 import simd
 @testable import Peripheral
-@testable import Capture
 import GlassCamTestSupport
 
 enum PeripheralFixtures {

@@ -42,15 +42,18 @@
 
 | 命令 | 执行内容 |
 |---|---|
-| `make test` | 原生内存安全、数值、package Swift Testing 与 App 模拟器单元测试 |
+| `make test` | 开发工具、原生内存安全、数值、package Swift Testing 与 App 模拟器单元测试 |
+| `make test-tools` | 模拟器选择策略：可用性、系统版本、显式 UUID 与稳定排序 |
 | `make test-native` | C++ 原生检查与 AddressSanitizer / UBSan |
 | `make test-numeric` | C++ 内核与固定 golden、边界输入及分条一致性 |
 | `make test-swift` | package Swift Testing；先准备 FFCS／LUMIX 资源并注入资源、夹具路径 |
 | `make test-app` | `GlassCamUnitTests` scheme 的 App 模拟器单元测试 |
-| `make test-ui` | `GlassCamCaptureTests` scheme 中明确筛选的模拟器操作测试 |
+| `make test-ui` | `GlassCamCaptureTests` scheme 的模拟器用户流程：质量选择持久化、控件重开与手动状态记录 |
 | `make test-baseline` | 固定完整色彩链检查，以及显式开启的本地 ProRAW 基线 |
 
-模拟器命令可用 `SIMULATOR_ID` 指定已有模拟器的 UUID，例如 `make test-app SIMULATOR_ID=SIMULATOR_UUID`；其中 `SIMULATOR_UUID` 需替换为实际值。`DIAGNOSTICS` 可指定 App 测试和基线产物目录；`DEVELOPER_DIR` 可选择其他 Xcode 安装。`make test-ui` 的筛选项只覆盖模拟器流程，设备测试需按[发布说明](release.md)另行授权。
+模拟器命令默认读取已有设备和运行时清单，选择可用且运行 iOS 27 或更高版本的 iPhone 模拟器：优先已启动项，再按系统版本从新到旧、设备类型和 UUID 稳定排序。找不到合适目标时直接报错，不安装运行时或创建模拟器。可用 `SIMULATOR_ID` 指定已有模拟器的 UUID，例如 `make test-app SIMULATOR_ID=SIMULATOR_UUID`；显式目标也必须满足上述条件。`DIAGNOSTICS` 可指定 App 测试和基线产物目录；`DEVELOPER_DIR` 可选择其他 Xcode 安装。
+
+UI target 只包含模拟器用户流程。真机取证脚本和来源提交位于 `GlassCam-research` 的 `device-acceptance/`，设备操作需按[发布说明](release.md)另行授权。旧 Speed 质量与 12 MP 恢复兼容由 Swift 设置迁移测试及固定拍摄记录 JSON 测试覆盖。
 
 本地 ProRAW 基线通过 `GLASSCAM_DNG_DIR` 开启。目录应至少包含主摄、超广角、长焦的三份 DNG；测试按文件名排序读取前三份。将 `DNG_DIR` 设为自己的素材目录后运行：
 
@@ -65,6 +68,8 @@ GLASSCAM_DNG_DIR="$DNG_DIR" make test-baseline
 - 放在 `tests/fixtures/<主题>/`。每个目录有一个 `README.md`，写明来源、生成命令和对应的算法版本。
 - 测试不能现场生成 golden 再和自己比较。
 - 修改 golden 时，提交说明必须写明原因和受影响的版本号。
+
+拍摄记录候选由独立 [journal-fixtures 工具包](../tools/journal-fixtures/Package.swift)生成；命令见[样本说明](../tests/fixtures/journal/README.md)。它复用测试输入和真实产品序列化器，只接受仓库外不存在的目标目录。正常 `make test` 不执行生成器。
 
 ## 产品代码里的断言
 

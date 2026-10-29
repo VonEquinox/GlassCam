@@ -39,6 +39,8 @@ python3 scripts/iphone_release.py --refresh-signing --install-device DEVICE_ID
 
 离线验收运行[测试说明](testing.md)中的 `make test`、`make test-ui`；有本地 ProRAW 素材时另运行 `make test-baseline`。数值结果、恢复兼容与未签名构建共同用于检查发布候选。
 
+模拟器测试默认从已有可用的 iOS 27 或更高版本 iPhone 模拟器中选择，优先已启动项；也可显式设置 `SIMULATOR_ID`。入口不创建模拟器或安装运行时。
+
 真机验收由用户执行或明确授权后执行：
 
 1. 检查冷启动、相机及相册权限拒绝与恢复、签名有效期。
@@ -46,6 +48,8 @@ python3 scripts/iphone_release.py --refresh-signing --install-device DEVICE_ID
 3. 检查 F5、Balanced、Quality 三种质量选择与三个色彩引擎；对 Balanced／Quality 检查 24MP／48MP 输出，核对相册原件的尺寸、方向、HDR、拍摄日期及有效像素估计。
 4. 检查切后台、锁屏和进程结束后的单张恢复，旧 Speed 12MP 待完成记录的恢复，保存失败重试，以及保存结果未知时的人工确认。
 5. 检查回看、分享接收端、设置恢复、外围玻璃外观、运动稳定性，以及连续单拍的耗时、内存和热状态。
+
+需要自动化收集真机证据时，使用 `GlassCam-research` 的 `device-acceptance/`。该目录保留来源提交、完整 UI 方法和独立项目准备／构建说明；产品仓库的 UI target 只运行模拟器流程。
 
 ## 不变量
 
@@ -70,4 +74,5 @@ python3 scripts/iphone_release.py --refresh-signing --install-device DEVICE_ID
 - [iphone_release.py](../scripts/iphone_release.py)：构建、签名验证、有效期读取及显式设备安装入口。
 - [GlassCam.xcodeproj](../App/GlassCam.xcodeproj/project.pbxproj)：应用目标、包标识和签名设置。
 - [Makefile](../Makefile)：离线测试与模拟器测试入口。
-- [CaptureWorkflowUITests](../App/GlassCamUITests/CaptureWorkflowUITests.swift)：模拟器与设备操作测试；统一入口只筛选模拟器项。
+- [CaptureWorkflowUITests](../App/GlassCamUITests/CaptureWorkflowUITests.swift)：模拟器用户流程。
+- [select_simulator.py](../scripts/select_simulator.py)：只读发现并校验已有模拟器。

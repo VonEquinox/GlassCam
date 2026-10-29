@@ -83,7 +83,7 @@ F5 使用独立 Bayer 连拍驱动，输出由 F5 重建策略决定，快照不
 18. Photos 仅申请添加权限，导入保留原始 HEIF 字节、文件名、日期和文件所有权。— `GlassCamTests/PhotoDeliveryTests.authorization_requestsAddOnly`、`GlassCamTests/PhotoDeliveryTests.photoImport_keepsOriginalHEIFBytesNameAndOwnership`、`GlassCamTests/PhotoDeliveryTests.photoImport_preservesFilenameDateAndPhotoResourceType`
 19. 已有单张、F5 和规范化 Speed 记录往返保持固定字节，旧 Speed 保留质量与 12MP 输出并沿用既有规范化。— `F5Tests/currentJournal_decodeEncodePreservesBytes`、`F5Tests/legacySpeed_decodeRetainsQualityAndExistingNormalization`
 20. F5 保留重试复用原记录与五帧，损坏 burst 保留文件与格式错误，确认保存后按快照归档源文件。— `F5Tests/retainedBurst_retryKeepsOriginalRecordAndFiveFrames`、`F5Tests/corruptBurst_loadRetainsFilesAndOriginalFailure`、`F5Tests/confirmedBurst_clearArchivesOriginals`
-21. 自动会话恢复受预算约束，旧代次或取消的会话不重启。— `PeripheralTests/SessionRecoveryTests.recoveryBudget_boundsAutomaticRebuildsAndRejectsBackwardsTime`、`PeripheralTests/SessionRecoveryTests.staleOrCancelledSession_doesNotRestart`
+21. 自动会话恢复受预算约束，旧代次或取消的会话不重启。— `CaptureTests/SessionRecoveryTests.recoveryBudget_boundsAutomaticRebuildsAndRejectsBackwardsTime`、`CaptureTests/SessionRecoveryTests.staleOrCancelledSession_doesNotRestart`
 
 ## 数据与版本
 

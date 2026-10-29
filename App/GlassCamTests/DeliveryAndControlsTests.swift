@@ -104,9 +104,11 @@ struct CameraControlsTests {
     func controls_stayWithinSafePeriphery(size: CGSize) {
         let framing = CameraFraming(size: size, photoAspectRatio: size.width > size.height ? 4.0/3.0 : 3.0/4.0)
         let layout = CameraChromeLayout(framing: framing, safeArea: EdgeInsets(top: 20,leading: 12,bottom: 20,trailing: 12), needsAccessiblePanel: false)
-        let intersects = [layout.first,layout.second].filter { !$0.isEmpty }.map { $0.intersection(framing.photo) }
-        #expect(intersects.allSatisfy { $0.isNull || $0.isEmpty })
-        #expect([layout.first,layout.second].allSatisfy { $0.isEmpty || framing.window.contains($0) })
+        let controls = [layout.first, layout.second].filter { !$0.isEmpty }
+        let overlaps = controls.map { $0.intersection(framing.photo) }.filter { !$0.isNull }.filter { !$0.isEmpty }
+        let outsideWindow = controls.filter { !framing.window.contains($0) }
+        #expect(overlaps.isEmpty)
+        #expect(outsideWindow.isEmpty)
     }
     @Test func accessibilityText_usesSeparatePanelWithoutChangingPhoto() {
         let framing = CameraFraming(size: CGSize(width: 390,height: 844), photoAspectRatio: 0.75)

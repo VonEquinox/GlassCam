@@ -43,6 +43,7 @@ struct CameraView: View {
                                             (proxy.size.width > proxy.size.height ? 4.0 / 3.0 : 3.0 / 4.0))
             let chrome = CameraChromeLayout(framing: framing, safeArea: proxy.safeAreaInsets,
                                             needsAccessiblePanel: dynamicTypeSize.isAccessibilitySize)
+            let showsUnavailableCamera = !camera.isCapturing && !camera.isReady && !workflow.isWorking
             ZStack(alignment: .topLeading) {
                 Color.black
                 // Retained raw fallback for single-camera mode / graph handoff.
@@ -89,29 +90,36 @@ struct CameraView: View {
                     .position(x: framing.photo.midX, y: framing.photo.midY)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
-                if !camera.isCapturing && !camera.isReady && !workflow.isWorking {
-                    VStack(spacing: 12) {
-                        Image(systemName: "camera.fill").font(.largeTitle)
-                        Text(LocalizedStringKey(camera.status)).font(.callout).multilineTextAlignment(.center)
-                        if !camera.isReady && !camera.isConfiguring {
-                            Button("Retry camera") { restartCamera() }.padding(10)
-                            if AVCaptureDevice.authorizationStatus(for: .video) == .denied {
-                                Button("Open Settings") {
-                                    if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                if showsUnavailableCamera {
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            VStack(spacing: 12) {
+                                Image(systemName: "camera.fill").font(.largeTitle)
+                                Text(LocalizedStringKey(camera.status)).font(.callout).multilineTextAlignment(.center)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                if !camera.isConfiguring {
+                                    Button("Retry camera") { restartCamera() }.padding(10)
+                                    if AVCaptureDevice.authorizationStatus(for: .video) == .denied {
+                                        Button("Open Settings") {
+                                            if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                                        }
+                                    }
+                                }
+                                if chrome.style == .separate {
+                                    Button("Open camera controls") { activePanel = .compact }
+                                        .frame(minHeight: 44)
                                 }
                             }
+                            recordingControls
                         }
-                        if chrome.style == .separate {
-                            Button("Open camera controls") { activePanel = .compact }
-                                .frame(minHeight: 44)
-                        }
+                        .padding(16)
+                        .frame(maxWidth: .infinity)
                     }
-                    .padding(16)
                     .frame(width: framing.photo.width, height: framing.photo.height)
                     .background(.black)
                     .position(x: framing.photo.midX, y: framing.photo.midY)
                 }
-                if camera.centerPreviewLayer != nil {
+                if !showsUnavailableCamera, camera.centerPreviewLayer != nil {
                     Color.clear.contentShape(Rectangle())
                         .frame(width: framing.photo.width, height: framing.photo.height)
                         .position(x: framing.photo.midX, y: framing.photo.midY)
@@ -131,22 +139,10 @@ struct CameraView: View {
                     // Clear glass transmits bright scenes; a soft glyph shadow
                     // keeps controls legible without dimming the periphery.
                     .shadow(color: .black.opacity(0.45), radius: 3, y: 0.5)
-                PeripheralRecordingControls(model: stateRecords) {
-                    stateRecords.record(source: camera.peripheralSource, camera: [
-                        "status": camera.status, "isReady": camera.isReady,
-                        "isCapturing": camera.isCapturing, "isPreviewFrozen": camera.isPreviewFrozen,
-                        "isConfiguring": camera.isConfiguring, "capturePhase": camera.capturePhase.rawValue,
-                        "requestedZoom": camera.requestedZoom, "appliedZoom": camera.appliedZoom,
-                        "physicalCameraID": camera.physicalCameraID ?? "none",
-                        "previewEncoding": camera.centerPreviewEncoding ?? "none",
-                        "sceneActive": scenePhase == .active, "settingsPresented": settingsPresented,
-                        "experimentalLiveColor": experimentalLiveColor,
-                        "tolerance": PeripheralTolerance.shared.value,
-                        "liveColorShowing": liveProxyStatus.isShowingEffect,
-                        "workflowPhase": String(describing: workflow.phase),
-                        "sourceState": camera.peripheralSource?.diagnosticState() ?? "no-source"])
+                if !showsUnavailableCamera {
+                    recordingControls
+                        .position(x: framing.photo.midX, y: max(62, framing.photo.maxY - 62))
                 }
-                .position(x: framing.photo.midX, y: max(62, framing.photo.maxY - 62))
                 CameraOrientationObserver { camera.updateOrientation($0) }
                     .frame(width: proxy.size.width, height: proxy.size.height)
                     .allowsHitTesting(false)
@@ -208,6 +204,24 @@ struct CameraView: View {
         .confirmationDialog("Save this photo again? Check Photos first to avoid a duplicate.", isPresented: $repeatSaveConfirmation,
                             titleVisibility: .visible) {
             Button("Save to Photos again") { workflow.saveAgain() }
+        }
+    }
+
+    private var recordingControls: some View {
+        PeripheralRecordingControls(model: stateRecords) {
+            stateRecords.record(source: camera.peripheralSource, camera: [
+                "status": camera.status, "isReady": camera.isReady,
+                "isCapturing": camera.isCapturing, "isPreviewFrozen": camera.isPreviewFrozen,
+                "isConfiguring": camera.isConfiguring, "capturePhase": camera.capturePhase.rawValue,
+                "requestedZoom": camera.requestedZoom, "appliedZoom": camera.appliedZoom,
+                "physicalCameraID": camera.physicalCameraID ?? "none",
+                "previewEncoding": camera.centerPreviewEncoding ?? "none",
+                "sceneActive": scenePhase == .active, "settingsPresented": settingsPresented,
+                "experimentalLiveColor": experimentalLiveColor,
+                "tolerance": PeripheralTolerance.shared.value,
+                "liveColorShowing": liveProxyStatus.isShowingEffect,
+                "workflowPhase": String(describing: workflow.phase),
+                "sourceState": camera.peripheralSource?.diagnosticState() ?? "no-source"])
         }
     }
 

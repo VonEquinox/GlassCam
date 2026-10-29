@@ -11,13 +11,16 @@ test-native:
 test-numeric:
 	$(PY) -m pytest tests/numeric
 
-SIMULATOR_ID ?= 4B643785-C6D2-402D-AB5A-753CCD96BA0D
+SIMULATOR_ID ?=
 DIAGNOSTICS ?= $(HOME)/Library/Developer/GlassCamDiagnostics
 SWIFT_BUILD = swift test -c release --package-path Packages/GlassCamKit --build-system native
 
-.PHONY: test test-swift test-app test-baseline test-ui prepare-test-resources
+.PHONY: test test-tools test-swift test-app test-baseline test-ui prepare-test-resources
 
-test: test-native test-numeric test-swift test-app
+test: test-tools test-native test-numeric test-swift test-app
+
+test-tools:
+	$(PY) -m pytest tests/tools
 
 prepare-test-resources:
 	bash scripts/prepare_ffcs_resources.sh vendor/ffcs/source.zip Packages/GlassCamKit/.build/test-resources/FFCS
@@ -27,10 +30,12 @@ test-swift: prepare-test-resources
 	GLASSCAM_TEST_RESOURCES="$(CURDIR)/Packages/GlassCamKit/.build/test-resources" GLASSCAM_TEST_FIXTURES="$(CURDIR)/tests/fixtures" $(SWIFT_BUILD)
 
 test-app:
-	xcodebuild test -project App/GlassCam.xcodeproj -scheme GlassCamUnitTests -destination 'platform=iOS Simulator,id=$(SIMULATOR_ID)' -parallel-testing-enabled NO -derivedDataPath "$(DIAGNOSTICS)/app-unit-tests" ONLY_ACTIVE_ARCH=YES
+	@simulator_id=$$(python3 scripts/select_simulator.py $(if $(SIMULATOR_ID),--id "$(SIMULATOR_ID)")) && \
+	xcodebuild test -project App/GlassCam.xcodeproj -scheme GlassCamUnitTests -destination "platform=iOS Simulator,id=$$simulator_id" -parallel-testing-enabled NO -derivedDataPath "$(DIAGNOSTICS)/app-unit-tests" ONLY_ACTIVE_ARCH=YES
 
 test-baseline: prepare-test-resources
 	GLASSCAM_TEST_RESOURCES="$(CURDIR)/Packages/GlassCamKit/.build/test-resources" GLASSCAM_TEST_FIXTURES="$(CURDIR)/tests/fixtures" GLASSCAM_BASELINE_OUTPUT="$(DIAGNOSTICS)/color-baseline" $(SWIFT_BUILD) --filter 'BaselineTests|ColorChainTests'
 
 test-ui:
-	xcodebuild test -project App/GlassCam.xcodeproj -scheme GlassCamCaptureTests -destination 'platform=iOS Simulator,id=$(SIMULATOR_ID)' -parallel-testing-enabled NO -derivedDataPath "$(DIAGNOSTICS)/ui-tests" -only-testing:GlassCamUITests/CaptureWorkflowUITests/testCapturePriorityMenuAndSpeed12MPOnSimulator -only-testing:GlassCamUITests/CaptureWorkflowUITests/testManualStateRecordsWithoutCameraOnSimulator -only-testing:GlassCamUITests/CaptureWorkflowUITests/testCompactControlsCanReopenAfterDismissalOnSimulator ONLY_ACTIVE_ARCH=YES
+	@simulator_id=$$(python3 scripts/select_simulator.py $(if $(SIMULATOR_ID),--id "$(SIMULATOR_ID)")) && \
+	xcodebuild test -project App/GlassCam.xcodeproj -scheme GlassCamCaptureTests -destination "platform=iOS Simulator,id=$$simulator_id" -parallel-testing-enabled NO -derivedDataPath "$(DIAGNOSTICS)/ui-tests" ONLY_ACTIVE_ARCH=YES

@@ -98,11 +98,13 @@ struct RecipeTests {
         #expect(recipe.ffcs.sharpenRadius == 1)
         #expect(recipe.effects == effects)
     }
-    @Test(arguments: [ColorMode.hncs, .ffcs, .lumix], [false, true])
-    func extraCrop_onlyAffectsActiveHNCSSquarePreset(mode: ColorMode, enabled: Bool) {
+    @Test(arguments: [(ColorMode.hncs, false, ImageCrop.none), (.hncs, true, .centeredSquare),
+                      (.ffcs, false, .none), (.ffcs, true, .none),
+                      (.lumix, false, .none), (.lumix, true, .none)])
+    func extraCrop_onlyAffectsActiveHNCSSquarePreset(mode: ColorMode, enabled: Bool, expected: ImageCrop) {
         var settings = HNCSSettings.standard; settings.presetKey = "square-crop"
         let recipe = ProcessingRecipe(mode: mode, exposureEV: 0, illuminantKelvin: 6500, simulationIndex: 0, seed: 0,
                                       hncs: settings, effects: .init(applyExtraCrop: enabled))
-        #expect(recipe.crop == (mode == .hncs && enabled ? .centeredSquare : .none))
+        #expect(recipe.crop == expected)
     }
 }

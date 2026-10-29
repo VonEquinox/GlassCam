@@ -1,25 +1,19 @@
-# Provenance and distribution boundary
+# 来源与分发说明
 
-HNCS reference source and numerical assets originate from the historical `HNCS技术交付/` tree in the user's private repository `VonEquinox/GlassCam`, pinned source commit `34fa10f42bc32efea0ca5559f006ebe9a8bf6489` (original port baseline `c3595d776fe07ceda4c06793618bbe7456e02f04`). The selected sources and assets used by GlassCam are preserved in `vendor/hncs/`.
+GlassCam 使用用户提供的参考源码、数值资产与固定样本。各来源的版本、提交和哈希分别记录在对应的 ORIGIN 文档中。
 
-Original color implementation: `hncs_pipeline.py` (colour path revision 2, render path revision 8). Independent original implementation: `tools/reference_color_core.py`. Asset provenance: `work/hncs-pipeline/assets/provenance.json`. NPZ SHA256: `3291628ef8787a20082eaebb7e50fccac0a89bbce14dc5619ecf1277d816c1b9`.
+| 组成 | 来源与校验记录 |
+|---|---|
+| HNCS 源码、预设、矩阵、LUT 与曲线 | [HNCS ORIGIN](vendor/hncs/ORIGIN.md)，来源资料包含 Phocus 4.2.2 数据 |
+| FFCS 源码、相机表族 LUT 与 ICC | [FFCS ORIGIN](vendor/ffcs/ORIGIN.md)，当前参考交付为 FFCS 0.2.0 |
+| LUMIX Photo Style 双表与参数 | [LUMIX ORIGIN](vendor/lumix/ORIGIN.md)，来源为 SILKYPIX Developer Studio 8 SE 8.0.31.1 |
 
-The portable C++ implementation is derived from these sources and uses a lossless generated representation of supplied numeric tables. Source order, quantization and domain semantics are retained deliberately. The bundled reference files retain their original provenance and hashes; the separate technical-delivery branch and top-level directory are not build dependencies.
+## 原厂数据的权利
 
-The supplied provenance identifies recovered Phocus 4.2.2 data. No blanket license or proof of commercial redistribution rights for these factory data was supplied. Permission to work in the private repository is not a finding that App Store distribution is cleared. Do not publish the factory data in a public repository or commercial application without rights review. No licensing statement in this prototype grants rights to Hasselblad/Phocus materials. The unrelated license elsewhere in the technical delivery must not be treated as licensing these tables.
+原厂数据及其衍生数值表保留原权利人的所有权；随资料未提供覆盖公开或商业再分发的完整许可证明。私有仓库开发授权不包含公开仓库、App Store 或其他商业分发授权，分发前须完成相应的权利核对。本仓库及技术交付中其他组件的许可均不为这些数据授予额外权利。
 
-Only user-authorized private repository development is performed here. This prototype is not affiliated with or endorsed by Hasselblad or Apple.
+GlassCam 与 Hasselblad、Phocus、Fujifilm、SILKYPIX 或 Apple 没有关联或背书关系。
 
-## FFCS
+## 第三方兼容代码
 
-FFCS derives from the user-supplied private technical delivery, source commit `3c0a85eeb3893764ae92fc0fe52ebb62fd9f6ac5`. Exact archive provenance and preserved materials are documented in [vendor/ffcs/ORIGIN.md](vendor/ffcs/ORIGIN.md). Original code, documents, validation and recovered LUT/ICC bytes are retained. Factory SilkyPix/Fujifilm data do not acquire public redistribution rights through this port. No proof of commercial redistribution clearance has been established. Private development authorization does not authorize public release of these assets. This prototype is not endorsed by Fujifilm or SilkyPix.
-
-Revision 8 preset source/catalog and the six UInt16 post-curve tables retain the same private provenance boundary. Native post-curve vectors validate recovered color controls, not proprietary Phocus spatial kernels. Legacy numerical reports remain historical evidence. See [HNCS data and compatibility contract](docs/color/hncs.md).
-
-## NumPy / SciPy compatibility components
-
-The revision-8 portable spatial port retains the applicable NumPy/SciPy BSD and PCG/random-generator license notices and source URLs directly in `Packages/GlassCamKit/Sources/CHNCS/hncs_numpy_rng.cpp` and `Packages/GlassCamKit/Sources/CHNCS/hncs_spatial.cpp`. These notices must accompany redistributions, including compiled distributions where the licenses require it. This is distinct from the unresolved rights to recovered Phocus/Fujifilm factory data.
-
-## LUMIX / SILKYPIX reference data
-
-The LUMIX Photo Style adapter uses original paired LUTs and SDR VE register data extracted from the user-supplied SILKYPIX Developer Studio 8 SE 8.0.31.1. Provenance, hashes and the source-adaptation boundary are recorded in [vendor/lumix/ORIGIN.md](vendor/lumix/ORIGIN.md). No SILKYPIX executable is included in the iPhone application.
+便携空间处理和随机数兼容组件保留适用的 NumPy／SciPy BSD、PCG 及随机数实现许可声明和来源链接，详见 [hncs_numpy_rng.cpp](Packages/GlassCamKit/Sources/CHNCS/hncs_numpy_rng.cpp) 与 [hncs_spatial.cpp](Packages/GlassCamKit/Sources/CHNCS/hncs_spatial.cpp)。分发这些组件时，应按各许可要求随源码或二进制提供相应声明。

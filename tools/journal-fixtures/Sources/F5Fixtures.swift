@@ -1,0 +1,1 @@
+../../../Packages/GlassCamKit/Tests/F5Tests/F5Fixtures.swift

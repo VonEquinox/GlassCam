@@ -46,7 +46,8 @@ struct WorkerTests {
         var pixels = fixture.center
         for y in 0..<30 { for x in 50..<76 { for channel in 0..<3 { pixels[(y * 192 + x) * 4 + channel] = 0 } } }
         let unknown = worker.analyze(try fixture.pair(pixels, time: 100.1, serial: 2), seams: .horizontal, now: { 100.1 })
-        #expect(unknown == nil || !unknown!.evidence.reliable || unknown!.evidence.appearance == .mismatch)
+        let incorrectlyCertified = [unknown].compactMap { $0 }.map(\.evidence).filter(\.reliable).filter { $0.appearance != .mismatch }
+        #expect(incorrectlyCertified.isEmpty)
         let restored = worker.analyze(try fixture.pair(time: 100.2, serial: 3), seams: .horizontal, now: { 100.2 })
         #expect(restored?.evidence.reliable == true)
     }

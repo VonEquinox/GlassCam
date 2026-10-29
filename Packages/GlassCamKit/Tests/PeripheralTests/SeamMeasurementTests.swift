@@ -42,7 +42,8 @@ struct SeamMeasurementTests {
         var occluded = zero.b
         for y in 32..<32+30 { for x in 32+50..<32+76 { for c in 0..<3 { occluded[(y*256+x)*4+c] = 0 } } }
         let blind = try F.measure(zero.a,occluded)
-        #expect(!blind.evidence.reliable || blind.evidence.appearance == .mismatch)
+        let incorrectlyCertified = [blind.evidence].filter(\.reliable).filter { $0.appearance != .mismatch }
+        #expect(incorrectlyCertified.isEmpty)
     }
     @Test func thinLineSevereShift_latchesWithoutWaitingForUnknownExpiry() throws {
         var lineA = [UInt8](repeating:255,count:192*256*4), lineB = [UInt8](repeating:255,count:256*320*4)
@@ -56,7 +57,8 @@ struct SeamMeasurementTests {
         F.feed(&linePolicy,line.evidence,1.08,id:13)
         #expect(linePolicy.latched)
         #expect(linePolicy.reason == "confirmed-local-displacement")
-        #expect(!line.evidence.reliable || line.residual > 0.1)
+        let understatedResiduals = [line].filter { $0.evidence.reliable }.map(\.residual).filter { !($0 > 0.1) }
+        #expect(understatedResiduals.isEmpty)
     }
     @Test func independentPhotometry_updatesAtFixedGeometry() throws {
         let zero = F.fixture()
@@ -75,7 +77,8 @@ struct SeamMeasurementTests {
         var twoPlanes = zero.b
         for y in 0..<320 { for x in 128..<256 { for c in 0..<4 { twoPlanes[(y*256+x)*4+c] = near.b[(y*256+x)*4+c] } } }
         let planes = try F.measure(zero.a,twoPlanes)
-        #expect(!planes.evidence.reliable || planes.evidence.interval!.upperBound > 0.10)
+        let understatedIntervals = [planes.evidence].filter(\.reliable).map { $0.interval!.upperBound }.filter { !($0 > 0.10) }
+        #expect(understatedIntervals.isEmpty)
     }
     @Test func flatWall_doesNotInventGeometry() throws {
         let zero = F.fixture()
