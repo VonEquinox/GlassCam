@@ -1,6 +1,8 @@
 import Foundation
 import ImageIO
 import Darwin
+import CoreImage
+import CMetalImage
 
 /// Providers retain this owner through outstanding file requests, so dismissing
 /// a sheet cannot delete a HEIF that is still being handed to a recipient.
@@ -207,6 +209,7 @@ public final class SourceImageFile: @unchecked Sendable {
 /// Mapped pages and Apple decode/encode allocations still count toward RSS;
 /// this is bounded application-owned tile scratch, NOT bounded total memory.
 package final class ExportRasterFile {
+    private var imageReader: GCFileRaster?
     package let url: URL
     package let handle: FileHandle
     package init() throws {
@@ -237,6 +240,17 @@ package final class ExportRasterFile {
               address != MAP_FAILED else { throw PipelineError.rendering }
         return Data(bytesNoCopy: address, count: expectedBytes,
                     deallocator: .custom { pointer, count in munmap(pointer, count) })
+    }
+    package func tiledImage(width: Int, height: Int, colorSpace: CGColorSpace) throws -> CIImage {
+        try handle.synchronize()
+        let reader = try GCFileRaster(path: url.path, width: UInt(width), height: UInt(height))
+        imageReader = reader
+        return reader.image(with: colorSpace)
+    }
+    package func validateImageReads() throws {
+        if let code = imageReader?.readError, code != 0 {
+            throw NSError(domain: NSPOSIXErrorDomain, code: Int(code))
+        }
     }
     deinit {
         try? handle.close()

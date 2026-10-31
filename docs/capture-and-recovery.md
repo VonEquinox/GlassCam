@@ -8,7 +8,7 @@ GlassCam 在快门时冻结处理配方，取得源照片后自动生成 HDR HEI
 
 根视图持有 `CameraSettingsStore` 和 `CaptureWorkflow`，打开设置或回看不会转移任务所有权。快门先向 `CameraController` 预约当前取景方向，再创建 `CaptureSnapshot`，冻结配方、输出选择、拍摄质量和 F5 RAW 归档选择，随后请求 Photos 的 `.addOnly` 授权。工作流空闲、恢复检查完成且应用可处理照片时，才接纳新快门。
 
-授权成功后，相机按快照执行拍摄。相机配置、拍摄和恢复由后台串行队列管理；需要从多摄取景或虚拟相机切换到物理镜头时，先保留取景画面并释放原会话，再建立普通 `.photo` 会话。源照片能力与取景缓冲尺寸分别选择，Balanced／Quality 使用当前格式允许的最高源尺寸。高分辨率 ProRAW 等待照片会话至少稳定 2 秒，并在 8 秒准备期限内等待就绪；提交后的终结回调有 45 秒超时保护。
+授权成功后，相机按快照执行拍摄。相机配置、拍摄和恢复由后台串行队列管理；需要从多摄取景或虚拟相机切换到物理镜头时，先保留取景画面并释放原会话，再建立普通 `.photo` 会话。源照片能力与取景缓冲尺寸分别选择，Quality 使用当前格式允许的最高 ProRAW 源尺寸；Speed／Balanced 使用名义 12MP Bayer RAW。高分辨率 ProRAW 等待照片会话至少稳定 2 秒，并在 8 秒准备期限内等待就绪；提交后的终结回调有 45 秒超时保护。
 
 `ProRAWCapture` 校验 RAW 类型、非空 DNG、回调尺寸和像素缓冲尺寸。已知物理镜头的未裁切原生视角要求返回请求尺寸；明确数字变焦的较小 RAW 可在尺寸与比例校验通过后接纳。处理回调中的照片暂存到 `didFinishCaptureFor` 终结成功才交付。终结前取消不交付暂存照片，终结后取消或取景恢复失败保留已完成照片。
 
@@ -55,11 +55,17 @@ Journal 检查文件字节数和 SHA-256；损坏文件、未知版本或暂时�
 
 相机输出与目标档位的像素差不超过 2.5% 时保留原生栅格，否则按比例计算偶数宽高。有效像素估计取解码像素数与数字变焦约束上限中的较小值，再计算配方裁剪面积；回看分别标记估计源像素、成片像素和插值。输出尺寸决策见 [ADR 0002](adr/0002-adaptive-output-resolution.md)。
 
+### 调色前文件
+
+Balanced 与 Quality 的快门为照片冻结 `rawArchiveID`。处理入口在品牌调色前将 Balanced 的浮点相机 DNG、线性 sRGB TIFF 或原始 ProRAW 交给 `CaptureRAWStore`，保存到 Documents 的 `RAWCaptures/<ID>/<模式>/`。归档失败阻止调色，原有输入留在恢复记录中；重试验证并复用已发布文件，确认保存后的 Journal 清理不删除调色前归档。
+
+设置页的两个测试入口分别记录十一张等曝光 Bayer 素材，或依次记录同一场景的 Balanced 与 Quality。场景对照共享一个归档 ID，直接归档 Balanced 合成原片和 ProRAW 原片，不进入普通工作流的调色、HEIF 编码与相册保存。Balanced 的输入事务在归档成功前保持在同组 `bayer-inputs` 目录；失败停止后续采集并保留已录制文件。
+
 ### 格式注册与 F5 边界
 
 `CaptureFormats` 是不可变注册表，`GlassCamApp` 创建含 `F5CaptureFormat` 的实例，并注入工作流服务和 Journal。Capture 定义 `CapturePayload`、`CaptureProvenance`、`CaptureFormat` 及通用事务顺序；格式实现负责载荷编解码、文件校验与保留、暂存恢复、归档和渲染。
 
-F5 使用独立 Bayer 连拍驱动，输出由 F5 重建策略决定，快照不套用普通相机的 24MP／48MP 目标。完整暂存 burst 可以接入同一个 Journal；未完成 burst 保留诊断文件并要求明确放弃。开启 RAW 归档时，确认保存后的清理先调用格式的归档实现。具体输入限制与重建方式见 [F5](f5.md)。
+Speed／Balanced 使用独立 Bayer RAW 驱动，分别采集一帧／四帧，输出由 F5 曲率重建策略决定，快照不套用普通相机的 24MP／48MP 目标。完整暂存 burst 可以接入同一个 Journal；未完成 burst 保留诊断文件并要求明确放弃。开启 RAW 归档时，确认保存后的清理先调用格式的归档实现。具体输入限制与重建方式见 [F5](f5.md)。
 
 ## 不变量
 
@@ -89,17 +95,17 @@ F5 使用独立 Bayer 连拍驱动，输出由 F5 重建策略决定，快照不
 
 活动记录位于应用支持目录的 `GlassCam/PendingCapture`。单张记录沿用 `schemaVersion: 1`、`capture.json`、`source.dng` 和 `result.heic`；F5 记录使用 `schemaVersion: 2`、`sourceKind: "f5"` 和 `burst/` 载荷。记录字段继续包括 `id`、`createdAt`、`snapshot`、`stage`、`raw`、`encoded`、`width`、`height`、`attemptID`、`lastError`，文件描述保留 `bytes` 与 `sha256`。
 
-记录以排序 JSON 键原子写入并同步文件；iOS 文件使用完整文件保护，活动目录排除备份。`CaptureSnapshot` 保留 `recipe`、`output`、`quality`、`f5`、`archiveF5RAW` 键。包含 `f5` 来源信息的记录必须通过已注册格式的解码器读取，来源类型由 F5 提供。单张持久恢复的决定见 [ADR 0001](adr/0001-durable-single-capture.md)。
+记录以排序 JSON 键原子写入并同步文件；iOS 文件使用完整文件保护，活动目录排除备份。`CaptureSnapshot` 保留 `recipe`、`output`、`quality`、`f5`、`archiveF5RAW` 与 `rawArchiveID` 键。包含 `f5` 来源信息的记录必须通过已注册格式的解码器读取，来源类型由 F5 提供。单张持久恢复的决定见 [ADR 0001](adr/0001-durable-single-capture.md)。
 
 旧快照缺少 `quality` 时采用 Quality，未知质量值拒绝解码；缺少 `archiveF5RAW` 时采用 `false`。旧 Speed 照片仍按 `speed` 和 12MP 读取，再编码时补齐 `archiveF5RAW: false` 是既有规范化行为；固定样例见 [journal fixtures](../tests/fixtures/journal/README.md)。冻结照片配方按自身兼容规则恢复，旧 Nature 白平衡与 square-crop 构图保留。
 
-未来相机设置采用独立迁移：保存的 Speed 偏好迁到 F5，旧 12MP 输出偏好迁到 24MP，square-crop 相机预设迁到 standard，缺少白平衡策略的旧相机设置采用照片白平衡。设置迁移不改写待完成照片的快照。对应行为由 `CaptureTests/SettingsTests.legacySpeedPreference_migratesToF5`、`CaptureTests/SettingsTests.legacy12MPPreference_migratesTo24MP`、`CaptureTests/RecipeMigrationTests.savedSquareCameraPreference_migratesAndPersistsStandard`、`CaptureTests/RecoveryTests.legacyNature_recoveryKeepsFrozenWhiteBalance` 覆盖。
+未来相机设置采用独立迁移：保存的 F5 偏好转为 Balanced，Speed 偏好保留为单帧 RAW，旧 12MP 输出偏好迁到 24MP，square-crop 相机预设迁到 standard，缺少白平衡策略的旧相机设置采用照片白平衡。设置迁移不改写待完成照片的快照。对应行为由 `CaptureTests/SettingsTests.speedPreference_preservesSingleRAWMode`、`CaptureTests/SettingsTests.legacy12MPPreference_migratesTo24MP`、`CaptureTests/RecipeMigrationTests.savedSquareCameraPreference_migratesAndPersistsStandard`、`CaptureTests/RecoveryTests.legacyNature_recoveryKeepsFrozenWhiteBalance` 覆盖。
 
 | UserDefaults 键 | 内容 |
 |---|---|
 | `editor.processingRecipe.revision8.v1` | 经过验证的完整相机处理配方 |
-| `camera.capture.quality.v1` | F5、Balanced 或 Quality 拍摄质量 |
-| `camera.f5.keepRaw` | F5 RAW 归档选择 |
+| `camera.capture.quality.v1` | Speed、Balanced 或 Quality 拍摄质量 |
+| `camera.f5.keepRaw` | Speed／Balanced RAW 归档选择 |
 | `camera.output.megapixels.byPhysicalLens.v1` | 按模式与物理镜头保存的输出选择 |
 | `camera.output.preferred.v2` | 首选 24MP／48MP 档位 |
 | `camera.grid.visible` | 构图网格开关 |

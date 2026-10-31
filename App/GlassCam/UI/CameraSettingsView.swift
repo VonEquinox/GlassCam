@@ -11,6 +11,8 @@ struct CameraSettingsView: View {
     @Environment(\.colorResources) private var resources
     @ObservedObject var settings: CameraSettingsStore
     @ObservedObject var camera: CameraController
+    @ObservedObject var rawTests: RAWTestRecorder
+    @ObservedObject var workflow: CaptureWorkflow
     let canRecordF5: Bool
     let options: [CameraController.OutputOption]
     let physicalCameraID: String?
@@ -22,7 +24,7 @@ struct CameraSettingsView: View {
         Binding(get: { settings.captureQuality.outputMegapixels(preferred:
                     physicalCameraID.map { settings.outputMegapixels(physicalCameraID: $0, mode: mode) } ?? settings.preferredOutputMegapixels) },
                 set: { value in
-                    guard settings.captureQuality != .f5, let id = physicalCameraID,
+                    guard !settings.captureQuality.usesBayer, let id = physicalCameraID,
                           options.contains(where: { $0.megapixels == value }) else { return }
                     settings.setOutputMegapixels(value, physicalCameraID: id, mode: mode)
                 })
@@ -32,7 +34,7 @@ struct CameraSettingsView: View {
             CameraPageHeader(title: advanced ? "Advanced" : "Settings",
                              backLabel: advanced ? "Back to settings" : "Back to camera") {
                 if advanced { advanced = false } else { onBack() }
-            }
+            }.disabled(rawTests.isRecording)
             ScrollView {
                 VStack(spacing: 18) {
                     if advanced { advancedCards } else { commonCards }
@@ -40,9 +42,10 @@ struct CameraSettingsView: View {
                         .foregroundStyle(.white.opacity(0.25)).padding(.vertical, 18)
                 }.padding(.horizontal, 20).padding(.top, 12)
                     .frame(maxWidth: 680).frame(maxWidth: .infinity)
-            }.scrollIndicators(.hidden)
+            }.scrollIndicators(.hidden).disabled(rawTests.isRecording)
         }
         .background(CameraSettingsBackground()).foregroundStyle(.white)
+        .interactiveDismissDisabled(rawTests.isRecording)
         .preferredColorScheme(.dark).tint(.white).buttonStyle(.plain)
         .animation(.easeInOut(duration: 0.22), value: advanced)
     }
@@ -52,9 +55,12 @@ struct CameraSettingsView: View {
             Picker("Capture priority", selection: $settings.captureQuality) {
                 ForEach(CaptureQuality.allCases, id: \.self) { quality in Text(quality.title).tag(quality) }
             }.pickerStyle(.segmented).accessibilityIdentifier("settings.captureQuality")
-            if settings.captureQuality == .f5 {
+            if settings.captureQuality == .balanced {
                 HStack { Text("Sampling"); Spacer(); Text("2× in each dimension").foregroundStyle(.secondary) }
-                Text("F5 combines four main exposures and one short exposure. It uses the main camera’s native view and a 2× output grid. Detail can fall back locally when motion or highlights cannot be recovered.")
+                Text("Balanced combines four equal-exposure Bayer RAW frames with curvature reconstruction at 2× sampling.")
+                    .font(.caption).foregroundStyle(.white.opacity(0.6))
+            } else if settings.captureQuality == .speed {
+                Text("Speed uses one 12 MP Bayer RAW with noise reduction, bad-pixel correction, demosaicing and lens correction.")
                     .font(.caption).foregroundStyle(.white.opacity(0.6))
             } else {
                 Picker("Resolution", selection: outputSelection) {
@@ -63,12 +69,12 @@ struct CameraSettingsView: View {
                     .accessibilityIdentifier("settings.resolution")
             }
             HStack { Text("Format"); Spacer(); Text("10-bit HDR HEIF").foregroundStyle(.secondary) }.font(.subheadline)
-            if settings.captureQuality != .f5 {
+            if !settings.captureQuality.usesBayer {
                 Text("Photos save automatically. In 48 MP mode, smaller framed sources save at 24 MP.")
                     .font(.caption).foregroundStyle(.white.opacity(0.45))
             }
         }
-        if settings.captureQuality == .f5 { F5SettingsCard(camera: camera, settings: settings, canRecord: canRecordF5) }
+        F5SettingsCard(camera: camera, settings: settings, rawTests: rawTests, workflow: workflow, canRecord: canRecordF5)
         CameraCard(title: "Photo style", symbol: "camera.filters") {
             Picker("Color engine", selection: $settings.colorMode) {
                 ForEach(ColorMode.allCases) { mode in Text(mode.title).tag(mode) }

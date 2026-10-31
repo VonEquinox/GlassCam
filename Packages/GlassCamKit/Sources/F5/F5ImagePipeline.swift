@@ -14,6 +14,7 @@ struct F5LinearImage: SceneLinearImage {
         return white
     }
     var sourceISO: Int { Int(reference.actualISO.rounded()) }
+    var baselineSharpness: Double { reference.metadata.baselineSharpness ?? 0 }
     let raster: ExportRasterFile
     let width: Int, height: Int, orientation: Int
     let color: F5ColorTransformRecord
@@ -27,7 +28,7 @@ struct F5LinearImage: SceneLinearImage {
                 kCGImagePropertyExifFNumber as String: reference.aperture]])
     }
     func provenance(_ manifest: F5BurstManifest) -> F5CaptureProvenance {
-        F5CaptureProvenance(decodeRevision:F5Version.decoder,colorBridgeRevision:F5Version.colorBridge,
+        F5CaptureProvenance(decodeRevision:F5Version.decoder,colorBridgeRevision:color.colorBridgeRevision,
             profileSHA256:quality.profileSHA256,referenceFrameID:reference.id,
             inputWidth:reference.raster.activeArea.width,inputHeight:reference.raster.activeArea.height,
             frameSHA256:manifest.frames.sorted{$0.burstIndex<$1.burstIndex}.map(\.dng.sha256),
@@ -36,139 +37,204 @@ struct F5LinearImage: SceneLinearImage {
     }
     var image: CIImage {
         get throws {
-            let data=try raster.mappedData(expectedBytes:width*height*16)
             guard let linear=CGColorSpace(name:CGColorSpace.extendedLinearSRGB) else {throw F5Failure(.colorTransformInvalid,"Linear sRGB is unavailable.")}
-            let oriented=CIImage(bitmapData:data,bytesPerRow:width*16,size:CGSize(width:width,height:height),format:.RGBAf,colorSpace:linear)
+            let oriented=try raster.tiledImage(width:width,height:height,colorSpace:linear)
                 .oriented(forExifOrientation:Int32(orientation))
             return oriented.transformed(by:CGAffineTransform(translationX:-oriented.extent.minX,y:-oriented.extent.minY))
         }
     }
+    func validateImageReads() throws { try raster.validateImageReads() }
 }
 
 enum F5ImagePipeline {
     typealias Result = CaptureRenderResult
     static func render(resources: ColorResources, _ source: F5BurstSource, snapshot: CaptureSnapshot, progress: @escaping @Sendable (Double)->Void,
-                       isCancelled: @escaping @Sendable ()->Bool) throws -> Result {
-        let reconstruction=try F5Reconstructor.reconstruct(source,progress:{progress($0*0.7)},isCancelled:isCancelled)
+                       isCancelled: @escaping @Sendable ()->Bool, shaderURL: URL? = nil, archiveRoot: URL? = nil) throws -> Result {
+        guard snapshot.recipe.isValid, snapshot.quality.bayerFrameCount == source.manifest.frames.count else {
+            throw F5Failure(.damagedBundle,"The Bayer frame count does not match the frozen capture mode.")
+        }
+        let reconstruction = try autoreleasepool {
+            try F5Reconstructor.reconstruct(source,shaderURL:shaderURL,progress:{progress($0*0.7)},isCancelled:isCancelled)
+        }
+        if snapshot.quality == .balanced, snapshot.rawArchiveID != nil {
+            _ = try archive(reconstruction,source: source,snapshot: snapshot,archiveRoot: archiveRoot,isCancelled: isCancelled)
+        }
         let provenance=reconstruction.provenance(source.manifest)
         let metadata=reconstruction.photoMetadata.addingCaptureProvenance("GlassCam F5\n" + String(decoding:try F5Hash.json(provenance),as:UTF8.self))
         let output=TemporaryHEIFFile(captureDate:metadata.captureDate)
         let recipe=try ImagePipeline.writeF5HEIF(resources: resources, reconstruction,metadata:metadata,recipe:snapshot.recipe,to:output.url,
             isCancelled:isCancelled,progress:{progress(0.7+0.3*$0)})
-        return .init(file:output,snapshot:CaptureSnapshot(recipe:recipe,output:snapshot.output,quality:.f5,f5:provenance,archiveF5RAW:snapshot.archiveF5RAW))
+        return .init(file:output,snapshot:CaptureSnapshot(recipe:recipe,output:snapshot.output,quality:snapshot.quality,f5:provenance,archiveF5RAW:snapshot.archiveF5RAW,rawArchiveID:snapshot.rawArchiveID))
     }
+
+    static func archiveRAW(_ source: F5BurstSource,snapshot: CaptureSnapshot,
+                           progress: @escaping @Sendable (Double) -> Void,isCancelled: @escaping @Sendable () -> Bool,
+                           shaderURL: URL? = nil,archiveRoot: URL? = nil) throws -> URL {
+        guard snapshot.quality == .balanced, source.manifest.frames.count == 4, snapshot.rawArchiveID != nil else {
+            throw F5Failure(.damagedBundle,"RAW scene recording requires a four-frame Balanced capture and an archive ID.")
+        }
+        let reconstruction = try autoreleasepool {
+            try F5Reconstructor.reconstruct(source,shaderURL:shaderURL,progress: { progress($0 * 0.9) },isCancelled:isCancelled)
+        }
+        let destination = try archive(reconstruction,source:source,snapshot:snapshot,archiveRoot:archiveRoot,isCancelled:isCancelled)
+        progress(1)
+        return destination
+    }
+
+    private static func archive(_ reconstruction: F5LinearImage, source: F5BurstSource,snapshot: CaptureSnapshot,
+                                archiveRoot: URL?,isCancelled: @escaping @Sendable () -> Bool) throws -> URL {
+        guard let id = snapshot.rawArchiveID else { throw CaptureJournal.Failure.damaged }
+        return try CaptureRAWStore.retain(id: id,quality: .balanced,
+                sourceIdentity: source.manifest.id.uuidString + ":" + reconstruction.color.hash + ":" + F5Version.build,root: archiveRoot) { directory in
+                try F5FloatArchive.write(input: source.directory.appendingPathComponent("linear-camera.f32"),
+                    to: directory.appendingPathComponent("balanced-camera.dng"),width: reconstruction.width,height: reconstruction.height,
+                    reference: reconstruction.reference,cameraDNG: true,whiteScale: reconstruction.color.inputScale,cancelled: isCancelled)
+                try F5FloatArchive.write(input: reconstruction.raster.url,to: directory.appendingPathComponent("balanced-linear.tiff"),
+                    width: reconstruction.width,height: reconstruction.height,reference: reconstruction.reference,
+                    cameraDNG: false,whiteScale: reconstruction.color.inputScale,cancelled: isCancelled)
+                for (name,data) in [("capture.json",try F5Hash.json(snapshot)),("color-transform.json",try F5Hash.json(reconstruction.color)),
+                    ("source-metadata.json",try F5Hash.json(reconstruction.reference.metadata))] {
+                    try CaptureJournal.writeProtected(data,to: directory.appendingPathComponent(name))
+                }
+            }
+    }
+
 }
 
 enum F5Reconstructor {
-    static func reconstruct(_ source:F5BurstSource,shaderURL:URL?=nil,progress:(Double)->Void={_ in},
-                            isCancelled:@escaping ()->Bool={false}) throws -> F5LinearImage {
-        let start=ProcessInfo.processInfo.systemUptime,manifest=source.manifest
-        let acquisitionFlags=try manifest.validate(directory:source.directory)
-        guard !acquisitionFlags.contains(.isoChanged) else {
-            throw F5Failure(.isoChanged,"The delivered frames use different ISO values and cannot share one calibrated noise model. The original RAW frames were retained.")
+    static func reconstruct(_ source: F5BurstSource, shaderURL: URL? = nil,
+                            progress: @escaping (Double) -> Void = { _ in },
+                            isCancelled: @escaping () -> Bool = { false }) throws -> F5LinearImage {
+        let start = ProcessInfo.processInfo.systemUptime, manifest = source.manifest
+        var flags = try manifest.validate(directory: source.directory)
+        guard !flags.contains(.isoChanged) else {
+            throw F5Failure(.isoChanged, "Bayer frames have inconsistent ISO values. The original RAW frames were retained.")
         }
-        guard let profile=manifest.profile else {throw F5Failure(.unqualified,"This recorded burst has no calibrated main-camera profile.")}
-        try profile.validate(synthetic:manifest.synthetic)
-        let records=manifest.frames.sorted{$0.burstIndex<$1.burstIndex}
-        guard records.allSatisfy({profile.matches($0,hardware:manifest.hardwareModel,os:manifest.osBuild)}) else {throw F5Failure(.profileMismatch,"The burst does not match its immutable main-camera profile.")}
-        guard !acquisitionFlags.contains(.physicalCameraChanged),!acquisitionFlags.contains(.apertureChanged),!acquisitionFlags.contains(.focusChanged),!acquisitionFlags.contains(.profileMismatch) else {throw F5Failure(.profileMismatch,"The physical imaging configuration changed during the burst.")}
-        let mainTimes=records.filter{$0.role == .main}.map(\.actualExposure).sorted(),mainExposure=(mainTimes[1]+mainTimes[2])/2
-        let width=records[0].raster.activeArea.width,height=records[0].raster.activeArea.height
-        let device=try F5MetalDevice(maximumBytes:profile.policy.maximumWorkingBytes,shaderURL:shaderURL,isCancelled:isCancelled)
-        var frames:[F5MetalFrame]=[]
-        for record in records {
-            let codes=try Data(contentsOf:record.mosaic.url(in:source.directory),options:.mappedIfSafe)
-            let frame=try F5CanonicalFrame(record:record,codes:codes,profile:profile,mainExposure:mainExposure)
-            frames.append(try F5MetalFrame.upload(frame,to:device))
+        let incompatible: Set<F5Code> = [.physicalCameraChanged, .apertureChanged, .focusChanged, .profileMismatch, .nonuniformMains]
+        guard flags.isDisjoint(with: incompatible) else {
+            throw F5Failure(.profileMismatch, "The Bayer imaging configuration or main exposure changed during capture.")
         }
-        let likelihood=try F5MetalLikelihood.load(profile:profile,directory:source.directory,device:device)
-        let geometry=try F5GeometryInitializer.make(frames:frames,manifest:manifest,profile:profile,device:device)
-        let reference=records[geometry.reference],color=try F5ColorBridge.make(metadata:reference.metadata,profile:profile)
-        progress(0.1)
-        let scratch=try F5MetalScratch(width:width,height:height,coreSize:profile.policy.blockSize,device:device)
-        let nativeCoefficients=try device.allocate(width*height*3*4,label:"F5 native spline coefficients")
-        let noise=try device.allocate(width*height*4,label:"F5 frozen native noise scale")
-        let refFrame=frames[geometry.reference]
-        try device.run { command in
-            try device.encode("f5_initialize_native",count:width*height,buffers:[refFrame.raw.metal,refFrame.table.metal,nativeCoefficients.metal,noise.metal],command:command) { F5MetalDevice.value(refFrame.uniforms,at:4,encoder:$0) }
+        let all = manifest.frames.sorted { $0.burstIndex < $1.burstIndex }
+        let mains = all.filter { $0.role == .main }
+        guard [1,4].contains(mains.count) else { throw F5Failure(.frameMissing, "Bayer rendering requires one or four main frames.") }
+        // The second main frame is the temporal reference used by the selected
+        // curvature reconstruction. C++ consumes reference-first frame order.
+        let reference = mains[min(1,mains.count - 1)]
+        let ordered = [reference] + mains.filter { $0.id != reference.id }
+        let profile: F5DeviceProfile
+        if let supplied = manifest.profile { profile = supplied }
+        else {
+            guard !manifest.synthetic else { throw F5Failure(.profileMismatch, "Synthetic RAW requires an explicit synthetic noise model.") }
+            profile = try F5BayerModel.make(reference, hardware: manifest.hardwareModel, os: manifest.osBuild)
         }
-        let native=F5MetalLevel(width:width,height:height,scale:1,reference:geometry.reference,policy:profile.policy,device:device,frames:frames,scratch:scratch,likelihood:likelihood,
-            coefficients:nativeCoefficients,noise:noise,motion:geometry.motion,motionDirection:geometry.direction,motionBounds:geometry.bounds,validEventCount:width*height*5)
-        native.motionEdgeWeights=geometry.edgeWeights
-        _ = try native.countEvents()
-        let deadline=start+profile.policy.maximumProcessingSeconds
-        let expired={ProcessInfo.processInfo.systemUptime>=deadline}
-        var epochs=try native.solve(epoch:0,budgetExpired:expired,progress:{progress(0.1+0.2*$0)})
-        guard epochs.contains(where:{!$0.objectives.isEmpty}) else {throw F5Failure(.budgetStop,"The processing budget expired before a native solve could be validated. The five RAW frames were retained.")}
-        let firstQuality=try native.quality(alignments:geometry.alignments,requireConvergence:false)
-        if firstQuality.contains(where:{!$0.excludedFrames.isEmpty}) {
-            try native.reviseEligibility(firstQuality)
-            // A safety fallback must finish even when the preferred SR budget
-            // has expired. Its time is included in the report, never hidden.
-            let fallbackDeadline=max(deadline,ProcessInfo.processInfo.systemUptime+profile.policy.maximumProcessingSeconds)
-            let fallbackEpochs = try native.solve(epoch:1,budgetExpired:{ProcessInfo.processInfo.systemUptime>=fallbackDeadline},progress:{progress(0.3+0.1*$0)})
-            guard fallbackEpochs.contains(where:{!$0.objectives.isEmpty}) else {
-                throw F5Failure(.numericalStall,"The revised native fallback could not be validated. The five RAW frames were retained.")
-            }
-            epochs += fallbackEpochs
+        try profile.validate(synthetic: manifest.synthetic, requireProduct: false)
+        guard mains.allSatisfy({ profile.matches($0, hardware: manifest.hardwareModel, os: manifest.osBuild) }) else {
+            throw F5Failure(.profileMismatch, "The Bayer frames do not match their sensor characterization.")
         }
-        try native.freezeNoiseScale()
-        var finalLevel=native,flags=acquisitionFlags,solveStatus="NATIVE_ONLY"
-        let nativeStalled=epochs.contains(where:{$0.stopReason == "NUMERICAL_STALL"})
-        if nativeStalled {flags.insert(.numericalStall);solveStatus="NATIVE_NUMERICAL_STALL"}
-        let nativeConverged=epochs.last?.stopReason == "CONVERGED"
-        if !nativeConverged { flags.insert(.budgetStop) }
-        if !geometry.referenceQualified {flags.insert(.motionUncertain)}
-        let resolutionSupported=firstQuality.contains { tile in
-            tile.support != .referenceOnly && tile.minimumInformation>=profile.policy.minimumModeInformation &&
-            tile.conditionNumber<=profile.policy.maximumModeCondition && tile.residualRMS<=profile.policy.maximumResidualSigma
+        let width = reference.raster.activeArea.width, height = reference.raster.activeArea.height
+        let scale = mains.count == 1 ? 1 : 2
+        let capacity = try source.directory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage
+        let required = Int64(width) * Int64(height) * Int64(scale * scale) * 48 + 128 * 1024 * 1024
+        if let capacity, capacity < required { throw CocoaError(.fileWriteOutOfSpace) }
+        let color = try F5ColorBridge.rendering(metadata: reference.metadata, profile: profile)
+        let device = try F5MetalDevice(maximumBytes: profile.policy.maximumWorkingBytes, shaderURL: shaderURL, isCancelled: isCancelled)
+        let times = mains.map(\.actualExposure).sorted()
+        let exposure = times.count == 1 ? times[0] : (times[1] + times[2]) / 2
+        let result = try autoreleasepool {
+            try cameraRaster(ordered, source: source, profile: profile, mainExposure: exposure,
+                             scale: scale, device: device, progress: { progress($0 * 0.85) })
         }
-        if nativeConverged && !resolutionSupported {solveStatus="NATIVE_INSUFFICIENT_SR_INFORMATION"}
-        if !expired() && nativeConverged && !nativeStalled && resolutionSupported && geometry.referenceQualified && !flags.contains(.nonuniformMains) && !flags.contains(.longCaptureWindow) {
-            do {
-                let coefficients=try device.allocate(width*height*4*3*4,label:"F5 shared high-resolution spline coefficients")
-                var g=native.uniforms;g.step = .zero
-                try device.run { command in try device.encode("f5_initialize_high",count:width*height*4*3,buffers:[nativeCoefficients.metal,coefficients.metal,scratch.zero.metal],command:command) { F5MetalDevice.value(g,at:3,encoder:$0) } }
-                let highMotion=try device.allocate(native.motion.metal.length,label:"F5 isolated high-resolution motion")
-                let highDirection=try device.allocate(native.motionDirection.metal.length,label:"F5 isolated high-resolution motion increment")
-                try device.run { command in
-                    try device.copy(native.motion.metal,to:highMotion.metal,bytes:highMotion.metal.length,command:command)
-                    try device.clear(highDirection.metal,command:command)
-                }
-                let high=F5MetalLevel(width:width,height:height,scale:2,reference:geometry.reference,policy:profile.policy,device:device,frames:frames,scratch:scratch,likelihood:likelihood,
-                    coefficients:coefficients,noise:noise,motion:highMotion,motionDirection:highDirection,motionBounds:native.motionBounds,validEventCount:native.validEventCount)
-                high.motionEdgeWeights=geometry.edgeWeights
-                let highEpochs=try high.solve(epoch:2,budgetExpired:expired,progress:{progress(0.4+0.4*$0)})
-                epochs += highEpochs
-                if highEpochs.last?.stopReason == "CONVERGED" {finalLevel=high;solveStatus="CONVERGED"}
-                else {flags.insert(.budgetStop)}
-            } catch let failure as F5Failure where failure.code == .memoryPressure || failure.code == .numericalStall {
-                flags.insert(failure.code)
-            }
-        } else if expired() {flags.insert(.budgetStop)}
-        var quality=try finalLevel.quality(alignments:geometry.alignments,requireConvergence:solveStatus == "CONVERGED",frozenExclusions:firstQuality.map(\.excludedFrames))
-        for i in quality.indices {
-            quality[i].excludedFrames=firstQuality[i].excludedFrames
-            if firstQuality[i].support == .referenceOnly {quality[i].support = .referenceOnly}
-            if solveStatus != "CONVERGED",quality[i].support == .fullSR {quality[i].support = .nativeFusion}
-        }
-        for tile in quality {flags.formUnion(tile.flags)}
-        var report=F5QualityReport(referenceFrameID:reference.id,profileSHA256:profile.hash,captureSpanMS:manifest.captureSpanMS,
-            actualFrameCount:records.count,solveStatus:solveStatus,flags:flags.sorted{$0.rawValue<$1.rawValue},objectiveEpochs:epochs,tiles:quality)
-        let raster:F5MetalLevel.LinearOutput
-        do {raster=try finalLevel.writeLinearOutput(native:native,reference:reference,color:color,quality:quality,directory:source.directory)}
-        catch let failure as F5Failure where failure.code == .nonfinite && finalLevel !== native {
-            // A post-warp SR position is a new constraint. If it fails, sample
-            // the already validated native image with positive interpolation.
-            for i in quality.indices where quality[i].support == .fullSR {quality[i].support = .nativeFusion;quality[i].flags.append(.responseModelMismatch)}
-            report.tiles=quality;report.flags=Array(Set(report.flags+[.responseModelMismatch])).sorted{$0.rawValue<$1.rawValue};report.solveStatus="OUTPUT_NATIVE_FALLBACK"
-            raster=try native.writeLinearOutput(native:native,reference:reference,color:color,quality:quality,directory:source.directory)
-        }
-        report.processingSeconds=ProcessInfo.processInfo.systemUptime-start;report.allocatedBytes=device.peakBytes
-        try CaptureJournal.writeProtected(F5Hash.json(report),to:source.directory.appendingPathComponent("quality.json"))
-        try CaptureJournal.writeProtected(F5Hash.json(color),to:source.directory.appendingPathComponent("color-transform.json"))
+        for tile in result.tiles { flags.formUnion(tile.flags) }
+        var report = F5QualityReport(referenceFrameID: reference.id, profileSHA256: profile.hash,
+            captureSpanMS: manifest.captureSpanMS, actualFrameCount: all.count,
+            solveStatus: mains.count == 1 ? "RAW_SINGLE_CURVATURE" : "CURVATURE_NATIVE_FUSION",
+            flags: flags.sorted { $0.rawValue < $1.rawValue }, objectiveEpochs: [], tiles: result.tiles)
+        let output = try F5CurvatureOutput.write(result.raster, nativeWidth: width, nativeHeight: height,
+            metadata: reference.metadata, matrix: color.cameraToLinearSRGB.values, device: device,
+            progress: { progress(0.85 + $0 * 0.15) })
+        try persistCamera(output, reference: reference, color: color, scale: scale, directory: source.directory)
+        report.processingSeconds = ProcessInfo.processInfo.systemUptime - start
+        report.allocatedBytes = device.peakBytes
+        try CaptureJournal.writeProtected(F5Hash.json(report), to: source.directory.appendingPathComponent("quality.json"))
+        try CaptureJournal.writeProtected(F5Hash.json(color), to: source.directory.appendingPathComponent("color-transform.json"))
         progress(1)
-        return .init(raster:raster.file,width:raster.width,height:raster.height,orientation:reference.raster.orientation,color:color,quality:report,reference:reference)
+        return .init(raster: output.linear, width: output.width, height: output.height,
+                     orientation: reference.raster.orientation, color: color, quality: report, reference: reference)
+    }
+
+    private static func cameraRaster(_ records: [F5FrameRecord], source: F5BurstSource, profile: F5DeviceProfile,
+                                     mainExposure: Double, scale: Int, device: F5MetalDevice,
+                                     progress: @escaping (Double) -> Void) throws -> (raster: F5CurvatureRaster.Result, tiles: [F5QualityReport.Tile]) {
+        let reference = records[0], width = reference.raster.activeArea.width, height = reference.raster.activeArea.height
+        // Integer uploads are freed after normalization, before FFT workspaces
+        // are allocated. Numerical image processing stays in C++ / Metal.
+        let decoded = try normalize(records, directory: source.directory, profile: profile, mainExposure: mainExposure, device: device)
+        let phases = reference.raster.cfa
+        let cfa = phases.map { UInt32($0.color) }
+        let exposure = reference.actualExposure / mainExposure
+        let alpha = phases.map { Float(profile.noise[$0.rawValue].kappa / (exposure * profile.noise[$0.rawValue].gain)) }
+        let beta = phases.map { Float(pow(profile.noise[$0.rawValue].readSigma / (exposure * profile.noise[$0.rawValue].gain), 2)) }
+        let registration = try F5CurvatureRegistration(device: device, width: width, height: height, frames: records.count,
+            cfa: cfa, alpha: alpha, beta: beta, raw: decoded.values, kinds: decoded.kinds, progress: { progress($0 * 0.25) })
+        let tiles = support(registration, records: records)
+        let prepared = try F5CurvatureBayerSource(device: device, width: width, height: height, frames: records.count, tileSize: 16,
+            cfa: cfa, alpha: alpha, beta: beta, raw: decoded.values, flow: registration.flow, reliability: registration.reliability)
+        let raster = try F5CurvatureRaster(device: device).reconstruct(source: prepared, scale: scale,
+            progress: { progress(0.25 + $0 * 0.75) })
+        return (raster, tiles)
+    }
+
+    private static func normalize(_ records: [F5FrameRecord], directory: URL, profile: F5DeviceProfile,
+                                  mainExposure: Double, device: F5MetalDevice) throws -> F5CurvatureRAW {
+        let frames = try records.map { record in
+            let codes = try Data(contentsOf: record.mosaic.url(in: directory), options: .mappedIfSafe)
+            let canonical = try F5CanonicalFrame(record: record, codes: codes, profile: profile, mainExposure: mainExposure)
+            return try F5MetalFrame.upload(canonical, to: device)
+        }
+        return try F5CurvatureRAW(frames: frames, device: device)
+    }
+
+    private static func support(_ registration: F5CurvatureRegistration, records: [F5FrameRecord]) -> [F5QualityReport.Tile] {
+        let columns = (registration.width + 31) / 32, rows = (registration.height + 31) / 32
+        let buffer = registration.summary
+        defer { withExtendedLifetime(buffer) {} }
+        let summaries = buffer.metal.contents().assumingMemoryBound(to: SIMD4<Float>.self)
+        return (0..<columns * rows).map { i in
+            let values = (0..<records.count).map { summaries[$0 * columns * rows + i] }
+            let excluded = values.indices.filter { $0 > 0 && values[$0].x < 0.05 }
+            let support: F5QualityReport.Support = records.count == 1 || excluded.count == records.count - 1 ? .referenceOnly : .nativeFusion
+            var flags: [F5Code] = excluded.isEmpty ? [] : [.occlusion]
+            if values.allSatisfy({ $0.y > 0.99 }) { flags.append(.highlightMissing) }
+            let x = i % columns * 32, y = i / columns * 32
+            // Curvature uses photometric reliability, not the old spline
+            // optimizer's objective, conditional rank or convergence claim.
+            return .init(x: x, y: y, width: min(32,registration.width-x), height: min(32,registration.height-y), support: support,
+                flags: flags, validFractions: values.map { Double(max(0,1-$0.y-$0.z-$0.w)) },
+                upperCensoredFractions: values.map { Double($0.y) }, lowerCensoredFractions: values.map { Double($0.z) },
+                residualRMS: 0, minimumInformation: 0, conditionNumber: 0, shortOnly: false,
+                excludedFrames: excluded.map { records[$0].burstIndex })
+        }
+    }
+
+    private static func persistCamera(_ output: F5CurvatureOutput.Result, reference: F5FrameRecord,
+                                      color: F5ColorTransformRecord, scale: Int, directory: URL) throws {
+        let final = directory.appendingPathComponent("linear-camera.f32")
+        let pending = directory.appendingPathComponent("linear-camera-writing-\(UUID().uuidString).f32")
+        try FileManager.default.copyItem(at: output.camera.url, to: pending)
+        if FileManager.default.fileExists(atPath: final.path) { _ = try FileManager.default.replaceItemAt(final, withItemAt: pending) }
+        else { try FileManager.default.moveItem(at: pending, to: final) }
+        let post = try F5PostOperations.records(reference.metadata)
+        let descriptor: [String: Any] = ["revision": F5Version.decoder, "semantics": "camera_linear_no_wb",
+            "width": output.width, "height": output.height, "channels": 4, "alpha": 1,
+            "layout": "interleaved_top_to_bottom", "component": "float32", "byte_order": "little",
+            "row_bytes": output.width * 16, "orientation": reference.raster.orientation,
+            "reference_frame_id": reference.id, "profile_sha256": color.profileSHA256, "white_scale": color.inputScale,
+            "sha256": try F5Hash.file(final), "post_reconstruction_warp_count": post.warpCount,
+            "post_reconstruction_gain_map_count": post.gainCount, "post_opcode_ids": post.ids.map(Int.init),
+            "opcode_range_policy": F5Version.opcodeRangePolicy, "default_crop_origin": reference.metadata.cropOrigin,
+            "output_scale": scale, "baseline_exposure_owner": "camera_to_linear_matrix"]
+        try CaptureJournal.writeProtected(JSONSerialization.data(withJSONObject: descriptor, options: [.sortedKeys]),
+                                          to: directory.appendingPathComponent("linear-camera.json"))
     }
 }
 

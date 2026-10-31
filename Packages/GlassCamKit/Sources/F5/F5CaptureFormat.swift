@@ -13,6 +13,14 @@ public struct F5CaptureFormat: CaptureFormat {
         self.stagingRoot = stagingRoot; self.archiveRoot = archiveRoot
     }
 
+    /// Recording stops at characterized RAW archival. No brand resources,
+    /// HEIF encoder, review image or Photos transaction participate.
+    public static func archiveRAW(_ source: F5BurstSource, snapshot: CaptureSnapshot,
+                                 progress: @escaping @Sendable (Double) -> Void = { _ in },
+                                 isCancelled: @escaping @Sendable () -> Bool = { false }) throws -> URL {
+        try F5ImagePipeline.archiveRAW(source,snapshot: snapshot,progress: progress,isCancelled: isCancelled)
+    }
+
     public func decodeProvenance(from decoder: Decoder) throws -> any CaptureProvenance {
         try F5CaptureProvenance(from: decoder)
     }
@@ -30,7 +38,8 @@ public struct F5CaptureFormat: CaptureFormat {
                 directory: URL, recoversStaging: Bool) throws -> CaptureJournal.Record {
         guard let source = payload as? F5BurstSource else { throw CaptureJournal.Failure.damaged }
         let burstURL = directory.appendingPathComponent("burst", isDirectory: true)
-        guard snapshot.quality == .f5, snapshot.recipe.isValid else { throw CaptureJournal.Failure.damaged }
+        guard snapshot.quality.usesBayer, snapshot.recipe.isValid,
+              snapshot.quality.bayerFrameCount == source.manifest.frames.count else { throw CaptureJournal.Failure.damaged }
         _ = try source.manifest.validate(directory: source.directory)
         if try directoryExists(directory) {
             let old = try readRecord(directory)
@@ -82,6 +91,7 @@ public struct F5CaptureFormat: CaptureFormat {
         let burstURL = directory.appendingPathComponent("burst", isDirectory: true)
         try validate(record.raw, at: burstURL.appendingPathComponent("burst.json"))
         let source = try F5BurstSource(directory: burstURL)
+        guard record.snapshot.quality.bayerFrameCount == source.manifest.frames.count else { throw CaptureJournal.Failure.damaged }
         removeDuplicateStaging(source.manifest, enabled: recoversStaging)
     }
     public func finish(_ record: CaptureJournal.Record, directory: URL) throws {
@@ -93,7 +103,7 @@ public struct F5CaptureFormat: CaptureFormat {
     public func recoverPending(directory: URL) throws -> CaptureJournal.Record? {
         guard let (path, intent) = try F5BurstTransaction.pendingProduct(root: stagingRoot), let snapshot = intent.snapshot else { return nil }
         guard intent.state == .committed else {
-            throw F5Failure(.frameMissing, "F5 capture was interrupted after \(intent.frames.count) of 5 frames. Its diagnostic files were retained; discard this interrupted capture before taking another.")
+            throw F5Failure(.frameMissing, "Bayer capture was interrupted after \(intent.frames.count) of \(snapshot.quality.bayerFrameCount ?? 5) frames. Its files were retained; discard this interrupted capture before taking another.")
         }
         return try retain(F5BurstSource(directory: path), id: intent.id, snapshot: snapshot,
             directory: directory, recoversStaging: true)

@@ -26,7 +26,7 @@ public struct F5Failure: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch code {
         case .isoChanged:
-            return String(localized:"The five RAW frames have inconsistent exposure settings. Fusion could not finish; the originals were kept.", bundle: .main)
+            return String(localized:"The RAW frames have inconsistent exposure settings. Fusion could not finish; the originals were kept.", bundle: .main)
         case .shortExposureLimited:
             return String(localized:"The current exposure is too short for F5. Try a scene with less light.", bundle: .main)
         default: return "F5 · \(code.rawValue): \(detail)"

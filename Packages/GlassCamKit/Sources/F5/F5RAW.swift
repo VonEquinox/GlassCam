@@ -74,6 +74,8 @@ public struct F5DNGMetadata: Codable, Equatable, Sendable {
     public let exposureTime: Double?, iso: Double?, aperture: Double?
     let sourceSHA256: String
     let photographic: F5PhotographicMetadata?
+    var baselineExposure: Double? = nil
+    var baselineSharpness: Double? = nil
 
     public static func read(_ data: Data) throws -> F5DNGMetadata {
         let reader = try F5TIFF(data)
@@ -195,7 +197,8 @@ public struct F5DNGMetadata: Codable, Equatable, Sendable {
             calibrationSignature: reader.string(raw[50931] ?? root[50931]),
             profileSignature: reader.string(raw[50932] ?? root[50932]), opcodes: opcodes,
             exposureTime: exposure(33434), iso: exposure(34855), aperture: exposure(33437), sourceSHA256: F5Hash.data(data),
-            photographic: .init(tiff: tiff, exifText: exifText, exifNumbers: exifNumbers))
+            photographic: .init(tiff: tiff, exifText: exifText, exifNumbers: exifNumbers),
+            baselineExposure: values(50730).first, baselineSharpness: values(50732).first)
     }
 
     func auditOpcodes() throws {

@@ -17,6 +17,7 @@ flowchart TD
     F5 --> Capture
     F5 --> ImagingCore
     F5 --> CF5
+    F5 --> CMetalF5
     Capture --> ImagingCore
     Peripheral --> ImagingCore
     ImagingCore --> CHNCS
@@ -34,7 +35,7 @@ flowchart TD
 | `App/GlassCam/Camera` | AVFoundation 会话、三摄接力、取景帧、方向、ProRAW 与 F5 捕获 | `CameraController` 发布界面状态；`CameraBackend` 在专用队列操作设备 |
 | `ImagingCore` | 处理配方、源照片与工作文件、RAW 解码、色彩引擎、浮点图像、HEIF 和分享表示 | 为其他 Swift 模块提供共用图像模型，调用 `CHNCS`、`CFFCS`、`CLUMIX` |
 | `Capture` | 相机设置、输出选择、拍摄状态机、持久化记录与恢复 | 通过 `Services` 注入授权、处理和保存，通过 `CaptureFormat` 扩展源照片格式 |
-| `F5` | 五帧 Bayer RAW 的解码、重建、颜色桥、来源记录、暂存和归档 | 实现 `F5CaptureFormat`，使用 `CF5` 与 Metal，输出交给 `ImagingCore` 编码 |
+| `F5` | 单帧／四帧 Bayer RAW 的解码、曲率重建、颜色桥、来源记录、暂存和归档 | 实现 `F5CaptureFormat`，使用 `CMetalF5` 与 Metal，保留 `CF5` 数值参考，输出交给 `ImagingCore` 编码 |
 | `Peripheral` | 照片区几何、中心与外围帧配对、可见接缝测量、遮罩和 Metal 呈现 | 接收 App 提供的帧及元数据，输出取景显示状态 |
 | `CHNCS`、`CFFCS`、`CLUMIX`、`CF5` | C++17 数值处理和 C ABI | 编译使用 `-fno-fast-math -ffp-contract=off` |
 | `CMetalImage` | 成片颜色、原生整数锐化、GPU 调度与分块落盘 | 复用 C++ 参考上下文的数据；颜色按 HDR 预算验收，整数锐化逐值一致 |
@@ -50,9 +51,9 @@ flowchart TD
 ## 从快门到保存
 
 1. **冻结拍摄选择。** `CameraView` 向 `CameraController` 预留当前构图和方向，创建包含处理配方、输出选择、质量与 F5 归档选择的 `CaptureSnapshot`，再交给 `CaptureWorkflow` 请求相册添加权限。
-2. **取得源照片。** 授权完成后，工作流调用预留的相机请求。普通拍摄在单摄 `.photo` 会话取得 ProRAW；F5 由 `F5CaptureDriver` 取得五帧 Bayer RAW。终结回调确认源数据和实际构图信息，相机后端另行处理取景恢复。
+2. **取得源照片。** 授权完成后，工作流调用预留的相机请求。Quality 在单摄 `.photo` 会话取得 ProRAW；Speed／Balanced 由 `F5CaptureDriver` 分别取得一帧／四帧 Bayer RAW。终结回调确认源数据和实际构图信息，相机后端另行处理取景恢复。
 3. **保留可恢复输入。** 工作流把实际构图合入冻结快照，将普通源照片或格式载荷交给 `CaptureJournal` 保留，形成 `rawReady` 记录。F5 的文件校验、暂存恢复与来源编解码由 `F5CaptureFormat` 负责。
-4. **生成成片。** 普通源照片由 `ImagePipeline.writeHEIF` 从完整源文件解码、按配方执行色彩与空间效果、选择输出尺寸并编码；F5 先重建场景线性图像，再进入共用的色彩与 HEIF 路径。最终输出为浮点图像处理后的 10 位 HDR HEIF，详见 [RAW 解码与导出](raw-decode-and-export.md) 和 [F5](f5.md)。
+4. **保留调色前结果并生成成片。** Quality 源照片由 `ImagePipeline.writeHEIF` 从完整源文件解码、按配方执行色彩与空间效果、选择输出尺寸并编码；F5 先重建场景线性图像，再进入共用的色彩与 HEIF 路径。Balanced 的合成 DNG／线性 TIFF 与 Quality 原始 DNG 先由 `CaptureRAWStore` 独立保存，再应用品牌色彩。最终输出为浮点图像处理后的 10 位 HDR HEIF，详见 [RAW 解码与导出](raw-decode-and-export.md) 和 [F5](f5.md)。
 5. **保留编码结果。** 工作流从成片生成回看图像，并将 HEIF、尺寸与处理后的快照写入记录，进入 `encodedReady`。后续保存重试复用这份编码文件。
 6. **写入系统相册。** 工作流先持久化带尝试标识的 `savePending`，再由 `HEIFSaveDelivery` 复制原始 HEIF 到 Photos。系统确认成功后记录为 `savedConfirmed`，随后清理活动记录并发布 `SavedCapture`。
 7. **回看与分享。** 相机首页保留拍摄入口，用户从缩略图打开已保存成片。回看、文件导出和原始 HEIC 分享持有同一成片文件；接收方请求 JPEG 时，由分享提供者从该 HEIF 按需生成兼容表示。

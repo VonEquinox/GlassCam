@@ -6,6 +6,43 @@ import Foundation
 import GlassCamTestSupport
 
 struct F5ContractTests {
+    @Test func sceneRecording_usesFourFramesAndDoesNotBecomePendingPhoto() throws {
+        let work = try TestDirectory()
+        let snapshot = CaptureSnapshot(recipe: .standard,output: .native,quality: .balanced,rawArchiveID: UUID())
+
+        let transaction = try F5BurstTransaction(snapshot: snapshot,purpose: "scene",root: work.url)
+
+        #expect(transaction.frameCount == 4)
+        #expect(try F5BurstTransaction.pendingProduct(root: work.url) == nil)
+    }
+
+    @Test func sampleProbe_retainsElevenEqualExposureOriginals() throws {
+        let work = try TestDirectory()
+
+        let fixture = try F5Fixtures.make(directory: work.url,purpose: "probe")
+
+        #expect(fixture.source.manifest.frames.count == 11)
+        #expect(Set(fixture.source.manifest.frames.map(\.actualExposure)) == [0.008])
+        #expect(try fixture.source.manifest.validate(directory: fixture.source.directory).isEmpty)
+    }
+
+    @Test func elevenFrameProbe_groupsWithoutExceedingHardwareLimit() throws {
+        #expect(try F5ExposurePlan.groups(maxBracketCount: 3,frameCount: 11) == [[0,1,2],[3,4,5],[6,7,8],[9,10]])
+    }
+    @Test(arguments: [(1,3,[[0]]),(4,3,[[0,1,2],[3]]),(4,2,[[0,1],[2,3]])])
+    func bayerFrameBudget_obeysBracketLimit(input: (Int,Int,[[Int]])) throws {
+        #expect(try F5ExposurePlan.groups(maxBracketCount: input.1,frameCount: input.0) == input.2)
+    }
+
+    @Test func equalExposurePlan_keepsMeteredExposureAndISO() throws {
+        let ae = 1.0 / 50, iso = 400.0
+
+        let plan = try F5ExposurePlan.equal(ae: ae,iso: iso,minimum: 1e-5,maximum: 1)
+
+        #expect(plan.main == ae)
+        #expect(plan.iso == iso)
+        #expect(plan.flags.isEmpty)
+    }
     @Test func syntheticBurst_preservesFiveFrameRequestBudget() throws {
         let context = try F5TestContext()
         let manifest = context.fixture.source.manifest
@@ -76,8 +113,7 @@ struct F5ContractTests {
     }
     @Test func f5Capture_doesNotInheritMegapixelResizePolicy() {
         #expect(CaptureSnapshot(recipe: .standard, output: .camera(48), quality: .f5).output.cameraMegapixels == nil)
-        #expect(!CaptureQuality.allCases.contains(.speed))
-        #expect(CaptureQuality.allCases.contains(.f5))
+        #expect(CaptureQuality.allCases == [.speed,.balanced,.quality])
     }
     @Test func changedISO_isRetainedAsEvidenceAndStopsReconstruction() throws {
         let work = try TestDirectory()

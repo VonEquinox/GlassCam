@@ -48,7 +48,7 @@ public final class CameraSettingsStore: ObservableObject {
         archiveF5RAW = defaults.bool(forKey:"camera.f5.keepRaw")
         let storedQuality = defaults.string(forKey: "camera.capture.quality.v1")
             .flatMap(CaptureQuality.init(rawValue:)) ?? .quality
-        captureQuality = storedQuality == .speed ? .f5 : storedQuality
+        captureQuality = storedQuality == .f5 ? .balanced : storedQuality
         let center = defaults.integer(forKey: "camera.preview.center.longEdge")
         centerPreviewLongEdge = Self.centerPreviewCaps.contains(center) ? center : 1920
         gridVisible = defaults.object(forKey: "camera.grid.visible") as? Bool ?? true

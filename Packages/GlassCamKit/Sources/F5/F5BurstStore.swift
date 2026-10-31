@@ -14,12 +14,12 @@ public final class F5BurstSource: CapturePayload, @unchecked Sendable {
             from: Data(contentsOf: directory.appendingPathComponent("burst.json")))
         _ = try manifest.validate(directory: verify ? directory : nil)
     }
-    var referenceDNG: URL? { try? manifest.frames.first(where: { $0.burstIndex == 1 })?.dng.url(in: directory) }
+    var referenceDNG: URL? { try? (manifest.frames.first(where: { $0.burstIndex == 1 }) ?? manifest.frames.first)?.dng.url(in: directory) }
 }
 
 /// One transaction owns the budget, including across split brackets. Files are
 /// synced before the immutable manifest becomes visible. Failed captures remain
-/// inspectable and can never silently cause a sixth exposure.
+/// inspectable and never trigger replacement exposures.
 public final class F5BurstTransaction: @unchecked Sendable {
     public enum State: String, Codable { case collecting, committed, failed, cancelled }
     public struct Delivery: Codable {
@@ -50,10 +50,17 @@ public final class F5BurstTransaction: @unchecked Sendable {
     private var requests: [Int64: [Int]] = [:]
     private var finished = Set<Int64>()
     private var published: F5BurstSource?
+    public let frameCount: Int
 
     public init(snapshot: CaptureSnapshot?, purpose: String, root: URL? = nil) throws {
+        frameCount = purpose == "probe" ? 11 : (snapshot?.quality.bayerFrameCount ?? 5)
         id = UUID()
-        directory = (root ?? (purpose == "probe" ? Self.samplesRoot : Self.stagingRoot)).appendingPathComponent(id.uuidString, isDirectory: true)
+        let base: URL
+        if let root { base = root }
+        else if purpose == "scene", let scene = snapshot?.rawArchiveID {
+            base = CaptureRAWStore.directory(id: scene).appendingPathComponent("bayer-inputs",isDirectory: true)
+        } else { base = purpose == "probe" ? Self.samplesRoot : Self.stagingRoot }
+        directory = base.appendingPathComponent(id.uuidString, isDirectory: true)
         intent = Intent(id: id, createdAt: Date(), snapshot: snapshot, purpose: purpose, state: .collecting, frames: [], error: nil)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: ImageFileProtection.attributes)
         var values = URLResourceValues(); values.isExcludedFromBackup = true
@@ -63,10 +70,10 @@ public final class F5BurstTransaction: @unchecked Sendable {
     public func register(requestID: Int64, indices: [Int]) throws {
         lock.lock(); defer { lock.unlock() }
         guard intent.state == .collecting, requests[requestID] == nil, !indices.isEmpty,
-              indices.allSatisfy({ (0..<5).contains($0) }), Set(indices).count == indices.count,
+              indices.allSatisfy({ (0..<frameCount).contains($0) }), Set(indices).count == indices.count,
               Set(requests.values.flatMap { $0 }).isDisjoint(with: indices),
-              requests.values.reduce(indices.count, { $0 + $1.count }) <= 5 else {
-            throw F5Failure(.duplicateFrame, "A request would exceed or reuse the five-frame budget.")
+              requests.values.reduce(indices.count, { $0 + $1.count }) <= frameCount else {
+            throw F5Failure(.duplicateFrame, "A request would exceed or reuse the \(frameCount)-frame budget.")
         }
         requests[requestID] = indices
     }
@@ -117,7 +124,7 @@ public final class F5BurstTransaction: @unchecked Sendable {
             }
             return false
         }
-        guard intent.frames.count < 5, !intent.frames.contains(where: { $0.burstIndex == frame.burstIndex }),
+        guard intent.frames.count < frameCount, !intent.frames.contains(where: { $0.burstIndex == frame.burstIndex }),
               frame.dng.bytes == dng.count, frame.mosaic.bytes == mosaic.count,
               frame.dng.sha256 == F5Hash.data(dng), frame.mosaic.sha256 == F5Hash.data(mosaic) else {
             throw F5Failure(.damagedBundle, "RAW bytes do not match their immutable records.")
@@ -146,9 +153,9 @@ public final class F5BurstTransaction: @unchecked Sendable {
                 profile: F5DeviceProfile?, framing: CaptureFraming) throws -> F5BurstSource {
         lock.lock(); defer { lock.unlock() }
         if let published { return published }
-        guard intent.state == .collecting, finished == Set(requests.keys), intent.frames.count == 5,
-              Set(requests.values.flatMap { $0 }) == Set(0..<5) else {
-            throw F5Failure(.frameMissing, "Five complete RAW deliveries are required before commit.")
+        guard intent.state == .collecting, finished == Set(requests.keys), intent.frames.count == frameCount,
+              Set(requests.values.flatMap { $0 }) == Set(0..<frameCount) else {
+            throw F5Failure(.frameMissing, "All \(frameCount) RAW deliveries are required before commit.")
         }
         let frames = intent.frames.sorted { $0.burstIndex < $1.burstIndex }
         var manifest = F5BurstManifest(id: id, createdAt: intent.createdAt, hardwareModel: hardware, osBuild: osBuild,

@@ -54,7 +54,7 @@
 
 模拟器命令默认读取已有设备和运行时清单，选择可用且运行 iOS 27 或更高版本的 iPhone 模拟器：优先已启动项，再按系统版本从新到旧、设备类型和 UUID 稳定排序。找不到合适目标时直接报错，不安装运行时或创建模拟器。可用 `SIMULATOR_ID` 指定已有模拟器的 UUID，例如 `make test-app SIMULATOR_ID=SIMULATOR_UUID`；显式目标也必须满足上述条件。`DIAGNOSTICS` 可指定 App 测试和基线产物目录；`DEVELOPER_DIR` 可选择其他 Xcode 安装。
 
-UI target 只包含模拟器用户流程。真机取证脚本和来源提交位于 `GlassCam-research` 的 `device-acceptance/`，设备操作需按[发布说明](release.md)另行授权。旧 Speed 质量与 12 MP 恢复兼容由 Swift 设置迁移测试及固定拍摄记录 JSON 测试覆盖。
+UI target 只包含模拟器用户流程。真机取证脚本和来源提交位于 `GlassCam-research` 的 `device-acceptance/`，设备操作需按[发布说明](release.md)另行授权。Speed 单帧和 Balanced 四帧选择由设置、采集预算和固定拍摄记录测试覆盖。
 
 本地 ProRAW 基线通过 `GLASSCAM_DNG_DIR` 开启。目录应至少包含主摄、超广角、长焦的三份 DNG；测试按文件名排序读取前三份。将 `DNG_DIR` 设为自己的素材目录后运行：
 
@@ -62,7 +62,9 @@ UI target 只包含模拟器用户流程。真机取证脚本和来源提交位�
 GLASSCAM_DNG_DIR="$DNG_DIR" make test-baseline
 ```
 
-未设置 `GLASSCAM_DNG_DIR` 时跳过 `BaselineTests`，固定 `ColorChainTests` 仍运行。其他可选检查通过 `GLASSCAM_LARGE_NUMERICS=1` 开启大尺寸数值样本，或以 `F5_TEST_LUT_PACKAGE` 指定已准备的 F5 似然表目录。
+未设置 `GLASSCAM_DNG_DIR` 时跳过 `BaselineTests`，固定 `ColorChainTests` 仍运行。本地 Bayer 完整导出由 `GLASSCAM_BAYER_REPLAY` 开启，目录内的 `speed/` 与 `balanced/` 分别包含一帧／四帧完整 capture bundle；`GLASSCAM_BAYER_OUTPUT` 可指定保存六种模式与色彩组合的 HEIF 目录；`GLASSCAM_BAYER_ARCHIVE` 开启 Balanced 的完整尺寸调色前归档。未配置时不读取本机素材。`GLASSCAM_RAW_SCENE_REPLAY` 指向一组完整四帧 Bayer 输入，`GLASSCAM_RAW_SCENE_OUTPUT` 指定归档根目录，可单独运行 `F5BayerReplayTests.recordedScene_archivesMergedRAWWithoutColorResources` 验证完整分辨率的纯原片记录；使用可写的素材副本，重建会更新输入目录内的线性相机结果。
+
+其他可选检查通过 `GLASSCAM_LARGE_NUMERICS=1` 开启大尺寸数值样本，或以 `F5_TEST_LUT_PACKAGE` 指定已准备的 F5 似然表目录。
 
 ## Golden 数据
 

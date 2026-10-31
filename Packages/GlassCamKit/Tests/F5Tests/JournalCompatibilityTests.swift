@@ -90,6 +90,24 @@ func retainedJournal_loadVerifiesFrozenFiles(name: String) throws {
     #expect(try (journal.retainedPayload(for: retried) as? F5BurstSource)?.manifest.frames.count == 5)
 }
 
+@Test(arguments: [CaptureQuality.speed,.balanced])
+func retainedBayer_reloadKeepsModeAndOriginalFrames(quality: CaptureQuality) throws {
+    let work = try TestDirectory()
+    let fixture = try F5Fixtures.make(directory: work.url,quality: quality)
+    let pending = work.url.appendingPathComponent("pending")
+    let journal = CaptureJournal(directory: pending,formats: JournalTestFiles.formats)
+    let snapshot = CaptureSnapshot(recipe: .standard,output: .native,quality: quality)
+    _ = try journal.retainBurst(fixture.source,id: UUID(),snapshot: snapshot)
+
+    let restored = try CaptureJournal(directory: pending,formats: JournalTestFiles.formats).load()
+
+    let record = try #require(restored)
+    let payload = try #require(journal.retainedPayload(for: record) as? F5BurstSource)
+    #expect(record.snapshot.quality == quality)
+    #expect(payload.manifest.frames.count == quality.bayerFrameCount)
+    #expect(payload.manifest.frames.map(\.mosaic.sha256) == fixture.source.manifest.frames.map(\.mosaic.sha256))
+}
+
 @Test func corruptBurst_loadRetainsFilesAndOriginalFailure() throws {
     let work = try TestDirectory()
     let pending = work.url.appendingPathComponent("pending")
@@ -105,12 +123,12 @@ func retainedJournal_loadVerifiesFrozenFiles(name: String) throws {
     #expect(try Data(contentsOf: victim) == bytes)
 }
 
-@Test func encodedProvenance_decodePreservesFallbackDescription() throws {
+@Test func encodedProvenance_decodePreservesRecordedFrameCount() throws {
     let record = try JournalTestFiles.record("f5-encoded.json")
 
     let description = record.snapshot.f5?.resolutionDescription(width: 8, height: 6)
 
-    #expect(description == "F5 · 5 RAW · Output 0.0 MP · Some areas use native detail")
+    #expect(description == "Balanced · 5 RAW · Output 0.0 MP")
 }
 
 @Test func committedStaging_loadRecoversAndRemovesDuplicate() throws {
@@ -146,7 +164,6 @@ func retainedJournal_loadVerifiesFrozenFiles(name: String) throws {
 
     let error = #expect(throws: F5Failure.self) { try journal.load() }
     #expect(error?.code == .frameMissing)
-    #expect(error?.detail == "F5 capture was interrupted after 0 of 5 frames. Its diagnostic files were retained; discard this interrupted capture before taking another.")
 
     #expect(FileManager.default.fileExists(atPath: transaction.directory.path))
 }

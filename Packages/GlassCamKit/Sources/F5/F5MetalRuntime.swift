@@ -7,8 +7,19 @@ import simd
 final class F5MetalBuffer {
     let metal: MTLBuffer
     private let owner: F5MetalDevice
-    init(_ metal: MTLBuffer, owner: F5MetalDevice) { self.metal = metal; self.owner = owner }
-    deinit { owner.release(metal.length) }
+    private let accountedBytes: Int
+    private let retainedOwner: AnyObject?
+    init(_ metal: MTLBuffer, owner: F5MetalDevice, accountedBytes: Int? = nil, retaining: AnyObject? = nil) {
+        self.metal = metal; self.owner = owner
+        self.accountedBytes = accountedBytes ?? metal.length; retainedOwner = retaining
+    }
+    deinit { owner.release(accountedBytes) }
+}
+
+final class F5ExternalMetalAllocation {
+    private let release: () -> Void
+    init(release: @escaping () -> Void) { self.release = release }
+    deinit { release() }
 }
 
 final class F5MetalDevice {
@@ -23,7 +34,7 @@ final class F5MetalDevice {
         }
         self.device = device; self.queue = queue; self.maximumBytes = maximumBytes; self.isCancelled = isCancelled
         if let shaderURL {
-            let options = MTLCompileOptions(); options.fastMathEnabled = false; options.languageVersion = .version3_1
+            let options = MTLCompileOptions(); options.mathMode = .safe; options.mathFloatingPointFunctions = .precise; options.languageVersion = .version3_1
             library = try device.makeLibrary(source: String(contentsOf: shaderURL, encoding: .utf8), options: options)
         } else if let compiled = device.makeDefaultLibrary() { library = compiled }
         else { throw F5Failure(.unsupportedRAW, "F5's Metal library is missing from the application.") }
@@ -55,6 +66,13 @@ final class F5MetalDevice {
         return F5MetalBuffer(buffer, owner: self)
     }
     fileprivate func release(_ count: Int) { allocatedBytes -= count }
+    func retainExternalAllocation(_ bytes: Int) throws -> F5ExternalMetalAllocation {
+        guard bytes >= 0, bytes <= maximumBytes - allocatedBytes else {
+            throw F5Failure(.memoryPressure, "Native F5 buffers exceed the declared working-set budget.")
+        }
+        allocatedBytes += bytes; peakBytes = max(peakBytes, allocatedBytes)
+        return F5ExternalMetalAllocation { self.release(bytes) }
+    }
     func run(_ operation: (MTLCommandBuffer) throws -> Void) throws {
         if isCancelled() { throw CancellationError() }
         guard let command = queue.makeCommandBuffer() else { throw F5Failure(.memoryPressure, "Cannot allocate a Metal command buffer.") }
@@ -76,9 +94,8 @@ final class F5MetalDevice {
         encoder.label = name; encoder.setComputePipelineState(pipeline)
         for (index, buffer) in buffers.enumerated() { encoder.setBuffer(buffer, offset: 0, index: index) }
         constants(encoder)
-        let width = 256
-        encoder.dispatchThreadgroups(MTLSize(width: (count + width - 1) / width, height: 1, depth: 1),
-            threadsPerThreadgroup: MTLSize(width: width, height: 1, depth: 1))
+        encoder.dispatchThreadgroups(MTLSize(width: (count + 255) / 256, height: 1, depth: 1),
+            threadsPerThreadgroup: MTLSize(width: 256, height: 1, depth: 1))
         encoder.endEncoding()
     }
     static func value<T>(_ value: T, at index: Int, encoder: MTLComputeCommandEncoder) {

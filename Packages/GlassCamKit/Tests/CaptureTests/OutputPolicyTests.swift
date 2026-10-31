@@ -75,10 +75,10 @@ struct OutputPolicyTests {
         #expect(replay.recipe == frozen.recipe)
         #expect(replay.output == frozen.output)
     }
-    @Test(arguments: CaptureQuality.allCases + [.speed])
+    @Test(arguments: CaptureQuality.allCases)
     func sourceQuality_selectsHighestAllowedNativeSize(quality: CaptureQuality) {
         let high = CGSize(width: 8064, height: 6048), low = CGSize(width: 4032, height: 3024)
-        #expect(quality.sourceDimensions(available: [high, low]) == (quality == .speed ? low : high))
+        #expect(quality.sourceDimensions(available: [high, low]) == (quality.usesBayer ? low : high))
     }
     @Test func speedSource_rejectsUnsupportedOrInvalidDimensions() {
         #expect(CaptureQuality.speed.sourceDimensions(available: [.init(width: 8064, height: 6048)]) == nil)
@@ -107,6 +107,6 @@ struct OutputPolicyTests {
         let snapshot = CaptureSnapshot(recipe: .standard, output: .camera(12), quality: .speed)
         let decoded = try JSONDecoder().decode(CaptureSnapshot.self, from: JSONEncoder().encode(snapshot))
         #expect(decoded.quality == .speed)
-        #expect(decoded.output.cameraMegapixels == 12)
+        #expect(decoded.output.cameraMegapixels == nil)
     }
 }

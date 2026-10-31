@@ -14,6 +14,16 @@ GlassCam 使用用户提供的参考源码、数值资产与固定样本。各�
 
 GlassCam 与 Hasselblad、Phocus、Fujifilm、SILKYPIX 或 Apple 没有关联或背书关系。
 
+## Bayer 配准
+
+Bayer 低频灰度、金字塔配准与可靠度流程参考 Jamy Lafenetre 的 MIT 许可实现，固定来源与改写范围见 [Handheld SR ORIGIN](vendor/handheld-sr/ORIGIN.md)，许可全文见 [MIT LICENSE](vendor/handheld-sr/LICENSE)。
+
 ## 第三方兼容代码
 
 便携空间处理和随机数兼容组件保留适用的 NumPy／SciPy BSD、PCG 及随机数实现许可声明和来源链接，详见 [hncs_numpy_rng.cpp](Packages/GlassCamKit/Sources/CHNCS/hncs_numpy_rng.cpp) 与 [hncs_spatial.cpp](Packages/GlassCamKit/Sources/CHNCS/hncs_spatial.cpp)。分发这些组件时，应按各许可要求随源码或二进制提供相应声明。
+
+## DNG 文件
+
+This product includes DNG technology under license by Adobe.
+
+浮点 LinearRaw DNG 的格式依据 [Adobe DNG 规范](https://www.adobe.com/support/downloads/dng/dng_sdk.html) 独立实现。

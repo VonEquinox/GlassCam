@@ -104,10 +104,10 @@ struct SettingsTests {
             #expect(CameraSettingsStore(defaults: defaults).outputMegapixels(physicalCameraID: "physical-main", mode: "main") == 48)
         }
     }
-    @Test func legacySpeedPreference_migratesToF5() throws {
+    @Test func speedPreference_preservesSingleRAWMode() throws {
         try withDefaults { defaults in
             CameraSettingsStore(defaults: defaults).captureQuality = .speed
-            #expect(CameraSettingsStore(defaults: defaults).captureQuality == .f5)
+            #expect(CameraSettingsStore(defaults: defaults).captureQuality == .speed)
         }
     }
 }

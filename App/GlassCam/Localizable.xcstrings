@@ -1,6 +1,16 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "11 RAW samples saved.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "11 张 RAW 素材已保存。"
+          }
+        }
+      }
+    },
     "2× in each dimension": {
       "localizations": {
         "zh-Hans": {
@@ -47,6 +57,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "已存入相册"
+          }
+        }
+      }
+    },
+    "Also keep Bayer input frames": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同时保留 Bayer 输入原片"
           }
         }
       }
@@ -141,6 +161,56 @@
         }
       }
     },
+    "Balanced and ProRAW scene files saved.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanced 和 ProRAW 场景文件已保存。"
+          }
+        }
+      }
+    },
+    "Balanced combines four equal-exposure Bayer RAW frames with curvature reconstruction at 2× sampling.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanced 合成四张等曝光 Bayer RAW，使用曲率重建，横纵各 2× 采样。"
+          }
+        }
+      }
+    },
+    "Balanced merged RAW and original ProRAW are saved before color processing. Finished photos still save to Photos.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanced 合成 RAW 和原始 ProRAW 会在调色前保存，调色成片照常保存到相册。"
+          }
+        }
+      }
+    },
+    "Balanced · 4 RAW": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanced · 4 帧 RAW"
+          }
+        }
+      }
+    },
+    "Balanced · 4 RAW · 2× output grid": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanced · 4 帧 RAW · 2× 采样"
+          }
+        }
+      }
+    },
     "Camera": {
       "localizations": {
         "zh-Hans": {
@@ -197,6 +267,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "拍摄优先级"
+          }
+        }
+      }
+    },
+    "Capturing %lld Bayer RAW frame(s)…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在拍摄 %lld 张 Bayer RAW…"
           }
         }
       }
@@ -287,6 +367,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "选择照片风格"
+          }
+        }
+      }
+    },
+    "Choose single RAW Speed, four-frame Balanced, or ProRAW Quality": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择 Speed 单帧 RAW、Balanced 四帧合成或 Quality ProRAW"
           }
         }
       }
@@ -631,6 +721,16 @@
         }
       }
     },
+    "Keep RAW originals": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留 RAW 原片"
+          }
+        }
+      }
+    },
     "Keep five RAW originals": {
       "localizations": {
         "zh-Hans": {
@@ -647,6 +747,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "保留每张照片自身的白平衡。"
+          }
+        }
+      }
+    },
+    "Keeps eleven equal-exposure Bayer originals and metadata for offline fusion.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留 11 张等曝光 Bayer 原片及元数据，用于后续离线合成。"
           }
         }
       }
@@ -941,6 +1051,26 @@
         }
       }
     },
+    "Pre-color files are in Files → GlassCam → RAWCaptures.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "调色前文件位于“文件”→ GlassCam → RAWCaptures。"
+          }
+        }
+      }
+    },
+    "Preparing Bayer RAW capture…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在准备 Bayer RAW 拍摄…"
+          }
+        }
+      }
+    },
     "Preparing five Bayer RAW exposures…": {
       "localizations": {
         "zh-Hans": {
@@ -1001,12 +1131,92 @@
         }
       }
     },
+    "Quality requires a native ProRAW format on this camera.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此摄像头需要支持原生 ProRAW 才能使用 Quality。"
+          }
+        }
+      }
+    },
+    "RAW recording": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RAW 记录"
+          }
+        }
+      }
+    },
+    "Record 11 RAW samples": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "记录 11 张 RAW 素材"
+          }
+        }
+      }
+    },
     "Record five RAW samples": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "记录五帧 RAW 样本"
+          }
+        }
+      }
+    },
+    "Record scene · Balanced + ProRAW": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "记录当前场景 · Balanced + ProRAW"
+          }
+        }
+      }
+    },
+    "Recording 11 RAW samples…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在记录 11 张 RAW 素材…"
+          }
+        }
+      }
+    },
+    "Recording scene · Balanced…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在记录场景 · Balanced…"
+          }
+        }
+      }
+    },
+    "Recording scene · ProRAW…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在记录场景 · ProRAW…"
+          }
+        }
+      }
+    },
+    "Records only the Balanced merged source and original ProRAW, without color processing or Photos export. Keep the scene steady.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅记录 Balanced 合成原片与 ProRAW 原片，不调色、不导出到相册；请保持场景稳定。"
           }
         }
       }
@@ -1111,6 +1321,16 @@
         }
       }
     },
+    "Retained RAW %lld of %lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已保留 RAW %1$lld／%2$lld"
+          }
+        }
+      }
+    },
     "Retaining photo": {
       "localizations": {
         "zh-Hans": {
@@ -1181,6 +1401,16 @@
         }
       }
     },
+    "Sample sets are in Files → GlassCam → F5Samples.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原片组位于“文件”→ GlassCam → F5Samples。"
+          }
+        }
+      }
+    },
     "Sampling": {
       "localizations": {
         "zh-Hans": {
@@ -1231,6 +1461,16 @@
         }
       }
     },
+    "Saved RAW sets are kept in Files under F5Archives.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RAW 原片保存在“文件”的 F5Archives 文件夹中。"
+          }
+        }
+      }
+    },
     "Saved to Photos": {
       "localizations": {
         "zh-Hans": {
@@ -1267,6 +1507,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "设置"
+          }
+        }
+      }
+    },
+    "Settling the main camera for Bayer RAW…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待主摄测光和对焦稳定…"
           }
         }
       }
@@ -1331,12 +1581,42 @@
         }
       }
     },
+    "Speed captures one RAW; Balanced combines four equal-exposure RAW frames. Both use the main camera's native view.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed 拍摄单张 RAW；Balanced 合成四张等曝光 RAW。两者均使用主摄原生视角。"
+          }
+        }
+      }
+    },
     "Speed requires a 12 MP ProRAW format on this camera.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "此摄像头需要支持 12MP ProRAW 才能使用 Speed。"
+          }
+        }
+      }
+    },
+    "Speed uses one 12 MP Bayer RAW with noise reduction, bad-pixel correction, demosaicing and lens correction.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed 使用单张 12MP Bayer RAW，完成降噪、坏点修复、去马赛克和镜头矫正。"
+          }
+        }
+      }
+    },
+    "Speed · Single RAW · 12 MP": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed · 单帧 RAW · 12MP"
           }
         }
       }
@@ -1361,6 +1641,16 @@
         }
       }
     },
+    "The RAW frames have inconsistent exposure settings. Fusion could not finish; the originals were kept.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RAW 帧的曝光设置不一致，无法完成合成；原片已保留。"
+          }
+        }
+      }
+    },
     "The clear central frame is your photo. The outer glass darkens when camera views cannot align reliably.": {
       "localizations": {
         "zh-Hans": {
@@ -1381,12 +1671,12 @@
         }
       }
     },
-    "The five RAW frames have inconsistent exposure settings. Fusion could not finish; the originals were kept.": {
+    "The main camera did not become ready for recording.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这组 RAW 的曝光设置不一致，无法完成合成。原始文件已保留。"
+            "value": "主摄未能准备好，无法开始记录。"
           }
         }
       }

@@ -2,6 +2,7 @@
 #define GLASSCAM_METAL_COLOR_H
 #ifdef __OBJC__
 #import <CoreImage/CoreImage.h>
+#import "file_raster.h"
 #include "hncs_c.h"
 #include "ffcs_c.h"
 #include "lumix_c.h"

@@ -116,11 +116,16 @@ public enum ImagePipeline {
     package static func writeLinearHEIF(resources: ColorResources, _ image: any SceneLinearImage, metadata: PhotoMetadata, recipe: ProcessingRecipe, to url: URL,
                            isCancelled: @escaping @Sendable () -> Bool, progress: @escaping @Sendable (Double) -> Void) throws -> ProcessingRecipe {
         try decodeQueue.sync {
-            let white = try image.validatedWhiteBalance()
-            let resolved = recipe.resolvingWhiteBalance(white).resolvingLUMIXSourceISO(image.sourceISO)
-            try exportLinearSource(resources: resources, image.image,metadata:metadata,recipe:resolved,to:url,settings:.native,rawDecode:.sceneLinear,
-                isCancelled:isCancelled,progress:progress)
-            return resolved
+            try autoreleasepool {
+                let white = try image.validatedWhiteBalance()
+                let resolved = recipe.resolvingWhiteBalance(white).resolvingLUMIXSourceISO(image.sourceISO)
+                guard image.baselineSharpness.isFinite, image.baselineSharpness >= 0 else { throw PipelineError.invalidImage }
+                let decode = RAWDecodeRecipe(rendering: .sceneLinear, baselineSharpness: image.baselineSharpness)
+                try exportLinearSource(resources: resources, image.image,metadata:metadata,recipe:resolved,to:url,settings:.native,rawDecode:decode,
+                    isCancelled:isCancelled,progress:progress)
+                try image.validateImageReads()
+                return resolved
+            }
         }
     }
 

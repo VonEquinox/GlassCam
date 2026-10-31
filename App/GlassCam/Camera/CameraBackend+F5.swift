@@ -12,11 +12,11 @@ extension CameraBackend {
     func captureF5(_ request: CaptureRequest, snapshot: CaptureSnapshot?, f5Purpose: String) throws {
         guard let main = lensCatalog.first(where:{$0.device.deviceType == .builtInWideAngleCamera && !$0.device.isVirtualDevice}),
               abs(request.configuration.displayedZoom-main.displayedZoom)<0.0001 else {
-            throw F5Failure(.mainCameraOnly, "Select the main camera's native view for F5.")
+            throw F5Failure(.mainCameraOnly, "Select the main camera's native view for Bayer RAW.")
         }
         let current=main.device
         request.restoresPreviewGraph = true
-        request.progress(.preparing, "Preparing five Bayer RAW exposures…")
+        request.progress(.preparing, "Preparing Bayer RAW capture…")
         tearDownGraph(preservingPreview: true)
         let photo = try buildSinglePhotoGraph(configuration: request.configuration, orientation: request.orientation,
             expected: nil, includePreview: false, forcedDevice: current, bayer: true)

@@ -171,12 +171,12 @@ extension CameraView {
                 settings.setOutputMegapixels(next, physicalCameraID: id, mode: selectedLens.rawValue)
             }
         } label: {
-            Text(settings.captureQuality == .f5 ? "2× sampling" : "\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP")
+            Text(settings.captureQuality == .balanced ? "2× sampling" : "\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP")
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .modifier(CameraPill())
-        }.disabled(!workflow.canCapture || camera.physicalCameraID == nil || settings.captureQuality == .f5)
+        }.disabled(!workflow.canCapture || camera.physicalCameraID == nil || settings.captureQuality.usesBayer)
             .accessibilityLabel("Photo resolution").accessibilityIdentifier("camera.resolution")
-            .accessibilityValue(Text(settings.captureQuality == .f5 ? "2× sampling" : "\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP"))
+            .accessibilityValue(Text(settings.captureQuality == .balanced ? "2× sampling" : "\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP"))
     }
 
     var qualityButton: some View {
@@ -184,9 +184,9 @@ extension CameraView {
             ForEach(CaptureQuality.allCases, id: \.self) { quality in
                 Button { settings.captureQuality = quality } label: {
                     if settings.captureQuality == quality {
-                        Label(quality == .f5 ? "F5 · 5 RAW" : quality.title, systemImage: "checkmark")
+                        Label(quality == .balanced ? "Balanced · 4 RAW" : quality.title, systemImage: "checkmark")
                     } else {
-                        Text(quality == .f5 ? "F5 · 5 RAW" : quality.title)
+                        Text(quality == .balanced ? "Balanced · 4 RAW" : quality.title)
                     }
                 }.accessibilityIdentifier("camera.quality.\(quality.rawValue)")
             }
@@ -199,7 +199,7 @@ extension CameraView {
         .accessibilityLabel("Capture priority")
         .accessibilityValue(settings.captureQuality.title)
         .accessibilityIdentifier("camera.quality")
-        .accessibilityHint("Choose F5 five-frame RAW, Balanced, or Quality")
+        .accessibilityHint("Choose single RAW Speed, four-frame Balanced, or ProRAW Quality")
     }
 
     private var statusButton: some View {
@@ -216,7 +216,6 @@ extension CameraView {
     }
 
     private var summaryStatus: String {
-        if settings.captureQuality == .f5, !camera.f5ProfileAvailable, !camera.isCapturing, workflow.canCapture { return "F5 · Main-camera calibration required" }
         if camera.isCapturing || camera.isPreviewFrozen { return "Capturing RAW" }
         switch workflow.phase {
         case .authorizing: return "Preparing photo"
@@ -249,14 +248,15 @@ extension CameraView {
             Text(CameraZoomRange.label(camera.requestedZoom)).font(.system(size: 12, weight: .semibold))
                 .frame(minWidth: 44, minHeight: 44)
         }
-        .disabled(!workflow.canCapture || camera.isCapturing || settings.captureQuality == .f5)
+        .disabled(!workflow.canCapture || camera.isCapturing || settings.captureQuality.usesBayer)
         .accessibilityLabel("Focal length controls")
         .accessibilityValue(CameraZoomRange.label(camera.appliedZoom))
         .accessibilityIdentifier("camera.zoom")
     }
 
     var estimatedOutputLabel: String {
-        if settings.captureQuality == .f5 { return "F5 · 5 RAW · 2× output grid" }
+        if settings.captureQuality == .balanced { return "Balanced · 4 RAW · 2× output grid" }
+        if settings.captureQuality == .speed { return "Speed · Single RAW · 12 MP" }
         guard let source = camera.sourceCaptureDimensions else { return "HDR" }
         let mode = selectedOutput?.megapixels ?? settings.captureQuality.outputMegapixels(preferred: settings.preferredOutputMegapixels)
         let output = ExportSettings.camera(mode, framing: camera.currentFraming)
@@ -286,7 +286,7 @@ extension CameraView {
             .accessibilityValue(CameraZoomRange.label(stop.factor))
             .accessibilityIdentifier("camera.zoom.\(stop.title)")
         }
-        .disabled(!workflow.canCapture || camera.isCapturing || camera.isConfiguring || settings.captureQuality == .f5)
+        .disabled(!workflow.canCapture || camera.isCapturing || camera.isConfiguring || settings.captureQuality.usesBayer)
     }
 
     var zoomRuler: some View {
@@ -298,7 +298,7 @@ extension CameraView {
                 Slider(value: Binding(get: { log2(camera.requestedZoom) },
                                       set: { camera.setZoom(pow(2, $0)) }),
                        in: log2(camera.zoomRange.lowerBound)...log2(camera.zoomRange.upperBound))
-                    .disabled(!workflow.canCapture || settings.captureQuality == .f5)
+                    .disabled(!workflow.canCapture || settings.captureQuality.usesBayer)
                     .accessibilityLabel("Continuous focal length")
                     .accessibilityValue(CameraZoomRange.label(camera.appliedZoom))
                     .accessibilityIdentifier("camera.zoom.ruler")

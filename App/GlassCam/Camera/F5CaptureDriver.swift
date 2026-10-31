@@ -72,16 +72,16 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
                 throw F5Failure(.unsupportedRAW, "This configuration cannot deliver manually exposed, independent Bayer RAW.")
             }
             rawType = raw; originalSignature = try F5DeviceFacts.signature(camera)
-            _ = try F5ExposurePlan.groups(maxBracketCount: output.maxBracketedCapturePhotoCount)
+            _ = try F5ExposurePlan.groups(maxBracketCount: output.maxBracketedCapturePhotoCount, frameCount: transaction.frameCount)
             oisPolicy = output.isLensStabilizationDuringBracketedCaptureSupported ? "on" : "unavailable"
-            if purpose == "product" {
+            if purpose == "product", transaction.frameCount == 5 {
                 profile = F5ProfileStore.candidates(hardware: F5DeviceFacts.hardware, os: F5DeviceFacts.osBuild,
                     physicalCameraID: F5DeviceFacts.cameraID(camera)).first {
                     $0.formatSignature == originalSignature && $0.rawFourCC == raw && $0.oisPolicy == oisPolicy
                 }
                 guard profile != nil else { throw F5Failure(.unqualified, "Import the accepted iPhone 18 Pro Max main-camera profile before making F5 photographs. The sample recorder remains available.") }
             }
-            progress("Settling the main camera for five RAW exposures…")
+            progress("Settling the main camera for Bayer RAW…")
             try camera.lockForConfiguration()
             if camera.isExposureModeSupported(.continuousAutoExposure) {camera.exposureMode = .continuousAutoExposure}
             if camera.isFocusModeSupported(.continuousAutoFocus) {camera.focusMode = .continuousAutoFocus}
@@ -94,7 +94,7 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
     private func check() throws {
         if cancelled() { throw F5Failure(.cancelled, "Capture cancelled; existing frames were retained.") }
         if ProcessInfo.processInfo.thermalState == .critical || ProcessInfo.processInfo.thermalState == .serious {
-            throw F5Failure(.thermalLimit, "Allow the camera to cool before a five-frame capture.")
+            throw F5Failure(.thermalLimit, "Allow the camera to cool before a Bayer RAW capture.")
         }
         guard try F5DeviceFacts.signature(camera) == originalSignature, camera.deviceType == .builtInWideAngleCamera,
               camera.videoZoomFactor == 1, !output.isAppleProRAWEnabled else { throw F5Failure(.physicalCameraChanged, "The Bayer source configuration changed.") }
@@ -112,11 +112,13 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
                 return
             }
             let format = camera.activeFormat, iso = camera.iso
-            let plan = try F5ExposurePlan.make(ae: CMTimeGetSeconds(camera.exposureDuration), iso: Double(iso),
+            let plan = try transaction.frameCount == 5 ? F5ExposurePlan.make(ae: CMTimeGetSeconds(camera.exposureDuration), iso: Double(iso),
                 minimum: CMTimeGetSeconds(format.minExposureDuration), maximum: CMTimeGetSeconds(format.maxExposureDuration),
                 // CMTime precision is not a calibrated sensor exposure quantum.
                 // Delivery is audited independently against the request.
-                quantum: 1e-9, certifiedMotionCap: profile?.handheldMaxExposure, allowClampedProbe: purpose == "probe")
+                quantum: 1e-9, certifiedMotionCap: profile?.handheldMaxExposure, allowClampedProbe: purpose == "probe") :
+                F5ExposurePlan.equal(ae: CMTimeGetSeconds(camera.exposureDuration), iso: Double(iso),
+                    minimum: CMTimeGetSeconds(format.minExposureDuration), maximum: CMTimeGetSeconds(format.maxExposureDuration))
             if let profile {
                 guard (profile.isoRange[0]...profile.isoRange[1]).contains(Double(iso)),
                       (profile.focusRange[0]...profile.focusRange[1]).contains(Double(camera.lensPosition)),
@@ -142,12 +144,19 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
         guard completion != nil, settings.isEmpty, let plan = exposurePlan else { return }
         do {
             try check()
-            let groups = try F5ExposurePlan.groups(maxBracketCount: output.maxBracketedCapturePhotoCount)
+            let groups = try F5ExposurePlan.groups(maxBracketCount: output.maxBracketedCapturePhotoCount, frameCount: transaction.frameCount)
+            let durations = transaction.frameCount == 5 ? plan.durations : Array(repeating: plan.main, count: transaction.frameCount)
+            guard let dimensions = camera.activeFormat.supportedMaxPhotoDimensions.filter({
+                abs(Double($0.width) * Double($0.height) / 12_000_000 - 1) <= 0.08
+            }).max(by: { Int64($0.width) * Int64($0.height) < Int64($1.width) * Int64($1.height) }) else {
+                throw F5Failure(.unsupportedRAW, "This camera does not expose a 12 MP Bayer capture size.")
+            }
             for indices in groups {
                 let exposures = indices.map { AVCaptureManualExposureBracketedStillImageSettings.manualExposureSettings(
-                    exposureDuration: CMTime(seconds: plan.durations[$0], preferredTimescale: 1_000_000_000), iso: lockedISO) }
+                    exposureDuration: CMTime(seconds: durations[$0], preferredTimescale: 1_000_000_000), iso: lockedISO) }
                 let request = AVCapturePhotoBracketSettings(rawPixelFormatType: rawType, processedFormat: nil, bracketedSettings: exposures)
                 request.photoQualityPrioritization = .speed
+                request.maxPhotoDimensions = dimensions
                 // A RAW-only bracket intrinsically excludes flash and Live Photo;
                 // assigning those unsupported bracket properties can throw in AVF.
                 request.isAutoContentAwareDistortionCorrectionEnabled = false
@@ -175,11 +184,11 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
                 return
             }
             let current = groupIndex
-            progress("Capturing five Bayer RAW frames…")
+            progress(String(localized: "Capturing \(transaction.frameCount) Bayer RAW frame(s)…"))
             output.capturePhoto(with: settings[current], delegate: self)
             queue.asyncAfter(deadline: .now() + 15) { [weak self] in
                 guard let self, self.completion != nil, self.groupIndex == current else { return }
-                self.finish(.failure(F5Failure(.frameMissing, "A bracket did not finish. Delivered frames were kept; no sixth frame was requested.")))
+                self.finish(.failure(F5Failure(.frameMissing, "A bracket did not finish. Delivered frames were kept; no replacement was requested.")))
             }
         } catch { finish(.failure(error)) }
     }
@@ -221,10 +230,10 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
                     let raster = F5RasterDescriptor(width: width, height: height, rowBytes: stride, byteOrder: .little,
                         activeArea: metadata.activeArea, cfa: metadata.cfa, orientation: metadata.orientation, bitsPerSample: metadata.bits)
                     let frame = F5FrameRecord(id: "\(self.transaction.id.uuidString)-\(index)", requestID: requestID, burstIndex: index,
-                        sequenceCount: sequence, role: index == 2 ? .short : .main, physicalCameraID: lens,
+                        sequenceCount: sequence, role: self.transaction.frameCount == 5 && index == 2 ? .short : .main, physicalCameraID: lens,
                         formatSignature: self.originalSignature, rawFourCC: format,
                         dng: delivery.dng, mosaic: delivery.mosaic!, raster: raster,
-                        requestedExposure: self.exposurePlan!.durations[index], actualExposure: actualTime, actualISO: actualISO,
+                        requestedExposure: self.transaction.frameCount == 5 ? self.exposurePlan!.durations[index] : self.exposurePlan!.main, actualExposure: actualTime, actualISO: actualISO,
                         aperture: actualAperture, focus: focus, oisPolicy: self.oisPolicy,
                         timestamp: timestamp, callbackUptime: callback, clockID: "AVCapturePhoto.sessionClock", rollingShutterLineTime: nil, metadata: metadata,
                         requestedISO: Double(self.lockedISO))
@@ -232,7 +241,7 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
                         self.flags.insert(.profileMismatch)
                     }
                     try self.transaction.append(frame, dng: dng, mosaic: mosaic)
-                    self.progress("Retained RAW \(index + 1) of 5")
+                    self.progress(String(localized: "Retained RAW \(index + 1) of \(self.transaction.frameCount)"))
                 } catch { self.finish(.failure(error)) }
             }
         } catch { queue.async { [weak self] in self?.finish(.failure(error)) } }

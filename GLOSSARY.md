@@ -69,5 +69,17 @@ _Avoid_: 原厂成片匹配、绝对色准
 _Avoid_: 色彩数值一致性
 
 **F5**：
-以一组五帧 Bayer RAW 为源照片的拍摄方式。
-_Avoid_: 五帧 ProRAW、色彩引擎
+Bayer RAW 重建管线的名称，供 Speed 和 Balanced 拍摄模式使用。
+_Avoid_: 五帧 ProRAW、色彩引擎、拍摄模式
+
+**Speed**：
+以单张 Bayer RAW 为源照片的拍摄模式。
+_Avoid_: 单帧 ProRAW、色彩风格
+
+**Balanced**：
+以四张等曝光 Bayer RAW 为源照片的拍摄模式。
+_Avoid_: 五帧合成、ProRAW 连拍、色彩风格
+
+**Quality**：
+以 Apple ProRAW 为源照片的拍摄模式。
+_Avoid_: 多帧 Bayer RAW、色彩风格

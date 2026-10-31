@@ -50,6 +50,19 @@ struct F5ColorTransformRecord: Codable, Sendable {
 }
 
 enum F5ColorBridge {
+    /// BaselineExposure belongs to RAW rendering, independently of relative
+    /// burst exposure normalization and the user's later exposure adjustment.
+    static func rendering(metadata: F5DNGMetadata, profile: F5DeviceProfile) throws -> F5ColorTransformRecord {
+        let base = try make(metadata: metadata, profile: profile)
+        let ev = metadata.baselineExposure ?? 0
+        guard ev.isFinite, abs(ev) <= 16 else { throw F5Failure(.colorTransformInvalid, "Invalid DNG baseline exposure.") }
+        return try .init(cameraToXYZD50: base.cameraToXYZD50.scaled(exp2(ev)),
+            cameraToLinearSRGB: base.cameraToLinearSRGB.scaled(exp2(ev)), inputScale: base.inputScale,
+            whiteX: base.whiteX, whiteY: base.whiteY, temperature: base.temperature,
+            whiteBalanceOwner: base.whiteBalanceOwner, sourceDNGSHA256: base.sourceDNGSHA256,
+            profileSHA256: base.profileSHA256, decodeRevision: base.decodeRevision, colorBridgeRevision: F5Version.renderingColorBridge,
+            ledger: Array(base.ledger.dropLast()) + ["DNG_baseline_exposure_once_\(ev)_EV", "no_look_table_no_tone_curve"])
+    }
     // Independently implemented from DNG 1.7.1 pp. 100–103. The reference oracle
     // is the SDK's linear CameraToPCS branch (no look tables or tone curves).
     static let d50 = [0.3457, 0.3585], d65 = [0.3127, 0.3290]

@@ -1,11 +1,15 @@
 import Foundation
 import CoreGraphics
 
-/// F5 owns a five-frame Bayer transaction. The legacy speed value is retained
-/// only to decode unfinished old photos; it is no longer offered in the UI.
+/// Capture and color processing are independent choices. Bayer modes enter the
+/// common color pipeline after their own sensor reconstruction.
 public enum CaptureQuality: String, CaseIterable, Codable, Sendable {
     case f5, balanced, quality, speed
-    public static var allCases: [CaptureQuality] { [.f5, .balanced, .quality] }
+    public static var allCases: [CaptureQuality] { [.speed, .balanced, .quality] }
+    public var bayerFrameCount: Int? {
+        switch self { case .speed: return 1; case .balanced: return 4; case .f5: return 5; case .quality: return nil }
+    }
+    public var usesBayer: Bool { bayerFrameCount != nil }
     public var title: String {
         switch self {
         case .f5: return "F5"
@@ -18,7 +22,7 @@ public enum CaptureQuality: String, CaseIterable, Codable, Sendable {
     public func sourceDimensions(available: [CGSize]) -> CGSize? {
         available.filter { size in
             guard size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0 else { return false }
-            return self != .speed || abs(Double(size.width * size.height) / 12_000_000 - 1) <= 0.08
+            return !usesBayer || abs(Double(size.width * size.height) / 12_000_000 - 1) <= 0.08
         }.max { $0.width * $0.height < $1.width * $1.height }
     }
 }
@@ -52,8 +56,8 @@ public struct PixelCrop: Equatable, Sendable {
     }
 }
 
-/// Explicit legacy targets retain their original no-upscale contract. Camera
-/// captures use 12MP for Speed, or the selected 24/48MP policy after recipe crop.
+/// Explicit targets retain their no-upscale contract. Quality uses the selected
+/// 24/48 MP policy; Bayer producers supply their own native output grid.
 public struct ExportSettings: Codable, Equatable, Sendable {
     public let targetWidth: Int?
     public let targetHeight: Int?

@@ -6,15 +6,16 @@ import Foundation
 enum F5Fixtures {
     struct Fixture {let source:F5BurstSource, profile:F5DeviceProfile, canonical:[F5CanonicalFrame]; let duplicateAppendResults: [Bool]; let repeatedSource: F5BurstSource}
     static func make(directory:URL,width:Int=8,height:Int=6,inputFrames:[[UInt16]]?=nil,policyOverride:F5Policy?=nil,
-                     codeDivisor:Int=1,deliveredISOs:[UInt16]?=nil,additionalDNGTags:[Tag]=[]) throws -> Fixture {
+                     codeDivisor:Int=1,deliveredISOs:[UInt16]?=nil,additionalDNGTags:[Tag]=[],quality:CaptureQuality = .f5,purpose:String = "synthetic-test") throws -> Fixture {
+        let frameCount = purpose == "probe" ? 11 : (quality.bayerFrameCount ?? 5)
         var policy=F5Policy();policy.blockSize=8;policy.maxCycles=5;policy.maxGeometryRounds=1
         policy.maximumProcessingSeconds=120;policy.standardizedGradientTolerance=0.03
         policy.minimumModeInformation=0.01;policy.maximumWarpJacobianDeviation=0.02
         if let policyOverride {policy=policyOverride}
         if let inputFrames {
-            guard inputFrames.count==5,inputFrames.allSatisfy({$0.count==width*height}) else {throw F5Failure(.damagedBundle,"Synthetic integer fixture dimensions disagree.")}
+            guard inputFrames.count==frameCount,inputFrames.allSatisfy({$0.count==width*height}) else {throw F5Failure(.damagedBundle,"Synthetic integer fixture dimensions disagree.")}
         }
-        guard [1,4].contains(codeDivisor), deliveredISOs == nil || deliveredISOs?.count == 5 else {
+        guard [1,4].contains(codeDivisor), deliveredISOs == nil || deliveredISOs?.count == frameCount else {
             throw F5Failure(.damagedBundle,"Invalid synthetic capture parameters.")
         }
         let nativeBlack = codeDivisor == 4 ? 2112.0 : 512.0
@@ -31,15 +32,16 @@ enum F5Fixtures {
             likelihood:.init(revision:"f5-pg-v1",table:nil,nllMaximumError:0,standardizedScoreMaximumError:0,gaussianMinimumElectrons:nil,exactMaximumElectrons:2000),policy:policy,
             rawCodeRange:[0,nativeMaximum],targetDeviceName:"SYNTHETIC_NOT_IPHONE",
             bufferCodeMapping:.init(divisor:codeDivisor,dngStage1Rounding:"floor",evidenceSHA256:F5Hash.data(Data("synthetic-fixture-only".utf8))))
-        let snapshot=CaptureSnapshot(recipe:.standard,output:.camera(48),quality:.f5)
-        let transaction=try F5BurstTransaction(snapshot:snapshot,purpose:"synthetic-test",root:directory)
-        try transaction.register(requestID:101,indices:[0,1,2]);try transaction.register(requestID:102,indices:[3,4])
+        let snapshot=CaptureSnapshot(recipe:.standard,output:.camera(48),quality:quality)
+        let transaction=try F5BurstTransaction(snapshot:snapshot,purpose:purpose,root:directory)
+        let groups = try F5ExposurePlan.groups(maxBracketCount: 3,frameCount: frameCount)
+        for (i,group) in groups.enumerated() { try transaction.register(requestID: Int64(101+i),indices: group) }
         let descriptor=F5RasterDescriptor(width:width+2,height:height+2,rowBytes:(width+2)*2+4,byteOrder:.little,
             activeArea:.init(top:1,left:1,bottom:height+1,right:width+1),cfa:[.r,.g1,.g2,.b],orientation:6,bitsPerSample:16)
         var records:[F5FrameRecord]=[],raws:[Data]=[]
         var duplicateAppendResults = [Bool]()
-        for frame in 0..<5 {
-            let exposure=frame==2 ? 0.001 : 0.008,ratio=exposure/0.008
+        for frame in 0..<frameCount {
+            let exposure=frameCount == 5 && frame==2 ? 0.001 : 0.008,ratio=exposure/0.008
             var dense:[UInt16]=[],mosaic=Data()
             for y in 0..<descriptor.height {
                 for x in 0..<descriptor.width {
@@ -53,17 +55,16 @@ enum F5Fixtures {
             let dng=try makeDNG(width:descriptor.width,height:descriptor.height,active:descriptor.activeArea,pixels:dense,exposure:exposure,
                 overrides:[rationals(50714,Array(repeating:nativeBlack/Double(codeDivisor),count:4)),longs(50717,[UInt32(nativeWhite/codeDivisor)])]+additionalDNGTags,iso:deliveredISOs?[frame] ?? 100)
             let metadata=try F5DNGMetadata.read(dng)
-            let record=F5FrameRecord(id:"synthetic-\(frame)",requestID:frame<3 ? 101 : 102,burstIndex:frame,sequenceCount:frame<3 ? frame+1 : frame-2,
-                role:frame==2 ? .short : .main,physicalCameraID:profile.physicalCameraID,formatSignature:profile.formatSignature,rawFourCC:profile.rawFourCC,
+            let record=F5FrameRecord(id:"synthetic-\(frame)",requestID:Int64(101+frame/3),burstIndex:frame,sequenceCount:frame%3+1,
+                role:frameCount == 5 && frame==2 ? .short : .main,physicalCameraID:profile.physicalCameraID,formatSignature:profile.formatSignature,rawFourCC:profile.rawFourCC,
                 dng:.init(path:"frame-\(frame).dng",sha256:F5Hash.data(dng),bytes:dng.count),mosaic:.init(path:"frame-\(frame).raw",sha256:F5Hash.data(mosaic),bytes:mosaic.count),raster:descriptor,
                 requestedExposure:exposure,actualExposure:metadata.exposureTime!,actualISO:metadata.iso!,aperture:metadata.aperture!,focus:0.5,oisPolicy:"unavailable",
                 timestamp:Double(frame)*0.035,callbackUptime:Double(frame)*0.035+0.2,clockID:"SYNTHETIC_CLOCK",rollingShutterLineTime:nil,metadata:metadata,requestedISO:100)
             try transaction.append(record,dng:dng,mosaic:mosaic)
             if frame==1 { duplicateAppendResults.append(try transaction.append(record,dng:dng,mosaic:mosaic)) }
-            if frame==2 {try transaction.finishRequest(101,error:nil)}
+            if groups[frame/3].last == frame {try transaction.finishRequest(Int64(101+frame/3),error:nil)}
             records.append(record);raws.append(mosaic)
         }
-        try transaction.finishRequest(102,error:nil)
         let framing=CaptureFraming(cameraID:profile.physicalCameraID,lensName:"Main",nativePixelCount:width*height,deliveredWidth:width,deliveredHeight:height)
         let source=try transaction.commit(hardware:profile.hardwareModel,osBuild:profile.osBuild,synthetic:true,flags:[],profile:profile,framing:framing)
         let repeated=try transaction.commit(hardware:profile.hardwareModel,osBuild:profile.osBuild,synthetic:true,flags:[],profile:profile,framing:framing)

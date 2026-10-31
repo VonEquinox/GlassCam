@@ -9,13 +9,14 @@ public struct CaptureSnapshot: Codable, Sendable {
     public let quality: CaptureQuality
     public let f5: (any CaptureProvenance)?
     public let archiveF5RAW: Bool
+    public let rawArchiveID: UUID?
 
-    public init(recipe: ProcessingRecipe, output: ExportSettings, quality: CaptureQuality = .quality, f5: (any CaptureProvenance)? = nil, archiveF5RAW: Bool = false) {
+    public init(recipe: ProcessingRecipe, output: ExportSettings, quality: CaptureQuality = .quality, f5: (any CaptureProvenance)? = nil, archiveF5RAW: Bool = false, rawArchiveID: UUID? = nil) {
         self.recipe = recipe
-        self.output = quality == .f5 ? ExportSettings(targetWidth:nil,targetHeight:nil,framing:output.framing) : output
-        self.quality = quality; self.f5 = f5; self.archiveF5RAW = archiveF5RAW
+        self.output = quality.usesBayer ? ExportSettings(targetWidth:nil,targetHeight:nil,framing:output.framing) : output
+        self.quality = quality; self.f5 = f5; self.archiveF5RAW = archiveF5RAW; self.rawArchiveID = rawArchiveID
     }
-    private enum CodingKeys: String, CodingKey { case recipe, output, quality, f5, archiveF5RAW }
+    private enum CodingKeys: String, CodingKey { case recipe, output, quality, f5, archiveF5RAW, rawArchiveID }
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         recipe = try values.decode(ProcessingRecipe.self, forKey: .recipe)
@@ -27,6 +28,7 @@ public struct CaptureSnapshot: Codable, Sendable {
             f5 = try format.decodeProvenance(from: values.superDecoder(forKey: .f5))
         } else { f5 = nil }
         archiveF5RAW = try values.decodeIfPresent(Bool.self, forKey: .archiveF5RAW) ?? false
+        rawArchiveID = try values.decodeIfPresent(UUID.self, forKey: .rawArchiveID)
     }
     public func encode(to encoder: Encoder) throws {
         var values = encoder.container(keyedBy: CodingKeys.self)
@@ -35,6 +37,7 @@ public struct CaptureSnapshot: Codable, Sendable {
         try values.encode(quality, forKey: .quality)
         if let f5 { try f5.encode(to: values.superEncoder(forKey: .f5)) }
         try values.encode(archiveF5RAW, forKey: .archiveF5RAW)
+        try values.encodeIfPresent(rawArchiveID, forKey: .rawArchiveID)
     }
 }
 
@@ -82,23 +85,23 @@ public final class CaptureWorkflow: ObservableObject {
                                            CaptureProcessingControl) async throws -> SavedCapture)? = nil
         var reload: (@Sendable (URL, CaptureSnapshot, CaptureProcessingControl) async throws -> SavedCapture)? = nil
 
-        public static func live(resources: ColorResources, formats: CaptureFormats = CaptureFormats(), authorize: @escaping @MainActor () async throws -> Void,
+        public static func live(resources: ColorResources, formats: CaptureFormats = CaptureFormats(), rawArchiveRoot: URL? = nil, authorize: @escaping @MainActor () async throws -> Void,
                          save: @escaping @MainActor (TemporaryHEIFFile) async throws -> Void) -> Services {
             Services(authorize: authorize, retain: { data in
                 try await Task.detached(priority: .userInitiated) {
                     try SourceImageFile(data: data, fileExtension: "dng")
                 }.value
             }, process: { source, snapshot, progress in
-                try await processCapture(resources: resources, formats: formats, source, snapshot: snapshot, progress: progress, control: CaptureProcessingControl())
+                try await processCapture(resources: resources, formats: formats, source, snapshot: snapshot, progress: progress, control: CaptureProcessingControl(),rawArchiveRoot: rawArchiveRoot)
             }, save: save, processWithControl: { source, snapshot, progress, control in
-                try await processCapture(resources: resources, formats: formats, source, snapshot: snapshot, progress: progress, control: control)
+                try await processCapture(resources: resources, formats: formats, source, snapshot: snapshot, progress: progress, control: control,rawArchiveRoot: rawArchiveRoot)
             }, reload: { url, snapshot, control in
                 try await reloadCapture(url, snapshot: snapshot, control: control)
             })
         }
 
         nonisolated private static func processCapture(resources: ColorResources, formats: CaptureFormats, _ source: RetainedCaptureSource, snapshot: CaptureSnapshot,
-            progress: @escaping @Sendable (Double) -> Void, control: CaptureProcessingControl) async throws -> SavedCapture {
+            progress: @escaping @Sendable (Double) -> Void, control: CaptureProcessingControl, rawArchiveRoot: URL? = nil) async throws -> SavedCapture {
             try await Task.detached(priority: .userInitiated) {
                 if control.isStopped { throw CancellationError() }
                 if case .burst(let burst) = source {
@@ -112,6 +115,9 @@ public final class CaptureWorkflow: ObservableObject {
                 case .memory(let data): input = try SourceImageFile(data: data, fileExtension: "dng")
                 case .burst(let payload): throw CaptureSourceFailure(source: payload, detail: "Unexpected burst dispatch.")
                 }
+                if let id = snapshot.rawArchiveID, snapshot.quality == .quality {
+                    try CaptureRAWStore.retainProRAW(input.url, id: id, snapshot: snapshot,root: rawArchiveRoot)
+                }
                 let file = TemporaryHEIFFile(captureDate: input.metadata.captureDate)
                 var framing = snapshot.output.framing
                 let recipe = try ImagePipeline.writeHEIF(resources: resources, sourceFile: input, recipe: snapshot.recipe,
@@ -120,7 +126,7 @@ public final class CaptureWorkflow: ObservableObject {
                         framing?.decodedWidth = width; framing?.decodedHeight = height
                     })
                 let output = framing.map { snapshot.output.withFraming($0) } ?? snapshot.output
-                return try review(file, snapshot: CaptureSnapshot(recipe: recipe, output: output, quality: snapshot.quality), control: control)
+                return try review(file, snapshot: CaptureSnapshot(recipe: recipe, output: output, quality: snapshot.quality, archiveF5RAW: snapshot.archiveF5RAW, rawArchiveID: snapshot.rawArchiveID), control: control)
             }.value
         }
 
@@ -257,7 +263,7 @@ public final class CaptureWorkflow: ObservableObject {
         case .success(let photo):
             if let snapshot = job?.snapshot, snapshot.output.cameraMegapixels != nil {
                 guard photo.framing.isValid else { fail(CaptureJournal.Failure.damaged, id: id); return }
-                job?.snapshot = CaptureSnapshot(recipe: snapshot.recipe, output: snapshot.output.withFraming(photo.framing), quality: snapshot.quality,archiveF5RAW:snapshot.archiveF5RAW)
+                job?.snapshot = CaptureSnapshot(recipe: snapshot.recipe, output: snapshot.output.withFraming(photo.framing), quality: snapshot.quality,archiveF5RAW:snapshot.archiveF5RAW,rawArchiveID:snapshot.rawArchiveID)
             }
             job?.source = photo.burst.map { .burst($0) } ?? .memory(photo.data); phase = .retaining
             task = Task {

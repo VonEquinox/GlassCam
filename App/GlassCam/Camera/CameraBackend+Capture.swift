@@ -22,7 +22,7 @@ extension CameraBackend {
         currentRequest = request; phase = .preparingPhoto
         do {
             try validateRunningGraph()
-            if quality == .f5 {
+            if quality.usesBayer {
                 try captureF5(request, snapshot: snapshot, f5Purpose: f5Purpose)
                 return
             }
@@ -66,9 +66,8 @@ extension CameraBackend {
                 throw CameraFailure("Photo orientation changed during capture preparation.")
             }
             guard let photoWarmupDeadline else { throw CameraFailure("The photo session has not started.") }
-            // The extra settling delay protects 48MP delivery. Speed explicitly
-            // requests 12MP and only needs the output's own readiness signal.
-            if (request.quality == .speed || DispatchTime.now() >= photoWarmupDeadline), output.captureReadiness == .ready {
+            // Quality keeps the settling delay required for 48 MP delivery.
+            if DispatchTime.now() >= photoWarmupDeadline, output.captureReadiness == .ready {
                 try submitPhoto(request, output: output)
             } else if DispatchTime.now() >= deadline {
                 throw CameraFailure("The full-resolution photo output did not become ready within 8 seconds. No lower-resolution capture was substituted.")
@@ -89,14 +88,12 @@ extension CameraBackend {
         guard let camera = devices.first else { throw CameraFailure("Camera stopped before capture.") }
         let available = nativePhotoDimensions(format: camera.activeFormat).map(Self.size)
         guard let selected = request.quality.sourceDimensions(available: available) else {
-            throw CameraFailure("Speed requires a 12 MP ProRAW format on this camera.")
+            throw CameraFailure("Quality requires a native ProRAW format on this camera.")
         }
         let captureDimensions = CMVideoDimensions(width: Int32(selected.width), height: Int32(selected.height))
         settings.maxPhotoDimensions = captureDimensions
         switch request.quality {
-        case .f5: throw F5Failure(.unsupportedRAW, "F5 must use its independent Bayer transaction.")
-        case .speed: settings.photoQualityPrioritization = .speed
-        case .balanced: settings.photoQualityPrioritization = .balanced
+        case .f5, .speed, .balanced: throw F5Failure(.unsupportedRAW, "Bayer modes must use their independent RAW transaction.")
         case .quality: settings.photoQualityPrioritization = .quality
         }
         settings.isAutoContentAwareDistortionCorrectionEnabled = false

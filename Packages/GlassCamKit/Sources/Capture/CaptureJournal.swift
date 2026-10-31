@@ -10,6 +10,7 @@ public final class CaptureJournal: @unchecked Sendable {
     public struct Blob: Codable, Equatable, Sendable {
         public let bytes: Int
         package let sha256: String
+        package init(sha256: String, bytes: Int) { self.sha256 = sha256; self.bytes = bytes }
         public init(_ data: Data) {
             bytes = data.count
             sha256 = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()

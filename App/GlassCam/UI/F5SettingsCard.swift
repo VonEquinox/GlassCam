@@ -4,59 +4,46 @@ import F5
 import Peripheral
 #if os(iOS)
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct F5SettingsCard: View {
     @ObservedObject var camera: CameraController
     @ObservedObject var settings: CameraSettingsStore
+    @ObservedObject var rawTests: RAWTestRecorder
+    @ObservedObject var workflow: CaptureWorkflow
     let canRecord: Bool
-    @State private var importing = false
-    @State private var busy = false
-    @State private var message: String?
 
     var body: some View {
-        CameraCard(title: "F5 main camera", symbol: "square.stack.3d.up") {
-            Text(camera.f5ProfileAvailable ? "Main-camera profile available" : "Main-camera calibration required")
-                .font(.subheadline.weight(.semibold))
-            Text("F5 starts with the iPhone 18 Pro Max main camera. Telephoto and Ultra Wide will follow after main-camera validation.")
+        CameraCard(title: "RAW recording", symbol: "square.stack.3d.up") {
+            Text("Balanced merged RAW and original ProRAW are saved before color processing. Finished photos still save to Photos.")
                 .font(.caption).foregroundStyle(.secondary)
-            Toggle("Keep five RAW originals",isOn:$settings.archiveF5RAW)
-                .disabled(camera.isCapturing).accessibilityIdentifier("settings.f5.keepRAW")
-            Text("When enabled, saved F5 photos keep their RAW set in Files under F5Archives. Each set can use several hundred megabytes.")
+            Text("Pre-color files are in Files → GlassCam → RAWCaptures.")
                 .font(.caption).foregroundStyle(.secondary)
-            Button("Import accepted main-camera profile") { importing = true }
-                .disabled(busy || camera.isCapturing).accessibilityIdentifier("settings.f5.importProfile")
-            Button("Record five RAW samples") { camera.recordF5Sample() }
-                .disabled(!canRecord || !camera.isReady || camera.isCapturing || busy)
-                .accessibilityIdentifier("settings.f5.recordSamples")
-            Text("Sample recording keeps five original RAW files and metadata in Files. It does not certify image quality or save a finished photo.")
+            Button("Record 11 RAW samples") {
+                rawTests.recordSamples { try await camera.recordBayerSamples() }
+            }.disabled(!canRecord || !camera.canReserveCapture || rawTests.isRecording)
+                .accessibilityIdentifier("settings.raw.record11")
+            Text("Keeps eleven equal-exposure Bayer originals and metadata for offline fusion.")
                 .font(.caption).foregroundStyle(.secondary)
-            if camera.isCapturing { ProgressView(); Text(LocalizedStringKey(camera.status)).font(.caption) }
-            if let url = camera.f5SampleDirectory {
-                ShareLink(item: url) { Label("Share recorded RAW set", systemImage: "square.and.arrow.up") }
-            }
-        }
-        .fileImporter(isPresented: $importing, allowedContentTypes: [.folder], allowsMultipleSelection: false) { result in
-            switch result {
-            case .failure(let error): message = error.localizedDescription
-            case .success(let urls):
-                guard let url = urls.first else { return }
-                busy = true
-                Task { @MainActor in
-                    do {
-                        let accessed = url.startAccessingSecurityScopedResource()
-                        defer { if accessed { url.stopAccessingSecurityScopedResource() } }
-                        _ = try await Task.detached { try F5ProfileStore.importPackage(at: url) }.value
-                        camera.refreshF5ProfileStatus()
-                        message = String(localized: "Main-camera profile imported.")
-                    } catch { message = error.localizedDescription }
-                    busy = false
+            Text("Sample sets are in Files → GlassCam → F5Samples.")
+                .font(.caption).foregroundStyle(.secondary)
+            Button("Record scene · Balanced + ProRAW") {
+                let recipe = settings.recipe, archive = settings.archiveF5RAW
+                rawTests.recordScene { quality,id in
+                    try await camera.recordScene(quality: quality,id: id,recipe: recipe,archiveInputs: archive)
                 }
+            }.disabled(!canRecord || !camera.canReserveCapture || rawTests.isRecording)
+                .accessibilityIdentifier("settings.raw.recordScene")
+            Text("Records only the Balanced merged source and original ProRAW, without color processing or Photos export. Keep the scene steady.")
+                .font(.caption).foregroundStyle(.secondary)
+            if !rawTests.status.isEmpty { Text(LocalizedStringKey(rawTests.status)).font(.caption).textSelection(.enabled) }
+            if rawTests.isRecording {
+                Text(LocalizedStringKey(workflow.isWorking ? workflow.status : camera.status))
+                    .font(.caption).foregroundStyle(.secondary)
             }
+            if let directory = rawTests.directory { Text(directory.lastPathComponent).font(.caption2).textSelection(.enabled) }
+            Toggle("Also keep Bayer input frames", isOn: $settings.archiveF5RAW)
+                .disabled(camera.isCapturing).accessibilityIdentifier("settings.bayer.keepRAW")
         }
-        .alert("F5", isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } })) {
-            Button("OK", role: .cancel) { message = nil }
-        } message: { Text(message ?? "") }
     }
 }
 #endif

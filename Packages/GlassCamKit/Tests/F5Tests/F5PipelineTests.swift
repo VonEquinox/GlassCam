@@ -36,16 +36,14 @@ struct F5PipelineTests {
         #expect(result.image.quality.actualFrameCount == 5)
         #expect(result.image.color.whiteBalanceOwner == "matrix")
     }
-    @Test func reconstruction_respectsPerLevelCycleLimit() throws {
+    @Test func curvatureReport_doesNotInventSplineConvergence() throws {
         let result = try F5PipelineObservation.result.get()
-        let cycles = Dictionary(grouping: result.image.quality.objectiveEpochs) { $0.id / 9 }
-            .values.map { $0.reduce(0) { $0 + $1.completedCycles } }
-        #expect(try #require(cycles.max()) <= result.context.fixture.profile.policy.maxCycles)
+        #expect(result.image.quality.objectiveEpochs.isEmpty)
+        #expect(result.image.quality.solveStatus == "CURVATURE_NATIVE_FUSION")
     }
-    @Test func convergedEpoch_requiresJointMotionStationarity() throws {
+    @Test func curvatureSupport_doesNotClaimUnmeasuredSRRank() throws {
         let result = try F5PipelineObservation.result.get()
-        let gradients = result.image.quality.objectiveEpochs.filter { $0.stopReason == "CONVERGED" }.map(\.standardizedMotionGradient)
-        #expect(gradients.filter { $0 >= result.context.fixture.profile.policy.standardizedGradientTolerance }.isEmpty)
+        #expect(result.image.quality.tiles.allSatisfy { $0.support != .fullSR })
     }
     @Test func finalHEIF_isTenBitAndRetainsF5Metadata() throws {
         let result = try F5PipelineObservation.result.get()

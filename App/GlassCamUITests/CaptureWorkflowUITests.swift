@@ -3,12 +3,12 @@ import XCTest
 final class CaptureWorkflowUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
-    func testF5SelectionPersistsOnSimulator() throws {
-        try checkPriorityPersistence(quality: "f5", title: "F5", output: "2× sampling")
+    func testSpeedSelectionPersistsOnSimulator() throws {
+        try checkPriorityPersistence(quality: "speed", title: "Speed", output: "12 MP")
     }
 
     func testBalancedSelectionPersistsOnSimulator() throws {
-        try checkPriorityPersistence(quality: "balanced", title: "Balanced", output: "24 MP")
+        try checkPriorityPersistence(quality: "balanced", title: "Balanced", output: "2× sampling")
     }
 
     func testQualitySelectionPersistsOnSimulator() throws {
@@ -55,6 +55,22 @@ final class CaptureWorkflowUITests: XCTestCase {
         XCTAssertTrue(back.waitForNonExistence(timeout: 10))
         controls.tap()
         XCTAssertTrue(back.waitForExistence(timeout: 10))
+#else
+        throw XCTSkip("This check is restricted to a simulator.")
+#endif
+    }
+
+    func testRAWRecordingActionsAppearInSettingsOnSimulator() throws {
+#if targetEnvironment(simulator)
+        let app = makeApp()
+        app.launch()
+        let settings = app.buttons["camera.settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        let samples = app.buttons["settings.raw.record11"]
+        let scene = app.buttons["settings.raw.recordScene"]
+        XCTAssertTrue(samples.waitForExistence(timeout: 10))
+        XCTAssertTrue(scene.exists)
 #else
         throw XCTSkip("This check is restricted to a simulator.")
 #endif

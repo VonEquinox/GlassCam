@@ -180,25 +180,20 @@ final class CameraController: ObservableObject {
     func selectF5MainCamera() {
         if let main = zoomRange.stops.first(where: { $0.title == "Main" }) { requestedZoom = main.factor; applyPendingZoom() }
     }
-    func recordF5Sample() {
-        guard !isCapturing else { return }
-        selectF5MainCamera()
+    @MainActor
+    func reserveMainForTest() async throws -> UUID {
         let token = generation
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            for _ in 0..<160 {
-                guard self.generation == token, !self.lifetime.isCancelled else { return }
-                if self.canReserveCapture { break }
-                try? await Task.sleep(nanoseconds: 50_000_000)
-            }
-            guard self.generation == token, let reservation = self.reserveCapture() else { return }
-            self.capturePhoto(reservation: reservation, quality: .f5, f5Purpose: "probe") { [weak self] result in
-                guard let self, self.generation == token else { return }
-                if case .success(let photo) = result { self.f5SampleDirectory = (photo.burst as? F5BurstSource)?.directory; self.status = "Five RAW samples recorded. Main-camera calibration is still required." }
-                else if case .failure(let error) = result { self.status = error.localizedDescription }
-            }
+        selectF5MainCamera()
+        for _ in 0..<160 {
+            try Task.checkCancellation()
+            guard generation == token, !lifetime.isCancelled else { throw CancellationError() }
+            if let reservation = reserveCapture() { return reservation }
+            guard isReady || isConfiguring || isUpdatingZoom else { throw CameraFailure(status) }
+            try await Task.sleep(nanoseconds: 50_000_000)
         }
+        throw CameraFailure("The main camera did not become ready for recording.")
     }
+
     private func clearPreview() {
         centerPreviewLayer = nil; geometry = nil; peripheralSource = nil
         centerLiveSource?.setEnabled(false); centerLiveSource = nil
@@ -313,7 +308,7 @@ final class CameraController: ObservableObject {
         }
         isCapturing = true; isReady = false; isPreviewFrozen = false
         capturePhase = .preparing; actualCapturedDimensions = nil
-        status = quality == .f5 ? "Preparing five Bayer RAW exposures…" : "Preparing full-resolution ProRAW…"
+        status = quality.usesBayer ? "Preparing Bayer RAW capture…" : "Preparing full-resolution ProRAW…"
         let token = generation
         backend.queue.async { [weak self, backend] in
             backend.capture(quality: quality, snapshot: snapshot, f5Purpose: f5Purpose, progress: { phase, message in

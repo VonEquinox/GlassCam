@@ -35,9 +35,7 @@ extension ImagePipeline {
                           recipe: ProcessingRecipe, to url: URL, isCancelled: @escaping @Sendable () -> Bool,
                           progress: @escaping @Sendable (Double) -> Void) throws {
         try checkExportCancellation(isCancelled)
-        let data = try raster.mappedData(expectedBytes: rasterBytes)
-        var image = CIImage(bitmapData: data, bytesPerRow: width * 16,
-                            size: CGSize(width: CGFloat(width), height: CGFloat(height)), format: .RGBAf, colorSpace: linear)
+        var image = try raster.tiledImage(width: width, height: height, colorSpace: linear)
         if output.width != width || output.height != height {
             // Color and spatial effects have already run at cropped source resolution.
             // The camera's 24/48MP policy can explicitly request interpolation.
@@ -64,10 +62,11 @@ extension ImagePipeline {
             image = image.settingProperties(metadata.encodingProperties(
                 width: output.width, height: output.height,
                 presetWhiteBalance: recipe.mode == .hncs && recipe.hncs.whiteBalancePolicy == .preset && recipe.hncs.presetWhiteBalanceKelvin != nil))
-            try withExtendedLifetime((data, raster)) {
+            try withExtendedLifetime(raster) {
                 try encodingContext.writeHEIF10Representation(of: image, to: url, colorSpace: pq,
                     options: [CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): 1.0])
             }
+            try raster.validateImageReads()
             try ImageFileProtection.apply(to: url)
             try checkExportCancellation(isCancelled)
             guard let result = CGImageSourceCreateWithURL(url as CFURL, nil),

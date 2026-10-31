@@ -1,7 +1,16 @@
 # 变更记录
 
+## 2026-10-31
+
+- RAW：场景对照仅记录 Balanced 合成原片与 ProRAW 原片，不调色、不导出相册。
+- 成片：浮点图像按块供给 Core Image，重建与调色阶段及时释放临时 GPU 资源，降低高分辨率处理的内存峰值。
+
+- RAW：在调色前保留 Balanced 合成文件和原始 ProRAW；设置页提供十一张原片记录与 Balanced／ProRAW 同场景对照，成片照常存入相册。
+
 ## 2026-10-30
 
+- 拍摄：Speed 使用单帧 Bayer RAW 降噪与显影，Balanced 使用四帧曲率融合；两者按照片白点、基准曝光和 ISO 接入三条色彩路线，Quality 保留 ProRAW。
+- F5：增加 C++／Metal 曲率重建、RAW 归一化、分条导引与噪声统计，以及有界内存的重叠、镜头操作和颜色输出。
 - 成片：FFCS／LUMIX 颜色与 HNCS 原生锐化使用 Metal，C++ 复用分块缓冲，保留精确 HNCS 颜色与 HDR 色差预算。
 
 ## 2026-10-29
