@@ -2,8 +2,7 @@ import Foundation
 import ImagingCore
 import CryptoKit
 
-/// Durable files before a photo enters any selected color style. A shared ID
-/// places Balanced and ProRAW captures of one scene in the same Files folder.
+/// Durable Balanced files before a photo enters any selected color style.
 public enum CaptureRAWStore {
     public static var root: URL {
         FileManager.default.urls(for: .documentDirectory,in: .userDomainMask)[0]
@@ -18,7 +17,7 @@ public enum CaptureRAWStore {
 
     package static func retain(id: UUID, quality: CaptureQuality, sourceIdentity: String, root: URL? = nil,
                                write: (URL) throws -> Void) throws -> URL {
-        guard [.balanced,.quality].contains(quality), !sourceIdentity.isEmpty else { throw CaptureJournal.Failure.damaged }
+        guard quality == .balanced, !sourceIdentity.isEmpty else { throw CaptureJournal.Failure.damaged }
         let scene = (root ?? Self.root).appendingPathComponent(id.uuidString,isDirectory: true)
         let target = scene.appendingPathComponent(quality.rawValue,isDirectory: true)
         let manifest = target.appendingPathComponent("archive.json")
@@ -51,18 +50,6 @@ public enum CaptureRAWStore {
         try CaptureJournal.writeProtected(JSONEncoder().encode(entry),to: temporary.appendingPathComponent("archive.json"))
         try FileManager.default.moveItem(at: temporary,to: target)
         return target
-    }
-
-    public static func retainProRAW(_ source: URL, id: UUID, snapshot: CaptureSnapshot, root: URL? = nil) throws {
-        _ = try retain(id: id,quality: .quality,sourceIdentity: digest(source),root: root) { destination in
-            let original = destination.appendingPathComponent("original-proraw.dng")
-            try FileManager.default.copyItem(at: source,to: original)
-            if let attributes = ImageFileProtection.attributes { try FileManager.default.setAttributes(attributes,ofItemAtPath: original.path) }
-            let file = try FileHandle(forWritingTo: original)
-            defer { try? file.close() }
-            try file.synchronize()
-            try CaptureJournal.writeProtected(JSONEncoder().encode(snapshot),to: destination.appendingPathComponent("capture.json"))
-        }
     }
 
     private static func digest(_ url: URL) throws -> String {

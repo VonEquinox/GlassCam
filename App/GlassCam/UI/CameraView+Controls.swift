@@ -164,19 +164,14 @@ extension CameraView {
     }
 
     var resolutionButton: some View {
-        Button {
-            guard let id = camera.physicalCameraID else { return }
-            let next = (selectedOutput?.megapixels ?? 24) == 24 ? 48 : 24
-            if camera.supportedOutputOptions.contains(where: { $0.megapixels == next }) {
-                settings.setOutputMegapixels(next, physicalCameraID: id, mode: selectedLens.rawValue)
-            }
-        } label: {
-            Text(settings.captureQuality == .balanced ? "2× sampling" : "\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP")
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+        Button {} label: {
+            Text(settings.captureQuality == .balanced ? "2× sampling" : "12 MP")
+                .font(.system(size: 11, weight: .semibold))
                 .modifier(CameraPill())
-        }.disabled(!workflow.canCapture || camera.physicalCameraID == nil || settings.captureQuality.usesBayer)
-            .accessibilityLabel("Photo resolution").accessibilityIdentifier("camera.resolution")
-            .accessibilityValue(Text(settings.captureQuality == .balanced ? "2× sampling" : "\(settings.captureQuality.outputMegapixels(preferred: selectedOutput?.megapixels ?? settings.preferredOutputMegapixels)) MP"))
+        }.disabled(true)
+            .accessibilityLabel("Photo output")
+            .accessibilityValue(settings.captureQuality == .balanced ? "2× sampling" : "12 MP")
+            .accessibilityIdentifier("camera.resolution")
     }
 
     var qualityButton: some View {
@@ -199,7 +194,7 @@ extension CameraView {
         .accessibilityLabel("Capture priority")
         .accessibilityValue(settings.captureQuality.title)
         .accessibilityIdentifier("camera.quality")
-        .accessibilityHint("Choose single RAW Speed, four-frame Balanced, or ProRAW Quality")
+        .accessibilityHint("Choose single RAW Speed or four-frame Balanced")
     }
 
     private var statusButton: some View {
@@ -257,11 +252,7 @@ extension CameraView {
     var estimatedOutputLabel: String {
         if settings.captureQuality == .balanced { return "Balanced · 4 RAW · 2× output grid" }
         if settings.captureQuality == .speed { return "Speed · Single RAW · 12 MP" }
-        guard let source = camera.sourceCaptureDimensions else { return "HDR" }
-        let mode = selectedOutput?.megapixels ?? settings.captureQuality.outputMegapixels(preferred: settings.preferredOutputMegapixels)
-        let output = ExportSettings.camera(mode, framing: camera.currentFraming)
-        let tier = try? output.selectedOutputMegapixels(sourceWidth: Int(source.width), sourceHeight: Int(source.height), crop: settings.recipe.crop)
-        return "≈\(tier ?? 24) MP · HDR"
+        return "HDR"
     }
 
     var zoomButtons: some View {
@@ -335,7 +326,7 @@ extension CameraView {
     }
 
     var settingsButton: some View {
-        Button { activePanel = nil; destination = .settings(options: camera.supportedOutputOptions, cameraID: camera.physicalCameraID) } label: {
+        Button { activePanel = nil; destination = .settings } label: {
             Image(systemName: "gearshape").font(.system(size: 21, weight: .light))
                 .frame(width: 44, height: 44)
         }

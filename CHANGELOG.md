@@ -2,6 +2,8 @@
 
 ## 2026-10-31
 
+- 拍摄：移除 Quality／ProRAW 拍摄模式与 24MP／48MP 选择，仅保留 Speed 和 Balanced，默认 Balanced；场景原片记录仅保存 Balanced。
+
 - RAW：场景对照仅记录 Balanced 合成原片与 ProRAW 原片，不调色、不导出相册。
 - 成片：浮点图像按块供给 Core Image，重建与调色阶段及时释放临时 GPU 资源，降低高分辨率处理的内存峰值。
 

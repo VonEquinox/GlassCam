@@ -8,7 +8,7 @@
 
 `SourceImageFile` 持有源照片的原始字节、方向后的尺寸和拍摄元数据；恢复记录也可以借出已有文件，由记录管理其生命周期。`ImportedImage` 另外保存缩小工作图的 Float32 RGB、照片白点和已解析的 RAW 解码参数。
 
-Quality 与导入入口的 `dng` 或 `raw` 输入经过 `CIRAWFilter`。缩小解码默认最长边为 2048，可选范围为 256–4096；完整导出固定 `scaleFactor = 1`。普通图片通过内嵌色彩配置转换到 extended linear sRGB，并请求展开 HDR。两条路径都应用源方向，将透明区域合成到黑色背景。
+导入入口的 `dng` 或 `raw` 输入经过 `CIRAWFilter`。缩小解码默认最长边为 2048，可选范围为 256–4096；完整导出固定 `scaleFactor = 1`。普通图片通过内嵌色彩配置转换到 extended linear sRGB，并请求展开 HDR。两条路径都应用源方向，将透明区域合成到黑色背景。
 
 `configureRAW` 统一处理缩小解码、自动拍摄的元数据绑定和完整源解码：
 
@@ -24,7 +24,7 @@ Quality 与导入入口的 `dng` 或 `raw` 输入经过 `CIRAWFilter`。缩小�
 
 管线 revision 2 在保留 Apple 锐化的 RAW 全源读取中插入固定分块缓存，缓存保持到所有源行和 halo 读完，再在全图空间处理和 HEIF 编码前释放。
 
-Speed／Balanced 的整数 Bayer 输入由 [F5](f5.md) 在 C++／Metal 中完成坏点、降噪、去马赛克和镜头操作；交付 `SceneLinearImage` 时已完成一次相机矩阵白平衡和基准曝光。颜色入口直接使用扩展线性 sRGB，绑定拍摄白点、ISO 与 BaselineSharpness，再应用同一套色彩和效果。Quality 的 ProRAW 解码策略独立保留。
+Speed／Balanced 的整数 Bayer 输入由 [F5](f5.md) 在 C++／Metal 中完成坏点、降噪、去马赛克和镜头操作；交付 `SceneLinearImage` 时已完成一次相机矩阵白平衡和基准曝光。颜色入口直接使用扩展线性 sRGB，绑定拍摄白点、ISO 与 BaselineSharpness，再应用同一套色彩和效果。导入的 ProRAW 仍使用独立的 RAW 解码策略。
 
 ### 白平衡与冻结配方
 
@@ -54,7 +54,7 @@ HNCS revision 12 在扩展工作图像中保留高光幅度，空间颗粒与锐
 
 成片 RGBAf 数据按每像素 16 字节写入 `ExportRasterFile`。F5 线性输入和成片编码使用 C++ 文件供给器，通过 `pread` 并发读取 512×64 像素块，避免把整张 RGBAf 位图作为单个输入表面交给 Core Image。供给器持有打开的文件描述符直至图像释放，I/O 失败阻止发布成片。开始前检查尺寸乘法和可用磁盘空间，预算包含成片、空间工作图、编码余量及 64 MiB 预留；临时文件随所有者释放而清理。
 
-`ExportSettings.native` 保留配方裁剪后的尺寸；显式宽高要求与源图同方向比例且不放大。相机输出策略独立决定 12、24 或 48 MP 目标，按有效像素和构图计算，必要时产生插值输出。色彩与空间效果完成后，使用线性光中的 Lanczos 统一执行下采样或插值。
+`ExportSettings.native` 保留配方裁剪后的尺寸；显式宽高要求与源图同方向比例且不放大。导入文件 API 可选择 12、24 或 48 MP 目标，按有效像素和构图计算，必要时产生插值输出；Speed／Balanced 拍摄使用原生重建栅格。色彩与空间效果完成后，使用线性光中的 Lanczos 统一执行下采样或插值。
 
 ### HDR 编码与分享
 

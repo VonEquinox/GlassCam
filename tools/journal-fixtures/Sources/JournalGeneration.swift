@@ -7,14 +7,7 @@ extension JournalFixtures {
     static func generate(at destination: URL, work: URL) throws {
         let manager = FileManager.default
         try manager.createDirectory(at: destination, withIntermediateDirectories: true)
-        let snapshot = CaptureSnapshot(recipe: .standard, output: .camera(48))
         let raw = Data("GlassCam single RAW fixture\n".utf8)
-        let single = CaptureJournal(directory: work.appendingPathComponent("single-photo"))
-        var record = try single.retain(raw, id: captureID, snapshot: snapshot)
-        record.createdAt = createdAt
-        try encode(record).write(to: single.directory.appendingPathComponent("capture.json"))
-        try manager.copyItem(at: single.directory, to: destination.appendingPathComponent("single-photo"))
-
         let speed = CaptureJournal(directory: work.appendingPathComponent("speed-legacy"))
         var old = try speed.retain(raw, id: captureID,
             snapshot: CaptureSnapshot(recipe: .standard, output: .camera(12), quality: .speed))

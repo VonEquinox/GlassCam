@@ -23,16 +23,6 @@ final class CameraController: ObservableObject {
             .builtInTripleCamera
         }
     }
-    /// HEIF target. Capture priority selects the RAW source size independently.
-    struct OutputOption: Identifiable, Equatable {
-        let megapixels: Int
-        let width: Int
-        let height: Int
-        var id: String { "\(megapixels)-\(width)x\(height)" }
-        static func matching(_ megapixels: Int, in options: [Self]) -> Self? {
-            options.first { $0.megapixels == megapixels }
-        }
-    }
     struct CameraGeometry {
         let sensorPhotoDimensions: CGSize
         let photoAspectRatio: CGFloat
@@ -48,7 +38,6 @@ final class CameraController: ObservableObject {
     @Published private(set) var centerLiveSource: LiveCameraFrameSource?
     @Published private(set) var centerPreviewLayer: AVSampleBufferDisplayLayer?
     @Published private(set) var geometry: CameraGeometry?
-    @Published private(set) var supportedOutputOptions: [OutputOption] = []
     @Published private(set) var sourceCaptureDimensions: CGSize?
     @Published private(set) var physicalCameraID: String?
     @Published private(set) var centerPreviewDimensions: CGSize?
@@ -104,7 +93,7 @@ final class CameraController: ObservableObject {
     private func configure(mode: Mode, centerPreviewLongEdge: Int, token: UUID) {
         let initialOrientation = orientation
         let lifetime = lifetime
-        status = "Checking camera ProRAW capability…"
+        status = "Checking camera RAW capability…"
         let requestedZoom = requestedZoom
         backend.queue.async { [weak self, backend] in
             do {
@@ -147,13 +136,12 @@ final class CameraController: ObservableObject {
         }
     }
     private var readyStatus: String {
-        "Apple ProRAW · \(currentFraming.lensName ?? "Automatic camera")"
+        "Bayer RAW · \(currentFraming.lensName ?? "Automatic camera")"
     }
     private func install(_ bundle: CameraBackend.Bundle) {
         centerPreviewLayer = bundle.center; centerLiveSource = bundle.liveSource
         peripheralSource = bundle.peripheralSource
         geometry = bundle.geometry
-        supportedOutputOptions = bundle.outputOptions
         sourceCaptureDimensions = bundle.sourceCaptureDimensions
         physicalCameraID = bundle.physicalCameraID
         centerPreviewDimensions = bundle.centerPreviewDimensions
@@ -197,7 +185,7 @@ final class CameraController: ObservableObject {
     private func clearPreview() {
         centerPreviewLayer = nil; geometry = nil; peripheralSource = nil
         centerLiveSource?.setEnabled(false); centerLiveSource = nil
-        supportedOutputOptions = []; sourceCaptureDimensions = nil; physicalCameraID = nil
+        sourceCaptureDimensions = nil; physicalCameraID = nil
         f5ProfileAvailable = false
         centerPreviewDimensions = nil
         centerPreviewEncoding = nil
@@ -297,7 +285,7 @@ final class CameraController: ObservableObject {
         }
     }
 
-    func capturePhoto(reservation: UUID, quality: CaptureQuality = .quality, snapshot: CaptureSnapshot? = nil,
+    func capturePhoto(reservation: UUID, quality: CaptureQuality = .balanced, snapshot: CaptureSnapshot? = nil,
                       f5Purpose: String = "product",
                       completion: @escaping (Result<CapturedCameraPhoto, Error>) -> Void) {
         dispatchPrecondition(condition: .onQueue(.main))
@@ -308,7 +296,7 @@ final class CameraController: ObservableObject {
         }
         isCapturing = true; isReady = false; isPreviewFrozen = false
         capturePhase = .preparing; actualCapturedDimensions = nil
-        status = quality.usesBayer ? "Preparing Bayer RAW capture…" : "Preparing full-resolution ProRAW…"
+        status = "Preparing Bayer RAW capture…"
         let token = generation
         backend.queue.async { [weak self, backend] in
             backend.capture(quality: quality, snapshot: snapshot, f5Purpose: f5Purpose, progress: { phase, message in

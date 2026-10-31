@@ -13,7 +13,7 @@ struct SettingsTests {
     @Test func newSettings_liveColorIsDisabled() throws {
         try withDefaults { defaults in
             #expect(!CameraSettingsStore(defaults: defaults).experimentalLiveColor)
-            #expect(CameraSettingsStore(defaults: defaults).captureQuality == .quality)
+            #expect(CameraSettingsStore(defaults: defaults).captureQuality == .balanced)
         }
     }
     @Test func invalidSavedRecipe_restoresValidatedDefaults() throws {
@@ -76,7 +76,6 @@ struct SettingsTests {
             let settings = CameraSettingsStore(defaults: defaults)
             settings.exposure = 0.5; settings.gridVisible = false; settings.experimentalLiveColor = true
             settings.centerPreviewLongEdge = 2560; settings.captureQuality = .balanced
-            settings.setOutputMegapixels(48, physicalCameraID: "physical-main", mode: "main")
             let restored = CameraSettingsStore(defaults: defaults)
             #expect(restored.recipe == settings.recipe)
             #expect(!restored.gridVisible)
@@ -85,23 +84,14 @@ struct SettingsTests {
             #expect(restored.captureQuality == .balanced)
         }
     }
-    @Test func legacy12MPPreference_migratesTo24MP() throws {
+    @Test(arguments: ["quality", "unknown"])
+    func unavailableSavedMode_usesBalanced(value: String) throws {
         try withDefaults { defaults in
-            let key = "main:\(Data("physical-main".utf8).base64EncodedString())"
-            defaults.set([key: 12], forKey: "camera.output.megapixels.byPhysicalLens.v1")
-            #expect(CameraSettingsStore(defaults: defaults).outputMegapixels(physicalCameraID: "physical-main", mode: "main") == 24)
-        }
-    }
-    @Test func speedPolicy_doesNotOverwritePhysicalLensPreference() throws {
-        try withDefaults { defaults in
+            defaults.set(value, forKey: "camera.capture.quality.v1")
+
             let settings = CameraSettingsStore(defaults: defaults)
-            settings.setOutputMegapixels(48, physicalCameraID: "physical-main", mode: "main")
-            settings.captureQuality = .speed
-            #expect(settings.captureQuality.outputMegapixels(preferred: settings.outputMegapixels(physicalCameraID: "physical-main", mode: "main")) == 12)
-            settings.captureQuality = .balanced
-            #expect(settings.captureQuality.outputMegapixels(preferred: settings.outputMegapixels(physicalCameraID: "physical-main", mode: "main")) == 48)
-            settings.setOutputMegapixels(12, physicalCameraID: "physical-main", mode: "main")
-            #expect(CameraSettingsStore(defaults: defaults).outputMegapixels(physicalCameraID: "physical-main", mode: "main") == 48)
+
+            #expect(settings.captureQuality == .balanced)
         }
     }
     @Test func speedPreference_preservesSingleRAWMode() throws {

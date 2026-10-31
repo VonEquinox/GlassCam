@@ -183,9 +183,8 @@ struct CameraView: View {
         }
         .fullScreenCover(item: $destination, onDismiss: { restartCamera() }) { page in
             switch page {
-            case .settings(let options, let cameraID):
-                CameraSettingsView(settings: settings, camera: camera, rawTests: rawTests, workflow: workflow, canRecordF5: workflow.canCapture, options: options,
-                                   physicalCameraID: cameraID, mode: selectedLens.rawValue,
+            case .settings:
+                CameraSettingsView(settings: settings, camera: camera, rawTests: rawTests, workflow: workflow, canRecordF5: workflow.canCapture,
                                    onBack: { destination = nil })
             case .photo(let capture):
                 CaptureReview(capture: capture, onBack: { destination = nil })
@@ -275,14 +274,6 @@ struct CameraView: View {
         }.tint(.white) // The system Liquid Glass sheet is the panel background.
     }
 
-    var selectedOutput: CameraController.OutputOption? {
-        guard let cameraID = camera.physicalCameraID else { return nil }
-        if settings.captureQuality.usesBayer { return nil }
-        let saved = settings.outputMegapixels(physicalCameraID: cameraID, mode: selectedLens.rawValue)
-        // Unsupported choices never fall back to lower resolution or upsampling.
-        return CameraController.OutputOption.matching(saved, in: camera.supportedOutputOptions)
-    }
-
     private func offerCompactPanel(for style: CameraChromeLayout.Style) {
         if compactPanel.offer(hasGeometry: camera.geometry != nil, style: style,
                               settingsPresented: settingsPresented, reviewing: reviewedCapture != nil,
@@ -300,13 +291,12 @@ struct CameraView: View {
 
     func shutter(diameter: CGFloat) -> some View {
         Button {
-            guard !rawTests.isRecording, workflow.canCapture, settings.captureQuality.usesBayer || selectedOutput != nil, let reservation = camera.reserveCapture() else { return }
+            guard !rawTests.isRecording, workflow.canCapture, let reservation = camera.reserveCapture() else { return }
             activePanel = nil
             shutterReservation = reservation
-            let export = settings.captureQuality.usesBayer ? ExportSettings.native.withFraming(camera.currentFraming) :
-                ExportSettings.camera(selectedOutput!.megapixels, framing: camera.currentFraming)
+            let export = ExportSettings.native.withFraming(camera.currentFraming)
             let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality,archiveF5RAW:settings.archiveF5RAW,
-                rawArchiveID: settings.captureQuality == .balanced || settings.captureQuality == .quality ? UUID() : nil)
+                rawArchiveID: settings.captureQuality == .balanced ? UUID() : nil)
             workflow.capturePhoto(snapshot: snapshot) { completion in
                 guard scenePhase == .active, !settingsPresented, reviewedCapture == nil else {
                     completion(.failure(CaptureUIError.cameraInactive)); return
@@ -323,7 +313,7 @@ struct CameraView: View {
             .frame(width: diameter, height: diameter)
             .contentShape(Circle())
         }
-        .disabled(rawTests.isRecording || !camera.canReserveCapture || (!settings.captureQuality.usesBayer && selectedOutput == nil) || !workflow.canCapture)
+        .disabled(rawTests.isRecording || !camera.canReserveCapture || !workflow.canCapture)
         .accessibilityLabel("Take photo and save to Photos")
         .accessibilityIdentifier("camera.shutter")
         .accessibilityHint("Apply your saved settings and automatically save an HDR photo")
@@ -332,7 +322,7 @@ struct CameraView: View {
 }
 
 enum CameraDestination: Identifiable {
-    case settings(options: [CameraController.OutputOption], cameraID: String?)
+    case settings
     case photo(SavedCapture)
     var id: String {
         switch self {

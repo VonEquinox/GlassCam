@@ -79,7 +79,3 @@ _Avoid_: 单帧 ProRAW、色彩风格
 **Balanced**：
 以四张等曝光 Bayer RAW 为源照片的拍摄模式。
 _Avoid_: 五帧合成、ProRAW 连拍、色彩风格
-
-**Quality**：
-以 Apple ProRAW 为源照片的拍摄模式。
-_Avoid_: 多帧 Bayer RAW、色彩风格

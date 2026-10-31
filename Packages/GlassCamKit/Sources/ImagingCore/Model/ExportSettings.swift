@@ -4,10 +4,10 @@ import CoreGraphics
 /// Capture and color processing are independent choices. Bayer modes enter the
 /// common color pipeline after their own sensor reconstruction.
 public enum CaptureQuality: String, CaseIterable, Codable, Sendable {
-    case f5, balanced, quality, speed
-    public static var allCases: [CaptureQuality] { [.speed, .balanced, .quality] }
+    case f5, balanced, speed
+    public static var allCases: [CaptureQuality] { [.speed, .balanced] }
     public var bayerFrameCount: Int? {
-        switch self { case .speed: return 1; case .balanced: return 4; case .f5: return 5; case .quality: return nil }
+        switch self { case .speed: return 1; case .balanced: return 4; case .f5: return 5 }
     }
     public var usesBayer: Bool { bayerFrameCount != nil }
     public var title: String {
@@ -15,10 +15,8 @@ public enum CaptureQuality: String, CaseIterable, Codable, Sendable {
         case .f5: return "F5"
         case .speed: return "Speed"
         case .balanced: return "Balanced"
-        case .quality: return "Quality"
         }
     }
-    public func outputMegapixels(preferred: Int) -> Int { self == .speed ? 12 : preferred }
     public func sourceDimensions(available: [CGSize]) -> CGSize? {
         available.filter { size in
             guard size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0 else { return false }
@@ -56,8 +54,8 @@ public struct PixelCrop: Equatable, Sendable {
     }
 }
 
-/// Explicit targets retain their no-upscale contract. Quality uses the selected
-/// 24/48 MP policy; Bayer producers supply their own native output grid.
+/// Explicit targets retain their no-upscale contract. Imported files can select
+/// a 24/48 MP export; Bayer producers supply their own native output grid.
 public struct ExportSettings: Codable, Equatable, Sendable {
     public let targetWidth: Int?
     public let targetHeight: Int?

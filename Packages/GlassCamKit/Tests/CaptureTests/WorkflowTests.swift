@@ -140,7 +140,7 @@ struct WorkflowFailure: Error, LocalizedError {
         #expect(harness.processCalls == 2)
         #expect(harness.retainedBytes == [harness.data, harness.data])
         #expect(harness.snapshots.map(\.recipe) == [snapshot.recipe, snapshot.recipe])
-        #expect(workflow.latest?.width == snapshot.output.targetWidth)
+        #expect(harness.snapshots.map(\.output) == [snapshot.output, snapshot.output])
     }
     @Test func retentionFailure_processingRetryRetainsMemoryInput() async throws {
         let harness = try WorkflowHarness(); harness.retentionFails = true; harness.processingFailures = 1
@@ -213,7 +213,7 @@ struct WorkflowFailure: Error, LocalizedError {
         let workflow = harness.makeWorkflow()
 
         workflow.capture(snapshot: frozen) { $0(.success(harness.data)) }
-        settings.exposure = -1; settings.hncs.presetKey = "standard"; settings.captureQuality = .quality
+        settings.exposure = -1; settings.hncs.presetKey = "standard"; settings.captureQuality = .speed
         await waitForPhase(workflow, .failed)
         workflow.retry()
         await waitForPhase(workflow, .idle)

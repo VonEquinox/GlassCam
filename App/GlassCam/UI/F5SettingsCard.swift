@@ -14,7 +14,7 @@ struct F5SettingsCard: View {
 
     var body: some View {
         CameraCard(title: "RAW recording", symbol: "square.stack.3d.up") {
-            Text("Balanced merged RAW and original ProRAW are saved before color processing. Finished photos still save to Photos.")
+            Text("Balanced merged RAW is saved before color processing. Finished photos still save to Photos.")
                 .font(.caption).foregroundStyle(.secondary)
             Text("Pre-color files are in Files → GlassCam → RAWCaptures.")
                 .font(.caption).foregroundStyle(.secondary)
@@ -26,14 +26,14 @@ struct F5SettingsCard: View {
                 .font(.caption).foregroundStyle(.secondary)
             Text("Sample sets are in Files → GlassCam → F5Samples.")
                 .font(.caption).foregroundStyle(.secondary)
-            Button("Record scene · Balanced + ProRAW") {
+            Button("Record scene · Balanced") {
                 let recipe = settings.recipe, archive = settings.archiveF5RAW
-                rawTests.recordScene { quality,id in
-                    try await camera.recordScene(quality: quality,id: id,recipe: recipe,archiveInputs: archive)
+                rawTests.recordScene { id in
+                    try await camera.recordScene(id: id,recipe: recipe,archiveInputs: archive)
                 }
             }.disabled(!canRecord || !camera.canReserveCapture || rawTests.isRecording)
                 .accessibilityIdentifier("settings.raw.recordScene")
-            Text("Records only the Balanced merged source and original ProRAW, without color processing or Photos export. Keep the scene steady.")
+            Text("Records only the Balanced merged source, without color processing or Photos export. Keep the scene steady.")
                 .font(.caption).foregroundStyle(.secondary)
             if !rawTests.status.isEmpty { Text(LocalizedStringKey(rawTests.status)).font(.caption).textSelection(.enabled) }
             if rawTests.isRecording {

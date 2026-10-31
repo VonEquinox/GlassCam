@@ -349,7 +349,7 @@ extension CameraBackend {
                       peripheralSource: peripheralFrameSource,
                       geometry: geometry,
                       sourceCaptureDimensions: Self.size(source),
-                      outputOptions: Self.outputOptions(source: source), physicalCameraID: framing.cameraID ?? photo.physicalCameraID,
+                      physicalCameraID: framing.cameraID ?? photo.physicalCameraID,
                       centerPreviewDimensions: Self.size(previewSizes[0]),
                       centerPreviewEncoding: Self.previewEncoding(previewPixelFormats[0]),
                       zoomRange: zoomRange(for: center), framing: framing)

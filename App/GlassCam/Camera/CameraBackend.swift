@@ -17,7 +17,6 @@ final class CameraBackend: CameraBackendServing {
         let peripheralSource: PeripheralFrameSource?
         let geometry: CameraController.CameraGeometry
         let sourceCaptureDimensions: CGSize
-        let outputOptions: [CameraController.OutputOption]
         let physicalCameraID: String
         let centerPreviewDimensions: CGSize
         let centerPreviewEncoding: String
@@ -25,7 +24,7 @@ final class CameraBackend: CameraBackendServing {
         let framing: CaptureFraming
     }
     struct CaptureOutcome {
-        let result: Result<CapturedProRAW, Error>
+        let result: Result<CapturedBayerRAW, Error>
         let bundle: Bundle?
         let previewReady: Bool
         let message: String?
@@ -52,7 +51,7 @@ final class CameraBackend: CameraBackendServing {
         let lifetime: CameraLifetime
         let progress: (CameraController.CapturePhase, String) -> Void
         var completion: ((CaptureOutcome) -> Void)?
-        var result: Result<CapturedProRAW, Error>?
+        var result: Result<CapturedBayerRAW, Error>?
         init(configuration: PreviewConfiguration, capability: PhotoCapability, orientation: UIInterfaceOrientation,
              lifetime: CameraLifetime, quality: CaptureQuality,
              progress: @escaping (CameraController.CapturePhase, String) -> Void,
@@ -69,14 +68,12 @@ final class CameraBackend: CameraBackendServing {
     var capability: PhotoCapability?
     var session: AVCaptureSession?
     var photoOutput: AVCapturePhotoOutput?
-    var photoWarmupDeadline: DispatchTime?
     var devices: [AVCaptureDevice] = []
     var dimensions = CMVideoDimensions(width: 0, height: 0)
     var orientation: AVCaptureVideoOrientation = .portrait
     var interfaceOrientation: UIInterfaceOrientation = .portrait
     private var observations: [NSKeyValueObservation] = []
     private var notifications: [NSObjectProtocol] = []
-    var captureDelegate: ProRAWCapture?
     var f5Capture: F5CaptureDriver?
     var currentRequest: CaptureRequest?
     private var failureHandler: ((String) -> Void)?
@@ -160,7 +157,7 @@ final class CameraBackend: CameraBackendServing {
         if stopRunning { session?.stopRunning() }
         failureHandler?(message)
         if let request = currentRequest {
-            let result = request.result ?? f5Capture?.cancel().map(Self.burstPhoto) ?? captureDelegate?.cancel(reason: message) ?? .failure(CameraFailure(message))
+            let result = request.result ?? f5Capture?.cancel().map(Self.burstPhoto) ?? .failure(CameraFailure(message))
             // Preserve only a successfully committed terminal photo result, even
             // if its queued callback or preview restoration has not run yet.
             finishPhoto(result, request: request)
@@ -264,17 +261,17 @@ final class CameraBackend: CameraBackendServing {
             old.commitConfiguration()
         }
         previewOutputs.removeAll(); frameDeliveries.removeAll(); previewSizes.removeAll(); previewPixelFormats.removeAll()
-        session = nil; photoOutput = nil; photoWarmupDeadline = nil; devices = []
+        session = nil; photoOutput = nil; devices = []
     }
     func stop() {
         dispatchPrecondition(condition: .onQueue(queue))
         lifetime?.cancel(); phase = .stopped; failed = true
         let request = currentRequest
-        let result = request?.result ?? f5Capture?.cancel().map(Self.burstPhoto) ?? captureDelegate?.cancel() ?? .failure(CameraFailure("Camera capture cancelled."))
+        let result = request?.result ?? f5Capture?.cancel().map(Self.burstPhoto) ?? .failure(CameraFailure("Camera capture cancelled."))
         tearDownGraph(preservingPreview: false)
         frozenDeliveries.forEach { $0.invalidate() }; frozenDeliveries.removeAll()
         if let request { finishRequest(request, result: result, bundle: nil, previewReady: false, message: "Camera stopped.") }
-        captureDelegate = nil; f5Capture = nil; configuration = nil; capability = nil; lifetime = nil
+        f5Capture = nil; configuration = nil; capability = nil; lifetime = nil
         dimensions = CMVideoDimensions(width: 0, height: 0); failureHandler = nil
         stateChanged = nil; tripleCamera = nil; lensCatalog = []; nativePhotoHints.removeAll()
     }

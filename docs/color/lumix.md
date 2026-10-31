@@ -92,7 +92,7 @@ LUMIX 上下文保存不可变 LUT 与风格参数；缓存身份包含资源目
 
 ## 已知限制
 
-- LUMIX 的输入是 Apple 解码后的 ProRAW 或已解码图像，未恢复松下传感器 RGB、MakerNote、RW2 去马赛克、镜头标定或松下空间降噪与锐化。
+- LUMIX 的输入是 Speed／Balanced 的线性 sRGB、导入 RAW 的 Apple 解码图像或其他已解码图像，未恢复松下传感器 RGB、MakerNote、RW2 去马赛克、镜头标定或松下空间降噪与锐化。
 - V-Log、HLG 专用表以及任意原始 CMS/ICC 转换不在这些 SDR 风格的处理范围内。
 - revision 4 的浮点色域压缩、HDR 幅度恢复和 HEIF 编码属于 GlassCam 的输出策略，原始 RGB48 样本约束的是保留的整数路径。
 - 固定样本和合成图像覆盖色彩数值一致性，跨相机的原厂成片匹配与真实拍摄观感需要另行验证。

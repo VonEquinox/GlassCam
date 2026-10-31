@@ -34,7 +34,7 @@ extension CameraBackend {
         }
         f5Capture = driver; phase = .capturing; driver.start()
     }
-    static func burstPhoto(_ source: F5BurstSource) -> CapturedProRAW {
+    static func burstPhoto(_ source: F5BurstSource) -> CapturedBayerRAW {
         let frame = source.manifest.frames.first(where: { $0.burstIndex == 1 }) ?? source.manifest.frames[0]
         var framing = source.manifest.framing
         framing.deliveredWidth = frame.raster.activeArea.width; framing.deliveredHeight = frame.raster.activeArea.height

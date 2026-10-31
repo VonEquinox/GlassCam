@@ -48,7 +48,7 @@ final class CameraLifetime {
     func check() throws { if isCancelled { throw CameraFailure("Camera operation cancelled.") } }
 }
 
-struct CapturedProRAW {
+struct CapturedBayerRAW {
     let data: Data
     let dimensions: CGSize
     let framing: CaptureFraming

@@ -45,7 +45,7 @@ python3 scripts/iphone_release.py --refresh-signing --install-device DEVICE_ID
 
 1. 检查冷启动、相机及相册权限拒绝与恢复、签名有效期。
 2. 检查三摄接力、连续变焦、横竖屏、快门冻结、源照片与取景边界；记录实际镜头和 RAW 尺寸。
-3. 检查 Speed、Balanced、Quality 与三个色彩引擎；Speed 核对单张 12MP Bayer，Balanced 核对四张等曝光 Bayer 及双密度输出，Quality 核对原有 24MP／48MP 输出。检查相册原件的白点、曝光、ISO、尺寸、方向、HDR 和拍摄日期。
+3. 检查 Speed、Balanced 与三个色彩引擎；Speed 核对单张 12MP Bayer，Balanced 核对四张等曝光 Bayer 及双密度输出，模式选择只显示这两项。检查相册原件的白点、曝光、ISO、尺寸、方向、HDR 和拍摄日期。
 4. 检查切后台、锁屏和进程结束后的单张恢复，旧 Speed 12MP 待完成记录的恢复，保存失败重试，以及保存结果未知时的人工确认。
 5. 检查回看、分享接收端、设置恢复、外围玻璃外观、运动稳定性，以及连续单拍的耗时、内存和热状态。
 

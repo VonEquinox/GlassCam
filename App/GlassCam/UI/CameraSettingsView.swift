@@ -14,21 +14,9 @@ struct CameraSettingsView: View {
     @ObservedObject var rawTests: RAWTestRecorder
     @ObservedObject var workflow: CaptureWorkflow
     let canRecordF5: Bool
-    let options: [CameraController.OutputOption]
-    let physicalCameraID: String?
-    let mode: String
     let onBack: () -> Void
     @State private var advanced = false
 
-    private var outputSelection: Binding<Int> {
-        Binding(get: { settings.captureQuality.outputMegapixels(preferred:
-                    physicalCameraID.map { settings.outputMegapixels(physicalCameraID: $0, mode: mode) } ?? settings.preferredOutputMegapixels) },
-                set: { value in
-                    guard !settings.captureQuality.usesBayer, let id = physicalCameraID,
-                          options.contains(where: { $0.megapixels == value }) else { return }
-                    settings.setOutputMegapixels(value, physicalCameraID: id, mode: mode)
-                })
-    }
     var body: some View {
         VStack(spacing: 0) {
             CameraPageHeader(title: advanced ? "Advanced" : "Settings",
@@ -62,17 +50,9 @@ struct CameraSettingsView: View {
             } else if settings.captureQuality == .speed {
                 Text("Speed uses one 12 MP Bayer RAW with noise reduction, bad-pixel correction, demosaicing and lens correction.")
                     .font(.caption).foregroundStyle(.white.opacity(0.6))
-            } else {
-                Picker("Resolution", selection: outputSelection) {
-                    ForEach([24,48],id:\.self) { value in Text("\(value) MP").tag(value) }
-                }.pickerStyle(.segmented).disabled(physicalCameraID == nil || options.isEmpty)
-                    .accessibilityIdentifier("settings.resolution")
             }
             HStack { Text("Format"); Spacer(); Text("10-bit HDR HEIF").foregroundStyle(.secondary) }.font(.subheadline)
-            if !settings.captureQuality.usesBayer {
-                Text("Photos save automatically. In 48 MP mode, smaller framed sources save at 24 MP.")
-                    .font(.caption).foregroundStyle(.white.opacity(0.45))
-            }
+
         }
         F5SettingsCard(camera: camera, settings: settings, rawTests: rawTests, workflow: workflow, canRecord: canRecordF5)
         CameraCard(title: "Photo style", symbol: "camera.filters") {

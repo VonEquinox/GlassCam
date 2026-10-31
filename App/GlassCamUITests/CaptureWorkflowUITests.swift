@@ -11,18 +11,28 @@ final class CaptureWorkflowUITests: XCTestCase {
         try checkPriorityPersistence(quality: "balanced", title: "Balanced", output: "2× sampling")
     }
 
-    func testQualitySelectionPersistsOnSimulator() throws {
-        try checkPriorityPersistence(quality: "quality", title: "Quality", output: "24 MP")
+    func testPriorityMenuOnlyOffersSpeedAndBalancedOnSimulator() throws {
+#if targetEnvironment(simulator)
+        let app = makeApp()
+        app.launch()
+        let priority = app.buttons["camera.quality"]
+        XCTAssertTrue(priority.waitForExistence(timeout: 20))
+        priority.tap()
+        XCTAssertTrue(app.buttons["camera.quality.speed"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["camera.quality.balanced"].exists)
+        XCTAssertFalse(app.buttons["camera.quality.quality"].exists)
+#else
+        throw XCTSkip("This check is restricted to a simulator.")
+#endif
     }
 
     private func checkPriorityPersistence(quality: String, title: String, output: String) throws {
 #if targetEnvironment(simulator)
         let app = makeApp()
-        app.launchArguments += ["-camera.output.preferred.v2", "24"]
         app.launch()
         let priority = app.buttons["camera.quality"]
-        let initialQuality = quality == "quality" ? "balanced" : "quality"
-        let initialTitle = quality == "quality" ? "Balanced" : "Quality"
+        let initialQuality = quality == "speed" ? "balanced" : "speed"
+        let initialTitle = quality == "speed" ? "Balanced" : "Speed"
         selectPriority(initialQuality, in: app)
         app.terminate()
         app.launch()

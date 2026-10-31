@@ -46,11 +46,8 @@ extension CameraBackend {
         newSession.addConnection(photoConnection)
         guard photoConnection.isVideoOrientationSupported else { throw CameraFailure("Photo orientation control is unavailable.") }
         photoOutput = output
-        output.maxPhotoQualityPrioritization = bayer ? .speed : .quality
-        guard bayer || output.isAppleProRAWSupported else {
-            throw CameraFailure("Apple ProRAW is unavailable on this camera. Try another focal length.", allowsPhysicalFallback: center.isVirtualDevice)
-        }
-        output.isAppleProRAWEnabled = !bayer
+        output.maxPhotoQualityPrioritization = .speed
+        output.isAppleProRAWEnabled = false
         if bayer {
             if output.isZeroShutterLagSupported { output.isZeroShutterLagEnabled = false }
             if output.isResponsiveCaptureSupported { output.isResponsiveCaptureEnabled = false }
@@ -74,8 +71,8 @@ extension CameraBackend {
         if let expected { try validate(photo, matches: expected) }
         dimensions = photo.dimensions
         output.maxPhotoDimensions = dimensions
-        guard output.availableRawPhotoPixelFormatTypes.contains(where: bayer ? AVCapturePhotoOutput.isBayerRAWPixelFormat : AVCapturePhotoOutput.isAppleProRAWPixelFormat) else {
-            throw CameraFailure("This camera exposes no Apple ProRAW format. Try another focal length.", allowsPhysicalFallback: center.isVirtualDevice)
+        guard !bayer || output.availableRawPhotoPixelFormatTypes.contains(where: AVCapturePhotoOutput.isBayerRAWPixelFormat) else {
+            throw CameraFailure("This camera exposes no Bayer RAW format.", allowsPhysicalFallback: center.isVirtualDevice)
         }
         if includePreview { try addPreview(port: port, device: center, cap: plan.centerPreviewLongEdge, to: newSession) }
         newSession.commitConfiguration(); committed = true
@@ -95,14 +92,10 @@ extension CameraBackend {
         newSession.startRunning()
         try validateRunningGraph()
         guard newSession.sessionPreset == .photo, center.activeFormat === finalFormat,
-              (bayer ? !output.isAppleProRAWEnabled : (output.isAppleProRAWSupported && output.isAppleProRAWEnabled)) else {
+              !output.isAppleProRAWEnabled else {
             throw CameraFailure("Starting the photo graph changed its source configuration. No lower-resolution capture was substituted.")
         }
         try validate(try photoCapability(center), matches: photo)
-        // On iOS 27, captureReadiness can report ready immediately after the
-        // photo graph starts while a 48MP request can still resolve to a 12MP RAW.
-        // Allow the new photo graph to settle; delivery still verifies full size.
-        photoWarmupDeadline = .now() + 2
         return photo
     }
     func photoCapability(_ center: AVCaptureDevice) throws -> PhotoCapability {
@@ -111,7 +104,7 @@ extension CameraBackend {
             throw CameraFailure("The physical camera did not report a usable photo field of view.")
         }
         guard let largest = nativePhotoDimensions(format: format).max(by: { Self.area($0) < Self.area($1) }) else {
-            throw CameraFailure("The photo format has no full-framing 12MP or 48MP ProRAW source dimensions.")
+            throw CameraFailure("The photo format has no full-framing source dimensions.")
         }
         return PhotoCapability(physicalCameraID: center.uniqueID, dimensions: largest,
                                horizontalFieldOfView: format.videoFieldOfView, zoom: center.videoZoomFactor)
@@ -139,13 +132,6 @@ extension CameraBackend {
     }
     private static func nominalMegapixels(_ pixels: Int64) -> Int? {
         [12, 24, 48].first { abs(Double(pixels) / (Double($0) * 1_000_000) - 1) <= 0.08 }
-    }
-    static func outputOptions(source: CMVideoDimensions) -> [CameraController.OutputOption] {
-        guard source.width > 0, source.height > 0 else { return [] }
-        return [24, 48].compactMap { tier in
-            guard let size = try? ExportSettings.camera(tier).dimensions(sourceWidth: Int(source.width), sourceHeight: Int(source.height)) else { return nil }
-            return .init(megapixels: tier, width: size.width, height: size.height)
-        }
     }
     static func size(_ dimensions: CMVideoDimensions) -> CGSize {
         CGSize(width: CGFloat(dimensions.width), height: CGFloat(dimensions.height))

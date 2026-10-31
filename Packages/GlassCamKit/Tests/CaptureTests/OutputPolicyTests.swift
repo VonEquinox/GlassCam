@@ -89,18 +89,19 @@ struct OutputPolicyTests {
         #expect(size.width == 4032)
         #expect(size.height == 3024)
     }
-    @Test func legacyQuality_missingFieldKeepsQualityPolicy() throws {
+    @Test func snapshotWithoutMode_defaultsToBalanced() throws {
         let snapshot = CaptureSnapshot(recipe: .standard, output: .camera(12), quality: .speed)
         let bytes = try JSONEncoder().encode(snapshot)
         var object = try #require(JSONSerialization.jsonObject(with: bytes) as? [String: Any])
         object.removeValue(forKey: "quality")
         let decoded = try JSONDecoder().decode(CaptureSnapshot.self, from: JSONSerialization.data(withJSONObject: object))
-        #expect(decoded.quality == .quality)
+        #expect(decoded.quality == .balanced)
     }
-    @Test func unknownQuality_isRejected() throws {
+    @Test(arguments: ["quality", "turbo"])
+    func unavailableQuality_isRejected(value: String) throws {
         let snapshot = CaptureSnapshot(recipe: .standard, output: .camera(12), quality: .speed)
         var object = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(snapshot)) as? [String: Any])
-        object["quality"] = "turbo"
+        object["quality"] = value
         #expect(throws: DecodingError.self) { try JSONDecoder().decode(CaptureSnapshot.self, from: JSONSerialization.data(withJSONObject: object)) }
     }
     @Test func speedSnapshot_roundtripPreservesQualityAndOutput() throws {

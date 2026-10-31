@@ -113,7 +113,7 @@ struct F5ContractTests {
     }
     @Test func f5Capture_doesNotInheritMegapixelResizePolicy() {
         #expect(CaptureSnapshot(recipe: .standard, output: .camera(48), quality: .f5).output.cameraMegapixels == nil)
-        #expect(CaptureQuality.allCases == [.speed,.balanced,.quality])
+        #expect(CaptureQuality.allCases == [.speed,.balanced])
     }
     @Test func changedISO_isRetainedAsEvidenceAndStopsReconstruction() throws {
         let work = try TestDirectory()

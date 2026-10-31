@@ -1,10 +1,9 @@
 # 拍摄记录兼容样本
 
-这些文件由重构前提交 `582a723` 的真实 Swift 序列化器生成，输入来自合成测试数据，不包含用户照片。生成器调用 `CaptureJournal.retain`、`retainBurst`、`storeEncoded`、`F5BurstTransaction` 和现有 `F5Fixtures`；固定 UUID、参考日期 `800000000` 秒和文件名后，使用同一产品 Codable 模型编码。
+Speed 与 F5 文件由重构前提交 `582a723` 的真实 Swift 序列化器生成，输入来自合成测试数据，不包含用户照片。生成器调用 `CaptureJournal.retain`、`retainBurst`、`storeEncoded`、`F5BurstTransaction` 和现有 `F5Fixtures`；固定 UUID、参考日期 `800000000` 秒和文件名后，使用同一产品 Codable 模型编码。
 
 | 样本 | 内容 | 编解码约定 |
 |---|---|---|
-| `single-photo/` | schema 1、Quality、单张 RAW 的恢复记录 | 解码后编码与 `capture.json` 逐字节相同 |
 | `f5-five-frames/` | schema 2、五帧合成 Bayer、burst/intent/profile 与各帧文件 | 当前记录及三个 F5 JSON 分别逐字节往返；文件摘要由真实加载器验证 |
 | `f5-encoded.json` | schema 2、已编码照片、F5 来源信息与 fallback 分类 | 解码后编码逐字节相同 |
 | `speed-legacy/` | schema 1、旧 Speed 12 MP、缺少 `archiveF5RAW` | 解码保留 Speed 与 12 MP；编码与 `speed-normalized.json` 逐字节相同 |

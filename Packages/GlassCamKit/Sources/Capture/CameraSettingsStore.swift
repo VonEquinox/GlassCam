@@ -23,10 +23,7 @@ public final class CameraSettingsStore: ObservableObject {
     @Published public var centerPreviewLongEdge: Int {
         didSet { defaults.set(centerPreviewLongEdge, forKey: "camera.preview.center.longEdge") }
     }
-    @Published public private(set) var outputSelections: [String: Int]
-    @Published public private(set) var preferredOutputMegapixels: Int
     private let defaults: UserDefaults
-    private static let outputsKey = "camera.output.megapixels.byPhysicalLens.v1"
     // Reuse the existing key and decoder to preserve all previously saved effects.
     private static let recipeKey = "editor.processingRecipe.revision8.v1"
 
@@ -47,17 +44,12 @@ public final class CameraSettingsStore: ObservableObject {
         self.defaults = defaults
         archiveF5RAW = defaults.bool(forKey:"camera.f5.keepRaw")
         let storedQuality = defaults.string(forKey: "camera.capture.quality.v1")
-            .flatMap(CaptureQuality.init(rawValue:)) ?? .quality
+            .flatMap(CaptureQuality.init(rawValue:)) ?? .balanced
         captureQuality = storedQuality == .f5 ? .balanced : storedQuality
         let center = defaults.integer(forKey: "camera.preview.center.longEdge")
         centerPreviewLongEdge = Self.centerPreviewCaps.contains(center) ? center : 1920
         gridVisible = defaults.object(forKey: "camera.grid.visible") as? Bool ?? true
         experimentalLiveColor = defaults.bool(forKey: "camera.liveColor.enabled")
-        let savedOutputs = defaults.dictionary(forKey: Self.outputsKey) as? [String: Int] ?? [:]
-        outputSelections = savedOutputs.mapValues { $0 == 12 ? 24 : $0 }
-        let preferred = defaults.integer(forKey: "camera.output.preferred.v2")
-        preferredOutputMegapixels = [24, 48].contains(preferred) ? preferred :
-            (savedOutputs.count == 1 && savedOutputs.values.first == 48 ? 48 : 24)
         if let data = defaults.data(forKey: Self.recipeKey),
            let saved = try? JSONDecoder().decode(ProcessingRecipe.self, from: data), saved.isValid {
             colorMode = saved.mode; simulationIndex = saved.simulationIndex
@@ -77,7 +69,6 @@ public final class CameraSettingsStore: ObservableObject {
         hncs.renderRevision = HNCSSettings.currentRenderRevision
         lumix.renderRevision = LUMIXSettings.currentRenderRevision
         lumix.sourceISO = nil
-        defaults.set(outputSelections, forKey: Self.outputsKey)
         defaults.set(captureQuality.rawValue, forKey: "camera.capture.quality.v1")
         persistRecipe()
     }
@@ -87,19 +78,4 @@ public final class CameraSettingsStore: ObservableObject {
         defaults.set(data, forKey: Self.recipeKey)
     }
 
-    public func outputMegapixels(physicalCameraID: String, mode: String) -> Int {
-        outputSelections[key(physicalCameraID: physicalCameraID, mode: mode)] ?? preferredOutputMegapixels
-    }
-
-    public func setOutputMegapixels(_ value: Int, physicalCameraID: String, mode: String) {
-        guard [24, 48].contains(value) else { return }
-        outputSelections[key(physicalCameraID: physicalCameraID, mode: mode)] = value
-        preferredOutputMegapixels = value
-        defaults.set(value, forKey: "camera.output.preferred.v2")
-        defaults.set(outputSelections, forKey: Self.outputsKey)
-    }
-
-    private func key(physicalCameraID: String, mode: String) -> String {
-        "\(mode):\(Data(physicalCameraID.utf8).base64EncodedString())"
-    }
 }

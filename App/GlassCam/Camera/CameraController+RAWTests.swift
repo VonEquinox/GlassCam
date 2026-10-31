@@ -18,30 +18,23 @@ extension CameraController {
     }
 
     @MainActor
-    func recordScene(quality: CaptureQuality, id: UUID, recipe: ProcessingRecipe,
+    func recordScene(id: UUID, recipe: ProcessingRecipe,
                      archiveInputs: Bool) async throws {
         let reservation = try await reserveMainForTest()
         defer { releaseCaptureReservation(reservation) }
-        let output: ExportSettings = quality == .balanced ? .native.withFraming(currentFraming) : .camera(48,framing: currentFraming)
-        let snapshot = CaptureSnapshot(recipe: recipe,output: output,quality: quality,
+        let output = ExportSettings.native.withFraming(currentFraming)
+        let snapshot = CaptureSnapshot(recipe: recipe,output: output,quality: .balanced,
             archiveF5RAW: archiveInputs,rawArchiveID: id)
         let photo: CapturedCameraPhoto = try await withCheckedThrowingContinuation { continuation in
-            capturePhoto(reservation: reservation,quality: quality,snapshot: snapshot,f5Purpose: "scene") {
+            capturePhoto(reservation: reservation,quality: .balanced,snapshot: snapshot,f5Purpose: "scene") {
                 continuation.resume(with: $0)
             }
         }
         try await Task.detached(priority: .userInitiated) {
-            if quality == .balanced {
-                guard let source = photo.burst as? F5BurstSource else { throw F5Failure(.frameMissing,"Balanced RAW is missing.") }
-                _ = try F5CaptureFormat.archiveRAW(source,snapshot: snapshot)
-                // The published merged archive is durable before its input
-                // transaction is retired. A failed operation keeps all inputs.
-                if !archiveInputs { try? FileManager.default.removeItem(at: source.directory) }
-            } else {
-                let source = try SourceImageFile(data: photo.data,fileExtension: "dng")
-                let frozen = CaptureSnapshot(recipe: recipe,output: output.withFraming(photo.framing),quality: quality,rawArchiveID: id)
-                try CaptureRAWStore.retainProRAW(source.url,id: id,snapshot: frozen)
-            }
+            guard let source = photo.burst as? F5BurstSource else { throw F5Failure(.frameMissing,"Balanced RAW is missing.") }
+            _ = try F5CaptureFormat.archiveRAW(source,snapshot: snapshot)
+            // Keep the inputs until the merged archive is durable.
+            if !archiveInputs { try? FileManager.default.removeItem(at: source.directory) }
         }.value
     }
 }

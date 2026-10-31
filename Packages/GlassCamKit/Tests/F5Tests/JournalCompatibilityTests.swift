@@ -18,7 +18,7 @@ private enum JournalTestFiles {
     }
 }
 
-@Test(arguments: ["single-photo/capture.json", "f5-five-frames/capture.json", "f5-encoded.json", "speed-normalized.json"])
+@Test(arguments: ["f5-five-frames/capture.json", "f5-encoded.json", "speed-normalized.json"])
 func currentJournal_decodeEncodePreservesBytes(path: String) throws {
     let bytes = try JournalTestFiles.data(path)
 
@@ -62,7 +62,7 @@ func currentJournal_decodeEncodePreservesBytes(path: String) throws {
     #expect(try F5Hash.json(profile) == bytes)
 }
 
-@Test(arguments: ["single-photo", "speed-legacy", "f5-five-frames"])
+@Test(arguments: ["speed-legacy", "f5-five-frames"])
 func retainedJournal_loadVerifiesFrozenFiles(name: String) throws {
     let work = try TestDirectory()
     let pending = work.url.appendingPathComponent("pending")

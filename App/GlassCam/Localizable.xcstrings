@@ -161,16 +161,6 @@
         }
       }
     },
-    "Balanced and ProRAW scene files saved.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Balanced 和 ProRAW 场景文件已保存。"
-          }
-        }
-      }
-    },
     "Balanced combines four equal-exposure Bayer RAW frames with curvature reconstruction at 2× sampling.": {
       "localizations": {
         "zh-Hans": {
@@ -181,12 +171,22 @@
         }
       }
     },
-    "Balanced merged RAW and original ProRAW are saved before color processing. Finished photos still save to Photos.": {
+    "Balanced merged RAW is saved before color processing. Finished photos still save to Photos.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Balanced 合成 RAW 和原始 ProRAW 会在调色前保存，调色成片照常保存到相册。"
+            "value": "Balanced 合成 RAW 在调色前保存，成片仍保存到相册。"
+          }
+        }
+      }
+    },
+    "Balanced scene files saved.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanced 场景文件已保存。"
           }
         }
       }
@@ -321,12 +321,12 @@
         }
       }
     },
-    "Checking camera ProRAW capability…": {
+    "Checking camera RAW capability…": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在检查 ProRAW 能力…"
+            "value": "正在检查相机 RAW 能力…"
           }
         }
       }
@@ -351,16 +351,6 @@
         }
       }
     },
-    "Choose F5 five-frame RAW, Balanced, or Quality": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "选择 F5 五帧 RAW、均衡或画质模式"
-          }
-        }
-      }
-    },
     "Choose photo style": {
       "localizations": {
         "zh-Hans": {
@@ -371,12 +361,12 @@
         }
       }
     },
-    "Choose single RAW Speed, four-frame Balanced, or ProRAW Quality": {
+    "Choose single RAW Speed or four-frame Balanced": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择 Speed 单帧 RAW、Balanced 四帧合成或 Quality ProRAW"
+            "value": "选择单张 RAW 的 Speed 或四帧合成的 Balanced"
           }
         }
       }
@@ -1041,16 +1031,6 @@
         }
       }
     },
-    "Photos save automatically. In 48 MP mode, smaller framed sources save at 24 MP.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "照片会自动保存。48 MP 档下，有效像素不足 24 MP 时以 24 MP 输出。"
-          }
-        }
-      }
-    },
     "Pre-color files are in Files → GlassCam → RAWCaptures.": {
       "localizations": {
         "zh-Hans": {
@@ -1131,16 +1111,6 @@
         }
       }
     },
-    "Quality requires a native ProRAW format on this camera.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "此摄像头需要支持原生 ProRAW 才能使用 Quality。"
-          }
-        }
-      }
-    },
     "RAW recording": {
       "localizations": {
         "zh-Hans": {
@@ -1171,12 +1141,12 @@
         }
       }
     },
-    "Record scene · Balanced + ProRAW": {
+    "Record scene · Balanced": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "记录当前场景 · Balanced + ProRAW"
+            "value": "记录当前场景 · Balanced"
           }
         }
       }
@@ -1201,22 +1171,12 @@
         }
       }
     },
-    "Recording scene · ProRAW…": {
+    "Records only the Balanced merged source, without color processing or Photos export. Keep the scene steady.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在记录场景 · ProRAW…"
-          }
-        }
-      }
-    },
-    "Records only the Balanced merged source and original ProRAW, without color processing or Photos export. Keep the scene steady.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "仅记录 Balanced 合成原片与 ProRAW 原片，不调色、不导出到相册；请保持场景稳定。"
+            "value": "仅记录 Balanced 合成原片，不调色、不导出相册。请保持场景稳定。"
           }
         }
       }
@@ -1587,16 +1547,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Speed 拍摄单张 RAW；Balanced 合成四张等曝光 RAW。两者均使用主摄原生视角。"
-          }
-        }
-      }
-    },
-    "Speed requires a 12 MP ProRAW format on this camera.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "此摄像头需要支持 12MP ProRAW 才能使用 Speed。"
           }
         }
       }
