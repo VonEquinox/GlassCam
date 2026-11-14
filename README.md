@@ -17,6 +17,8 @@ make test-ui
 
 ## 目录与文档
 
+[文档导览](docs/README.md)提供按任务选择的阅读路径与子系统边界。
+
 - **代码结构**：[App](App)（相机、界面与 Xcode 工程）· [Packages/GlassCamKit](Packages/GlassCamKit/Package.swift)（图像、拍摄、外围、F5 与原生内核）· [scripts](scripts) · [tests](tests) · [vendor](vendor)。
 - **拍摄与图像管线**：[架构](docs/architecture.md) · [拍摄与恢复](docs/capture-and-recovery.md) · [F5 重建](docs/f5.md) · [图像管线与成片导出](docs/image-pipeline.md)。
 - **取景与色彩引擎**：[取景与回看](docs/viewfinder.md) · [外围玻璃](docs/peripheral-glass.md) · [HNCS](docs/color/hncs.md) · [FFCS](docs/color/ffcs.md) · [LUMIX](docs/color/lumix.md)。
