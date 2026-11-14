@@ -2,6 +2,7 @@ import Foundation
 import CoreImage
 import Metal
 import QuartzCore
+import CMetalImage
 
 /// Immutable Float32 pixels in top-to-bottom row order, as returned by
 /// CIContext.render(toBitmap:). The deferred CIImage retains its owned bytes.
@@ -12,21 +13,27 @@ public final class PreviewRaster: @unchecked Sendable {
     public let headroom: Float
     private let storage: Data
 
-    public init(linearRGBA: [Float], width: Int, height: Int) throws {
+    public convenience init(linearRGBA: [Float], width: Int, height: Int) throws {
+        let data = linearRGBA.withUnsafeBytes { Data($0) }
+        try self.init(linearRGBAData: data, width: width, height: height)
+    }
+
+    public init(linearRGBAData: Data, width: Int, height: Int) throws {
         guard width > 0, height > 0, width <= Int.max / 16 / height,
-              linearRGBA.count == width * height * 4,
-              linearRGBA.allSatisfy({ $0.isFinite }),
+              linearRGBAData.count == width * height * 16,
               let space = CGColorSpace(name: CGColorSpace.extendedLinearSRGB) else {
             throw PipelineError.rendering
         }
+        var peak: Float = 1
+        let valid = linearRGBAData.withUnsafeBytes {
+            gc_float_rgba_peak($0.bindMemory(to: Float.self).baseAddress, width * height, &peak)
+        }
+        guard valid != 0 else { throw PipelineError.rendering }
         self.width = width
         self.height = height
-        headroom = stride(from: 0, to: linearRGBA.count, by: 4).reduce(Float(1)) {
-            max($0, linearRGBA[$1], linearRGBA[$1 + 1], linearRGBA[$1 + 2])
-        }
-        let data = linearRGBA.withUnsafeBytes { Data($0) }
-        self.storage = data
-        let image = CIImage(bitmapData: data, bytesPerRow: width * 16,
+        headroom = peak
+        self.storage = linearRGBAData
+        let image = CIImage(bitmapData: linearRGBAData, bytesPerRow: width * 16,
                              size: CGSize(width: CGFloat(width), height: CGFloat(height)),
                              format: .RGBAf, colorSpace: space)
         if #available(iOS 26, macOS 26, *) {

@@ -53,6 +53,8 @@ let package = Package(
         // These checks exercise private stages in the production translation unit.
         smoke("ffcs_color_only_test", dependencies: [], settings: nativeChecks + [.headerSearchPath("../../Sources/CFFCS/include")]),
         smoke("ffcs_effect_switches_test", dependencies: [], settings: nativeChecks + [.headerSearchPath("../../Sources/CFFCS/include")]),
+        smoke("lumix_smoke", dependencies: ["CLUMIX"]),
+        smoke("float_raster_smoke", dependencies: [], settings: nativeChecks + [.headerSearchPath("../../Sources/CMetalImage/include")]),
         smoke("f5_core_tests", dependencies: ["CF5"], settings: f5Settings + [.unsafeFlags(["-UNDEBUG"]), .headerSearchPath("../../Sources/CF5")]),
     ],
     swiftLanguageModes: [.v5],

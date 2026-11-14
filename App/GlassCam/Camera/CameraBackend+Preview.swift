@@ -120,11 +120,17 @@ extension CameraBackend {
     /// switching port can never stand in for either physical camera image.
     private func buildSynchronizedPreview(configuration plan:PreviewConfiguration,orientation value:UIInterfaceOrientation,
         photo:PhotoCapability,center:AVCaptureDevice,outer:AVCaptureDevice,fps:Int32) throws -> Bool {
+        // Exact custom exposure restoration belongs to the physical main lens.
+        // Virtual devices need not support custom exposure, even while locked.
+        guard !metering.locked else { return false }
         let types:[AVCaptureDevice.DeviceType] = outer.deviceType == .builtInUltraWideCamera && center.deviceType == .builtInWideAngleCamera
             ? [.builtInDualWideCamera,.builtInTripleCamera]:[.builtInDualCamera,.builtInTripleCamera]
         let candidates=AVCaptureDevice.DiscoverySession(deviceTypes:types,mediaType:.video,position:.back).devices
             .filter {device in [center.uniqueID,outer.uniqueID].allSatisfy {id in device.constituentDevices.contains {$0.uniqueID==id}}}
         for virtual in candidates {
+            // Metering must refer to the same native main view as the center
+            // constituent port. Otherwise use independent physical inputs.
+            guard virtual.isPrimaryConstituentDeviceSwitchingBehaviorLockedWithDeviceSupported else { continue }
             let formats=virtual.formats.filter {format in
                 let size=CMVideoFormatDescriptionGetDimensions(format.formatDescription)
                 return format.isMultiCamSupported && Self.sameAspect(size,photo.dimensions) && size.width>=640 &&
@@ -144,8 +150,10 @@ extension CameraBackend {
             multi.addInputWithNoConnections(input)
             try virtual.lockForConfiguration()
             virtual.activeFormat=format;Self.setFrameDuration(CMTime(value:1,timescale:fps),on:virtual)
+            virtual.setPrimaryConstituentDeviceSwitchingBehaviorLockedWith(center)
             virtual.videoZoomFactor=virtual.minAvailableVideoZoomFactor
             virtual.unlockForConfiguration()
+            try applyPreviewMetering(to: virtual)
             input.videoMinFrameDurationOverride=CMTime(value:1,timescale:fps)
             for (index,device) in [center,outer].enumerated() {
                 guard let port=input.ports(for:.video,sourceDeviceType:device.deviceType,sourceDevicePosition:.back).first,
@@ -161,7 +169,8 @@ extension CameraBackend {
             // Do not silently change the selected physical lens or composition
             // in exchange for synchronization. Unsupported configurations fall back.
             guard abs(center.activeFormat.videoFieldOfView-photo.horizontalFieldOfView)<0.1,
-                  abs(center.videoZoomFactor-1)<0.0001,abs(outer.videoZoomFactor-1)<0.0001 else {
+                  abs(center.videoZoomFactor-1)<0.0001,abs(outer.videoZoomFactor-1)<0.0001,
+                  virtual.activePrimaryConstituent == center else {
                 throw CameraFailure("Synchronized streams changed the native field of view.")
             }
             updatePeripheralSelection()
@@ -206,6 +215,7 @@ extension CameraBackend {
             previewPortDevices.append(device)
         }
         multi.commitConfiguration(); committed = true
+        try applyPreviewMetering(to: center)
         guard multi.hardwareCost <= 1, multi.systemPressureCost <= 1 else { throw CameraFailure("Independent camera cost exceeds budget.") }
         peripheralFrameSource = PeripheralFrameSource()
         try negotiatePreviewPixelFormats()
@@ -373,6 +383,11 @@ extension CameraBackend {
                       physicalCameraID: framing.cameraID ?? photo.physicalCameraID,
                       centerPreviewDimensions: Self.size(previewSizes[0]),
                       centerPreviewEncoding: Self.previewEncoding(previewPixelFormats[0]),
-                      zoomRange: zoomRange(for: center), framing: framing)
+                      zoomRange: zoomRange(for: center), framing: framing, metering: metering,
+                      meteringAdjusting: meteringDevice.map { $0.isAdjustingFocus || $0.isAdjustingExposure } ?? false,
+                      nativeMainZoom: lensCatalog.first { $0.device.deviceType == .builtInWideAngleCamera }?.displayedZoom ?? 1,
+                      exposureBiasRange: meteringDevice.flatMap {
+                          CameraMetering.biasRange(minimum: $0.minExposureTargetBias, maximum: $0.maxExposureTargetBias)
+                      } ?? 0...0)
     }
 }

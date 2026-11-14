@@ -120,7 +120,7 @@ private enum HDRColorBudget {
         let output = ImagePipelineTests.pixels(rendered)
         let expected: [Float], actual: [Float]
         if recipe.mode == .hncs {
-            ImagePipeline.applyExposure(&rgb, exposureEV: recipe.exposureEV)
+            try ImagePipeline.applyExposure(&rgb, exposureEV: recipe.exposureEV)
             let work = try HNCSEngine.presetWork(linearSRGB: rgb, width: width, height: height,
                 exposureEV: recipe.backendExposureEV, captureKelvin: recipe.illuminantKelvin,
                 settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
@@ -141,7 +141,7 @@ private enum HDRColorBudget {
                     width: width, height: height, exposureEV: recipe.backendExposureEV, settings: recipe.lumix,
                     illuminantKelvin: recipe.illuminantKelvin)
             }
-            ImagePipeline.restoreHighlights(&reference, gains: gains)
+            try ImagePipeline.restoreHighlights(&reference, gains: gains)
             expected = reference; actual = output
         }
 
@@ -225,7 +225,7 @@ private enum HDRColorBudget {
         var wholeReference = try FFCSEngine.exportLinearRGBA(resources: TestResources.colors, linearSRGB: rgb,
             width: width, height: height, exposureEV: 0, simulationIndex: look, seed: recipe.seed,
             effects: recipe.effects, settings: recipe.ffcs)
-        ImagePipeline.restoreHighlights(&wholeReference, gains: gains)
+        try ImagePipeline.restoreHighlights(&wholeReference, gains: gains)
         let crop = CGRect(x: 7, y: 11, width: 61, height: 53)
         let firstRow = height - Int(crop.maxY), firstColumn = Int(crop.minX)
         let expected = (0..<Int(crop.height)).flatMap { row in

@@ -29,6 +29,11 @@ int main(int argc, char **argv) {
             for(size_t i=0;i<n;++i) input[i]=float((i*7919)%10007)/8000.f-.1f;
             CHECK(ffcs_process_linear_rgb(ctx.get(),input.data(),n,w,h,.7f,0xffffffffu,
                 expected.data(),n,rgba.data(),rgba.size(),error.data(),error.size()) == 1);
+            const auto untouched=actual;
+            CHECK(ffcs_process_linear_rgb(ctx.get(),input.data(),n,w,h,0,0,
+                actual.data(),n,reinterpret_cast<uint8_t*>(actual.data()),rgba.size(),
+                error.data(),error.size())==0);
+            CHECK(actual==untouched);
             for(unsigned workers : {1u,4u}) {
                 auto run=[&](float *out,size_t count,uint8_t *bytes,size_t byte_count,unsigned threads) {
                     return ffcs_process_linear_rgb_optimized(ctx.get(),input.data(),n,w,h,.7f,0xffffffffu,

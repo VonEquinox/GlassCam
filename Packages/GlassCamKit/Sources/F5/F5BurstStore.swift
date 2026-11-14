@@ -63,7 +63,10 @@ public final class F5BurstTransaction: @unchecked Sendable {
         if let root { base = root }
         else if purpose == "scene", let scene = snapshot?.rawArchiveID {
             base = CaptureRAWStore.directory(id: scene).appendingPathComponent("bayer-inputs",isDirectory: true)
-        } else { base = purpose == "probe" ? Self.samplesRoot : Self.stagingRoot }
+        } else if purpose == "probe" { base = Self.samplesRoot }
+        else if let slot = snapshot?.recoverySlot {
+            base = Self.stagingRoot.appendingPathComponent(slot.directoryName, isDirectory: true)
+        } else { base = Self.stagingRoot }
         directory = base.appendingPathComponent(id.uuidString, isDirectory: true)
         intent = Intent(id: id, createdAt: Date(), snapshot: snapshot, purpose: purpose, state: .collecting, frames: [], error: nil)
         try CaptureJournal.createDirectory(directory)

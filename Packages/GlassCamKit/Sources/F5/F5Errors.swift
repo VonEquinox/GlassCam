@@ -1,6 +1,7 @@
 import ImagingCore
 import Capture
 import Foundation
+import OSLog
 
 public enum F5Code: String, Codable, Error, Sendable, CaseIterable {
     case unsupportedRAW = "UNSUPPORTED_RAW", unsupportedOpcode = "UNSUPPORTED_OPCODE"
@@ -22,14 +23,33 @@ public enum F5Code: String, Codable, Error, Sendable, CaseIterable {
 public struct F5Failure: LocalizedError, Sendable {
     public let code: F5Code
     public let detail: String
-    public init(_ code: F5Code, _ detail: String) { self.code = code; self.detail = detail }
+    private static let logger = Logger(subsystem: "dev.glasscam.prototype", category: "F5")
+    public init(_ code: F5Code, _ detail: String) {
+        self.code = code; self.detail = detail
+        Self.logger.notice("\(code.rawValue, privacy: .public): \(detail, privacy: .public)")
+    }
     public var errorDescription: String? {
         switch code {
-        case .isoChanged:
-            return String(localized:"The RAW frames have inconsistent exposure settings. Fusion could not finish; the originals were kept.", bundle: .main)
+        case .thermalLimit:
+            return String(localized: "The camera is too hot. Let it cool, then try again.")
+        case .memoryPressure, .budgetStop:
+            return String(localized: "There is not enough memory to finish this photo. The originals were kept. Try again later.")
+        case .frameMissing, .duplicateFrame, .cancelled:
+            return String(localized: "The capture was interrupted. Any delivered originals were kept. You can discard the incomplete capture.")
+        case .isoChanged, .exposureAdjusted, .nonuniformMains, .apertureChanged, .physicalCameraChanged, .flicker:
+            return String(localized: "The RAW frames have inconsistent exposure settings. Fusion could not finish; the originals were kept.")
+        case .motionUncertain, .ambiguousRegistration, .longCaptureWindow, .occlusion, .focusChanged, .meteringUncertain:
+            return String(localized: "Focus or alignment was uncertain. Hold steady and try again.")
+        case .unsupportedRAW, .unqualified, .mainCameraOnly:
+            return String(localized: "RAW capture is unavailable for this camera configuration. Return to the main camera and try again.")
+        case .damagedBundle:
+            return String(localized: "The retained RAW files could not be verified. They have been kept for recovery.")
+        case .colorTransformInvalid, .encodeMetadataInvalid, .profileMismatch, .responseModelMismatch, .unsupportedOpcode:
+            return String(localized: "This RAW capture could not be processed with its camera information. The originals were kept.")
         case .shortExposureLimited:
-            return String(localized:"The current exposure is too short for F5. Try a scene with less light.", bundle: .main)
-        default: return "F5 · \(code.rawValue): \(detail)"
+            return String(localized: "The current exposure is too short for F5. Try a scene with less light.")
+        case .highlightNotGuaranteed, .highlightMissing, .numericalStall, .nonfinite:
+            return String(localized: "This photo could not be reconstructed. The originals were kept; you can retry or discard it.")
         }
     }
 }

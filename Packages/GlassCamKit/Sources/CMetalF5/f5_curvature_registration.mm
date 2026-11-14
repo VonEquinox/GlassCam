@@ -156,6 +156,9 @@ struct gc_f5_curve_registration {
     }
     void run(const gc_f5_curve_callbacks *callbacks) {
         check(!ran,1,"Bayer registration contexts are single-use.");
+        // Cancellation or failure can leave released or partially written
+        // workspace. A fresh context is required for every attempt.
+        ran=true;
         const auto cancelled=[&]{if(callbacks && callbacks->cancelled && callbacks->cancelled(callbacks->context))throw Failure{4,"Bayer registration cancelled."};};
         cancelled(); Parameters p{{config.width,config.height,0,config.frames},{},{columns,rows,16,0},{},{}};
         auto command=[queue commandBuffer];check(command!=nil,2,"Cannot initialize Bayer motion.");
@@ -205,7 +208,7 @@ struct gc_f5_curve_registration {
         }
         cancelled();command=[queue commandBuffer];p.image.z=0;p.grid={(config.width+31)/32,(config.height+31)/32,32,0};
         dispatch(command,summary,size_t(p.grid.x)*p.grid.y*config.frames,256,{reliability,kinds,summaries},&p,sizeof(p));wait(command);
-        cancelled();raw=nil;kinds=nil;ran=true;if(callbacks && callbacks->progress)callbacks->progress(callbacks->context,1);
+        cancelled();raw=nil;kinds=nil;if(callbacks && callbacks->progress)callbacks->progress(callbacks->context,1);
     }
 };
 extern "C" gc_f5_curve_registration *gc_f5_curve_registration_create(const gc_f5_curve_registration_config *c,void *d,void *l,void *r,void *k,gc_f5_curve_error *error) {

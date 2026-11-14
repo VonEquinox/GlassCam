@@ -2,6 +2,7 @@ import ImagingCore
 import Foundation
 import Combine
 import ImageIO
+import OSLog
 
 public struct CaptureSnapshot: Codable, Sendable {
     public let recipe: ProcessingRecipe
@@ -10,13 +11,19 @@ public struct CaptureSnapshot: Codable, Sendable {
     public let f5: (any CaptureProvenance)?
     public let archiveF5RAW: Bool
     public let rawArchiveID: UUID?
+    public let recoverySlot: CaptureSlot?
 
-    public init(recipe: ProcessingRecipe, output: ExportSettings, quality: CaptureQuality = .balanced, f5: (any CaptureProvenance)? = nil, archiveF5RAW: Bool = false, rawArchiveID: UUID? = nil) {
+    public init(recipe: ProcessingRecipe, output: ExportSettings, quality: CaptureQuality = .balanced, f5: (any CaptureProvenance)? = nil, archiveF5RAW: Bool = false, rawArchiveID: UUID? = nil, recoverySlot: CaptureSlot? = nil) {
         self.recipe = recipe
         self.output = .camera24(framing: output.framing)
         self.quality = quality; self.f5 = f5; self.archiveF5RAW = archiveF5RAW; self.rawArchiveID = rawArchiveID
+        self.recoverySlot = recoverySlot
     }
-    private enum CodingKeys: String, CodingKey { case recipe, output, quality, f5, archiveF5RAW, rawArchiveID }
+    public func forSlot(_ slot: CaptureSlot) -> CaptureSnapshot {
+        CaptureSnapshot(recipe: recipe, output: output, quality: quality, f5: f5, archiveF5RAW: archiveF5RAW,
+                        rawArchiveID: rawArchiveID, recoverySlot: slot)
+    }
+    private enum CodingKeys: String, CodingKey { case recipe, output, quality, f5, archiveF5RAW, rawArchiveID, recoverySlot }
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         recipe = try values.decode(ProcessingRecipe.self, forKey: .recipe)
@@ -30,6 +37,7 @@ public struct CaptureSnapshot: Codable, Sendable {
         } else { f5 = nil }
         archiveF5RAW = try values.decodeIfPresent(Bool.self, forKey: .archiveF5RAW) ?? false
         rawArchiveID = try values.decodeIfPresent(UUID.self, forKey: .rawArchiveID)
+        recoverySlot = try values.decodeIfPresent(CaptureSlot.self, forKey: .recoverySlot)
     }
     public func encode(to encoder: Encoder) throws {
         var values = encoder.container(keyedBy: CodingKeys.self)
@@ -39,38 +47,7 @@ public struct CaptureSnapshot: Codable, Sendable {
         if let f5 { try f5.encode(to: values.superEncoder(forKey: .f5)) }
         try values.encode(archiveF5RAW, forKey: .archiveF5RAW)
         try values.encodeIfPresent(rawArchiveID, forKey: .rawArchiveID)
-    }
-}
-
-public struct SavedCapture: Identifiable, @unchecked Sendable {
-    public let id = UUID()
-    public let file: TemporaryHEIFFile
-    public let preview: PreviewRaster
-    public let width: Int
-    public let height: Int
-    public let snapshot: CaptureSnapshot
-    public func loadFullPreview() async throws -> PreviewRaster {
-        let current = preview
-        let url = file.url
-        guard max(current.width, current.height) < 512,
-              FileManager.default.fileExists(atPath: url.path) else {
-            return current
-        }
-        return try await Task.detached(priority: .userInitiated) {
-            try ImagePipeline.decodePreviewRaster(at: url, maximumEdge: 2048).raster
-        }.value
-    }
-    public var resolutionDescription: String? {
-        if let f5 = snapshot.f5 {
-            return f5.resolutionDescription(width: width, height: height)
-        }
-        guard let framing = snapshot.output.framing,
-              let sourceWidth = framing.decodedWidth ?? framing.deliveredWidth,
-              let sourceHeight = framing.decodedHeight ?? framing.deliveredHeight,
-              let effective = try? snapshot.output.effectivePixels(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: snapshot.recipe.crop) else { return nil }
-        let output = Double(width) * Double(height)
-        let interpolation = output > effective * 1.025 ? " · Interpolated" : ""
-        return String(format: "Estimated source %.1f MP · Output %.1f MP", effective / 1_000_000, output / 1_000_000) + interpolation
+        try values.encodeIfPresent(recoverySlot, forKey: .recoverySlot)
     }
 }
 
@@ -135,7 +112,7 @@ public final class CaptureWorkflow: ObservableObject {
                         framing?.decodedWidth = width; framing?.decodedHeight = height
                     })
                 let output = framing.map { snapshot.output.withFraming($0) } ?? snapshot.output
-                return try review(file, snapshot: CaptureSnapshot(recipe: recipe, output: output, quality: snapshot.quality, archiveF5RAW: snapshot.archiveF5RAW, rawArchiveID: snapshot.rawArchiveID), control: control)
+                return try review(file, snapshot: CaptureSnapshot(recipe: recipe, output: output, quality: snapshot.quality, archiveF5RAW: snapshot.archiveF5RAW, rawArchiveID: snapshot.rawArchiveID, recoverySlot: snapshot.recoverySlot), control: control)
             }.value
         }
 
@@ -149,13 +126,14 @@ public final class CaptureWorkflow: ObservableObject {
             }.value
         }
 
-        nonisolated private static func review(_ file: TemporaryHEIFFile, snapshot: CaptureSnapshot,
-                                               control: CaptureProcessingControl) throws -> SavedCapture {
+        nonisolated static func review(_ file: TemporaryHEIFFile, snapshot: CaptureSnapshot,
+                                       control: CaptureProcessingControl, id: UUID = UUID()) throws -> SavedCapture {
             if control.isStopped { throw CancellationError() }
-            let decoded = try ImagePipeline.decodePreviewRaster(at: file.url, maximumEdge: 160)
+            let decoded = try ImagePipeline.decodePreviewRaster(at: file.url, maximumEdge: 384)
             if control.isStopped { throw CancellationError() }
-            return SavedCapture(file: file, preview: decoded.raster, width: decoded.pixelWidth,
-                                height: decoded.pixelHeight, snapshot: snapshot)
+            return SavedCapture(id: id, file: file, preview: decoded.raster, width: decoded.pixelWidth,
+                                height: decoded.pixelHeight, snapshot: snapshot,
+                                cameraInfo: try PhotoMetadata.read(from: file.url).captureInfo)
         }
     }
 
@@ -166,6 +144,7 @@ public final class CaptureWorkflow: ObservableObject {
         var encoded: SavedCapture?
         var record: CaptureJournal.Record?
         var photosConfirmed = false
+        var confirmedAt: Date?
         var confirmedSaveFailure: String?
         var unsubmittedAttempt: UUID?
         var captureSubmitted = false
@@ -178,6 +157,7 @@ public final class CaptureWorkflow: ObservableObject {
     @Published public private(set) var notice: String?
     private let services: Services
     private let journal: CaptureJournal?
+    private let latestReviewStore: LatestReviewStore?
     private var job: Job?
     private var task: Task<Void, Never>?
     private var processingControl: CaptureProcessingControl?
@@ -186,8 +166,10 @@ public final class CaptureWorkflow: ObservableObject {
     private var restoreFailed = false
     private var authorizedCapture: (id: UUID, takePhoto: (@escaping (Result<CapturedCameraPhoto, Error>) -> Void) -> Void)?
 
-    public init(services: Services, journal: CaptureJournal? = nil, initiallyActive: Bool = true) {
+    public init(services: Services, journal: CaptureJournal? = nil, initiallyActive: Bool = true,
+                latestReviewStore: LatestReviewStore? = nil) {
         self.services = services; self.journal = journal; foreground = initiallyActive
+        self.latestReviewStore = latestReviewStore
         restored = journal == nil
         if journal != nil { phase = .restoring; if initiallyActive { restore() } }
     }
@@ -207,15 +189,15 @@ public final class CaptureWorkflow: ObservableObject {
     public var status: String {
         switch phase {
         case .idle: return notice ?? ""
-        case .authorizing: return "Checking Photos access…"
-        case .capturing: return "Capturing RAW…"
-        case .retaining: return "Retaining photo…"
-        case .processing: return "Processing HDR · \(Int(progress * 100))%"
-        case .saving: return "Saving to Photos…"
-        case .restoring: return "Checking retained photo…"
-        case .paused: return "Photo paused. Return to GlassCam to finish it."
-        case .saveOutcomeUnknown: return "This photo may already be in Photos. A copy is retained here. Check Photos before saving it again."
-        case .failed: return failureMessage ?? "Couldn’t finish this photo."
+        case .authorizing: return String(localized: "Checking Photos access…")
+        case .capturing: return String(localized: "Capturing RAW…")
+        case .retaining: return String(localized: "Retaining photo…")
+        case .processing: return String(localized: "Processing HDR · \(Int(progress * 100))%")
+        case .saving: return String(localized: "Saving to Photos…")
+        case .restoring: return String(localized: "Checking retained photo…")
+        case .paused: return String(localized: "Photo paused. Return to GlassCam to finish it.")
+        case .saveOutcomeUnknown: return String(localized: "This photo may already be in Photos. A copy is retained here. Check Photos before saving it again.")
+        case .failed: return failureMessage ?? String(localized: "Couldn’t finish this photo.")
         }
     }
 
@@ -271,7 +253,7 @@ public final class CaptureWorkflow: ObservableObject {
         case .success(let photo):
             if let snapshot = job?.snapshot, photo.framing != CaptureFraming() {
                 guard photo.framing.isValid else { fail(CaptureJournal.Failure.damaged, id: id); return }
-                job?.snapshot = CaptureSnapshot(recipe: snapshot.recipe, output: snapshot.output.withFraming(photo.framing), quality: snapshot.quality,archiveF5RAW:snapshot.archiveF5RAW,rawArchiveID:snapshot.rawArchiveID)
+                job?.snapshot = CaptureSnapshot(recipe: snapshot.recipe, output: snapshot.output.withFraming(photo.framing), quality: snapshot.quality,archiveF5RAW:snapshot.archiveF5RAW,rawArchiveID:snapshot.rawArchiveID,recoverySlot:snapshot.recoverySlot)
             }
             job?.source = photo.burst.map { .burst($0) } ?? .memory(photo.data); phase = .retaining
             task = Task {
@@ -366,7 +348,7 @@ public final class CaptureWorkflow: ObservableObject {
 
     public func confirmAlreadySaved() {
         guard phase == .saveOutcomeUnknown, let id = job?.id, foreground, task == nil else { return }
-        job?.photosConfirmed = true; phase = .saving
+        job?.photosConfirmed = true; job?.confirmedAt = Date(); phase = .saving
         task = Task { await finish(id: id) }
     }
 
@@ -452,17 +434,28 @@ public final class CaptureWorkflow: ObservableObject {
                     throw error
                 }
                 guard job?.id == id else { return }
-                job?.photosConfirmed = true
+                job?.photosConfirmed = true; job?.confirmedAt = Date()
             }
+            guard var encoded = job?.encoded else { throw CaptureJournal.Failure.damaged }
+            let confirmation = job?.confirmedAt ?? job?.record?.confirmedAt ?? Date()
             if let journal {
                 let attempt = job?.record?.attemptID
-                let record = try await Task.detached { try journal.confirmSaved(id: id, attemptID: attempt) }.value
+                let record = try await Task.detached {
+                    try journal.confirmSaved(id: id, attemptID: attempt, confirmedAt: confirmation)
+                }.value
                 job?.record = record
+            }
+            encoded = encoded.confirming(at: job?.record?.confirmedAt ?? confirmation)
+            job?.encoded = encoded
+            latest = encoded
+            if let latestReviewStore {
+                try await Task.detached { [encoded] in try latestReviewStore.save(encoded) }.value
+            }
+            if let journal {
                 try await Task.detached { try journal.finishSaved(id: id) }.value
             }
-            guard let encoded = job?.encoded else { throw CaptureJournal.Failure.damaged }
             latest = encoded; job = nil; phase = .idle; progress = 1; task = nil
-            notice = "Saved HDR · \(encoded.width) × \(encoded.height)"
+            notice = String(localized: "Saved HDR · \(encoded.width) × \(encoded.height)")
         } catch is CancellationError {
             processingControl = nil; pause(id: id)
             if foreground { retryPaused() }
@@ -484,6 +477,13 @@ public final class CaptureWorkflow: ObservableObject {
                 }
                 let record = retained.record
                 if record.stage == .savedConfirmed {
+                    if let latestReviewStore {
+                        let reload = services.reload ?? Services.reloadCapture
+                        let capture = try await reload(journal.encodedURL, record.snapshot, control)
+                            .confirming(at: record.confirmedAt ?? record.createdAt)
+                        try await Task.detached { try latestReviewStore.save(capture) }.value
+                        latest = capture
+                    }
                     try await Task.detached { try journal.finishSaved(id: record.id) }.value
                     restored = true; phase = .idle; task = nil; processingControl = nil; return
                 }
@@ -521,14 +521,16 @@ public final class CaptureWorkflow: ObservableObject {
     }
     private func fail(_ error: Error, id: UUID) {
         guard job?.id == id else { return }
+        Logger(subsystem: "dev.glasscam.prototype", category: "Capture")
+            .error("Photo \(id, privacy: .public): \(error.localizedDescription, privacy: .public)")
         phase = .failed; task = nil
         failureMessage = job?.photosConfirmed == true
-            ? "Saved to Photos. Retry to finish the recovery record: \(error.localizedDescription)"
+            ? String(localized: "Saved to Photos. Tap Retry to finish keeping the review copy and recovery record.")
             : error.localizedDescription
     }
 }
 
 private enum CaptureWorkflowFailure: LocalizedError {
     case inactiveCamera
-    var errorDescription: String? { "Return to the camera and take the photo again." }
+    var errorDescription: String? { String(localized: "Return to the camera and take the photo again.") }
 }

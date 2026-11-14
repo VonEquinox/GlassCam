@@ -157,6 +157,25 @@ func retainedBayer_reloadKeepsModeAndOriginalFrames(quality: CaptureQuality) thr
 
 private enum InterruptedStaging: CaseIterable { case incomplete, malformed, missingIntent, multiple }
 
+@Test func discardingOneSlot_keepsOtherSlotsInterruptedBayerBytes() throws {
+    let work = try TestDirectory(), staging = work.url.appendingPathComponent("staging")
+    let formats = CaptureFormats([F5CaptureFormat(stagingRoot: staging)])
+    let snapshot = CaptureSnapshot(recipe: .standard, output: .camera24())
+    let first = try F5BurstTransaction(snapshot: snapshot.forSlot(.first), purpose: "product",
+        root: staging.appendingPathComponent(CaptureSlot.first.directoryName))
+    let second = try F5BurstTransaction(snapshot: snapshot.forSlot(.second), purpose: "product",
+        root: staging.appendingPathComponent(CaptureSlot.second.directoryName))
+    let kept = second.directory.appendingPathComponent("intent.json")
+    let bytes = try Data(contentsOf: kept)
+    let firstJournal = CaptureJournal(directory: work.url.appendingPathComponent("first"),
+        formats: formats.forSlot(.first), recoverStagedCaptures: true)
+
+    try firstJournal.discard()
+
+    #expect(!FileManager.default.fileExists(atPath: first.directory.path))
+    #expect(try Data(contentsOf: kept) == bytes)
+}
+
 @Test(arguments: InterruptedStaging.allCases)
 private func unrecoverableStaging_explicitDiscardRemovesIt(kind: InterruptedStaging) throws {
     let work = try TestDirectory()

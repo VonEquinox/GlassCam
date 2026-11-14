@@ -22,6 +22,10 @@ final class CameraBackend: CameraBackendServing {
         let centerPreviewEncoding: String
         let zoomRange: CameraZoomRange
         let framing: CaptureFraming
+        var metering: CameraMetering = .automatic
+        var meteringAdjusting = false
+        var nativeMainZoom = 1.0
+        var exposureBiasRange: ClosedRange<Float> = -2...2
     }
     struct CaptureOutcome {
         let result: Result<CapturedBayerRAW, Error>
@@ -47,16 +51,20 @@ final class CameraBackend: CameraBackendServing {
         var capability: PhotoCapability
         var restoresPreviewGraph = false
         let orientation: UIInterfaceOrientation
+        let previewOrientation: UIInterfaceOrientation
+        let metering: CameraMetering
         let quality: CaptureQuality
         let lifetime: CameraLifetime
         let progress: (CameraController.CapturePhase, String) -> Void
         var completion: ((CaptureOutcome) -> Void)?
         var result: Result<CapturedBayerRAW, Error>?
         init(configuration: PreviewConfiguration, capability: PhotoCapability, orientation: UIInterfaceOrientation,
+             previewOrientation: UIInterfaceOrientation, metering: CameraMetering,
              lifetime: CameraLifetime, quality: CaptureQuality,
              progress: @escaping (CameraController.CapturePhase, String) -> Void,
              completion: @escaping (CaptureOutcome) -> Void) {
             self.configuration = configuration; self.capability = capability; self.orientation = orientation
+            self.previewOrientation = previewOrientation; self.metering = metering
             self.lifetime = lifetime; self.progress = progress; self.completion = completion
             self.quality = quality
         }
@@ -72,6 +80,9 @@ final class CameraBackend: CameraBackendServing {
     var dimensions = CMVideoDimensions(width: 0, height: 0)
     var orientation: AVCaptureVideoOrientation = .portrait
     var interfaceOrientation: UIInterfaceOrientation = .portrait
+    var metering = CameraMetering.automatic
+    var lockedMetering: CameraMeteringLock?
+    var meteringChangedAt = DispatchTime.now()
     private var observations: [NSKeyValueObservation] = []
     private var notifications: [NSObjectProtocol] = []
     var f5Capture: F5CaptureDriver?
@@ -98,7 +109,7 @@ final class CameraBackend: CameraBackendServing {
     }
     var tripleCamera: AVCaptureDevice?
     var lensCatalog: [NativeLens] = []
-    private var stateChanged: ((Bundle) -> Void)?
+    var stateChanged: ((Bundle) -> Void)?
 
     func configure(mode: CameraController.Mode, centerPreviewLongEdge: Int,
                    orientation: UIInterfaceOrientation, lifetime: CameraLifetime,
@@ -112,7 +123,8 @@ final class CameraBackend: CameraBackendServing {
         failed = false; phase = .configuring; failureHandler = failure
         self.stateChanged = stateChanged
         discoverLensCatalog()
-        let plan = PreviewConfiguration(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, displayedZoom: displayedZoom)
+        let mainZoom = lensCatalog.first { $0.device.deviceType == .builtInWideAngleCamera }?.displayedZoom ?? displayedZoom
+        let plan = PreviewConfiguration(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, displayedZoom: mainZoom)
         configuration = plan
         var photo = try buildSinglePhotoGraph(configuration: plan, orientation: orientation, expected: nil, includePreview: true)
         capability = photo; dimensions = photo.dimensions
@@ -136,7 +148,8 @@ final class CameraBackend: CameraBackendServing {
         for device in devices {
             let level = device.systemPressureState.level
             if level == .serious || level == .critical || level == .shutdown {
-                throw CameraFailure("Camera unavailable due to system pressure. Let the device cool, then retry. Capture quality was not reduced.")
+                throw CameraFailure("Device system pressure exceeded the capture budget.",
+                    userMessage: String(localized: "The camera is too hot. Let it cool, then try again."))
             }
         }
     }
@@ -149,13 +162,15 @@ final class CameraBackend: CameraBackendServing {
         let encodings = previewPixelFormats.map(Self.previewEncoding).joined(separator: ", ")
         Self.logger.info("Preview ready after matching frames: \(encodings, privacy: .public)")
     }
-    func failSession(_ message: String, stopRunning: Bool = false) {
+    func failSession(_ message: String, stopRunning: Bool = false,
+                     userMessage: String = String(localized: "The camera was interrupted. Tap Retry camera.")) {
         dispatchPrecondition(condition: .onQueue(queue))
         PeripheralDiagnostics.trace("session failure: \(message) phase=\(phase)")
         failed = true; phase = .failed
         frameDeliveries.forEach { $0.freeze() }
         if stopRunning { session?.stopRunning() }
-        failureHandler?(message)
+        Self.logger.error("\(message, privacy: .public)")
+        failureHandler?(userMessage)
         if let request = currentRequest {
             let result = request.result ?? f5Capture?.cancel().map(Self.burstPhoto) ?? .failure(CameraFailure(message))
             // Preserve only a successfully committed terminal photo result, even
@@ -200,7 +215,8 @@ final class CameraBackend: CameraBackendServing {
                         multiCam: observed is AVCaptureMultiCamSession) == .rebuildCenterOnly {
                         self.recoverPreview(reason: "system-pressure",centralOnly: true)
                     } else if level == .critical || level == .shutdown || level == .serious {
-                        self.failSession("Camera stopped due to system pressure. Let the device cool, then select the lens again. Capture quality was not reduced.", stopRunning: true)
+                        self.failSession("Camera system pressure: \(level.rawValue)", stopRunning: true,
+                            userMessage: String(localized: "The camera is too hot. Let it cool, then try again."))
                     }
                 }
             }
@@ -212,6 +228,23 @@ final class CameraBackend: CameraBackendServing {
                     self.stateChanged?(bundle)
                 }
             })
+        }
+        if let device = meteringDevice {
+            notifications.append(center.addObserver(forName: AVCaptureDevice.subjectAreaDidChangeNotification,
+                                                     object: device, queue: nil) { [weak self, weak observed] _ in
+                self?.queue.async { [weak self, weak observed] in
+                    guard let self, let observed, self.session === observed else { return }
+                    self.resumeContinuousMetering()
+                }
+            })
+            for keyPath in [\AVCaptureDevice.isAdjustingFocus, \AVCaptureDevice.isAdjustingExposure] {
+                observations.append(device.observe(keyPath, options: [.new]) { [weak self, weak observed] _, _ in
+                    self?.queue.async { [weak self, weak observed] in
+                        guard let self, let observed, self.session === observed else { return }
+                        self.publishMetering()
+                    }
+                })
+            }
         }
     }
     /// At most two automatic recoveries in a 30-second window. A request that
@@ -270,9 +303,10 @@ final class CameraBackend: CameraBackendServing {
         let result = request?.result ?? f5Capture?.cancel().map(Self.burstPhoto) ?? .failure(CameraFailure("Camera capture cancelled."))
         tearDownGraph(preservingPreview: false)
         frozenDeliveries.forEach { $0.invalidate() }; frozenDeliveries.removeAll()
-        if let request { finishRequest(request, result: result, bundle: nil, previewReady: false, message: "Camera stopped.") }
+        if let request { finishRequest(request, result: result, bundle: nil, previewReady: false, message: String(localized: "Camera stopped")) }
         f5Capture = nil; configuration = nil; capability = nil; lifetime = nil
         dimensions = CMVideoDimensions(width: 0, height: 0); failureHandler = nil
         stateChanged = nil; tripleCamera = nil; lensCatalog = []; nativePhotoHints.removeAll()
+        metering = .automatic; lockedMetering = nil
     }
 }

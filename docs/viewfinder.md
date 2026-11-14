@@ -8,7 +8,7 @@
 
 `CameraFraming` 按相机照片宽高比，在完整窗口中求最大的居中等比矩形；安全区、控件数量和动态字号都不参与照片区计算。几何尚不可用时，竖向窗口采用 3:4，横向窗口采用 4:3。上、下、左、右四块互不重叠的矩形构成窗口扣除照片区后的外围，面积为零的块被省略。
 
-`CameraChromeLayout` 使用外围与安全区的交集，并根据实际剩余空间选择上下布局、左右布局或紧凑布局。空间不足或使用辅助功能字号时，控制项进入独立操作面板；面板关闭后可点按取景画面重新打开。首次自动展示面板要等待相机几何可用，并避开设置、回看和拍摄状态。
+外层布局先读取系统安全区，内层取景才延伸到完整窗口。`CameraChromeLayout` 使用外围与安全区的交集，选择上下、左右或紧凑布局；竖屏拨盘占高 72pt，快门随外围剩余空间调整。空间不足或使用辅助功能字号时，控制项进入独立面板；关闭后可点按取景重新打开。首次自动展示须等几何可用，并避开设置、回看和拍摄状态。
 
 相机不可用时，照片区内的状态提示和恢复操作按纵向顺序排列；大字号或横向窗口容纳不下时可滚动查看。
 
@@ -18,11 +18,19 @@
 
 有配对取景来源时，`PeripheralGlassView` 在同一次 Metal 提交中呈现中心与外围；单路系统取景仍保留作回退。外围缺帧不阻塞中心帧交付，玻璃和外围遮暗限定在照片区外。独立外围取景按能力尝试 60、30、15 Hz；单摄格式支持时使用 60 Hz，否则保留系统默认帧率。
 
+### 对焦、测光与快门反馈
+
+普通布局轻点照片区设置焦点与测光点；独立面板布局的轻点用于重开控制面板，长按仍可锁定。长按 0.5 秒请求 AE/AF 锁定，双击或点按 AE/AF 标记恢复连续测光并保留相机曝光补偿。对焦环按调整状态收敛，太阳滑杆以 0.1 EV 步进调节，范围为硬件与 `−2…+2 EV` 的交集。显示点按方向映射到 Home 键右侧横屏的传感器坐标，转屏保留同一传感器目标。
+
+屏幕与 `.onCameraCaptureEvent` 的 `.ended` 事件共用快门入口。模态页、相机未就绪或队列不能采集时关闭硬件事件接管。预约成功触发轻触觉；真正曝光完成触发刚性触觉，Speed 做 80ms 微暗开合，Balanced 的持稳高光随曝光结束收起；异常触发警示触觉。
+
+UI 布局遵循系统界面方向，照片采用预约时冻结的重力方向，支持竖屏锁定下横拍。测光继承、重力迟滞和两槽准入规则见[拍摄与恢复](capture-and-recovery.md)。
+
 ### 实验实时色彩
 
 `experimentalLiveColor` 默认关闭。打开后，仅中心取景使用近似的逐点色彩映射，拍摄服务和最终导出继续按完整处理配方处理源照片。
 
-`LiveColorRecipe` 放行的组合为 FFCS、XH2S 表族、PROVIA 或 ACROS、曝光 0 EV、关闭参考调整、锐化半径 1，且所选原生资源必须可用。不支持的处理配方会立即撤销旧立方体的呈现，继续显示系统取景并给出原因。
+`LiveColorRecipe` 放行的组合为 FFCS、XH2S 表族、PROVIA 或 ACROS、曝光 0 EV、关闭参考调整、锐化半径 1，且配方有效、所选原生资源可用。设置开关下即时显示当前准入结果和原因，光学滤镜拨盘仅为完整配方通过准入的风格点亮 `LIVE`。不支持的配方立即撤销旧效果，继续显示系统取景。
 
 `LiveColorCubeStore` 从原生 `ffcs_process_linear_rgb_color_only` 生成 65³ 色彩立方体：
 
@@ -58,7 +66,11 @@
 
 ### 浮点成片回看
 
-`PreviewRaster` 拥有不可变的 Float32 线性 sRGB RGBA 数据，记录尺寸与 HDR headroom，只接收有限像素值。相机页缩略图常驻轻量浮点预览，进入 `CaptureReview` 时按需异步解码高清浮点大图；两者均通过 `PrecisionPreview` 显示，回看支持缩放、平移和分享成片文件。
+`PreviewRaster` 直接拥有不可变的 Float32 线性 sRGB RGBA 数据，C++／NEON 扫描校验有限值并统计 RGB headroom，alpha 不参与峰值。相机缩略图长边上限 384px；进入 `CaptureReview` 后按需异步解码至 4096px，以 0.15 秒淡入替换。两者均通过 `PrecisionPreview` 显示，回看支持 1×–5× 缩放与边界内平移。
+
+回看使用暗调玻璃背景、悬浮关闭／分享控件与底部拍摄铭文，从缩略图缩放展开。1× 时下拉关闭，放大时拖动平移；双击在 1×／2× 间切换。铭文显示引擎、风格、Speed／Balanced、RAW 帧数，以及可用的焦距、光圈、快门与 ISO；展开查看像素、白平衡和来源分辨率。高清解码失败提供重试入口。
+
+最近确认成片通过 `LatestReviewStore` 跨启动恢复；缓存格式、确认时间排序和文件所有权见[拍摄与恢复](capture-and-recovery.md)。用户错误使用简短本地化文案，底层相机、色彩及恢复诊断写入日志。
 
 `PrecisionPreview` 使用 Float 工作格式，在扩展线性 BT.2020 中合成，输出 `.rgba16Float` drawable。`PreviewDisplay` 根据当前可见图像设置显示层的 headroom；屏幕适配由 Core Animation 完成，源浮点像素保持原值。渲染目标通过 `PreviewRendering` 对齐 Metal 顶部首行，源位图不重复施加方向变换。Metal 初始化或渲染失败时，界面显示错误；组件内部保留的 `comparisonFraction` 双图分割合成仅服务于测试，回看页只展示成片。显示期间的像素所有者和渲染任务保留至 GPU 完成。
 
@@ -86,6 +98,12 @@
 20. 显示 headroom 由当前可见输入决定，更换照片时同步更新显示层范围。— `ImagingCoreTests/PreviewDisplayTests.comparisonHeadroom_usesOnlyVisibleInputs`、`replacingHDRPhoto_updatesLayerRangeAndToneMapping`
 21. 对照比例合成既有浮点图像，尺寸不一致的结果不会扭曲源图。— `GlassCamTests/PrecisionPreviewTests.comparisonFraction_compositesExistingFloatRasters`、`mismatchedResult_keepsUndistortedSource`
 22. 相机不可用且使用辅助功能字号时，操作面板可打开、关闭后再打开。— `GlassCamUITests/CaptureWorkflowUITests.testCompactControlsCanReopenAfterDismissalOnSimulator`
+23. 竖屏安全区保留可操作的外围滤镜拨盘，引擎可切换并关闭。— `GlassCamTests/CameraControlsTests.portraitSafeArea_keepsFilterDialInThePeriphery`、`GlassCamUITests/CaptureWorkflowUITests.testPortraitFilterDialCanSwitchEngineAndCloseOnSimulator`
+24. 显示方向变化保持同一传感器焦点，曝光偏置不越过硬件与界面范围。— `GlassCamTests/CameraMeteringTests.displayedPoint_mapsToNativeSensorAxes`、`rotatingDisplay_keepsTargetAtTheSameSensorPoint`、`exposureBias_respectsCameraAndUserBounds`
+25. 平放、对角和异常加速度不改变物理方向，稳定方向需要连续样本。— `GlassCamTests/CameraGravityTests.stableGravity_selectsPhysicalOrientation`、`flatDiagonalOrUnreliableMotion_preservesOrientation`、`interruptedCandidate_doesNotRotateOnTwoTransientSamples`
+26. 回看仅在未放大且向下拖动时关闭，平移范围依据实际图像而非留黑区域。— `GlassCamTests/CaptureReviewTests.onlyDownwardUnzoomedDrag_dismisses`、`landscapePhotoInPortrait_limitsPanToScaledImageInsteadOfLetterbox`
+27. 回看像素直接持有原数据、排除 alpha 峰值，并拒绝非有限分量。— `ImagingCoreTests/PreviewDisplayTests.dataBackedPreview_ownsItsPixelsAndExcludesAlphaFromHeadroom`、`nonfiniteComponent_rejectsDataBackedPreview`
+28. 拍摄铭文保留有效 EXIF 参数，省略无效数值。— `CaptureTests/PhotoCaptureInfoTests.deliveredEXIF_preservesPhysicalCaptureSettings`、`invalidCaptureValues_areOmitted`
 
 ## 数据与版本
 
@@ -109,6 +127,7 @@
 ## 代码入口
 
 - [CameraView](../App/GlassCam/UI/CameraView.swift)、[CameraChromeLayout](../App/GlassCam/UI/CameraChromeLayout.swift)、[PhotoFrameGuide](../App/GlassCam/UI/PhotoFrameGuide.swift)：界面组成、控制区选择与网格。
+- [CameraFocusControl](../App/GlassCam/UI/CameraFocusControl.swift)、[CameraMetering](../App/GlassCam/Camera/CameraMetering.swift)、[CameraMotion](../App/GlassCam/Camera/CameraMotion.swift)：焦点手势、EV、触觉及物理方向。
 - [CameraFraming](../Packages/GlassCamKit/Sources/Peripheral/CameraFraming.swift)：照片区、源图与外围几何。
 - [CameraFrameDelivery](../App/GlassCam/Camera/CameraFrameDelivery.swift)、[CameraBackend+Orientation](../App/GlassCam/Camera/CameraBackend+Orientation.swift)：有效帧交付、冻结和方向代次。
 - [LiveCameraFrame](../Packages/GlassCamKit/Sources/Peripheral/LiveCameraFrame.swift)：保留原始帧元数据与单槽来源。
@@ -116,6 +135,7 @@
 - [LiveSourceValidation](../App/GlassCam/Camera/LiveSourceValidation.swift)、[LiveColorProxy](../App/GlassCam/Camera/LiveColorProxy.swift)：源校验、单路呈现、时龄与 GPU 生命周期。
 - [PairedLiveColorProcessor](../App/GlassCam/Camera/PairedLiveColorProcessor.swift)、[PeripheralGlassView](../App/GlassCam/UI/PeripheralGlassView.swift)：配对帧中心色彩与统一呈现。
 - [PreviewRaster](../Packages/GlassCamKit/Sources/ImagingCore/Processing/PreviewRaster.swift)、[PrecisionPreview](../App/GlassCam/UI/PrecisionPreview.swift)、[CaptureReview](../App/GlassCam/UI/CaptureReview.swift)：浮点所有权、HDR 显示、对照合成与回看。
+- [SavedCapture](../Packages/GlassCamKit/Sources/Capture/SavedCapture.swift)、[CaptureReviewGeometry](../App/GlassCam/UI/CaptureReviewGeometry.swift)：按需高清解码、拍摄参数及回看手势几何。
 - [CameraSettingsStore](../Packages/GlassCamKit/Sources/Capture/CameraSettingsStore.swift)：取景偏好与兼容读取。
 - [取景边界测试](../App/GlassCamTests/LiveColorTests.swift)、[控制区测试](../App/GlassCamTests/DeliveryAndControlsTests.swift)、[浮点合成测试](../App/GlassCamTests/PrecisionPreviewTests.swift)：App 层显示行为。
 - [几何测试](../Packages/GlassCamKit/Tests/PeripheralTests/CameraFramingTests.swift)、[邮箱测试](../Packages/GlassCamKit/Tests/PeripheralTests/MailboxTests.swift)、[显示范围测试](../Packages/GlassCamKit/Tests/ImagingCoreTests/PreviewDisplayTests.swift)：Package 层显示约定。

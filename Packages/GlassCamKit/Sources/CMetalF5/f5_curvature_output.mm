@@ -112,8 +112,18 @@ struct gc_f5_curve_output {
                 1, "Invalid curvature output descriptors.");
         struct stat status{};
         if (fstat(source, &status) != 0) throw OutputFailure{5, "Cannot inspect curvature source raster.", errno};
+        struct stat linearStatus{}, cameraStatus{};
+        if (fstat(linearFD, &linearStatus) != 0 ||
+            (cameraFD >= 0 && fstat(cameraFD, &cameraStatus) != 0))
+            throw OutputFailure{5, "Cannot inspect curvature output raster.", errno};
+        const auto sameFile = [](const struct stat &a, const struct stat &b) {
+            return a.st_dev == b.st_dev && a.st_ino == b.st_ino;
+        };
+        require(!sameFile(status, linearStatus) &&
+                (cameraFD < 0 || (!sameFile(status, cameraStatus) && !sameFile(cameraStatus, linearStatus))),
+                1, "Curvature source and output files must be distinct.");
         const size_t requiredBytes = size_t(config.width) * config.height * config.scale * config.scale * 16;
-        require(status.st_size >= off_t(requiredBytes),
+        require(S_ISREG(status.st_mode) && status.st_size >= off_t(requiredBytes),
                 1, "Curvature source raster has incorrect dimensions.");
         MappedSource mapped(source, requiredBytes);
         const auto cancelled = [&] { if (callbacks && callbacks->cancelled && callbacks->cancelled(callbacks->context)) throw OutputFailure{4, "Curvature color output cancelled."}; };

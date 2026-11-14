@@ -68,10 +68,10 @@ extension CameraBackend {
 
     private static func lensTitle(_ type: AVCaptureDevice.DeviceType) -> String {
         switch type {
-        case .builtInUltraWideCamera: return "Ultra Wide"
-        case .builtInWideAngleCamera: return "Main"
-        case .builtInTelephotoCamera: return "Telephoto"
-        default: return "Automatic camera"
+        case .builtInUltraWideCamera: return String(localized: "Ultra Wide")
+        case .builtInWideAngleCamera: return String(localized: "Main")
+        case .builtInTelephotoCamera: return String(localized: "Telephoto")
+        default: return String(localized: "Automatic camera")
         }
     }
 

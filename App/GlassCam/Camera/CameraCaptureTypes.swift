@@ -10,11 +10,14 @@ import ImageIO
 
 struct CameraFailure: LocalizedError {
     let message: String
+    let userMessage: String
     let allowsPhysicalFallback: Bool
-    init(_ message: String, allowsPhysicalFallback: Bool = false) {
+    init(_ message: String, userMessage: String? = nil, allowsPhysicalFallback: Bool = false) {
         self.message = message; self.allowsPhysicalFallback = allowsPhysicalFallback
+        self.userMessage = userMessage ?? String(localized: "The camera is unavailable. Tap Retry camera.")
+        CameraBackend.logger.notice("\(message, privacy: .public)")
     }
-    var errorDescription: String? { message }
+    var errorDescription: String? { userMessage }
 }
 
 struct CameraAccess {
@@ -34,7 +37,8 @@ protocol CameraBackendServing: AnyObject {
     func rotatePreview(_ value: UIInterfaceOrientation) throws
     func geometry() -> CameraController.CameraGeometry?
     func setZoom(_ displayedZoom: Double) throws -> CameraBackend.Bundle
-    func capture(quality: CaptureQuality, snapshot: CaptureSnapshot?, f5Purpose: String,
+    func setMetering(_ requested: CameraMetering) throws -> CameraMetering
+    func capture(quality: CaptureQuality, snapshot: CaptureSnapshot?, f5Purpose: String, orientation: UIInterfaceOrientation,
                  progress: @escaping (CameraController.CapturePhase, String) -> Void,
                  completion: @escaping (CameraBackend.CaptureOutcome) -> Void)
 }

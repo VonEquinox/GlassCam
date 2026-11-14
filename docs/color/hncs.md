@@ -4,7 +4,11 @@ HNCS 将已解码的源照片转换为所选 Hasselblad 工作空间中的颜色
 
 ## 工作方式
 
-### 照片白平衡与预设白平衡
+### 输入前提
+
+输入为已经完成源白平衡和基准曝光的扩展线性 sRGB，允许有限负值与大于 1 的高光。公共管线先施加用户效果曝光。revision 12 分离 HDR 幅度后进入有界虚拟传感器与 UInt16 颜色核，再在 HNCS 工作域恢复幅度后执行空间效果；输出原色转换保留有符号的扩展线性 sRGB。
+
+### 白平衡与 ISO
 
 源白平衡在 HNCS 之前完成：Speed／Balanced 由 F5 相机矩阵处理，导入 RAW 由 Apple 解码器处理。`PhotoWhiteBalance` 保存本张照片的完整 xy 白点及其温度、Tint 信息；HNCS 用 xy 构造虚拟 X2D 拍摄增益基线，色温只用于工厂矩阵与 LUT 的选择。处理配方绑定白点后，重试和导出沿用该值。
 
@@ -16,6 +20,8 @@ HNCS 将已解码的源照片转换为所选 Hasselblad 工作空间中的颜色
 | `preset`（Original preset） | 使用预设的固定目标增益；预设没有固定值时保留拍摄增益 | 预设色温；没有固定值时使用照片 CCT |
 
 `factoryKelvinOverride` 只覆盖工厂矩阵与 LUT 的插值色温，范围为 2000–10000 K。捕获白点、目标增益和工厂色温分别保存；适配器使用目标相对于拍摄基线的调整，避免对已白平衡的 RGB 再施加整份目标增益。没有照片白点的旧参考调用使用保留的 CCT 入口。
+
+源 ISO 保留在拍摄元数据中，不参与 HNCS 颜色选表；RAW 噪声与传感器处理属于上游 F5 或系统解码器。
 
 Nature 的原始白平衡为 5500 K 和 Phocus Tint `−0.003333333333333333`，主曲线控制点为 `(0,0)、(71,31)、(184,223)、(255,255)`。选择 `photo` 保留这条明暗曲线及其他参数，只让白平衡跟随照片；这也适用于 Daylight、Cloudy 等带固定白平衡的预设。Apple Tint 与 Phocus Tint 使用不同单位，完整 xy 保留绿／洋红方向的信息。
 
@@ -74,6 +80,10 @@ S = max(5.8829245141, maximum)      maximum > 1
 
 上下文缓存身份包含曝光、捕获色温、完整白点、全部 HNCS 设置、效果开关与 `workScale`。缓存替换后，正在执行的调用仍持有原上下文；成片回看和完整源导出传入同一冻结配方。
 
+### 实时颜色代理
+
+HNCS 不在 `experimentalLiveColor` 的 65³ 立方体准入表内，取景显示系统颜色；设置开关处显示原因，光学滤镜拨盘不为 HNCS 点亮 `LIVE`。
+
 ## 不变量
 
 1. 新建 HNCS 使用 `standard`、`asShot`、`rawFilmCurveType = 2` 和空工厂色温覆盖。— `ImagingCoreTests/RecipeTests.newHNCS_defaultsUseStandardAsShotAndNativeFilmCurve`
@@ -89,6 +99,7 @@ S = max(5.8829245141, maximum)      maximum > 1
 11. 配方变化区分缓存身份，替换缓存不使既有原生上下文失效。— `ImagingCoreTests/ContextCacheTests.hncsChangedRequest_keepsAllRequestedSettings`、`replacedHNCSEntry_keepsInFlightNativeOwnerUsable`
 12. 旧照片保留预设白平衡和选择，未来拍摄的相机偏好独立迁移。— `CaptureTests/RecipeMigrationTests.oldPhoto_keepsPresetWhiteBalanceAndSelections`、`oldCameraPreferences_adoptPhotoWhiteBalanceIndependently`
 13. 完整源空间导出和整图处理得到相同成片，分条大小不改变工作文件的空间处理结果。— `ImagingCoreTests/ColorChainTests.spatialStripExport_matchesWholeImageAndDirectBytes`、`ImagePipelineTests.spatialWorkFile_matchesNativeMemoryPath`
+14. 不允许重叠的 RGB／RGBA 及字节入口在分派和写入前拒绝完整范围重叠。— `tests/numeric/test_native_buffer_contracts.py::test_hncs_overlapping_float_ranges_fail_without_writes`、`tests/numeric/test_native_buffer_contracts.py::test_hncs_overlapping_byte_output_fails_without_writes`
 
 ## 数据与版本
 
@@ -100,7 +111,7 @@ HNCS 的 `renderRevision` 与共享 `pipelineRevision`、上游资产版本分�
 
 选取的上游交付固定为 colour revision 2、render revision 8；来源、提交和校验清单见 [HNCS 来源](../../vendor/hncs/ORIGIN.md)。参考源码、原始矩阵、色度 LUT、ICC、预设 JSON、曲线表及固定数值样本保留在 [vendor/hncs](../../vendor/hncs/)，构建使用 `CHNCS/generated/` 中的静态资产。预设 catalog 保存原厂 XML 对应的参数和别名，界面只展示 Standard 或具有实际效果的条目；原版六张 UInt16 曲线表保留 65536 项精度。
 
-应用照片路径使用颜色／空间／后置颜色分段 C ABI；同时保留便携 revision-8 逐点／空间接口，以及面向原生 X2D 数据的 `hncs_clone_with_native_gain`、`hncs_render_x2d_hdr_*` 和 `hncs_apply_x2d_hdr_gradation` 供数值基线验证。数值测试读取 [HNCS 冻结夹具](../../tests/fixtures/hncs/README.md) 中由 Phocus 4.2.2 产生的固定向量；C++ 内核保持 `-fno-fast-math -ffp-contract=off`。
+应用照片路径使用颜色／空间／后置颜色分段 C ABI；同时保留便携 revision-8 逐点／空间接口，以及面向原生 X2D 数据的 `hncs_clone_with_native_gain`、`hncs_render_x2d_hdr_*` 和 `hncs_apply_x2d_hdr_gradation` 供数值基线验证。数值测试读取 [HNCS 冻结夹具](../../tests/fixtures/hncs/README.md) 中由 Phocus 4.2.2 产生的固定向量；C++ 内核保持 `-fno-fast-math -ffp-contract=off`。缓冲别名按各入口头文件约定，明确支持精确原位的 HDR 后处理继续支持；其余入口在写入前检查全范围。修改等级见 [ADR 0017](../adr/0017-native-and-metal-contracts.md)。
 
 ## 已知限制
 
@@ -110,7 +121,6 @@ HNCS 的 `renderRevision` 与共享 `pipelineRevision`、上游资产版本分�
 - X2D 专用 HDR 接口要求原生准备输入，Apple 照片路径未接入完整 X2D RAW 校准、降噪、去马赛克、高光重建及原厂 HDR limit／ICC 链。
 - 任意自定义 HDR 曲线、局部图层、选择性颜色与 vibrance 不在现有工厂预设实现范围内。
 - revision 12 即使关闭空间效果也需要完整工作文件，临时存储需求随源图尺寸增长。
-- HNCS 没有开放带照片白点的实时色彩代理，拍摄时显示系统取景画面。
 
 ## 代码入口
 

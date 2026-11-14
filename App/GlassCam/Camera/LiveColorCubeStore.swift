@@ -4,6 +4,7 @@ import F5
 import Peripheral
 import CHNCS
 import CFFCS
+import CMetalImage
 import Foundation
 import AVFoundation
 import CoreImage
@@ -125,13 +126,12 @@ final class LiveColorCubeStore {
         let nodes = (0..<n).map(inverseSRGB)
         for blue in 0..<n {
             guard isCurrent(ticket) else { throw LiveProxyFailure.cancelled }
-            // CIColorCube layout: R varies fastest, then G, then B.
-            for green in 0..<n {
-                for red in 0..<n {
-                    let p = (green * n + red) * 3
-                    input[p] = nodes[red]; input[p + 1] = nodes[green]; input[p + 2] = nodes[blue]
+            let prepared = nodes.withUnsafeBufferPointer { values in
+                input.withUnsafeMutableBufferPointer {
+                    gc_float_cube_rgb_slab(values.baseAddress, n, blue, $0.baseAddress)
                 }
             }
+            guard prepared == 1 else { throw LiveProxyFailure.unavailable("Live-color cube input is invalid.") }
             let success = input.withUnsafeBufferPointer { source in
                 rgba.withUnsafeMutableBufferPointer { output in
                     let destination = output.baseAddress!.advanced(by: blue * slabPixels * 4)
@@ -144,8 +144,7 @@ final class LiveColorCubeStore {
             guard success else { throw LiveProxyFailure.unavailable("Live-color core failed: \(String(cString: message))") }
         }
         guard isCurrent(ticket) else { throw LiveProxyFailure.cancelled }
-        guard rgba.allSatisfy({ $0.isFinite && (0...1).contains($0) }),
-              stride(from: 3, to: rgba.count, by: 4).allSatisfy({ rgba[$0] == 1 }) else {
+        guard rgba.withUnsafeBufferPointer({ gc_float_unit_rgba_valid($0.baseAddress, $0.count / 4) }) == 1 else {
             throw LiveProxyFailure.unavailable("Live-color cube violates its display-linear RGBA contract.")
         }
         return LiveColorCube(recipe: recipe, rgbaFloat32Data: rgba.withUnsafeBytes { Data($0) })

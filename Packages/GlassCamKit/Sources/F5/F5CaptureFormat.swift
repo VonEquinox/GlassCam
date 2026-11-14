@@ -12,6 +12,10 @@ public struct F5CaptureFormat: CaptureFormat {
     public init(stagingRoot: URL? = nil, archiveRoot: URL? = nil) {
         self.stagingRoot = stagingRoot; self.archiveRoot = archiveRoot
     }
+    public func forSlot(_ slot: CaptureSlot) -> any CaptureFormat {
+        F5CaptureFormat(stagingRoot: (stagingRoot ?? F5BurstTransaction.stagingRoot)
+            .appendingPathComponent(slot.directoryName, isDirectory: true), archiveRoot: archiveRoot)
+    }
 
     /// Recording stops at characterized RAW archival. No brand resources,
     /// HEIF encoder, review image or Photos transaction participate.

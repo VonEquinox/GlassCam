@@ -99,13 +99,10 @@ extension ImagePipeline {
                                    bounds: CGRect(x: 0, y: CGFloat(height - inputEnd), width: CGFloat(width), height: CGFloat(inputRows)),
                                    format: .RGBAf, colorSpace: linear)
                 }
-                var rgb = [Float](repeating: 0, count: width * inputRows * 3)
-                for pixel in 0..<(width * inputRows) {
-                    for channel in 0..<3 { rgb[pixel * 3 + channel] = decodedRGBA[pixel * 4 + channel] }
-                }
+                var rgb = try FloatRasterOperations.rgb(fromRGBA: decodedRGBA)
                 let inputGains: [Float]
                 if extendedWork {
-                    if recipe.appliesExposureBeforeHighlights { applyExposure(&rgb, exposureEV: recipe.exposureEV) }
+                    if recipe.appliesExposureBeforeHighlights { try applyExposure(&rgb, exposureEV: recipe.exposureEV) }
                     inputGains = []
                 } else {
                     inputGains = try normalizeHighlights(&rgb,
@@ -134,19 +131,15 @@ extension ImagePipeline {
                         inputOriginY: inputStart, inputRows: inputRows,
                         outputOriginY: start, outputRows: rows,
                         exposureEV: recipe.backendExposureEV, simulationIndex: recipe.simulationIndex, seed: recipe.seed, effects: recipe.effects, settings: recipe.ffcs)
-                    var expanded = [Float](repeating: 1, count: width * rows * 4)
-                    for pixel in 0..<(width * rows) {
-                        for channel in 0..<3 { expanded[pixel * 4 + channel] = rendered[pixel * 3 + channel] }
-                    }
-                    rgba = expanded
+                    rgba = try FloatRasterOperations.rgba(fromRGB: rendered)
                 case .lumix:
                     rgba = try LUMIXEngine.exportLinearRGBA(resources: resources, linearSRGB: rgb, width: width, height: rows,
                         exposureEV: recipe.backendExposureEV,
                         settings: recipe.lumix, illuminantKelvin: recipe.illuminantKelvin)
                 }
-                guard rgba.count == width * rows * 4,
-                      rgba.allSatisfy({ $0.isFinite && $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
-                outputHeadroom = max(outputHeadroom, restoreHighlights(&rgba, gains: gains))
+                guard rgba.count == width * rows * 4 else { throw PipelineError.rendering }
+                try FloatRasterOperations.validate(rgba, range: 0...1)
+                outputHeadroom = max(outputHeadroom, try restoreHighlights(&rgba, gains: gains))
                 try raster.append(rgba)
                 progress(0.1 + 0.75 * Double(start + rows) / Double(height))
             }
@@ -171,17 +164,19 @@ extension ImagePipeline {
                     let work = try spatialWork.readTopDownRows(originY: start, rows: rows)
                     var rgba = try HNCSEngine.finishPresetWork(work, width: width, height: rows,
                         exposureEV: recipe.backendExposureEV, captureKelvin: recipe.illuminantKelvin, settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance, workScale: workScale)
-                    guard rgba.count == width * rows * 4, rgba.allSatisfy({ $0.isFinite }) else { throw PipelineError.rendering }
+                    guard rgba.count == width * rows * 4 else { throw PipelineError.rendering }
+                    try FloatRasterOperations.validate(rgba)
                     if extendedWork {
                         // This is an upper bound in the source primaries. The
                         // destination-space clamp still owns the physical limit.
                         outputHeadroom = min(maximumHDRValue, max(outputHeadroom, rgba.max() ?? 1))
                     } else {
-                        guard let gainData, rgba.allSatisfy({ $0 >= 0 && $0 <= 1 }) else { throw PipelineError.rendering }
+                        guard let gainData else { throw PipelineError.rendering }
+                        try FloatRasterOperations.validate(rgba, range: 0...1)
                         let gains = gainData.withUnsafeBytes { bytes in
                             Array(bytes.bindMemory(to: Float.self)[(start * width)..<((start + rows) * width)])
                         }
-                        outputHeadroom = max(outputHeadroom, restoreHighlights(&rgba, gains: gains))
+                        outputHeadroom = max(outputHeadroom, try restoreHighlights(&rgba, gains: gains))
                     }
                     try raster.append(rgba)
                     progress(0.65 + 0.2 * Double(start + rows) / Double(height))

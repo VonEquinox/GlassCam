@@ -46,4 +46,25 @@ struct PreviewDisplayTests {
         PreviewDisplay.configure(CAMetalLayer(), headroom: PreviewDisplay.headroom(source: image, processed: nil, comparisonFraction: nil))
         #expect(ImagePipelineTests.pixels(image.image) == before)
     }
+
+    @Test func dataBackedPreview_ownsItsPixelsAndExcludesAlphaFromHeadroom() throws {
+        let pixels: [Float] = [-0.25, 2, 4, 8]
+        var data = pixels.withUnsafeBytes { Data($0) }
+        let image = try PreviewRaster(linearRGBAData: data, width: 1, height: 1)
+        let before = ImagePipelineTests.pixels(image.image)
+
+        data.resetBytes(in: 0..<data.count)
+
+        #expect(image.headroom == 4)
+        #expect(ImagePipelineTests.pixels(image.image) == before)
+    }
+
+    @Test(arguments: [0, 1, 2, 3])
+    func nonfiniteComponent_rejectsDataBackedPreview(channel: Int) {
+        var pixels: [Float] = [1, 2, 4, 1]
+        pixels[channel] = .nan
+        let data = pixels.withUnsafeBytes { Data($0) }
+
+        #expect(throws: PipelineError.self) { try PreviewRaster(linearRGBAData: data, width: 1, height: 1) }
+    }
 }

@@ -36,6 +36,8 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
     private let queue: DispatchQueue, camera: AVCaptureDevice, output: AVCapturePhotoOutput
     private let transaction: F5BurstTransaction
     private let snapshot: CaptureSnapshot?, purpose: String
+    private let metering: CameraMetering, lockedMetering: CameraMeteringLock?
+    private let exposureCompleted: () -> Void
     private let progress: (String) -> Void, framing: () -> CaptureFraming
     private let cancelled: () -> Bool
     private var completion: ((Result<F5BurstSource, Error>) -> Void)?
@@ -50,10 +52,13 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
     private var terminal: Result<F5BurstSource, Error>?
 
     init(queue: DispatchQueue, camera: AVCaptureDevice, output: AVCapturePhotoOutput,
-         snapshot: CaptureSnapshot?, purpose: String = "product", framing: @escaping () -> CaptureFraming,
+         snapshot: CaptureSnapshot?, purpose: String = "product", metering: CameraMetering,
+         lockedMetering: CameraMeteringLock?, framing: @escaping () -> CaptureFraming,
+         exposureCompleted: @escaping () -> Void,
          cancelled: @escaping () -> Bool, progress: @escaping (String) -> Void,
          completion: @escaping (Result<F5BurstSource, Error>) -> Void) throws {
         self.queue = queue; self.camera = camera; self.output = output; self.snapshot = snapshot; self.purpose = purpose
+        self.metering = metering; self.lockedMetering = lockedMetering; self.exposureCompleted = exposureCompleted
         self.framing = framing; self.cancelled = cancelled; self.progress = progress; self.completion = completion
         transaction = try F5BurstTransaction(snapshot: snapshot, purpose: purpose)
         super.init()
@@ -81,14 +86,37 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
                 }
                 guard profile != nil else { throw F5Failure(.unqualified, "Import the accepted iPhone 18 Pro Max main-camera profile before making F5 photographs. The sample recorder remains available.") }
             }
-            progress("Settling the main camera for Bayer RAW…")
+            progress(String(localized: "Focusing and metering. Hold steady…"))
             try camera.lockForConfiguration()
-            if camera.isExposureModeSupported(.continuousAutoExposure) {camera.exposureMode = .continuousAutoExposure}
-            if camera.isFocusModeSupported(.continuousAutoFocus) {camera.focusMode = .continuousAutoFocus}
             if camera.isWhiteBalanceModeSupported(.continuousAutoWhiteBalance) {camera.whiteBalanceMode = .continuousAutoWhiteBalance}
             camera.unlockForConfiguration()
             settleNotBefore = .now()+0.3;stableMeterSince=nil
-            waitForMeter(deadline: .now() + 8)
+            if let lockedMetering {
+                try lockedMetering.validate(on: camera)
+                try camera.lockForConfiguration()
+                camera.setFocusModeLocked(lensPosition: lockedMetering.lensPosition) { [weak self] _ in
+                    self?.queue.async { [weak self] in self?.restoreLockedExposure() }
+                }
+                camera.unlockForConfiguration()
+                queue.asyncAfter(deadline: .now() + 8) { [weak self] in
+                    guard let self, self.completion != nil, self.exposurePlan == nil else { return }
+                    self.finish(.failure(F5Failure(.motionUncertain, "The camera could not restore the exposure lock.")))
+                }
+            } else {
+                try metering.apply(to: camera)
+                waitForMeter(deadline: .now() + 8)
+            }
+        } catch { finish(.failure(error)) }
+    }
+    private func restoreLockedExposure() {
+        guard completion != nil, let lockedMetering else { return }
+        do {
+            try check()
+            try camera.lockForConfiguration()
+            camera.setExposureModeCustom(duration: lockedMetering.duration, iso: lockedMetering.iso) { [weak self] _ in
+                self?.queue.async { [weak self] in self?.waitForMeter(deadline: .now() + 8) }
+            }
+            camera.unlockForConfiguration()
         } catch { finish(.failure(error)) }
     }
     private func check() throws {
@@ -277,6 +305,7 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
             do {
                 try self.transaction.finishRequest(id, error: error); self.groupIndex += 1
                 if self.groupIndex == self.settings.count {
+                    self.exposureCompleted()
                     let source = try self.transaction.commit(hardware: F5DeviceFacts.hardware, osBuild: F5DeviceFacts.osBuild,
                         synthetic: false, flags: self.flags, profile: self.profile, framing: self.framing())
                     self.finish(.success(source))

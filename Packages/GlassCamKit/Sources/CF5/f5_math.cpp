@@ -196,6 +196,10 @@ Stencil stencil(int w, int h, int scale, double x, double y, int color) {
     if (w <= 0 || h <= 0 || scale <= 0 || color < 0 || color > 2 || !std::isfinite(x) || !std::isfinite(y)) throw std::runtime_error("Invalid spline descriptor");
     Stencil result;
     const double u = scale*x-0.5, v = scale*y-0.5;
+    const double first = double(std::numeric_limits<int>::min()) + 1;
+    const double last = double(std::numeric_limits<int>::max()) - 4;
+    if (!(u >= first && u <= last && v >= first && v <= last))
+        throw std::runtime_error("Spline coordinate exceeds the integer stencil domain");
     const int ix = int(std::floor(u))-1, iy = int(std::floor(v))-1;
     int j = 0;
     for (int yy = iy; yy < iy+4; ++yy) for (int xx = ix; xx < ix+4; ++xx, ++j) {

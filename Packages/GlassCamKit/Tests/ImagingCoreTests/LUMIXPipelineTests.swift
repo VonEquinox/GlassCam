@@ -108,10 +108,8 @@ private struct LUMIXFixture {
                 let directURL = directory.appendingPathComponent(style+"-direct.heic")
                 let directRecipe = try ImagePipeline.writeHEIF(resources: resources, sourceFile: input.sourceFile, recipe: recipe,
                     to: directURL, settings: .native)
-                let directPixels = pixels(CIImage(contentsOf: directURL, options: [.expandToHDR: true])!)
                 #expect(directRecipe == processed.recipe, "Skipping the preview changed the frozen LUMIX recipe: \(directRecipe) versus \(processed.recipe)")
-                let directError = zip(directPixels, actual).map { abs($0-$1) }.max() ?? 0
-                #expect(directError == 0, "Skipping the preview changed \(style) exported pixels: max \(directError)")
+                #expect(try Data(contentsOf: directURL) == Data(contentsOf: output))
     }
     @Test(arguments: ["standard", "l-monochrome"], [-2.0, -1.0, 1.0, 2.0])
     static func exposure_scalesSceneLinearHighlightsBeforeStripExport(style: String, ev: Double) throws {
@@ -133,9 +131,7 @@ private struct LUMIXFixture {
                 _ = try ImagePipeline.writeHEIF(resources: resources, sourceFile: retained, recipe: recipe, to: direct, settings: .native)
                 try context.writeHEIF10Representation(of: expected.image.image, to: oracle, colorSpace: pq,
                     options: [CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): 1.0])
-                let outputPixels = pixels(CIImage(contentsOf: output, options: [.expandToHDR: true])!)
-                let directError = try ImagePipelineTests.error(outputPixels, pixels(CIImage(contentsOf: direct, options: [.expandToHDR: true])!))
-                #expect(directError == 0)
+                #expect(try Data(contentsOf: output) == Data(contentsOf: direct))
                 #expect(try HDRColorMetric.maximum(reference: CIImage(contentsOf: oracle, options: [.expandToHDR: true])!,
                     actual: CIImage(contentsOf: output, options: [.expandToHDR: true])!) < HDRColorMetric.encodedMaximum)
     }

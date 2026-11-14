@@ -27,6 +27,14 @@ int main() {
         CHECK(hncs_process_linear_rgba(ctx,nullptr,nullptr,0)==0);
         CHECK(hncs_process_linear_rgba(ctx,nullptr,nullptr,1)==-1);
         CHECK(hncs_process_linear_rgba(ctx,source.data(),linear.data(),std::numeric_limits<size_t>::max())==-1);
+        auto overlapping=source;
+        overlapping.resize(count*4+1);
+        const auto unchanged=overlapping;
+        CHECK(hncs_process_linear_rgba(ctx,overlapping.data(),overlapping.data(),count)==-1);
+        CHECK(hncs_process_linear_rgba_parallel(ctx,overlapping.data(),overlapping.data()+1,count,4)==-1);
+        CHECK(hncs_process_srgb_fast_parallel(ctx,overlapping.data(),
+            reinterpret_cast<uint8_t*>(overlapping.data()+count*2),count,4)==-1);
+        CHECK(overlapping==unchanged);
         for(size_t i=0;i<linear.size();++i) {
             CHECK(std::isfinite(linear[i]) && linear[i]>=0.f && linear[i]<=1.f);
             if(i%4==3)CHECK(linear[i]==1.f);

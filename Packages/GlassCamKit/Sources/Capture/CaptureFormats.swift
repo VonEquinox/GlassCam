@@ -1,5 +1,6 @@
 import ImagingCore
 import Foundation
+import OSLog
 
 /// A camera-owned payload whose format and lifecycle are supplied by a module.
 public protocol CapturePayload: Sendable {
@@ -22,6 +23,7 @@ public struct CaptureRenderResult {
 public protocol CaptureFormat: Sendable {
     var identifier: String { get }
     var schemaVersion: Int { get }
+    func forSlot(_ slot: CaptureSlot) -> any CaptureFormat
     func decodeProvenance(from decoder: Decoder) throws -> any CaptureProvenance
     func retain(_ payload: any CapturePayload, id: UUID, snapshot: CaptureSnapshot,
                 directory: URL, recoversStaging: Bool) throws -> (record: CaptureJournal.Record, payload: any CapturePayload)
@@ -34,12 +36,24 @@ public protocol CaptureFormat: Sendable {
                 isCancelled: @escaping @Sendable () -> Bool) throws -> CaptureRenderResult
 }
 
+public enum CaptureSlot: Int, CaseIterable, Codable, Sendable {
+    case first, second
+    public var directoryName: String { "slot-\(rawValue)" }
+}
+
+public extension CaptureFormat {
+    func forSlot(_ slot: CaptureSlot) -> any CaptureFormat { self }
+}
+
 public struct CaptureFormats: Sendable {
     public let formats: [any CaptureFormat]
     public init(_ formats: [any CaptureFormat] = []) { self.formats = formats }
 
     public func format(identifier: String?) -> (any CaptureFormat)? {
         formats.first { $0.identifier == identifier }
+    }
+    public func forSlot(_ slot: CaptureSlot) -> CaptureFormats {
+        CaptureFormats(formats.map { $0.forSlot(slot) })
     }
     func requireFormat(identifier: String) throws -> any CaptureFormat {
         guard let format = format(identifier: identifier) else { throw CaptureJournal.Failure.unsupportedVersion }
@@ -65,5 +79,9 @@ public struct CapturedCameraPhoto: Sendable {
 struct CaptureSourceFailure: LocalizedError {
     let source: any CapturePayload
     let detail: String
-    var errorDescription: String? { "\(source.formatIdentifier.uppercased()) · DAMAGED_BUNDLE: \(detail)" }
+    var errorDescription: String? {
+        Logger(subsystem: "dev.glasscam.prototype", category: "Capture")
+            .error("\(source.formatIdentifier, privacy: .public): \(detail, privacy: .public)")
+        return String(localized: "The retained source could not be opened. Its files were kept.")
+    }
 }

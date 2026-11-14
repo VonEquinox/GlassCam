@@ -9,14 +9,15 @@ import UIKit
 /// workflow, so opening settings/review never dismisses or retargets a shot.
 struct ContentView: View {
     @StateObject private var settings = CameraSettingsStore()
-    @StateObject private var workflow: CaptureWorkflow
+    @StateObject private var workflow: CaptureQueue
     private let resources: ColorResources
 
     init(resources: ColorResources, formats: CaptureFormats) {
         self.resources = resources
-        _workflow = StateObject(wrappedValue: CaptureWorkflow(services: .live(resources: resources, formats: formats,
+        _workflow = StateObject(wrappedValue: CaptureQueue(services: .live(resources: resources, formats: formats,
             authorize: { try await HEIFSaveDelivery.authorizePhotos() },
-            save: { try await HEIFSaveDelivery.saveToPhotos($0) }), journal: CaptureJournal(formats: formats), initiallyActive: false))
+            save: { try await HEIFSaveDelivery.saveToPhotos($0) }), formats: formats,
+            latestReviewStore: LatestReviewStore(formats: formats), initiallyActive: false))
     }
     @Environment(\.scenePhase) private var scenePhase
 

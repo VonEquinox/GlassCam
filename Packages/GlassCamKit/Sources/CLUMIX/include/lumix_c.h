@@ -22,7 +22,8 @@ LUMIXContext *lumix_create_pipeline(const char *asset_directory, size_t look,
                                    char *error, size_t error_size);
 void lumix_destroy(LUMIXContext *context);
 /* Exact native Pana_LUT interpolation for 12-bit RGB. Used by the oracle check.
- * Packed RGB input/output; input values must be <=4095. Returns 1 on success. */
+ * Packed RGB input/output; input values must be <=4095. Returns 1 on success.
+ * Exact in-place RGB is supported; partially overlapping buffers are rejected. */
 int lumix_process_rgb12(const LUMIXContext *context, const uint16_t *input,
                         size_t pixels, uint16_t *output, char *error, size_t error_size);
 /* Independent 48-bit native oracle entry. Packed RGB, scalar source white;
@@ -34,7 +35,8 @@ int lumix_process_rgb16(const LUMIXContext *context, const uint16_t *input,
 /* iPhone source adapter: linear sRGB -> EV -> RGB48 -> native SDR VE branch ->
  * sRGB EOTF -> Float32 linear RGBA. Legacy contexts keep the revision-1 RGB12
  * LUT adapter. The caller splits/restores HDR headroom. This is not a Panasonic
- * sensor calibration or a full SILKYPIX RW2 decoder. */
+ * sensor calibration or a full SILKYPIX RW2 decoder. RGB input and RGBA output
+ * must not overlap; invalid requests leave pixel buffers unchanged. */
 int lumix_process_linear_rgba(const LUMIXContext *context, const float *input,
                               size_t input_count, size_t pixels, double exposure_ev,
                               float *output, size_t output_count,
@@ -45,6 +47,7 @@ int lumix_process_linear_rgba(const LUMIXContext *context, const float *input,
  * Omits Panasonic sensor-specific low-ISO compensation. No UInt16 wraparound.
  * Input is linear sRGB after caller-owned HDR splitting; finite signed values
  * are projected into the LUT gamut. Output is linear RGBA in [0,1], alpha=1.
+ * RGB input and RGBA output must not overlap.
  * Legacy/oracle APIs above retain their exact original arithmetic. */
 int lumix_process_iphone_rgba(const LUMIXContext *context, const float *input,
                               size_t input_count, size_t pixels, double exposure_ev,

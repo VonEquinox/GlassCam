@@ -4,7 +4,7 @@
 
 | 编号 | 决策 | 状态 |
 |---|---|---|
-| [0001](0001-durable-single-capture.md) | 持久保留一张待完成照片 | 生效 |
+| [0001](0001-durable-single-capture.md) | 持久保留一张待完成照片 | 已被 [0018](0018-bounded-capture-queue.md) 替代 |
 | [0002](0002-adaptive-output-resolution.md) | 按有效像素选择 24MP／48MP 输出，并允许插值 | 已被 [0015](0015-fixed-24mp-camera-output.md) 替代 |
 | [0003](0003-swift-ui-cpp-kernels.md) | Swift 界面与标准 C++ 数值内核 | 生效 |
 | [0004](0004-full-source-export.md) | 成片从完整源照片独立生成 | 生效 |
@@ -20,3 +20,5 @@
 | [0014](0014-bounded-gpu-photo-processing.md) | 成片采用有界误差的 GPU 颜色处理 | 生效 |
 | [0015](0015-fixed-24mp-camera-output.md) | 两种拍摄模式统一输出 24MP | 生效 |
 | [0016](0016-main-camera-bayer-capture.md) | 首版拍摄固定主摄 Bayer RAW | 生效 |
+| [0017](0017-native-and-metal-contracts.md) | 原生 C++ 与 Metal 内核契约及修改边界 | 现行 |
+| [0018](0018-bounded-capture-queue.md) | 两个持久槽位的连续拍摄队列 | 现行 |

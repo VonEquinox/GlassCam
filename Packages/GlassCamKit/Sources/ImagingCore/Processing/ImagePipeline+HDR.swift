@@ -1,32 +1,34 @@
 import Foundation
 import CoreImage
 import ImageIO
+import CMetalImage
 
 extension ImagePipeline {
     /// Legacy revision-11 HNCS and the existing FFCS HDR adapter. Revision 12
     /// HNCS restores magnitude inside its working image before spatial effects.
     static func normalizeHighlights(_ rgb: inout [Float], exposureEV: Double = 0) throws -> [Float] {
-        applyExposure(&rgb, exposureEV: exposureEV)
-        guard rgb.count % 3 == 0, rgb.allSatisfy({ $0.isFinite }) else { throw PipelineError.rendering }
+        guard rgb.count % 3 == 0 else { throw PipelineError.rendering }
         var gains = [Float](repeating: 1, count: rgb.count / 3)
-        for i in stride(from: 0, to: rgb.count, by: 3) {
-            let gain = max(1, rgb[i], rgb[i + 1], rgb[i + 2])
-            gains[i / 3] = gain
-            if gain > 1 { for channel in 0..<3 { rgb[i + channel] /= gain } }
+        let scale = Float(exp2(exposureEV))
+        let success = rgb.withUnsafeMutableBufferPointer { pixels in
+            gains.withUnsafeMutableBufferPointer {
+                gc_float_normalize_rgb(pixels.baseAddress, pixels.count / 3, scale, $0.baseAddress)
+            }
         }
+        guard success == 1 else { throw PipelineError.rendering }
         return gains
     }
 
     @discardableResult
-    static func restoreHighlights(_ rgba: inout [Float], gains: [Float]) -> Float {
+    static func restoreHighlights(_ rgba: inout [Float], gains: [Float]) throws -> Float {
+        guard rgba.count % 4 == 0, rgba.count / 4 == gains.count else { throw PipelineError.rendering }
         var headroom: Float = 1
-        for pixel in gains.indices {
-            for channel in 0..<3 {
-                let value = min(maximumHDRValue, max(0, rgba[pixel * 4 + channel] * gains[pixel]))
-                rgba[pixel * 4 + channel] = value
-                headroom = max(headroom, value)
+        let success = rgba.withUnsafeMutableBufferPointer { pixels in
+            gains.withUnsafeBufferPointer {
+                gc_float_restore_rgba(pixels.baseAddress, $0.baseAddress, $0.count, maximumHDRValue, &headroom)
             }
         }
+        guard success == 1 else { throw PipelineError.rendering }
         return headroom
     }
     /// Colour and spatial effects are complete before this linear-light resize.

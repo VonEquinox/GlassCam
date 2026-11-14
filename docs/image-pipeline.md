@@ -22,7 +22,7 @@ Speed／Balanced 的整数 Bayer 输入由 [F5](f5.md) 在 C++／Metal 中完成
 - **HNCS（revision 12）**：在扩展工作域保留高光幅度，空间颗粒与锐化作用于完整高光细节。
 - **FFCS、LUMIX 与旧 HNCS**：逐像素提取 `max(1, R, G, B)`，将归一化颜色交给对应引擎，返回后再恢复高光幅度。恢复先于输出缩放。
 
-CPU C ABI 内核保持各引擎的数值类型、运算次序及 `-fno-fast-math -ffp-contract=off`；并行处理共享不可变上下文。
+CPU C ABI 内核保持各引擎的数值类型、运算次序及 `-fno-fast-math -ffp-contract=off`；并行处理共享不可变上下文。RGB／RGBA 打包、效果曝光、高光分离／恢复、实时立方体节点、像素范围校验与峰值扫描由 `float_raster.cpp` 承担，ARM64 使用 NEON 加速连续遍历，保留标量尾部及负零位型；Swift 负责缓冲所有权与错误传播。
 
 ### GPU 成片处理与有界分条
 
@@ -34,7 +34,7 @@ CPU C ABI 内核保持各引擎的数值类型、运算次序及 `-fno-fast-math
 | HNCS | C++ 打包、施加曝光并执行精确颜色核，写出完整的 Float32 RGB 工作文件并统计整图最大尺度；原生整数锐化以两个带邻域的 Metal 缓冲（单 RGB 缓冲上限 32 MiB 另加 UInt16 亮度平面）运行，颗粒随机流、全图统计与后置颜色结束阶段沿用 C++，复用读写缓冲直接生成 RGBAf 文件。 |
 | LUMIX | Metal 读取原始 129³ LUT（12 位网格整数权重插值），在纹理上分条完成曝光、颜色与高光恢复后写出。 |
 
-外部 RAW 解码源与 CPU 参考路径固定每次请求 64 个输出行；F5 线性源及其他 GPU 输入按缓冲容量分块。位图和文件使用自上而下行序，Core Image 矩形使用左下原点。App 使用预编译 Metal 库，SwiftPM 测试编译同一份源码并关闭 fast math 与隐式浮点融合；Metal 不可用时回退 CPU，失败或取消立即丢弃临时结果。
+外部 RAW 解码源与 CPU 参考路径固定每次请求 64 个输出行；F5 线性源及其他 GPU 输入按缓冲容量分块。位图和文件使用自上而下行序，Core Image 矩形使用左下原点。成片颜色与锐化在 App 使用预编译 Metal 库，SwiftPM 测试编译同一份源码并采用 safe／precise 数学选项；其 CPU 回退保留参考路径，失败或取消丢弃临时结果。F5 重建要求 Metal。
 
 成片 RGBAf 按每像素 16 字节写入 `ExportRasterFile`。F5 线性输入与成片编码均通过 C++ 文件供给器（`pread` 并发读取 256×256 像素块）供给 Core Image，不分配整幅位图表面。开始前预检尺寸乘法与磁盘可用空间（含成片、空间工作图、编码余量及 64 MiB 预留）；临时文件随所有者释放清理。
 
@@ -71,6 +71,9 @@ GPU Float32 颜色结果与 CPU 参考结果经相同 Core Image 转换至 BT.20
 8. 输出放大与缩小保留 HDR 常量颜色及图像边界；导出取消时不交付成片文件且保留源照片。— `ImagingCoreTests/ImagePipelineTests.resizingConstantHDR_preservesColourThroughImageEdges`、`cancellation_discardsOutputAndRetainsSource`
 9. 分享保留原始 HEIF 字节，按需生成的兼容 JPEG 保留完整尺寸、8 位深度并在并发请求间只编码一次；两类文件均保留拍摄元数据且 HEIF 维持 10 位 HDR。— `ImagingCoreTests/ShareTests`、`CaptureMetadataTests`
 10. 显式开启本地 ProRAW 基线（`GLASSCAM_DNG_DIR`）时，保持真实解码白点、冻结锐化基准、重试像素与原生 10 位 HDR 输出。— `ImagingCoreTests/BaselineTests`
+11. 浮点搬运保留有符号 HDR 位型，曝光只施加一次，高光恢复保留 alpha 与负零。— `ImagingCoreTests/FloatRasterTests.packing_preservesSignedHDRBitsAndSuppliesOpaqueAlpha`、`normalization_appliesExposureOnceAndRetainsSignedChannels`、`restoration_clampsRGBAndPreservesAlpha`、`restoration_preservesNegativeZeroAtTheFloatBoundary`
+12. HNCS 完整输入／输出范围重叠及 FFCS 双输出重叠在写入前被拒绝。— `tests/numeric/test_native_buffer_contracts.py::test_hncs_overlapping_float_ranges_fail_without_writes`、`tests/numeric/test_native_buffer_contracts.py::test_hncs_overlapping_byte_output_fails_without_writes`、`tests/numeric/test_native_buffer_contracts.py::test_ffcs_overlapping_outputs_fail_without_writes`
+13. 范围校验不改写像素，在向量块和标量尾部拒绝非有限与越界值，有限值检查保留完整有符号范围。— `NativeTests/float_raster_smoke`
 
 ## 数据与版本
 
@@ -93,5 +96,6 @@ GPU Float32 颜色结果与 CPU 参考结果经相同 Core Image 转换至 BT.20
 - [ImagePipeline.swift](../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline.swift)、[ImagePipeline+RAW.swift](../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline+RAW.swift)、[ImagePipeline+Rendering.swift](../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline+Rendering.swift)：线性导出入口、外部 RAW 解码与缩小工作图处理。
 - [ImagePipeline+Export.swift](../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline+Export.swift)、[ImagePipeline+MetalExport.swift](../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline+MetalExport.swift)、[ImagePipeline+HDR.swift](../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline+HDR.swift)：全源分条、GPU 衔接、高光恢复、缩放与 HEIF10 编码。
 - [metal_color.mm](../Packages/GlassCamKit/Sources/CMetalImage/metal_color.mm)、[metal_spatial.mm](../Packages/GlassCamKit/Sources/CMetalImage/metal_spatial.mm)、[file_raster.mm](../Packages/GlassCamKit/Sources/CMetalImage/file_raster.mm)：Metal 颜色处理器、HNCS 整数锐化与 256×256 并发文件供给器。
+- [float_raster.cpp](../Packages/GlassCamKit/Sources/CMetalImage/float_raster.cpp)、[FloatRasterOperations.swift](../Packages/GlassCamKit/Sources/ImagingCore/Processing/FloatRasterOperations.swift)：严格浮点搬运、曝光、高光与峰值扫描；契约见 [ADR 0017](adr/0017-native-and-metal-contracts.md)。
 - [ColorKernels.metal](../Packages/GlassCamKit/Sources/ImagingCore/Metal/ColorKernels.metal)、[NativeSharpness.metal](../Packages/GlassCamKit/Sources/ImagingCore/Metal/NativeSharpness.metal)：GPU 像素计算内核。
 - [ShareDelivery.swift](../Packages/GlassCamKit/Sources/ImagingCore/Processing/ShareDelivery.swift)：原始 HEIF 与按需兼容 JPEG 交付。

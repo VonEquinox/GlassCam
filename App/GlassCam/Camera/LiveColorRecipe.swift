@@ -34,6 +34,13 @@ struct LiveColorRecipe: Equatable {
         self.illuminantKelvin = illuminantKelvin; self.hncs = hncs; self.effects = effects
         self.ffcs = ffcs; self.lumix = lumix
     }
+    @MainActor init(resources: ColorResources, settings: CameraSettingsStore, simulationIndex: Int? = nil) {
+        self.init(resources: resources, mode: settings.colorMode,
+            simulationIndex: simulationIndex ?? settings.simulationIndex, exposureEV: settings.exposure,
+            illuminantKelvin: 5500, hncs: settings.colorMode == .hncs ? settings.hncs : .standard,
+            effects: settings.effects, ffcs: settings.colorMode == .ffcs ? settings.ffcs : .standard,
+            lumix: settings.colorMode == .lumix ? settings.lumix : .standard)
+    }
     static let dimension = 65
     // A recipe/cache identity must change if an asset, engine or domain changes.
     let contract = "v7:hncs-revision11-photo-white-balance/ffcs-0.2-neutral-verified-xh2s-provia-acros-radius1:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"
@@ -54,7 +61,7 @@ struct LiveColorRecipe: Equatable {
             }
             guard ffcs.cameraFamily == .xh2s, !ffcs.applyReferenceAdjustments,
                   ffcs.sharpenRadius == 1.0, [0, 8].contains(simulationIndex) else {
-                return "Experimental FFCS live color is measured only for XH2S PROVIA and ACROS, with neutral native LUT rendering and radius 1. Showing system preview."
+            return "Use XH2S PROVIA or ACROS with default reference adjustments for live color. Showing system preview."
             }
             // FFCS 0.2 CPU study: 452,780 held-out colors per look, Float32
             // trilinear cube + RGBA16F display. Still approximate; Apple GPU

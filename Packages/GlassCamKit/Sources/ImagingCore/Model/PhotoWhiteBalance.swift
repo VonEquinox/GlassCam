@@ -39,10 +39,10 @@ public struct PhotoWhiteBalance: Codable, Equatable, Sendable {
 
     public var description: String {
         switch origin {
-        case .appleRAW: return String(format: "Auto WB · %.0f K · Tint %+.1f", temperature, tint)
-        case .f5Matrix: return String(format: "F5 matrix WB · %.0f K", temperature)
-        case .renderedD65: return "White balance baked into source"
-        case .fallbackD65: return "Source white point unavailable · D65 fallback"
+        case .appleRAW: return String(format: String(localized: "Auto WB · %.0f K · Tint %+.1f"), temperature, tint)
+        case .f5Matrix: return String(format: String(localized: "Camera WB · %.0f K"), temperature)
+        case .renderedD65: return String(localized: "White balance baked into source")
+        case .fallbackD65: return String(localized: "Source white point unavailable · D65 fallback")
         }
     }
 }

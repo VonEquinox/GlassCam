@@ -2,6 +2,7 @@ import CFFCS
 import CMetalImage
 import CoreImage
 import Foundation
+import OSLog
 
 /// Ownership and layout bridge only. The portable C++ FFCS backend loads the
 /// original bundled native-family LUTs and executes the supplied research pipeline.
@@ -92,9 +93,11 @@ public enum FFCSEngine {
         case invalidInput, missingResources, backend(String)
         var errorDescription: String? {
             switch self {
-            case .invalidInput: return "The FFCS image dimensions, settings, or RGB buffer are invalid."
-            case .missingResources: return "The bundled FFCS native reference LUTs are missing."
-            case .backend(let message): return "FFCS: \(message)"
+            case .invalidInput: return String(localized: "This photo cannot be processed.")
+            case .missingResources: return String(localized: "This photo style is unavailable. Choose another style.")
+            case .backend(let message):
+                Logger(subsystem: "dev.glasscam", category: "FFCS").error("Native render failed: \(message, privacy: .public)")
+                return String(localized: "Photo processing failed. Please try again.")
             }
         }
     }
@@ -183,15 +186,7 @@ public enum FFCSEngine {
                                 exposureEV: exposureEV, simulationIndex: simulationIndex,
                                 seed: seed, effects: effects, settings: settings, includePreview: false)
         // Expand the backend's packed Float32 RGB without an 8-bit intermediate.
-        let count = width * height
-        var rgba = [Float](repeating: 1, count: count * 4)
-        for pixel in 0..<count {
-            let src = pixel * 3, dst = pixel * 4
-            rgba[dst] = result.linearRGB[src]
-            rgba[dst + 1] = result.linearRGB[src + 1]
-            rgba[dst + 2] = result.linearRGB[src + 2]
-        }
-        return rgba
+        return try FloatRasterOperations.rgba(fromRGB: result.linearRGB)
     }
 
     /// Process only requested full-image rows, including the context-reported halo

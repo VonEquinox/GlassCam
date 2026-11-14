@@ -34,10 +34,9 @@ extension CameraBackend {
         let multiplier = displayMultiplier(center)
         let desired = CGFloat(plan.displayedZoom / multiplier)
         center.videoZoomFactor = bayer ? 1 : (expected?.zoom ?? min(center.maxAvailableVideoZoomFactor, max(center.minAvailableVideoZoomFactor, desired)))
-        if center.isExposureModeSupported(.continuousAutoExposure) { center.exposureMode = .continuousAutoExposure }
-        if center.isFocusModeSupported(.continuousAutoFocus) { center.focusMode = .continuousAutoFocus }
         if center.isWhiteBalanceModeSupported(.continuousAutoWhiteBalance) { center.whiteBalanceMode = .continuousAutoWhiteBalance }
         center.unlockForConfiguration()
+        if !bayer { try applyPreviewMetering(to: center) }
         let output = AVCapturePhotoOutput()
         guard newSession.canAddOutput(output) else { throw CameraFailure("Single-camera photo capture is unavailable.") }
         newSession.addOutputWithNoConnections(output)

@@ -29,11 +29,10 @@ public enum HNCSEngine {
         case invalidDimensions, invalidSettings, invalidPixels, spatialIO, spatialRequiresFloat
         var errorDescription: String? {
             switch self {
-            case .invalidDimensions: return "The image dimensions or RGB buffer are invalid."
-            case .invalidSettings: return "The color processor could not initialize with these settings."
-            case .invalidPixels: return "The image contains invalid or non-finite color values."
-            case .spatialRequiresFloat: return "This HNCS recipe requires the full-precision photo route."
-            case .spatialIO: return "HNCS grain or sharpening could not finish its temporary-file pass. Check available storage and retry."
+            case .invalidDimensions: return String(localized: "This photo cannot be processed.")
+            case .invalidSettings, .spatialRequiresFloat: return String(localized: "Choose another photo style and try again.")
+            case .invalidPixels: return String(localized: "Photo processing failed. Please try again.")
+            case .spatialIO: return String(localized: "Photo processing could not finish. Check available storage and retry.")
             }
         }
     }

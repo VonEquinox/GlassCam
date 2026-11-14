@@ -13,9 +13,9 @@ enum HEIFSaveDelivery {
         case permissionDenied, saveFailed, inactive
         var errorDescription: String? {
             switch self {
-            case .permissionDenied: return "Allow adding photos in Settings to automatically save your captured HDR photos."
-            case .saveFailed: return "Photos could not save this HEIF. The original export was not replaced with another format."
-            case .inactive: return "Return to GlassCam to finish saving this photo."
+            case .permissionDenied: return String(localized: "Allow adding photos in Settings to automatically save your captured HDR photos.")
+            case .saveFailed: return String(localized: "Photos could not save this photo. The finished HDR file was kept; try again.")
+            case .inactive: return String(localized: "Return to GlassCam to finish saving this photo.")
             }
         }
     }

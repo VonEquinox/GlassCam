@@ -7,7 +7,6 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
-#include <iterator>
 #include <limits>
 #include <memory>
 #include <stdexcept>
@@ -47,6 +46,14 @@ struct Point { double x, y; };
 struct Curve {
     std::array<Point, 49> points{};
     size_t count = 0;
+    bool ordered() const {
+        if (count < 2 || count > points.size()) return false;
+        for (size_t i = 0; i < count; ++i) {
+            if (!std::isfinite(points[i].x) || !std::isfinite(points[i].y) ||
+                (i && points[i].x <= points[i-1].x)) return false;
+        }
+        return true;
+    }
     double convert(double value) const {
         if (count < 2) return value;
         size_t i = 0;
@@ -56,6 +63,13 @@ struct Curve {
         return a.y + (b.y-a.y)*(value-a.x)/(b.x-a.x);
     }
 };
+
+bool overlap(const void *input, size_t inputBytes, const void *output, size_t outputBytes) {
+    const auto a = reinterpret_cast<uintptr_t>(input), b = reinterpret_cast<uintptr_t>(output);
+    const auto limit = std::numeric_limits<uintptr_t>::max();
+    if (inputBytes > limit - a || outputBytes > limit - b) return true;
+    return a < b + outputBytes && b < a + inputBytes;
+}
 
 // Move RGB toward its equal-luma neutral, preserving the chroma direction.
 // The output knee approaches the cube boundary continuously instead of clipping
@@ -195,7 +209,9 @@ static std::vector<uint16_t> loadCube(const char *directory, const std::string &
             u32(packed.data()+28) != 1) throw std::runtime_error("Invalid LUMIX LUT header");
         std::vector<unsigned char> bytes(rawSize);
         uLongf decodedSize = bytes.size();
-        if (uncompress(bytes.data(), &decodedSize, packed.data()+32, packed.size()-32) != Z_OK || decodedSize != rawSize ||
+        uLong compressedSize = packed.size()-32;
+        if (uncompress2(bytes.data(), &decodedSize, packed.data()+32, &compressedSize) != Z_OK ||
+            compressedSize != packed.size()-32 || decodedSize != rawSize ||
             crc32(0, bytes.data(), static_cast<uInt>(bytes.size())) != u32(packed.data()+24))
             throw std::runtime_error("LUMIX LUT decompression or checksum failed");
         std::vector<uint16_t> result(rawSize/2);
@@ -230,10 +246,14 @@ LUMIXContext *lumix_create_pipeline(const char *directory, size_t look, double k
         if (!directory || !*directory || look >= lumix_look_count() || !std::isfinite(kelvin) ||
             kelvin < 2000 || kelvin > 10000 || contrast < 0 || contrast > 20 || saturation < 0 ||
             saturation > 20 || iso < 1 || iso > 1000000) throw std::runtime_error("Invalid LUMIX pipeline settings");
-        std::ifstream stream(std::string(directory)+"/pipeline.lmp",std::ios::binary);
-        std::vector<unsigned char> regs((std::istreambuf_iterator<char>(stream)),{});
         constexpr size_t payloadSize = 21*70+21*2+21*3+3*0x10e0+64;
-        if (regs.size()!=payloadSize+24 || std::memcmp(regs.data(),"GLUMIX2\0",8) ||
+        std::ifstream stream(std::string(directory)+"/pipeline.lmp", std::ios::binary | std::ios::ate);
+        if (!stream || stream.tellg() != std::streamoff(payloadSize+24))
+            throw std::runtime_error("Invalid LUMIX pipeline register size");
+        std::array<unsigned char,payloadSize+24> regs{};
+        stream.seekg(0);
+        stream.read(reinterpret_cast<char *>(regs.data()), regs.size());
+        if (!stream || std::memcmp(regs.data(),"GLUMIX2\0",8) ||
             u32(regs.data()+8)!=2 || u32(regs.data()+12)!=payloadSize || u32(regs.data()+20)!=106 ||
             crc32(0,regs.data()+24,payloadSize)!=u32(regs.data()+16)) throw std::runtime_error("Invalid LUMIX pipeline registers or checksum");
         auto result = std::make_unique<LUMIXContext>();
@@ -242,7 +262,12 @@ LUMIXContext *lumix_create_pipeline(const char *directory, size_t look, double k
         // mixing uses integer division, before trilinear interpolation.
         Curve temperature; temperature.count=4;
         std::memcpy(temperature.points.data(),regs.data()+24+payloadSize-64,64);
-        const int selector=std::clamp<int>(static_cast<int>(temperature.convert(kelvin)),256,512);
+        if (!temperature.ordered()) throw std::runtime_error("Invalid LUMIX temperature curve");
+        const double selection = temperature.convert(kelvin);
+        if (!std::isfinite(selection)) throw std::runtime_error("Invalid LUMIX temperature selection");
+        // Clamp before narrowing, so malformed/extreme values cannot cause an
+        // out-of-range floating-to-integer conversion. Valid assets are exact.
+        const int selector=static_cast<int>(std::clamp(selection,256.0,512.0));
         const unsigned secondWeight=512-selector;
         const std::string first=looks[look].asset;
         char second[32]; std::snprintf(second,sizeof(second),"L%05d",std::stoi(first.substr(1))+1);
@@ -260,6 +285,8 @@ LUMIXContext *lumix_create_pipeline(const char *directory, size_t look, double k
         int pre=iso==50?0:iso==64?1:iso==80?2:-1;
         // iPhone input has no Panasonic PhotoStyle EXIF; native source style=0.
         if (pre>=0) std::memcpy(result->lowISO.data(),p+1575+pre*0x10e0+style*196,196);
+        const auto lowISO = result->lowISOCurve(65535);
+        if (lowISO.count && !lowISO.ordered()) throw std::runtime_error("Invalid LUMIX low-ISO curve");
         result->fullPipeline=true;
         fail(error,size,"");return result.release();
     } catch (const std::exception &e) { fail(error,size,e.what());return nullptr; }
@@ -269,6 +296,9 @@ int lumix_process_rgb12(const LUMIXContext *context, const uint16_t *input, size
                         uint16_t *output, char *error, size_t size) {
     if (!context || !input || !output || !pixels || pixels > std::numeric_limits<size_t>::max()/6) {
         fail(error, size, "Invalid LUMIX RGB12 buffers"); return 0;
+    }
+    if (input != output && overlap(input, pixels*6, output, pixels*6)) {
+        fail(error, size, "LUMIX RGB12 buffers partially overlap"); return 0;
     }
     for (size_t i = 0; i < pixels*3; ++i) if (input[i] > 4095) {
         fail(error, size, "LUMIX RGB12 values must be in 0...4095"); return 0;
@@ -283,6 +313,9 @@ int lumix_process_rgb16(const LUMIXContext *context, const uint16_t *input, size
         !std::isfinite(ev) || ev < -10 || ev > 10 || (space!=0 && space!=1)) {
         fail(error,size,"Invalid LUMIX RGB16 pipeline buffers or parameters");return 0;
     }
+    if (input != output && overlap(input, pixels*6, output, pixels*6)) {
+        fail(error, size, "LUMIX RGB16 buffers partially overlap"); return 0;
+    }
     const auto tone=context->contrastCurve(white),pre=context->lowISOCurve(white);
     const double gain=std::exp2(ev);
     for(size_t i=0;i<pixels;i++)context->filter(input+i*3,output+i*3,white,gain,space,tone,pre);
@@ -294,6 +327,9 @@ int lumix_process_linear_rgba(const LUMIXContext *context, const float *input, s
     if (!context || !input || !output || !pixels || pixels > std::numeric_limits<size_t>::max()/16 ||
         inputCount != pixels*3 || outputCount != pixels*4 || !std::isfinite(ev) || ev < -32 || ev > 32) {
         fail(error, size, "Invalid LUMIX image buffers or exposure"); return 0;
+    }
+    if (overlap(input, inputCount*sizeof(float), output, outputCount*sizeof(float))) {
+        fail(error, size, "LUMIX RGB and RGBA buffers overlap"); return 0;
     }
     for (size_t i = 0; i < inputCount; ++i) if (!std::isfinite(input[i])) {
         fail(error, size, "LUMIX input must be finite"); return 0;
@@ -321,6 +357,9 @@ int lumix_process_iphone_rgba(const LUMIXContext *context, const float *input, s
         pixels > std::numeric_limits<size_t>::max()/16 || inputCount != pixels*3 ||
         outputCount != pixels*4 || !std::isfinite(ev) || ev < -32 || ev > 32) {
         fail(error, size, "Invalid LUMIX iPhone buffers or exposure"); return 0;
+    }
+    if (overlap(input, inputCount*sizeof(float), output, outputCount*sizeof(float))) {
+        fail(error, size, "LUMIX RGB and RGBA buffers overlap"); return 0;
     }
     for (size_t i = 0; i < inputCount; ++i) if (!std::isfinite(input[i])) {
         fail(error, size, "LUMIX input must be finite"); return 0;

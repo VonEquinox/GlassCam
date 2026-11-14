@@ -58,6 +58,14 @@ public struct PhotoMetadata: @unchecked Sendable {
         }
         return PhotoMetadata(properties: properties)
     }
+    public var captureInfo: PhotoCaptureInfo {
+        func number(_ key: CFString) -> Double? { (exif[key as String] as? NSNumber)?.doubleValue }
+        let iso = (exif[kCGImagePropertyExifISOSpeedRatings as String] as? [NSNumber])?.first?.doubleValue
+            ?? number(kCGImagePropertyExifISOSpeedRatings) ?? number(kCGImagePropertyExifISOSpeed)
+        return PhotoCaptureInfo(exposureTime: number(kCGImagePropertyExifExposureTime), iso: iso,
+            aperture: number(kCGImagePropertyExifFNumber), focalLength: number(kCGImagePropertyExifFocalLength),
+            equivalentFocalLength: number(kCGImagePropertyExifFocalLenIn35mmFilm))
+    }
     package func addingCaptureProvenance(_ text: String) -> PhotoMetadata {
         var updated = exif
         updated[kCGImagePropertyExifUserComment as String] = text

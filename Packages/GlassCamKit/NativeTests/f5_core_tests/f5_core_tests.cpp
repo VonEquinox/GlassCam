@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <random>
 #include <stdexcept>
 
@@ -210,6 +211,14 @@ void alias_information() {
 }
 }
 int main() {
-    try {operators();likelihoods();objective_derivative();initialization();chromatic_edge_prior();local_physical_constraint();direct_physical_safeguard();local_registration();alias_information();solver();std::cout<<"F5 CPU numerical contracts passed\n";return 0;}
+    try {
+        const std::vector<double> coefficients(4*4*3,0.5);
+        for(double coordinate:{-1e30,1e30,std::numeric_limits<double>::max()}) {
+            double value=-1,dx=-1,dy=-1;
+            require(f5_reference_sample(coefficients.data(),4,4,2,coordinate,1,0,&value,&dx,&dy)==-2,
+                    "Out-of-range stencil coordinate must fail before integer conversion");
+            require(value==-1,"Rejected stencil must preserve output");
+        }
+        operators();likelihoods();objective_derivative();initialization();chromatic_edge_prior();local_physical_constraint();direct_physical_safeguard();local_registration();alias_information();solver();std::cout<<"F5 CPU numerical contracts passed\n";return 0;}
     catch(const std::exception&e){std::cerr<<"FAIL: "<<e.what()<<"\n";return 1;}
 }

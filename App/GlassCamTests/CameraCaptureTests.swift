@@ -18,6 +18,9 @@ final class CameraHarness {
         var rotations: [UIInterfaceOrientation] = []
         var rotate: ((UIInterfaceOrientation) throws -> Void)?
         var captureCompletion: ((CameraBackend.CaptureOutcome) -> Void)?
+        var captureOrientation: UIInterfaceOrientation?
+        var captureProgress: ((CameraController.CapturePhase, String) -> Void)?
+        var metering: [CameraMetering] = []
         init(bundle: CameraBackend.Bundle) { self.bundle = bundle }
         func configure(mode: CameraController.Mode, centerPreviewLongEdge: Int,
                        orientation: UIInterfaceOrientation, lifetime: CameraLifetime, displayedZoom: Double,
@@ -27,9 +30,14 @@ final class CameraHarness {
         func rotatePreview(_ value: UIInterfaceOrientation) throws { rotations.append(value); try rotate?(value) }
         func geometry() -> CameraController.CameraGeometry? { bundle.geometry }
         func setZoom(_ displayedZoom: Double) throws -> CameraBackend.Bundle { bundle }
-        func capture(quality: CaptureQuality, snapshot: CaptureSnapshot?, f5Purpose: String,
+        func setMetering(_ requested: CameraMetering) throws -> CameraMetering {
+            metering.append(requested); return requested
+        }
+        func capture(quality: CaptureQuality, snapshot: CaptureSnapshot?, f5Purpose: String, orientation: UIInterfaceOrientation,
                      progress: @escaping (CameraController.CapturePhase, String) -> Void,
-                     completion: @escaping (CameraBackend.CaptureOutcome) -> Void) { captureCompletion = completion }
+                     completion: @escaping (CameraBackend.CaptureOutcome) -> Void) {
+            captureCompletion = completion; captureOrientation = orientation; captureProgress = progress
+        }
     }
     let backend: Backend
     let controller: CameraController

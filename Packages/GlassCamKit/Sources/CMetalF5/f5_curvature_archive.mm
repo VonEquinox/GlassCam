@@ -16,8 +16,10 @@ extern "C" int32_t gc_f5_curve_write_rgb(int input, int output, uint32_t width, 
     };
     if(input<0 || output<0 || input==output || !width || !height || width>32768 || height>32768 ||
        offset>UINT32_MAX || uint64_t(width)*height*12+offset>UINT32_MAX)return fail(1,"Invalid LinearRaw archive dimensions.");
-    struct stat source{};
-    if(fstat(input,&source)!=0 || uint64_t(source.st_size)!=uint64_t(width)*height*16)return fail(1,"Camera archive raster has an incorrect size.");
+    struct stat source{},destination{};
+    if(fstat(input,&source)!=0 || fstat(output,&destination)!=0)return fail(5,"Cannot inspect LinearRaw archive files.");
+    if(source.st_dev==destination.st_dev && source.st_ino==destination.st_ino)return fail(1,"LinearRaw archive files must be distinct.");
+    if(!S_ISREG(source.st_mode) || uint64_t(source.st_size)!=uint64_t(width)*height*16)return fail(1,"Camera archive raster has an incorrect size.");
     try {
         std::vector<float> rgba(size_t(width)*16*4),rgb(size_t(width)*16*3);
         for(uint32_t top=0;top<height;top+=16) {

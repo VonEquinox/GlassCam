@@ -14,7 +14,7 @@
 		A00000000000000000000008 /* Resources/FFCS in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000009 /* Resources/FFCS */; };
 		A00000000000000000000009 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* libz.tbd */; };
         A00000000000000000000046 /* Resources/LUMIX in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000046; };
-        A05000000000000000000001 /* GlassCamCore in Frameworks */ = {isa = PBXBuildFile; productRef = A05000000000000000000003 /* GlassCamKit */; };
+        A05000000000000000000001 /* GlassCamKit in Frameworks */ = {isa = PBXBuildFile; productRef = A05000000000000000000003 /* GlassCamKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,7 +42,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A00000000000000000000009 /* libz.tbd in Frameworks */,
-                A05000000000000000000001 /* GlassCamCore in Frameworks */,
+                A05000000000000000000001 /* GlassCamKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

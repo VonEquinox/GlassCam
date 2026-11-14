@@ -37,17 +37,20 @@ python3 scripts/iphone_release.py --refresh-signing --install-device DEVICE_ID
 
 ### 验收
 
-离线验收运行[测试说明](testing.md)中的 `make test`、`make test-ui`；有本地 ProRAW 素材时另运行 `make test-baseline`。数值结果、恢复兼容与未签名构建共同用于检查发布候选。
+离线验收运行[测试说明](testing.md)中的 `make test`、`make test-ui` 与未签名 Release，覆盖 C++ Release／sanitizer、ctypes 数值 golden、SwiftPM 真实 Metal、App 单元与 UI 操作。原生与 GPU 代码按 [ADR 0017](adr/0017-native-and-metal-contracts.md) 验收。
+
+有三镜头 ProRAW 时通过 `GLASSCAM_DNG_DIR` 开启 `make test-baseline`；已有 Bayer 素材通过 `GLASSCAM_BAYER_REPLAY` 开启六种模式与色彩导出组合，可用 `GLASSCAM_BAYER_ARCHIVE` 检查调色前归档。资源、夹具与输出变量的完整边界见[测试说明](testing.md)，素材与诊断产物保存在产品仓库外。
 
 模拟器测试默认从已有可用的 iOS 27 或更高版本 iPhone 模拟器中选择，优先已启动项；也可显式设置 `SIMULATOR_ID`。入口不创建模拟器或安装运行时。
 
 真机验收由用户执行或明确授权后执行：
 
 1. 检查冷启动、相机及相册权限拒绝与恢复、签名有效期。
-2. 检查主摄原生视角、横竖屏、快门冻结及恢复、源照片与取景边界；记录实际 RAW 尺寸，并核对主摄／超广角配对取景。
+2. 检查主摄原生视角、横竖屏、竖屏锁定下横拍、源照片与取景边界；核对点按测光、长按 AE/AF 锁、EV 范围、拍摄继承及恢复锁定。
 3. 检查 Speed、Balanced 与三个色彩引擎；Speed 核对单张 12MP Bayer，Balanced 核对四张等曝光 Bayer 及双密度重建，两者成片都为 24MP，模式选择只显示这两项。检查相册原件的白点、曝光、ISO、尺寸、方向、HDR 和拍摄日期。
-4. 检查切后台、锁屏和进程结束后的单张恢复，Speed 待完成记录恢复后的 24MP 输出，保存失败重试，以及保存结果未知时的人工确认。
-5. 检查回看、分享接收端、设置恢复、外围玻璃外观、运动稳定性，以及连续单拍的耗时、内存和热状态。
+4. 检查两槽连续采集、大图串行处理、队列满时禁用快门，切后台、锁屏和进程结束后的各槽恢复；核对失败重试、单槽放弃与未知保存结果的人工确认。
+5. 检查屏幕和硬件快门共用入口、模态页不接管按键、真实曝光结束触觉、Speed 微暗及 Balanced 持稳反馈。
+6. 检查跨启动最近回看、高清淡入、缩放与下拉关闭、拍摄参数及分享接收端；检查实时准入提示、设置恢复、外围玻璃和持续拍摄的内存、耗时与热状态。
 
 需要自动化收集真机证据时，使用 `GlassCam-research` 的 `device-acceptance/`。该目录保留来源提交、完整 UI 方法和独立项目准备／构建说明；产品仓库的 UI target 只运行模拟器流程。
 
@@ -57,6 +60,7 @@ python3 scripts/iphone_release.py --refresh-signing --install-device DEVICE_ID
 2. 发布候选的 FFCS 分条处理保持整图结果，LUMIX 插值保持固定参考值。— `tests/numeric/test_ffcs_strips.py::test_strips_match_full_frame`、`tests/numeric/test_lumix_reference.py::test_rgb12_interpolation_matches_native_vectors`
 3. 更新后的处理逻辑能读写已有单张及 F5 拍摄记录，保持固定 JSON 字节。— `F5Tests/currentJournal_decodeEncodePreservesBytes`
 4. 恢复到相册保存结果未知时，继续保存必须由用户明确选择。— `CaptureTests/RecoveryTests.unknownSave_requiresExplicitResolution`
+5. 两槽重启后恢复各自快照且串行处理，缓存恢复按确认时间选择最近成片。— `CaptureTests/CaptureQueueTests.restartingQueue_recoversBothFrozenSlotsSerially`、`CaptureTests/LatestReviewTests.recoveringOlderReceipt_doesNotReplaceMoreRecentlyConfirmedPhoto`
 
 ## 数据与版本
 

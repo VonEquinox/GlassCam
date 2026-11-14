@@ -1,12 +1,82 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    " · %lld photos pending": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · %lld 张照片待完成"
+          }
+        }
+      }
+    },
+    " · Interpolated": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · 插值输出"
+          }
+        }
+      }
+    },
+    "%+.1f EV": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%+.1f EV"
+          }
+        }
+      }
+    },
+    "%@ · %d RAW · Output %.1f MP": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$d 张 RAW · 输出 %3$.1f MP"
+          }
+        }
+      }
+    },
+    "%lld px": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 像素"
+          }
+        }
+      }
+    },
     "%lld sets · %@": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "%1$lld 组 · %2$@"
+          }
+        }
+      }
+    },
+    "%lld × %lld · 10-bit HDR": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld × %2$lld · 10 位 HDR"
+          }
+        }
+      }
+    },
+    "10-bit HDR HEIF": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 位 HDR HEIF"
           }
         }
       }
@@ -71,6 +141,26 @@
         }
       }
     },
+    "AE/AF": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动曝光／对焦"
+          }
+        }
+      }
+    },
+    "AE/AF LOCK": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "曝光／对焦已锁定"
+          }
+        }
+      }
+    },
     "Adjustments": {
       "localizations": {
         "zh-Hans": {
@@ -97,6 +187,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "通透暗部"
+          }
+        }
+      }
+    },
+    "Allow adding photos in Settings to automatically save your captured HDR photos.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在系统设置中允许添加照片，以自动保存拍摄的 HDR 照片。"
           }
         }
       }
@@ -161,6 +261,16 @@
         }
       }
     },
+    "Approximate live preview available": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "支持近似实时色彩"
+          }
+        }
+      }
+    },
     "Archive Balanced pre-color RAW": {
       "localizations": {
         "zh-Hans": {
@@ -197,6 +307,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "iPhone 照片的 As Shot 使用 Standard 胶片曲线。所选预设同时提供明暗和细节设置。"
+          }
+        }
+      }
+    },
+    "Auto WB · %.0f K · Tint %+.1f": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动白平衡 · %1$.0f K · 色调 %2$+.1f"
           }
         }
       }
@@ -291,6 +411,16 @@
         }
       }
     },
+    "Bayer RAW · %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bayer RAW · %@"
+          }
+        }
+      }
+    },
     "Camera": {
       "localizations": {
         "zh-Hans": {
@@ -301,12 +431,32 @@
         }
       }
     },
+    "Camera WB · %.0f K": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍摄白平衡 · %.0f K"
+          }
+        }
+      }
+    },
     "Camera controls": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "相机控制"
+          }
+        }
+      }
+    },
+    "Camera exposure compensation": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机曝光补偿"
           }
         }
       }
@@ -341,6 +491,16 @@
         }
       }
     },
+    "Capture complete. You can move the camera.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "采集完成，可以移动相机。"
+          }
+        }
+      }
+    },
     "Capture priority": {
       "localizations": {
         "zh-Hans": {
@@ -366,7 +526,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在拍摄 %lld 张 Bayer RAW…"
+            "value": "正在拍摄 %lld 张 Bayer RAW，请保持稳定…"
           }
         }
       }
@@ -436,7 +596,17 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在检查待完成照片…"
+            "value": "正在检查保留的照片…"
+          }
+        }
+      }
+    },
+    "Choose another photo style and try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选择其他照片风格后重试。"
           }
         }
       }
@@ -581,6 +751,16 @@
         }
       }
     },
+    "Couldn’t finish this photo.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未能完成这张照片。"
+          }
+        }
+      }
+    },
     "Crisp Detail": {
       "localizations": {
         "zh-Hans": {
@@ -701,12 +881,32 @@
         }
       }
     },
+    "Estimated source %.1f MP · Output %.1f MP": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "估计源像素 %1$.1f MP · 输出 %2$.1f MP"
+          }
+        }
+      }
+    },
     "Experimental live color (approx.)": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "实验性实时色彩（近似）"
+          }
+        }
+      }
+    },
+    "Exposure adjustment is unavailable on this camera.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此相机暂不支持曝光补偿。"
           }
         }
       }
@@ -821,6 +1021,16 @@
         }
       }
     },
+    "Finish the retained photo before taking another one.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先完成当前保留的照片，再开始新的拍摄。"
+          }
+        }
+      }
+    },
     "Five RAW samples recorded. Main-camera calibration is still required.": {
       "localizations": {
         "zh-Hans": {
@@ -851,12 +1061,52 @@
         }
       }
     },
+    "Focus or alignment was uncertain. Hold steady and try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对焦或配准未能稳定完成，请保持稳定后重试。"
+          }
+        }
+      }
+    },
+    "Focus or exposure is still changing. Hold steady and try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对焦或曝光尚未稳定，请保持稳定后重试。"
+          }
+        }
+      }
+    },
+    "Focusing and metering. Hold steady…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在对焦和测光，请保持稳定…"
+          }
+        }
+      }
+    },
     "Format": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "格式"
+          }
+        }
+      }
+    },
+    "GLASSCAM": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GLASSCAM"
           }
         }
       }
@@ -981,6 +1231,16 @@
         }
       }
     },
+    "LIVE": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LIVE"
+          }
+        }
+      }
+    },
     "LUMIX Photo Style applies to saved photos. Showing system preview.": {
       "localizations": {
         "zh-Hans": {
@@ -997,6 +1257,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "线性"
+          }
+        }
+      }
+    },
+    "Live color is available for this photo style.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前照片风格支持实时色彩。"
+          }
+        }
+      }
+    },
+    "Live preview supports FFCS · XH2S · PROVIA or ACROS, with 0 EV and default reference adjustments.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时色彩支持 FFCS · XH2S · PROVIA 或 ACROS，后期曝光需为 0 EV，参考调整保持默认。"
+          }
+        }
+      }
+    },
+    "Load full photo again": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新载入清晰成片"
+          }
+        }
+      }
+    },
+    "Lock focus and exposure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "锁定对焦和曝光"
           }
         }
       }
@@ -1231,6 +1531,16 @@
         }
       }
     },
+    "Photo captured. Tap Retry camera to restore the viewfinder.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片已采集，请轻点“重试相机”恢复取景。"
+          }
+        }
+      }
+    },
     "Photo needs attention": {
       "localizations": {
         "zh-Hans": {
@@ -1266,7 +1576,27 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "照片处理已暂停，返回 GlassCam 后继续。"
+            "value": "照片处理已暂停，返回 GlassCam 后将继续。"
+          }
+        }
+      }
+    },
+    "Photo processing could not finish. Check available storage and retry.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未能完成照片处理，请检查剩余存储空间后重试。"
+          }
+        }
+      }
+    },
+    "Photo processing failed. Please try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片处理失败，请重试。"
           }
         }
       }
@@ -1311,12 +1641,32 @@
         }
       }
     },
+    "Photos could not save this photo. The finished HDR file was kept; try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统相册未能保存照片，已完成的 HDR 文件已保留，请重试。"
+          }
+        }
+      }
+    },
     "Preparing Bayer RAW capture…": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "正在准备 Bayer RAW 拍摄…"
+          }
+        }
+      }
+    },
+    "Preparing RAW capture. Hold steady…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在准备 RAW 拍摄，请保持稳定…"
           }
         }
       }
@@ -1371,6 +1721,16 @@
         }
       }
     },
+    "Processing HDR · %lld%%": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在处理 HDR · %lld%%"
+          }
+        }
+      }
+    },
     "Processing photo": {
       "localizations": {
         "zh-Hans": {
@@ -1387,6 +1747,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "RAW 与诊断"
+          }
+        }
+      }
+    },
+    "RAW capture is unavailable for this camera configuration. Return to the main camera and try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前相机配置不支持 RAW 拍摄，请返回主摄后重试。"
           }
         }
       }
@@ -1511,6 +1881,16 @@
         }
       }
     },
+    "Reset focus and metering": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复自动对焦和测光"
+          }
+        }
+      }
+    },
     "Reset zoom": {
       "localizations": {
         "zh-Hans": {
@@ -1551,12 +1931,22 @@
         }
       }
     },
+    "Restoring viewfinder…": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在恢复取景…"
+          }
+        }
+      }
+    },
     "Retained RAW %lld of %lld": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已保留 RAW %1$lld／%2$lld"
+            "value": "已保留 %1$lld／%2$lld 张 RAW"
           }
         }
       }
@@ -1576,7 +1966,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在保留照片…"
+            "value": "正在保留原片…"
           }
         }
       }
@@ -1597,6 +1987,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "重试保存"
+          }
+        }
+      }
+    },
+    "Return to GlassCam to finish saving this photo.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请返回 GlassCam 完成这张照片的保存。"
+          }
+        }
+      }
+    },
+    "Return to the camera and take the photo again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请返回相机重新拍摄。"
           }
         }
       }
@@ -1691,6 +2101,16 @@
         }
       }
     },
+    "Saved HDR · %lld × %lld": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HDR 已保存 · %1$lld × %2$lld"
+          }
+        }
+      }
+    },
     "Saved RAW sets are kept in Files under F5Archives.": {
       "localizations": {
         "zh-Hans": {
@@ -1711,6 +2131,16 @@
         }
       }
     },
+    "Saved to Photos. Tap Retry to finish keeping the review copy and recovery record.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片已保存到系统相册。请轻点“重试”，完成回看副本和恢复记录的保存。"
+          }
+        }
+      }
+    },
     "Saving photo": {
       "localizations": {
         "zh-Hans": {
@@ -1726,7 +2156,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在存入相册…"
+            "value": "正在保存到系统相册…"
           }
         }
       }
@@ -1821,6 +2251,16 @@
         }
       }
     },
+    "Show photo details": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展开拍摄详情"
+          }
+        }
+      }
+    },
     "Silky B&W": {
       "localizations": {
         "zh-Hans": {
@@ -1897,6 +2337,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "柔和色调"
+          }
+        }
+      }
+    },
+    "Source white point unavailable · D65 fallback": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法读取拍摄白点 · 采用 D65"
           }
         }
       }
@@ -1981,12 +2431,82 @@
         }
       }
     },
+    "The HDR photo could not be encoded. Its source was kept; try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HDR 照片未能完成编码，原片已保留，请重试。"
+          }
+        }
+      }
+    },
     "The RAW frames have inconsistent exposure settings. Fusion could not finish; the originals were kept.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "RAW 帧的曝光设置不一致，无法完成合成；原片已保留。"
+          }
+        }
+      }
+    },
+    "The camera cannot keep this exposure lock. Unlock AE/AF and try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机无法保持当前曝光锁定，请解除曝光／对焦锁定后重试。"
+          }
+        }
+      }
+    },
+    "The camera is too hot. Let it cool, then try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机温度过高，请待降温后重试。"
+          }
+        }
+      }
+    },
+    "The camera is unavailable. Tap Retry camera.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机暂不可用，请轻点“重试相机”。"
+          }
+        }
+      }
+    },
+    "The camera was interrupted. Tap Retry camera.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机已中断，请轻点“重试相机”。"
+          }
+        }
+      }
+    },
+    "The capture was interrupted. Any delivered originals were kept. You can discard the incomplete capture.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍摄已中断。已交付的原片会保留，你可以放弃这次未完成的拍摄。"
+          }
+        }
+      }
+    },
+    "The capture was interrupted. Check its status, then tap Retry camera.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍摄已中断，请检查拍摄状态，再轻点“重试相机”。"
           }
         }
       }
@@ -2021,12 +2541,162 @@
         }
       }
     },
+    "The photo could not be processed. Its source was kept; try again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片未能完成处理，原片已保留，请重试。"
+          }
+        }
+      }
+    },
+    "The photo's capture information could not be preserved. Its source has been retained for retry.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法完整保留照片的拍摄信息，原片已留存以便重试。"
+          }
+        }
+      }
+    },
+    "The photo's saved state changed. Reopen it before retrying.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片的保存状态已改变，请重新打开后再试。"
+          }
+        }
+      }
+    },
+    "The retained RAW files could not be verified. They have been kept for recovery.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留的 RAW 文件未通过校验，文件已留存以便恢复。"
+          }
+        }
+      }
+    },
+    "The retained photo could not be verified. Its files have been kept.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留的照片未通过校验，文件已留存。"
+          }
+        }
+      }
+    },
+    "The retained source could not be opened. Its files were kept.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法打开保留的原片，文件已留存。"
+          }
+        }
+      }
+    },
+    "There is not enough memory to finish this photo. The originals were kept. Try again later.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内存不足，暂时无法完成照片。原片已保留，请稍后重试。"
+          }
+        }
+      }
+    },
+    "This RAW capture could not be processed with its camera information. The originals were kept.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法按这张 RAW 的相机信息完成处理，原片已保留。"
+          }
+        }
+      }
+    },
+    "This image could not be decoded. Try a JPEG, PNG, HEIC, or supported DNG.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法解码这张图像，请使用 JPEG、PNG、HEIC 或受支持的 DNG。"
+          }
+        }
+      }
+    },
     "This native LUT asset is unavailable. Choose another look or family.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "此原生 LUT 不可用，请选择其他风格或系列。"
+          }
+        }
+      }
+    },
+    "This photo cannot be processed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法处理这张照片。"
+          }
+        }
+      }
+    },
+    "This photo cannot use the requested output dimensions. Its source was kept.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这张照片无法使用所选输出尺寸，原片已保留。"
+          }
+        }
+      }
+    },
+    "This photo could not be reconstructed. The originals were kept; you can retry or discard it.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片未能完成重建，原片已保留。你可以重试或放弃。"
+          }
+        }
+      }
+    },
+    "This photo may already be in Photos. A copy is retained here. Check Photos before saving it again.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这张照片可能已在系统相册中，应用内仍保留副本。请先检查相册，再决定是否再次保存。"
+          }
+        }
+      }
+    },
+    "This photo style is unavailable. Choose another style.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此照片风格暂不可用，请选择其他风格。"
+          }
+        }
+      }
+    },
+    "This retained photo uses an unsupported recovery format. Its files have been kept.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这张照片的恢复格式暂不受支持，文件已留存。"
           }
         }
       }
@@ -2101,6 +2771,16 @@
         }
       }
     },
+    "Use XH2S PROVIA or ACROS with default reference adjustments for live color. Showing system preview.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请选用 XH2S 的 PROVIA 或 ACROS，并保持默认参考调整以使用实时色彩。当前显示相机原画。"
+          }
+        }
+      }
+    },
     "Uses the original preset white balance, when specified.": {
       "localizations": {
         "zh-Hans": {
@@ -2151,12 +2831,32 @@
         }
       }
     },
+    "Viewfinder. Tap to focus; hold to lock focus and exposure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取景框。轻点对焦，长按锁定对焦和曝光"
+          }
+        }
+      }
+    },
     "Vivid Slide": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "鲜艳反转片"
+          }
+        }
+      }
+    },
+    "Wait for the camera before adjusting focus.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请等待相机就绪后再调整对焦。"
           }
         }
       }
@@ -2231,6 +2931,16 @@
         }
       }
     },
+    "White balance baked into source": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "白平衡已包含在原图中"
+          }
+        }
+      }
+    },
     "Wide Roll-off": {
       "localizations": {
         "zh-Hans": {
@@ -2257,6 +2967,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "放大"
+          }
+        }
+      }
+    },
+    "·": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "·"
+          }
+        }
+      }
+    },
+    "· %lld RAW": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· %lld 张 RAW"
           }
         }
       }

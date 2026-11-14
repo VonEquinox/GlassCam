@@ -11,6 +11,7 @@
 #include <exception>
 #include <thread>
 #include <limits>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -282,7 +283,9 @@ FFCSContext *ffcs_create_family_config(const char *root,const char *camera,size_
   const char *family=ffcs_resolved_asset_family(root,camera,index);
   if(!family)throw std::runtime_error("Unsupported or missing FFCS camera/look native asset");
   std::string dir=std::string(root)+"/"+family;
-  auto *ctx=ffcs_create_config(dir.c_str(),index,grain,sharpen,overlay,radius,err,en);if(ctx)ctx->family=family;return ctx;
+  std::unique_ptr<FFCSContext> ctx(ffcs_create_config(dir.c_str(),index,grain,sharpen,overlay,radius,err,en));
+  if(ctx)ctx->family=family;
+  return ctx.release();
  }catch(const std::exception &e){errorText(err,en,e.what());return nullptr;}catch(...){errorText(err,en,"Unknown FFCS family initialization failure");return nullptr;}
 }
 const char *ffcs_asset_family(const FFCSContext *c){return c?c->family.c_str():nullptr;}
@@ -316,6 +319,8 @@ int ffcs_process_linear_rgb(const FFCSContext *c,const float *in,size_t ni,size_
   size_t n=count(w,h);
   if(!c||!in||!out||ni<n||no<n||(rgba&&nb<(n/3)*4)||!std::isfinite(ev)||ev < -32||ev>32)
    throw std::runtime_error("Invalid FFCS float buffers or exposure");
+  if(overlaps(out,n*sizeof(float),rgba,(n/3)*4))
+   throw std::runtime_error("FFCS float and preview outputs must not overlap");
   double gain=std::exp2(double(ev));std::vector<double> p(n);
   for(size_t i=0;i<n;++i) {
    if(!std::isfinite(in[i])) throw std::runtime_error("Nonfinite FFCS input");

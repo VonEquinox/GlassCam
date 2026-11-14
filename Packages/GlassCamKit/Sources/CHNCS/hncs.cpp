@@ -24,6 +24,11 @@
 namespace {
 using V = std::array<double,3>;
 using M = std::array<double,9>;
+bool overlapping_buffers(const void* a,size_t a_bytes,const void* b,size_t b_bytes) {
+    if(!a_bytes||!b_bytes)return false;
+    const auto first=reinterpret_cast<uintptr_t>(a),second=reinterpret_cast<uintptr_t>(b);
+    return first<=second?second-first<a_bytes:first-second<b_bytes;
+}
 inline double clamp(double x,double lo,double hi) {return std::max(lo,std::min(x,hi));}
 M matrix(const double *a) {M m{}; std::copy(a,a+9,m.begin()); return m;}
 M mul(const M& a,const M& b) {
@@ -356,6 +361,7 @@ extern "C" hncs_context *hncs_clone_with_native_gain(const hncs_context *source,
 }
 extern "C" int hncs_render_native(const hncs_context *c,const double *input,uint16_t *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(double)/3)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(double),output,count*3*sizeof(uint16_t)))return -1;
     for(size_t i=0;i<count;++i) {
         V p={input[i*3],input[i*3+1],input[i*3+2]}; if(!finite(p))return -1;
         auto codes=c->render(p);for(int j=0;j<3;++j)output[i*3+j]=codes[j];
@@ -367,6 +373,7 @@ extern "C" int hncs_render_x2d_hdr_color(const hncs_context *source,double gain,
        (source->curve!=assets::v1_gamma&&source->curve!=assets::v1_lstar)||
        !std::isfinite(gain)||gain<.25||gain>32.||
        (!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(double)/3)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(double),output,count*3*sizeof(uint16_t)))return -1;
     for(size_t i=0;i<count*3;++i)if(!std::isfinite(input[i]))return -1;
     try {
         auto context=std::make_unique<hncs_context>(*source);
@@ -414,6 +421,7 @@ extern "C" int hncs_apply_x2d_hdr_gradation(const char *key,const uint16_t *inpu
 }
 extern "C" int hncs_process_srgb(const hncs_context *c,const float *input,uint8_t *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(float),output,count*4))return -1;
     // Fused pixel loop: O(1) scratch; caller may parallelize nonoverlapping rows.
     for(size_t i=0;i<count;++i) {
         V p={double(input[i*3])*c->exposure,double(input[i*3+1])*c->exposure,double(input[i*3+2])*c->exposure};
@@ -427,6 +435,7 @@ extern "C" int hncs_process_srgb(const hncs_context *c,const float *input,uint8_
 
 extern "C" int hncs_process_srgb_fast(const hncs_context *c,const float *input,uint8_t *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(float),output,count*4))return -1;
     // Only final display encoding is approximated. All original HNCS arithmetic,
     // uint16 boundaries and Bradford conversion are identical to the exact API.
     for(size_t i=0;i<count;++i) {
@@ -443,6 +452,7 @@ extern "C" int hncs_process_linear_rgba(const hncs_context *c,const float *input
     // RGBA float output is larger than RGB float input; this bound protects
     // both byte sizes and all component-index multiplications below.
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(float),output,count*4*sizeof(float)))return -1;
     for(size_t i=0;i<count;++i) {
         V p={double(input[i*3])*c->exposure,double(input[i*3+1])*c->exposure,double(input[i*3+2])*c->exposure};
         if(!finite(p))return -1;
@@ -457,6 +467,7 @@ extern "C" int hncs_process_linear_rgba(const hncs_context *c,const float *input
 
 extern "C" int hncs_process_srgb_fast_parallel(const hncs_context *c,const float *input,uint8_t *output,size_t count,unsigned workers) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3||workers<1||workers>4)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(float),output,count*4))return -1;
     // Avoid launch overhead for small buffers. Context is immutable and each
     // worker writes a disjoint contiguous pixel range with constant scratch.
     if(workers==1||count<65536)return hncs_process_srgb_fast(c,input,output,count);
@@ -487,6 +498,9 @@ using FloatOperation = int (*)(const hncs_context*,const float*,float*,size_t);
 int parallel_float(const hncs_context *c,const float *input,float *output,size_t count,
                    unsigned workers,size_t output_channels,FloatOperation operation) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/output_channels||workers<1||workers>4)return -1;
+    // Check the complete ranges before dispatch: disjoint individual strips
+    // can otherwise overwrite a later worker's input.
+    if(overlapping_buffers(input,count*3*sizeof(float),output,count*output_channels*sizeof(float)))return -1;
     // Avoid launch overhead for small buffers. Context is immutable and each
     // worker writes a disjoint contiguous pixel range with constant scratch.
     if(workers==1||count<65536)return operation(c,input,output,count);
@@ -661,6 +675,7 @@ extern "C" hncs_context *hncs_create_preset(double ev,double capture_kelvin,doub
 }
 extern "C" int hncs_apply_post_curves(const char *key,int tone,const uint16_t *input,uint16_t *output,size_t count) {
     if((tone!=0&&tone!=1)||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(uint16_t)/3)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(uint16_t),output,count*3*sizeof(uint16_t)))return -1;
     try {
         const auto *preset=find_preset(key);if(!preset)return -1;
         for(size_t i=0;i<count;++i){Codes v={input[3*i],input[3*i+1],input[3*i+2]};v=post_curves(*preset,tone!=0,v);for(int j=0;j<3;++j)output[3*i+j]=v[j];}
@@ -669,6 +684,7 @@ extern "C" int hncs_apply_post_curves(const char *key,int tone,const uint16_t *i
 }
 extern "C" int hncs_apply_preset_pointwise(const char *key,int tone,const uint16_t *input,uint16_t *output,size_t count) {
     if((tone!=0&&tone!=1)||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(uint16_t)/3)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(uint16_t),output,count*3*sizeof(uint16_t)))return -1;
     try {
         const auto *preset=find_preset(key);if(!preset)return -1;
         for(size_t i=0;i<count;++i){Codes v={input[3*i],input[3*i+1],input[3*i+2]};v=finish_work(preset_work(preset,tone!=0,v));for(int j=0;j<3;++j)output[3*i+j]=v[j];}
@@ -677,6 +693,7 @@ extern "C" int hncs_apply_preset_pointwise(const char *key,int tone,const uint16
 }
 extern "C" int hncs_render_native_preset(const hncs_context *c,const double *input,uint16_t *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(double)/3)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(double),output,count*3*sizeof(uint16_t)))return -1;
     for(size_t i=0;i<count;++i) {
         V p={input[i*3],input[i*3+1],input[i*3+2]};if(!finite(p))return -1;
         const Codes codes=c->preset_pointwise_active?finish_work(preset_work(c->preset,c->preset_tone,c->render(p))):c->render(p);
@@ -686,6 +703,7 @@ extern "C" int hncs_render_native_preset(const hncs_context *c,const double *inp
 }
 extern "C" int hncs_apply_preset_work_float(const char *key,int tone,const uint16_t *input,float *output,size_t count) {
     if((tone!=0&&tone!=1)||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(uint16_t),output,count*3*sizeof(float)))return -1;
     try {
         const auto *preset=find_preset(key);if(!preset)return -1;
         for(size_t i=0;i<count;++i){const F v=preset_work(preset,tone!=0,{input[3*i],input[3*i+1],input[3*i+2]});for(int j=0;j<3;++j)output[3*i+j]=v[j];}
@@ -694,6 +712,7 @@ extern "C" int hncs_apply_preset_work_float(const char *key,int tone,const uint1
 }
 extern "C" int hncs_process_preset_work_float(const hncs_context *c,const float *input,float *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(float),output,count*3*sizeof(float)))return -1;
     for(size_t i=0;i<count;++i) {
         V p={double(input[i*3])*c->exposure,double(input[i*3+1])*c->exposure,double(input[i*3+2])*c->exposure};
         if(!finite(p))return -1;
@@ -706,6 +725,7 @@ extern "C" int hncs_process_preset_work_float(const hncs_context *c,const float 
 }
 extern "C" int hncs_finish_preset_work_linear(const hncs_context *c,const float *input,float *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(float),output,count*4*sizeof(float)))return -1;
     for(size_t i=0;i<count;++i) {
         const F work={input[3*i],input[3*i+1],input[3*i+2]};
         if(!std::isfinite(work[0])||!std::isfinite(work[1])||!std::isfinite(work[2]))return -1;
@@ -723,15 +743,19 @@ extern "C" int hncs_finish_preset_work_linear_parallel(const hncs_context *c,con
 }
 extern "C" int hncs_apply_phocus_post_spatial(const char *key,const uint16_t *input,uint16_t *output,size_t count) {
     if((!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(uint16_t)/3)return -1;
-    const auto *preset=find_preset(key);if(!preset)return -1;
-    for(size_t i=0;i<count;++i) {
-        const Codes value=phocus_post_spatial(preset,{input[3*i],input[3*i+1],input[3*i+2]});
-        for(int ch=0;ch<3;++ch)output[3*i+ch]=value[ch];
-    }
-    return 0;
+    if(overlapping_buffers(input,count*3*sizeof(uint16_t),output,count*3*sizeof(uint16_t)))return -1;
+    try {
+        const auto *preset=find_preset(key);if(!preset)return -1;
+        for(size_t i=0;i<count;++i) {
+            const Codes value=phocus_post_spatial(preset,{input[3*i],input[3*i+1],input[3*i+2]});
+            for(int ch=0;ch<3;++ch)output[3*i+ch]=value[ch];
+        }
+        return 0;
+    } catch(...) {return -1;}
 }
 extern "C" int hncs_process_phocus_work_float(const hncs_context *c,const float *input,float *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/3)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(float),output,count*3*sizeof(float)))return -1;
     for(size_t i=0;i<count;++i) {
         V p={double(input[3*i])*c->exposure,double(input[3*i+1])*c->exposure,double(input[3*i+2])*c->exposure};
         if(!finite(p))return -1;
@@ -743,6 +767,7 @@ extern "C" int hncs_process_phocus_work_float(const hncs_context *c,const float 
 }
 extern "C" int hncs_finish_phocus_work_linear(const hncs_context *c,const float *input,float *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(float),output,count*4*sizeof(float)))return -1;
     for(size_t i=0;i<count;++i) {
         const F work={input[3*i],input[3*i+1],input[3*i+2]};
         if(!std::isfinite(work[0])||!std::isfinite(work[1])||!std::isfinite(work[2]))return -1;
@@ -754,6 +779,7 @@ extern "C" int hncs_finish_phocus_work_linear(const hncs_context *c,const float 
 }
 extern "C" int hncs_process_phocus_linear_rgba(const hncs_context *c,const float *input,float *output,size_t count) {
     if(!c||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(float)/4)return -1;
+    if(overlapping_buffers(input,count*3*sizeof(float),output,count*4*sizeof(float)))return -1;
     for(size_t i=0;i<count;++i) {
         V p={double(input[3*i])*c->exposure,double(input[3*i+1])*c->exposure,double(input[3*i+2])*c->exposure};
         if(!finite(p))return -1;
@@ -772,13 +798,6 @@ extern "C" int hncs_finish_phocus_work_linear_parallel(const hncs_context *c,con
 }
 extern "C" int hncs_process_phocus_linear_rgba_parallel(const hncs_context *c,const float *input,float *output,size_t count,unsigned workers) {
     return parallel_float(c,input,output,count,workers,4,hncs_process_phocus_linear_rgba);
-}
-
-namespace {
-bool overlapping_buffers(const void* a,size_t a_bytes,const void* b,size_t b_bytes) {
-    const auto first=reinterpret_cast<uintptr_t>(a),second=reinterpret_cast<uintptr_t>(b);
-    return first<=second?second-first<a_bytes:first-second<b_bytes;
-}
 }
 
 extern "C" hncs_context *hncs_clone_with_apple_hdr_work_scale(const hncs_context *source,double work_scale) {

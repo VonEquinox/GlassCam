@@ -27,8 +27,8 @@ final class CameraController: ObservableObject {
         let sensorPhotoDimensions: CGSize
         let photoAspectRatio: CGFloat
     }
-    enum CapturePhase: String { case idle, preparing, capturing, restoring }
-    @Published private(set) var status = "Camera stopped"
+    enum CapturePhase: String { case idle, preparing, capturing, captured, restoring }
+    @Published private(set) var status = String(localized: "Camera stopped")
     @Published private(set) var isReady = false
     @Published private(set) var isCapturing = false
     @Published private(set) var capturePhase: CapturePhase = .idle
@@ -44,6 +44,15 @@ final class CameraController: ObservableObject {
     @Published private(set) var currentFraming = CaptureFraming()
     @Published private(set) var isUpdatingZoom = false
     @Published private(set) var f5SampleDirectory: URL?
+    @Published private(set) var metering = CameraMetering.automatic
+    @Published private(set) var meteringAdjusting = false
+    @Published private(set) var exposureBiasRange: ClosedRange<Float> = -2...2
+    @Published private(set) var exposureCompletionID: UUID?
+    private(set) var captureQuality: CaptureQuality = .balanced
+    @Published private(set) var physicalOrientation: UIInterfaceOrientation?
+    private var reservedOrientation: UIInterfaceOrientation?
+    private var meteringRevision: UInt64 = 0
+    private var nativeMainZoom = 1.0
     private var captureReservation: UUID?
     private let backend: any CameraBackendServing
     private let cameraAccess: CameraAccess
@@ -67,7 +76,7 @@ final class CameraController: ObservableObject {
         let token = UUID(); generation = token
         isUpdatingZoom = false; captureReservation = nil
         isConfiguring = true; isReady = false; capturePhase = .idle
-        status = "Checking camera access…"; appliedOrientation = .unknown; isApplyingOrientation = false
+        status = String(localized: "Checking camera access…"); appliedOrientation = .unknown; isApplyingOrientation = false
         clearPreview()
         switch cameraAccess.status() {
         case .authorized:
@@ -77,17 +86,17 @@ final class CameraController: ObservableObject {
                 DispatchQueue.main.async {
                     guard let self, self.generation == token else { return }
                     if allowed { self.configure(mode: mode, centerPreviewLongEdge: centerPreviewLongEdge, token: token) }
-                    else { self.isConfiguring = false; self.status = "Camera permission denied. Enable camera access in Settings." }
+                    else { self.isConfiguring = false; self.status = String(localized: "Camera permission denied. Enable camera access in Settings.") }
                 }
             }
         default:
-            isConfiguring = false; status = "Camera permission denied. Enable camera access in Settings."
+            isConfiguring = false; status = String(localized: "Camera permission denied. Enable camera access in Settings.")
         }
     }
     private func configure(mode: Mode, centerPreviewLongEdge: Int, token: UUID) {
         let initialOrientation = orientation
         let lifetime = lifetime
-        status = "Checking camera RAW capability…"
+        status = String(localized: "Checking camera RAW capability…")
         let requestedZoom = requestedZoom
         backend.queue.async { [weak self, backend] in
             do {
@@ -111,6 +120,7 @@ final class CameraController: ObservableObject {
                 DispatchQueue.main.async { [weak self] in
                     guard let self, self.generation == token else { return }
                     self.install(bundle)
+                    self.requestedZoom = bundle.nativeMainZoom
                     self.isConfiguring = false; self.isReady = true
                     self.appliedOrientation = initialOrientation
                     self.status = self.readyStatus
@@ -130,7 +140,7 @@ final class CameraController: ObservableObject {
         }
     }
     private var readyStatus: String {
-        "Bayer RAW · \(currentFraming.lensName ?? "Automatic camera")"
+        String(localized: "Bayer RAW · \(currentFraming.lensName ?? String(localized: "Main"))")
     }
     private func install(_ bundle: CameraBackend.Bundle) {
         centerPreviewLayer = bundle.center; centerLiveSource = bundle.liveSource
@@ -141,9 +151,41 @@ final class CameraController: ObservableObject {
         appliedZoom = bundle.framing.displayZoom
         currentFraming = bundle.framing
         requestedZoom = zoomRange.clamped(requestedZoom)
+        metering = bundle.metering; meteringAdjusting = bundle.meteringAdjusting
+        exposureBiasRange = bundle.exposureBiasRange
+        nativeMainZoom = bundle.nativeMainZoom
+    }
+    var previewOrientation: UIInterfaceOrientation {
+        appliedOrientation == .unknown ? orientation : appliedOrientation
+    }
+    var isExposing: Bool { capturePhase == .preparing || capturePhase == .capturing }
+
+    func updatePhysicalOrientation(_ value: UIInterfaceOrientation?) {
+        guard let value, value != .unknown else { return }
+        physicalOrientation = value
+    }
+
+    func setMetering(_ requested: CameraMetering) {
+        guard canReserveCapture, requested.isValid else { return }
+        meteringRevision &+= 1
+        let revision = meteringRevision, token = generation
+        metering = requested; meteringAdjusting = true
+        backend.queue.async { [weak self, backend] in
+            let result = Result { try backend.setMetering(requested) }
+            DispatchQueue.main.async { [weak self] in
+                guard let self, self.generation == token, self.meteringRevision == revision else { return }
+                switch result {
+                case .success(let applied): self.metering = applied; self.meteringAdjusting = false
+                case .failure(let error):
+                    self.metering = .automatic; self.meteringAdjusting = false
+                    self.status = error.localizedDescription
+                }
+            }
+        }
     }
     func selectF5MainCamera() {
-        if let main = zoomRange.stops.first(where: { $0.title == "Main" }) { requestedZoom = main.factor; applyPendingZoom() }
+        requestedZoom = nativeMainZoom
+        applyPendingZoom()
     }
     @MainActor
     func reserveMainForTest() async throws -> UUID {
@@ -204,7 +246,8 @@ final class CameraController: ObservableObject {
         isConfiguring = false; isReady = false; isCapturing = false
         isUpdatingZoom = false; captureReservation = nil
         capturePhase = .idle; appliedOrientation = .unknown; isApplyingOrientation = false
-        clearPreview(); status = "Camera stopped"
+        reservedOrientation = nil; metering = .automatic; meteringAdjusting = false
+        clearPreview(); status = String(localized: "Camera stopped")
         backend.queue.async { [backend] in backend.stop() }
     }
     var canReserveCapture: Bool {
@@ -217,12 +260,14 @@ final class CameraController: ObservableObject {
         dispatchPrecondition(condition: .onQueue(.main))
         guard canReserveCapture else { return nil }
         let id = UUID(); captureReservation = id
+        reservedOrientation = physicalOrientation ?? previewOrientation
         return id
     }
 
     func releaseCaptureReservation(_ id: UUID) {
         guard captureReservation == id, !isCapturing else { return }
         captureReservation = nil
+        reservedOrientation = nil
         updateOrientation(orientation); applyPendingZoom()
     }
 
@@ -269,14 +314,19 @@ final class CameraController: ObservableObject {
             completion(.failure(CameraFailure("Camera is unavailable or a capture is already in progress."))); return
         }
         isCapturing = true; isReady = false
+        captureQuality = quality
         capturePhase = .preparing
-        status = "Preparing Bayer RAW capture…"
+        status = String(localized: "Preparing RAW capture. Hold steady…")
         let token = generation
+        let captureOrientation = reservedOrientation ?? previewOrientation
         backend.queue.async { [weak self, backend] in
-            backend.capture(quality: quality, snapshot: snapshot, f5Purpose: f5Purpose, progress: { phase, message in
+            backend.capture(quality: quality, snapshot: snapshot, f5Purpose: f5Purpose, orientation: captureOrientation, progress: { phase, message in
                 DispatchQueue.main.async { [weak self] in
                     guard let self, self.generation == token else { return }
                     self.capturePhase = phase; self.status = message
+                    if phase == .captured, self.exposureCompletionID != reservation {
+                        self.exposureCompletionID = reservation
+                    }
                 }
             }) { outcome in
                 DispatchQueue.main.async { [weak self] in
@@ -285,7 +335,7 @@ final class CameraController: ObservableObject {
                     guard let self, self.generation == token else { completion(photoResult); return }
                     if let bundle = outcome.bundle { self.install(bundle) }
                     if f5Purpose == "probe", case .success(let photo) = outcome.result { self.f5SampleDirectory = photo.burst?.directory }
-                    self.isCapturing = false; self.captureReservation = nil; self.capturePhase = .idle
+                    self.isCapturing = false; self.captureReservation = nil; self.reservedOrientation = nil; self.capturePhase = .idle
                     self.isReady = outcome.previewReady
                     self.status = outcome.message ?? self.readyStatus
                     if outcome.previewReady { self.updateOrientation(self.orientation); self.applyPendingZoom() }

@@ -118,6 +118,17 @@ struct CameraControlsTests {
         #expect(layout.style == .separate)
         #expect(framing.photo == photo)
     }
+    @Test(arguments: [CGSize(width: 390, height: 844), CGSize(width: 402, height: 874)])
+    func portraitSafeArea_keepsFilterDialInThePeriphery(size: CGSize) {
+        let framing = CameraFraming(size: size, photoAspectRatio: 0.75)
+        let safe = EdgeInsets(top: 62, leading: 0, bottom: 34, trailing: 0)
+
+        let layout = CameraChromeLayout(framing: framing, safeArea: safe, needsAccessiblePanel: false)
+
+        #expect(layout.style == .portrait)
+        #expect(layout.second.minY >= framing.photo.maxY)
+        #expect(layout.second.maxY <= size.height - safe.bottom)
+    }
     @Test func grid_usesThirdsInsidePhotoBounds() {
         let size = CGSize(width: 300,height: 600)
         let path = PhotoFrameGuide.grid(size: size)

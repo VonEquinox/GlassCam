@@ -359,9 +359,6 @@ struct F5CurveSource {
 int f5curve_reflect(int p, int n) {
     int period = 2 * n - 2; p %= period; if (p < 0) p += period; return min(p, period - p);
 }
-int f5curve_repeat(int p, int n) {
-    int period = 2 * n; p %= period; if (p < 0) p += period; return min(p, period - 1 - p);
-}
 float f5curve_same_cfa(device const float *raw, int2 pixel, float2 flow, uint frame, constant F5CurveSource &p) {
     int2 phase = pixel & 1;
     float2 halfFlow = flow * 0.5f, baseFlow = floor(halfFlow), a = halfFlow - baseFlow;
@@ -395,7 +392,9 @@ kernel void f5_curve_temporal_rows(device const float *raw [[buffer(0)]], device
     mosaic[i] = total / max(mass, 1e-12f);
 }
 float f5curve_mosaic(device const float *mosaic, int2 q, constant F5CurveSource &p) {
-    q = int2(f5curve_repeat(q.x, p.shape.x), f5curve_repeat(q.y, p.shape.y));
+    // Reflect around the edge sample: a two-pixel CFA period must keep its
+    // colour phase when MHC reads outside the sensor rectangle.
+    q = int2(f5curve_reflect(q.x, p.shape.x), f5curve_reflect(q.y, p.shape.y));
     return mosaic[(q.y - p.rows.x) * p.shape.x + q.x];
 }
 kernel void f5_curve_guide_rows(device const float *mosaic [[buffer(0)]], device float4 *guide [[buffer(1)]],
@@ -565,7 +564,7 @@ kernel void f5_curve_decode_raw(device const ushort *raw [[buffer(0)]], device c
     if (i >= f.active.z * f.active.w) return;
     F5RawSample event = f5decodeSample(uint2(i % f.active.z, i / f.active.z), raw, f, table);
     // Censored samples keep their delivered code center for registration and
-    // guides. The separate kind byte remains authoritative for reconstruction.
+    // guides. The separate kind byte retains the censor/repair quality flags.
     float center = event.kind == 1 ? event.interval.y - event.width * 0.5f :
                    event.kind == 2 ? event.interval.x + event.width * 0.5f : (event.interval.x + event.interval.y) * 0.5f;
     float value = center / event.exposure;

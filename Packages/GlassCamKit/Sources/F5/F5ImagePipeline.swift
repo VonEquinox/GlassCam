@@ -66,7 +66,7 @@ enum F5ImagePipeline {
         let output=TemporaryHEIFFile(captureDate:metadata.captureDate)
         let recipe=try ImagePipeline.writeF5HEIF(resources: resources, reconstruction,metadata:metadata,recipe:snapshot.recipe,to:output.url,
             isCancelled:isCancelled,progress:{progress(0.7+0.3*$0)})
-        return .init(file:output,snapshot:CaptureSnapshot(recipe:recipe,output:snapshot.output,quality:snapshot.quality,f5:provenance,archiveF5RAW:snapshot.archiveF5RAW,rawArchiveID:snapshot.rawArchiveID))
+        return .init(file:output,snapshot:CaptureSnapshot(recipe:recipe,output:snapshot.output,quality:snapshot.quality,f5:provenance,archiveF5RAW:snapshot.archiveF5RAW,rawArchiveID:snapshot.rawArchiveID,recoverySlot:snapshot.recoverySlot))
     }
 
     static func archiveRAW(_ source: F5BurstSource,snapshot: CaptureSnapshot,

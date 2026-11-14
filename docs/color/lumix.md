@@ -4,6 +4,10 @@ LUMIX 将 SILKYPIX Developer Studio 8 SE 的 DC-S1M2 SDR Photo Style 数据用�
 
 ## 工作方式
 
+### 输入前提
+
+输入为已完成源白平衡与基准曝光的扩展线性 sRGB，允许有限负值与大于 1 的高光。公共管线先施加用户效果曝光、再按 `max(1,R,G,B)` 分离高光；revision 4 将有符号颜色收束到 LUT 色域，返回 `[0,1]` 线性结果后恢复高光幅度。
+
 ### 风格与控制
 
 风格目录由 CLUMIX 提供，处理配方保存稳定的 `photoStyle` 标识。默认风格为 Standard，对比度与饱和度均为 0；界面允许在 −5…+5 范围内以 0.5 步进调整，后端对应原始 0…20 档参数，中性档为 10。
@@ -55,6 +59,14 @@ Speed／Balanced 直接使用 F5 交付的扩展线性 sRGB、拍摄白点、ISO
 
 LUMIX 上下文保存不可变 LUT 与风格参数；缓存身份包含资源目录、全部 LUMIX 设置和色温。处理中的调用持有自己的上下文，因此后续选择其他风格不会替换其数据。运行时校验 LUT 和参数表的格式、长度及 CRC，资源错误会终止处理。
 
+### 空间效果、CPU 与 Metal
+
+LUMIX 不提供额外颗粒、锐化或裁剪阶段，公共 `applyGrain`、`applySharpness` 与 `applyExtraCrop` 不改变该引擎输出；源去马赛克及降噪由上游完成。C++ 负责资源验证、整数参考与浮点 CPU 适配，Metal 负责 revision 4 成片颜色，原始双 LUT 的 GPU 缓冲随不可变上下文缓存复用。参考输出和 GPU 预算分别验收，见 [ADR 0017](../adr/0017-native-and-metal-contracts.md)。
+
+### 实时颜色代理
+
+LUMIX 不在 `experimentalLiveColor` 的 65³ 立方体准入表内，取景显示系统颜色；设置开关处显示原因，光学滤镜拨盘不为 LUMIX 点亮 `LIVE`。
+
 ## 不变量
 
 1. 选择任一目录风格后，成片配方保留该风格和照片白点、无额外裁剪，并保留 HDR 亮度。— `ImagingCoreTests/LUMIXPipelineTests.selectedPhotoStyle_preservesRecipeWhitePointAndHDR`
@@ -65,11 +77,12 @@ LUMIX 上下文保存不可变 LUT 与风格参数；缓存身份包含资源目
 6. revision 4 的饱和色渐变不发生整数回绕造成的黑色突变，灰阶保持端点且无大幅反转。— `test_lumix_iphone.test_saturated_ramp_has_no_wraparound_discontinuity`、`test_lumix_iphone.test_gray_ramp_preserves_local_steps_and_endpoints`
 7. 相同上下文的有符号输入并发分条与整段输出逐值一致。— `test_lumix_iphone.test_signed_gamut_concurrent_strips_preserve_full_output`
 8. 当前曝光作用于 HDR 分离之前，增加曝光也增加超白高光幅度。— `ImagingCoreTests/LUMIXPipelineTests.exposure_scalesSceneLinearHighlightsBeforeStripExport`、`ImagingCoreTests/LUMIXPipelineTests.currentExposure_increasesSuperwhiteMagnitude`
-9. Standard 与 L.Monochrome 的分条导出和整图参考在编码容差内一致，直接导出与先生成成片回看图再导出的解码像素相同，并保留尺寸、HDR 与 10-bit 编码。— `ImagingCoreTests/LUMIXPipelineTests.stripHEIF_matchesFullFrameAndDirectExport`
+9. Standard 与 L.Monochrome 的分条导出符合整图参考，直接导出与先生成回看图再导出的 HEIF 字节相同，并保留尺寸、HDR 与 10-bit 编码。— `ImagingCoreTests/LUMIXPipelineTests.stripHEIF_matchesFullFrameAndDirectExport`
 10. revision 1 照片不绑定 ISO 修正，缺少 RAW 输入策略的旧配方在绑定元数据后仍保持 legacy 语义。— `ImagingCoreTests/LUMIXPipelineTests.savedV1Photo_doesNotAdoptISOCorrection`、`ImagingCoreTests/LUMIXPipelineTests.absentInputPolicy_keepsLegacyPhotoSemanticsDuringMetadataBinding`
 11. 保存的 revision 2、共享管线 revision 1 配方重放原有超白曝光行为。— `ImagingCoreTests/LUMIXPipelineTests.savedV2Exposure_replaysOriginalSuperwhiteMagnitude`
 12. 原始 RGB12 插值和 RGB48 整数路径分别与固定原程序样本逐值一致。— `test_lumix_reference.test_rgb12_interpolation_matches_native_vectors`、`test_lumix_iphone.test_original_rgb48_fixture_remains_bit_exact`
 13. 非有限 iPhone 输入在写入输出之前失败，缺失、截断、损坏或网格错误的 LUT 被拒绝。— `test_lumix_iphone.test_nonfinite_input_is_rejected_before_writing`、`test_lumix_reference.test_invalid_lumix_resource_fails`
+14. RGB 至 RGBA 输出重叠在写入前拒绝；即使 CRC 有效，非有限或不递增的色温曲线仍被拒绝。— `test_lumix_iphone.test_overlapping_iphone_buffers_are_rejected_without_writes`、`test_lumix_reference.test_overlapping_rgb_rgba_is_rejected_without_writes`、`test_lumix_reference.test_invalid_temperature_curve_with_valid_checksum_is_rejected`
 
 测试入口为 [Swift 管线测试](../../Packages/GlassCamKit/Tests/ImagingCoreTests/LUMIXPipelineTests.swift)、[原始 LUT 数值测试](../../tests/numeric/test_lumix_reference.py)和 [iPhone 适配器测试](../../tests/numeric/test_lumix_iphone.py)；固定样本的来源见 [LUMIX 数值夹具](../../tests/fixtures/lumix/README.md)。
 
@@ -87,7 +100,6 @@ LUMIX 上下文保存不可变 LUT 与风格参数；缓存身份包含资源目
 - V-Log、HLG 专用表以及任意原始 CMS/ICC 转换不在这些 SDR 风格的处理范围内。
 - revision 4 的浮点色域压缩、HDR 幅度恢复和 HEIF 编码属于 GlassCam 的输出策略，原始 RGB48 样本约束的是保留的整数路径。
 - 固定样本和合成图像覆盖色彩数值一致性，跨相机的原厂成片匹配与真实拍摄观感需要另行验证。
-- LUMIX 取景画面使用系统颜色，成片颜色在照片处理阶段应用。
 
 ## 代码入口
 

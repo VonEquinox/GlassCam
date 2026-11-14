@@ -167,12 +167,12 @@ extension ImagePipeline {
                       let context = sharedPreviewContext else { throw PipelineError.rendering }
                 image = image.composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
                     .cropped(to: bounds)
-                var pixels = [Float](repeating: 0, count: width * height * 4)
+                var pixels = Data(count: width * height * 16)
                 pixels.withUnsafeMutableBytes { bytes in
                     context.render(image, toBitmap: bytes.baseAddress!, rowBytes: width * 16,
                                    bounds: bounds, format: .RGBAf, colorSpace: linear)
                 }
-                let raster = try PreviewRaster(linearRGBA: pixels, width: width, height: height)
+                let raster = try PreviewRaster(linearRGBAData: pixels, width: width, height: height)
                 return (raster, pixelWidth.intValue, pixelHeight.intValue)
             }
         }
@@ -246,11 +246,7 @@ extension ImagePipeline {
         // Retain the actual decoded float pixels. ImageIO thumbnail decoding may
         // already have source precision limits; this display route cannot restore them.
         let original = try PreviewRaster(linearRGBA: pixels, width: width, height: height)
-        var rgb = [Float]()
-        rgb.reserveCapacity(width * height * 3)
-        for i in stride(from: 0, to: pixels.count, by: 4) {
-            rgb.append(contentsOf: pixels[i..<(i + 3)])
-        }
+        let rgb = try FloatRasterOperations.rgb(fromRGBA: pixels)
         return ImportedImage(sourceFile: sourceFile, exportSettings: exportSettings, linearRGB: rgb, width: width, height: height,
                              original: original,
                              sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter • \(decodePrecisionDescription)" : "Rendered image • embedded profile → linear sRGB • \(decodePrecisionDescription)",

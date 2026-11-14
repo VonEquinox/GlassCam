@@ -71,9 +71,9 @@ GPU 完成只有在待处理束、ticket、呈现 revision 和 `epoch` 一致时
 
 15. 创建绘制编码器失败后，下一帧仍能上传并完成呈现。— `GlassCamTests/PairedRendererTests.encoderCreationFailure_nextFrameCanUpload`
 
-## 运行参数
+## 数据与版本
 
-实时匹配容差固定为 0.10。`GLASSCAM_PERIPHERAL_TRACE=1` 开启运行日志。
+实时匹配容差固定为 0.10。配对 epoch、观测、遮黑状态与 GPU 资源身份只驻留内存；`GLASSCAM_PERIPHERAL_TRACE=1` 开启运行日志。
 
 ## 已知限制
 

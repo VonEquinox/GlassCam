@@ -12,7 +12,7 @@ struct CameraSettingsView: View {
     @ObservedObject var settings: CameraSettingsStore
     @ObservedObject var camera: CameraController
     @ObservedObject var rawTests: RAWTestRecorder
-    @ObservedObject var workflow: CaptureWorkflow
+    @ObservedObject var workflow: CaptureQueue
     let canRecordF5: Bool
     let onBack: () -> Void
     @State private var advanced = false
@@ -119,8 +119,17 @@ struct CameraSettingsView: View {
                 ForEach(CameraSettingsStore.centerPreviewCaps, id: \.self) { value in Text("\(value) px").tag(value) }
             }.pickerStyle(.menu)
             Toggle("Experimental live color (approx.)", isOn: $settings.experimentalLiveColor)
+                .accessibilityIdentifier("settings.liveColor")
             Text("Approximate color only; the saved photo uses the complete selected effect.")
                 .font(.caption).foregroundStyle(.secondary)
+            if settings.experimentalLiveColor {
+                Text(LocalizedStringKey(LiveColorRecipe(resources: resources, settings: settings).unsupportedReason
+                    ?? "Live color is available for this photo style."))
+                    .font(.caption).foregroundStyle(.secondary)
+                    .accessibilityIdentifier("settings.liveColor.availability")
+                Text("Live preview supports FFCS · XH2S · PROVIA or ACROS, with 0 EV and default reference adjustments.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
         }
         F5SettingsCard(camera: camera, settings: settings, rawTests: rawTests, workflow: workflow, canRecord: canRecordF5)
         CameraCard(title: "Adjustments", symbol: "arrow.counterclockwise") {

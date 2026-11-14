@@ -19,11 +19,13 @@ public final class CaptureJournal: @unchecked Sendable {
     public struct Record: Codable, Sendable {
         public init(schemaVersion: Int = 1, id: UUID, createdAt: Date, snapshot: CaptureSnapshot,
                      stage: Stage, raw: Blob, sourceKind: String? = nil, encoded: Blob? = nil,
-                     width: Int? = nil, height: Int? = nil, attemptID: UUID? = nil, lastError: String? = nil) {
+                     width: Int? = nil, height: Int? = nil, attemptID: UUID? = nil, lastError: String? = nil,
+                     confirmedAt: Date? = nil) {
             self.schemaVersion = schemaVersion; self.id = id; self.createdAt = createdAt
             self.snapshot = snapshot; self.stage = stage; self.raw = raw; self.sourceKind = sourceKind
             self.encoded = encoded; self.width = width; self.height = height
             self.attemptID = attemptID; self.lastError = lastError
+            self.confirmedAt = confirmedAt
         }
         package var schemaVersion = 1
         public var id: UUID
@@ -37,15 +39,16 @@ public final class CaptureJournal: @unchecked Sendable {
         public var height: Int?
         var attemptID: UUID?
         var lastError: String?
+        var confirmedAt: Date?
     }
     package enum Failure: LocalizedError {
         case anotherPhoto, damaged, unsupportedVersion, staleAttempt
         package var errorDescription: String? {
             switch self {
-            case .anotherPhoto: return "Finish the retained photo before taking another one."
-            case .damaged: return "The retained photo could not be verified. Its files have been kept."
-            case .unsupportedVersion: return "This retained photo uses an unsupported recovery format. Its files have been kept."
-            case .staleAttempt: return "The photo's saved state changed. Reopen it before retrying."
+            case .anotherPhoto: return String(localized: "Finish the retained photo before taking another one.")
+            case .damaged: return String(localized: "The retained photo could not be verified. Its files have been kept.")
+            case .unsupportedVersion: return String(localized: "This retained photo uses an unsupported recovery format. Its files have been kept.")
+            case .staleAttempt: return String(localized: "The photo's saved state changed. Reopen it before retrying.")
             }
         }
     }
@@ -149,7 +152,7 @@ public final class CaptureJournal: @unchecked Sendable {
         return record
     }
 
-    func confirmSaved(id: UUID, attemptID: UUID?) throws -> Record? {
+    func confirmSaved(id: UUID, attemptID: UUID?, confirmedAt: Date = Date()) throws -> Record? {
         lock.lock(); defer { lock.unlock() }
         try beforeOperation?(.confirmSave)
         guard try directoryExists() else { return nil }
@@ -157,6 +160,7 @@ public final class CaptureJournal: @unchecked Sendable {
         guard (record.stage == .savePending || record.stage == .savedConfirmed),
               record.attemptID == attemptID else { throw Failure.staleAttempt }
         record.stage = .savedConfirmed; record.lastError = nil
+        if record.confirmedAt == nil { record.confirmedAt = confirmedAt }
         try writeRecord(record)
         try afterOperation?(.confirmSave)
         return record

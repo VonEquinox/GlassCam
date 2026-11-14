@@ -10,6 +10,9 @@ import UIKit
 /// When that space cannot hold real touch targets, a separate plain panel takes
 /// over. Crucially, this helper never returns or changes a photograph rectangle.
 struct CameraChromeLayout {
+    static let filterDialHeight: CGFloat = 72
+    static let filterDialSpacing: CGFloat = 4
+    static let minimumShutterSize: CGFloat = 44
     enum Style: Equatable { case portrait, landscape, compactHorizontal, compactVertical, separate }
     let style: Style
     let first: CGRect
@@ -40,7 +43,8 @@ struct CameraChromeLayout {
             first = usable(CGRect(x: 0, y: 0, width: window.width, height: framing.photo.minY))
             second = usable(CGRect(x: 0, y: framing.photo.maxY, width: window.width,
                                    height: window.height - framing.photo.maxY))
-            if !needsAccessiblePanel, first.height >= 94, second.height >= 140,
+            if !needsAccessiblePanel, first.height >= 84,
+               second.height >= Self.filterDialHeight + Self.filterDialSpacing + Self.minimumShutterSize,
                min(first.width, second.width) >= 276 {
                 style = .portrait
             } else if !needsAccessiblePanel, first.height >= 44, second.height >= 56,

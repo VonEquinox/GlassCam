@@ -2,6 +2,7 @@ import CLUMIX
 import CMetalImage
 import CoreImage
 import Foundation
+import OSLog
 
 /// Portable original SDR VE execution; the ProRAW source adapter is documented
 /// in docs/color/lumix.md. Full export uses the complete original cubes.
@@ -12,9 +13,11 @@ public enum LUMIXEngine {
         case invalidInput, missingResources, backend(String)
         var errorDescription: String? {
             switch self {
-            case .invalidInput: return "The LUMIX photo settings or RGB buffer are invalid."
-            case .missingResources: return "The original LUMIX Photo Style resources are missing."
-            case .backend(let message): return "LUMIX: \(message)"
+            case .invalidInput: return String(localized: "This photo cannot be processed.")
+            case .missingResources: return String(localized: "This photo style is unavailable. Choose another style.")
+            case .backend(let message):
+                Logger(subsystem: "dev.glasscam", category: "LUMIX").error("Native render failed: \(message, privacy: .public)")
+                return String(localized: "Photo processing failed. Please try again.")
             }
         }
     }

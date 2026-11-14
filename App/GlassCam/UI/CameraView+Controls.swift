@@ -11,7 +11,7 @@ extension CameraView {
     func controls(framing: CameraFraming, chrome: CameraChromeLayout) -> some View {
         switch chrome.style {
         case .portrait:
-            let dialActive = filterDialVisible && !workflow.isWorking && !camera.isCapturing
+            let dialActive = filterDialVisible && workflow.canCapture && !camera.isCapturing
             VStack(spacing: 4) {
                 HStack(spacing: 10) {
                     opticalSpecReadout
@@ -24,7 +24,7 @@ extension CameraView {
             }
             .modifier(CameraChromeRegion(rect: chrome.first))
 
-            VStack(spacing: dialActive ? 8 : 10) {
+            VStack(spacing: dialActive ? CameraChromeLayout.filterDialSpacing : 8) {
                 Spacer(minLength: 0)
                 if dialActive {
                     OpticalFilterDial(settings: settings) {
@@ -32,6 +32,7 @@ extension CameraView {
                             filterDialVisible = false
                         }
                     }
+                    .frame(height: CameraChromeLayout.filterDialHeight)
                     .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .bottom)))
                 } else {
                     styleDialToggle(useSheet: false)
@@ -39,7 +40,10 @@ extension CameraView {
                 HStack {
                     thumbnailButton
                     Spacer(minLength: 12)
-                    shutter(diameter: dialActive ? min(74, max(56, chrome.second.height - 92)) : 80)
+                    shutter(diameter: dialActive
+                        ? min(74, max(CameraChromeLayout.minimumShutterSize,
+                                      chrome.second.height - CameraChromeLayout.filterDialHeight - CameraChromeLayout.filterDialSpacing))
+                        : min(80, max(56, chrome.second.height - 40)))
                     Spacer(minLength: 12)
                     settingsButton
                 }
@@ -214,7 +218,7 @@ extension CameraView {
                 .modifier(EtchedGlassChip(active: active))
             }
         }
-        .disabled(workflow.isWorking || camera.isCapturing)
+        .disabled(!workflow.canCapture || camera.isCapturing)
         .accessibilityLabel("Choose photo style")
         .accessibilityIdentifier("camera.style")
         .accessibilityValue(selectedStyleTitle)
@@ -321,6 +325,7 @@ extension CameraView {
                         lineWidth: 0.7
                     )
             )
+            .matchedTransitionSource(id: workflow.latest?.id, in: reviewTransition)
         }
         .disabled(!CameraControlsAvailability.canReview(hasPhoto: workflow.latest != nil, working: workflow.isWorking))
         .accessibilityLabel("View latest saved photo")
@@ -346,7 +351,7 @@ extension CameraView {
 }
 
 private struct CaptureStatusPill: View {
-    @ObservedObject var workflow: CaptureWorkflow
+    @ObservedObject var workflow: CaptureQueue
     @ObservedObject var camera: CameraController
     let experimentalLiveColor: Bool
     let liveProxyStatus: LiveColorProxyStatus
@@ -370,7 +375,7 @@ private struct CaptureStatusPill: View {
         case .failed, .saveOutcomeUnknown: return "Photo needs attention"
         case .idle: break
         }
-        if workflow.status.hasPrefix("Saved HDR") { return "Saved to Photos" }
+        if workflow.latest != nil { return "Saved to Photos" }
         if experimentalLiveColor && liveProxyStatus.isShowingEffect && camera.isReady { return "Approx. preview · HDR" }
         return "HDR"
     }

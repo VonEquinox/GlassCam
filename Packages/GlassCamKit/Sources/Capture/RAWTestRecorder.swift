@@ -15,9 +15,9 @@ public final class RAWTestRecorder: ObservableObject {
     @discardableResult
     public func recordSamples(_ capture: @escaping @MainActor () async throws -> URL) -> Bool {
         guard !isRecording else { return false }
-        isRecording = true; directory = nil; status = "Recording 11 RAW samples…"
+        isRecording = true; directory = nil; status = String(localized: "Recording 11 RAW samples…")
         task = Task {
-            do { directory = try await capture(); status = "11 RAW samples saved." }
+            do { directory = try await capture(); status = String(localized: "11 RAW samples saved.") }
             catch { status = error.localizedDescription }
             isRecording = false; task = nil
         }
@@ -28,12 +28,12 @@ public final class RAWTestRecorder: ObservableObject {
     public func recordScene(_ capture: @escaping @MainActor (UUID) async throws -> Void) -> Bool {
         guard !isRecording else { return false }
         let id = UUID()
-        isRecording = true; directory = nil; status = "Recording scene · Balanced…"
+        isRecording = true; directory = nil; status = String(localized: "Recording scene · Balanced…")
         task = Task {
             do {
                 try await capture(id)
                 directory = CaptureRAWStore.directory(id: id)
-                status = "Balanced scene files saved."
+                status = String(localized: "Balanced scene files saved.")
             } catch {
                 let saved = CaptureRAWStore.directory(id: id)
                 if FileManager.default.fileExists(atPath: saved.path) { directory = saved }

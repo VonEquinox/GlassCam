@@ -9,7 +9,7 @@ struct F5SettingsCard: View {
     @ObservedObject var camera: CameraController
     @ObservedObject var settings: CameraSettingsStore
     @ObservedObject var rawTests: RAWTestRecorder
-    @ObservedObject var workflow: CaptureWorkflow
+    @ObservedObject var workflow: CaptureQueue
     let canRecord: Bool
     @State private var storageUsage = CaptureRAWStore.StorageUsage()
     @State private var clearConfirmation = false

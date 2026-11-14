@@ -134,6 +134,25 @@ struct F5CurvatureSourceTests {
         #expect(maximum == 0)
     }
 
+    @Test(arguments: [[UInt32(0),1,1,2], [UInt32(2),1,1,0], [UInt32(1),0,2,1], [UInt32(1),2,0,1]],
+          [SIMD2<Int32>(-16,-16), .init(64,-16), .init(-16,64), .init(64,64), .init(16,16)])
+    func sensorEdgeGuide_preservesConstantCameraColour(pattern: [UInt32], position: SIMD2<Int32>) throws {
+        let device = try device()
+        let source = try source(device: device, pattern: pattern, wave: false, cameraConstant: true)
+        let native = try F5CurvatureNative(device: device, width: 0, height: 0, scale: 1, capacity: 1, planes: 16, slots: 1, estimateColorPrior: true)
+        defer { withExtendedLifetime(native) {} }
+        var input = gc_f5_curvature_input(native.handle, 0)
+        var origin = gc_f5_curve_origin(x: position.x, y: position.y)
+
+        try source.prepare(origins: &origin, count: 1, input: &input)
+
+        let mean = SIMD3(input.means[0], input.means[1], input.means[2])
+        let difference = mean - SIMD3<Float>(0.2, 0.3, 0.4)
+        // The same FP32 reduction budget as an interior 32×32 guide patch.
+        #expect(max(abs(difference.x), abs(difference.y), abs(difference.z)) < 2e-6)
+        #expect(max(input.statistics[0], input.statistics[1], input.statistics[2]) < 1e-9)
+    }
+
     @Test(arguments: [Float.nan, Float(-0.1), Float(1.1)])
     func invalidReliability_rejectsGPUPreparation(value: Float) throws {
         let device = try device(), source = try source(device: device, pattern: patterns[0], wave: false, invalidReliability: value)

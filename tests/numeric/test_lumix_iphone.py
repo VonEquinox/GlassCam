@@ -59,13 +59,6 @@ def pipeline_assets(lumix_resources):
 
 @pytest.fixture(scope="module")
 def iphone(native):
-    native.lumix_create_pipeline.argtypes = [c.c_char_p, c.c_size_t, c.c_double,
-        c.c_int, c.c_int, c.c_int, c.c_char_p, c.c_size_t]
-    native.lumix_create_pipeline.restype = c.c_void_p
-    native.lumix_process_rgb16.argtypes = [c.c_void_p, c.c_void_p, c.c_size_t,
-        c.c_double, c.c_double, c.c_int, c.c_void_p, c.c_char_p, c.c_size_t]
-    native.lumix_process_iphone_rgba.argtypes = [c.c_void_p, c.c_void_p,
-        c.c_size_t, c.c_size_t, c.c_double, c.c_void_p, c.c_size_t, c.c_char_p, c.c_size_t]
     return native
 
 
@@ -214,3 +207,17 @@ def test_nonfinite_input_is_rejected_before_writing(iphone, pipeline_assets, bad
 
     assert status == 0
     np.testing.assert_array_equal(output, OUTPUT_SENTINEL)
+
+
+@pytest.mark.parametrize("offset", [0, 1, 3])
+def test_overlapping_iphone_buffers_are_rejected_without_writes(iphone, pipeline_assets, offset):
+    pixels = 3
+    storage = np.linspace(0.1, 0.9, pixels*4 + offset, dtype=np.float32)
+    before = storage.copy()
+    error = c.create_string_buffer(1024)
+    with context(iphone, pipeline_assets, RenderCase("overlap")) as value:
+        status = iphone.lumix_process_iphone_rgba(value, storage.ctypes.data, pixels*3, pixels, 0,
+            storage[offset:].ctypes.data, pixels*4, error, len(error))
+
+    assert status == 0
+    np.testing.assert_array_equal(storage, before)

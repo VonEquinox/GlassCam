@@ -92,6 +92,23 @@ final class CaptureWorkflowUITests: XCTestCase {
 #endif
     }
 
+    func testPortraitFilterDialCanSwitchEngineAndCloseOnSimulator() throws {
+#if targetEnvironment(simulator)
+        let app = makeApp()
+        app.launch()
+        let style = app.buttons["camera.style"]
+        XCTAssertTrue(style.waitForExistence(timeout: 20))
+        style.tap()
+        let engine = app.buttons["camera.dial.engine.ffcs"]
+        XCTAssertTrue(engine.waitForExistence(timeout: 5))
+        engine.tap()
+        app.buttons["camera.dial.close"].tap()
+        XCTAssertTrue(engine.waitForNonExistence(timeout: 5))
+#else
+        throw XCTSkip("This check is restricted to a simulator.")
+#endif
+    }
+
     private func selectPriority(_ quality: String, in app: XCUIApplication) {
         let priority = app.buttons["camera.quality"]
         XCTAssertTrue(priority.waitForExistence(timeout: 20))

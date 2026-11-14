@@ -16,7 +16,7 @@ extension CameraBackend {
         }
         let current=main.device
         request.restoresPreviewGraph = true
-        request.progress(.preparing, "Preparing Bayer RAW capture…")
+        request.progress(.preparing, String(localized: "Preparing RAW capture. Hold steady…"))
         tearDownGraph(preservingPreview: true)
         let photo = try buildSinglePhotoGraph(configuration: request.configuration, orientation: request.orientation,
             expected: nil, includePreview: false, forcedDevice: current, bayer: true)
@@ -24,7 +24,11 @@ extension CameraBackend {
         guard let output = photoOutput else { throw F5Failure(.unsupportedRAW, "Missing Bayer photo output.") }
         let catalog = lensCatalog
         let driver = try F5CaptureDriver(queue: queue, camera: current, output: output,
-            snapshot: snapshot, purpose: f5Purpose, framing: { Self.framing(for: current, catalog: catalog) },
+            snapshot: snapshot, purpose: f5Purpose, metering: request.metering, lockedMetering: lockedMetering,
+            framing: { Self.framing(for: current, catalog: catalog) },
+            exposureCompleted: {
+                request.progress(.captured, String(localized: "Capture complete. You can move the camera."))
+            },
             cancelled: { request.lifetime.isCancelled }, progress: { request.progress(.capturing, $0) }) { [weak self, weak request] result in
             guard let self, let request else { return }
             self.queue.async { [weak self, weak request] in

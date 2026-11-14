@@ -352,6 +352,9 @@ struct OpticalFilterDial: View {
                     LazyHStack(spacing: 6) {
                         ForEach(items) { item in
                             let active = item.id == current
+                            let live = settings.experimentalLiveColor &&
+                                LiveColorRecipe(resources: resources, settings: settings,
+                                    simulationIndex: Int(item.id)).unsupportedReason == nil
                             Button {
                                 select(item.id)
                             } label: {
@@ -360,6 +363,11 @@ struct OpticalFilterDial: View {
                                     Text(item.shortTitle)
                                         .font(.system(size: 12, weight: active ? .semibold : .regular, design: .rounded))
                                         .lineLimit(1)
+                                    if live {
+                                        Text("LIVE").font(.system(size: 8, weight: .bold, design: .rounded))
+                                            .foregroundStyle(.mint)
+                                            .accessibilityLabel("Approximate live preview available")
+                                    }
                                 }
                                 .padding(.horizontal, 11)
                                 .frame(height: 32)
@@ -413,8 +421,9 @@ struct OpticalFilterDial: View {
                     }
                 }
             }
+            .frame(height: 32)
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 4)
         .background {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(.ultraThinMaterial)

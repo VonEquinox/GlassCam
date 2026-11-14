@@ -429,7 +429,7 @@ public struct F5DeviceProfile: Codable, Sendable {
 }
 
 enum F5Version {
-    static let build = "f5-curvature-v1"
+    static let build = "f5-curvature-v2"
     static let decoder = "f5-effective-v2"
     // Explicit F5 scene-HDR extension. DNG's unit-range opcode clipping would
     // discard recovered highlights; G1 must qualify this linear extension.

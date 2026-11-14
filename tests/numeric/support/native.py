@@ -50,9 +50,13 @@ def configure(lib):
     lib.lumix_look_key.restype = c.c_char_p
     lib.lumix_create.argtypes = [c.c_char_p, S, P, S]
     lib.lumix_create.restype = P
+    lib.lumix_create_pipeline.argtypes = [c.c_char_p, S, c.c_double, c.c_int, c.c_int, c.c_int, P, S]
+    lib.lumix_create_pipeline.restype = P
     lib.lumix_destroy.argtypes = [P]
     lib.lumix_process_rgb12.argtypes = [P, P, S, P, P, S]
+    lib.lumix_process_rgb16.argtypes = [P, P, S, c.c_double, c.c_double, c.c_int, P, P, S]
     lib.lumix_process_linear_rgba.argtypes = [P, P, S, S, c.c_double, P, S, P, S]
+    lib.lumix_process_iphone_rgba.argtypes = [P, P, S, S, c.c_double, P, S, P, S]
     return lib
 
 
