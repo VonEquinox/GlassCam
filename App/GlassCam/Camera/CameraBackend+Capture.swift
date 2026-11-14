@@ -41,12 +41,18 @@ extension CameraBackend {
                     phase = .restoringPreview
                     request.progress(.restoring, "Restoring automatic viewfinder…")
                     tearDownGraph(preservingPreview: true)
-                    var photo = try buildSinglePhotoGraph(configuration: request.configuration, orientation: request.orientation,
-                        expected: nil, includePreview: true)
-                    capability = photo; dimensions = photo.dimensions
-                    try waitForPreviewFrames()
-                    photo = try promotePreview(configuration: request.configuration, orientation: request.orientation, photo: photo)
-                    capability = photo
+                    if let center = lensCatalog.first(where: { $0.device.uniqueID == request.capability.physicalCameraID })?.device {
+                        let restored = try promotePreview(configuration: request.configuration, orientation: request.orientation,
+                                                          photo: request.capability, centerDevice: center)
+                        capability = restored; dimensions = restored.dimensions
+                    } else {
+                        var photo = try buildSinglePhotoGraph(configuration: request.configuration, orientation: request.orientation,
+                            expected: nil, includePreview: true)
+                        capability = photo; dimensions = photo.dimensions
+                        try waitForPreviewFrames()
+                        photo = try promotePreview(configuration: request.configuration, orientation: request.orientation, photo: photo)
+                        capability = photo
+                    }
                 }
                 try validateRunningGraph()
                 try request.lifetime.check()

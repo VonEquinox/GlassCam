@@ -115,21 +115,6 @@ struct SeamMeasurementTests {
                 warpedPadding:32,seams:.horizontal,certifiedGeometry:true,allowPartial:true)!
             #expect(value.evidence.reliable)
     }
-    @Test func temporalSentinel_detectsKnownFourPixelMotion() throws {
-        let moved = F.fixture(dx:4)
-        let centerNext = F.crop(moved.b,sourceWidth:256,x:32,y:32,width:192,height:256)
-        let oldRaster = PeripheralMotion.raster(try F.pixelBuffer(rgba:moved.a,width:192,height:256))!
-        let nextRaster = PeripheralMotion.raster(try F.pixelBuffer(rgba:centerNext,width:192,height:256))!
-        let drift = PeripheralMotion.displacement(oldRaster,nextRaster)
-        #expect(drift != nil)
-        #expect((3...5.5).contains(drift!))
-    }
-    @Test func flatTemporalInput_isUnobservable() throws {
-        var pixels = [UInt8](repeating: 128, count: 192 * 256 * 4)
-        for index in stride(from: 3, to: pixels.count, by: 4) { pixels[index] = 255 }
-        let raster = try #require(PeripheralMotion.raster(F.pixelBuffer(rgba: pixels, width: 192, height: 256)))
-        #expect(PeripheralMotion.displacement(raster, raster) == nil)
-    }
     @Test func periodicTexture_doesNotClaimUniqueGeometry() throws {
         let center = (0..<192 * 256).flatMap { index -> [UInt8] in let value: UInt8 = index % 192 % 24 < 12 ? 64 : 192; return [value, value, value, 255] }
         let outer = (0..<256 * 320).flatMap { index -> [UInt8] in let value: UInt8 = (index % 256 - 32 + 240) % 24 < 12 ? 64 : 192; return [value, value, value, 255] }

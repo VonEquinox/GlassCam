@@ -3,6 +3,20 @@ import CoreImage
 import ImageIO
 
 extension ImagePipeline {
+    private static let sharedExportColorSpace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)
+    private static let sharedPQColorSpace = CGColorSpace(name: CGColorSpace.itur_2100_PQ)
+    private static let sharedBT2020ColorSpace = CGColorSpace(name: CGColorSpace.extendedLinearITUR_2020)
+    private static let sharedExportContext: CIContext? = sharedExportColorSpace.map {
+        CIContext(options: [.workingColorSpace: $0,
+                            .workingFormat: CIFormat.RGBAf.rawValue,
+                            .cacheIntermediates: false])
+    }
+    private static let sharedBT2020EncodingContext: CIContext? = sharedBT2020ColorSpace.map {
+        CIContext(options: [.workingColorSpace: $0,
+                            .workingFormat: CIFormat.RGBAf.rawValue,
+                            .cacheIntermediates: false])
+    }
+
     static func exportLinearSource(resources: ColorResources, _ decoded: CIImage, metadata: PhotoMetadata,
                                           recipe: ProcessingRecipe, to url: URL,
                                           settings: ExportSettings, rawDecode: RAWDecodeRecipe, isCancelled: @escaping @Sendable () -> Bool,
@@ -36,20 +50,16 @@ extension ImagePipeline {
            Double(available) < Double(rasterBytes) * 1.5 + spatialBytes + 64 * 1024 * 1024 {
             throw CocoaError(.fileWriteOutOfSpace)
         }
-        guard let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB),
-              let pq = CGColorSpace(name: CGColorSpace.itur_2100_PQ) else { throw PipelineError.rendering }
-        let context = CIContext(options: [.workingColorSpace: linear,
-                                          .workingFormat: CIFormat.RGBAf.rawValue,
-                                          .cacheIntermediates: false])
+        guard let linear = sharedExportColorSpace,
+              let pq = sharedPQColorSpace,
+              let context = sharedExportContext else { throw PipelineError.rendering }
         // CIContext colour-matches inputs before executing filters. Clamp only
         // in the destination primaries, so valid negative sRGB components can
         // first become in-gamut BT.2020 values.
         let encodingContext: CIContext
         if extendedWork {
-            guard let targetLinear = CGColorSpace(name: CGColorSpace.extendedLinearITUR_2020) else { throw PipelineError.rendering }
-            encodingContext = CIContext(options: [.workingColorSpace: targetLinear,
-                                                  .workingFormat: CIFormat.RGBAf.rawValue,
-                                                  .cacheIntermediates: false])
+            guard let bt2020Context = sharedBT2020EncodingContext else { throw PipelineError.rendering }
+            encodingContext = bt2020Context
         } else { encodingContext = context }
         let bounds = CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
         let croppedSource = decoded.cropped(to: crop.ciRect)

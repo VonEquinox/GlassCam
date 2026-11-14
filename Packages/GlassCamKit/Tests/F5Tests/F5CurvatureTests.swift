@@ -239,4 +239,48 @@ struct F5CurvatureTests {
 
         #expect(device.allocatedBytes == 0)
     }
+    @Test(arguments: [SIMD2<Int>(16, 0), SIMD2<Int>(0, 16), SIMD2<Int>(16, 3), SIMD2<Int>(16, 16)], [1, 2])
+    func subpixelBayer_recoversNyquistBoundaryDetail(frequency: SIMD2<Int>, scale: Int) throws {
+        let device = try device()
+        let pattern: [UInt32] = [0, 1, 1, 2]
+        let displacements: [SIMD2<Float>] = [.zero, .init(0.37, 0.11), .init(-0.19, 0.43), .init(0.47, -0.31)]
+        let amplitude = SIMD3<Double>(0.03, 0.04, 0.02)
+        func nyquistSignal(_ channel: Int, _ tx: Double, _ ty: Double) -> Double {
+            let nx = cos(.pi * Double(frequency.x) * tx / 16)
+            let ny = cos(.pi * Double(frequency.y) * ty / 16)
+            return amplitude[channel] * nx * ny
+        }
+        var planes: [F5CurvaturePlane] = []
+        for displacement in displacements {
+            for phase in 0..<4 {
+                let position = displacement + SIMD2(Float(phase % 2), Float(phase / 2))
+                let channel = pattern[phase]
+                let samples = (0..<256).map { i -> Float in
+                    let tx = Double(i % 16 * 2) + Double(position.x)
+                    let ty = Double(i / 16 * 2) + Double(position.y)
+                    let wx = pow(sin(.pi * (tx + 0.5) / 32), 2), wy = pow(sin(.pi * (ty + 0.5) / 32), 2)
+                    let window = max(wx * wy, 1e-12)
+                    return means[Int(channel)] + Float(nyquistSignal(Int(channel), tx, ty) / window)
+                }
+                planes.append(.init(samples: samples, position: position, channel: channel, variance: 1e-7, confidence: 1))
+            }
+        }
+        let input = F5CurvaturePatch(planes: planes, mean: means, colorPrecision: [1e-6, 0, 0, 0, 1e-6, 0, 0, 0, 1e-6])
+
+        let output = try F5CurvatureBatch(device: device).reconstruct([input], scale: scale)
+
+        let side = 32 * scale, pixels = output.metal.contents().assumingMemoryBound(to: SIMD4<Float>.self)
+        var maximum = 0.0
+        for y in 0..<side { for x in 0..<side {
+            let tx = (Double(x) + 0.5) / Double(scale) - 0.5
+            let ty = (Double(y) + 0.5) / Double(scale) - 0.5
+            let window = pow(sin(.pi * (Double(x) + 0.5) / Double(side)), 2) * pow(sin(.pi * (Double(y) + 0.5) / Double(side)), 2)
+            for c in 0..<3 {
+                let expected = Double(means[c]) * window + nyquistSignal(c, tx, ty)
+                maximum = max(maximum, abs(Double(pixels[y * side + x][c]) - expected))
+            }
+        }}
+        let linearTolerance = 3e-5 // Normalized 14-bit half-step for cosine-split Nyquist synthesis.
+        #expect(maximum < linearTolerance)
+    }
 }

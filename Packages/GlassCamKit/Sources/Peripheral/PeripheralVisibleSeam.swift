@@ -28,9 +28,114 @@ package struct PeripheralNativeSeam {
         package let reference: [UInt8], outer: [UInt8]
         package let nativeScale: Double
     }
+    package struct TileDiagnostic {
+        package var edge: Int
+        package var start: Int
+        package var passed: Bool
+        package var nativeEdgeSupport: SIMD2<Int>
+        package var nativeWeakEdgeSupport: SIMD2<Int>
+        package var currentNativeGrayVariance: SIMD2<Double>
+        package var nativeNoiseSigma: SIMD2<Double>
+        package var currentNativeGrayNCC: Double
+        package var segmentVisibleShiftUpper: Double?
+        package var segmentVisibleShiftLower: Double
+        package var segmentNormalUpper: Double?
+        package var segmentNormalLower: Double
+        package var segmentStatus: String?
+        package var segmentSearchComplete: Bool
+        package var segmentRepeated: Bool
+        package var segmentPeak: Double
+        package var observableDistanceNative: Double
+        package var nativeScale: Double
+        package var nativeSampleCount: Double
+        package var flatBothNative: Bool
+        package var segmentForwardBackward: Double?
+        package var segmentPoint: SIMD2<Double>?
+        package var segmentBestDisplacement: SIMD2<Double>?
+        package var segment: Int
+        package var segmentDisplacementUncertainty: Double?
+        package var missingStructureExtentFraction: Double?
+
+        init(dictionary row: [String: Any]) {
+            edge = row["edge"] as? Int ?? 0
+            start = row["start"] as? Int ?? 0
+            passed = row["passed"] as? Bool ?? false
+            let support = row["nativeEdgeSupport"] as? [Int] ?? []
+            nativeEdgeSupport = support.count == 2 ? SIMD2(support[0], support[1]) : SIMD2(-1, -1)
+            let weak = row["nativeWeakEdgeSupport"] as? [Int] ?? []
+            nativeWeakEdgeSupport = weak.count == 2 ? SIMD2(weak[0], weak[1]) : SIMD2(-1, -1)
+            let variances = (row["currentNativeGrayVariance"] as? [NSNumber])?.map(\.doubleValue) ?? []
+            currentNativeGrayVariance = variances.count == 2 ? SIMD2(variances[0], variances[1]) : SIMD2(-1, -1)
+            let noise = (row["nativeNoiseSigma"] as? [NSNumber])?.map(\.doubleValue) ?? []
+            nativeNoiseSigma = noise.count == 2 ? SIMD2(noise[0], noise[1]) : SIMD2(-1, -1)
+            currentNativeGrayNCC = (row["currentNativeGrayNCC"] as? NSNumber)?.doubleValue ?? 0
+            segmentVisibleShiftUpper = (row["segmentVisibleShiftUpper"] as? NSNumber)?.doubleValue
+            segmentVisibleShiftLower = (row["segmentVisibleShiftLower"] as? NSNumber)?.doubleValue ?? 0
+            segmentNormalUpper = (row["segmentNormalUpper"] as? NSNumber)?.doubleValue
+            segmentNormalLower = (row["segmentNormalLower"] as? NSNumber)?.doubleValue ?? 0
+            segmentStatus = row["segmentStatus"] as? String
+            segmentSearchComplete = row["segmentSearchComplete"] as? Bool ?? false
+            segmentRepeated = row["segmentRepeated"] as? Bool ?? false
+            segmentPeak = (row["segmentPeak"] as? NSNumber)?.doubleValue ?? .nan
+            observableDistanceNative = (row["robustObservableDistanceNative"] as? NSNumber)?.doubleValue ??
+                (row["maxObservableDistanceNative"] as? NSNumber)?.doubleValue ?? 0
+            nativeScale = (row["nativeScale"] as? NSNumber)?.doubleValue ?? 1
+            nativeSampleCount = (row["nativeSampleCount"] as? NSNumber)?.doubleValue ?? 0
+            flatBothNative = row["flatBothNative"] as? Bool ?? false
+            segmentForwardBackward = (row["segmentForwardBackward"] as? NSNumber)?.doubleValue
+            if let point = (row["segmentPoint"] as? [NSNumber])?.map(\.doubleValue), point.count == 2 {
+                segmentPoint = SIMD2(point[0], point[1])
+            } else { segmentPoint = nil }
+            if let offset = (row["segmentBestDisplacement"] as? [NSNumber])?.map(\.doubleValue), offset.count == 2 {
+                segmentBestDisplacement = SIMD2(offset[0], offset[1])
+            } else { segmentBestDisplacement = nil }
+            segment = row["segment"] as? Int ?? -1
+            segmentDisplacementUncertainty = (row["segmentDisplacementUncertainty"] as? NSNumber)?.doubleValue
+            missingStructureExtentFraction = (row["missingStructureExtentFraction"] as? NSNumber)?.doubleValue
+        }
+
+        init(edge: Int, start: Int, passed: Bool, nativeEdgeSupport: SIMD2<Int>, nativeWeakEdgeSupport: SIMD2<Int>,
+             currentNativeGrayVariance: SIMD2<Double>, nativeNoiseSigma: SIMD2<Double>, currentNativeGrayNCC: Double,
+             segmentVisibleShiftUpper: Double?, segmentVisibleShiftLower: Double, segmentNormalUpper: Double?,
+             segmentNormalLower: Double, segmentStatus: String?, segmentSearchComplete: Bool, segmentRepeated: Bool,
+             segmentPeak: Double, observableDistanceNative: Double, nativeScale: Double, nativeSampleCount: Double,
+             flatBothNative: Bool, segmentForwardBackward: Double?, segmentPoint: SIMD2<Double>?,
+             segmentBestDisplacement: SIMD2<Double>?, segment: Int, segmentDisplacementUncertainty: Double?,
+             missingStructureExtentFraction: Double?) {
+            self.edge = edge; self.start = start; self.passed = passed
+            self.nativeEdgeSupport = nativeEdgeSupport; self.nativeWeakEdgeSupport = nativeWeakEdgeSupport
+            self.currentNativeGrayVariance = currentNativeGrayVariance; self.nativeNoiseSigma = nativeNoiseSigma
+            self.currentNativeGrayNCC = currentNativeGrayNCC
+            self.segmentVisibleShiftUpper = segmentVisibleShiftUpper; self.segmentVisibleShiftLower = segmentVisibleShiftLower
+            self.segmentNormalUpper = segmentNormalUpper; self.segmentNormalLower = segmentNormalLower
+            self.segmentStatus = segmentStatus; self.segmentSearchComplete = segmentSearchComplete
+            self.segmentRepeated = segmentRepeated; self.segmentPeak = segmentPeak
+            self.observableDistanceNative = observableDistanceNative; self.nativeScale = nativeScale
+            self.nativeSampleCount = nativeSampleCount; self.flatBothNative = flatBothNative
+            self.segmentForwardBackward = segmentForwardBackward; self.segmentPoint = segmentPoint
+            self.segmentBestDisplacement = segmentBestDisplacement; self.segment = segment
+            self.segmentDisplacementUncertainty = segmentDisplacementUncertainty
+            self.missingStructureExtentFraction = missingStructureExtentFraction
+        }
+    }
     package let gains: PeripheralEdgeGains
     package let evidence: PeripheralVisibleEvidence
+    package let tiles: [TileDiagnostic]
     package let diagnostics: [[String: Any]]
+
+    package init(gains: PeripheralEdgeGains, evidence: PeripheralVisibleEvidence, diagnostics: [[String: Any]]) {
+        self.gains = gains
+        self.evidence = evidence
+        self.diagnostics = diagnostics
+        self.tiles = diagnostics.map(TileDiagnostic.init(dictionary:))
+    }
+
+    package init(gains: PeripheralEdgeGains, evidence: PeripheralVisibleEvidence, tiles: [TileDiagnostic]) {
+        self.gains = gains
+        self.evidence = evidence
+        self.tiles = tiles
+        self.diagnostics = []
+    }
 
     static func linear(_ value: Float) -> Float {
         value <= 0.04045 ? value/12.92 : pow((value+0.055)/1.055,2.4)
@@ -99,7 +204,7 @@ package struct PeripheralNativeSeam {
         let factor = Float(tolerance)
         let visibleDistanceScale=pow(tolerance,0.25)
         let minimumNCC = Float(max(0.5,1-0.10*tolerance))
-        var diagnostics: [[String: Any]] = [], passed = 0, total = 0
+        var tiles: [TileDiagnostic] = [], passed = 0, total = 0
         var observableUpper = 0.0
         for strip in strips {
             let horizontal = strip.edge < 2, length = horizontal ? strip.width : strip.height
@@ -383,38 +488,34 @@ package struct PeripheralNativeSeam {
                 } else if normal { tileObservableUpper = segment?.normalInterval?.upperBound ?? 0 }
                 else if bounded { tileObservableUpper = segment?.interval?.upperBound ?? 0 }
                 if good { observableUpper = max(observableUpper,tileObservableUpper) }
-                diagnostics.append(["edge":strip.edge,"start":start,"end":end,"nativeScale":strip.nativeScale,
-                    "flatBothNative":isFlat,"boundedCandidates":bounded,"normalBounded":normal,
-                    "colorPass":colorPass,"passed":good,"medianRGBError":medianError,"p90RGBError":p90,
-                    "maxBadRunNativePixels":maxBadRun,"maximumRawGradient":[maxGradientA,maxGradientB],
-                    "nativeNoiseSigma":[sigmaA,sigmaB],"maxStructureDifference":maxStructureDifference,
-                    "nativeDirectional":nativeDirectional,"nativeStructurePass":structurePass,
-                    "maxUnsupportedStructureRun":maxStructureRun,"unsupportedLine":unsupportedLine,
-                    "maxObservableDistanceNative":maxObservableDistance,
-                    "robustObservableDistanceNative":robustObservableDistance,"nativeSampleCount":a.count,
-                    "missingStructureExtentFraction":missingExtent/Double(max(1,end-start)),
-                    "nativeEdgeSupport":[nativeSupportA,nativeSupportB],
-                    "nativeWeakEdgeSupport":[nativeWeakSupportA,nativeWeakSupportB],
-                    "visibleErrorUpper":tileObservableUpper,
-                    "nativePeriodicProfile":nativePeriodic,
-                    "currentNativeGrayNCC":grayNCC,"currentNativeGrayAgreement":currentGrayAgreement,
-                    "currentNativeGrayVariance":[grayVarianceA,grayVarianceB],
-                    "geometryGrayGain":grayGain,"geometryGrayBias":grayBias,
-                    "segmentVisibleShiftLower":max(segment?.interval?.lowerBound ?? 0,segment?.normalInterval?.lowerBound ?? 0),
-                    "segmentVisibleShiftUpper":(segment?.interval ?? segment?.normalInterval)?.upperBound ?? Double.nan,
-                    "segmentSearchComplete":segment?.searchComplete ?? false,
-                    "segmentStatus":segment?.status.rawValue ?? "unobservable",
-                    "segmentNormalLower":segment?.normalInterval?.lowerBound ?? Double.nan,
-                    "segmentNormalUpper":segment?.normalInterval?.upperBound ?? Double.nan,
-                    "segmentPoint":segment.map {[$0.point.x,$0.point.y]} ?? [],
-                    "segmentBestDisplacement":segment?.best.map {[$0.x,$0.y]} ?? [],
-                    "segmentForwardBackward":segment?.forwardBackward ?? Float.nan,
-                    "segmentDisplacementUncertainty":segment?.displacementUncertainty ?? Float.nan,
-                    "segmentPeak":segment?.peak ?? Float.nan,
-                    "segmentRepeated":segment?.repeatedStructure ?? false,
-                    "tolerance":tolerance,"minimumGrayNCC":minimumNCC,
-                    "maximumStructureDistanceAnalysisPixels":3*tolerance,
-                    "segment":segment?.index ?? -1])
+                tiles.append(TileDiagnostic(
+                    edge: strip.edge,
+                    start: start,
+                    passed: good,
+                    nativeEdgeSupport: SIMD2(nativeSupportA, nativeSupportB),
+                    nativeWeakEdgeSupport: SIMD2(nativeWeakSupportA, nativeWeakSupportB),
+                    currentNativeGrayVariance: SIMD2(Double(grayVarianceA), Double(grayVarianceB)),
+                    nativeNoiseSigma: SIMD2(Double(sigmaA), Double(sigmaB)),
+                    currentNativeGrayNCC: Double(grayNCC),
+                    segmentVisibleShiftUpper: (segment?.interval ?? segment?.normalInterval)?.upperBound ?? Double.nan,
+                    segmentVisibleShiftLower: max(segment?.interval?.lowerBound ?? 0, segment?.normalInterval?.lowerBound ?? 0),
+                    segmentNormalUpper: segment?.normalInterval?.upperBound ?? Double.nan,
+                    segmentNormalLower: segment?.normalInterval?.lowerBound ?? Double.nan,
+                    segmentStatus: segment?.status.rawValue ?? "unobservable",
+                    segmentSearchComplete: segment?.searchComplete ?? false,
+                    segmentRepeated: segment?.repeatedStructure ?? false,
+                    segmentPeak: Double(segment?.peak ?? Float.nan),
+                    observableDistanceNative: Double(robustObservableDistance),
+                    nativeScale: strip.nativeScale,
+                    nativeSampleCount: Double(a.count),
+                    flatBothNative: isFlat,
+                    segmentForwardBackward: Double(segment?.forwardBackward ?? Float.nan),
+                    segmentPoint: segment.map { SIMD2(Double($0.point.x), Double($0.point.y)) },
+                    segmentBestDisplacement: segment?.best.map { SIMD2(Double($0.x), Double($0.y)) },
+                    segment: segment?.index ?? -1,
+                    segmentDisplacementUncertainty: Double(segment?.displacementUncertainty ?? Float.nan),
+                    missingStructureExtentFraction: missingExtent / Double(max(1, end - start))
+                ))
             }
         }
         let coverage = Double(passed)/Double(max(1,total))
@@ -422,7 +523,7 @@ package struct PeripheralNativeSeam {
         return .init(gains:gains,evidence:.init(compatible:good,coverage:coverage,
             maximumObservableError:observableUpper > 0 ? observableUpper : nil,
             reason:good ? "native-visible-seam" : "native-seam-unresolved-or-mismatch",
-            nativeSupportChecked:total > 0),diagnostics:diagnostics)
+            nativeSupportChecked:total > 0),tiles:tiles)
     }
 
 }

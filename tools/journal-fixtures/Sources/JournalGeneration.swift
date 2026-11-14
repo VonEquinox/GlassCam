@@ -10,7 +10,7 @@ extension JournalFixtures {
         let raw = Data("GlassCam single RAW fixture\n".utf8)
         let speed = CaptureJournal(directory: work.appendingPathComponent("speed-legacy"))
         var old = try speed.retain(raw, id: captureID,
-            snapshot: CaptureSnapshot(recipe: .standard, output: .camera(12), quality: .speed))
+            snapshot: CaptureSnapshot(recipe: .standard, output: .camera24(), quality: .speed))
         old.createdAt = createdAt
         var document = try JSONSerialization.jsonObject(with: encode(old)) as! [String: Any]
         var oldSnapshot = document["snapshot"] as! [String: Any]

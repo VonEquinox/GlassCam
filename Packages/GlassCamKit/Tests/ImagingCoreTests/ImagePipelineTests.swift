@@ -297,21 +297,20 @@ private struct CheckFailure: Error, CustomStringConvertible {
         #expect((pixels(image).max() ?? 0) > 2, "HDR metadata exists but encoded pixels were clipped to SDR")
     }
 
-    @Test(arguments: ["standard", "square-crop", "film-grain-artistic", "high", "ffcs-neutral", "ffcs-overlay", "downsample"].flatMap { name in [false, true].map { (name, $0) } } + [("camera24", false)])
+    @Test(arguments: ["standard", "square-crop", "film-grain-artistic", "high", "ffcs-neutral", "ffcs-overlay", "downsample"].flatMap { name in [false, true].map { (name, $0) } })
     static func fullSourceExport_matchesWholeFrameAndDirectEncoding(scenario: (String, Bool)) throws {
         let work = try TestDirectory()
         let directory = work.url
         let (name, hdr) = scenario
         let requestedScale: Double = name == "downsample" ? 0.5 : 1
-        let explicitSettings: ExportSettings? = name == "camera24" ? .camera(24) : nil
         let input = try hdr ? hdrFixture(directory) : fixture(directory,
-            width: name == "downsample" ? 256 : (name == "camera24" ? 200 : 257),
-            height: name == "downsample" ? 384 : (name == "camera24" ? 300 : 389))
+            width: name == "downsample" ? 256 : 257,
+            height: name == "downsample" ? 384 : 389)
         let recipe: ProcessingRecipe
         if name.hasPrefix("ffcs") {
             recipe = ProcessingRecipe(mode: .ffcs, exposureEV: 0, illuminantKelvin: 6500, simulationIndex: 0, seed: 0,
                 hncs: .standard, ffcs: FFCSSettings(applyReferenceAdjustments: name == "ffcs-overlay", sharpenRadius: 2.3))
-        } else { recipe = Self.recipe(["downsample", "camera24"].contains(name) ? "standard" : name) }
+        } else { recipe = Self.recipe(name == "downsample" ? "standard" : name) }
 
         let processed = try ImagePipeline.process(resources: resources, input, recipe: recipe)
         // The preview thumbnail and full-source ImageIO/CI decoders can differ,
@@ -328,10 +327,9 @@ private struct CheckFailure: Error, CustomStringConvertible {
         let oracle = try ImagePipeline.process(resources: resources, full, recipe: recipe)
         let actualURL = directory.appendingPathComponent(name + "-actual.heic")
         let expectedURL = directory.appendingPathComponent(name + "-expected.heic")
-        let settings: ExportSettings = explicitSettings ?? (requestedScale == 1 ? .native : .init(
+        let settings: ExportSettings = (requestedScale == 1 ? .native : .init(
             targetWidth: Int(Double(input.width) * requestedScale), targetHeight: Int(Double(input.height) * requestedScale)))
-        let outputSize = try settings.dimensions(sourceWidth: full.width, sourceHeight: full.height, crop: recipe.crop)
-        let scale = explicitSettings == nil ? requestedScale : Double(outputSize.height) / Double(processed.image.height)
+        let scale = requestedScale
         try ImagePipeline.writeHEIF(resources: resources, processed, to: actualURL, settings: settings)
         let directURL = directory.appendingPathComponent(name + "-direct.heic")
         var sourceDimensions: (Int, Int)?
@@ -397,4 +395,27 @@ private struct CheckFailure: Error, CustomStringConvertible {
         }
     }
 
+}
+
+
+extension ImagePipelineTests {
+    @Test(arguments: [(28, 20), (8, 6)])
+    func resizingConstantHDR_preservesColourThroughImageEdges(size: (Int, Int)) throws {
+        let space = try #require(CGColorSpace(name: CGColorSpace.extendedLinearSRGB))
+        let colour: [Float] = [0.25, 2, 4, 1]
+        let pixels = Array(repeating: colour, count: 14 * 10).flatMap { $0 }
+        let source = CIImage(bitmapData: pixels.withUnsafeBytes { Data($0) }, bytesPerRow: 14 * 16,
+            size: CGSize(width: 14, height: 10), format: .RGBAf, colorSpace: space)
+
+        let resized = ImagePipeline.resizedForExport(source, width: size.0, height: size.1)
+        let context = CIContext(options: [.workingColorSpace: space, .workingFormat: CIFormat.RGBAf.rawValue])
+        var result = [Float](repeating: 0, count: size.0 * size.1 * 4)
+        result.withUnsafeMutableBytes { context.render(resized, toBitmap: $0.baseAddress!, rowBytes: size.0 * 16,
+            bounds: resized.extent, format: .RGBAf, colorSpace: space) }
+
+        // Core Image's reconstruction weights and colour conversion use FP32.
+        let floatTolerance: Float = 2e-5
+        #expect(resized.extent == CGRect(x: 0, y: 0, width: size.0, height: size.1))
+        #expect(result.enumerated().allSatisfy { abs($0.element - colour[$0.offset % 4]) < floatTolerance })
+    }
 }

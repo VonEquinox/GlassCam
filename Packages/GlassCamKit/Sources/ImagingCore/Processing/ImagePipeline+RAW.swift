@@ -3,6 +3,12 @@ import CoreImage
 import ImageIO
 
 extension ImagePipeline {
+    private static let sharedPreviewColorSpace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)
+    private static let sharedPreviewContext: CIContext? = sharedPreviewColorSpace.map {
+        CIContext(options: [.workingColorSpace: $0,
+                            .workingFormat: CIFormat.RGBAf.rawValue])
+    }
+
     static func baselineSharpness(in properties: [AnyHashable: Any]) throws -> Double {
         let dng = properties[kCGImagePropertyDNGDictionary as String] as? [String: Any]
         guard let value = dng?[kCGImagePropertyDNGBaselineSharpness as String] else { return 0 }
@@ -123,6 +129,55 @@ extension ImagePipeline {
         }
     }
 
+    /// Decode a bounded HDR preview raster directly from a saved file URL without
+    /// writing a duplicate temporary file or allocating an unused linearRGB array.
+    public static func decodePreviewRaster(at url: URL, maximumEdge: Int = 2048) throws -> (raster: PreviewRaster, pixelWidth: Int, pixelHeight: Int) {
+        try decodeQueue.sync {
+            try autoreleasepool {
+                guard (64...4096).contains(maximumEdge) else { throw PipelineError.invalidImage }
+                let sourceOptions = [kCGImageSourceShouldCache as String: false] as CFDictionary
+                guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, sourceOptions),
+                      let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [String: Any],
+                      let pixelWidth = properties[kCGImagePropertyPixelWidth as String] as? NSNumber,
+                      let pixelHeight = properties[kCGImagePropertyPixelHeight as String] as? NSNumber else {
+                    throw PipelineError.encoding
+                }
+                let thumbnailOptions: [String: Any] = [
+                    kCGImageSourceCreateThumbnailFromImageAlways as String: true,
+                    kCGImageSourceThumbnailMaxPixelSize as String: maximumEdge,
+                    kCGImageSourceCreateThumbnailWithTransform as String: true,
+                    kCGImageSourceShouldCacheImmediately as String: true,
+                    kCGImageSourceShouldAllowFloat as String: true,
+                    kCGImageSourceDecodeRequest as String: kCGImageSourceDecodeToHDR
+                ]
+                guard let thumbnail = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, thumbnailOptions as CFDictionary) else {
+                    throw PipelineError.invalidImage
+                }
+                var image = CIImage(cgImage: thumbnail)
+                guard !image.extent.isEmpty, !image.extent.isInfinite else { throw PipelineError.invalidImage }
+                image = image.transformed(by: CGAffineTransform(translationX: -image.extent.minX,
+                                                                y: -image.extent.minY))
+                let edge = CGFloat(maximumEdge)
+                let scale = min(1, edge / max(image.extent.width, image.extent.height))
+                if scale < 1 { image = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale)) }
+                let width = max(1, Int(image.extent.width.rounded(.down)))
+                let height = max(1, Int(image.extent.height.rounded(.down)))
+                let bounds = CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
+                guard let linear = sharedPreviewColorSpace,
+                      let context = sharedPreviewContext else { throw PipelineError.rendering }
+                image = image.composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
+                    .cropped(to: bounds)
+                var pixels = [Float](repeating: 0, count: width * height * 4)
+                pixels.withUnsafeMutableBytes { bytes in
+                    context.render(image, toBitmap: bytes.baseAddress!, rowBytes: width * 16,
+                                   bounds: bounds, format: .RGBAf, colorSpace: linear)
+                }
+                let raster = try PreviewRaster(linearRGBA: pixels, width: width, height: height)
+                return (raster, pixelWidth.intValue, pixelHeight.intValue)
+            }
+        }
+    }
+
     static func decode(data: Data, fileExtension: String?, sourceFile: SourceImageFile, maximumEdge: CGFloat, exportSettings: ExportSettings, rawDecode: RAWDecodeRecipe,
                                baseRAWDecode: RAWDecodeRecipe? = nil,
                                frozenWhiteBalance: PhotoWhiteBalance? = nil) throws -> ImportedImage {
@@ -178,9 +233,8 @@ extension ImagePipeline {
         let width = max(1, Int(image.extent.width.rounded(.down)))
         let height = max(1, Int(image.extent.height.rounded(.down)))
         let bounds = CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height))
-        guard let linear = CGColorSpace(name: CGColorSpace.extendedLinearSRGB) else { throw PipelineError.rendering }
-        let context = CIContext(options: [.workingColorSpace: linear,
-                                          .workingFormat: CIFormat.RGBAf.rawValue])
+        guard let linear = sharedPreviewColorSpace,
+              let context = sharedPreviewContext else { throw PipelineError.rendering }
         // Transparent inputs are intentionally flattened onto black before color conversion.
         image = image.composited(over: CIImage(color: CIColor(red: 0, green: 0, blue: 0, alpha: 1)))
             .cropped(to: bounds)

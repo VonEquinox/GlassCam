@@ -29,6 +29,18 @@ extension ImagePipeline {
         }
         return headroom
     }
+    /// Colour and spatial effects are complete before this linear-light resize.
+    /// Extend edge samples so the reconstruction filter never mixes in black
+    /// outside the finite source rectangle.
+    static func resizedForExport(_ source: CIImage, width: Int, height: Int) -> CIImage {
+        guard source.extent.width != CGFloat(width) || source.extent.height != CGFloat(height) else { return source }
+        let scale = Double(height) / Double(source.extent.height)
+        let aspect = Double(width) / Double(source.extent.width) / scale
+        return source.clampedToExtent().applyingFilter("CILanczosScaleTransform", parameters: [
+            kCIInputScaleKey: scale, kCIInputAspectRatioKey: aspect
+        ]).cropped(to: CGRect(x: 0, y: 0, width: width, height: height))
+    }
+
     static func encodeHDR(raster: ExportRasterFile, rasterBytes: Int, width: Int, height: Int,
                           output: (width: Int, height: Int), linear: CGColorSpace, pq: CGColorSpace,
                           outputHeadroom: Float, encodingContext: CIContext, metadata: PhotoMetadata,
@@ -36,16 +48,7 @@ extension ImagePipeline {
                           progress: @escaping @Sendable (Double) -> Void) throws {
         try checkExportCancellation(isCancelled)
         var image = try raster.tiledImage(width: width, height: height, colorSpace: linear)
-        if output.width != width || output.height != height {
-            // Color and spatial effects have already run at cropped source resolution.
-            // The camera's 24/48MP policy can explicitly request interpolation.
-            // Resampling stays in linear light after the original color/spatial stages.
-            let scale = Double(output.height) / Double(height)
-            let pixelAspect = Double(output.width) / Double(width) / scale
-            image = image.applyingFilter("CILanczosScaleTransform", parameters: [kCIInputScaleKey: scale,
-                                                                                 kCIInputAspectRatioKey: pixelAspect])
-                .cropped(to: CGRect(x: 0, y: 0, width: CGFloat(output.width), height: CGFloat(output.height)))
-        }
+        image = resizedForExport(image, width: output.width, height: output.height)
         // For revision 12 these filters execute in linear BT.2020. Remove
         // out-of-target-gamut/ringing values there, while keeping super-white
         // values up to PQ's physical ceiling. Legacy recipes retain their domain.

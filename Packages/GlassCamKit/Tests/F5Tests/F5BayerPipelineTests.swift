@@ -15,7 +15,7 @@ struct F5BayerPipelineTests {
                 F5Fixtures.rationals(50730,[1],signed: true), F5Fixtures.rationals(50732,[1.5])], quality: quality)
         let recipe = ProcessingRecipe(mode: mode, exposureEV: 0.7, illuminantKelvin: 6500,
             simulationIndex: 0, seed: 0, hncs: .standard, effects: .init(applyGrain: false,applySharpness: false))
-        let snapshot = CaptureSnapshot(recipe: recipe, output: .camera(48), quality: quality)
+        let snapshot = CaptureSnapshot(recipe: recipe, output: .camera24(), quality: quality)
         return try F5ImagePipeline.render(resources: TestResources.colors, fixture.source, snapshot: snapshot,
             progress: { _ in }, isCancelled: { false }, shaderURL: F5TestContext.shader)
     }
@@ -42,6 +42,21 @@ struct F5BayerPipelineTests {
         #expect((properties[kCGImagePropertyDepth as String] as? NSNumber)?.intValue == 10)
         #expect((exif[kCGImagePropertyExifExposureTime as String] as? NSNumber)?.doubleValue == 0.008)
         #expect((exif[kCGImagePropertyExifISOSpeedRatings as String] as? [NSNumber])?.first?.intValue == 100)
+        let provenance = try #require(result.snapshot.f5)
+        #expect(exif[kCGImagePropertyExifUserComment as String] as? String ==
+            "GlassCam F5\n" + String(decoding: try F5Hash.json(provenance), as: UTF8.self))
+    }
+
+    @Test(arguments: [CaptureQuality.speed, .balanced])
+    func bayerModes_encodeFixed24MPPortrait(quality: CaptureQuality) throws {
+        let result = try render(quality, .hncs)
+
+        let container = try #require(CGImageSourceCreateWithURL(result.file.url as CFURL, nil))
+        let properties = try #require(CGImageSourceCopyPropertiesAtIndex(container, 0, nil) as? [String: Any])
+
+        #expect((properties[kCGImagePropertyPixelWidth as String] as? NSNumber)?.intValue == 4242)
+        #expect((properties[kCGImagePropertyPixelHeight as String] as? NSNumber)?.intValue == 5656)
+        #expect(result.snapshot.output.cameraMegapixels == 24)
     }
 
     @Test(arguments: [CaptureQuality.speed,.balanced])

@@ -31,24 +31,18 @@ final class CameraController: ObservableObject {
     @Published private(set) var status = "Camera stopped"
     @Published private(set) var isReady = false
     @Published private(set) var isCapturing = false
-    @Published private(set) var isPreviewFrozen = false
     @Published private(set) var capturePhase: CapturePhase = .idle
-    @Published private(set) var actualCapturedDimensions: CGSize?
     @Published private(set) var peripheralSource: PeripheralFrameSource?
     @Published private(set) var centerLiveSource: LiveCameraFrameSource?
     @Published private(set) var centerPreviewLayer: AVSampleBufferDisplayLayer?
     @Published private(set) var geometry: CameraGeometry?
-    @Published private(set) var sourceCaptureDimensions: CGSize?
     @Published private(set) var physicalCameraID: String?
-    @Published private(set) var centerPreviewDimensions: CGSize?
-    @Published private(set) var centerPreviewEncoding: String?
     @Published private(set) var isConfiguring = false
     @Published private(set) var zoomRange: CameraZoomRange = .main
     @Published private(set) var requestedZoom = 1.0
     @Published private(set) var appliedZoom = 1.0
     @Published private(set) var currentFraming = CaptureFraming()
     @Published private(set) var isUpdatingZoom = false
-    @Published private(set) var f5ProfileAvailable = false
     @Published private(set) var f5SampleDirectory: URL?
     private var captureReservation: UUID?
     private let backend: any CameraBackendServing
@@ -72,7 +66,7 @@ final class CameraController: ObservableObject {
         lifetime.cancel(); lifetime = CameraLifetime()
         let token = UUID(); generation = token
         isUpdatingZoom = false; captureReservation = nil
-        isConfiguring = true; isReady = false; isPreviewFrozen = false; capturePhase = .idle
+        isConfiguring = true; isReady = false; capturePhase = .idle
         status = "Checking camera access…"; appliedOrientation = .unknown; isApplyingOrientation = false
         clearPreview()
         switch cameraAccess.status() {
@@ -142,28 +136,11 @@ final class CameraController: ObservableObject {
         centerPreviewLayer = bundle.center; centerLiveSource = bundle.liveSource
         peripheralSource = bundle.peripheralSource
         geometry = bundle.geometry
-        sourceCaptureDimensions = bundle.sourceCaptureDimensions
         physicalCameraID = bundle.physicalCameraID
-        centerPreviewDimensions = bundle.centerPreviewDimensions
-        centerPreviewEncoding = bundle.centerPreviewEncoding
         zoomRange = bundle.zoomRange
         appliedZoom = bundle.framing.displayZoom
         currentFraming = bundle.framing
         requestedZoom = zoomRange.clamped(requestedZoom)
-        refreshF5ProfileStatus()
-    }
-    func refreshF5ProfileStatus() {
-        guard let id = physicalCameraID else { f5ProfileAvailable = false; return }
-        let hashed = F5Hash.data(Data(id.utf8))
-        let main = currentFraming.lensName == "Main"
-        f5ProfileAvailable = false
-        DispatchQueue.global(qos: .utility).async { [weak self] in
-            let available = main && !F5ProfileStore.candidates(hardware: F5DeviceFacts.hardware, os: F5DeviceFacts.osBuild, physicalCameraID: hashed).isEmpty
-            DispatchQueue.main.async { [weak self] in
-                guard let self, self.physicalCameraID == id else { return }
-                self.f5ProfileAvailable = available
-            }
-        }
     }
     func selectF5MainCamera() {
         if let main = zoomRange.stops.first(where: { $0.title == "Main" }) { requestedZoom = main.factor; applyPendingZoom() }
@@ -185,10 +162,7 @@ final class CameraController: ObservableObject {
     private func clearPreview() {
         centerPreviewLayer = nil; geometry = nil; peripheralSource = nil
         centerLiveSource?.setEnabled(false); centerLiveSource = nil
-        sourceCaptureDimensions = nil; physicalCameraID = nil
-        f5ProfileAvailable = false
-        centerPreviewDimensions = nil
-        centerPreviewEncoding = nil
+        physicalCameraID = nil
     }
     func updateOrientation(_ value: UIInterfaceOrientation) {
         dispatchPrecondition(condition: .onQueue(.main))
@@ -229,7 +203,7 @@ final class CameraController: ObservableObject {
         lifetime.cancel(); generation = UUID()
         isConfiguring = false; isReady = false; isCapturing = false
         isUpdatingZoom = false; captureReservation = nil
-        isPreviewFrozen = false; capturePhase = .idle; appliedOrientation = .unknown; isApplyingOrientation = false
+        capturePhase = .idle; appliedOrientation = .unknown; isApplyingOrientation = false
         clearPreview(); status = "Camera stopped"
         backend.queue.async { [backend] in backend.stop() }
     }
@@ -294,8 +268,8 @@ final class CameraController: ObservableObject {
             releaseCaptureReservation(reservation)
             completion(.failure(CameraFailure("Camera is unavailable or a capture is already in progress."))); return
         }
-        isCapturing = true; isReady = false; isPreviewFrozen = false
-        capturePhase = .preparing; actualCapturedDimensions = nil
+        isCapturing = true; isReady = false
+        capturePhase = .preparing
         status = "Preparing Bayer RAW capture…"
         let token = generation
         backend.queue.async { [weak self, backend] in
@@ -310,10 +284,8 @@ final class CameraController: ObservableObject {
                     // Stop/background can invalidate view state, never a completed DNG.
                     guard let self, self.generation == token else { completion(photoResult); return }
                     if let bundle = outcome.bundle { self.install(bundle) }
-                    if case .success(let photo) = outcome.result { self.actualCapturedDimensions = photo.dimensions }
                     if f5Purpose == "probe", case .success(let photo) = outcome.result { self.f5SampleDirectory = photo.burst?.directory }
                     self.isCapturing = false; self.captureReservation = nil; self.capturePhase = .idle
-                    self.isPreviewFrozen = false
                     self.isReady = outcome.previewReady
                     self.status = outcome.message ?? self.readyStatus
                     if outcome.previewReady { self.updateOrientation(self.orientation); self.applyPendingZoom() }

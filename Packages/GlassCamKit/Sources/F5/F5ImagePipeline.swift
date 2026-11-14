@@ -53,10 +53,12 @@ enum F5ImagePipeline {
         guard snapshot.recipe.isValid, snapshot.quality.bayerFrameCount == source.manifest.frames.count else {
             throw F5Failure(.damagedBundle,"The Bayer frame count does not match the frozen capture mode.")
         }
+        let retainCamera = snapshot.quality == .balanced && snapshot.rawArchiveID != nil
         let reconstruction = try autoreleasepool {
-            try F5Reconstructor.reconstruct(source,shaderURL:shaderURL,progress:{progress($0*0.7)},isCancelled:isCancelled)
+            try F5Reconstructor.reconstruct(source,retainCamera:retainCamera,shaderURL:shaderURL,
+                progress:{progress($0*0.7)},isCancelled:isCancelled)
         }
-        if snapshot.quality == .balanced, snapshot.rawArchiveID != nil {
+        if retainCamera {
             _ = try archive(reconstruction,source: source,snapshot: snapshot,archiveRoot: archiveRoot,isCancelled: isCancelled)
         }
         let provenance=reconstruction.provenance(source.manifest)
@@ -102,11 +104,11 @@ enum F5ImagePipeline {
 }
 
 enum F5Reconstructor {
-    static func reconstruct(_ source: F5BurstSource, shaderURL: URL? = nil,
+    static func reconstruct(_ source: F5BurstSource, retainCamera: Bool = true, shaderURL: URL? = nil,
                             progress: @escaping (Double) -> Void = { _ in },
                             isCancelled: @escaping () -> Bool = { false }) throws -> F5LinearImage {
         let start = ProcessInfo.processInfo.systemUptime, manifest = source.manifest
-        var flags = try manifest.validate(directory: source.directory)
+        var flags = source.validationFlags
         guard !flags.contains(.isoChanged) else {
             throw F5Failure(.isoChanged, "Bayer frames have inconsistent ISO values. The original RAW frames were retained.")
         }
@@ -134,7 +136,8 @@ enum F5Reconstructor {
         let width = reference.raster.activeArea.width, height = reference.raster.activeArea.height
         let scale = mains.count == 1 ? 1 : 2
         let capacity = try source.directory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage
-        let required = Int64(width) * Int64(height) * Int64(scale * scale) * 48 + 128 * 1024 * 1024
+        let rasterFactor: Int64 = retainCamera ? 48 : 32
+        let required = Int64(width) * Int64(height) * Int64(scale * scale) * rasterFactor + 128 * 1024 * 1024
         if let capacity, capacity < required { throw CocoaError(.fileWriteOutOfSpace) }
         let color = try F5ColorBridge.rendering(metadata: reference.metadata, profile: profile)
         let device = try F5MetalDevice(maximumBytes: profile.policy.maximumWorkingBytes, shaderURL: shaderURL, isCancelled: isCancelled)
@@ -151,8 +154,11 @@ enum F5Reconstructor {
             flags: flags.sorted { $0.rawValue < $1.rawValue }, objectiveEpochs: [], tiles: result.tiles)
         let output = try F5CurvatureOutput.write(result.raster, nativeWidth: width, nativeHeight: height,
             metadata: reference.metadata, matrix: color.cameraToLinearSRGB.values, device: device,
+            includeCamera: retainCamera,
             progress: { progress(0.85 + $0 * 0.15) })
-        try persistCamera(output, reference: reference, color: color, scale: scale, directory: source.directory)
+        if retainCamera {
+            try persistCamera(output, reference: reference, color: color, scale: scale, directory: source.directory)
+        }
         report.processingSeconds = ProcessInfo.processInfo.systemUptime - start
         report.allocatedBytes = device.peakBytes
         try CaptureJournal.writeProtected(F5Hash.json(report), to: source.directory.appendingPathComponent("quality.json"))
@@ -186,12 +192,14 @@ enum F5Reconstructor {
 
     private static func normalize(_ records: [F5FrameRecord], directory: URL, profile: F5DeviceProfile,
                                   mainExposure: Double, device: F5MetalDevice) throws -> F5CurvatureRAW {
-        let frames = try records.map { record in
+        let referenceArea = records[0].raster.activeArea
+        return try F5CurvatureRAW(count: records.count, width: referenceArea.width, height: referenceArea.height,
+                                  device: device) { index in
+            let record = records[index]
             let codes = try Data(contentsOf: record.mosaic.url(in: directory), options: .mappedIfSafe)
             let canonical = try F5CanonicalFrame(record: record, codes: codes, profile: profile, mainExposure: mainExposure)
             return try F5MetalFrame.upload(canonical, to: device)
         }
-        return try F5CurvatureRAW(frames: frames, device: device)
     }
 
     private static func support(_ registration: F5CurvatureRegistration, records: [F5FrameRecord]) -> [F5QualityReport.Tile] {
@@ -218,9 +226,12 @@ enum F5Reconstructor {
 
     private static func persistCamera(_ output: F5CurvatureOutput.Result, reference: F5FrameRecord,
                                       color: F5ColorTransformRecord, scale: Int, directory: URL) throws {
+        guard let cameraFile = output.camera else {
+            throw F5Failure(.damagedBundle, "Missing reconstructed camera raster for persistence.")
+        }
         let final = directory.appendingPathComponent("linear-camera.f32")
         let pending = directory.appendingPathComponent("linear-camera-writing-\(UUID().uuidString).f32")
-        try FileManager.default.copyItem(at: output.camera.url, to: pending)
+        try FileManager.default.copyItem(at: cameraFile.url, to: pending)
         if FileManager.default.fileExists(atPath: final.path) { _ = try FileManager.default.replaceItemAt(final, withItemAt: pending) }
         else { try FileManager.default.moveItem(at: pending, to: final) }
         let post = try F5PostOperations.records(reference.metadata)

@@ -4,6 +4,7 @@
 import GlassCamTestSupport
 import Foundation
 import Testing
+import Combine
 
 private enum JournalTestFiles {
     static let fixtures = TestResources.fixtures.appendingPathComponent("journal")
@@ -27,13 +28,13 @@ func currentJournal_decodeEncodePreservesBytes(path: String) throws {
     #expect(try JournalFixtures.encode(record) == bytes)
 }
 
-@Test func legacySpeed_decodeRetainsQualityAndExistingNormalization() throws {
+@Test func legacySpeed_decodeRetainsModeAndUses24MP() throws {
     let bytes = try JournalTestFiles.data("speed-legacy/capture.json")
 
     let record = try JournalTestFiles.formats.decoder().decode(CaptureJournal.Record.self, from: bytes)
 
     #expect(record.snapshot.quality == .speed)
-    #expect(record.snapshot.output.cameraMegapixels == 12)
+    #expect(record.snapshot.output.cameraMegapixels == 24)
     #expect(try JournalFixtures.encode(record) == JournalTestFiles.data("speed-normalized.json"))
 }
 
@@ -69,7 +70,7 @@ func retainedJournal_loadVerifiesFrozenFiles(name: String) throws {
     try JournalTestFiles.copy(name, to: pending)
     let journal = CaptureJournal(directory: pending, formats: JournalTestFiles.formats)
 
-    let record = try #require(try journal.load())
+    let record = try #require(try journal.load()).record
 
     #expect(record.id == JournalFixtures.captureID)
     #expect(record.stage == .rawReady)
@@ -85,9 +86,9 @@ func retainedJournal_loadVerifiesFrozenFiles(name: String) throws {
 
     let retried = try journal.retainBurst(source, id: expected.id, snapshot: expected.snapshot)
 
-    #expect(try JournalFixtures.encode(retried) == JournalTestFiles.data("f5-five-frames/capture.json"))
+    #expect(try JournalFixtures.encode(retried.record) == JournalTestFiles.data("f5-five-frames/capture.json"))
     #expect(try Data(contentsOf: pending.appendingPathComponent("capture.json")) == JournalTestFiles.data("f5-five-frames/capture.json"))
-    #expect(try (journal.retainedPayload(for: retried) as? F5BurstSource)?.manifest.frames.count == 5)
+    #expect((retried.payload as? F5BurstSource)?.manifest.frames.count == 5)
 }
 
 @Test(arguments: [CaptureQuality.speed,.balanced])
@@ -101,8 +102,9 @@ func retainedBayer_reloadKeepsModeAndOriginalFrames(quality: CaptureQuality) thr
 
     let restored = try CaptureJournal(directory: pending,formats: JournalTestFiles.formats).load()
 
-    let record = try #require(restored)
-    let payload = try #require(journal.retainedPayload(for: record) as? F5BurstSource)
+    let retained = try #require(restored)
+    let record = retained.record
+    let payload = try #require(retained.payload as? F5BurstSource)
     #expect(record.snapshot.quality == quality)
     #expect(payload.manifest.frames.count == quality.bayerFrameCount)
     #expect(payload.manifest.frames.map(\.mosaic.sha256) == fixture.source.manifest.frames.map(\.mosaic.sha256))
@@ -146,40 +148,37 @@ func retainedBayer_reloadKeepsModeAndOriginalFrames(quality: CaptureQuality) thr
     let formats = CaptureFormats([F5CaptureFormat(stagingRoot: staging)])
     let journal = CaptureJournal(directory: root.appendingPathComponent("pending"), formats: formats, recoverStagedCaptures: true)
 
-    let record = try #require(try journal.load())
+    let retained = try #require(try journal.load())
 
-    #expect(record.id == JournalFixtures.burstID)
-    #expect(try (journal.retainedPayload(for: record) as? F5BurstSource)?.manifest.frames.count == 5)
+    #expect(retained.record.id == JournalFixtures.burstID)
+    #expect((retained.payload as? F5BurstSource)?.manifest.frames.count == 5)
     #expect(!FileManager.default.fileExists(atPath: staged.path))
 }
 
-@Test func interruptedStaging_loadRetainsFilesWithOriginalFailure() throws {
+private enum InterruptedStaging: CaseIterable { case incomplete, malformed, missingIntent, multiple }
+
+@Test(arguments: InterruptedStaging.allCases)
+private func unrecoverableStaging_explicitDiscardRemovesIt(kind: InterruptedStaging) throws {
     let work = try TestDirectory()
     let root = work.url
     let staging = root.appendingPathComponent("staging")
-    let snapshot = CaptureSnapshot(recipe: .standard, output: .native, quality: .f5)
+    let snapshot = CaptureSnapshot(recipe: .standard, output: .camera24(), quality: .balanced)
     let transaction = try F5BurstTransaction(snapshot: snapshot, purpose: "product", root: staging)
+    let intent = transaction.directory.appendingPathComponent("intent.json")
+    switch kind {
+    case .incomplete: break
+    case .malformed: try Data("{".utf8).write(to: intent)
+    case .missingIntent: try FileManager.default.removeItem(at: intent)
+    case .multiple: _ = try F5BurstTransaction(snapshot: snapshot, purpose: "product", root: staging)
+    }
     let formats = CaptureFormats([F5CaptureFormat(stagingRoot: staging)])
     let journal = CaptureJournal(directory: root.appendingPathComponent("pending"), formats: formats, recoverStagedCaptures: true)
-
-    let error = #expect(throws: F5Failure.self) { try journal.load() }
-    #expect(error?.code == .frameMissing)
-
+    #expect(throws: (any Error).self) { try journal.load() }
     #expect(FileManager.default.fileExists(atPath: transaction.directory.path))
-}
 
-@Test func interruptedStaging_explicitDiscardRemovesIt() throws {
-    let work = try TestDirectory()
-    let root = work.url
-    let staging = root.appendingPathComponent("staging")
-    let snapshot = CaptureSnapshot(recipe: .standard, output: .native, quality: .f5)
-    let transaction = try F5BurstTransaction(snapshot: snapshot, purpose: "product", root: staging)
-    let formats = CaptureFormats([F5CaptureFormat(stagingRoot: staging)])
-    let journal = CaptureJournal(directory: root.appendingPathComponent("pending"), formats: formats, recoverStagedCaptures: true)
+    try journal.discard()
 
-    try journal.discardUnreadable()
-
-    #expect(!FileManager.default.fileExists(atPath: transaction.directory.path))
+    #expect(try journal.load() == nil)
 }
 
 @Test func confirmedBurst_clearArchivesOriginals() throws {
@@ -195,11 +194,71 @@ func retainedBayer_reloadKeepsModeAndOriginalFrames(quality: CaptureQuality) thr
     _ = try journal.beginSave(id: JournalFixtures.captureID, attemptID: attempt)
     _ = try journal.confirmSaved(id: JournalFixtures.captureID, attemptID: attempt)
 
-    try journal.clear(id: JournalFixtures.captureID)
+    try journal.finishSaved(id: JournalFixtures.captureID)
 
     let archived = try F5BurstSource(directory: archives.appendingPathComponent(JournalFixtures.captureID.uuidString))
     #expect(archived.manifest.frames.count == 5)
     #expect(!FileManager.default.fileExists(atPath: pending.path))
+}
+
+@Test func savedBurst_archiveFailureDoesNotBlockExplicitDiscard() throws {
+    let work = try TestDirectory()
+    let pending = work.url.appendingPathComponent("pending")
+    try JournalTestFiles.copy("f5-five-frames", to: pending)
+    try JournalTestFiles.data("f5-encoded.json").write(to: pending.appendingPathComponent("capture.json"))
+    let archives = work.url.appendingPathComponent("archives")
+    try Data("not a directory".utf8).write(to: archives)
+    let journal = CaptureJournal(directory: pending, formats: CaptureFormats([F5CaptureFormat(archiveRoot: archives)]))
+    let attempt = UUID()
+    _ = try journal.beginSave(id: JournalFixtures.captureID, attemptID: attempt)
+    _ = try journal.confirmSaved(id: JournalFixtures.captureID, attemptID: attempt)
+    #expect(throws: (any Error).self) { try journal.finishSaved(id: JournalFixtures.captureID) }
+
+    try journal.discard()
+
+    #expect(try journal.load() == nil)
+}
+
+@Test @MainActor func partialBayerFailure_requiresExplicitDiscardOfDeliveredRAW() async throws {
+    let work = try TestDirectory()
+    let staging = work.url.appendingPathComponent("staging")
+    let formats = CaptureFormats([F5CaptureFormat(stagingRoot: staging)])
+    let journal = CaptureJournal(directory: work.url.appendingPathComponent("pending"), formats: formats, recoverStagedCaptures: true)
+    let services = CaptureWorkflow.Services.live(resources: ColorResources(resourceDirectory: nil), formats: formats,
+        authorize: {}, save: { _ in })
+    let workflow = CaptureWorkflow(services: services, journal: journal)
+    for await phase in workflow.$phase.values { if phase == .idle { break } }
+    let snapshot = CaptureSnapshot(recipe: .standard, output: .camera24(), quality: .balanced)
+    var deliveredURL: URL?
+    workflow.capturePhoto(snapshot: snapshot) { callback in
+        do {
+            let transaction = try F5BurstTransaction(snapshot: snapshot, purpose: "product", root: staging)
+            try transaction.register(requestID: 1, indices: [0, 1, 2])
+            let original = try JournalTestFiles.data("f5-five-frames/burst/frame-0.dng")
+            let delivery = try transaction.retainDelivery(requestID: 1, sequenceCount: 1, dng: original)
+            deliveredURL = try delivery.dng.url(in: transaction.directory)
+            transaction.cancel(.frameMissing)
+            callback(.failure(F5Failure(.frameMissing, "Interrupted bracket")))
+        } catch { callback(.failure(error)) }
+    }
+
+    for await phase in workflow.$phase.values { if phase == .failed { break } }
+
+    #expect(!workflow.canRetry)
+    #expect(workflow.requiresDiscardConfirmation)
+    let file = try #require(deliveredURL)
+    #expect(try Data(contentsOf: file) == JournalTestFiles.data("f5-five-frames/burst/frame-0.dng"))
+}
+
+@Test func retainedBayer_pendingDirectoryIsExcludedFromBackup() throws {
+    let work = try TestDirectory()
+    let fixture = try F5Fixtures.make(directory: work.url, quality: .balanced)
+    let pending = work.url.appendingPathComponent("pending")
+    let journal = CaptureJournal(directory: pending, formats: JournalTestFiles.formats)
+
+    _ = try journal.retainBurst(fixture.source, id: UUID(), snapshot: .init(recipe: .standard, output: .camera24()))
+
+    #expect(try pending.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup == true)
 }
 
 @Test @MainActor func registeredBurstProcessor_preservesISOFailure() async throws {
@@ -213,4 +272,25 @@ func retainedBayer_reloadKeepsModeAndOriginalFrames(quality: CaptureQuality) thr
         _ = try await services.process(.burst(fixture.source), snapshot, { _ in })
     }
     #expect(error?.code == .isoChanged)
+}
+
+@Test func archiveRetain_isDurableAndIdempotent() throws {
+    let work = try TestDirectory(), id = UUID(), root = work.url.appendingPathComponent("archives")
+    let fixture = try F5Fixtures.make(directory: work.url, quality: .balanced)
+    let first = try F5ArchiveStore.retain(fixture.source, captureID: id, root: root)
+    let second = try F5ArchiveStore.retain(fixture.source, captureID: id, root: root)
+    #expect(first == second)
+    #expect(try F5BurstSource(directory: second).manifest.frames.count == 4)
+}
+@Test func lateConflictingDelivery_doesNotOverwriteOriginal() throws {
+    let work = try TestDirectory()
+    let snapshot = CaptureSnapshot(recipe: .standard, output: .camera24(), quality: .balanced)
+    let transaction = try F5BurstTransaction(snapshot: snapshot, purpose: "synthetic-test", root: work.url)
+    try transaction.register(requestID: 900, indices: [0])
+    let original = try transaction.retainDelivery(requestID: 900, sequenceCount: 1, dng: JournalTestFiles.data("f5-five-frames/burst/frame-0.dng"))
+    transaction.cancel(.unsupportedRAW)
+    let late = try transaction.retainDelivery(requestID: 900, sequenceCount: 1, dng: JournalTestFiles.data("f5-five-frames/burst/frame-2.dng"))
+    try original.dng.verify(in: transaction.directory)
+    try late.dng.verify(in: transaction.directory)
+    #expect(original.dng.path != late.dng.path)
 }

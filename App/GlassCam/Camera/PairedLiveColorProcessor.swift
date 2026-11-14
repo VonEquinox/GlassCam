@@ -52,6 +52,7 @@ final class PairedLiveColorProcessor {
                 filter.setValue(LiveColorRecipe.dimension,forKey:"inputCubeDimension")
                 filter.setValue(cube.rgbaFloat32Data,forKey:"inputCubeData")
                 self.cube=cube;self.filter=filter
+                self.revision &+= 1
             case .failure(let error):self.report(.init(isShowingEffect:false,text:error.localizedDescription))
             }
         }

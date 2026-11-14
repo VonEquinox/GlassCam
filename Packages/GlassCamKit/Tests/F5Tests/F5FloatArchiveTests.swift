@@ -92,4 +92,18 @@ struct F5FloatArchiveTests {
         #expect(FileManager.default.fileExists(atPath: saved.appendingPathComponent("balanced-camera.dng").path))
         #expect(CGImageSourceCreateWithURL(saved.appendingPathComponent("balanced-linear.tiff") as CFURL,nil) != nil)
     }
+
+    @Test func balancedRenderWithoutArchiveID_skipsPreColorFilesAndCameraPersistence() throws {
+        let context = try F5TestContext(width: 32, height: 24)
+        let sourceFixture = try F5Fixtures.make(directory: context.work.url, width: 32, height: 24, quality: .balanced)
+        let archives = context.work.url.appendingPathComponent("archives")
+        let snapshot = CaptureSnapshot(recipe: .standard, output: .camera24(), quality: .balanced, rawArchiveID: nil)
+
+        let result = try F5ImagePipeline.render(resources: TestResources.colors, sourceFixture.source, snapshot: snapshot,
+            progress: { _ in }, isCancelled: { false }, shaderURL: F5TestContext.shader, archiveRoot: archives)
+
+        #expect(result.snapshot.rawArchiveID == nil)
+        #expect(!FileManager.default.fileExists(atPath: archives.path))
+        #expect(!FileManager.default.fileExists(atPath: sourceFixture.source.directory.appendingPathComponent("linear-camera.f32").path))
+    }
 }

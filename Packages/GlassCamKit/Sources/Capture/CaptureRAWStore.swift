@@ -8,7 +8,79 @@ public enum CaptureRAWStore {
         FileManager.default.urls(for: .documentDirectory,in: .userDomainMask)[0]
             .appendingPathComponent("RAWCaptures",isDirectory: true)
     }
+    public static var archivedRoots: [URL] {
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return ["RAWCaptures", "F5Archives", "F5Samples"].map {
+            documents.appendingPathComponent($0, isDirectory: true)
+        }
+    }
     public static func directory(id: UUID) -> URL { root.appendingPathComponent(id.uuidString,isDirectory: true) }
+
+    public struct StorageUsage: Equatable, Sendable {
+        public let setCount: Int
+        public let bytes: Int64
+        public init(setCount: Int = 0, bytes: Int64 = 0) {
+            self.setCount = setCount
+            self.bytes = bytes
+        }
+        public var isEmpty: Bool { setCount == 0 && bytes == 0 }
+    }
+
+    public static func storageUsage(roots: [URL] = archivedRoots) -> StorageUsage {
+        let fm = FileManager.default
+        var setCount = 0
+        var totalBytes: Int64 = 0
+        for root in roots where fm.fileExists(atPath: root.path) {
+            guard let items = try? fm.contentsOfDirectory(
+                at: root,
+                includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey],
+                options: [.skipsHiddenFiles]
+            ) else { continue }
+            for item in items {
+                let values = try? item.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+                guard values?.isSymbolicLink != true else { continue }
+                if values?.isDirectory == true,
+                   !item.lastPathComponent.hasPrefix("Incoming-"),
+                   !item.lastPathComponent.hasPrefix("Writing-"),
+                   !item.lastPathComponent.hasPrefix("Removing-") {
+                    setCount += 1
+                }
+                totalBytes += regularFileBytes(at: item)
+            }
+        }
+        return StorageUsage(setCount: setCount, bytes: totalBytes)
+    }
+
+    public static func clearArchives(roots: [URL] = archivedRoots) throws {
+        let fm = FileManager.default
+        for root in roots where fm.fileExists(atPath: root.path) {
+            let parent = root.deletingLastPathComponent()
+            let retired = parent.appendingPathComponent("Removing-\(root.lastPathComponent)-\(UUID().uuidString)", isDirectory: true)
+            try fm.moveItem(at: root, to: retired)
+            try fm.removeItem(at: retired)
+        }
+    }
+
+    private static func regularFileBytes(at url: URL) -> Int64 {
+        let fm = FileManager.default
+        let values = try? url.resourceValues(forKeys: [.isRegularFileKey, .isDirectoryKey, .isSymbolicLinkKey, .fileSizeKey])
+        guard values?.isSymbolicLink != true else { return 0 }
+        if values?.isRegularFile == true { return Int64(values?.fileSize ?? 0) }
+        guard values?.isDirectory == true,
+              let enumerator = fm.enumerator(
+                  at: url,
+                  includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey],
+                  options: [.skipsHiddenFiles]
+              ) else { return 0 }
+        var total: Int64 = 0
+        for case let file as URL in enumerator {
+            let props = try? file.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])
+            if props?.isSymbolicLink != true, props?.isRegularFile == true {
+                total += Int64(props?.fileSize ?? 0)
+            }
+        }
+        return total
+    }
 
     package struct Entry: Codable {
         let revision: Int, id: UUID, quality: CaptureQuality, sourceIdentity: String

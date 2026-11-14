@@ -55,7 +55,7 @@ public enum ShareDelivery {
 final class ShareRepresentationStorage: @unchecked Sendable {
     // Shared serial queue bounds concurrent full-resolution codec work to one.
     // Apple codecs may still allocate full-frame surfaces; this is NOT a bounded
-    // peak-RSS claim. Profile 48 MP exports and cancellation on physical devices.
+    // peak-RSS claim. Profile full-resolution exports and cancellation on physical devices.
     private static let sharedQueue = DispatchQueue(label: "GlassCam.share-delivery", qos: .userInitiated)
     private let original: TemporaryHEIFFile
     // Accessed only on queue; a successful conversion is reused by later loads.

@@ -93,16 +93,31 @@ kernel void gc_ffcs_point(texture2d<float,access::read> input [[texture(0)]],tex
     if(!c.reach)v=float4(gc_restore(gc_decode3(v.rgb),v.a),1.f);
     output.write(v,p);
 }
-kernel void gc_ffcs_finish(texture2d<float,access::read> input [[texture(0)]],texture2d<float,access::write> output [[texture(1)]],
+kernel void gc_ffcs_horizontal(texture2d<float,access::read> input [[texture(0)]],texture2d<float,access::write> output [[texture(1)]],
     constant GCColorRegion &region [[buffer(0)]],constant GCFFCSColor &c [[buffer(1)]],device const float *weights [[buffer(2)]],uint2 p [[thread_position_in_grid]]) {
+    if(p.x>=region.outputWidth||p.y>=region.inputHeight)return;
+    const int x=int(p.x)+region.offsetX,globalX=x+region.inputX;
+    float3 sum=0.f;float total=0.f;
+    for(int dx=-int(c.reach);dx<=int(c.reach);++dx) {
+        const int sampleX=globalX+dx;
+        if(sampleX<0||sampleX>=int(region.fullWidth))continue;
+        const float weight=weights[uint(abs(dx))];
+        total+=weight;sum+=input.read(uint2(uint(x+dx),p.y)).rgb*weight;
+    }
+    output.write(float4(sum/total,1.f),p);
+}
+kernel void gc_ffcs_finish(texture2d<float,access::read> input [[texture(0)]],texture2d<float,access::read> horizontal [[texture(1)]],
+    texture2d<float,access::write> output [[texture(2)]],constant GCColorRegion &region [[buffer(0)]],
+    constant GCFFCSColor &c [[buffer(1)]],device const float *weights [[buffer(2)]],uint2 p [[thread_position_in_grid]]) {
     if(p.x>=region.outputWidth||p.y>=region.outputHeight)return;
-    const int2 at=int2(p)+int2(region.offsetX,region.offsetY),global=at+int2(region.inputX,region.inputTop);
+    const int2 at=int2(p)+int2(region.offsetX,region.offsetY);
+    const int globalY=at.y+region.inputTop;
     const float4 original=input.read(uint2(at));float3 sum=0.f;float total=0.f;
-    for(int dy=-int(c.reach);dy<=int(c.reach);++dy)for(int dx=-int(c.reach);dx<=int(c.reach);++dx) {
-        const int2 sample=global+int2(dx,dy);
-        if(any(sample<0)||sample.x>=int(region.fullWidth)||sample.y>=int(region.fullHeight))continue;
-        const float weight=weights[uint(abs(dy))*(c.reach+1)+uint(abs(dx))];
-        total+=weight;sum+=input.read(uint2(at+int2(dx,dy))).rgb*weight;
+    for(int dy=-int(c.reach);dy<=int(c.reach);++dy) {
+        const int sampleY=globalY+dy;
+        if(sampleY<0||sampleY>=int(region.fullHeight))continue;
+        const float weight=weights[uint(abs(dy))];
+        total+=weight;sum+=horizontal.read(uint2(p.x,uint(at.y+dy))).rgb*weight;
     }
     if(!all(isfinite(original))||!all(isfinite(sum))){output.write(float4(float3(NAN),1.f),p);return;}
     const float3 value=clamp(original.rgb+clamp(c.sharp,0.f,3.f)*.35f*(original.rgb-sum/total),0.f,1.f);

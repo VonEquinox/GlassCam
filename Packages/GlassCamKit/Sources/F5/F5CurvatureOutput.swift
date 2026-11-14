@@ -10,11 +10,13 @@ private final class F5CurvatureOutputCallbacks {
 
 enum F5CurvatureOutput {
     struct Result {
-        let camera, linear: ExportRasterFile
+        let camera: ExportRasterFile?
+        let linear: ExportRasterFile
         let width, height: Int
     }
     static func write(_ input: F5CurvatureRaster.Result, nativeWidth: Int, nativeHeight: Int,
                       metadata: F5DNGMetadata, matrix: [Double], device: F5MetalDevice,
+                      includeCamera: Bool = true,
                       progress: @escaping (Double) -> Void = { _ in }) throws -> Result {
         if device.isCancelled() { throw CancellationError() }
         guard nativeWidth > 0, nativeHeight > 0, input.width % nativeWidth == 0,
@@ -47,7 +49,8 @@ enum F5CurvatureOutput {
         defer { withExtendedLifetime(allocation) {} }
         let source = try FileHandle(forReadingFrom: input.file.url)
         defer { try? source.close() }
-        let camera = try ExportRasterFile(), linear = try ExportRasterFile()
+        let camera = includeCamera ? try ExportRasterFile() : nil
+        let linear = try ExportRasterFile()
         let provider = F5CurvatureOutputCallbacks(cancelled: device.isCancelled, progress: progress)
         var callbacks = gc_f5_curve_callbacks(context: Unmanaged.passUnretained(provider).toOpaque(), prepare: nil, cancelled: { pointer in
             guard let pointer else { return 1 }
@@ -57,10 +60,12 @@ enum F5CurvatureOutput {
             Unmanaged<F5CurvatureOutputCallbacks>.fromOpaque(pointer).takeUnretainedValue().progress(completed)
         })
         try input.file.handle.synchronize()
-        _ = gc_f5_curve_output_write(context, source.fileDescriptor, camera.handle.fileDescriptor, linear.handle.fileDescriptor, &callbacks, &error)
+        _ = gc_f5_curve_output_write(context, source.fileDescriptor,
+            camera?.handle.fileDescriptor ?? -1, linear.handle.fileDescriptor, &callbacks, &error)
         withExtendedLifetime(provider) {}
         try F5CurvatureNative.check(error)
-        try camera.handle.synchronize(); try linear.handle.synchronize()
+        try camera?.handle.synchronize()
+        try linear.handle.synchronize()
         return .init(camera: camera, linear: linear, width: width, height: height)
     }
 }

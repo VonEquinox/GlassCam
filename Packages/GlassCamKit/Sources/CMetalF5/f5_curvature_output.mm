@@ -10,8 +10,10 @@
 #include <limits>
 #include <new>
 #include <stdexcept>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <vector>
 
 namespace {
 struct OutputFailure { int status; const char *message; int code = 0; };
@@ -38,6 +40,24 @@ void readAll(int fd, void *data, size_t bytes, off_t offset) {
         cursor += n; bytes -= size_t(n); offset += n;
     }
 }
+struct MappedSource {
+    const uint8_t *bytes = nullptr;
+    size_t length = 0;
+    MappedSource(int fd, size_t size) {
+        if (!size) return;
+        void *ptr = mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd, 0);
+        if (ptr != MAP_FAILED) {
+            bytes = static_cast<const uint8_t *>(ptr);
+            length = size;
+            posix_madvise(ptr, size, POSIX_MADV_SEQUENTIAL);
+        }
+    }
+    ~MappedSource() {
+        if (bytes) munmap(const_cast<uint8_t *>(bytes), length);
+    }
+    MappedSource(const MappedSource &) = delete;
+    MappedSource &operator=(const MappedSource &) = delete;
+};
 }
 
 struct gc_f5_curve_output {
@@ -47,6 +67,7 @@ struct gc_f5_curve_output {
     id<MTLComputePipelineState> boundsPipeline, outputPipeline;
     id<MTLBuffer> operations, input, camera, linear, bounds, failure;
     uint64_t allocated = 0;
+    unsigned maxTilesPerStrip = 1;
     bool warped = false;
     id<MTLBuffer> allocate(size_t bytes, NSString *label) {
         require(bytes && bytes <= device.maxBufferLength && bytes <= config.maximum_bytes - allocated, 2, "Curvature color output exceeds the working-set budget.");
@@ -78,75 +99,147 @@ struct gc_f5_curve_output {
         outputPipeline = [device newComputePipelineStateWithFunction:outputFunction error:&error];
         require(boundsPipeline && outputPipeline && boundsPipeline.maxTotalThreadsPerThreadgroup >= 128 && outputPipeline.maxTotalThreadsPerThreadgroup >= 128,
                 2, "Cannot create curvature output pipelines.");
+        maxTilesPerStrip = warped ? (c.output_width + tileWidth - 1) / tileWidth : 1;
         input = allocate(16 * 1024 * 1024, @"F5 bounded post-warp source rectangle");
         camera = allocate(size_t(c.output_width) * stripRows * 16, @"F5 post-warp camera rows");
         linear = allocate(camera.length, @"F5 post-color linear rows");
-        bounds = allocate(16, @"F5 post-warp source bounds"); failure = allocate(16, @"F5 post-color validation");
+        bounds = allocate(size_t(maxTilesPerStrip) * 16, @"F5 post-warp source bounds");
+        failure = allocate(16, @"F5 post-color validation");
     }
     void run(int source, int cameraFD, int linearFD, const gc_f5_curve_callbacks *callbacks) {
-        require(source >= 0 && cameraFD >= 0 && linearFD >= 0 && source != cameraFD && source != linearFD && cameraFD != linearFD,
+        require(source >= 0 && linearFD >= 0 && source != linearFD &&
+                (cameraFD < 0 || (cameraFD != source && cameraFD != linearFD)),
                 1, "Invalid curvature output descriptors.");
         struct stat status{};
         if (fstat(source, &status) != 0) throw OutputFailure{5, "Cannot inspect curvature source raster.", errno};
-        require(status.st_size >= off_t(config.width) * config.height * config.scale * config.scale * 16,
+        const size_t requiredBytes = size_t(config.width) * config.height * config.scale * config.scale * 16;
+        require(status.st_size >= off_t(requiredBytes),
                 1, "Curvature source raster has incorrect dimensions.");
+        MappedSource mapped(source, requiredBytes);
         const auto cancelled = [&] { if (callbacks && callbacks->cancelled && callbacks->cancelled(callbacks->context)) throw OutputFailure{4, "Curvature color output cancelled."}; };
         cancelled();
         OutputParameters p{{config.width * config.scale, config.height * config.scale, config.scale, config.operations},
             {config.output_width, config.output_height, 0, 0}, {}, {config.crop_x, config.crop_y, 0, 0}, {}, {}};
         for (unsigned c = 0; c < 3; ++c) p.color[c] = {config.camera_to_linear[c * 3], config.camera_to_linear[c * 3 + 1], config.camera_to_linear[c * 3 + 2], 0};
+        struct PendingTile {
+            OutputParameters parameters;
+            size_t inputOffset;
+        };
+        std::vector<PendingTile> batch;
+        batch.reserve(maxTilesPerStrip);
         for (unsigned top = 0; top < config.output_height; top += stripRows) {
-            const unsigned rows = std::min(stripRows, config.output_height - top);
-            const unsigned span = warped ? tileWidth : config.output_width;
-            for (unsigned left = 0; left < config.output_width; left += span) {
-                @autoreleasepool {
-                    cancelled(); p.output.z = left; p.output.w = top; p.tile = {std::min(span, config.output_width - left), rows, top, 0};
-                    auto *rect = static_cast<int32_t *>(bounds.contents); rect[0] = rect[1] = INT32_MAX; rect[2] = rect[3] = INT32_MIN;
+            @autoreleasepool {
+                cancelled();
+                const unsigned rows = std::min(stripRows, config.output_height - top);
+                const unsigned span = warped ? tileWidth : config.output_width;
+                const unsigned tileCount = (config.output_width + span - 1) / span;
+                auto *allRects = static_cast<int32_t *>(bounds.contents);
+                for (unsigned t = 0; t < tileCount; ++t) {
+                    allRects[t * 4] = allRects[t * 4 + 1] = INT32_MAX;
+                    allRects[t * 4 + 2] = allRects[t * 4 + 3] = INT32_MIN;
+                }
+                if (warped) {
                     *static_cast<uint32_t *>(failure.contents) = 0;
-                    id<MTLCommandBuffer> command;
-                    id<MTLComputeCommandEncoder> encoder;
-                    if (warped) {
-                        command = [queue commandBuffer]; require(command != nil, 2, "Cannot allocate curvature output-bounds command.");
-                        encoder = [command computeCommandEncoder]; require(encoder != nil, 2, "Cannot encode curvature output bounds.");
-                        [encoder setComputePipelineState:boundsPipeline]; [encoder setBuffer:operations offset:0 atIndex:0];
-                        [encoder setBuffer:bounds offset:0 atIndex:1]; [encoder setBuffer:failure offset:0 atIndex:2]; [encoder setBytes:&p length:sizeof(p) atIndex:3];
+                    id<MTLCommandBuffer> command = [queue commandBuffer];
+                    require(command != nil, 2, "Cannot allocate curvature output-bounds command.");
+                    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+                    require(encoder != nil, 2, "Cannot encode curvature output bounds.");
+                    [encoder setComputePipelineState:boundsPipeline];
+                    [encoder setBuffer:operations offset:0 atIndex:0];
+                    [encoder setBuffer:failure offset:0 atIndex:2];
+                    for (unsigned t = 0; t < tileCount; ++t) {
+                        const unsigned left = t * span;
+                        p.output.z = left; p.output.w = top;
+                        p.tile = {std::min(span, config.output_width - left), rows, top, 0};
+                        [encoder setBuffer:bounds offset:size_t(t) * 16 atIndex:1];
+                        [encoder setBytes:&p length:sizeof(p) atIndex:3];
                         [encoder dispatchThreadgroups:MTLSizeMake((size_t(p.tile.x) * rows + 127) / 128, 1, 1) threadsPerThreadgroup:MTLSizeMake(128, 1, 1)];
-                        [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
-                        require(command.status == MTLCommandBufferStatusCompleted && *static_cast<uint32_t *>(failure.contents) == 0,
-                                3, "Curvature post-warp sampling left valid support.");
-                    } else {
-                        const auto coordinate = [&](float crop, unsigned pixel, unsigned length) {
-                            const float point = crop + (float(pixel) + 0.5f) / config.scale;
-                            return int(std::floor(std::clamp(point * config.scale - 0.5f, 0.0f, float(length - 1))));
-                        };
-                        rect[0] = coordinate(config.crop_x, left, p.shape.x); rect[1] = coordinate(config.crop_y, top, p.shape.y);
-                        rect[2] = std::min(int(p.shape.x) - 1, coordinate(config.crop_x, left + p.tile.x - 1, p.shape.x) + 1);
-                        rect[3] = std::min(int(p.shape.y) - 1, coordinate(config.crop_y, top + rows - 1, p.shape.y) + 1);
                     }
-                    p.region = {rect[0], rect[1], rect[2] - rect[0] + 1, rect[3] - rect[1] + 1};
-                    const size_t rowBytes = size_t(p.region.z) * 16, bytes = rowBytes * p.region.w;
-                    require(p.region.x >= 0 && p.region.y >= 0 && p.region.z > 0 && p.region.w > 0 &&
-                            p.region.x + p.region.z <= int(p.shape.x) && p.region.y + p.region.w <= int(p.shape.y), 3, "Invalid curvature output source rectangle.");
-                    require(bytes <= input.length, 2, "Curvature warp exceeds the bounded source rectangle.");
-                    for (int y = 0; y < p.region.w; ++y) {
-                        cancelled(); readAll(source, static_cast<uint8_t *>(input.contents) + y * rowBytes, rowBytes,
-                            (off_t(p.region.y + y) * p.shape.x + p.region.x) * 16);
-                    }
-                    command = [queue commandBuffer]; require(command != nil, 2, "Cannot allocate curvature color command.");
-                    encoder = [command computeCommandEncoder]; require(encoder != nil, 2, "Cannot encode curvature color output.");
+                    [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
+                    require(command.status == MTLCommandBufferStatusCompleted && *static_cast<uint32_t *>(failure.contents) == 0,
+                            3, "Curvature post-warp sampling left valid support.");
+                } else {
+                    const auto coordinate = [&](float crop, unsigned pixel, unsigned length) {
+                        const float point = crop + (float(pixel) + 0.5f) / config.scale;
+                        return int(std::floor(std::clamp(point * config.scale - 0.5f, 0.0f, float(length - 1))));
+                    };
+                    allRects[0] = coordinate(config.crop_x, 0, p.shape.x);
+                    allRects[1] = coordinate(config.crop_y, top, p.shape.y);
+                    allRects[2] = std::min(int(p.shape.x) - 1, coordinate(config.crop_x, config.output_width - 1, p.shape.x) + 1);
+                    allRects[3] = std::min(int(p.shape.y) - 1, coordinate(config.crop_y, top + rows - 1, p.shape.y) + 1);
+                }
+
+                const auto flushBatch = [&] {
+                    if (batch.empty()) return;
+                    *static_cast<uint32_t *>(failure.contents) = 0;
+                    id<MTLCommandBuffer> command = [queue commandBuffer];
+                    require(command != nil, 2, "Cannot allocate curvature color command.");
+                    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+                    require(encoder != nil, 2, "Cannot encode curvature color output.");
                     [encoder setComputePipelineState:outputPipeline];
-                    [encoder setBuffer:input offset:0 atIndex:0]; [encoder setBuffer:operations offset:0 atIndex:1];
-                    [encoder setBuffer:camera offset:0 atIndex:2]; [encoder setBuffer:linear offset:0 atIndex:3];
-                    [encoder setBuffer:failure offset:0 atIndex:4]; [encoder setBytes:&p length:sizeof(p) atIndex:5];
-                    [encoder dispatchThreadgroups:MTLSizeMake((size_t(p.tile.x) * rows + 127) / 128, 1, 1) threadsPerThreadgroup:MTLSizeMake(128, 1, 1)];
+                    [encoder setBuffer:operations offset:0 atIndex:1];
+                    [encoder setBuffer:camera offset:0 atIndex:2];
+                    [encoder setBuffer:linear offset:0 atIndex:3];
+                    [encoder setBuffer:failure offset:0 atIndex:4];
+                    for (const auto &item : batch) {
+                        [encoder setBuffer:input offset:item.inputOffset atIndex:0];
+                        [encoder setBytes:&item.parameters length:sizeof(item.parameters) atIndex:5];
+                        [encoder dispatchThreadgroups:MTLSizeMake((size_t(item.parameters.tile.x) * item.parameters.tile.y + 127) / 128, 1, 1)
+                                threadsPerThreadgroup:MTLSizeMake(128, 1, 1)];
+                    }
                     [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
                     require(command.status == MTLCommandBufferStatusCompleted && *static_cast<uint32_t *>(failure.contents) == 0,
                             3, "Nonfinite curvature camera or linear color output.");
+                    batch.clear();
+                };
+
+                size_t usedBytes = 0;
+                for (unsigned t = 0; t < tileCount; ++t) {
+                    cancelled();
+                    const unsigned left = t * span;
+                    const int32_t *rect = allRects + t * 4;
+                    p.output.z = left; p.output.w = top;
+                    p.tile = {std::min(span, config.output_width - left), rows, top, 0};
+                    p.region = {rect[0], rect[1], rect[2] - rect[0] + 1, rect[3] - rect[1] + 1};
+                    require(p.region.x >= 0 && p.region.y >= 0 && p.region.z > 0 && p.region.w > 0 &&
+                            p.region.x + p.region.z <= int(p.shape.x) && p.region.y + p.region.w <= int(p.shape.y),
+                            3, "Invalid curvature output source rectangle.");
+                    const size_t rowBytes = size_t(p.region.z) * 16, bytes = rowBytes * size_t(p.region.w);
+                    require(bytes <= input.length, 2, "Curvature warp exceeds the bounded source rectangle.");
+                    if (usedBytes + bytes > input.length) {
+                        flushBatch();
+                        usedBytes = 0;
+                    }
+                    auto *dst = static_cast<uint8_t *>(input.contents) + usedBytes;
+                    const size_t fullRowBytes = size_t(p.shape.x) * 16;
+                    if (mapped.bytes) {
+                        if (p.region.x == 0 && p.region.z == int(p.shape.x)) {
+                            std::memcpy(dst, mapped.bytes + size_t(p.region.y) * fullRowBytes, bytes);
+                        } else {
+                            for (int y = 0; y < p.region.w; ++y) {
+                                std::memcpy(dst + size_t(y) * rowBytes,
+                                            mapped.bytes + (size_t(p.region.y + y) * p.shape.x + size_t(p.region.x)) * 16,
+                                            rowBytes);
+                            }
+                        }
+                    } else if (p.region.x == 0 && p.region.z == int(p.shape.x)) {
+                        readAll(source, dst, bytes, off_t(p.region.y) * off_t(fullRowBytes));
+                    } else {
+                        for (int y = 0; y < p.region.w; ++y) {
+                            cancelled();
+                            readAll(source, dst + size_t(y) * rowBytes, rowBytes,
+                                (off_t(p.region.y + y) * p.shape.x + p.region.x) * 16);
+                        }
+                    }
+                    batch.push_back({p, usedBytes});
+                    usedBytes += (bytes + 255) & ~size_t(255);
                 }
+                flushBatch();
+                cancelled();
+                if (cameraFD >= 0) writeAll(cameraFD, camera.contents, size_t(config.output_width) * rows * 16);
+                writeAll(linearFD, linear.contents, size_t(config.output_width) * rows * 16);
+                if (callbacks && callbacks->progress) callbacks->progress(callbacks->context, double(top + rows) / config.output_height);
             }
-            cancelled(); writeAll(cameraFD, camera.contents, size_t(config.output_width) * rows * 16);
-            writeAll(linearFD, linear.contents, size_t(config.output_width) * rows * 16);
-            if (callbacks && callbacks->progress) callbacks->progress(callbacks->context, double(top + rows) / config.output_height);
         }
         cancelled();
     }

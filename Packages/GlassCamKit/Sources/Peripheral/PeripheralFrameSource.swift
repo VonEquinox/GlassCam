@@ -34,8 +34,6 @@ public final class PeripheralFrameSource {
         public let calibration: PeripheralCalibration?
         let pairingMode: String
         public let captureMode:String
-        let motionDistance: Double, motionGeneration: UInt64
-        let motionSpeed: Double?
         let measuredFrameInterval: Double?
         var frameInterval: Double { measuredFrameInterval ?? max(centerMetadata?.frameInterval ?? 1.0/30,outerMetadata?.frameInterval ?? 1.0/30) }
         public var ptsDelta: Double? {
@@ -45,7 +43,6 @@ public final class PeripheralFrameSource {
              configuration: Configuration, serial: UInt64,
              centerMetadata: PeripheralFrameMetadata? = nil, outerMetadata: PeripheralFrameMetadata? = nil,
              calibration: PeripheralCalibration? = nil, pairingMode: String = "fixture",
-             motionDistance: Double = 0,motionGeneration: UInt64 = 0,motionSpeed: Double? = nil,
              measuredFrameInterval: Double? = nil,centerSampleBuffer:CMSampleBuffer? = nil) {
             self.center = center; self.outer = outer; self.receipt = receipt
             self.centerMetadata = centerMetadata; self.outerMetadata = outerMetadata
@@ -55,7 +52,6 @@ public final class PeripheralFrameSource {
             epoch = configuration.epoch; ratio = configuration.fieldOfViewRatio; self.serial = serial
             self.calibration = calibration; self.pairingMode = pairingMode
             captureMode=configuration.captureMode
-            self.motionDistance = motionDistance; self.motionGeneration = motionGeneration; self.motionSpeed = motionSpeed
             self.measuredFrameInterval = measuredFrameInterval
         }
     }
@@ -71,10 +67,6 @@ public final class PeripheralFrameSource {
     private var lastOffer = "none"
     private let pairingQueue = DispatchQueue(label:"dev.glasscam.peripheral.pairing")
     private var flushScheduled = false
-    private var previousRaster: PeripheralMotion.Raster?
-    private var previousRasterPTS: Double?
-    private var motionDistance = 0.0
-    private var motionGeneration: UInt64 = 0
     private var frameObserver:(()->Void)?
     public func observeFrames(_ observer:(()->Void)?) {lock.lock();frameObserver=observer;lock.unlock()}
     public func diagnosticState() -> String {
@@ -94,7 +86,7 @@ public final class PeripheralFrameSource {
         configuration.captureMode=captureMode
     }
     private func clear() {
-        flushScheduled = false; previousRaster = nil; previousRasterPTS = nil; motionDistance = 0; motionGeneration &+= 1
+        flushScheduled = false
         pair = nil; centers = []; outers = []; lastCenterPTS = -.infinity; lastOuterPTS = -.infinity
     }
     public func selection() -> Configuration { lock.lock(); defer { lock.unlock() }; return configuration }
@@ -151,19 +143,10 @@ public final class PeripheralFrameSource {
         guard let (ci,oi,delta) = best, delta <= 1.0/60 else { lastOffer = "unsynchronized"; return }
         let c = centers[ci], o = outers[oi]
         guard let cb = CMSampleBufferGetImageBuffer(c.sample), let ob = CMSampleBufferGetImageBuffer(o.sample) else { return }
-        var speed: Double?
-        if let raster = PeripheralMotion.raster(cb) {
-            if let previousRaster, let previousRasterPTS,
-               c.metadata.pts > previousRasterPTS, c.metadata.pts-previousRasterPTS < 0.10,
-               let displacement = PeripheralMotion.displacement(previousRaster,raster) {
-                motionDistance += displacement; speed = displacement/(c.metadata.pts-previousRasterPTS)
-            } else { motionGeneration &+= 1; motionDistance = 0 }
-            previousRaster = raster; previousRasterPTS = c.metadata.pts
-        } else { motionGeneration &+= 1; previousRaster = nil }
         serial &+= 1
         pair = Pair(center: cb,outer: ob,receipt: receipt,configuration: configuration,serial: serial,
                     centerMetadata: c.metadata,outerMetadata: o.metadata,calibration: calibration,
-                    pairingMode: same ? "same-collection" : "nearest-buffered",motionDistance: motionDistance,motionGeneration: motionGeneration,motionSpeed: speed,
+                    pairingMode: same ? "same-collection" : "nearest-buffered",
                     measuredFrameInterval:(1.0/120...0.1).contains(c.metadata.pts-lastCenterPTS) ? c.metadata.pts-lastCenterPTS : nil,
                     centerSampleBuffer:c.sample)
         lastCenterPTS = c.metadata.pts; lastOuterPTS = o.metadata.pts

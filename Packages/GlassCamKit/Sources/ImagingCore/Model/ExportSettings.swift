@@ -54,8 +54,8 @@ public struct PixelCrop: Equatable, Sendable {
     }
 }
 
-/// Explicit targets retain their no-upscale contract. Imported files can select
-/// a 24/48 MP export; Bayer producers supply their own native output grid.
+/// Camera captures have one 24MP output policy. Native and explicit dimensions
+/// support internal image processing without adding camera resolution choices.
 public struct ExportSettings: Codable, Equatable, Sendable {
     public let targetWidth: Int?
     public let targetHeight: Int?
@@ -63,14 +63,15 @@ public struct ExportSettings: Codable, Equatable, Sendable {
     public let framing: CaptureFraming?
     public static let native = ExportSettings(targetWidth: nil, targetHeight: nil)
 
+    /// The only fixed resolution used by camera captures.
+    public static func camera24(framing: CaptureFraming? = nil) -> ExportSettings {
+        ExportSettings(targetWidth: nil, targetHeight: nil, cameraMegapixels: 24, framing: framing)
+    }
+
     public init(targetWidth: Int?, targetHeight: Int?, cameraMegapixels: Int? = nil,
          framing: CaptureFraming? = nil) {
         self.targetWidth = targetWidth; self.targetHeight = targetHeight
         self.cameraMegapixels = cameraMegapixels; self.framing = framing
-    }
-
-    public static func camera(_ megapixels: Int, framing: CaptureFraming? = nil) -> ExportSettings {
-        ExportSettings(targetWidth: nil, targetHeight: nil, cameraMegapixels: megapixels, framing: framing)
     }
 
     public func withFraming(_ value: CaptureFraming) -> ExportSettings {
@@ -86,10 +87,8 @@ public struct ExportSettings: Codable, Equatable, Sendable {
 
     public func selectedOutputMegapixels(sourceWidth: Int, sourceHeight: Int, crop: ImageCrop = .none) throws -> Int? {
         guard let cameraMegapixels else { return nil }
-        guard [12, 24, 48].contains(cameraMegapixels), framing?.isValid != false else { throw PipelineError.unsupportedOutput }
-        if cameraMegapixels == 12 { return 12 }
-        let effective = try effectivePixels(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: crop)
-        return cameraMegapixels == 48 && effective >= 24_000_000 ? 48 : 24
+        guard cameraMegapixels == 24, framing?.isValid != false else { throw PipelineError.unsupportedOutput }
+        return 24
     }
 
     public func dimensions(sourceWidth: Int, sourceHeight: Int,
@@ -98,11 +97,6 @@ public struct ExportSettings: Codable, Equatable, Sendable {
         if let megapixels = try selectedOutputMegapixels(sourceWidth: sourceWidth, sourceHeight: sourceHeight, crop: crop) {
             let area = try crop.resolve(width: sourceWidth, height: sourceHeight)
             let pixels = Double(area.width) * Double(area.height)
-            // Keep native nominal 12/24/48MP grids instead of resampling solely to
-            // turn a manufacturer's nominal MP count into an exact round number.
-            if abs(pixels / (Double(megapixels) * 1_000_000) - 1) <= 0.025 {
-                return (area.width, area.height)
-            }
             let scale = sqrt(Double(megapixels) * 1_000_000 / pixels)
             let width = max(2, Int((Double(area.width) * scale / 2).rounded()) * 2)
             let height = max(2, Int((Double(area.height) * scale / 2).rounded()) * 2)

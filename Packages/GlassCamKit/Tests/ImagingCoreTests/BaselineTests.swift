@@ -65,8 +65,8 @@ struct BaselineTests {
         #expect(retried.source.rawDecode == first.source.rawDecode)
         #expect(retried.source.linearRGB == first.source.linearRGB)
     }
-    @Test(arguments: 0..<3, [24, 48])
-    func cameraOutput_usesFullDecodedSourceAndDeclaredPolicy(index: Int, megapixels: Int) throws {
+    @Test(arguments: 0..<3)
+    func cameraOutput_usesFullDecodedSourceAndDeclaredPolicy(index: Int) throws {
         let source = try BaselineInputs.source(index)
         let input = try ImagePipeline.load(data: Data(contentsOf: source), fileExtension: "dng")
         let processed = try ImagePipeline.process(resources: TestResources.colors, input, recipe: .standard)
@@ -76,8 +76,8 @@ struct BaselineTests {
         let nativeProperties = try #require(CGImageSourceCopyPropertiesAtIndex(nativeSource, 0, nil) as? [String: Any])
         let width = try #require(nativeProperties[kCGImagePropertyPixelWidth as String] as? NSNumber).intValue
         let height = try #require(nativeProperties[kCGImagePropertyPixelHeight as String] as? NSNumber).intValue
-        let settings = ExportSettings.camera(megapixels, framing: CaptureFraming(cameraID: "offline-RAW-fixture", nativePixelCount: width * height, deliveredWidth: width, deliveredHeight: height))
-        let url = try BaselineInputs.output("raw-\(index)-camera-\(megapixels).heic")
+        let settings = ExportSettings.camera24(framing: CaptureFraming(cameraID: "offline-RAW-fixture", nativePixelCount: width * height, deliveredWidth: width, deliveredHeight: height))
+        let url = try BaselineInputs.output("raw-\(index)-camera-24.heic")
         var reported: [Int]?
         try ImagePipeline.writeHEIF(resources: TestResources.colors, sourceFile: processed.source.sourceFile, recipe: processed.recipe, to: url,
             settings: settings, rawDecode: processed.source.rawDecode, onSourceDimensions: { reported = [$0, $1] })

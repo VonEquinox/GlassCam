@@ -105,7 +105,7 @@ private final class JournalGate: @unchecked Sendable {
 @Suite(.timeLimit(.minutes(1))) @MainActor struct RecoveryTests {
     let work: TestDirectory
     let raw: Data
-    let snapshot = CaptureSnapshot(recipe: .standard, output: .camera(48,
+    let snapshot = CaptureSnapshot(recipe: .standard, output: .camera24(
         framing: CaptureFraming(displayZoom: 2, deviceZoom: 4, nativeDeviceZoom: 2, nativePixelCount: 48_000_000)))
     init() throws { work = try TestDirectory(); raw = try ImageFixture.pngData() }
     var directory: URL { work.url }
@@ -230,7 +230,7 @@ private final class JournalGate: @unchecked Sendable {
         workflow.setForeground(false); gate.release()
         await waitForPhase(workflow, .paused)
         #expect(harness.saves == 0, "A save intent completing in background submitted Photos or became unknown")
-        #expect((try journal.load())?.stage == .encodedReady, "A save intent completing in background submitted Photos or became unknown")
+        #expect((try journal.load())?.record.stage == .encodedReady, "A save intent completing in background submitted Photos or became unknown")
         workflow.setForeground(true)
         await waitForPhase(workflow, .idle)
         #expect(harness.saves == 1, "Unsubmitted attempt did not resume exactly once")
@@ -256,7 +256,7 @@ private final class JournalGate: @unchecked Sendable {
         await waitForPhase(workflow, .paused)
         #expect(harness.saves == 0, "Background cancellation lost RAW or submitted Photos")
         #expect(!workflow.canCapture, "Background cancellation lost RAW or submitted Photos")
-        #expect((try journal.load())?.stage == .rawReady, "Background cancellation lost RAW or submitted Photos")
+        #expect((try journal.load())?.record.stage == .rawReady, "Background cancellation lost RAW or submitted Photos")
         harness.holdProcessing = false; workflow.setForeground(true)
         await waitForPhase(workflow, .idle)
         #expect(harness.saves == 1, "Foreground did not restart the retained photo")
@@ -282,7 +282,7 @@ private final class JournalGate: @unchecked Sendable {
         await waitForPhase(workflow, .idle)
         workflow.capture(snapshot: snapshot) { $0(.success(raw)) }
         await waitForPhase(workflow, .failed)
-        #expect((try journal.load())?.stage == .encodedReady, "Definite Photos failure became an unknown outcome")
+        #expect((try journal.load())?.record.stage == .encodedReady, "Definite Photos failure became an unknown outcome")
         workflow.retry()
         await waitForPhase(workflow, .idle)
         #expect(harness.saves == 2, "Definite save retry reprocessed RAW")

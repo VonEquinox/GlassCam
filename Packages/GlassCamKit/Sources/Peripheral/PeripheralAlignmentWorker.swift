@@ -102,65 +102,48 @@ public final class PeripheralAlignmentWorker {
         let searchBounds = bounds.insetBy(dx: -CGFloat(halo),dy: -CGFloat(halo))
         // The displayed seam is a fixed field-of-view crop. Measure exactly
         // that crop: fitting a homography/flow first would hide its real error.
-        let candidates: [(matrix: simd_float3x3,refreshed: Bool,refinement:PeripheralDenseRefinement?)] =
-            [(matrix_identity_float3x3,registration == nil,nil)]
-        var selected: (matrix: simd_float3x3,refreshed: Bool,measurement: SeamMeasurement,margin: Float,refinement:PeripheralDenseRefinement?,outerImage:CIImage,grayScore:Double)?
-        var comparisons = 0
-        for candidate in candidates {
-            guard now()-pair.observedAt < Self.measurementLifetime else { break }
-            let transform = Self.samplingTransform(homography: candidate.matrix,width: w,height: h,ratio: pair.ratio)
-            let candidateOuter = outer
-            let candidateFloating = candidateOuter.transformed(by:CGAffineTransform(scaleX:width*ratio/outer.extent.width,y:height*ratio/outer.extent.height))
-                .transformed(by:CGAffineTransform(translationX:tx,y:ty))
-            guard let margin = PeripheralProjection.margin(transform,window: window,
-                width: CVPixelBufferGetWidth(pair.outer),height: CVPixelBufferGetHeight(pair.outer)), margin >= (candidate.refreshed ? 4 : 2),
-                let warped = Self.warp(candidateFloating,by: candidate.matrix) else { continue }
-            let bytes = bitmap(warped,bounds: searchBounds,width: w+2*halo,height: h+2*halo)
-            let grayScore = Self.grayBoundaryScore(referenceBytes,bytes,width:w,height:h,padding:halo,seams:seams)
-            if let old = selected, grayScore < old.grayScore-0.001 { continue }
-            // F is enabled only after CURRENT image correspondences independently
-            // validate its output coordinate convention; no assumed horizontal line.
-            let empiricalF = Self.analysisFundamental(pair,homography: candidate.matrix,width: w,height: h)
-            let certifiedEpipolar: Bool
-            if let verification = epipolarVerification, let calibration = pair.calibration,
-               verification.identity == calibration.identity, pair.observedAt-verification.measuredAt <= Self.registrationInterval,
-               let c = pair.centerMetadata, let o = pair.outerMetadata, let kc = c.intrinsic, let ko = o.intrinsic,
-               Self.intrinsicDrift(kc,from:verification.center,width:c.width,height:c.height) < 0.5,
-               Self.intrinsicDrift(ko,from:verification.outer,width:o.width,height:o.height) < 0.5 {
-                certifiedEpipolar = true
-            } else { certifiedEpipolar = false }
-            let matchingInterval = signposter.beginInterval("SeamMatching")
-            let measurement = Self.measureSeams(reference: referenceBytes,warped: bytes,width: w,height: h,
-                warpedPadding: halo,seams: seams,certifiedGeometry: registration != nil,
-                previousGain: photometry?.gain,allowPartial: true,
-                fundamental: empiricalF,epipolarCertified: certifiedEpipolar,comparisonBudget: max(0,120_000_000-comparisons),deadline: pair.observedAt+Self.measurementLifetime,clock: now)
-            signposter.endInterval("SeamMatching",matchingInterval)
-            guard let measured = measurement else { continue }
-            if measured.epipolarVerified, !certifiedEpipolar,
-               let identity = pair.calibration?.identity, let kc = pair.centerMetadata?.intrinsic, let ko = pair.outerMetadata?.intrinsic {
-                epipolarVerification = .init(identity:identity,measuredAt:pair.observedAt,center:kc,outer:ko)
-            }
-            comparisons += measured.comparisons
-            // Rank mapping proposals by the CURRENT overlapping grayscale
-            // boundary. A count of unique correlation peaks is not a measure
-            // of how well the proposed image actually joins the photograph.
-            // This score supplies no certificate; native checks below do that.
-            if let old = selected {
-                if grayScore < old.grayScore-0.001 { continue }
-                if abs(grayScore-old.grayScore) <= 0.001 && measured.evidence.coverage < old.measurement.evidence.coverage { continue }
-                if abs(grayScore-old.grayScore) <= 0.001 && measured.evidence.coverage == old.measurement.evidence.coverage {
-                    let oldError = old.measurement.evidence.interval?.upperBound ?? .infinity
-                    let newError = measured.evidence.interval?.upperBound ?? .infinity
-                    let saferCoverage = old.margin < 4 && margin >= 4 && newError <= oldError+1/Double(min(w,h))
-                    if !saferCoverage && newError >= oldError-1/Double(min(w,h)) { continue }
-                }
-            }
-            selected = (candidate.matrix,candidate.refreshed,measured,margin,candidate.refinement,candidateOuter,grayScore)
-        }
-        guard let selected else {
+        let candidateMatrix = matrix_identity_float3x3
+        let candidateRefreshed = registration == nil
+        guard now()-pair.observedAt < Self.measurementLifetime else {
             return reject("no-renderable-candidate")
         }
-        let measured = selected.measurement
+        let transform = Self.samplingTransform(homography: candidateMatrix,width: w,height: h,ratio: pair.ratio)
+        let candidateFloating = outer.transformed(by:CGAffineTransform(scaleX:width*ratio/outer.extent.width,y:height*ratio/outer.extent.height))
+            .transformed(by:CGAffineTransform(translationX:tx,y:ty))
+        guard let margin = PeripheralProjection.margin(transform,window: window,
+            width: CVPixelBufferGetWidth(pair.outer),height: CVPixelBufferGetHeight(pair.outer)),
+            margin >= (candidateRefreshed ? 4 : 2),
+            let warped = Self.warp(candidateFloating,by: candidateMatrix) else {
+            return reject("no-renderable-candidate")
+        }
+        let bytes = bitmap(warped,bounds: searchBounds,width: w+2*halo,height: h+2*halo)
+        // F is enabled only after CURRENT image correspondences independently
+        // validate its output coordinate convention; no assumed horizontal line.
+        let empiricalF = Self.analysisFundamental(pair,homography: candidateMatrix,width: w,height: h)
+        let certifiedEpipolar: Bool
+        if let verification = epipolarVerification, let calibration = pair.calibration,
+           verification.identity == calibration.identity, pair.observedAt-verification.measuredAt <= Self.registrationInterval,
+           let c = pair.centerMetadata, let o = pair.outerMetadata, let kc = c.intrinsic, let ko = o.intrinsic,
+           Self.intrinsicDrift(kc,from:verification.center,width:c.width,height:c.height) < 0.5,
+           Self.intrinsicDrift(ko,from:verification.outer,width:o.width,height:o.height) < 0.5 {
+            certifiedEpipolar = true
+        } else { certifiedEpipolar = false }
+        let matchingInterval = signposter.beginInterval("SeamMatching")
+        let measurement = Self.measureSeams(reference: referenceBytes,warped: bytes,width: w,height: h,
+            warpedPadding: halo,seams: seams,certifiedGeometry: registration != nil,
+            previousGain: photometry?.gain,allowPartial: true,
+            fundamental: empiricalF,epipolarCertified: certifiedEpipolar,comparisonBudget: 120_000_000,deadline: pair.observedAt+Self.measurementLifetime,clock: now)
+        signposter.endInterval("SeamMatching",matchingInterval)
+        guard let measured = measurement else {
+            return reject("no-renderable-candidate")
+        }
+        if measured.epipolarVerified, !certifiedEpipolar,
+           let identity = pair.calibration?.identity, let kc = pair.centerMetadata?.intrinsic, let ko = pair.outerMetadata?.intrinsic {
+            epipolarVerification = .init(identity:identity,measuredAt:pair.observedAt,center:kc,outer:ko)
+        }
+        let comparisons = measured.comparisons
+        let selected: (matrix: simd_float3x3, refreshed: Bool, measurement: SeamMeasurement, margin: Float, refinement: PeripheralDenseRefinement?, outerImage: CIImage) =
+            (candidateMatrix, candidateRefreshed, measured, margin, nil, outer)
         // Direct display has no fitted H or RGB model to certify. Repeating a
         // full search on nine interior patches delayed seam publication while
         // contributing no measurement used by the actual shade estimator.
@@ -221,8 +204,8 @@ public final class PeripheralAlignmentWorker {
             evidence = .unknown(gateReasons.joined(separator:","))
         }
         let oneCompleteEdge = (0..<4).contains { edge in
-            let rows = native.diagnostics.filter { $0["edge"] as? Int == edge }
-            return !rows.isEmpty && rows.allSatisfy { $0["passed"] as? Bool == true }
+            let rows = native.tiles.filter { $0.edge == edge }
+            return !rows.isEmpty && rows.allSatisfy(\.passed)
         }
         let expires = (pairedTimingValid && oneCompleteEdge) || evidence.visibleSeam?.compatible == true || confirmedLarge ? pair.observedAt+Self.measurementLifetime :
             min(pair.observedAt+Self.measurementLifetime,min(geometryExpiry,photoExpiry))
@@ -237,7 +220,6 @@ public final class PeripheralAlignmentWorker {
         value.photometryID = photometry?.id ?? 0; value.completedAt = now()
         value.geometryExpiresAt = geometryExpiry; value.photometryExpiresAt = photoExpiry
         value.centerPTS = pair.centerMetadata?.pts; value.outerPTS = pair.outerMetadata?.pts
-        value.motionDistance = pair.motionDistance; value.motionGeneration = pair.motionGeneration
         value.inputPair = pair; value.edgeGains = edgeGains; value.gateReasons = gateReasons; value.nativeSeam = native
         value.visiblePhotometryID = pair.serial
         value.refinement = nil

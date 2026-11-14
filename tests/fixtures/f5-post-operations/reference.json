@@ -1,0 +1,24 @@
+{
+  "input_rgb" : [
+    0.02,
+    0.040000000000000001,
+    0.059999999999999998
+  ],
+  "layout" : "top-to-bottom RGBA float32 little-endian",
+  "reference_commit" : "715030ed6a207ade57ac2d9c35fcaa094f34f941",
+  "revision" : 1,
+  "sha256" : {
+    "gain_after_warp.dng" : "fe1a839d8af0a5b220f70574bcc65603b8373fa0fe60e46e36246149c4c914bf",
+    "gain_after_warp.rgba32f" : "b72228fa2dadcdddbdf5d6c3ce8165ead3990ae8d3ae6b94b7536177cd7d1fda",
+    "gain_before_warp.dng" : "c147b099bdc02eb24b6586d2b8e6c04a58b800b410d949593dd6afc2581554c7",
+    "gain_before_warp.rgba32f" : "dd8b693226efcb3b83005189a694c5cf6e22601eb1de61f9d23973ee575e75ce",
+    "gain_rgb.dng" : "811afd08bede87bfe16fe5d4ebb633d485332d06663ff3a9955f0e46e114f0d9",
+    "gain_rgb.rgba32f" : "b72228fa2dadcdddbdf5d6c3ce8165ead3990ae8d3ae6b94b7536177cd7d1fda",
+    "gain_warp_gain.dng" : "622b8fb0375feb2416e3869f0bb22a4727b7706e12c257ae288a20e699e4d71b",
+    "gain_warp_gain.rgba32f" : "95b498c1a426230a2781234cf5a9a678ac27b34d72313934e9987e9e8ec461d4",
+    "hdr_extension.dng" : "350661bd5706fb86534932ac0bd110bbacc9e519e01483f1e9ebf1048f3d41c1",
+    "hdr_extension.rgba32f" : "82a6144ed35a72c19bd42b5ada55b91733201a46dcdc4646a1f4b0a1b3f92347",
+    "partial_planes_broadcast.dng" : "6ba7814d8d47bf31d3337c5eee7561d86148b976d1577773de1192be243e09f4",
+    "partial_planes_broadcast.rgba32f" : "6ee16d3a6d76d259992d5b8178a4c5cd146d7f995c0d8a5a7a2547e9b9ed8d8e"
+  }
+}

@@ -23,9 +23,19 @@ public enum LUMIXEngine {
         let directory: URL
         let settings: LUMIXSettings
         let kelvin: Double
+        private let metalLock = NSLock()
+        private var cachedMetalResources: GCMetalColorResources?
         init(pointer: OpaquePointer, directory: URL, settings: LUMIXSettings, kelvin: Double) {
             self.pointer = pointer; self.directory = directory; self.settings = settings
             self.kelvin = kelvin
+        }
+        func metalResources(shaderPath: String) throws -> GCMetalColorResources {
+            metalLock.lock()
+            defer { metalLock.unlock() }
+            if let cachedMetalResources { return cachedMetalResources }
+            let created = try GCMetalColor.lumixResources(pointer, shaderPath: shaderPath)
+            cachedMetalResources = created
+            return created
         }
         deinit { lumix_destroy(pointer) }
     }
@@ -62,7 +72,8 @@ public enum LUMIXEngine {
     static func metalImage(resources: ColorResources, _ source: CIImage, recipe: ProcessingRecipe) throws -> CIImage {
         let owner = try cache.context(resources: resources, settings: recipe.lumix, kelvin: recipe.illuminantKelvin)
         return try withExtendedLifetime(owner) {
-            try GCMetalColor.lumix(source, context: owner.pointer,
+            let gpuResources = try owner.metalResources(shaderPath: MetalColorEngine.shaderPath)
+            return try GCMetalColor.lumix(source, context: owner.pointer, resources: gpuResources,
                 sourceExposure: Float(exp2(recipe.appliesExposureBeforeHighlights ? recipe.exposureEV : 0)),
                 backendExposure: Float(exp2(recipe.backendExposureEV)), shaderPath: MetalColorEngine.shaderPath)
         }

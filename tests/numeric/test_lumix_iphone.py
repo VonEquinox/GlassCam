@@ -53,11 +53,8 @@ VALID_CASES = SATURATED + GRAY + ISO + [SIGNED, EXPOSED, SCALED] + CHUNKS
 
 
 @pytest.fixture(scope="module")
-def pipeline_assets(tmp_path_factory):
-    assets = tmp_path_factory.mktemp("lumix-iphone") / "LUMIX"
-    for name in ("source.zip", "pipeline.zip"):
-        prepare(ROOT / "vendor/lumix" / name, assets)
-    return assets
+def pipeline_assets(lumix_resources):
+    return lumix_resources
 
 
 @pytest.fixture(scope="module")

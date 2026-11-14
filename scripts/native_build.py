@@ -17,16 +17,16 @@ def build_environment():
 
 
 def build_command(product=None, *, sanitize=False):
-    command = ['swift', 'build', '-c', 'release', '--package-path', str(PACKAGE)]
+    command = ['swift', 'build', '-c', 'release', '--package-path', str(PACKAGE), '--build-system', 'native']
     if sanitize:
-        # Swift Build in Xcode 27 omits sanitizer runtimes when linking C++ dylibs.
-        command += ['--build-system', 'native', '--scratch-path', str(PACKAGE / '.build/native-sanitized'),
+        command += ['--scratch-path', str(PACKAGE / '.build/native-sanitized'),
                     '--sanitize=address', '--sanitize=undefined']
     if product:
         command += ['--product', product]
     return command
 
 
+@lru_cache(maxsize=None)
 def binary_directory(*, sanitize=False):
     return Path(subprocess.check_output(build_command(sanitize=sanitize) + ['--show-bin-path'],
                                         env=build_environment(), text=True).strip())

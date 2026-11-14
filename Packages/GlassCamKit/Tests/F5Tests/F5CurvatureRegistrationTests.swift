@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import Metal
 @testable import F5
 
 @Suite(.serialized)
@@ -16,22 +17,30 @@ struct F5CurvatureRegistrationTests {
         var input = try device.upload(impulse, label: "Known spatial impulse")
         var output = try device.allocate(count * 8, label: "FFT ping pong")
 
-        try device.run { command in
-            for axis in 0..<2 {
-                let length = axis == 0 ? width : height
-                var remaining = length, product = 1
-                for radix in [2,3,5,7] {
-                    while remaining % radix == 0 {
-                        let parameters = SIMD8<UInt32>(UInt32(width),UInt32(height),UInt32(axis),0,
-                            UInt32(length),UInt32(radix),UInt32(product),0)
-                        try device.encode("f5_reg_fft_stage", count: count, buffers: [input.metal,output.metal], command: command) {
-                            F5MetalDevice.value(parameters, at: 2, encoder: $0)
-                        }
-                        swap(&input,&output); product *= radix; remaining /= radix
-                    }
+        let command = try #require(device.queue.makeCommandBuffer())
+        let function = try #require(device.library.makeFunction(name: "f5_reg_fft_stage"))
+        let pipeline = try device.device.makeComputePipelineState(function: function)
+        for axis in 0..<2 {
+            let length = axis == 0 ? width : height
+            var remaining = length, product = 1
+            for radix in [2,3,5,7] {
+                while remaining % radix == 0 {
+                    var parameters = SIMD8<UInt32>(UInt32(width),UInt32(height),UInt32(axis),0,
+                        UInt32(length),UInt32(radix),UInt32(product),0)
+                    let encoder = try #require(command.makeComputeCommandEncoder())
+                    encoder.setComputePipelineState(pipeline)
+                    encoder.setBuffer(input.metal, offset: 0, index: 0)
+                    encoder.setBuffer(output.metal, offset: 0, index: 1)
+                    encoder.setBytes(&parameters, length: MemoryLayout<SIMD8<UInt32>>.stride, index: 2)
+                    encoder.dispatchThreadgroups(MTLSize(width: (count + 255) / 256, height: 1, depth: 1),
+                        threadsPerThreadgroup: MTLSize(width: 256, height: 1, depth: 1))
+                    encoder.endEncoding()
+                    swap(&input,&output); product *= radix; remaining /= radix
                 }
             }
         }
+        command.commit(); command.waitUntilCompleted()
+        try #require(command.status == .completed)
 
         let spectrum = input.metal.contents().assumingMemoryBound(to: SIMD2<Float>.self)
         let maximum = (0..<count).reduce(Float(0)) { error, i in

@@ -9,6 +9,7 @@ import UIKit
 struct CaptureReview: View {
     let capture: SavedCapture
     let onBack: () -> Void
+    @State private var fullPreview: PreviewRaster?
     @State private var sharing = false
     @State private var zoom: CGFloat = 1
     @GestureState private var pinch: CGFloat = 1
@@ -21,7 +22,7 @@ struct CaptureReview: View {
                 let scale = min(5, max(1, zoom * pinch))
                 let maxX = proxy.size.width * (scale - 1) / 2
                 let maxY = proxy.size.height * (scale - 1) / 2
-                PrecisionPreview(source: capture.preview)
+                PrecisionPreview(source: fullPreview ?? capture.preview)
                     .scaleEffect(scale)
                     .offset(x: min(maxX, max(-maxX, pan.width + drag.width)),
                             y: min(maxY, max(-maxY, pan.height + drag.height)))
@@ -61,6 +62,10 @@ struct CaptureReview: View {
                 }
             }
         }.preferredColorScheme(.dark).tint(.white)
+            .task(id: capture.id) {
+                fullPreview = nil
+                fullPreview = try? await capture.loadFullPreview()
+            }
             .sheet(isPresented: $sharing) { ShareSheet(file: capture.file) }
     }
 }

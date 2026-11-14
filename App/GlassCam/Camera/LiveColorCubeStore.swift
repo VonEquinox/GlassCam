@@ -96,12 +96,8 @@ final class LiveColorCubeStore {
         var rgba = [Float](repeating: 0, count: n * n * n * 4)
         var input = [Float](repeating: 0, count: slabPixels * 3)
         var message = [CChar](repeating: 0, count: 1024)
-        var hncs: OpaquePointer?
         var ffcs: OpaquePointer?
-        if recipe.mode == .hncs {
-            hncs = hncs_create(recipe.exposureEV, recipe.illuminantKelvin)
-            guard hncs != nil else { throw LiveProxyFailure.unavailable("HNCS live-color core could not initialize.") }
-        } else if recipe.mode == .ffcs {
+        if recipe.mode == .ffcs {
             guard let directory = recipe.resources.ffcsDirectory else {
                 throw LiveProxyFailure.unavailable("Original FFCS resources are unavailable.")
             }
@@ -120,7 +116,6 @@ final class LiveColorCubeStore {
             throw LiveProxyFailure.unavailable("This color engine uses the system viewfinder preview.")
         }
         defer {
-            if let hncs { hncs_destroy(hncs) }
             if let ffcs { ffcs_destroy(ffcs) }
         }
         func inverseSRGB(_ index: Int) -> Float {
@@ -140,9 +135,6 @@ final class LiveColorCubeStore {
             let success = input.withUnsafeBufferPointer { source in
                 rgba.withUnsafeMutableBufferPointer { output in
                     let destination = output.baseAddress!.advanced(by: blue * slabPixels * 4)
-                    if let hncs {
-                        return hncs_process_linear_rgba(hncs, source.baseAddress, destination, slabPixels) == 0
-                    }
                     return message.withUnsafeMutableBufferPointer { error in
                         ffcs_process_linear_rgb_color_only(ffcs, source.baseAddress, source.count,
                             slabPixels, destination, slabPixels * 4, error.baseAddress, error.count) == 1

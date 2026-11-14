@@ -303,6 +303,27 @@ void add_grain(Store &work,Store &grain,Store &channel,size_t n,int which,
         work.write(at*3,rgb.data(),count*3);
     }
 }
+void add_grain_pair(Store &work,Store &grain,float std0,Store &ch1,float std1,
+                    size_t n,const SpatialPreset &cfg,const Operation &op,float reference_scale=1.f) {
+    std::vector<float> rgb(kChunk*3),g(kChunk),c1(kChunk);
+    const float color=static_cast<float>(cfg.color),mono=static_cast<float>(1.-cfg.color);
+    const float amplitude=static_cast<float>(.012*cfg.amount);
+    for(size_t at=0;at<n;at+=kChunk) {
+        op.check();const size_t count=std::min(kChunk,n-at);
+        work.read(at*3,rgb.data(),count*3);grain.read(at,g.data(),count);ch1.read(at,c1.data(),count);
+        for(size_t i=0;i<count;++i) {
+            const float noises[2]={(g[i]/std0)*color+g[i]*mono,(c1[i]/std1)*color+g[i]*mono};
+            for(int ch=0;ch<2;++ch) {
+                const size_t j=i*3+static_cast<size_t>(ch);
+                const float brightness=reference_scale==1.f?clip(rgb[j]):clip(rgb[j]*reference_scale);
+                float strength=amplitude*(.55f+.45f*std::sqrt(brightness));
+                if(reference_scale!=1.f)strength/=reference_scale;
+                rgb[j]=clip(rgb[j]+noises[ch]*strength);
+            }
+        }
+        work.write(at*3,rgb.data(),count*3);
+    }
+}
 void apply_grain(Store &work,size_t w,size_t h,const SpatialPreset &cfg,const Operation &op,float reference_scale=1.f) {
     const size_t n=w*h;hncs_spatial::NumpyNormal rng(seed_for(cfg.key,w,h));
     File grain(op);
@@ -315,11 +336,16 @@ void apply_grain(Store &work,size_t w,size_t h,const SpatialPreset &cfg,const Op
     }
     normalize(grain,n,std::max(stddev(grain,n,false,op),1.e-6f),op);
     if(cfg.color==0){add_grain(work,grain,grain,n,-1,1.f,cfg,op,reference_scale);return;}
-    add_grain(work,grain,grain,n,0,std::max(stddev(grain,n,true,op),1.e-6f),cfg,op,reference_scale);
-    for(int ch=1;ch<3;++ch) {
+    const float std0=std::max(stddev(grain,n,true,op),1.e-6f);
+    {
         File filtered(op);
         {File base(op);normals(base,n,rng,op);gaussian(base,filtered,w,h,cfg.fine,true,op);}
-        add_grain(work,grain,filtered,n,ch,std::max(stddev(filtered,n,true,op),1.e-6f),cfg,op,reference_scale);
+        add_grain_pair(work,grain,std0,filtered,std::max(stddev(filtered,n,true,op),1.e-6f),n,cfg,op,reference_scale);
+    }
+    {
+        File filtered(op);
+        {File base(op);normals(base,n,rng,op);gaussian(base,filtered,w,h,cfg.fine,true,op);}
+        add_grain(work,grain,filtered,n,2,std::max(stddev(filtered,n,true,op),1.e-6f),cfg,op,reference_scale);
     }
 }
 void apply_usm(Store &work,size_t w,size_t h,const SpatialPreset &cfg,const Operation &op) {
@@ -404,14 +430,21 @@ void apply_native_usm(Store &work,size_t w,size_t h,const NativeSharpnessPreset 
     }
 }
 
+const NativeSharpnessPreset* find_native_sharpness(const char *key) {
+    for(const auto& row:kNativeSharpnessPresets)if(std::strcmp(row.key,key)==0)return &row;
+    return nullptr;
+}
+
 void process_native_sharpness(Store &work,size_t w,size_t h,const SpatialPreset &cfg,
-                              int grain,int sharp,double baseline,const Operation &op,double work_scale=1.) {
+                              int grain,int sharp,double baseline,const Operation &op,
+                              double work_scale=1.,bool already_validated=false) {
     if(!std::isfinite(baseline)||baseline<0.)throw Failure{-1};
-    const NativeSharpnessPreset* native=nullptr;
-    for(const auto& row:kNativeSharpnessPresets)if(std::strcmp(row.key,cfg.key)==0){native=&row;break;}
+    const NativeSharpnessPreset* native=find_native_sharpness(cfg.key);
     if(!native)throw Failure{-1};
-    std::vector<float> buffer(kChunk);const size_t samples=w*h*3;
-    for(size_t at=0;at<samples;at+=kChunk){op.check();const size_t n=std::min(kChunk,samples-at);work.read(at,buffer.data(),n);for(size_t j=0;j<n;++j)if(!std::isfinite(buffer[j]))throw Failure{-1};}
+    if(!already_validated) {
+        std::vector<float> buffer(kChunk);const size_t samples=w*h*3;
+        for(size_t at=0;at<samples;at+=kChunk){op.check();const size_t n=std::min(kChunk,samples-at);work.read(at,buffer.data(),n);for(size_t j=0;j<n;++j)if(!std::isfinite(buffer[j]))throw Failure{-1};}
+    }
     if(sharp&&native->enabled&&hncs_phocus_sharpness::effective_amount(native->amount,baseline)>0.)
         apply_native_usm(work,w,h,*native,baseline,op,work_scale);
     // Original AddPostViewerRGBFilters puts sharpness before film grain.
@@ -423,6 +456,7 @@ void process_native_sharpness(Store &work,size_t w,size_t h,const SpatialPreset 
 void prepare_apple_hdr_spatial(Store &work,size_t w,size_t h,const SpatialPreset &cfg,
                                int grain,int sharp,double baseline,double scale,const Operation &op) {
     if(!std::isfinite(scale)||scale<1.||scale>64.||!std::isfinite(baseline)||baseline<0.)throw Failure{-1};
+    if(!find_native_sharpness(cfg.key))throw Failure{-1};
     std::vector<float> values(kChunk);
     const size_t samples=w*h*3;
     // One scale for every pixel and every strip. The native 14-bit luma image
@@ -437,7 +471,7 @@ void prepare_apple_hdr_spatial(Store &work,size_t w,size_t h,const SpatialPreset
         }
         if(scale!=1.)work.write(at,values.data(),n);
     }
-    process_native_sharpness(work,w,h,cfg,grain,sharp,baseline,op,scale);
+    process_native_sharpness(work,w,h,cfg,grain,sharp,baseline,op,scale,true);
 }
 } // namespace
 

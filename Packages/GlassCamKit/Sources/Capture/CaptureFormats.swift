@@ -23,12 +23,11 @@ public protocol CaptureFormat: Sendable {
     var identifier: String { get }
     var schemaVersion: Int { get }
     func decodeProvenance(from decoder: Decoder) throws -> any CaptureProvenance
-    func source(in directory: URL) throws -> any CapturePayload
     func retain(_ payload: any CapturePayload, id: UUID, snapshot: CaptureSnapshot,
-                directory: URL, recoversStaging: Bool) throws -> CaptureJournal.Record
-    func validate(_ record: CaptureJournal.Record, directory: URL, recoversStaging: Bool) throws
+                directory: URL, recoversStaging: Bool) throws -> (record: CaptureJournal.Record, payload: any CapturePayload)
+    func restore(_ record: CaptureJournal.Record, directory: URL, recoversStaging: Bool) throws -> any CapturePayload
     func finish(_ record: CaptureJournal.Record, directory: URL) throws
-    func recoverPending(directory: URL) throws -> CaptureJournal.Record?
+    func recoverPending(directory: URL) throws -> (record: CaptureJournal.Record, payload: any CapturePayload)?
     func discardPending() throws
     func render(resources: ColorResources, _ payload: any CapturePayload, snapshot: CaptureSnapshot,
                 progress: @escaping @Sendable (Double) -> Void,

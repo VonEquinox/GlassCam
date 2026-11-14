@@ -23,13 +23,13 @@ void setError(NSError **error, NSString *message, NSInteger code = -2) {
 }
 struct ColorRuntime {
     id<MTLDevice> device;
-    id<MTLComputePipelineState> ffcs, ffcsFinish, lumix;
+    id<MTLComputePipelineState> ffcs, ffcsHorizontal, ffcsFinish, lumix;
     explicit ColorRuntime(NSString *path) {
         device=MTLCreateSystemDefaultDevice();
         if(!device)throw std::runtime_error("Metal device unavailable");
         NSError *error=nil;
         id<MTLLibrary> library=[device newDefaultLibrary];
-        if(![library newFunctionWithName:@"gc_ffcs_point"]) {
+        if(![library newFunctionWithName:@"gc_ffcs_horizontal"]) {
             NSString *source=[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
             NSString *types=[NSString stringWithContentsOfFile:[[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"ColorTypes.h"] encoding:NSUTF8StringEncoding error:&error];
             if(!source||!types)throw std::runtime_error(error.localizedDescription.UTF8String ?: "Metal color resource missing");
@@ -41,9 +41,10 @@ struct ColorRuntime {
         }
         if(!library)throw std::runtime_error(error.localizedDescription.UTF8String ?: "Metal color library unavailable");
         ffcs=[device newComputePipelineStateWithFunction:[library newFunctionWithName:@"gc_ffcs_point"] error:&error];
+        ffcsHorizontal=[device newComputePipelineStateWithFunction:[library newFunctionWithName:@"gc_ffcs_horizontal"] error:&error];
         ffcsFinish=[device newComputePipelineStateWithFunction:[library newFunctionWithName:@"gc_ffcs_finish"] error:&error];
         lumix=[device newComputePipelineStateWithFunction:[library newFunctionWithName:@"gc_lumix"] error:&error];
-        if(!ffcs||!ffcsFinish||!lumix)throw std::runtime_error(error.localizedDescription.UTF8String ?: "Metal color pipeline unavailable");
+        if(!ffcs||!ffcsHorizontal||!ffcsFinish||!lumix)throw std::runtime_error(error.localizedDescription.UTF8String ?: "Metal color pipeline unavailable");
     }
     id<MTLBuffer> upload(const void *data,size_t bytes) {
         id<MTLBuffer> result=[device newBufferWithBytes:data length:bytes options:MTLResourceStorageModeShared];
@@ -68,15 +69,24 @@ void dispatch(id<MTLComputeCommandEncoder> encoder,id<MTLComputePipelineState> p
 }
 }
 
-@interface GCColorState : NSObject {
+@interface GCMetalColorResources () {
 @public
     std::shared_ptr<ColorRuntime> runtime;
     id<MTLComputePipelineState> pipeline;
     id<MTLBuffer> configuration,lut,decode,weights;
+    uint32_t halo;
+    int mode;
+}
+@end
+@implementation GCMetalColorResources
+@end
+
+@interface GCColorState : NSObject {
+@public
+    GCMetalColorResources *resources;
     uint32_t halo,seed;
     float exposure,backendExposure;
     CGRect extent;
-    int mode;
 }
 @end
 @implementation GCColorState
@@ -95,10 +105,11 @@ void dispatch(id<MTLComputeCommandEncoder> encoder,id<MTLComputePipelineState> p
 + (BOOL)processWithInputs:(NSArray<id<CIImageProcessorInput>> *)inputs arguments:(NSDictionary *)arguments
                    output:(id<CIImageProcessorOutput>)output error:(NSError **)error {
     GCColorState *state=arguments[@"state"];
+    GCMetalColorResources *resources=state?state->resources:nil;
     id<CIImageProcessorInput> input=inputs.firstObject;
     id<MTLCommandBuffer> command=output.metalCommandBuffer;
     id<MTLTexture> source=input.metalTexture,destination=output.metalTexture;
-    if(!state||!source||!destination||!command||command.device!=state->runtime->device) {
+    if(!state||!resources||!source||!destination||!command||command.device!=resources->runtime->device) {
         setError(error,@"Core Image did not provide compatible Metal textures");return NO;
     }
     GCColorRegion region{int32_t(output.region.origin.x-input.region.origin.x),
@@ -107,7 +118,7 @@ void dispatch(id<MTLComputeCommandEncoder> encoder,id<MTLComputePipelineState> p
         uint32_t(input.region.size.width),uint32_t(input.region.size.height),
         uint32_t(output.region.size.width),uint32_t(output.region.size.height),
         uint32_t(state->extent.size.width),uint32_t(state->extent.size.height),state->seed,state->exposure,state->backendExposure};
-    id<MTLTexture> intermediate=nil;
+    id<MTLTexture> intermediate=nil,horizontal=nil;
     GCColorRegion pointRegion=region;
     if(state->halo) {
         MTLTextureDescriptor *descriptor=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA32Float
@@ -115,30 +126,47 @@ void dispatch(id<MTLComputeCommandEncoder> encoder,id<MTLComputePipelineState> p
         descriptor.storageMode=MTLStorageModePrivate;
         descriptor.usage=MTLTextureUsageShaderRead|MTLTextureUsageShaderWrite;
         intermediate=[command.device newTextureWithDescriptor:descriptor];
-        if(!intermediate){setError(error,@"Metal neighborhood allocation failed");return NO;}
+        MTLTextureDescriptor *horizontalDescriptor=[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA32Float
+            width:region.outputWidth height:region.inputHeight mipmapped:NO];
+        horizontalDescriptor.storageMode=MTLStorageModePrivate;
+        horizontalDescriptor.usage=MTLTextureUsageShaderRead|MTLTextureUsageShaderWrite;
+        horizontal=[command.device newTextureWithDescriptor:horizontalDescriptor];
+        if(!intermediate||!horizontal){setError(error,@"Metal neighborhood allocation failed");return NO;}
         pointRegion.offsetX=pointRegion.offsetY=0;
         pointRegion.outputWidth=region.inputWidth;pointRegion.outputHeight=region.inputHeight;
     }
     id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
     if(!encoder){setError(error,@"Metal encoder allocation failed");return NO;}
-    [encoder setComputePipelineState:state->pipeline];
+    [encoder setComputePipelineState:resources->pipeline];
     [encoder setTexture:source atIndex:0];
     [encoder setTexture:intermediate?:destination atIndex:1];
     [encoder setBytes:&pointRegion length:sizeof(pointRegion) atIndex:0];
-    [encoder setBuffer:state->configuration offset:0 atIndex:1];
-    [encoder setBuffer:state->lut offset:0 atIndex:2];
-    if(state->mode==1)[encoder setBuffer:state->decode offset:0 atIndex:3];
-    dispatch(encoder,state->pipeline,pointRegion.outputWidth,pointRegion.outputHeight);
+    [encoder setBuffer:resources->configuration offset:0 atIndex:1];
+    [encoder setBuffer:resources->lut offset:0 atIndex:2];
+    if(resources->mode==1)[encoder setBuffer:resources->decode offset:0 atIndex:3];
+    dispatch(encoder,resources->pipeline,pointRegion.outputWidth,pointRegion.outputHeight);
     [encoder endEncoding];
     if(intermediate) {
         encoder=[command computeCommandEncoder];
         if(!encoder){setError(error,@"Metal neighborhood encoder allocation failed");return NO;}
-        [encoder setComputePipelineState:state->runtime->ffcsFinish];
-        [encoder setTexture:intermediate atIndex:0];[encoder setTexture:destination atIndex:1];
+        [encoder setComputePipelineState:resources->runtime->ffcsHorizontal];
+        [encoder setTexture:intermediate atIndex:0];[encoder setTexture:horizontal atIndex:1];
         [encoder setBytes:&region length:sizeof(region) atIndex:0];
-        [encoder setBuffer:state->configuration offset:0 atIndex:1];
-        [encoder setBuffer:state->weights offset:0 atIndex:2];
-        dispatch(encoder,state->runtime->ffcsFinish,region.outputWidth,region.outputHeight);
+        [encoder setBuffer:resources->configuration offset:0 atIndex:1];
+        [encoder setBuffer:resources->weights offset:0 atIndex:2];
+        dispatch(encoder,resources->runtime->ffcsHorizontal,region.outputWidth,region.inputHeight);
+        [encoder endEncoding];
+
+        encoder=[command computeCommandEncoder];
+        if(!encoder){setError(error,@"Metal neighborhood encoder allocation failed");return NO;}
+        [encoder setComputePipelineState:resources->runtime->ffcsFinish];
+        [encoder setTexture:intermediate atIndex:0];
+        [encoder setTexture:horizontal atIndex:1];
+        [encoder setTexture:destination atIndex:2];
+        [encoder setBytes:&region length:sizeof(region) atIndex:0];
+        [encoder setBuffer:resources->configuration offset:0 atIndex:1];
+        [encoder setBuffer:resources->weights offset:0 atIndex:2];
+        dispatch(encoder,resources->runtime->ffcsFinish,region.outputWidth,region.outputHeight);
         [encoder endEncoding];
     }
     return YES;
@@ -146,7 +174,9 @@ void dispatch(id<MTLComputeCommandEncoder> encoder,id<MTLComputePipelineState> p
 @end
 
 namespace {
-CIImage *apply(GCColorState *state,CIImage *image,float exposure,float backendExposure,uint32_t seed,NSError **error) {
+CIImage *apply(GCMetalColorResources *resources,CIImage *image,float exposure,float backendExposure,uint32_t seed,NSError **error) {
+    GCColorState *state=[GCColorState new];
+    state->resources=resources;state->halo=resources->halo;
     state->extent=image.extent;state->exposure=exposure;state->backendExposure=backendExposure;state->seed=seed;
     return [GCColorKernel applyWithExtent:image.extent inputs:@[image] arguments:@{@"state":state} error:error];
 }
@@ -239,43 +269,64 @@ static BOOL renderFile(CIImage *image,CIContext *context,NSString *path,NSUInteg
 }
 
 @implementation GCMetalColor
-+ (CIImage *)ffcs:(CIImage *)image context:(const FFCSContext *)context sourceExposure:(float)exposure
-    backendExposure:(float)backendExposure seed:(uint32_t)seed shaderPath:(NSString *)path error:(NSError **)error {
++ (GCMetalColorResources *)ffcsResources:(const FFCSContext *)context
+    shaderPath:(NSString *)path error:(NSError **)error {
     try {
         ffcs_color_data c{};if(ffcs_get_color_data(context,&c))throw std::invalid_argument("Invalid FFCS context");
-        GCColorState *state=[GCColorState new];state->runtime=colorRuntime(path);state->mode=1;
-        auto &runtime=*state->runtime;state->pipeline=runtime.ffcs;state->halo=c.reach;
+        GCMetalColorResources *resources=[GCMetalColorResources new];
+        resources->runtime=colorRuntime(path);resources->mode=1;
+        auto &runtime=*resources->runtime;resources->pipeline=runtime.ffcs;resources->halo=c.reach;
         GCFFCSColor p{};std::copy_n(c.matrix,9,p.matrix);p.contrast=c.contrast;p.saturation=c.saturation;p.hue=c.hue;
         p.shoulder=c.shoulder;p.toe=c.toe;p.grain=c.grain;p.grainSize=c.grain_size;p.chroma=c.chroma;p.sharp=c.sharp;
         p.size=c.size;p.rgbChannels=c.rgb_channels;p.acros=c.acros;p.grainEnabled=c.grain_enabled;p.reach=c.reach;
-        state->configuration=runtime.upload(&p,sizeof(p));state->lut=runtime.upload(c.lut,size_t(c.size)*c.size*c.size*3*sizeof(uint16_t));
-        state->decode=runtime.floats(c.normalized_codes,65536);
-        if(c.reach)state->weights=runtime.floats(c.kernel,size_t(c.reach+1)*(c.reach+1));
-        return apply(state,image,exposure,backendExposure,seed,error);
+        resources->configuration=runtime.upload(&p,sizeof(p));
+        resources->lut=runtime.upload(c.lut,size_t(c.size)*c.size*c.size*3*sizeof(uint16_t));
+        resources->decode=runtime.floats(c.normalized_codes,65536);
+        if(c.reach)resources->weights=runtime.floats(c.kernel,size_t(c.reach+1));
+        return resources;
     }catch(const std::exception &failure){setError(error,@(failure.what()));return nil;}
 }
-+ (CIImage *)lumix:(CIImage *)image context:(const LUMIXContext *)context sourceExposure:(float)exposure
-    backendExposure:(float)backendExposure shaderPath:(NSString *)path error:(NSError **)error {
++ (GCMetalColorResources *)lumixResources:(const LUMIXContext *)context
+    shaderPath:(NSString *)path error:(NSError **)error {
     try {
         lumix_color_data c{};if(lumix_get_color_data(context,&c))throw std::invalid_argument("Invalid LUMIX context");
-        GCColorState *state=[GCColorState new];state->runtime=colorRuntime(path);state->mode=2;
-        auto &runtime=*state->runtime;state->pipeline=runtime.lumix;
+        GCMetalColorResources *resources=[GCMetalColorResources new];
+        resources->runtime=colorRuntime(path);resources->mode=2;
+        auto &runtime=*resources->runtime;resources->pipeline=runtime.lumix;
         GCLUMIXColor p{};std::copy_n(c.tone_x,49,p.toneX);std::copy_n(c.tone_y,49,p.toneY);
         p.toneCount=c.tone_count;p.saturation=c.saturation;p.monochrome=c.monochrome;p.blueChroma=c.blue_chroma;p.redChroma=c.red_chroma;
-        state->configuration=runtime.upload(&p,sizeof(p));state->lut=runtime.upload(c.cube,size_t(129)*129*129*3*sizeof(uint16_t));
-        return apply(state,image,exposure,backendExposure,0,error);
+        resources->configuration=runtime.upload(&p,sizeof(p));
+        resources->lut=runtime.upload(c.cube,size_t(129)*129*129*3*sizeof(uint16_t));
+        return resources;
     }catch(const std::exception &failure){setError(error,@(failure.what()));return nil;}
+}
++ (CIImage *)ffcs:(CIImage *)image context:(const FFCSContext *)context
+    resources:(GCMetalColorResources *)resources
+    sourceExposure:(float)exposure backendExposure:(float)backendExposure seed:(uint32_t)seed
+    shaderPath:(NSString *)path error:(NSError **)error {
+    GCMetalColorResources *resolved=resources?:[self ffcsResources:context shaderPath:path error:error];
+    if(!resolved)return nil;
+    return apply(resolved,image,exposure,backendExposure,seed,error);
+}
++ (CIImage *)lumix:(CIImage *)image context:(const LUMIXContext *)context
+    resources:(GCMetalColorResources *)resources
+    sourceExposure:(float)exposure backendExposure:(float)backendExposure
+    shaderPath:(NSString *)path error:(NSError **)error {
+    GCMetalColorResources *resolved=resources?:[self lumixResources:context shaderPath:path error:error];
+    if(!resolved)return nil;
+    return apply(resolved,image,exposure,backendExposure,0,error);
 }
 + (BOOL)render:(CIImage *)image context:(CIContext *)context toPath:(NSString *)path components:(NSUInteger)components maximumRows:(NSUInteger)maximumRows
     maximum:(float *)maximum cancelled:(BOOL (^)(void))cancelled progress:(void (^)(double))progress error:(NSError **)error {
     return renderFile(image,context,path,components,maximumRows,maximum,cancelled,progress,error);
 }
 + (BOOL)renderHNCS:(CIImage *)image context:(CIContext *)context reference:(const hncs_context *)reference
-    sourceExposure:(float)exposure workers:(unsigned)workers toPath:(NSString *)path maximum:(float *)maximum
+    sourceExposure:(float)exposure workers:(unsigned)workers maximumRows:(NSUInteger)maximumRows
+    toPath:(NSString *)path maximum:(float *)maximum
     cancelled:(BOOL (^)(void))cancelled progress:(void (^)(double))progress error:(NSError **)error {
     if(!reference||!std::isfinite(exposure)||exposure<=0||workers<1||workers>4) {
         setError(error,@"Invalid HNCS render configuration",-1);return NO;
     }
-    return renderFile(image,context,path,3,64,maximum,cancelled,progress,error,reference,exposure,workers);
+    return renderFile(image,context,path,3,maximumRows,maximum,cancelled,progress,error,reference,exposure,workers);
 }
 @end

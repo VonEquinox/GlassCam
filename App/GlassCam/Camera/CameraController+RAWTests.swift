@@ -22,7 +22,7 @@ extension CameraController {
                      archiveInputs: Bool) async throws {
         let reservation = try await reserveMainForTest()
         defer { releaseCaptureReservation(reservation) }
-        let output = ExportSettings.native.withFraming(currentFraming)
+        let output = ExportSettings.camera24(framing: currentFraming)
         let snapshot = CaptureSnapshot(recipe: recipe,output: output,quality: .balanced,
             archiveF5RAW: archiveInputs,rawArchiveID: id)
         let photo: CapturedCameraPhoto = try await withCheckedThrowingContinuation { continuation in

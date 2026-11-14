@@ -8,15 +8,26 @@
 #include "lumix_c.h"
 NS_ASSUME_NONNULL_BEGIN
 
+/// Reusable immutable GPU LUT/table upload retained by the Swift ContextOwner.
+@interface GCMetalColorResources : NSObject
+@end
+
 /// Immutable resource bindings. The image retains them until rendering ends.
 @interface GCMetalColor : NSObject
++ (nullable GCMetalColorResources *)ffcsResources:(const FFCSContext *)context
+    shaderPath:(NSString *)shaderPath error:(NSError **)error;
++ (nullable GCMetalColorResources *)lumixResources:(const LUMIXContext *)context
+    shaderPath:(NSString *)shaderPath error:(NSError **)error;
 + (BOOL)renderHNCS:(CIImage *)image context:(CIContext *)context reference:(const hncs_context *)reference
-    sourceExposure:(float)exposure workers:(unsigned)workers toPath:(NSString *)path maximum:(float *)maximum
+    sourceExposure:(float)exposure workers:(unsigned)workers maximumRows:(NSUInteger)maximumRows
+    toPath:(NSString *)path maximum:(float *)maximum
     cancelled:(BOOL (^)(void))cancelled progress:(void (^)(double))progress error:(NSError **)error;
 + (nullable CIImage *)ffcs:(CIImage *)image context:(const FFCSContext *)context
+    resources:(nullable GCMetalColorResources *)resources
     sourceExposure:(float)exposure backendExposure:(float)backendExposure seed:(uint32_t)seed
     shaderPath:(NSString *)shaderPath error:(NSError **)error;
 + (nullable CIImage *)lumix:(CIImage *)image context:(const LUMIXContext *)context
+    resources:(nullable GCMetalColorResources *)resources
     sourceExposure:(float)exposure backendExposure:(float)backendExposure
     shaderPath:(NSString *)shaderPath error:(NSError **)error;
 /// Materialize the lazy GPU graph in bounded, reusable native buffers. A work

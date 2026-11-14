@@ -70,19 +70,14 @@ public final class CaptureJournal: @unchecked Sendable {
         self.formats = formats
     }
 
-    func retainBurst(_ source: any CapturePayload, id: UUID, snapshot: CaptureSnapshot) throws -> Record {
+    func retainBurst(_ source: any CapturePayload, id: UUID, snapshot: CaptureSnapshot) throws -> (record: Record, payload: any CapturePayload) {
         lock.lock(); defer { lock.unlock() }
         try beforeOperation?(.retain)
         let format = try formats.requireFormat(identifier: source.formatIdentifier)
-        let record = try format.retain(source, id: id, snapshot: snapshot,
+        let retained = try format.retain(source, id: id, snapshot: snapshot,
             directory: directory, recoversStaging: recoversStaging)
         try afterOperation?(.retain)
-        return record
-    }
-    func hasPayload(for record: Record) -> Bool { formats.format(identifier: record.sourceKind) != nil }
-    func retainedPayload(for record: Record) throws -> any CapturePayload {
-        guard let kind = record.sourceKind else { throw Failure.damaged }
-        return try formats.requireFormat(identifier: kind).source(in: directory)
+        return retained
     }
 
     public func retain(_ data: Data, id: UUID, snapshot: CaptureSnapshot) throws -> Record {
@@ -95,7 +90,7 @@ public final class CaptureJournal: @unchecked Sendable {
             try validate(old.raw, at: rawURL)
             return old
         }
-        try makeDirectory()
+        try Self.createDirectory(directory)
         let record = Record(id: id, createdAt: Date(), snapshot: snapshot, stage: .rawReady, raw: Blob(data))
         try Self.writeProtected(data, to: rawURL)
         try writeRecord(record)
@@ -177,52 +172,57 @@ public final class CaptureJournal: @unchecked Sendable {
         return record
     }
 
-    public func load() throws -> Record? {
+    public func load() throws -> (record: Record, payload: (any CapturePayload)?)? {
         lock.lock(); defer { lock.unlock() }
         try beforeOperation?(.load)
         cleanRetiredDirectories()
         if try !directoryExists() {
             if recoversStaging {
                 for format in formats.formats {
-                    if let record = try format.recoverPending(directory: directory) { return record }
+                    if let retained = try format.recoverPending(directory: directory) {
+                        return (retained.record, retained.payload)
+                    }
                 }
             }
             return nil
         }
         let record = try readRecord()
-        if record.stage == .savedConfirmed { return record }
+        if record.stage == .savedConfirmed { return (record, nil) }
+        let payload: (any CapturePayload)?
         if let format = formats.format(identifier: record.sourceKind) {
-            try format.validate(record, directory: directory, recoversStaging: recoversStaging)
-        } else { try validate(record.raw, at: rawURL) }
+            payload = try format.restore(record, directory: directory, recoversStaging: recoversStaging)
+        } else {
+            try validate(record.raw, at: rawURL)
+            payload = nil
+        }
         if record.stage != .rawReady {
             guard let encoded = record.encoded, let width = record.width, let height = record.height,
                   width > 0, height > 0 else { throw Failure.damaged }
             try validate(encoded, at: encodedURL)
         }
-        return record
+        return (record, payload)
     }
 
-    public func clear(id: UUID) throws {
+    public func finishSaved(id: UUID) throws {
         lock.lock(); defer { lock.unlock() }
         try beforeOperation?(.clear)
         guard try directoryExists() else { return }
         let record = try matching(id)
+        guard record.stage == .savedConfirmed else { throw Failure.staleAttempt }
         try formats.format(identifier: record.sourceKind)?.finish(record, directory: directory)
         try retireDirectory()
         try afterOperation?(.clear)
     }
 
-    /// Called only after the user confirms discarding unreadable retained data.
-    func discardUnreadable() throws {
+    /// Explicit abandonment never decodes a damaged record or runs an archive.
+    func discard() throws {
         lock.lock(); defer { lock.unlock() }
         try beforeOperation?(.clear)
-        guard try directoryExists() else {
-            if recoversStaging {
-                for format in formats.formats { try format.discardPending() }
-            }
-            return
+        if FileManager.default.fileExists(atPath: directory.path) { try retireDirectory() }
+        if recoversStaging {
+            for format in formats.formats { try format.discardPending() }
         }
-        try retireDirectory()
+        try afterOperation?(.clear)
     }
 
     private func retireDirectory() throws {
@@ -273,13 +273,9 @@ public final class CaptureJournal: @unchecked Sendable {
         guard size == blob.bytes else { throw Failure.damaged }
         guard Blob(try Data(contentsOf: url, options: .mappedIfSafe)) == blob else { throw Failure.damaged }
     }
-    private func makeDirectory() throws {
-#if os(macOS)
-        let attributes: [FileAttributeKey: Any]? = nil
-#else
-        let attributes: [FileAttributeKey: Any]? = [.protectionKey: FileProtectionType.complete]
-#endif
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: attributes)
+    package static func createDirectory(_ directory: URL) throws {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true,
+                                               attributes: ImageFileProtection.attributes)
         var values = URLResourceValues(); values.isExcludedFromBackup = true
         var location = directory; try location.setResourceValues(values)
     }

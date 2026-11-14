@@ -33,8 +33,9 @@ __pycache__/
 *.3fr
 *.3FR
 
-# Small synthetic journal payloads required by persistence compatibility tests
+# Small synthetic test fixtures required by persistence and F5 post-operation tests
 !/tests/fixtures/journal/**/*.dng
+!/tests/fixtures/f5-post-operations/*.dng
 
 # Local distributions and signing material
 *.dmg

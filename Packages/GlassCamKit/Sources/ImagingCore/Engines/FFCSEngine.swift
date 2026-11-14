@@ -21,16 +21,44 @@ public enum FFCSEngine {
         return String(cString: name)
     }
 
+    private struct AvailabilityKey: Hashable {
+        let directory: String
+        let family: FFCSCameraFamily
+    }
+    private final class AvailabilityCache: @unchecked Sendable {
+        private let lock = NSLock()
+        private var availableByFamily: [AvailabilityKey: [Simulation]] = [:]
+
+        func simulations(directory: URL, family: FFCSCameraFamily) -> [Simulation] {
+            let key = AvailabilityKey(directory: directory.path, family: family)
+            lock.lock()
+            if let cached = availableByFamily[key] {
+                lock.unlock()
+                return cached
+            }
+            lock.unlock()
+            let resolved = FFCSEngine.simulations.filter { simulation in
+                directory.path.withCString { root in
+                    family.rawValue.withCString { ffcs_simulation_available(root, $0, simulation.id) == 1 }
+                }
+            }
+            lock.lock()
+            availableByFamily[key] = resolved
+            lock.unlock()
+            return resolved
+        }
+    }
+    private static let availabilityCache = AvailabilityCache()
+
     public static func simulations(resources: ColorResources, for family: FFCSCameraFamily) -> [Simulation] {
-        simulations.filter { isSimulationAvailable(resources: resources, $0.id, family: family) }
+        guard let directory = try? resourceDirectory(resources: resources) else { return [] }
+        return availabilityCache.simulations(directory: directory, family: family)
     }
 
     public static func isSimulationAvailable(resources: ColorResources, _ index: Int, family: FFCSCameraFamily) -> Bool {
         guard index >= 0, index < Int(ffcs_simulation_count()),
               let directory = try? resourceDirectory(resources: resources) else { return false }
-        return directory.path.withCString { root in
-            family.rawValue.withCString { ffcs_simulation_available(root, $0, index) == 1 }
-        }
+        return availabilityCache.simulations(directory: directory, family: family).contains { $0.id == index }
     }
 
     public static func resolvedAssetFamily(resources: ColorResources, _ index: Int, family: FFCSCameraFamily) -> String? {
@@ -79,12 +107,22 @@ public enum FFCSEngine {
         let simulationIndex: Int
         let effects: EffectToggles
         let settings: FFCSSettings
+        private let metalLock = NSLock()
+        private var cachedMetalResources: GCMetalColorResources?
         init(pointer: OpaquePointer, directory: String, simulationIndex: Int, effects: EffectToggles, settings: FFCSSettings) {
             self.pointer = pointer
             self.directory = directory
             self.simulationIndex = simulationIndex
             self.effects = effects
             self.settings = settings
+        }
+        func metalResources(shaderPath: String) throws -> GCMetalColorResources {
+            metalLock.lock()
+            defer { metalLock.unlock() }
+            if let cachedMetalResources { return cachedMetalResources }
+            let created = try GCMetalColor.ffcsResources(pointer, shaderPath: shaderPath)
+            cachedMetalResources = created
+            return created
         }
         deinit { ffcs_destroy(pointer) }
     }
@@ -121,7 +159,8 @@ public enum FFCSEngine {
         let owner = try contextCache.context(directory: resourceDirectory(resources: resources),
             simulationIndex: recipe.simulationIndex, effects: recipe.effects, settings: recipe.ffcs)
         return try withExtendedLifetime(owner) {
-            try GCMetalColor.ffcs(source, context: owner.pointer,
+            let gpuResources = try owner.metalResources(shaderPath: MetalColorEngine.shaderPath)
+            return try GCMetalColor.ffcs(source, context: owner.pointer, resources: gpuResources,
                 sourceExposure: Float(exp2(recipe.appliesExposureBeforeHighlights ? recipe.exposureEV : 0)),
                 backendExposure: Float(exp2(recipe.backendExposureEV)), seed: recipe.seed, shaderPath: MetalColorEngine.shaderPath)
         }

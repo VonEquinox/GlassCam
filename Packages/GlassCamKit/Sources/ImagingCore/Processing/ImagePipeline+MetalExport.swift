@@ -13,7 +13,8 @@ extension ImagePipeline {
         if recipe.usesExtendedHNCSWorkingDomain {
             let work = try HNCSPresetWorkFile(width: width, height: height)
             let maximum = try HNCSEngine.renderWorkFile(image, context: context, to: work,
-                recipe: recipe, isCancelled: isCancelled, progress: { progress(0.1 + 0.35 * $0) })
+                recipe: recipe, maximumRows: sourceIsRAW ? 64 : 0, isCancelled: isCancelled,
+                progress: { progress(0.1 + 0.35 * $0) })
             if releaseSourceCache { context.clearCaches() }
             let scale = try HNCSEngine.workingScale(maximum: maximum)
             try HNCSEngine.applySpatial(to: work, settings: recipe.hncs, effects: recipe.effects,

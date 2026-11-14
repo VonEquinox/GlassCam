@@ -12,8 +12,11 @@ struct SettingsTests {
     }
     @Test func newSettings_liveColorIsDisabled() throws {
         try withDefaults { defaults in
-            #expect(!CameraSettingsStore(defaults: defaults).experimentalLiveColor)
-            #expect(CameraSettingsStore(defaults: defaults).captureQuality == .balanced)
+            let store = CameraSettingsStore(defaults: defaults)
+            #expect(!store.experimentalLiveColor)
+            #expect(!store.archiveBalancedPreColorRAW)
+            #expect(!store.archiveF5RAW)
+            #expect(store.captureQuality == .balanced)
         }
     }
     @Test func invalidSavedRecipe_restoresValidatedDefaults() throws {
@@ -75,13 +78,63 @@ struct SettingsTests {
         try withDefaults { defaults in
             let settings = CameraSettingsStore(defaults: defaults)
             settings.exposure = 0.5; settings.gridVisible = false; settings.experimentalLiveColor = true
+            settings.archiveBalancedPreColorRAW = true; settings.archiveF5RAW = true
             settings.centerPreviewLongEdge = 2560; settings.captureQuality = .balanced
             let restored = CameraSettingsStore(defaults: defaults)
             #expect(restored.recipe == settings.recipe)
             #expect(!restored.gridVisible)
             #expect(restored.experimentalLiveColor)
+            #expect(restored.archiveBalancedPreColorRAW)
+            #expect(restored.archiveF5RAW)
             #expect(restored.centerPreviewLongEdge == 2560)
             #expect(restored.captureQuality == .balanced)
+        }
+    }
+    @Test(arguments: ColorMode.allCases)
+    func resetCurrentEffectAdjustments_resetsActiveEngineTuningAndKeepsStyleAndGates(mode: ColorMode) throws {
+        try withDefaults { defaults in
+            let settings = CameraSettingsStore(defaults: defaults)
+            settings.colorMode = mode
+            settings.exposure = 1.25
+            settings.effects = EffectToggles(applyGrain: false, applySharpness: false)
+            settings.hncs.presetKey = "nature"
+            settings.hncs.whiteBalancePolicy = .preset
+            settings.hncs.filmCurve = .highContrast
+            settings.hncs.workingSpace = .lstar
+            settings.hncs.intent = .reproduction
+            settings.hncs.applyToneCurve = false
+            settings.hncs.factoryKelvinOverride = 5200
+            settings.simulationIndex = 3
+            settings.ffcs.cameraFamily = .gfx100ii
+            settings.ffcs.applyReferenceAdjustments = true
+            settings.ffcs.sharpenRadius = 2.4
+            settings.lumix.photoStyle = "vivid"
+            settings.lumix.contrast = 2.5
+            settings.lumix.saturation = -1.5
+
+            settings.resetCurrentEffectAdjustments()
+
+            #expect(settings.exposure == 0)
+            #expect(settings.effects == EffectToggles(applyGrain: false, applySharpness: false))
+            switch mode {
+            case .hncs:
+                #expect(settings.hncs.presetKey == "nature")
+                #expect(settings.hncs.whiteBalancePolicy == .preset)
+                #expect(settings.hncs.filmCurve == .asShot)
+                #expect(settings.hncs.workingSpace == .legacy)
+                #expect(settings.hncs.intent == .standard)
+                #expect(settings.hncs.applyToneCurve)
+                #expect(settings.hncs.factoryKelvinOverride == nil)
+            case .ffcs:
+                #expect(settings.simulationIndex == 3)
+                #expect(settings.ffcs.cameraFamily == .gfx100ii)
+                #expect(!settings.ffcs.applyReferenceAdjustments)
+                #expect(settings.ffcs.sharpenRadius == 1.0)
+            case .lumix:
+                #expect(settings.lumix.photoStyle == "vivid")
+                #expect(settings.lumix.contrast == 0)
+                #expect(settings.lumix.saturation == 0)
+            }
         }
     }
     @Test(arguments: ["quality", "unknown"])

@@ -86,8 +86,8 @@ package struct PeripheralPaneAssessment {
     }
 
     package static func measure(_ result: PeripheralAlignmentResult, edge: Int) -> Self {
-        let rows = result.nativeSeam?.diagnostics.filter { $0["edge"] as? Int == edge }
-            .sorted {($0["start"] as? Int ?? 0)<($1["start"] as? Int ?? 0)} ?? []
+        let rows = result.nativeSeam?.tiles.filter { $0.edge == edge }
+            .sorted { $0.start < $1.start } ?? []
         guard !rows.isEmpty else { return .init() }
         var distances: [Double] = [], bad = 0.0, supported = 0, missing = 0.0,observed=0
         var localMatches:[LocalMatch?]=[]
@@ -97,52 +97,52 @@ package struct PeripheralPaneAssessment {
             return t*t*(3-2*t)
         }
         for row in rows {
-            let support = row["nativeEdgeSupport"] as? [Int] ?? [0,0]
-            let weak = row["nativeWeakEdgeSupport"] as? [Int] ?? [0,0]
-            let variances = (row["currentNativeGrayVariance"] as? [NSNumber])?.map { $0.doubleValue } ?? [0,0]
-            let noise = (row["nativeNoiseSigma"] as? [NSNumber])?.map { $0.doubleValue } ?? [0,0]
-            let ncc = (row["currentNativeGrayNCC"] as? NSNumber)?.doubleValue ?? 0
-            let upper = (row["segmentVisibleShiftUpper"] as? NSNumber)?.doubleValue
-            let lower = (row["segmentVisibleShiftLower"] as? NSNumber)?.doubleValue ?? 0
-            let normalUpper=(row["segmentNormalUpper"] as? NSNumber)?.doubleValue
-            let normalLower=(row["segmentNormalLower"] as? NSNumber)?.doubleValue ?? 0
+            let supportValid = row.nativeEdgeSupport.x >= 0 && row.nativeEdgeSupport.y >= 0
+            let support = supportValid ? row.nativeEdgeSupport : SIMD2(0, 0)
+            let weakValid = row.nativeWeakEdgeSupport.x >= 0 && row.nativeWeakEdgeSupport.y >= 0
+            let variancesValid = row.currentNativeGrayVariance.x >= 0 && row.currentNativeGrayVariance.y >= 0
+            let noiseValid = row.nativeNoiseSigma.x >= 0 && row.nativeNoiseSigma.y >= 0
+            let ncc = row.currentNativeGrayNCC
+            let upper = row.segmentVisibleShiftUpper
+            let lower = row.segmentVisibleShiftLower
+            let normalUpper = row.segmentNormalUpper
+            let normalLower = row.segmentNormalLower
             let short = 192*min(1,1/result.photoAspectRatio)
             let boundedNormal=normalUpper.map {$0.isFinite && $0>=0 && $0-normalLower<=3/short} == true
             // An ambiguous candidate interval's far endpoint is uncertainty,
             // not an observed large displacement. Keep physical UNKNOWN intact.
-            let bounded2D=row["segmentStatus"] as? String == "measured" ||
-                (row["segmentStatus"] == nil && upper.map {$0.isFinite && $0-lower<=3/short} == true)
-            let knownMatch = row["segmentSearchComplete"] as? Bool == true && row["segmentRepeated"] as? Bool != true &&
+            let bounded2D=row.segmentStatus == "measured" ||
+                (row.segmentStatus == nil && upper.map {$0.isFinite && $0-lower<=3/short} == true)
+            let knownMatch = row.segmentSearchComplete && !row.segmentRepeated &&
                 (boundedNormal || bounded2D) && upper.map {$0.isFinite && $0>=0} == true
             let matchedDistance=boundedNormal ? ((normalUpper ?? 0)+normalLower)/2:((upper ?? 0)+lower)/2
             let matchedLower=boundedNormal ? normalLower:lower
-            let peak = (row["segmentPeak"] as? NSNumber)?.doubleValue ?? .nan
-            let distance = (row["robustObservableDistanceNative"] as? NSNumber)?.doubleValue ??
-                (row["maxObservableDistanceNative"] as? NSNumber)?.doubleValue ?? 0
-            let nativeScale = (row["nativeScale"] as? NSNumber)?.doubleValue ?? 1
+            let peak = row.segmentPeak
+            let distance = row.observableDistanceNative
+            let nativeScale = row.nativeScale
             let normalizedDistance = (distance/max(1,nativeScale)+1)/short
-            let sampleCount=(row["nativeSampleCount"] as? NSNumber)?.doubleValue ?? 0
-            let hasLine = support.count == 2 && Double(max(support[0],support[1])) >= max(3,0.005*sampleCount)
-            let hasCounterpart = weak.count == 2 && min(weak[0],weak[1]) >= 3
-            let visibleSignal = hasLine || (row["flatBothNative"] as? Bool != true &&
-                variances.count==2 && min(variances[0],variances[1])>0.00005)
+            let sampleCount = row.nativeSampleCount
+            let hasLine = Double(max(support.x, support.y)) >= max(3, 0.005 * sampleCount)
+            let hasCounterpart = weakValid && min(row.nativeWeakEdgeSupport.x, row.nativeWeakEdgeSupport.y) >= 3
+            let visibleSignal = hasLine || (!row.flatBothNative &&
+                variancesValid && min(row.currentNativeGrayVariance.x, row.currentNativeGrayVariance.y) > 0.00005)
             var vector:VectorMatch?
-            if knownMatch,visibleSignal,row["segmentStatus"] as? String == "measured",peak.isFinite,peak>=0.95,
-               let fb=(row["segmentForwardBackward"] as? NSNumber)?.doubleValue,(0...1).contains(fb),
-               let point=(row["segmentPoint"] as? [NSNumber])?.map({$0.doubleValue}),point.count==2,point.allSatisfy(\.isFinite),
-               let offset=(row["segmentBestDisplacement"] as? [NSNumber])?.map({$0.doubleValue}),offset.count==2,offset.allSatisfy(\.isFinite),
-               let segment=row["segment"] as? Int,segment>=0,
-               let uncertainty=(row["segmentDisplacementUncertainty"] as? NSNumber)?.doubleValue,
+            if knownMatch, visibleSignal, row.segmentStatus == "measured", peak.isFinite, peak >= 0.95,
+               let fb = row.segmentForwardBackward, (0...1).contains(fb),
+               let point = row.segmentPoint, point.x.isFinite, point.y.isFinite,
+               let offset = row.segmentBestDisplacement, offset.x.isFinite, offset.y.isFinite,
+               row.segment >= 0,
+               let uncertainty = row.segmentDisplacementUncertainty,
                uncertainty.isFinite,(sqrt(0.5)-0.000001...3).contains(uncertainty) {
-                vector=VectorMatch(point:SIMD2(point[0],point[1]),offset:SIMD2(offset[0],offset[1]),
-                    uncertainty:uncertainty,segment:segment)
+                vector=VectorMatch(point:point,offset:offset,
+                    uncertainty:uncertainty,segment:row.segment)
             }
             localMatches.append(knownMatch && visibleSignal ? LocalMatch(distance:matchedDistance,lower:matchedLower,vector:vector):nil)
-            let asymmetry = variances.count==2 && max(variances[0],variances[1])>0.0005 &&
-                min(variances[0],variances[1])*16<max(variances[0],variances[1]) && ncc<0.3
+            let asymmetry = variancesValid && max(row.currentNativeGrayVariance.x, row.currentNativeGrayVariance.y) > 0.0005 &&
+                min(row.currentNativeGrayVariance.x, row.currentNativeGrayVariance.y) * 16 < max(row.currentNativeGrayVariance.x, row.currentNativeGrayVariance.y) && ncc < 0.3
             let missingLine = hasLine && !knownMatch &&
                 ((!hasCounterpart && normalizedDistance>0.06) || (asymmetry && normalizedDistance>0.04))
-            let missingExtent=(row["missingStructureExtentFraction"] as? NSNumber)?.doubleValue ?? (missingLine ? 1:0)
+            let missingExtent = row.missingStructureExtentFraction ?? (missingLine ? 1 : 0)
             // Current visible seam damage is independent of whether a local
             // feature also found a correspondence elsewhere in the image.
             // A flat majority cannot outvote a substantial displaced section.
@@ -151,22 +151,22 @@ package struct PeripheralPaneAssessment {
                 let displacementRisk=knownMatch && visibleSignal ? visibleRisk(matchedDistance):0
                 affected += max(displacementRisk,missingExtent)
             }
-            if row["flatBothNative"] as? Bool == true && !hasLine {distances.append(0);observed += 1}
+            if row.flatBothNative && !hasLine {distances.append(0);observed += 1}
             else if knownMatch, visibleSignal {distances.append(matchedDistance);supported += 1;observed += 1}
             else if hasLine && hasCounterpart && !missingLine {
                 distances.append(normalizedDistance);supported += 1
                 observed += 1
             }
             else if missingLine {observed += 1}
-            let textured = variances.count==2 && noise.count==2 && (0..<2).allSatisfy {
-                variances[$0] > max(0.00005,4*noise[$0]*noise[$0])
+            let textured = variancesValid && noiseValid && (0..<2).allSatisfy {
+                row.currentNativeGrayVariance[$0] > max(0.00005, 4 * row.nativeNoiseSigma[$0] * row.nativeNoiseSigma[$0])
             }
             // Zero-offset NCC can be low for a harmless 3–5 pixel shift.
             // A completed local correspondence measures that shift directly;
             // it is used for opacity only, never to warp the displayed image.
             if hasLine && !knownMatch {
-                let signalExtent=min(1,Double(support.max() ?? 0)/max(3,0.05*sampleCount))
-                let searchFailed=row["segmentSearchComplete"] as? Bool == true && peak.isFinite
+                let signalExtent=min(1,Double(max(support.x, support.y))/max(3,0.05*sampleCount))
+                let searchFailed=row.segmentSearchComplete && peak.isFinite
                 let correlationFailure=searchFailed ? max(0,min(1,(0.70-peak)/0.30)):0
                 let grayDisagreement=max(0,min(1,(0.4-ncc)/0.4))
                 let unmatchedDamage = textured ? correlationFailure*signalExtent*grayDisagreement:0
@@ -469,7 +469,7 @@ public final class PeripheralLiveTextureStore {
     public func reset() { ticket &+= 1; completed=nil;pending=nil;spare=nil;spareCenter=nil;nextAttempt=0;failureReason=nil }
     public func prepare(_ frame:PeripheralLiveFrame,revision:UInt64,at time:Double,device:MTLDevice,context:CIContext,
                  command:MTLCommandBuffer,colorSpace:CGColorSpace,includeCenter:Bool = false,
-                 centerImage:CIImage? = nil) throws -> (Bundle,CIRenderTask)? {
+                 centerImage: @autoclosure () -> CIImage? = nil) throws -> (Bundle,CIRenderTask)? {
         guard pending == nil, time >= nextAttempt, time >= frame.pair.observedAt,
               time-frame.pair.observedAt <= PeripheralLivePipeline.pixelLifetime,
               frame.margin >= 2, completed?.frame.pair.serial != frame.pair.serial || completed?.revision != revision else {return nil}
@@ -490,7 +490,7 @@ public final class PeripheralLiveTextureStore {
                 guard let centerTexture=spareCenter else {throw NSError(domain:"PairedPreviewTexture",code:1)}
                 let destination=CIRenderDestination(mtlTexture:centerTexture,commandBuffer:command)
                 destination.colorSpace=colorSpace;destination.isFlipped=true
-                centralTask=try context.startTask(toRender:centerImage ?? CIImage(cvPixelBuffer:frame.pair.center),to:destination)
+                centralTask=try context.startTask(toRender:centerImage() ?? CIImage(cvPixelBuffer:frame.pair.center),to:destination)
                 central=centerTexture
             }
             let destination=CIRenderDestination(mtlTexture:texture,commandBuffer:command)

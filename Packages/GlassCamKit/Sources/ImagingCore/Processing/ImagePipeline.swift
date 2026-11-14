@@ -121,7 +121,8 @@ public enum ImagePipeline {
                 let resolved = recipe.resolvingWhiteBalance(white).resolvingLUMIXSourceISO(image.sourceISO)
                 guard image.baselineSharpness.isFinite, image.baselineSharpness >= 0 else { throw PipelineError.invalidImage }
                 let decode = RAWDecodeRecipe(rendering: .sceneLinear, baselineSharpness: image.baselineSharpness)
-                try exportLinearSource(resources: resources, image.image,metadata:metadata,recipe:resolved,to:url,settings:.native,rawDecode:decode,
+                try exportLinearSource(resources: resources, image.image,metadata:metadata,recipe:resolved,to:url,
+                    settings: .camera24(), rawDecode:decode,
                     isCancelled:isCancelled,progress:progress)
                 try image.validateImageReads()
                 return resolved

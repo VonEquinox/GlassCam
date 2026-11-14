@@ -111,8 +111,8 @@ struct F5ContractTests {
         let error = #expect(throws: F5Failure.self) { try F5BayerLayout.validate(fourCC: 0x72676734, metadata: metadata) }
         #expect(error?.code == .unsupportedRAW)
     }
-    @Test func f5Capture_doesNotInheritMegapixelResizePolicy() {
-        #expect(CaptureSnapshot(recipe: .standard, output: .camera(48), quality: .f5).output.cameraMegapixels == nil)
+    @Test func captureModes_useFixed24MPOutput() {
+        #expect(CaptureSnapshot(recipe: .standard, output: .camera24(), quality: .f5).output.cameraMegapixels == 24)
         #expect(CaptureQuality.allCases == [.speed,.balanced])
     }
     @Test func changedISO_isRetainedAsEvidenceAndStopsReconstruction() throws {

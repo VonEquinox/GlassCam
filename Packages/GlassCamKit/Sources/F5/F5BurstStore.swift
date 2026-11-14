@@ -8,11 +8,15 @@ public final class F5BurstSource: CapturePayload, @unchecked Sendable {
     public var formatIdentifier: String { "f5" }
     public let directory: URL
     public let manifest: F5BurstManifest
-    public init(directory: URL, verify: Bool = true) throws {
+    let validationFlags: Set<F5Code>
+    public init(directory: URL) throws {
         self.directory = directory
         manifest = try JSONDecoder().decode(F5BurstManifest.self,
             from: Data(contentsOf: directory.appendingPathComponent("burst.json")))
-        _ = try manifest.validate(directory: verify ? directory : nil)
+        validationFlags = try manifest.validate(directory: directory)
+    }
+    init(directory: URL, manifest: F5BurstManifest, validationFlags: Set<F5Code>) {
+        self.directory = directory; self.manifest = manifest; self.validationFlags = validationFlags
     }
     var referenceDNG: URL? { try? (manifest.frames.first(where: { $0.burstIndex == 1 }) ?? manifest.frames.first)?.dng.url(in: directory) }
 }
@@ -62,9 +66,7 @@ public final class F5BurstTransaction: @unchecked Sendable {
         } else { base = purpose == "probe" ? Self.samplesRoot : Self.stagingRoot }
         directory = base.appendingPathComponent(id.uuidString, isDirectory: true)
         intent = Intent(id: id, createdAt: Date(), snapshot: snapshot, purpose: purpose, state: .collecting, frames: [], error: nil)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: ImageFileProtection.attributes)
-        var values = URLResourceValues(); values.isExcludedFromBackup = true
-        var path = directory; try path.setResourceValues(values)
+        try CaptureJournal.createDirectory(directory)
         try persist()
     }
     public func register(requestID: Int64, indices: [Int]) throws {
@@ -126,17 +128,24 @@ public final class F5BurstTransaction: @unchecked Sendable {
         }
         guard intent.frames.count < frameCount, !intent.frames.contains(where: { $0.burstIndex == frame.burstIndex }),
               frame.dng.bytes == dng.count, frame.mosaic.bytes == mosaic.count,
-              frame.dng.sha256 == F5Hash.data(dng), frame.mosaic.sha256 == F5Hash.data(mosaic) else {
+              (isRetainedDeliveryBlob(frame.dng) || frame.dng.sha256 == F5Hash.data(dng)),
+              (isRetainedDeliveryBlob(frame.mosaic) || frame.mosaic.sha256 == F5Hash.data(mosaic)) else {
             throw F5Failure(.damagedBundle, "RAW bytes do not match their immutable records.")
         }
         try frame.raster.validate()
         for (blob,bytes) in [(frame.dng,dng),(frame.mosaic,mosaic)] {
             let url=try blob.url(in:directory)
-            if FileManager.default.fileExists(atPath:url.path) {try blob.verify(in:directory)}
+            if FileManager.default.fileExists(atPath:url.path) {
+                if !isRetainedDeliveryBlob(blob) { try blob.verify(in:directory) }
+            }
             else {try CaptureJournal.writeProtected(bytes,to:url)}
         }
         intent.frames.append(frame); try persist()
         return true
+    }
+    private func isRetainedDeliveryBlob(_ blob: F5Blob) -> Bool {
+        guard let deliveries = intent.deliveries else { return false }
+        return deliveries.contains { $0.dng == blob || $0.mosaic == blob }
     }
     public func finishRequest(_ requestID: Int64, error: Error?) throws {
         lock.lock(); defer { lock.unlock() }
@@ -162,7 +171,8 @@ public final class F5BurstTransaction: @unchecked Sendable {
             synthetic: synthetic, frames: frames, requestOrder: frames.map(\.burstIndex),
             timestampOrder: frames.sorted { $0.timestamp == $1.timestamp ? $0.burstIndex < $1.burstIndex : $0.timestamp < $1.timestamp }.map(\.burstIndex),
             flags: flags.sorted { $0.rawValue < $1.rawValue }, profile: profile, framing: framing)
-        manifest.flags = try manifest.validate(directory: directory).sorted { $0.rawValue < $1.rawValue }
+        let allDelivered = frames.allSatisfy { isRetainedDeliveryBlob($0.dng) && isRetainedDeliveryBlob($0.mosaic) }
+        manifest.flags = try manifest.validate(directory: allDelivered ? nil : directory).sorted { $0.rawValue < $1.rawValue }
         if let profile {
             try CaptureJournal.writeProtected(F5Hash.json(profile), to: directory.appendingPathComponent("profile.json"))
             if let table = profile.likelihood.table {
@@ -175,7 +185,7 @@ public final class F5BurstTransaction: @unchecked Sendable {
         }
         try CaptureJournal.writeProtected(F5Hash.json(manifest), to: directory.appendingPathComponent("burst.json"))
         intent.state = .committed; try persist()
-        let result = try F5BurstSource(directory: directory)
+        let result = F5BurstSource(directory: directory, manifest: manifest, validationFlags: Set(manifest.flags))
         published = result
         return result
     }
@@ -196,19 +206,30 @@ public final class F5BurstTransaction: @unchecked Sendable {
     }
     private func persist() throws { try CaptureJournal.writeProtected(F5Hash.json(intent), to: directory.appendingPathComponent("intent.json")) }
 
-    static func pendingProduct(root: URL? = nil) throws -> (URL, Intent)? {
+    /// This root contains product captures; probe and scene recordings have their own roots.
+    static func productDirectories(root: URL? = nil) throws -> [URL] {
         let directory = root ?? stagingRoot
-        guard FileManager.default.fileExists(atPath: directory.path) else { return nil }
-        let folders = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.isDirectoryKey])
-        var candidates: [(URL, Intent)] = []
-        for folder in folders where UUID(uuidString: folder.lastPathComponent) != nil {
-            let intentURL = folder.appendingPathComponent("intent.json")
-            guard FileManager.default.fileExists(atPath: intentURL.path) else { continue }
-            let intent = try CaptureFormats([F5CaptureFormat()]).decoder().decode(Intent.self, from: Data(contentsOf: intentURL))
-            if intent.purpose == "product", intent.snapshot != nil { candidates.append((folder, intent)) }
+        guard FileManager.default.fileExists(atPath: directory.path) else { return [] }
+        return try FileManager.default.contentsOfDirectory(at: directory,
+            includingPropertiesForKeys: [.isDirectoryKey, .isSymbolicLinkKey]).filter { folder in
+                guard UUID(uuidString: folder.lastPathComponent) != nil else { return false }
+                let values = try folder.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+                return values.isDirectory == true && values.isSymbolicLink != true
         }
-        guard candidates.count <= 1 else { throw F5Failure(.damagedBundle, "Multiple unfinished F5 product transactions require review.") }
-        return candidates.first
+    }
+    static func pendingProduct(root: URL? = nil) throws -> (URL, Intent)? {
+        var pending: (URL, Intent)?
+        for folder in try productDirectories(root: root) {
+            let intent = try CaptureFormats([F5CaptureFormat()]).decoder().decode(Intent.self,
+                from: Data(contentsOf: folder.appendingPathComponent("intent.json")))
+            guard intent.purpose == "product" else { continue }
+            guard intent.id == UUID(uuidString: folder.lastPathComponent), intent.snapshot != nil else {
+                throw F5Failure(.damagedBundle, "The retained Bayer capture intent is invalid.")
+            }
+            guard pending == nil else { throw F5Failure(.damagedBundle, "Multiple unfinished Bayer captures were retained. Discard them before taking another photo.") }
+            pending = (folder, intent)
+        }
+        return pending
     }
 }
 
@@ -235,9 +256,11 @@ enum F5ArchiveStore {
                 guard input.path.hasPrefix(source.directory.resolvingSymlinksInPath().path+"/"),!name.split(separator:"/").contains("..") else {throw F5Failure(.damagedBundle,"RAW archive path escapes the retained burst.")}
                 let output=stage.appendingPathComponent(name)
                 try FileManager.default.createDirectory(at:output.deletingLastPathComponent(),withIntermediateDirectories:true,attributes:ImageFileProtection.attributes)
-                try CaptureJournal.writeProtected(Data(contentsOf:input,options:.mappedIfSafe),to:output)
+                try FileManager.default.copyItem(at:input,to:output)
+                if let attributes = ImageFileProtection.attributes {
+                    try FileManager.default.setAttributes(attributes,ofItemAtPath:output.path)
+                }
             }
-            _ = try F5BurstSource(directory:stage)
             try FileManager.default.moveItem(at:stage,to:destination)
             return destination
         } catch {try? FileManager.default.removeItem(at:stage);throw error}

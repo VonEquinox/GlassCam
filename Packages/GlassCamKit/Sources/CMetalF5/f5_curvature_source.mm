@@ -245,9 +245,9 @@ struct gc_f5_curve_raw {
     }
     void repair() {
         require(repairScratch != nil, 1, "Bayer bad-pixel repair has already completed.");
+        *static_cast<uint32_t *>(failure.contents) = 0;
+        auto command = [queue commandBuffer]; require(command != nil, 2, "Cannot allocate Bayer repair command.");
         for (unsigned frame = 0; frame < config.frames; ++frame) {
-            *static_cast<uint32_t *>(failure.contents) = 0;
-            auto command = [queue commandBuffer]; require(command != nil, 2, "Cannot allocate Bayer repair command.");
             auto encoder = [command computeCommandEncoder]; require(encoder != nil, 2, "Cannot encode Bayer repair.");
             const simd_uint4 shape{config.width, config.height, frame, config.frames};
             [encoder setComputePipelineState:repairPipeline]; [encoder setBuffer:values offset:0 atIndex:0];
@@ -257,10 +257,11 @@ struct gc_f5_curve_raw {
             [encoder endEncoding];
             auto blit = [command blitCommandEncoder]; require(blit != nil, 2, "Cannot retain repaired Bayer values.");
             [blit copyFromBuffer:repairScratch sourceOffset:0 toBuffer:values destinationOffset:size_t(frame)*config.width*config.height*4 size:repairScratch.length];
-            [blit endEncoding]; [command commit]; [command waitUntilCompleted];
-            require(command.status == MTLCommandBufferStatusCompleted, 3, "Bayer bad-pixel repair GPU command failed.");
-            require(*static_cast<uint32_t *>(failure.contents) == 0, 1, "A damaged sensor area has no valid same-color neighbors.");
+            [blit endEncoding];
         }
+        [command commit]; [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted, 3, "Bayer bad-pixel repair GPU command failed.");
+        require(*static_cast<uint32_t *>(failure.contents) == 0, 1, "A damaged sensor area has no valid same-color neighbors.");
         allocated -= repairScratch.length; repairScratch = nil;
     }
 };

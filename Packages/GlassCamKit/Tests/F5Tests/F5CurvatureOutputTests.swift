@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 import ImagingCore
+import GlassCamTestSupport
 @testable import F5
 
 @Suite(.serialized)
@@ -20,21 +21,36 @@ struct F5CurvatureOutputTests {
     }
 
     @Test(arguments: ["gain_rgb", "gain_before_warp", "gain_after_warp", "gain_warp_gain", "partial_planes_broadcast", "hdr_extension"])
-    func orderedPostOperations_matchExistingGPUOutput(name: String) throws {
-        let fixture = try #require(F5Fixtures.postOpcodeFixtures().first { $0.0 == name })
-        let metadata = try F5DNGMetadata.read(fixture.1), width = metadata.activeArea.width, height = metadata.activeArea.height
+    func orderedPostOperations_matchFrozenReference(name: String) throws {
+        let directory = TestResources.fixtures.appendingPathComponent("f5-post-operations")
+        let metadata = try F5DNGMetadata.read(Data(contentsOf: directory.appendingPathComponent(name + ".dng")))
+        let width = metadata.activeArea.width, height = metadata.activeArea.height
         let source = try input(width: width, height: height) { _,_ in .init(0.02,0.04,0.06,1) }
-        let expected = try F5OpcodeTests.result(name).0, device = try device()
+        let reference = try Data(contentsOf: directory.appendingPathComponent(name + ".rgba32f"))
+        try #require(reference.count == width * height * 16)
+        let expected = reference.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+        let device = try device()
 
         let output = try F5CurvatureOutput.write(source, nativeWidth: width, nativeHeight: height, metadata: metadata, matrix: identity, device: device)
 
-        let data = try output.camera.mappedData(expectedBytes: width * height * 16)
+        let camera = try #require(output.camera)
+        let data = try camera.mappedData(expectedBytes: width * height * 16)
         let maximum = data.withUnsafeBytes { bytes in
             zip(bytes.bindMemory(to: Float.self), expected).reduce(Float(0)) { max($0, abs($1.0 - $1.1)) }
         }
         let linearTolerance: Float = 2e-5 // Shared FP32 post-op linear-light budget, including HDR gain.
         #expect(maximum < linearTolerance)
         #expect(device.allocatedBytes == 0)
+    }
+
+    @Test(arguments: ["gain_rgb", "gain_before_warp", "gain_after_warp", "gain_warp_gain", "partial_planes_broadcast", "hdr_extension"])
+    func stage3Operations_doNotAlsoEnterRAWPrediction(name: String) throws {
+        let file = TestResources.fixtures.appendingPathComponent("f5-post-operations/" + name + ".dng")
+        let metadata = try F5DNGMetadata.read(Data(contentsOf: file))
+
+        let raw = try F5RAWCorrections(metadata: metadata)
+
+        #expect(raw.gains.isEmpty)
     }
 
     @Test func fullWidthStrips_preservePixelOrderAndRemainderWithoutOperations() throws {
@@ -47,7 +63,8 @@ struct F5CurvatureOutputTests {
         let output = try F5CurvatureOutput.write(source, nativeWidth: 520, nativeHeight: 18, metadata: metadata, matrix: identity, device: device)
 
         let expected = try source.file.mappedData(expectedBytes: source.width * source.height * 16)
-        #expect(try output.camera.mappedData(expectedBytes: expected.count) == expected)
+        let camera = try #require(output.camera)
+        #expect(try camera.mappedData(expectedBytes: expected.count) == expected)
         #expect(try output.linear.mappedData(expectedBytes: expected.count) == expected)
     }
 

@@ -13,14 +13,15 @@ public struct CaptureSnapshot: Codable, Sendable {
 
     public init(recipe: ProcessingRecipe, output: ExportSettings, quality: CaptureQuality = .balanced, f5: (any CaptureProvenance)? = nil, archiveF5RAW: Bool = false, rawArchiveID: UUID? = nil) {
         self.recipe = recipe
-        self.output = quality.usesBayer ? ExportSettings(targetWidth:nil,targetHeight:nil,framing:output.framing) : output
+        self.output = .camera24(framing: output.framing)
         self.quality = quality; self.f5 = f5; self.archiveF5RAW = archiveF5RAW; self.rawArchiveID = rawArchiveID
     }
     private enum CodingKeys: String, CodingKey { case recipe, output, quality, f5, archiveF5RAW, rawArchiveID }
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         recipe = try values.decode(ProcessingRecipe.self, forKey: .recipe)
-        output = try values.decode(ExportSettings.self, forKey: .output)
+        let savedOutput = try values.decode(ExportSettings.self, forKey: .output)
+        output = .camera24(framing: savedOutput.framing)
         quality = try values.decodeIfPresent(CaptureQuality.self, forKey: .quality) ?? .balanced
         if values.contains(.f5), try !values.decodeNil(forKey: .f5) {
             let formats = decoder.userInfo[CaptureFormats.decoderKey] as? CaptureFormats ?? CaptureFormats()
@@ -48,6 +49,17 @@ public struct SavedCapture: Identifiable, @unchecked Sendable {
     public let width: Int
     public let height: Int
     public let snapshot: CaptureSnapshot
+    public func loadFullPreview() async throws -> PreviewRaster {
+        let current = preview
+        let url = file.url
+        guard max(current.width, current.height) < 512,
+              FileManager.default.fileExists(atPath: url.path) else {
+            return current
+        }
+        return try await Task.detached(priority: .userInitiated) {
+            try ImagePipeline.decodePreviewRaster(at: url, maximumEdge: 2048).raster
+        }.value
+    }
     public var resolutionDescription: String? {
         if let f5 = snapshot.f5 {
             return f5.resolutionDescription(width: width, height: height)
@@ -140,15 +152,10 @@ public final class CaptureWorkflow: ObservableObject {
         nonisolated private static func review(_ file: TemporaryHEIFFile, snapshot: CaptureSnapshot,
                                                control: CaptureProcessingControl) throws -> SavedCapture {
             if control.isStopped { throw CancellationError() }
-            let data = try Data(contentsOf: file.url)
-            let decoded = try ImagePipeline.load(data: data, fileExtension: "heic")
+            let decoded = try ImagePipeline.decodePreviewRaster(at: file.url, maximumEdge: 160)
             if control.isStopped { throw CancellationError() }
-            guard let container = CGImageSourceCreateWithData(data as CFData, nil),
-                  let properties = CGImageSourceCopyPropertiesAtIndex(container, 0, nil) as? [String: Any],
-                  let width = properties[kCGImagePropertyPixelWidth as String] as? NSNumber,
-                  let height = properties[kCGImagePropertyPixelHeight as String] as? NSNumber else { throw PipelineError.encoding }
-            return SavedCapture(file: file, preview: decoded.original, width: width.intValue,
-                                height: height.intValue, snapshot: snapshot)
+            return SavedCapture(file: file, preview: decoded.raster, width: decoded.pixelWidth,
+                                height: decoded.pixelHeight, snapshot: snapshot)
         }
     }
 
@@ -161,6 +168,7 @@ public final class CaptureWorkflow: ObservableObject {
         var photosConfirmed = false
         var confirmedSaveFailure: String?
         var unsubmittedAttempt: UUID?
+        var captureSubmitted = false
     }
     @Published public private(set) var phase: Phase = .idle
     @Published public private(set) var progress = 0.0
@@ -191,6 +199,9 @@ public final class CaptureWorkflow: ObservableObject {
         }
     }
     public var canRetry: Bool { phase == .failed && (restoreFailed || job?.source != nil || job?.encoded != nil) }
+    public var requiresDiscardConfirmation: Bool {
+        phase == .failed && (restoreFailed || job?.captureSubmitted == true || job?.source != nil || job?.encoded != nil)
+    }
     public var pendingCapture: SavedCapture? { job?.encoded }
     public var pendingDate: Date? { job?.record?.createdAt }
     public var status: String {
@@ -249,7 +260,7 @@ public final class CaptureWorkflow: ObservableObject {
 
     private func submitAuthorizedCapture() {
         guard foreground, let pending = authorizedCapture, job?.id == pending.id, phase == .authorizing else { return }
-        authorizedCapture = nil; phase = .capturing
+        authorizedCapture = nil; job?.captureSubmitted = true; phase = .capturing
         pending.takePhoto { [self] result in receive(result, id: pending.id) }
     }
 
@@ -258,7 +269,7 @@ public final class CaptureWorkflow: ObservableObject {
         switch result {
         case .failure(let error): fail(error, id: id)
         case .success(let photo):
-            if let snapshot = job?.snapshot, snapshot.output.cameraMegapixels != nil {
+            if let snapshot = job?.snapshot, photo.framing != CaptureFraming() {
                 guard photo.framing.isValid else { fail(CaptureJournal.Failure.damaged, id: id); return }
                 job?.snapshot = CaptureSnapshot(recipe: snapshot.recipe, output: snapshot.output.withFraming(photo.framing), quality: snapshot.quality,archiveF5RAW:snapshot.archiveF5RAW,rawArchiveID:snapshot.rawArchiveID)
             }
@@ -283,11 +294,11 @@ public final class CaptureWorkflow: ObservableObject {
             if current.record != nil { return }
             let snapshot = current.snapshot
             if case .burst(let burst) = source {
-                let record = try await Task.detached(priority: .userInitiated) {
+                let retained = try await Task.detached(priority: .userInitiated) {
                     try journal.retainBurst(burst, id: id, snapshot: snapshot)
                 }.value
                 guard job?.id == id else { return }
-                job?.record = record; job?.source = .burst(try journal.retainedPayload(for: record))
+                job?.record = retained.record; job?.source = .burst(retained.payload)
                 return
             }
             let result = try await Task.detached(priority: .userInitiated) {
@@ -339,13 +350,11 @@ public final class CaptureWorkflow: ObservableObject {
             failureMessage = nil; needsPhotosPermission = false; progress = 0
             return
         }
-        let id = job?.id
         phase = .retaining
         task = Task {
             do {
                 if let journal {
-                    if let id, job?.record != nil { try await Task.detached { try journal.clear(id: id) }.value }
-                    else { try await Task.detached { try journal.discardUnreadable() }.value }
+                    try await Task.detached { try journal.discard() }.value
                 }
                 job = nil; task = nil; authorizedCapture = nil; phase = .idle; restored = true; restoreFailed = false
                 failureMessage = nil; needsPhotosPermission = false; progress = 0
@@ -394,7 +403,10 @@ public final class CaptureWorkflow: ObservableObject {
                     let report: @Sendable (Double) -> Void = { [weak self] value in
                         Task { @MainActor in
                             guard let self, self.job?.id == id, self.phase == .processing else { return }
-                            self.progress = min(1, max(0, value))
+                            let clamped = min(1, max(0, value))
+                            if clamped == 0 || clamped == 1 || Int(clamped * 100) != Int(self.progress * 100) {
+                                self.progress = clamped
+                            }
                         }
                     }
                     if let process = services.processWithControl { encoded = try await process(source, current.snapshot, report, control) }
@@ -446,7 +458,7 @@ public final class CaptureWorkflow: ObservableObject {
                 let attempt = job?.record?.attemptID
                 let record = try await Task.detached { try journal.confirmSaved(id: id, attemptID: attempt) }.value
                 job?.record = record
-                try await Task.detached { try journal.clear(id: id) }.value
+                try await Task.detached { try journal.finishSaved(id: id) }.value
             }
             guard let encoded = job?.encoded else { throw CaptureJournal.Failure.damaged }
             latest = encoded; job = nil; phase = .idle; progress = 1; task = nil
@@ -467,18 +479,19 @@ public final class CaptureWorkflow: ObservableObject {
         let control = CaptureProcessingControl(); processingControl = control
         task = Task {
             do {
-                guard let record = try await Task.detached(operation: { try journal.load() }).value else {
+                guard let retained = try await Task.detached(operation: { try journal.load() }).value else {
                     restored = true; phase = .idle; task = nil; processingControl = nil; return
                 }
+                let record = retained.record
                 if record.stage == .savedConfirmed {
-                    try await Task.detached { try journal.clear(id: record.id) }.value
+                    try await Task.detached { try journal.finishSaved(id: record.id) }.value
                     restored = true; phase = .idle; task = nil; processingControl = nil; return
                 }
                 if control.isStopped || !foreground { throw CancellationError() }
                 var recovered = Job(id: record.id, snapshot: record.snapshot, record: record)
                 if record.stage == .rawReady {
-                    if journal.hasPayload(for: record) {
-                        recovered.source = .burst(try await Task.detached { try journal.retainedPayload(for: record) }.value)
+                    if let payload = retained.payload {
+                        recovered.source = .burst(payload)
                     } else {
                         recovered.source = .file(try await Task.detached { try SourceImageFile(retainedURL: journal.rawURL, fileExtension: "dng") }.value)
                     }

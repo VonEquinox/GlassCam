@@ -34,25 +34,62 @@
 - (int)readError { return _failure.load(std::memory_order_relaxed); }
 - (CIImage *)imageWithColorSpace:(CGColorSpaceRef)colorSpace {
     return [CIImage imageWithImageProvider:self size:_width :_height format:kCIFormatRGBAf colorSpace:colorSpace
-                                 options:@{kCIImageProviderTileSize: @[@512, @64]}];
+                                 options:@{kCIImageProviderTileSize: @[@256, @256]}];
 }
 - (void)provideImageData:(void *)data bytesPerRow:(size_t)rowBytes origin:(size_t)x :(size_t)y
                     size:(size_t)width :(size_t)height userInfo:(id)info {
     // pread is safe for concurrent Core Image requests and never changes a
     // shared file offset. Edge tiles may extend beyond the image rectangle.
-    for (size_t row = 0; row < height; ++row) {
-        auto destination = static_cast<unsigned char *>(data) + row * rowBytes;
-        std::memset(destination, 0, rowBytes);
-        if (x >= _width || y >= _height || row >= _height - y) continue;
-        size_t remaining = std::min(width, _width - x) * 16;
-        if (remaining > rowBytes) { _failure.store(EINVAL, std::memory_order_relaxed); continue; }
-        off_t offset = off_t(((y + row) * _width + x) * 16);
+    auto *base = static_cast<unsigned char *>(data);
+    if (x >= _width || y >= _height || height == 0) {
+        std::memset(base, 0, height * rowBytes);
+        return;
+    }
+    const size_t validRows = std::min(height, _height - y);
+    const size_t validCols = std::min(width, _width - x);
+    const size_t validRowBytes = validCols * 16;
+    if (validRowBytes > rowBytes) {
+        _failure.store(EINVAL, std::memory_order_relaxed);
+        std::memset(base, 0, height * rowBytes);
+        return;
+    }
+    if (x == 0 && validCols == _width && rowBytes == validRowBytes) {
+        size_t remaining = validRows * validRowBytes;
+        auto *destination = base;
+        off_t offset = off_t(y * _width * 16);
         while (remaining) {
             const ssize_t count = pread(_descriptor, destination, remaining, offset);
             if (count < 0 && errno == EINTR) continue;
-            if (count <= 0) { _failure.store(count < 0 ? errno : EIO, std::memory_order_relaxed); break; }
+            if (count <= 0) {
+                _failure.store(count < 0 ? errno : EIO, std::memory_order_relaxed);
+                std::memset(destination, 0, remaining);
+                break;
+            }
             destination += count; offset += count; remaining -= size_t(count);
         }
+    } else {
+        for (size_t row = 0; row < validRows; ++row) {
+            auto *rowStart = base + row * rowBytes;
+            auto *destination = rowStart;
+            size_t remaining = validRowBytes;
+            off_t offset = off_t(((y + row) * _width + x) * 16);
+            while (remaining) {
+                const ssize_t count = pread(_descriptor, destination, remaining, offset);
+                if (count < 0 && errno == EINTR) continue;
+                if (count <= 0) {
+                    _failure.store(count < 0 ? errno : EIO, std::memory_order_relaxed);
+                    std::memset(destination, 0, remaining);
+                    break;
+                }
+                destination += count; offset += count; remaining -= size_t(count);
+            }
+            if (rowBytes > validRowBytes) {
+                std::memset(rowStart + validRowBytes, 0, rowBytes - validRowBytes);
+            }
+        }
+    }
+    if (height > validRows) {
+        std::memset(base + validRows * rowBytes, 0, (height - validRows) * rowBytes);
     }
 }
 @end

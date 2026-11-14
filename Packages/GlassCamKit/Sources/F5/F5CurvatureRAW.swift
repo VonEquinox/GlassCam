@@ -10,14 +10,23 @@ final class F5CurvatureRAW {
     private let handle: OpaquePointer
     private let allocation: F5ExternalMetalAllocation
 
-    init(frames: [F5MetalFrame], device: F5MetalDevice) throws {
-        if device.isCancelled() { throw CancellationError() }
-        guard let first = frames.first, (1...5).contains(frames.count),
+    convenience init(frames: [F5MetalFrame], device: F5MetalDevice) throws {
+        guard let first = frames.first,
               frames.allSatisfy({ $0.uniforms.active.z == first.uniforms.active.z && $0.uniforms.active.w == first.uniforms.active.w }) else {
             throw F5Failure(.damagedBundle, "Curvature RAW frame dimensions disagree.")
         }
-        width = Int(first.uniforms.active.z); height = Int(first.uniforms.active.w); self.frames = frames.count; self.device = device
-        var configuration = gc_f5_curve_raw_config(width: UInt32(width), height: UInt32(height), frames: UInt32(frames.count),
+        try self.init(count: frames.count, width: Int(first.uniforms.active.z), height: Int(first.uniforms.active.w),
+                      device: device) { frames[$0] }
+    }
+
+    init(count: Int, width: Int, height: Int, device: F5MetalDevice,
+         frameProvider: (Int) throws -> F5MetalFrame) throws {
+        if device.isCancelled() { throw CancellationError() }
+        guard (1...5).contains(count), width >= 4, height >= 4 else {
+            throw F5Failure(.damagedBundle, "Curvature RAW frame dimensions disagree.")
+        }
+        self.width = width; self.height = height; self.frames = count; self.device = device
+        var configuration = gc_f5_curve_raw_config(width: UInt32(width), height: UInt32(height), frames: UInt32(count),
             maximum_bytes: UInt64(device.maximumBytes - device.allocatedBytes))
         var error = gc_f5_curve_error()
         guard let raw = gc_f5_curve_raw_create(&configuration,
@@ -30,16 +39,22 @@ final class F5CurvatureRAW {
         var temporary: F5ExternalMetalAllocation?
         do {
             temporary = try device.retainExternalAllocation(Int(gc_f5_curve_raw_allocated_bytes(raw)))
-            for (index, frame) in frames.enumerated() {
-                if device.isCancelled() { throw CancellationError() }
-                var uniforms = frame.uniforms
-                withUnsafeBytes(of: &uniforms) { bytes in
-                    _ = gc_f5_curve_raw_decode(raw, UInt32(index),
-                        Unmanaged.passUnretained(frame.raw.metal as AnyObject).toOpaque(),
-                        Unmanaged.passUnretained(frame.table.metal as AnyObject).toOpaque(),
-                        bytes.baseAddress, UInt32(bytes.count), &error)
+            for index in 0..<count {
+                try autoreleasepool {
+                    if device.isCancelled() { throw CancellationError() }
+                    let frame = try frameProvider(index)
+                    guard Int(frame.uniforms.active.z) == width, Int(frame.uniforms.active.w) == height else {
+                        throw F5Failure(.damagedBundle, "Curvature RAW frame dimensions disagree.")
+                    }
+                    var uniforms = frame.uniforms
+                    withUnsafeBytes(of: &uniforms) { bytes in
+                        _ = gc_f5_curve_raw_decode(raw, UInt32(index),
+                            Unmanaged.passUnretained(frame.raw.metal as AnyObject).toOpaque(),
+                            Unmanaged.passUnretained(frame.table.metal as AnyObject).toOpaque(),
+                            bytes.baseAddress, UInt32(bytes.count), &error)
+                    }
+                    try F5CurvatureNative.check(error)
                 }
-                try F5CurvatureNative.check(error)
             }
             _ = gc_f5_curve_raw_repair(raw, &error)
             try F5CurvatureNative.check(error)

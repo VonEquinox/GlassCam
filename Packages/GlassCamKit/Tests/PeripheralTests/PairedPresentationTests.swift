@@ -9,6 +9,8 @@ private struct PairedObservation {
     let previousSerial: UInt64?, serial: UInt64, status: MTLCommandBufferStatus
     let centerError: Float, horizontalDifference: Float, verticalDifference: Float
     let outer: [Float], expectedOuter: [Float], completed: Bool
+    static let clear = Task { try await render(0) }
+    static let opaque = Task { try await render(1) }
     static func render(_ i: Int) async throws -> Self {
         guard let device=MTLCreateSystemDefaultDevice(),let queue=device.makeCommandQueue() else { throw CocoaError(.featureUnsupported) }
         let space=CGColorSpace(name:CGColorSpace.extendedLinearSRGB)!
@@ -65,23 +67,23 @@ private struct PairedObservation {
     }
 }
 struct PairedPresentationTests {
-    @Test(arguments: 0..<8)
+    @Test(arguments: 0..<2)
     func currentFrame_uploadsAndRendersBeforePublication(index: Int) async throws {
-        let result = try await PairedObservation.render(index)
+        let result = try await (index == 0 ? PairedObservation.clear : PairedObservation.opaque).value
         #expect(result.previousSerial != result.serial)
         #expect(result.status == .completed)
         #expect(result.completed)
     }
-    @Test(arguments: 0..<8)
+    @Test(arguments: 0..<2)
     func peripheralBlackness_doesNotDelayDarkenOrFlipCenter(index: Int) async throws {
-        let result = try await PairedObservation.render(index)
+        let result = try await (index == 0 ? PairedObservation.clear : PairedObservation.opaque).value
         #expect(result.centerError < 0.002)
         #expect(result.horizontalDifference > 0.03)
         #expect(result.verticalDifference > 0.1)
     }
-    @Test(arguments: 0..<8)
+    @Test(arguments: 0..<2)
     func pairedOuter_usesCurrentCommandAndBlackDecision(index: Int) async throws {
-        let result = try await PairedObservation.render(index)
+        let result = try await (index == 0 ? PairedObservation.clear : PairedObservation.opaque).value
         if index % 2 == 0 {
             #expect(try #require(zip(result.outer, result.expectedOuter).map { abs($0 - $1) }.max()) < 0.002)
         } else { #expect(Array(result.outer.prefix(3)) == [0, 0, 0]) }

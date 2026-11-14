@@ -42,8 +42,6 @@ public struct PeripheralAlignmentResult {
     package var photometryExpiresAt = 0.0
     package var centerPTS: Double?
     public var outerPTS: Double?
-    package var motionDistance = 0.0
-    package var motionGeneration: UInt64 = 0
     package var inputPair: PeripheralFrameSource.Pair?
     public var edgeGains = PeripheralEdgeGains()
     public var gateReasons: [String] = []

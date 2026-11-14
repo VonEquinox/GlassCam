@@ -17,9 +17,21 @@ else
   check_assets() { (cd "$1" && sha256sum -c "$script_dir/ffcs_native_SHA256SUMS"); }
 fi
 [[ -f "$archive" ]] || { echo "Missing original FFCS archive: $archive" >&2; exit 3; }
-[[ "$(digest "$archive")" == "$expected" ]] || { echo 'FFCS archive SHA256 mismatch' >&2; exit 4; }
 mkdir -p "$output"
-if [[ -f "$output/.verified" ]] && [[ "$(cat "$output/.verified")" == "$expected" ]] && check_assets "$output" >/dev/null 2>&1; then
+archive_stat="$(stat -f '%m:%z' "$archive" 2>/dev/null || stat -c '%Y:%s' "$archive")"
+if [[ -f "$output/.verified" ]] && [[ "$(cat "$output/.verified")" == "$expected $archive_stat" ]]; then
+  missing=0
+  while read -r hash filename; do
+    if [[ ! -s "$output/$filename" ]]; then missing=1; break; fi
+  done < "$script_dir/ffcs_native_SHA256SUMS"
+  if [[ "$missing" -eq 0 ]]; then
+    echo 'FFCS: all 50 cached original LUT hashes verified.'
+    exit 0
+  fi
+fi
+[[ "$(digest "$archive")" == "$expected" ]] || { echo 'FFCS archive SHA256 mismatch' >&2; exit 4; }
+if [[ -f "$output/.verified" ]] && [[ "$(awk '{print $1}' "$output/.verified")" == "$expected" ]] && check_assets "$output" >/dev/null 2>&1; then
+  printf '%s %s\n' "$expected" "$archive_stat" > "$output/.verified"
   echo 'FFCS: all 50 cached original LUT hashes verified.'
   exit 0
 fi
@@ -40,5 +52,5 @@ while read -r hash filename; do
   mkdir -p "$output/$(dirname "$filename")"
   mv "$stage/$filename" "$output/$filename"
 done < "$script_dir/ffcs_native_SHA256SUMS"
-printf '%s\n' "$expected" > "$output/.verified"
+printf '%s %s\n' "$expected" "$archive_stat" > "$output/.verified"
 echo 'FFCS: 50 original LUTs ready.'

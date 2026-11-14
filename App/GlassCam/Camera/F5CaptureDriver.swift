@@ -197,26 +197,49 @@ final class F5CaptureDriver: NSObject, AVCapturePhotoCaptureDelegate {
         do {
             guard let dng=photo.fileDataRepresentation(),!dng.isEmpty else {throw F5Failure(.unsupportedRAW,"The callback did not contain an original RAW file.")}
             let requestID=photo.resolvedSettings.uniqueID,sequence=photo.sequenceCount
-            _ = try transaction.retainDelivery(requestID:requestID,sequenceCount:sequence,dng:dng)
-            if let error {throw error}
-            guard let buffer=photo.pixelBuffer,AVCapturePhotoOutput.isBayerRAWPixelFormat(CVPixelBufferGetPixelFormatType(buffer)) else {throw F5Failure(.unsupportedRAW,"The callback did not contain a standard Bayer buffer.")}
-            let width = CVPixelBufferGetWidth(buffer), height = CVPixelBufferGetHeight(buffer), stride = CVPixelBufferGetBytesPerRow(buffer)
-            let format = CVPixelBufferGetPixelFormatType(buffer)
-            guard [kCVPixelFormatType_14Bayer_RGGB, kCVPixelFormatType_14Bayer_GRBG, kCVPixelFormatType_14Bayer_BGGR, kCVPixelFormatType_14Bayer_GBRG].contains(format),
-                  !CVPixelBufferIsPlanar(buffer), width > 0, height > 0, stride >= width * 2,
-                  height <= Int.max / stride, stride * height <= 128 * 1024 * 1024 else { throw F5Failure(.unsupportedRAW, "Unqualified Bayer buffer layout.") }
-            guard CVPixelBufferLockBaseAddress(buffer, .readOnly) == kCVReturnSuccess else { throw F5Failure(.memoryPressure, "Cannot map the Bayer buffer.") }
-            let mosaic: Data
-            if let address = CVPixelBufferGetBaseAddress(buffer) { mosaic = Data(bytes: address, count: stride * height) }
-            else { CVPixelBufferUnlockBaseAddress(buffer, .readOnly); throw F5Failure(.unsupportedRAW, "Missing Bayer plane.") }
-            CVPixelBufferUnlockBaseAddress(buffer, .readOnly)
-            let delivery=try transaction.retainDelivery(requestID:requestID,sequenceCount:sequence,dng:dng,mosaic:mosaic)
+            let extractedBuffer: Result<(mosaic: Data, width: Int, height: Int, stride: Int, format: OSType), Error>
+            if let error {
+                extractedBuffer = .failure(error)
+            } else if let buffer = photo.pixelBuffer, AVCapturePhotoOutput.isBayerRAWPixelFormat(CVPixelBufferGetPixelFormatType(buffer)) {
+                let width = CVPixelBufferGetWidth(buffer), height = CVPixelBufferGetHeight(buffer), stride = CVPixelBufferGetBytesPerRow(buffer)
+                let format = CVPixelBufferGetPixelFormatType(buffer)
+                if [kCVPixelFormatType_14Bayer_RGGB, kCVPixelFormatType_14Bayer_GRBG, kCVPixelFormatType_14Bayer_BGGR, kCVPixelFormatType_14Bayer_GBRG].contains(format),
+                   !CVPixelBufferIsPlanar(buffer), width > 0, height > 0, stride >= width * 2,
+                   height <= Int.max / stride, stride * height <= 128 * 1024 * 1024 {
+                    if CVPixelBufferLockBaseAddress(buffer, .readOnly) == kCVReturnSuccess {
+                        if let address = CVPixelBufferGetBaseAddress(buffer) {
+                            let mosaic = Data(bytes: address, count: stride * height)
+                            CVPixelBufferUnlockBaseAddress(buffer, .readOnly)
+                            extractedBuffer = .success((mosaic, width, height, stride, format))
+                        } else {
+                            CVPixelBufferUnlockBaseAddress(buffer, .readOnly)
+                            extractedBuffer = .failure(F5Failure(.unsupportedRAW, "Missing Bayer plane."))
+                        }
+                    } else {
+                        extractedBuffer = .failure(F5Failure(.memoryPressure, "Cannot map the Bayer buffer."))
+                    }
+                } else {
+                    extractedBuffer = .failure(F5Failure(.unsupportedRAW, "Unqualified Bayer buffer layout."))
+                }
+            } else {
+                extractedBuffer = .failure(F5Failure(.unsupportedRAW, "The callback did not contain a standard Bayer buffer."))
+            }
             let timestamp = CMTimeGetSeconds(photo.timestamp), callback = ProcessInfo.processInfo.systemUptime
             let lens = F5DeviceFacts.cameraID(camera), aperture = Double(camera.lensAperture), focus = Double(camera.lensPosition)
             let ois = photo.lensStabilizationStatus
             queue.async { [weak self] in
-                guard let self, self.completion != nil else { return }
+                guard let self else { return }
                 do {
+                    let (mosaic, width, height, stride, format): (Data, Int, Int, Int, OSType)
+                    switch extractedBuffer {
+                    case .success(let payload):
+                        (mosaic, width, height, stride, format) = payload
+                    case .failure(let failure):
+                        _ = try? self.transaction.retainDelivery(requestID: requestID, sequenceCount: sequence, dng: dng)
+                        throw failure
+                    }
+                    let delivery = try self.transaction.retainDelivery(requestID: requestID, sequenceCount: sequence, dng: dng, mosaic: mosaic)
+                    guard self.completion != nil else { return }
                     try self.check()
                     let index = try self.transaction.plannedIndex(requestID: requestID, sequenceCount: sequence)
                     let metadata = try F5DNGMetadata.read(dng)

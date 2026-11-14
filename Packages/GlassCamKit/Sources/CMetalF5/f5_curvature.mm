@@ -232,12 +232,35 @@ struct gc_f5_curvature {
         check(clear.status == MTLCommandBufferStatusCompleted, 3, "Curvature overlap initialization failed.");
         *static_cast<uint32_t *>(outputFailure.contents) = 0;
         const simd_uint4 shape{config.width * config.scale, config.height * config.scale, config.scale, 64 * config.scale};
-        uint32_t written = 0, slotIndex = 0;
+        uint32_t scheduled = 0, written = 0, pendingRows = 0, slotIndex = 0;
+        struct PendingStrip {
+            id<MTLCommandBuffer> command = nil;
+            ~PendingStrip() { if (command && command.status != MTLCommandBufferStatusNotEnqueued) [command waitUntilCompleted]; }
+        } pendingStrip;
+        const auto retireStrip = [&] {
+            if (!pendingStrip.command) return;
+            [pendingStrip.command waitUntilCompleted];
+            check(pendingStrip.command.status == MTLCommandBufferStatusCompleted, 3, "Curvature output normalization failed.");
+            pendingStrip.command = nil;
+            check(*static_cast<uint32_t *>(outputFailure.contents) == 0, 3, "Curvature overlap-add has missing or non-finite support.");
+            cancelled();
+            auto *cursor = static_cast<const uint8_t *>(strip.contents);
+            size_t remaining = size_t(shape.x) * pendingRows * 16;
+            while (remaining) {
+                const ssize_t n = write(fd, cursor, remaining);
+                if (n < 0 && errno == EINTR) continue;
+                if (n <= 0) throw Failure{5, "Cannot write curvature output strip.", n < 0 ? errno : EIO};
+                cursor += n; remaining -= size_t(n);
+            }
+            written += pendingRows;
+            pendingRows = 0;
+        };
         const auto flush = [&](uint32_t end) {
-            while (written < end) {
+            while (scheduled < end) {
                 @autoreleasepool {
                     cancelled();
-                    const simd_uint2 rows{written, std::min(16 * config.scale, end - written)};
+                    retireStrip();
+                    const simd_uint2 rows{scheduled, std::min(16 * config.scale, end - scheduled)};
                     id<MTLCommandBuffer> command = [queue commandBuffer];
                     check(command != nil, 2, "Cannot normalize curvature output.");
                     id<MTLComputeCommandEncoder> e = [command computeCommandEncoder];
@@ -246,20 +269,10 @@ struct gc_f5_curvature {
                     [e setBuffer:ring offset:0 atIndex:0]; [e setBuffer:strip offset:0 atIndex:1]; [e setBuffer:outputFailure offset:0 atIndex:2];
                     [e setBytes:&shape length:sizeof(shape) atIndex:3]; [e setBytes:&rows length:sizeof(rows) atIndex:4];
                     [e dispatchThreadgroups:MTLSizeMake((size_t(shape.x) * rows.y + 255) / 256, 1, 1) threadsPerThreadgroup:MTLSizeMake(256, 1, 1)];
-                    [e endEncoding]; [command commit]; [command waitUntilCompleted];
-                    check(command.status == MTLCommandBufferStatusCompleted, 3, "Curvature output normalization failed.");
-                    for (auto &slot : work) retire(*slot);
-                    check(*static_cast<uint32_t *>(outputFailure.contents) == 0, 3, "Curvature overlap-add has missing or non-finite support.");
-                    cancelled();
-                    auto *cursor = static_cast<const uint8_t *>(strip.contents);
-                    size_t remaining = size_t(shape.x) * rows.y * 16;
-                    while (remaining) {
-                        const ssize_t n = write(fd, cursor, remaining);
-                        if (n < 0 && errno == EINTR) continue;
-                        if (n <= 0) throw Failure{5, "Cannot write curvature output strip.", n < 0 ? errno : EIO};
-                        cursor += n; remaining -= size_t(n);
-                    }
-                    written += rows.y;
+                    [e endEncoding]; [command commit];
+                    pendingStrip.command = command;
+                    pendingRows = rows.y;
+                    scheduled += rows.y;
                 }
             }
         };
@@ -283,9 +296,12 @@ struct gc_f5_curvature {
                 }
             }
             flush(std::min(shape.y, uint32_t(std::max(0, top + 16)) * config.scale));
-            if (callbacks.progress) callbacks.progress(callbacks.context, double(written) / shape.y);
+            if (callbacks.progress && scheduled < shape.y) callbacks.progress(callbacks.context, double(scheduled) / shape.y);
         }
-        flush(shape.y); cancelled();
+        flush(shape.y);
+        for (auto &slot : work) retire(*slot);
+        retireStrip();
+        cancelled();
         if (callbacks.progress) callbacks.progress(callbacks.context, 1);
     }
 };

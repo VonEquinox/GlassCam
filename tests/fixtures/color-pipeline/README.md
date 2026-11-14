@@ -8,4 +8,4 @@
 git show eb4e551:GlassCamPrototype/tests/fixtures/color-pipeline-v1-exposure.json > tests/fixtures/color-pipeline/color-pipeline-v1-exposure.json
 ```
 
-版本兼容与曝光顺序见 [RAW 解码与导出](../../../docs/raw-decode-and-export.md)。
+版本兼容与曝光顺序见 [图像管线与成片导出](../../../docs/image-pipeline.md)。

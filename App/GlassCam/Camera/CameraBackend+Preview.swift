@@ -12,13 +12,31 @@ extension CameraBackend {
     /// Probe the selected physical camera in .photo first. Independent inputs
     /// keep the wider lens uncropped while the center follows the requested zoom.
     func promotePreview(configuration plan: PreviewConfiguration, orientation value: UIInterfaceOrientation,
-                                photo: PhotoCapability) throws -> PhotoCapability {
+                                photo: PhotoCapability,
+                                centerDevice: AVCaptureDevice? = nil) throws -> PhotoCapability {
+        let resolvedCenter = centerDevice ?? devices.first
         guard AVCaptureMultiCamSession.isMultiCamSupported,
-              let center = devices.first, !center.isVirtualDevice,
-              let centerLens = lensCatalog.first(where: { $0.device.uniqueID == center.uniqueID }) else { return photo }
+              let center = resolvedCenter, !center.isVirtualDevice,
+              let centerLens = lensCatalog.first(where: { $0.device.uniqueID == center.uniqueID }) else {
+            if session == nil {
+                let restored = try buildSinglePhotoGraph(configuration: plan, orientation: value, expected: nil, includePreview: true)
+                dimensions = restored.dimensions
+                try waitForPreviewFrames()
+                return restored
+            }
+            return photo
+        }
         let outerChoices = lensCatalog.filter { $0.displayedZoom < centerLens.displayedZoom - 0.0001 }
             .sorted { $0.displayedZoom > $1.displayedZoom }
-        guard !outerChoices.isEmpty else { return photo }
+        guard !outerChoices.isEmpty else {
+            if session == nil {
+                let restored = try buildSinglePhotoGraph(configuration: plan, orientation: value, expected: nil, includePreview: true)
+                dimensions = restored.dimensions
+                try waitForPreviewFrames()
+                return restored
+            }
+            return photo
+        }
         let discovery = AVCaptureDevice.DiscoverySession(deviceTypes:[.builtInUltraWideCamera,.builtInWideAngleCamera,.builtInTelephotoCamera],
             mediaType:.video,position:.back)
         let supportedSets = discovery.supportedMultiCamDeviceSets.map { Set($0.map(\.uniqueID)) }
@@ -204,13 +222,16 @@ extension CameraBackend {
 
     private func waitForPeripheralFrames() throws {
         let deadline = DispatchTime.now() + 2
+        let semaphore = DispatchSemaphore(value: 0)
+        peripheralFrameSource?.observeFrames { semaphore.signal() }
+        defer { peripheralFrameSource?.observeFrames(nil) }
         while peripheralFrameSource?.latest() == nil {
             try validateRunningGraph()
             if DispatchTime.now() >= deadline {
                 PeripheralDiagnostics.trace("peripheral readiness timed out: \(peripheralFrameSource?.diagnosticState() ?? "no source")")
                 throw CameraFailure("The wider camera did not deliver synchronized video.")
             }
-            Thread.sleep(forTimeInterval: 0.01)
+            _ = semaphore.wait(timeout: .now() + 0.05)
         }
     }
 

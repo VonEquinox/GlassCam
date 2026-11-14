@@ -32,7 +32,7 @@ enum F5Fixtures {
             likelihood:.init(revision:"f5-pg-v1",table:nil,nllMaximumError:0,standardizedScoreMaximumError:0,gaussianMinimumElectrons:nil,exactMaximumElectrons:2000),policy:policy,
             rawCodeRange:[0,nativeMaximum],targetDeviceName:"SYNTHETIC_NOT_IPHONE",
             bufferCodeMapping:.init(divisor:codeDivisor,dngStage1Rounding:"floor",evidenceSHA256:F5Hash.data(Data("synthetic-fixture-only".utf8))))
-        let snapshot=CaptureSnapshot(recipe:.standard,output:.camera(48),quality:quality)
+        let snapshot=CaptureSnapshot(recipe:.standard,output:.camera24(),quality:quality)
         let transaction=try F5BurstTransaction(snapshot:snapshot,purpose:purpose,root:directory)
         let groups = try F5ExposurePlan.groups(maxBracketCount: 3,frameCount: frameCount)
         for (i,group) in groups.enumerated() { try transaction.register(requestID: Int64(101+i),indices: group) }

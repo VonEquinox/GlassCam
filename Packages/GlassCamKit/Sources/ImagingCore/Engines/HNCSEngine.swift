@@ -93,7 +93,7 @@ public enum HNCSEngine {
     private static let contextCache = ContextCache()
 
     static func renderWorkFile(_ source: CIImage, context: CIContext, to file: HNCSPresetWorkFile,
-                               recipe: ProcessingRecipe, isCancelled: @escaping () -> Bool,
+                               recipe: ProcessingRecipe, maximumRows: Int = 64, isCancelled: @escaping () -> Bool,
                                progress: @escaping (Double) -> Void) throws -> Float {
         let owner = try contextCache.context(exposure: recipe.backendExposureEV, kelvin: recipe.illuminantKelvin,
             settings: recipe.hncs, effects: recipe.effects, whiteBalance: recipe.photoWhiteBalance)
@@ -102,7 +102,7 @@ public enum HNCSEngine {
             try withExtendedLifetime(owner) {
                 try GCMetalColor.renderHNCS(source, context: context, reference: owner.pointer,
                     sourceExposure: Float(exp2(recipe.appliesExposureBeforeHighlights ? recipe.exposureEV : 0)),
-                    workers: workerCount(), toPath: file.url.path, maximum: &maximum,
+                    workers: workerCount(), maximumRows: UInt(maximumRows), toPath: file.url.path, maximum: &maximum,
                     cancelled: isCancelled, progress: progress)
             }
         } catch {

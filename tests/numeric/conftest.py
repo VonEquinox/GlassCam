@@ -17,21 +17,24 @@ def ffcs_resources():
     from materialize_ffcs_reference import PREFIX, verified_archive
     reference = ROOT / 'vendor/ffcs'
     manifest = json.loads((reference / 'validation/delivery_manifest.json').read_text())
-    with verified_archive(reference / 'source.zip') as archive:
-        for entry in manifest['files']:
-            path = Path(entry['path'])
-            if path.parts[:3] != ('implementation', 'ffcs', 'data') or path.suffix not in ('.lutz', '.icc'):
-                continue
-            if '..' in path.parts:
-                raise ValueError('Invalid reference asset path')
-            destination = reference / path
-            if destination.exists():
-                continue
-            data = archive.read(PREFIX + path.as_posix())
-            if hashlib.sha256(data).hexdigest() != entry['sha256']:
-                raise ValueError('Reference asset hash mismatch: ' + path.as_posix())
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_bytes(data)
+    needed = []
+    for entry in manifest['files']:
+        path = Path(entry['path'])
+        if path.parts[:3] != ('implementation', 'ffcs', 'data') or path.suffix not in ('.lutz', '.icc'):
+            continue
+        if '..' in path.parts:
+            raise ValueError('Invalid reference asset path')
+        if not (reference / path).exists():
+            needed.append((path, entry['sha256']))
+    if needed:
+        with verified_archive(reference / 'source.zip') as archive:
+            for path, digest in needed:
+                destination = reference / path
+                data = archive.read(PREFIX + path.as_posix())
+                if hashlib.sha256(data).hexdigest() != digest:
+                    raise ValueError('Reference asset hash mismatch: ' + path.as_posix())
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(data)
     subprocess.run(['bash', str(ROOT / 'scripts/prepare_ffcs_resources.sh'), str(reference / 'source.zip'),
                     str(ROOT / 'App/GlassCam/Resources/FFCS')], check=True)
 
@@ -55,8 +58,9 @@ def reference_assets():
 
 
 @pytest.fixture(scope='session')
-def lumix_resources(tmp_path_factory):
+def lumix_resources():
     from prepare_lumix_resources import prepare
-    output = tmp_path_factory.mktemp('lumix') / 'LUMIX'
+    output = ROOT / 'Packages/GlassCamKit/.build/test-resources/LUMIX'
     prepare(ROOT / 'vendor/lumix/source.zip', output)
+    prepare(ROOT / 'vendor/lumix/pipeline.zip', output)
     return output

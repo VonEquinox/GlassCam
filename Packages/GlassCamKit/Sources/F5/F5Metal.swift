@@ -5,7 +5,7 @@ import Metal
 import simd
 
 struct F5MetalFrame {
-    let raw, table, eligibility: F5MetalBuffer
+    let raw, table: F5MetalBuffer
     let uniforms: F5GPUFrame
     static func upload(_ frame: F5CanonicalFrame, to device: F5MetalDevice) throws -> F5MetalFrame {
         let m = frame.record.metadata, descriptor = frame.record.raster, profile = frame.profile, correction = frame.corrections
@@ -47,54 +47,6 @@ struct F5MetalFrame {
         }
         let rawBuffer = try device.upload(codes, label: "F5 original integer RAW")
         let tableBuffer = try device.upload(table, label: "F5 metadata tables")
-        let eligibilityBuffer = try device.upload([UInt32](repeating: .max,
-            count: (descriptor.activeArea.width * descriptor.activeArea.height + 31)/32), label: "F5 frozen eligibility")
-        return F5MetalFrame(raw: rawBuffer, table: tableBuffer, eligibility: eligibilityBuffer, uniforms: f)
-    }
-}
-
-struct F5LikelihoodTableHeader: Codable {
-    let revision: String, lambdaCount: Int, zCount: Int
-    let logLambdaMinimum: Float, logLambdaStep: Float, zMinimum: Float, zStep: Float
-    let intervalWidths: [Float]
-    let nllError: Double, scoreError: Double
-    let generatorSHA256: String
-    let noiseKappa: [Float]?, noiseReadSigma: [Float]?
-}
-struct F5MetalLikelihood {
-    let uniforms: F5GPULUT, table: F5MetalBuffer
-    static func load(profile: F5DeviceProfile, directory: URL, device: F5MetalDevice) throws -> F5MetalLikelihood {
-        var layout = SIMD4<UInt32>(repeating: 0), domain = SIMD4<Float>(0,1,-16,1), widths = SIMD4<Float>(repeating: 0)
-        var payload = Data(count: 16)
-        if let blob = profile.likelihood.table {
-            try blob.verify(in: directory)
-            let data = try Data(contentsOf: blob.url(in: directory), options: .mappedIfSafe), reader = F5Bytes(data, little: true)
-            let length = Int(try reader.u32(0))
-            guard length > 0, length <= 65536 else { throw F5Failure(.profileMismatch, "Invalid likelihood table header.") }
-            let header = try JSONDecoder().decode(F5LikelihoodTableHeader.self, from: reader.slice(4, length))
-            guard header.revision == "f5-pg-grid-v1", (2...8192).contains(header.lambdaCount), (2...8192).contains(header.zCount),
-                  header.intervalWidths.count == 4, header.intervalWidths.allSatisfy({ $0.isFinite && $0 > 0 }),
-                  header.logLambdaStep.isFinite, header.logLambdaStep > 0, header.zStep.isFinite, header.zStep > 0,
-                  header.logLambdaMinimum.isFinite,header.zMinimum.isFinite,
-                  header.nllError.isFinite,header.nllError>=0,header.nllError < 1e-4,
-                  header.scoreError.isFinite,header.scoreError>=0,header.scoreError < 1e-3,
-                  header.noiseKappa==profile.noise.map({Float($0.kappa)}),header.noiseReadSigma==profile.noise.map({Float($0.readSigma)}),
-                  F5Hash.isSHA256(header.generatorSHA256) else {
-                throw F5Failure(.profileMismatch, "Unverified likelihood lookup grid.")
-            }
-            let phaseStride = header.lambdaCount * header.zCount * 3
-            guard phaseStride <= Int.max/64, data.count == 4 + length + phaseStride*4*16 else { throw F5Failure(.damagedBundle, "Likelihood table byte length is incorrect.") }
-            payload = try reader.slice(4 + length, phaseStride*4*16)
-            let finite=payload.withUnsafeBytes { raw in raw.bindMemory(to:Float.self).enumerated().allSatisfy { index,value in
-                value.isFinite && (index%4 != 2 || value>=0) && (index%4 != 3 || (value>=0 && value<=1))
-            }}
-            guard finite else {throw F5Failure(.damagedBundle,"Invalid likelihood table values.")}
-            layout = SIMD4(UInt32(header.lambdaCount), UInt32(header.zCount), UInt32(phaseStride), 1)
-            domain = SIMD4(header.logLambdaMinimum, header.logLambdaStep, header.zMinimum, header.zStep)
-            widths = SIMD4(header.intervalWidths[0], header.intervalWidths[1], header.intervalWidths[2], header.intervalWidths[3])
-        }
-        let uniforms = F5GPULUT(layout: layout, domain: domain, width: widths,
-            limits: SIMD4(Float(profile.likelihood.exactMaximumElectrons), Float(profile.likelihood.gaussianMinimumElectrons ?? 0), 0, 0))
-        return try .init(uniforms: uniforms, table: device.upload(payload, label: "F5 certified event likelihood lookup"))
+        return F5MetalFrame(raw: rawBuffer, table: tableBuffer, uniforms: f)
     }
 }
