@@ -1,6 +1,16 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%lld sets · %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 组 · %2$@"
+          }
+        }
+      }
+    },
     "11 RAW samples saved.": {
       "localizations": {
         "zh-Hans": {
@@ -11,22 +21,52 @@
         }
       }
     },
-    "2× in each dimension": {
+    "1×": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "横纵各 2× 采样"
+            "value": "1×"
           }
         }
       }
     },
-    "2× sampling": {
+    "24 MP": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "2× 采样"
+            "value": "24 MP"
+          }
+        }
+      }
+    },
+    "2850K Cool": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2850K 冷调"
+          }
+        }
+      }
+    },
+    "3800K Neutral": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3800K 中性"
+          }
+        }
+      }
+    },
+    "5500K Daylight": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5500K 日光"
           }
         }
       }
@@ -51,6 +91,16 @@
         }
       }
     },
+    "Airy Shadow": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通透暗部"
+          }
+        }
+      }
+    },
     "Already in Photos": {
       "localizations": {
         "zh-Hans": {
@@ -67,6 +117,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "同时保留 Bayer 输入原片"
+          }
+        }
+      }
+    },
+    "Amber Warmth": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "琥珀暖调"
           }
         }
       }
@@ -97,6 +157,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "仅近似显示色彩；保存照片使用完整的所选效果。"
+          }
+        }
+      }
+    },
+    "Archive Balanced pre-color RAW": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "归档 Balanced 调色前 RAW"
+          }
+        }
+      }
+    },
+    "Archived RAW storage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已归档 RAW 占用"
           }
         }
       }
@@ -161,22 +241,22 @@
         }
       }
     },
-    "Balanced combines four equal-exposure Bayer RAW frames with curvature reconstruction at 2× sampling.": {
+    "Balanced": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Balanced 合成四张等曝光 Bayer RAW，使用曲率重建，横纵各 2× 采样。"
+            "value": "均衡"
           }
         }
       }
     },
-    "Balanced merged RAW is saved before color processing. Finished photos still save to Photos.": {
+    "Balanced combines four equal-exposure Bayer RAW frames with curvature reconstruction, then exports at 24 MP.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Balanced 合成 RAW 在调色前保存，成片仍保存到相册。"
+            "value": "Balanced 合成四张等曝光 Bayer RAW，使用曲率重建，最终输出 24MP。"
           }
         }
       }
@@ -201,12 +281,12 @@
         }
       }
     },
-    "Balanced · 4 RAW · 2× output grid": {
+    "Balanced · 4 RAW · 24 MP output": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Balanced · 4 帧 RAW · 2× 采样"
+            "value": "Balanced · 4 帧 RAW · 24MP 输出"
           }
         }
       }
@@ -267,6 +347,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "拍摄优先级"
+          }
+        }
+      }
+    },
+    "Capture status": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍摄状态"
           }
         }
       }
@@ -381,6 +471,46 @@
         }
       }
     },
+    "Cinema Curve": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "电影曲线"
+          }
+        }
+      }
+    },
+    "Cinema Soft": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "电影柔调"
+          }
+        }
+      }
+    },
+    "Clear archived RAW files": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清理已归档 RAW 文件"
+          }
+        }
+      }
+    },
+    "Close filter dial": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收起滤镜拨盘"
+          }
+        }
+      }
+    },
     "Color engine": {
       "localizations": {
         "zh-Hans": {
@@ -401,12 +531,12 @@
         }
       }
     },
-    "Color processing & preview": {
+    "Color processing, preview & RAW": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "色彩处理与预览"
+            "value": "色彩处理、预览与 RAW"
           }
         }
       }
@@ -451,6 +581,66 @@
         }
       }
     },
+    "Crisp Detail": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清晰细节"
+          }
+        }
+      }
+    },
+    "Crisp Negative": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "硬朗负片"
+          }
+        }
+      }
+    },
+    "Crisp Portrait": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "明快人像"
+          }
+        }
+      }
+    },
+    "Deep Contrast": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深邃反差"
+          }
+        }
+      }
+    },
+    "Deep Contrast B&W": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高反差黑白"
+          }
+        }
+      }
+    },
+    "Delete all archived RAW and sample files from Files → GlassCam? Saved photos in Photos are not affected.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除“文件”→ GlassCam 中所有已归档的 RAW 与样本文件？系统相册中已保存的照片不受影响。"
+          }
+        }
+      }
+    },
     "Discard photo": {
       "localizations": {
         "zh-Hans": {
@@ -481,6 +671,16 @@
         }
       }
     },
+    "Documentary": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "纪实低饱和"
+          }
+        }
+      }
+    },
     "Done": {
       "localizations": {
         "zh-Hans": {
@@ -491,12 +691,12 @@
         }
       }
     },
-    "Effect exposure": {
+    "Dynamic B&W": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "效果曝光"
+            "value": "动态黑白"
           }
         }
       }
@@ -507,16 +707,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "实验性实时色彩（近似）"
-          }
-        }
-      }
-    },
-    "F5 combines four main exposures and one short exposure. It uses the main camera’s native view and a 2× output grid. Detail can fall back locally when motion or highlights cannot be recovered.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "F5 合成四帧主曝光和一帧短曝光，使用主摄原生视角，横纵各 2× 采样。运动或高光信息不足时，局部会退回原生细节。"
           }
         }
       }
@@ -551,16 +741,6 @@
         }
       }
     },
-    "F5 · 5 RAW · 2× output grid": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "F5 · 5 帧 RAW · 2× 采样"
-          }
-        }
-      }
-    },
     "F5 · Main-camera calibration required": {
       "localizations": {
         "zh-Hans": {
@@ -591,6 +771,16 @@
         }
       }
     },
+    "Film Look": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "胶片影调"
+          }
+        }
+      }
+    },
     "Film curve": {
       "localizations": {
         "zh-Hans": {
@@ -607,6 +797,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "胶片模拟"
+          }
+        }
+      }
+    },
+    "Filtered B&W": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "滤色黑白"
+          }
+        }
+      }
+    },
+    "Fine B&W": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "细腻黑白"
           }
         }
       }
@@ -651,6 +861,16 @@
         }
       }
     },
+    "Gentle Gradation": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "柔顺过渡"
+          }
+        }
+      }
+    },
     "Grain": {
       "localizations": {
         "zh-Hans": {
@@ -687,6 +907,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "隐藏构图网格"
+          }
+        }
+      }
+    },
+    "High Chroma": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高饱和鲜明"
           }
         }
       }
@@ -741,12 +971,12 @@
         }
       }
     },
-    "Keeps eleven equal-exposure Bayer originals and metadata for offline fusion.": {
+    "Keeps eleven equal-exposure Bayer originals and metadata in Files → GlassCam → F5Samples for offline fusion.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "保留 11 张等曝光 Bayer 原片及元数据，用于后续离线合成。"
+            "value": "保留 11 张等曝光 Bayer 原片与元数据至“文件”→ GlassCam → F5Samples，供离线融合使用。"
           }
         }
       }
@@ -781,12 +1011,32 @@
         }
       }
     },
+    "Lush Foliage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "润泽草木"
+          }
+        }
+      }
+    },
     "Main": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "主摄"
+          }
+        }
+      }
+    },
+    "Main lens, photo output": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主摄镜头，照片输出"
           }
         }
       }
@@ -817,6 +1067,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "已导入主摄配置。"
+          }
+        }
+      }
+    },
+    "Monochrome": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "单色黑白"
+          }
+        }
+      }
+    },
+    "Natural": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自然均衡"
+          }
+        }
+      }
+    },
+    "None": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无"
+          }
+        }
+      }
+    },
+    "Nostalgic Film": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复古胶片"
           }
         }
       }
@@ -941,16 +1231,6 @@
         }
       }
     },
-    "Photo effect exposure": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "照片效果曝光"
-          }
-        }
-      }
-    },
     "Photo needs attention": {
       "localizations": {
         "zh-Hans": {
@@ -1031,16 +1311,6 @@
         }
       }
     },
-    "Pre-color files are in Files → GlassCam → RAWCaptures.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "调色前文件位于“文件”→ GlassCam → RAWCaptures。"
-          }
-        }
-      }
-    },
     "Preparing Bayer RAW capture…": {
       "localizations": {
         "zh-Hans": {
@@ -1111,12 +1381,12 @@
         }
       }
     },
-    "RAW recording": {
+    "RAW & Diagnostics": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "RAW 记录"
+            "value": "RAW 与诊断"
           }
         }
       }
@@ -1251,12 +1521,12 @@
         }
       }
     },
-    "Resets effect exposure and the HNCS look. Output, grain and sharpening choices stay saved.": {
+    "Resets post-exposure and the current engine’s tuning parameters. Selected style, output, grain and sharpening switches stay saved.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重置效果曝光和 HNCS 风格。输出、颗粒与锐化的选择会保留。"
+            "value": "重置后期曝光与当前色彩引擎的微调参数；已选风格、输出规格及颗粒与锐化开关保持不变。"
           }
         }
       }
@@ -1351,22 +1621,22 @@
         }
       }
     },
+    "Rich Chroma": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浓郁色彩"
+          }
+        }
+      }
+    },
     "Sample recording keeps five original RAW files and metadata in Files. It does not certify image quality or save a finished photo.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "样本记录会将五帧原始 RAW 和元数据保存到“文件”，用于标定，不会生成成片或授予画质资格。"
-          }
-        }
-      }
-    },
-    "Sample sets are in Files → GlassCam → F5Samples.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "原片组位于“文件”→ GlassCam → F5Samples。"
           }
         }
       }
@@ -1461,6 +1731,16 @@
         }
       }
     },
+    "Scales scene-linear light during grading; does not change camera shutter or ISO.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在调色阶段缩放场景线性光，不改变相机快门或 ISO。"
+          }
+        }
+      }
+    },
     "Settings": {
       "localizations": {
         "zh-Hans": {
@@ -1541,6 +1821,96 @@
         }
       }
     },
+    "Silky B&W": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "丝滑黑白"
+          }
+        }
+      }
+    },
+    "Silver Grain": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "银盐颗粒"
+          }
+        }
+      }
+    },
+    "Silver Matte": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "银留低饱和"
+          }
+        }
+      }
+    },
+    "Sky & Greens": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "晴空翠绿"
+          }
+        }
+      }
+    },
+    "Smooth B&W": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "柔阶黑白"
+          }
+        }
+      }
+    },
+    "Smooth Skin": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "柔和肤色"
+          }
+        }
+      }
+    },
+    "Soft Chroma": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清淡自然"
+          }
+        }
+      }
+    },
+    "Soft Tone": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "柔和色调"
+          }
+        }
+      }
+    },
+    "Speed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速"
+          }
+        }
+      }
+    },
     "Speed captures one RAW; Balanced combines four equal-exposure RAW frames. Both use the main camera's native view.": {
       "localizations": {
         "zh-Hans": {
@@ -1551,22 +1921,42 @@
         }
       }
     },
-    "Speed uses one 12 MP Bayer RAW with noise reduction, bad-pixel correction, demosaicing and lens correction.": {
+    "Speed processes one Bayer RAW and saves a 24 MP photo.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Speed 使用单张 12MP Bayer RAW，完成降噪、坏点修复、去马赛克和镜头矫正。"
+            "value": "Speed 处理单张 Bayer RAW，保存为 24MP 照片。"
           }
         }
       }
     },
-    "Speed · Single RAW · 12 MP": {
+    "Speed · Single RAW · 24 MP output": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Speed · 单帧 RAW · 12MP"
+            "value": "Speed · 单帧 RAW · 24MP 输出"
+          }
+        }
+      }
+    },
+    "Standard Slide": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标准反转片"
+          }
+        }
+      }
+    },
+    "Studio Clean": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棚拍净透"
           }
         }
       }
@@ -1651,6 +2041,46 @@
         }
       }
     },
+    "Tone / Post exposure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "色调／后期曝光"
+          }
+        }
+      }
+    },
+    "Tone and post-exposure gain": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "色调与后期曝光增益"
+          }
+        }
+      }
+    },
+    "True Natural": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "真实自然"
+          }
+        }
+      }
+    },
+    "True Neutral": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "忠实还原"
+          }
+        }
+      }
+    },
     "Ultra Wide": {
       "localizations": {
         "zh-Hans": {
@@ -1721,6 +2151,56 @@
         }
       }
     },
+    "Vivid Slide": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鲜艳反转片"
+          }
+        }
+      }
+    },
+    "Warm Cast": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暖调光感"
+          }
+        }
+      }
+    },
+    "Warm Complexion": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "温润人像"
+          }
+        }
+      }
+    },
+    "Warm Tint": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "怀旧暖褐"
+          }
+        }
+      }
+    },
+    "When enabled, each Balanced photo also writes 32-bit float pre-color files to Files → GlassCam → RAWCaptures (~570 MB per photo).": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启后，每张 Balanced 照片还会向“文件”→ GlassCam → RAWCaptures 写入 32 位浮点调色前原片（每张约 570 MB）。"
+          }
+        }
+      }
+    },
     "When enabled, saved F5 photos keep their RAW set in Files under F5Archives. Each set can use several hundred megabytes.": {
       "localizations": {
         "zh-Hans": {
@@ -1731,12 +2211,32 @@
         }
       }
     },
+    "When enabled, saved photos keep their Bayer RAW input set in Files → GlassCam → F5Archives.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启后，已保存照片的 Bayer RAW 输入原片组会保留在“文件”→ GlassCam → F5Archives。"
+          }
+        }
+      }
+    },
     "White balance": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "白平衡"
+          }
+        }
+      }
+    },
+    "Wide Roll-off": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "宽容过渡"
           }
         }
       }

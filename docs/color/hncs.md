@@ -1,12 +1,12 @@
 # HNCS
 
-HNCS 将已解码的源照片转换为所选 Hasselblad 工作空间中的颜色、明暗和细节效果，再交回图像管线生成成片。`CHNCS` 实现数值处理，`HNCSEngine` 管理配方、原生上下文和工作文件；RAW 解码与最终编码由 `ImagePipeline` 负责。
+HNCS 将已解码的源照片转换为所选 Hasselblad 工作空间中的颜色、明暗和细节效果，再交回图像管线生成成片。`CHNCS` 实现数值处理，`HNCSEngine` 管理配方、原生上下文和工作文件；Bayer 重建由 F5 负责，导入 RAW 解码与最终编码由 `ImagePipeline` 负责。
 
 ## 工作方式
 
 ### 照片白平衡与预设白平衡
 
-Apple RAW 解码器先完成源照片的白平衡。`PhotoWhiteBalance` 保存解码器的温度、Tint 和完整 xy 白点；HNCS 用 xy 构造虚拟 X2D 拍摄增益基线，色温只用于工厂矩阵与 LUT 的选择。处理配方绑定白点后，重试和导出沿用该值。
+源白平衡在 HNCS 之前完成：Speed／Balanced 由 F5 相机矩阵处理，导入 RAW 由 Apple 解码器处理。`PhotoWhiteBalance` 保存本张照片的完整 xy 白点及其温度、Tint 信息；HNCS 用 xy 构造虚拟 X2D 拍摄增益基线，色温只用于工厂矩阵与 LUT 的选择。处理配方绑定白点后，重试和导出沿用该值。
 
 `whiteBalancePolicy` 决定预设是否替换照片的白平衡：
 
@@ -41,7 +41,7 @@ flowchart TD
 
 原生锐化使用预设参数、完整分辨率像素尺度、复制边缘和 RAW 的 `BaselineSharpness`，缺失该元数据时取 0。HNCS 输入关闭 Apple 解码器锐化，防止重复施加细节处理。只含单个工具的预设叠加原厂 Standard 参数，因此 Standard 和工具预设也可能启用原生锐化。
 
-成片的源矩阵、原始颜色 LUT、gradation 和高光工作域转换保留精确 C++，原生整数锐化由 Metal 执行并与 CPU 逐值一致。原生渲染器复用缓冲并直接读写工作文件，颗粒和后置颜色结束阶段也使用 C++；数据流与误差预算见 [GPU 色彩处理](../gpu-color.md)。
+成片的源矩阵、原始颜色 LUT、gradation 和高光工作域转换保留精确 C++，原生整数锐化由 Metal 执行并与 CPU 逐值一致。原生渲染器复用缓冲并直接读写工作文件，颗粒和后置颜色结束阶段也使用 C++；数据流与误差预算见 [图像管线与成片导出](../image-pipeline.md)。
 
 颗粒采用保留的便携模型：预设键与裁剪后整图尺寸决定 SHA-256／PCG64 随机流，随后执行 wrap Gaussian 和全图 Float32 统计。工作文件按自上而下的 RGB Float32 行序读写；分条只改变 I/O 大小，空间处理始终看到同一张完整工作图。取消或错误时丢弃部分结果，工作文件所有者释放暂存文件。
 
@@ -64,9 +64,7 @@ S = max(5.8829245141, maximum)      maximum > 1
 
 有限工作值和尺度的上限均为 64。空间入口按 `S` 将整图打包到 `[0,1]`；原生锐化的 amount／noise 表采用相同尺度，使参考白以上的明暗差进入亮度、模糊和阈值计算。颗粒幅度按参考白定义，打包时除以 `S`。即使关闭颗粒与锐化，也要完成这次全图打包。
 
-结束阶段使用绑定了同一 `S` 的不可变上下文，将后置颜色结果解码回工作线性值，再转换为带符号的 extended-linear-sRGB。负分量和超过 1 的分量保留到目标色域转换；末端在线性 BT.2020 中执行范围处理和 PQ 编码。revision 12 不另存逐像素 gain 图，也不在锐化后再次乘回旧 gain。
-
-revision 11 仍沿用旧 HDR 适配：先分离每像素高光幅值，在有界图像完成颜色与空间阶段，再恢复幅值；旧 SDR 显示转换保留 sRGB 限幅。它和 revision 12 由配方版本明确选择。
+结束阶段使用绑定了同一 `S` 的不可变上下文，将后置颜色结果解码回工作线性值，再转换为带符号的 extended-linear-sRGB。负分量和超过 1 的分量保留到目标色域转换；末端在线性 BT.2020 中执行范围处理和 PQ 编码。revision 12 不另存逐像素 gain 图，也不在锐化后再次乘回旧 gain；旧记录中的 revision 11 按保存版本走原有的高光分离／恢复路径。
 
 ### 效果开关与缓存
 
@@ -96,31 +94,13 @@ revision 11 仍沿用旧 HDR 适配：先分离每像素高光幅值，在有界
 
 ### 配方兼容
 
-HNCS 的 `renderRevision` 与共享 `pipelineRevision`、上游资产版本分别保存。共享管线版本决定曝光与输入规则，HNCS 版本决定工作域；省略 `pipelineRevision` 的配方按版本 1 读取。当前 HNCS 有效版本是 11、12，其他未知值通过 `isValid` 拒绝。
-
-| 保存的 HNCS 值 | 当前解码与处理含义 |
-|---|---|
-| `renderRevision = 12` | 使用扩展工作域与全图尺度；新建设置默认 `whiteBalancePolicy = photo` |
-| `renderRevision = 11` | 保留旧高光分离／恢复与输出限幅；显式白平衡策略继续生效 |
-| `renderRevision = 8、9、10` | 解码统一为 11，保留预设、曲线、工作空间等选择，不分派到各自的历史算法 |
-| 存在 `hncs` 对象，但缺失版本或白平衡策略 | 版本默认为 11；缺失的策略默认为 `preset` |
-| 整个 `hncs` 缺失或为 null | 使用 `legacyStandard`：版本 11，其余为新设置的默认值，包含 `photo` 策略 |
-
-相机偏好只为未来拍摄升级到版本 12；旧值未明确选择白平衡策略时采用 `photo`，显式 `photo`／`preset` 均保留。已保存照片按自身配方恢复，已编码的待保存成片直接复用文件。设置仍沿用 `editor.processingRecipe.revision8.v1` 键。
-
-旧配方没有 `effects` 时，仅活动 HNCS 模式继承 `hncs.applyGrain` 和 `hncs.applySharpness`，缺失项各自默认 `true`，额外裁剪默认 `true`。有显式 `effects` 时以它为准，重新编码不再重复输出这两个旧 HNCS 字段。
+HNCS 的 `renderRevision` 与共享 `pipelineRevision`、上游资产版本分别保存。当前有效版本为 11 和 12（新设置固定生成 `renderRevision = 12`、`pipelineRevision = 2`、`whiteBalancePolicy = photo`），未知值通过 `isValid` 拒绝。解码历史记录时：版本 8–10 或缺省版本归并到 11；含 `hncs` 但缺省白平衡策略时采用 `preset`，整个 `hncs` 缺失时采用 `legacyStandard`；无显式 `effects` 时仅活动 HNCS 继承旧颗粒／锐化开关。相机偏好恢复时独立升级到版本 12 并采用 `photo` 策略，不改写待完成照片的冻结配方。
 
 ### 工厂资产与原生接口
 
-选取的上游交付固定为 colour revision 2、render revision 8；来源、提交和校验清单见 [HNCS 来源](../../vendor/hncs/ORIGIN.md)。参考源码、原始矩阵、色度 LUT、ICC、预设 JSON、曲线表及固定数值样本保留在 [vendor/hncs](../../vendor/hncs/)，构建使用 `CHNCS/generated/` 中的静态资产。应用版本 12 没有改写上游交付的版本号。
+选取的上游交付固定为 colour revision 2、render revision 8；来源、提交和校验清单见 [HNCS 来源](../../vendor/hncs/ORIGIN.md)。参考源码、原始矩阵、色度 LUT、ICC、预设 JSON、曲线表及固定数值样本保留在 [vendor/hncs](../../vendor/hncs/)，构建使用 `CHNCS/generated/` 中的静态资产。预设 catalog 保存原厂 XML 对应的参数和别名，界面只展示 Standard 或具有实际效果的条目；原版六张 UInt16 曲线表保留 65536 项精度。
 
-预设 catalog 保存原厂 XML 对应的参数和别名，界面只展示 Standard 或具有实际效果的条目。原版六张 UInt16 曲线表保留 65536 项精度；Standard 也执行 gradation。便携 revision-8 的逐点／空间 C ABI 为参考兼容保留，应用照片路径使用颜色／空间／后置颜色分段接口。
-
-`hncs_clone_with_native_gain` 为已准备好的原生输入调整暗部色度阈值，保留原生乘法顺序；该增益不再乘到像素曝光上。另有 `hncs_render_x2d_hdr_color`、`hncs_render_x2d_hdr_post`、`hncs_apply_x2d_hdr_gradation` 和 `hncs_render_x2d_hdr_sharpness`，面向已准备好的 X2D HDR 数据。颜色入口支持 Standard film curve、普通颜色模型及 `[0.25,32]` 的处理增益，HDR gradation／锐化只覆盖列入资产的 Standard、Nature 配置。
-
-数值测试读取 [HNCS 冻结夹具](../../tests/fixtures/hncs/README.md) 和保留的参考资产。原生链、处理增益及 X2D HDR 的预期值由 Phocus 原程序产生，来源和向量摘要随夹具保存；测试不现场重采集预期值。生成与原厂调查工具位于 `GlassCam-research`，产品运行只使用保留资产。
-
-C++ 内核保留 `-fno-fast-math -ffp-contract=off`；Float32、Double、显式 FMA、截断和 ties-to-even 各按对应阶段执行。并行分块复用相同算术，数值改动须通过相应 golden 比对。
+应用照片路径使用颜色／空间／后置颜色分段 C ABI；同时保留便携 revision-8 逐点／空间接口，以及面向原生 X2D 数据的 `hncs_clone_with_native_gain`、`hncs_render_x2d_hdr_*` 和 `hncs_apply_x2d_hdr_gradation` 供数值基线验证。数值测试读取 [HNCS 冻结夹具](../../tests/fixtures/hncs/README.md) 中由 Phocus 4.2.2 产生的固定向量；C++ 内核保持 `-fno-fast-math -ffp-contract=off`。
 
 ## 已知限制
 

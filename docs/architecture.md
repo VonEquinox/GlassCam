@@ -32,7 +32,7 @@ flowchart TD
 | 层或模块 | 职责 | 主要边界 |
 |---|---|---|
 | `App/GlassCam/UI` | SwiftUI 相机首页、设置、回看、系统相册和文件交付 | `ContentView` 持有设置与拍摄事务；`HEIFSaveDelivery` 连接 Photos |
-| `App/GlassCam/Camera` | AVFoundation 会话、三摄接力、取景帧、方向与 Bayer RAW 捕获 | `CameraController` 发布界面状态；`CameraBackend` 在专用队列操作设备 |
+| `App/GlassCam/Camera` | AVFoundation 会话、主摄 Bayer RAW 捕获、双路取景帧与方向 | `CameraController` 发布界面状态；`CameraBackend` 在专用队列操作设备 |
 | `ImagingCore` | 处理配方、源照片与工作文件、RAW 解码、色彩引擎、浮点图像、HEIF 和分享表示 | 为其他 Swift 模块提供共用图像模型，调用 `CHNCS`、`CFFCS`、`CLUMIX` |
 | `Capture` | 相机设置、输出选择、拍摄状态机、持久化记录与恢复 | 通过 `Services` 注入授权、处理和保存，通过 `CaptureFormat` 扩展源照片格式 |
 | `F5` | 单帧／四帧 Bayer RAW 的解码、曲率重建、颜色桥、来源记录、暂存和归档 | 实现 `F5CaptureFormat`，使用 `CMetalF5` 与 Metal，保留 `CF5` 数值参考，输出交给 `ImagingCore` 编码 |
@@ -44,16 +44,16 @@ flowchart TD
 
 色彩资源通过 `ColorResources` 从 App 资源目录注入。资源位置属于运行依赖，处理配方保存色彩选择与版本；HNCS、FFCS、LUMIX 的细节分别见 [HNCS](color/hncs.md)、[FFCS](color/ffcs.md) 和 [LUMIX](color/lumix.md)。
 
-成片的 GPU 路径、缓冲上限和精度预算见 [GPU 色彩处理](gpu-color.md)。CPU 数值 API 与固定 golden 保留，Metal 颜色实现单独与它们比较。
+成片的 GPU 路径、缓冲上限和精度预算见 [图像管线与成片导出](image-pipeline.md)。CPU 数值 API 与固定 golden 保留，Metal 颜色实现单独与它们比较。
 
 性能测量、设备诊断与实验入口由 `GlassCam-research` 的 `tools/studies/product-tooling/` 和 `tools/studies/product-experiments/` 使用固定源码快照构建。
 
 ## 从快门到保存
 
 1. **冻结拍摄选择。** `CameraView` 向 `CameraController` 预留当前构图和方向，创建包含处理配方、输出选择、质量与 F5 归档选择的 `CaptureSnapshot`，再交给 `CaptureWorkflow` 请求相册添加权限。
-2. **取得源照片。** 授权完成后，工作流调用预留的相机请求。Speed／Balanced 由 `F5CaptureDriver` 分别取得一帧／四帧 Bayer RAW。终结回调确认源数据和实际构图信息，相机后端另行处理取景恢复。
-3. **保留可恢复输入。** 工作流把实际构图合入冻结快照，将普通源照片或格式载荷交给 `CaptureJournal` 保留，形成 `rawReady` 记录。F5 的文件校验、暂存恢复与来源编解码由 `F5CaptureFormat` 负责。
-4. **保留调色前结果并生成成片。** F5 先重建场景线性图像，再进入共用的色彩与 HEIF 路径。Balanced 的合成 DNG／线性 TIFF 先由 `CaptureRAWStore` 独立保存，再应用品牌色彩。最终输出为浮点图像处理后的 10 位 HDR HEIF，详见 [RAW 解码与导出](raw-decode-and-export.md) 和 [F5](f5.md)。
+2. **取得源照片。** 授权完成后，工作流调用预留的相机请求。Speed／Balanced 由 `F5CaptureDriver` 在物理主摄原生视角分别取得一帧／四帧 Bayer RAW。终结回调确认源数据和实际构图信息，相机后端另行恢复双摄取景。
+3. **保留可恢复输入。** 工作流把实际构图合入冻结快照，通过 `F5CaptureFormat` 将格式载荷交给 `CaptureJournal` 保留为 `rawReady` 记录（`schemaVersion: 2`，`burst/` 目录；内部服务测试仍保留单张 `schemaVersion: 1` 的 `source.dng` 入口）。后台保留操作同时返回记录与已校验载荷，工作流直接继续使用。
+4. **按需保留调色前结果并生成成片。** F5 先重建场景线性图像，再进入共用的色彩与 HEIF 路径。当快照携带 `rawArchiveID`（开启调色前原片归档开关）时，Balanced 的合成 DNG／线性 TIFF 先由 `CaptureRAWStore` 独立保存，再应用品牌色彩；默认关闭时不写出调色前原片。最终输出统一为约 24MP 的 10 位 HDR HEIF，详见 [图像管线与成片导出](image-pipeline.md) 和 [F5](f5.md)。
 5. **保留编码结果。** 工作流从成片生成回看图像，并将 HEIF、尺寸与处理后的快照写入记录，进入 `encodedReady`。后续保存重试复用这份编码文件。
 6. **写入系统相册。** 工作流先持久化带尝试标识的 `savePending`，再由 `HEIFSaveDelivery` 复制原始 HEIF 到 Photos。系统确认成功后记录为 `savedConfirmed`，随后清理活动记录并发布 `SavedCapture`。
 7. **回看与分享。** 相机首页保留拍摄入口，用户从缩略图打开已保存成片。回看、文件导出和原始 HEIC 分享持有同一成片文件；接收方请求 JPEG 时，由分享提供者从该 HEIF 按需生成兼容表示。
@@ -82,9 +82,9 @@ App 的相机后端向中心显示层和 `Peripheral` 投递视频帧。中心�
 
 `ProcessingRecipe` 保存像素处理所需的选择与版本；`CaptureSnapshot` 增加输出、质量和格式来源信息。相机偏好由 `CameraSettingsStore` 恢复与迁移，已拍摄照片按其记录中的配方解码，二者有各自的生命周期。
 
-`CaptureJournal` 的普通单张记录使用 schema 1，F5 格式使用 schema 2。活动目录内的 `capture.json` 保存事务阶段、冻结快照和文件字节数及 SHA-256；普通源文件名为 `source.dng`，成片文件名为 `result.heic`，F5 载荷位于 `burst/`。格式实现负责自身文件，工作流负责记录阶段和相册事务的顺序。
+`CaptureJournal` 对相机拍摄的 F5 格式使用 schema 2（`burst/` 载荷，成片文件名为 `result.heic`），内部单张输入入口保留 schema 1（`source.dng`）。活动目录内的 `capture.json` 保存事务阶段、冻结快照和文件字节数及 SHA-256。格式实现负责自身载荷，Journal 统一活动目录的文件保护与备份排除，工作流负责记录阶段和相册事务的顺序。成功收尾与明确放弃分别执行；放弃不要求损坏记录通过解码，也不执行归档。
 
-持久化键、旧配方解码与异常恢复的具体约定见 [拍摄与恢复](capture-and-recovery.md)，固定兼容样本见 [journal fixtures](../tests/fixtures/journal/README.md)。
+持久化键、配方解码与异常恢复的具体约定见 [拍摄与恢复](capture-and-recovery.md)，架构取舍见 [架构决策](adr/README.md)，固定兼容样本见 [journal fixtures](../tests/fixtures/journal/README.md)。
 
 ## 已知限制
 

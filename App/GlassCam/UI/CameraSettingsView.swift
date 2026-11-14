@@ -43,18 +43,16 @@ struct CameraSettingsView: View {
             Picker("Capture priority", selection: $settings.captureQuality) {
                 ForEach(CaptureQuality.allCases, id: \.self) { quality in Text(quality.title).tag(quality) }
             }.pickerStyle(.segmented).accessibilityIdentifier("settings.captureQuality")
+            HStack { Text("Resolution"); Spacer(); Text("24 MP").foregroundStyle(.secondary) }
             if settings.captureQuality == .balanced {
-                HStack { Text("Sampling"); Spacer(); Text("2× in each dimension").foregroundStyle(.secondary) }
-                Text("Balanced combines four equal-exposure Bayer RAW frames with curvature reconstruction at 2× sampling.")
+                Text("Balanced combines four equal-exposure Bayer RAW frames with curvature reconstruction, then exports at 24 MP.")
                     .font(.caption).foregroundStyle(.white.opacity(0.6))
             } else if settings.captureQuality == .speed {
-                Text("Speed uses one 12 MP Bayer RAW with noise reduction, bad-pixel correction, demosaicing and lens correction.")
+                Text("Speed processes one Bayer RAW and saves a 24 MP photo.")
                     .font(.caption).foregroundStyle(.white.opacity(0.6))
             }
             HStack { Text("Format"); Spacer(); Text("10-bit HDR HEIF").foregroundStyle(.secondary) }.font(.subheadline)
-
         }
-        F5SettingsCard(camera: camera, settings: settings, rawTests: rawTests, workflow: workflow, canRecord: canRecordF5)
         CameraCard(title: "Photo style", symbol: "camera.filters") {
             Picker("Color engine", selection: $settings.colorMode) {
                 ForEach(ColorMode.allCases) { mode in Text(mode.title).tag(mode) }
@@ -78,12 +76,14 @@ struct CameraSettingsView: View {
                 LUMIXPhotoStyleControls(settings: $settings.lumix)
             }
             HStack {
-                Text("Effect exposure")
+                Text("Tone / Post exposure")
                 Spacer()
                 Text(String(format: "%+.2f EV", settings.exposure)).monospacedDigit().foregroundStyle(.secondary)
             }.font(.subheadline)
             Slider(value: $settings.exposure, in: -2...2, step: 0.05)
-                .accessibilityLabel("Photo effect exposure")
+                .accessibilityLabel("Tone and post-exposure gain")
+            Text("Scales scene-linear light during grading; does not change camera shutter or ISO.")
+                .font(.caption).foregroundStyle(.white.opacity(0.45))
             EffectToggleControls(effects: $settings.effects, mode: settings.colorMode)
         }
         CameraCard(title: "Viewfinder", symbol: "viewfinder") {
@@ -94,7 +94,7 @@ struct CameraSettingsView: View {
         Button { advanced = true } label: {
             CameraCard(title: "Advanced", symbol: "slider.horizontal.3") {
                 HStack {
-                    Text("Color processing & preview").font(.subheadline)
+                    Text("Color processing, preview & RAW").font(.subheadline)
                     Spacer()
                     Image(systemName: "arrow.up.right").font(.subheadline)
                 }
@@ -122,12 +122,12 @@ struct CameraSettingsView: View {
             Text("Approximate color only; the saved photo uses the complete selected effect.")
                 .font(.caption).foregroundStyle(.secondary)
         }
+        F5SettingsCard(camera: camera, settings: settings, rawTests: rawTests, workflow: workflow, canRecord: canRecordF5)
         CameraCard(title: "Adjustments", symbol: "arrow.counterclockwise") {
             Button("Reset effect adjustments") {
-                settings.exposure = 0
-                if settings.colorMode == .hncs { settings.hncs = .standard }
-            }
-            Text("Resets effect exposure and the HNCS look. Output, grain and sharpening choices stay saved.")
+                settings.resetCurrentEffectAdjustments()
+            }.accessibilityIdentifier("settings.resetAdjustments")
+            Text("Resets post-exposure and the current engine’s tuning parameters. Selected style, output, grain and sharpening switches stay saved.")
                 .font(.caption).foregroundStyle(.secondary)
         }
     }

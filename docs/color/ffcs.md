@@ -1,6 +1,6 @@
 # FFCS 色彩处理
 
-FFCS 使用 FFCS 0.2.0 交付的相机表族与模拟风格 LUT，将已显影的 linear-sRGB 源照片转换为成片颜色。Apple 输入由 Core Image RAW 解码，进入 FFCS 时已经完成源色彩配置转换；上游 Python 的传感器 CFA／RAF 解码器不参与 App 拍摄。`FFCSEngine` 负责 Swift 与 C ABI 的资源、缓冲区和上下文所有权，`CFFCS` 负责颜色与空间阶段；RAW 解码及成片编码由 `ImagePipeline` 承担。
+FFCS 使用 FFCS 0.2.0 交付的相机表族与模拟风格 LUT，将已显影的 linear-sRGB 源照片转换为成片颜色。Speed／Balanced 输入由 F5 完成 Bayer 重建、源白平衡和色域转换；导入 RAW 使用 Core Image 解码。两者进入 FFCS 时均为扩展线性 sRGB，上游 Python 的 CFA／RAF 解码器不参与 App 拍摄。`FFCSEngine` 负责 Swift 与 C ABI 的资源、缓冲区和上下文所有权，`CFFCS` 负责颜色与空间阶段；导入 RAW 解码及成片编码由 `ImagePipeline` 承担。
 
 ## 工作方式
 
@@ -42,7 +42,7 @@ FFCS 使用 FFCS 0.2.0 交付的相机表族与模拟风格 LUT，将已显影�
 
 新处理配方先在完整线性输入上施加曝光，再由公共管线分离高光幅度，传给 FFCS 的后端曝光为零。FFCS 返回颜色后，公共管线恢复高光幅度；旧配方依据保存的 `pipelineRevision` 保留对应的曝光顺序。完整规则见 [ProcessingRecipe](../../Packages/GlassCamKit/Sources/ImagingCore/Model/ProcessingRecipe.swift) 与 [导出管线](../../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline+Export.swift)。
 
-成片导出在 Core Image 的 Metal 纹理上执行矩阵、原始 LUT、颜色控制、颗粒与锐化，并按 [GPU 色彩处理](../gpu-color.md)的 HDR 预算验收。活动 Gaussian USM 的 halo 为 `ceil(3 × sharpenRadius)`，半径 `1` 对应 `3` 行；关闭锐化或使用中性默认时 halo 为零。邻域仅在整图边缘截断和归一化，颗粒使用整图坐标。CPU 分条入口与完整帧入口保留精确参考语义。
+成片导出在 Core Image 的 Metal 纹理上执行矩阵、原始 LUT、颜色控制、颗粒与锐化，并按 [图像管线与成片导出](../image-pipeline.md)的 HDR 预算验收。活动 Gaussian USM 的 halo 为 `ceil(3 × sharpenRadius)`，半径 `1` 对应 `3` 行；关闭锐化或使用中性默认时 halo 为零。邻域仅在整图边缘截断和归一化，颗粒使用整图坐标。CPU 分条入口与完整帧入口保留精确参考语义。
 
 条带输出保持 Float32，先完成颜色和空间处理，再交给公共线性光缩放与 HEIF 编码链；成片导出不经过字节图像中间缓冲区。输入条带须包含所请求输出行及完整 halo，尺寸、有限值、缓冲区和邻域检查失败时返回诊断。
 
@@ -70,7 +70,7 @@ FFCS 使用 FFCS 0.2.0 交付的相机表族与模拟风格 LUT，将已显影�
 
 FFCS 参考版本为 `0.2.0`，来源 commit、归档及资产哈希、权利说明集中记录在 [vendor/ffcs/ORIGIN.md](../../vendor/ffcs/ORIGIN.md)。构建脚本按固定 [SHA-256 清单](../../scripts/ffcs_native_SHA256SUMS) 从原始归档离线准备 LUT，并核对归档和逐表内容；生成资源由 Git 忽略。
 
-在仓库根目录运行 `python3 scripts/materialize_ffcs_reference.py` 可从固定归档恢复保留的参考文件与 LUT。四份已迁出的调查工具和二进制清单由原始归档校验，不重新展开到主仓库；其余交付文件校验工作区内容。Xcode 的资源阶段只按校验清单展开运行时表，不需要网络。
+在仓库根目录运行 `python3 scripts/materialize_ffcs_reference.py` 可从固定归档恢复保留的参考文件与 LUT。只展开选定的参考代码、数据和来源清单；保留项校验工作区内容，其余交付项直接从固定归档校验。Xcode 的资源阶段只按校验清单展开运行时表，不需要网络。
 
 内核读取 `FFCSLUT1`、`FFCSLUT2` 容器，检查头部、矩阵与 scale 的有限性、通道标志、压缩长度和完整 zlib 数据。参考源码保存在 `vendor/ffcs/implementation/ffcs/`，上游文档与历史报告保存在固定 `source.zip` 中；C++ 的 SwiftPM 编译设置保留 `-fno-fast-math -ffp-contract=off`。
 
@@ -80,7 +80,7 @@ FFCS 参考版本为 `0.2.0`，来源 commit、归档及资产哈希、权利说
 
 ## 已知限制
 
-- 相机表族描述资源来源，Apple 解码输入尚无对应富士传感器的完整标定。
+- 相机表族描述资源来源，Bayer 重建与导入 RAW 输入尚无对应富士传感器的完整标定。
 - `.lutz` 是重新采样的包装表，浮点插值与原版 SILKYPIX 固定点映射存在数值差异。
 - 参考调整中的 Lab/UCS、tone、颗粒和 Gaussian USM 来自研究配方，缺少原厂完整处理链等价证据。
 - GFX100S/II 回退到 GFX100 的风格使用公共表，其余缺失组合不可用。

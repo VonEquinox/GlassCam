@@ -29,7 +29,7 @@ LUMIX 将 SILKYPIX Developer Studio 8 SE 的 DC-S1M2 SDR Photo Style 数据用�
 
 ### 白平衡、CCT 与 ISO
 
-RAW 解码先恢复照片白点，再输出线性 RGB。处理配方首次绑定 `PhotoWhiteBalance` 时，将其模型色温写入 `illuminantKelvin`；缺少模型色温时采用 6500 K。已经绑定的白点和色温用于后续重试与导出，LUMIX 将色温用于选表。
+Speed／Balanced 从 DNG 取得照片白点，由 F5 相机矩阵生成已白平衡的线性 RGB；导入 RAW 由 Apple 解码器提供白点与线性图像。处理配方首次绑定 `PhotoWhiteBalance` 时，将其模型色温写入 `illuminantKelvin`；缺少模型色温时采用 6500 K。已经绑定的白点和色温用于后续重试与导出，LUMIX 将色温用于选表。
 
 revision 2 及之后的版本使用每种风格的两张完整 129³ LUT。CCT 的允许范围为 2000…10000 K；资源中的色温折线节点为 `(3000, 256)`、`(5000, 512)`、`(6500, 618)`、`(7500, 725)`。选择量截取为整数后限于 256…512：256 选第二张表，512 选第一张表，中间按整数权重混合节点，再做三线性插值。RGB12 采样保留步长 32、白值 4095 和末端保护节点。
 
@@ -37,9 +37,11 @@ revision 2 及之后的版本使用每种风格的两张完整 129³ LUT。CCT �
 
 ### 当前 RAW 输入与像素处理
 
-新处理配方采用 `rawInputPolicy = cameraNeutral`。CIRAWFilter 关闭 Apple 全局色调曲线（`boostAmount = 0`），保留照片的 BaselineExposure、局部色调映射及解码器细节处理；EDR 使用已存设置，未指定时为 1。LUMIX 保留照片的 BaselineSharpness，并恢复解码器默认锐化设置。
+Speed／Balanced 直接使用 F5 交付的扩展线性 sRGB、拍摄白点、ISO 和 BaselineSharpness，源白平衡与 BaselineExposure 已由相机矩阵处理一次。
 
-输入策略、已冻结白点或解码参数发生变化时，成片处理从保留的 RAW 重新解码。revision 4 的像素路径如下：
+导入 RAW 的新处理配方采用 `rawInputPolicy = cameraNeutral`。CIRAWFilter 关闭 Apple 全局色调曲线（`boostAmount = 0`），保留照片的 BaselineExposure、局部色调映射及解码器细节处理；EDR 使用已存设置，未指定时为 1。LUMIX 保留照片的 BaselineSharpness，并恢复解码器默认锐化设置。
+
+导入 RAW 的输入策略、已冻结白点或解码参数发生变化时，从保留源文件重新解码。revision 4 的像素路径如下：
 
 1. 在完整线性 RGB 上施加用户曝光，范围为 −2…+2 EV。
 2. 按每个像素的 `max(1, R, G, B)` 分离 HDR 幅度，将颜色送入 LUMIX。
@@ -49,7 +51,7 @@ revision 2 及之后的版本使用每种风格的两张完整 129³ LUT。CCT �
 
 ### 完整源图与 HDR 导出
 
-成片导出从保留的源照片重新取得完整尺寸像素，由 Metal 执行曝光、颜色与 HDR 幅度恢复，使用原始 129³ LUT 和整数插值权重。原生缓冲按块写入 Float32 工作文件，精度按 [GPU 色彩处理](../gpu-color.md)验收。需要调整成片尺寸时，在颜色处理之后进行线性重采样，最终编码为 10-bit BT.2020/PQ HEIF。
+成片导出从保留的源照片重新取得完整尺寸像素，由 Metal 执行曝光、颜色与 HDR 幅度恢复，使用原始 129³ LUT 和整数插值权重。原生缓冲按块写入 Float32 工作文件，精度按 [图像管线与成片导出](../image-pipeline.md)验收。需要调整成片尺寸时，在颜色处理之后进行线性重采样，最终编码为 10-bit BT.2020/PQ HEIF。
 
 LUMIX 上下文保存不可变 LUT 与风格参数；缓存身份包含资源目录、全部 LUMIX 设置和色温。处理中的调用持有自己的上下文，因此后续选择其他风格不会替换其数据。运行时校验 LUT 和参数表的格式、长度及 CRC，资源错误会终止处理。
 
@@ -73,20 +75,9 @@ LUMIX 上下文保存不可变 LUT 与风格参数；缓存身份包含资源目
 
 ## 数据与版本
 
-`ProcessingRecipe.lumix` 保存 `renderRevision`、`photoStyle`、`contrast`、`saturation` 和 `sourceISO`。照片白点、`illuminantKelvin`、`rawInputPolicy` 与共享 `pipelineRevision` 保存在同一处理配方中；它们分别控制输入和共享处理顺序。
+`ProcessingRecipe.lumix` 保存 `renderRevision`（当前新设置为 `4`）、`photoStyle`、`contrast`、`saturation` 和 `sourceISO`。相机偏好恢复时将后续拍摄固定为版本 4、清空已绑定 ISO，并搭配 `cameraNeutral` 与共享管线 revision 2。
 
-| LUMIX 渲染版本 | 保存照片的颜色路径 |
-|---|---|
-| 1 | 每个风格的第一张 LUT；对比度、饱和度为 0，ISO 为空 |
-| 2 | 双表与完整 SDR VE 整数路径，包含低 ISO 预曲线 |
-| 3 | 沿用 revision 2 的颜色路径，用户曝光在 HDR 幅度分离之前施加 |
-| 4 | 双表和原始风格参数，采用有界 RGB12 输入与浮点色域压缩，跳过低 ISO 预曲线 |
-
-保存的 `lumix` 对象缺少 `renderRevision` 时按 1 解码；整个 `lumix` 字段缺失时补当前 Standard 设置，并保留已有色彩模式。相机偏好恢复时将后续拍摄的 LUMIX 版本设为 4、清空已绑定 ISO，并使用 cameraNeutral 与共享管线 revision 2；照片配方按保存字段重放。
-
-缺少 `rawInputPolicy` 的旧照片采用 `legacy`：LUMIX revision 2 及之后选择 sceneLinear RAW 解码，revision 1 沿用照片原解码设置。sceneLinear 会清零 BaselineExposure、shadowBias、boostAmount 与可用的局部色调映射，并关闭 gamut mapping、将未指定的 EDR 设为 0。显式 cameraNeutral 策略独立于 LUMIX 版本生效。
-
-缺少共享 `pipelineRevision` 时按 1 解码。用户曝光在共享管线版本至少为 2，或 LUMIX 版本至少为 3 时先于 HDR 分离；其余保存配方保留在颜色后端内施加曝光的路径。
+已冻结的照片配方按保存字段重放：版本 1 使用单张 LUT；版本 2、3 保留原始 SDR VE 整数路径与低 ISO 预曲线（版本 3 及共享管线版本 2 起在高光分离前施加曝光）；缺少 `lumix` 字段时补默认 Standard，缺少 `rawInputPolicy` 时按版本选择 `legacy` 解码。
 
 资源由 `source.zip`（schema 1）和 `pipeline.zip`（schema 2）提供：前者保存各风格第一张 LUT，后者保存配对 LUT 与风格参数表。资源准备脚本检查归档与每个文件的 SHA-256，输出 `.lmx`、`pipeline.lmp` 和对应清单。来源、固定哈希及权利说明见 [ORIGIN](../../vendor/lumix/ORIGIN.md)。
 

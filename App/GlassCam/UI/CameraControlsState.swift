@@ -9,10 +9,10 @@ import UIKit
 struct CompactCameraPanel {
     private(set) var offered = false
     mutating func offer(hasGeometry: Bool, style: CameraChromeLayout.Style, settingsPresented: Bool,
-                        reviewing: Bool, capturing: Bool, frozen: Bool) -> Bool {
+                        reviewing: Bool, capturing: Bool) -> Bool {
         guard hasGeometry else { return false }
         guard style == .separate else { offered = false; return false }
-        guard !offered, !settingsPresented, !reviewing, !capturing, !frozen else { return false }
+        guard !offered, !settingsPresented, !reviewing, !capturing else { return false }
         offered = true
         return true
     }

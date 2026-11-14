@@ -18,13 +18,12 @@ struct CameraView: View {
     let selectedLens: CameraController.Mode = .main
     @State var liveProxyStatus = LiveColorProxyStatus.off
     @State var activePanel: CameraPanel?
+    @State var filterDialVisible = false
+    @State var settingsPresented = false
     @State private var compactPanel = CompactCameraPanel()
-    @State var destination: CameraDestination?
-    private var settingsPresented: Bool { if case .settings = destination { return true }; return false }
-    private var reviewedCapture: SavedCapture? { if case .photo(let photo) = destination { return photo }; return nil }
+    @State var reviewedCapture: SavedCapture?
     @State private var configuredPreviewLimit: Int?
     @State private var discardConfirmation = false
-    @State private var pinchStartZoom: Double?
     @State private var shutterReservation: UUID?
     @State private var repeatSaveConfirmation = false
     var colorMode: ColorMode { settings.colorMode }
@@ -44,6 +43,7 @@ struct CameraView: View {
             let chrome = CameraChromeLayout(framing: framing, safeArea: proxy.safeAreaInsets,
                                             needsAccessiblePanel: dynamicTypeSize.isAccessibilitySize)
             let showsUnavailableCamera = !camera.isCapturing && !camera.isReady && !workflow.isWorking
+            let livePreviewEnabled = scenePhase == .active && reviewedCapture == nil && !camera.isCapturing && !rawTests.isRecording
             ZStack(alignment: .topLeading) {
                 Color.black
                 // Retained raw fallback for single-camera mode / graph handoff.
@@ -61,19 +61,19 @@ struct CameraView: View {
                         .accessibilityIdentifier("camera.photo.frame")
                 }
                 PeripheralGlassView(source: camera.peripheralSource, framing: framing,
-                                    enabled: scenePhase == .active && !settingsPresented && reviewedCapture == nil && !camera.isPreviewFrozen,
+                                    enabled: livePreviewEnabled,
                                     colorRecipe: liveRecipe,
-                                    colorEnabled: experimentalLiveColor && scenePhase == .active && !camera.isPreviewFrozen && camera.peripheralSource != nil,
+                                    colorEnabled: experimentalLiveColor && livePreviewEnabled && camera.peripheralSource != nil,
                                     cameraReady: camera.isReady) { status in
-                        if camera.peripheralSource != nil {liveProxyStatus=status}
+                        if camera.peripheralSource != nil { liveProxyStatus = status }
                     }
                     .frame(width: proxy.size.width, height: proxy.size.height)
                     .allowsHitTesting(false).accessibilityHidden(true)
                 PeripheralLiquidGlass(framing: framing)
-                    .frame(width: proxy.size.width,height: proxy.size.height)
+                    .frame(width: proxy.size.width, height: proxy.size.height)
                 if let source = camera.centerLiveSource, camera.geometry != nil, camera.peripheralSource == nil {
                     LiveColorProxy(source: source, recipe: liveRecipe,
-                                   enabled: experimentalLiveColor && scenePhase == .active && !camera.isPreviewFrozen,
+                                   enabled: experimentalLiveColor && livePreviewEnabled,
                                    cameraReady: camera.isReady) { status in
                         liveProxyStatus = status
                     }
@@ -83,7 +83,7 @@ struct CameraView: View {
                     .position(x: framing.photo.midX, y: framing.photo.midY)
                     .allowsHitTesting(false)
                 }
-                PhotoFrameBoundary(rect: framing.photo)
+                PhotoFrameBoundary(rect: framing.photo, isCapturing: camera.isCapturing || workflow.phase == .capturing)
                     .allowsHitTesting(false).accessibilityHidden(true)
                 PhotoFrameGuide(gridVisible: gridVisible)
                     .frame(width: framing.photo.width, height: framing.photo.height)
@@ -122,12 +122,15 @@ struct CameraView: View {
                     Color.clear.contentShape(Rectangle())
                         .frame(width: framing.photo.width, height: framing.photo.height)
                         .position(x: framing.photo.midX, y: framing.photo.midY)
-                        .gesture(MagnificationGesture().onChanged { value in
-                            guard workflow.canCapture, !camera.isCapturing, !settings.captureQuality.usesBayer else { return }
-                            if pinchStartZoom == nil { pinchStartZoom = camera.requestedZoom }
-                            camera.setZoom((pinchStartZoom ?? camera.requestedZoom) * Double(value))
-                        }.onEnded { _ in pinchStartZoom = nil })
-                        .onTapGesture { if chrome.style == .separate { activePanel = .compact } }
+                        .onTapGesture {
+                            if filterDialVisible {
+                                withAnimation(.spring(response: 0.28, dampingFraction: 0.84)) {
+                                    filterDialVisible = false
+                                }
+                            } else if chrome.style == .separate {
+                                activePanel = .compact
+                            }
+                        }
                         .accessibilityElement()
                         .accessibilityLabel("Viewfinder. Open camera controls")
                         .accessibilityAddTraits(.isButton)
@@ -136,7 +139,7 @@ struct CameraView: View {
                 }
                 controls(framing: framing, chrome: chrome)
                     // Clear glass transmits bright scenes; a soft glyph shadow
-                    // keeps controls legible without dimming the periphery.
+                    // keeps etched engravings legible without dimming periphery.
                     .shadow(color: .black.opacity(0.45), radius: 3, y: 0.5)
                 CameraOrientationObserver { camera.updateOrientation($0) }
                     .frame(width: proxy.size.width, height: proxy.size.height)
@@ -145,6 +148,7 @@ struct CameraView: View {
             .frame(width: proxy.size.width, height: proxy.size.height)
             .clipped()
             .onChange(of: chrome.style, initial: true) { _, style in
+                if style != .portrait { filterDialVisible = false }
                 offerCompactPanel(for: style)
             }
             .onChange(of: camera.geometry?.photoAspectRatio) { _, _ in
@@ -153,13 +157,21 @@ struct CameraView: View {
             .onChange(of: camera.isReady) { _, _ in
                 offerCompactPanel(for: chrome.style)
             }
-            .onChange(of: camera.isPreviewFrozen) { _, _ in
+            .onChange(of: camera.isCapturing) { _, _ in
                 offerCompactPanel(for: chrome.style)
             }
             .sheet(item: $activePanel) { panel in
                 cameraPanel(panel, framing: framing)
-                    .presentationDetents(panel == .zoom ? [.height(300), .large] : [.large])
+                    .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
+                    .presentationBackground(.ultraThinMaterial)
+            }
+            .sheet(isPresented: $settingsPresented, onDismiss: { restartCamera() }) {
+                CameraSettingsView(settings: settings, camera: camera, rawTests: rawTests, workflow: workflow, canRecordF5: workflow.canCapture,
+                                   onBack: { settingsPresented = false })
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(.clear)
             }
         }
         .ignoresSafeArea()
@@ -181,15 +193,9 @@ struct CameraView: View {
                 shutterReservation = nil
             }
         }
-        .fullScreenCover(item: $destination, onDismiss: { restartCamera() }) { page in
-            switch page {
-            case .settings:
-                CameraSettingsView(settings: settings, camera: camera, rawTests: rawTests, workflow: workflow, canRecordF5: workflow.canCapture,
-                                   onBack: { destination = nil })
-            case .photo(let capture):
-                CaptureReview(capture: capture, onBack: { destination = nil })
-                    .onAppear { camera.stop() }
-            }
+        .fullScreenCover(item: $reviewedCapture, onDismiss: { restartCamera() }) { capture in
+            CaptureReview(capture: capture, onBack: { reviewedCapture = nil })
+                .onAppear { camera.stop() }
         }
         .confirmationDialog("Discard this unsaved photo?", isPresented: $discardConfirmation,
                             titleVisibility: .visible) {
@@ -202,39 +208,12 @@ struct CameraView: View {
     }
 
     private var workflowStatus: some View {
-        VStack(spacing: 8) {
-            Text(LocalizedStringKey(workflow.status)).font(.footnote).multilineTextAlignment(.center)
-            if workflow.phase == .processing { ProgressView(value: workflow.progress) }
-            if workflow.phase == .saveOutcomeUnknown {
-                if let date = workflow.pendingDate {
-                    Text(date.formatted(date: .abbreviated, time: .shortened)).font(.caption)
-                }
-                HStack {
-                    if let capture = workflow.pendingCapture {
-                        Button("Review") { destination = .photo(capture) }
-                    }
-                    Button("Already in Photos") { workflow.confirmAlreadySaved() }
-                    Button("Save again…") { repeatSaveConfirmation = true }
-                }.buttonStyle(.bordered)
-            }
-            if workflow.phase == .failed {
-                HStack {
-                    if workflow.canRetry { Button("Retry save", action: workflow.retry) }
-                    if workflow.needsPhotosPermission {
-                        Button("Open Settings") {
-                            if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
-                        }
-                    }
-                    Button(LocalizedStringKey(workflow.canRetry ? "Discard…" : "OK")) {
-                        if workflow.canRetry { discardConfirmation = true }
-                        else { workflow.discardFailed() }
-                    }
-                }.buttonStyle(.bordered)
-            }
-        }
-        .padding(12).foregroundStyle(.white).background(Color.black.opacity(0.9))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .accessibilityIdentifier("capture.status")
+        CaptureWorkflowStatusCard(
+            workflow: workflow,
+            onReview: { reviewedCapture = $0 },
+            onDiscardConfirmation: { discardConfirmation = true },
+            onRepeatSaveConfirmation: { repeatSaveConfirmation = true }
+        )
     }
 
     private var liveRecipe: LiveColorRecipe {
@@ -247,43 +226,46 @@ struct CameraView: View {
 
     private func cameraPanel(_ panel: CameraPanel, framing: CameraFraming) -> some View {
         VStack(spacing: 0) {
-            CameraPageHeader(title: panel == .zoom ? "Focal length" : panel == .looks ? "Photo styles" : "Camera controls",
+            CameraPageHeader(title: panel == .looks ? "Photo styles" : panel == .status ? "Capture status" : "Camera controls",
                              backIdentifier: "camera.panel.back") {
                 activePanel = nil
             }
             ScrollView {
-                if panel == .zoom { zoomRuler }
-                else if panel == .looks {
+                if panel == .looks {
                     CameraLookPicker(settings: settings) { activePanel = nil }.padding(20)
                 } else if panel == .status {
                     VStack(spacing: 20) {
-                        Text(LocalizedStringKey(camera.isPreviewFrozen ? "Capturing RAW" : camera.status))
-                        if !workflow.status.isEmpty { workflowStatus }
-                        Text(estimatedOutputLabel).font(.caption).foregroundStyle(.secondary)
+                        Text(LocalizedStringKey(camera.isCapturing ? "Capturing RAW" : camera.status))
+                        workflowStatus
+                        Text(LocalizedStringKey(estimatedOutputLabel)).font(.caption).foregroundStyle(.secondary)
                     }.padding(22)
                 } else {
                     VStack(spacing: 20) {
-                        zoomButtons
-                        styleButton
-                        HStack { resolutionButton; qualityButton }
+                        HStack {
+                            opticalSpecReadout
+                            Spacer()
+                            qualityButton
+                            gridButton
+                        }
+                        CameraLookPicker(settings: settings) {}
                         HStack { thumbnailButton; Spacer(); shutter(diameter: 76); Spacer(); settingsButton }
-                        if !workflow.status.isEmpty { workflowStatus }
+                        workflowStatus
                     }.padding(22)
                 }
             }
-        }.tint(.white) // The system Liquid Glass sheet is the panel background.
+        }.tint(.white)
     }
 
     private func offerCompactPanel(for style: CameraChromeLayout.Style) {
         if compactPanel.offer(hasGeometry: camera.geometry != nil, style: style,
                               settingsPresented: settingsPresented, reviewing: reviewedCapture != nil,
-                              capturing: camera.isCapturing, frozen: camera.isPreviewFrozen) {
+                              capturing: camera.isCapturing) {
             activePanel = .compact
         }
     }
 
     private func restartCamera() {
-        guard !settingsPresented, reviewedCapture == nil, scenePhase == .active, !camera.isCapturing else { return }
+        guard reviewedCapture == nil, scenePhase == .active, !camera.isCapturing else { return }
         if camera.isReady && configuredPreviewLimit == settings.centerPreviewLongEdge { return }
         configuredPreviewLimit = settings.centerPreviewLongEdge
         camera.start(mode: selectedLens, centerPreviewLongEdge: settings.centerPreviewLongEdge)
@@ -293,10 +275,11 @@ struct CameraView: View {
         Button {
             guard !rawTests.isRecording, workflow.canCapture, let reservation = camera.reserveCapture() else { return }
             activePanel = nil
+            filterDialVisible = false
             shutterReservation = reservation
-            let export = ExportSettings.native.withFraming(camera.currentFraming)
-            let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality,archiveF5RAW:settings.archiveF5RAW,
-                rawArchiveID: settings.captureQuality == .balanced ? UUID() : nil)
+            let export = ExportSettings.camera24(framing: camera.currentFraming)
+            let snapshot = CaptureSnapshot(recipe: settings.recipe, output: export, quality: settings.captureQuality, archiveF5RAW: settings.archiveF5RAW,
+                rawArchiveID: settings.captureQuality == .balanced && settings.archiveBalancedPreColorRAW ? UUID() : nil)
             workflow.capturePhoto(snapshot: snapshot) { completion in
                 guard scenePhase == .active, !settingsPresented, reviewedCapture == nil else {
                     completion(.failure(CaptureUIError.cameraInactive)); return
@@ -304,31 +287,17 @@ struct CameraView: View {
                 camera.capturePhoto(reservation: reservation, quality: snapshot.quality, snapshot: snapshot, completion: completion)
             }
         } label: {
-            ZStack {
-                Circle().strokeBorder(.white, lineWidth: 2.5)
-                Circle().strokeBorder(.white.opacity(0.45), lineWidth: 0.6).padding(3.5)
-                if workflow.isWorking { ProgressView() }
-                else { Circle().fill(.white).padding(7) }
-            }
-            .frame(width: diameter, height: diameter)
-            .contentShape(Circle())
+            OpticalLensShutterLabel(
+                diameter: diameter,
+                isCapturing: camera.isCapturing || workflow.phase == .capturing,
+                isWorking: workflow.isWorking,
+                progress: workflow.progress
+            )
         }
         .disabled(rawTests.isRecording || !camera.canReserveCapture || !workflow.canCapture)
         .accessibilityLabel("Take photo and save to Photos")
         .accessibilityIdentifier("camera.shutter")
         .accessibilityHint("Apply your saved settings and automatically save an HDR photo")
-    }
-
-}
-
-enum CameraDestination: Identifiable {
-    case settings
-    case photo(SavedCapture)
-    var id: String {
-        switch self {
-        case .settings: return "settings"
-        case .photo(let capture): return capture.id.uuidString
-        }
     }
 }
 
@@ -338,6 +307,63 @@ private enum CaptureUIError: LocalizedError {
 }
 
 enum CameraPanel: String, Identifiable {
-    case compact, zoom, looks, status
+    case compact, looks, status
     var id: Self { self }
+}
+
+private struct CaptureWorkflowStatusCard: View {
+    @ObservedObject var workflow: CaptureWorkflow
+    let onReview: (SavedCapture) -> Void
+    let onDiscardConfirmation: () -> Void
+    let onRepeatSaveConfirmation: () -> Void
+
+    var body: some View {
+        if !workflow.status.isEmpty {
+            VStack(spacing: 10) {
+                Text(LocalizedStringKey(workflow.status)).font(.footnote).multilineTextAlignment(.center)
+                if workflow.phase == .processing {
+                    ProgressView(value: workflow.progress)
+                        .tint(.white.opacity(0.9))
+                }
+                if workflow.phase == .saveOutcomeUnknown {
+                    if let date = workflow.pendingDate {
+                        Text(date.formatted(date: .abbreviated, time: .shortened))
+                            .font(.caption).foregroundStyle(.white.opacity(0.65))
+                    }
+                    HStack {
+                        if let capture = workflow.pendingCapture {
+                            Button("Review") { onReview(capture) }
+                        }
+                        Button("Already in Photos") { workflow.confirmAlreadySaved() }
+                        Button("Save again…") { onRepeatSaveConfirmation() }
+                    }.buttonStyle(.bordered)
+                }
+                if workflow.phase == .failed {
+                    HStack {
+                        if workflow.canRetry { Button("Retry save", action: workflow.retry) }
+                        if workflow.needsPhotosPermission {
+                            Button("Open Settings") {
+                                if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                            }
+                        }
+                        Button(LocalizedStringKey(workflow.requiresDiscardConfirmation ? "Discard…" : "OK")) {
+                            if workflow.requiresDiscardConfirmation { onDiscardConfirmation() }
+                            else { workflow.discardFailed() }
+                        }
+                    }.buttonStyle(.bordered)
+                }
+            }
+            .padding(14)
+            .foregroundStyle(.white)
+            .background {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .strokeBorder(.white.opacity(0.22), lineWidth: 0.65)
+                    }
+            }
+            .accessibilityIdentifier("capture.status")
+        }
+    }
 }

@@ -4,6 +4,7 @@ import SwiftUI
 import Testing
 import UIKit
 import ImagingCore
+import Capture
 import Peripheral
 @testable import GlassCam
 
@@ -80,19 +81,19 @@ struct PhotoDeliveryTests {
 }
 
 struct CameraControlsTests {
-    @Test(arguments: ["no-geometry","settings","review","capture","frozen"])
+    @Test(arguments: ["no-geometry","settings","review","capture"])
     func compactPanel_waitsUntilPresentationIsSafe(blocker: String) {
         var panel = CompactCameraPanel()
         let result = panel.offer(hasGeometry: blocker != "no-geometry", style: .separate,
                                  settingsPresented: blocker == "settings", reviewing: blocker == "review",
-                                 capturing: blocker == "capture", frozen: blocker == "frozen")
+                                 capturing: blocker == "capture")
         #expect(!result)
         #expect(!panel.offered)
     }
     @Test func compactPanel_dismissalDoesNotImmediatelyReopen() {
         var panel = CompactCameraPanel()
-        let first = panel.offer(hasGeometry: true, style: .separate, settingsPresented: false, reviewing: false, capturing: false, frozen: false)
-        let second = panel.offer(hasGeometry: true, style: .separate, settingsPresented: false, reviewing: false, capturing: false, frozen: false)
+        let first = panel.offer(hasGeometry: true, style: .separate, settingsPresented: false, reviewing: false, capturing: false)
+        let second = panel.offer(hasGeometry: true, style: .separate, settingsPresented: false, reviewing: false, capturing: false)
         #expect(first)
         #expect(!second)
     }
@@ -126,5 +127,47 @@ struct CameraControlsTests {
         }
         #expect(points == [CGPoint(x:100,y:0),CGPoint(x:100,y:600),CGPoint(x:0,y:200),CGPoint(x:300,y:200),
                            CGPoint(x:200,y:0),CGPoint(x:200,y:600),CGPoint(x:0,y:400),CGPoint(x:300,y:400)])
+    }
+    @Test func apertureCutout_excludesInteriorPhotographAndCoversPeriphery() {
+        let framing = CameraFraming(size: CGSize(width: 390, height: 844), photoAspectRatio: 0.75)
+        let path = PhotoFrameBoundary.apertureCutout(window: framing.window, photo: framing.photo).cgPath
+        #expect(!path.contains(CGPoint(x: framing.photo.midX, y: framing.photo.midY), using: .evenOdd))
+        #expect(!path.contains(CGPoint(x: framing.photo.minX + 0.5, y: framing.photo.minY + 0.5), using: .evenOdd))
+        #expect(path.contains(CGPoint(x: framing.photo.midX, y: framing.photo.minY - 1), using: .evenOdd))
+        #expect(path.contains(CGPoint(x: framing.photo.midX, y: framing.photo.maxY + 1), using: .evenOdd))
+
+        let bevel = PhotoFrameBoundary.bevelRect(for: framing.photo)
+        #expect(bevel.contains(framing.photo))
+        #expect(bevel.minX == framing.photo.minX - 0.5)
+        #expect(bevel.maxX == framing.photo.maxX + 0.5)
+    }
+    @Test @MainActor func opticalLookCatalog_coversAllBundledLooksAndUpdatesSelection() {
+        let resources = ColorResources(resourceDirectory: Bundle.main.resourceURL)
+        let hncsItems = OpticalLookDescriptor.items(mode: .hncs, resources: resources, family: .xh2s)
+        let lumixItems = OpticalLookDescriptor.items(mode: .lumix, resources: resources, family: .xh2s)
+        #expect(hncsItems.count == HNCSEngine.cameraPresets.count)
+        #expect(lumixItems.count == LUMIXEngine.looks.count)
+        #expect(hncsItems.allSatisfy { !$0.shortTitle.isEmpty && !$0.traitKey.isEmpty })
+        #expect(lumixItems.allSatisfy { !$0.shortTitle.isEmpty && !$0.traitKey.isEmpty })
+        #expect(lumixItems.first { $0.id == "leica-monochrome" }?.isMonochrome == true)
+
+        let suiteName = "dev.glasscam.tests.dial.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let store = CameraSettingsStore(defaults: defaults)
+
+        store.colorMode = .hncs
+        OpticalLookDescriptor.apply(id: "nature", to: store)
+        #expect(OpticalLookDescriptor.currentID(settings: store) == "nature")
+
+        store.colorMode = .ffcs
+        OpticalLookDescriptor.apply(id: "8", to: store)
+        #expect(store.simulationIndex == 8)
+        #expect(OpticalLookDescriptor.currentID(settings: store) == "8")
+
+        store.colorMode = .lumix
+        OpticalLookDescriptor.apply(id: "vivid", to: store)
+        #expect(store.lumix.photoStyle == "vivid")
+        #expect(OpticalLookDescriptor.currentID(settings: store) == "vivid")
     }
 }

@@ -10,15 +10,15 @@ GlassCam 在快门时冻结处理配方，取得源照片后自动生成 HDR HEI
 
 授权成功后，相机按快照执行 Speed 单帧或 Balanced 四帧拍摄，默认 Balanced。相机配置、拍摄和恢复由后台串行队列管理；先保留取景画面并释放原会话，再建立物理主摄原生视角的 `.photo` Bayer RAW 会话。`F5CaptureDriver` 等待测光稳定并锁定曝光、ISO、焦点与白平衡，逐组确认原始 DNG、整数缓冲及终结回调后交付。取景恢复失败仍保留已完成的源照片。
 
-拍摄预约及捕获期间推迟方向与变焦变更，恢复后应用最后一次请求。旧会话、旧请求和重复回调通过身份与阶段检查隔离。取景就绪要求有效帧已实际入队，冻结会撤销旧代次待投递帧及排队刷新。会话自动恢复在 30 秒窗口内最多接纳两次，过期或取消的会话不能自行重建。
+拍摄预约及捕获期间推迟方向变更，恢复后应用最后一次方向请求。当前拍摄固定主摄原生视角，界面不提供变焦操作；后台收到的拍摄期间变焦请求被忽略。旧会话、旧请求和重复回调通过身份与阶段检查隔离。取景就绪要求有效帧已实际入队，冻结会撤销旧代次待投递帧及排队刷新。会话自动恢复在 30 秒窗口内最多接纳两次，过期或取消的会话不能自行重建。
 
 ### 保留、处理与保存
 
 常规前台流程是 `idle → authorizing → capturing → retaining → processing → saving → idle`。失败进入 `failed`，后台或受保护数据不可读时暂停处理；恢复检查和相册结果未知分别使用 `restoring`、`saveOutcomeUnknown`。
 
-收到源照片后，工作流先把源数据和快照写入 `CaptureJournal`，再执行完整源图处理。照片自身的白平衡、解码尺寸与拍摄几何在处理时绑定到本张快照，后续界面设置不参与这张照片的重试。成片回看从已编码 HEIF 解码，编码文件及其尺寸、校验值和最终快照持久化后才提交相册。
+收到源照片后，工作流在后台把源数据和快照写入 `CaptureJournal`，同时取得已校验的格式载荷，再执行完整源图处理；主线程只接收结果和发布状态。照片自身的白平衡、解码尺寸与拍摄几何在处理时绑定到本张快照，后续界面设置不参与这张照片的重试。成片回看从已编码 HEIF 解码，编码文件及其尺寸、校验值和最终快照持久化后才提交相册。
 
-Photos 保存复制原始 HEIF 文件，保留原文件名与拍摄时间，并持有文件直至完成回调。保存成功回调到达后，先持久化 `savedConfirmed` 回执，再清理活动记录，最后发布回看成片并释放单张准入。保存完成后仍留在相机，缩略图打开成片；分享继续使用该文件。HEIF 元数据、HDR 编码及兼容分享见[RAW 解码与导出](raw-decode-and-export.md)。
+Photos 保存复制原始 HEIF 文件，保留原文件名与拍摄时间，并持有文件直至完成回调。保存成功回调到达后，先持久化 `savedConfirmed` 回执，再清理活动记录，最后发布回看成片并释放单张准入。保存完成后仍留在相机，缩略图打开成片；分享继续使用该文件。HEIF 元数据、HDR 编码及兼容分享见[图像管线与成片导出](image-pipeline.md)。
 
 ### 磁盘阶段与重启恢复
 
@@ -37,25 +37,29 @@ Photos 保存复制原始 HEIF 文件，保留原文件名与拍摄时间，并�
 
 处理失败保留源照片和冻结快照，重试处理同一输入。源持久化失败时，当前任务仍持有输入，重试先完成保留。已有编码结果时，保存失败重试复用该文件；相册明确失败会回到 `encodedReady`。编码记录、回执或清理步骤失败，重试只补齐尚未完成的记录步骤，不重复成功的处理或相册事务。
 
-Journal 检查文件字节数和 SHA-256；损坏文件、未知版本或暂时不可读的记录进入失败状态并保留文件，由用户重试或明确放弃。清理先将活动目录改名为 `FinishedCapture-<UUID>`，再递归删除；后续启动可继续清理这些退出活动区的目录。工作流已持有的回看与分享文件独立于活动记录。
+Journal 在接纳外部文件和重启恢复时检查字节数与 SHA-256，并把已校验载荷交给后续处理。损坏文件、未知版本或暂时不可读的记录进入失败状态并保留文件。普通快门已提交后的失败都需要明确确认放弃，即使只有部分 RAW 交付、无法重试，也不使用普通“OK”删除素材。
+
+成功收尾只接受 `savedConfirmed`，按冻结选择完成归档后退役活动记录。明确放弃直接退役受控活动目录和暂存目录，不重新解析损坏的 intent，也不执行失败的归档；多份中断记录可以一起放弃。目录先改名，再递归删除，后续启动可继续清理退出活动区的目录。工作流持有的回看与分享文件独立于活动记录。
 
 ### 输出尺寸
 
-Speed 保留名义 12MP 原生尺寸；Balanced 采用横纵各 2 倍的曲率重建栅格。两种模式均使用 `ExportSettings.native`，完成配方裁剪后保存，不提供额外的 24MP／48MP 选择。取景分辨率只影响取景缓冲。
+Speed 与 Balanced 成片固定约 24MP，不提供分辨率选项。Speed 的单帧重建低于 24MP 时放大，Balanced 的双密度重建高于 24MP 时缩小；均先完成配方裁剪、色彩与空间处理，再在线性光中使用 Lanczos 调整尺寸。4:3 成片为 5656×4242，竖拍交换宽高，其他构图保持比例并将像素总数调整到约 2400 万。取景分辨率只影响取景缓冲。
 
-导入文件 API 仍可使用显式宽高和像素档位，详见 [RAW 解码与导出](raw-decode-and-export.md)。
+内部图像 API 仍可使用原生尺寸和显式宽高，详见 [图像管线与成片导出](image-pipeline.md)。
 
-### 调色前文件
+### 调色前文件与已归档空间
 
-Balanced 快门为照片冻结 `rawArchiveID`。处理入口在品牌调色前将浮点相机 DNG、线性 sRGB TIFF 交给 `CaptureRAWStore`，保存到 Documents 的 `RAWCaptures/<ID>/balanced/`。归档失败阻止调色，原有输入留在恢复记录中；重试验证并复用已发布文件，确认保存后的 Journal 清理不删除调色前归档。
+日常 Balanced 快门的调色前原片归档默认关闭；仅当高级设置开启 `archiveBalancedPreColorRAW` 时，快门才为照片冻结 `rawArchiveID`。携带 `rawArchiveID` 时，处理入口在品牌调色前将浮点相机 DNG、线性 sRGB TIFF 交给 `CaptureRAWStore`，保存到 Documents 的 `RAWCaptures/<ID>/balanced/`；归档失败阻止调色，原有输入留在恢复记录中，重试验证并复用已发布文件，确认保存后的 Journal 清理不删除调色前归档。未携带 `rawArchiveID` 时跳过相机浮点文件持久化与调色前落盘。
 
-设置页的两个测试入口分别记录十一张等曝光 Bayer 素材，或记录当前场景的 Balanced 合成原片。场景记录不进入普通工作流的调色、HEIF 编码与相册保存。输入事务在归档成功前保持在同组 `bayer-inputs` 目录，失败保留已录制文件。
+高级设置的「RAW 与诊断」卡片提供两个测试入口（十一张等曝光 Bayer 素材记录、当前场景 Balanced 合成原片记录），并统计 `RAWCaptures`、`F5Archives`、`F5Samples` 三个已完成归档目录的占用组数与字节数，支持二次确认清理，不触碰活动区与暂存记录。场景记录始终生成 `rawArchiveID`，不进入普通工作流的调色、HEIF 编码与相册保存；输入事务在归档成功前保持在同组 `bayer-inputs` 目录，失败保留已录制文件。
+
+高级设置的重置效果调整按当前所选色彩引擎恢复后期曝光增益及引擎微调参数（HNCS 曲线／工作色域／渲染意图／工厂色温覆盖、FFCS 参考调整开关与锐化半径、LUMIX 对比度与饱和度），保留当前所选风格预设、表族、白平衡策略及颗粒与锐化开关。
 
 ### 格式注册与 F5 边界
 
-`CaptureFormats` 是不可变注册表，`GlassCamApp` 创建含 `F5CaptureFormat` 的实例，并注入工作流服务和 Journal。Capture 定义 `CapturePayload`、`CaptureProvenance`、`CaptureFormat` 及通用事务顺序；格式实现负责载荷编解码、文件校验与保留、暂存恢复、归档和渲染。
+`CaptureFormats` 是不可变注册表，`GlassCamApp` 创建含 `F5CaptureFormat` 的实例，并注入工作流服务和 Journal。Capture 定义 `CapturePayload`、`CaptureProvenance`、`CaptureFormat` 及通用事务顺序，并统一创建受保护且排除备份的活动目录。格式实现负责载荷编解码、输入校验与保留、暂存恢复、归档和渲染；保留和恢复返回记录与对应载荷。
 
-Speed／Balanced 使用独立 Bayer RAW 驱动，分别采集一帧／四帧，输出由 F5 曲率重建策略决定，快照不套用普通相机的 24MP／48MP 目标。完整暂存 burst 可以接入同一个 Journal；未完成 burst 保留诊断文件并要求明确放弃。开启 RAW 归档时，确认保存后的清理先调用格式的归档实现。具体输入限制与重建方式见 [F5](f5.md)。
+Speed／Balanced 使用独立 Bayer RAW 驱动，分别采集一帧／四帧，输出由 F5 曲率重建策略决定，快照固定 24MP 成片目标。完整暂存 burst 可以接入同一个 Journal；未完成 burst 保留诊断文件并要求明确放弃。开启 RAW 归档时，确认保存后的清理先调用格式的归档实现。具体输入限制与重建方式见 [F5](f5.md)。
 
 ## 不变量
 
@@ -71,28 +75,32 @@ Speed／Balanced 使用独立 Bayer RAW 驱动，分别采集一帧／四帧，�
 10. 损坏 RAW 不保存且不静默删除，退出活动区后的清理不重复保存。— `CaptureTests/RecoveryTests.damagedRaw_isPreservedWithoutSaving`、`CaptureTests/RecoveryTests.retiredCleanup_restartDoesNotRepeatSave`
 11. 已提交照片不因界面停止或取景恢复失败而丢失，捕获期间的方向变化合并到恢复后执行。— `GlassCamTests/CameraLifecycleTests.committedPhoto_survivesStoppedViewOrPreviewFailure`、`GlassCamTests/CameraLifecycleTests.capture_defersAndCoalescesOrientationUntilRestoration`
 12. 取景就绪等待真实入队帧，冻结后排队投递与刷新不能覆盖画面。— `GlassCamTests/FrameDeliveryTests.readiness_waitsForActualEnqueue`、`GlassCamTests/FrameDeliveryTests.freeze_revokesQueuedEnqueueAndFlush`
-13. 数字变焦允许满足比例校验的较小 RAW，并约束有效像素估计。— `CaptureTests/OutputPolicyTests.explicitlyZoomedRAW_acceptsSmallerMatchingAspectOnly`、`CaptureTests/OutputPolicyTests.digitalZoom_limitsEstimatedNativePixels`
-14. 24／48MP 按 24MP 有效像素阈值选档并保持构图比例，显式旧尺寸不放大。— `CaptureTests/OutputPolicyTests.sourcePixelThreshold_selects24Or48MP`、`CaptureTests/OutputPolicyTests.adaptiveOutput_preservesCompositionAt24MP`、`CaptureTests/OutputPolicyTests.invalidOrExplicitUpscaledOutput_isRejected`
+13. 内部源尺寸检查只接受比例匹配的显式变焦 RAW；变焦元数据不改变固定 24MP 输出。— `CaptureTests/OutputPolicyTests.explicitlyZoomedRAW_acceptsSmallerMatchingAspectOnly`、`CaptureTests/OutputPolicyTests.digitalZoom_keeps24MPOutput`
+14. 两种模式固定 24MP，保持构图比例；恢复快照也固定 24MP。— `CaptureTests/OutputPolicyTests.cameraModes_share24MPDimensions`、`adaptiveOutput_preservesCompositionAt24MP`、`restoredSnapshot_normalizesOtherResolutionTo24MP`
 15. Photos 仅申请添加权限，导入保留原始 HEIF 字节、文件名、日期和文件所有权。— `GlassCamTests/PhotoDeliveryTests.authorization_requestsAddOnly`、`GlassCamTests/PhotoDeliveryTests.photoImport_keepsOriginalHEIFBytesNameAndOwnership`、`GlassCamTests/PhotoDeliveryTests.photoImport_preservesFilenameDateAndPhotoResourceType`
-16. F5 和规范化 Speed 记录往返保持固定字节，旧 Speed 保留质量与 12MP 输出并沿用既有规范化。— `F5Tests/currentJournal_decodeEncodePreservesBytes`、`F5Tests/legacySpeed_decodeRetainsQualityAndExistingNormalization`
+16. 当前 F5 和 Speed 记录往返保持固定字节，Speed 恢复采用 24MP。— `F5Tests/currentJournal_decodeEncodePreservesBytes`、`F5Tests/legacySpeed_decodeRetainsModeAndUses24MP`
 17. F5 保留重试复用原记录与五帧，损坏 burst 保留文件与格式错误，确认保存后按快照归档源文件。— `F5Tests/retainedBurst_retryKeepsOriginalRecordAndFiveFrames`、`F5Tests/corruptBurst_loadRetainsFilesAndOriginalFailure`、`F5Tests/confirmedBurst_clearArchivesOriginals`
 18. 自动会话恢复受预算约束，旧代次或取消的会话不重启。— `CaptureTests/SessionRecoveryTests.recoveryBudget_boundsAutomaticRebuildsAndRejectsBackwardsTime`、`CaptureTests/SessionRecoveryTests.staleOrCancelledSession_doesNotRestart`
 
+19. 部分 RAW 交付后的失败要求明确放弃；损坏、缺失或多份暂存记录，以及归档失败，不阻止明确放弃。— `F5Tests/partialBayerFailure_requiresExplicitDiscardOfDeliveredRAW`、`unrecoverableStaging_explicitDiscardRemovesIt`、`savedBurst_archiveFailureDoesNotBlockExplicitDiscard`
+20. Bayer 保留目录排除系统备份。— `F5Tests/retainedBayer_pendingDirectoryIsExcludedFromBackup`
+21. 日常调色前归档默认关闭；未设置 `rawArchiveID` 时跳过调色前原片写出，已归档目录统计与清理不影响活动恢复目录。— `CaptureTests/SettingsTests.newSettings_liveColorIsDisabled`、`F5Tests/F5FloatArchiveTests.balancedRenderWithoutArchiveID_skipsPreColorFilesAndCameraPersistence`、`CaptureTests/RAWArchiveTests.storageUsageAndClear_removesArchivedRootsWithoutTouchingUnlistedDirectories`
+22. 重置效果调整恢复后期曝光与当前色彩引擎的微调项，保留已选风格与效果开关。— `CaptureTests/SettingsTests.resetCurrentEffectAdjustments_resetsActiveEngineTuningAndKeepsStyleAndGates`
+
 ## 数据与版本
 
-活动记录位于应用支持目录的 `GlassCam/PendingCapture`。单张记录沿用 `schemaVersion: 1`、`capture.json`、`source.dng` 和 `result.heic`；F5 记录使用 `schemaVersion: 2`、`sourceKind: "f5"` 和 `burst/` 载荷。记录字段继续包括 `id`、`createdAt`、`snapshot`、`stage`、`raw`、`encoded`、`width`、`height`、`attemptID`、`lastError`，文件描述保留 `bytes` 与 `sha256`。
+活动记录位于应用支持目录的 `GlassCam/PendingCapture`。相机拍摄（Speed／Balanced）均使用 F5 记录格式（`schemaVersion: 2`、`sourceKind: "f5"`、`burst/` 载荷与 `result.heic`）；内部非相机单文件入口保留 `schemaVersion: 1`（`source.dng`）。记录字段包括 `id`、`createdAt`、`snapshot`、`stage`、`raw`、`encoded`、`width`、`height`、`attemptID`、`lastError`，文件描述保留 `bytes` 与 `sha256`。
 
-记录以排序 JSON 键原子写入并同步文件；iOS 文件使用完整文件保护，活动目录排除备份。`CaptureSnapshot` 保留 `recipe`、`output`、`quality`、`f5`、`archiveF5RAW` 与 `rawArchiveID` 键。包含 `f5` 来源信息的记录必须通过已注册格式的解码器读取，来源类型由 F5 提供。单张持久恢复的决定见 [ADR 0001](adr/0001-durable-single-capture.md)。
+记录以排序 JSON 键原子写入并同步文件；iOS 文件使用完整文件保护，活动目录排除备份。`CaptureSnapshot` 保留 `recipe`、`output`、`quality`、`f5`、`archiveF5RAW` 与 `rawArchiveID` 键。包含 `f5` 来源信息的记录通过已注册格式的解码器读取，来源类型由 F5 提供。单张持久恢复的决定见 [ADR 0001](adr/0001-durable-single-capture.md)。
 
-快照缺少 `quality` 时采用 Balanced，Quality 及未知质量值拒绝解码；缺少 `archiveF5RAW` 时采用 `false`。旧 Speed 照片仍按 `speed` 和 12MP 读取，再编码时补齐 `archiveF5RAW: false` 是既有规范化行为；固定样例见 [journal fixtures](../tests/fixtures/journal/README.md)。冻结照片配方按自身兼容规则恢复，旧 Nature 白平衡与 square-crop 构图保留。
-
-未来相机设置采用独立迁移：保存的 F5 偏好转为 Balanced，Speed 偏好保留为单帧 RAW，square-crop 相机预设迁到 standard，缺少白平衡策略的旧相机设置采用照片白平衡。设置迁移不改写待完成照片的快照。对应行为由 `CaptureTests/SettingsTests.speedPreference_preservesSingleRAWMode`、`CaptureTests/RecipeMigrationTests.savedSquareCameraPreference_migratesAndPersistsStandard`、`CaptureTests/RecoveryTests.legacyNature_recoveryKeepsFrozenWhiteBalance` 覆盖。
+快照缺少 `quality` 时采用 Balanced，Quality 及未知质量值拒绝解码；缺少 `archiveF5RAW` 时采用 `false`，输出策略统一规范化为 24MP；固定样例见 [journal fixtures](../tests/fixtures/journal/README.md)。相机设置恢复时将历史 `f5` 偏好转为 `balanced`、`speed` 保留为单帧 RAW，`square-crop` 预设迁为 `standard`，缺省白平衡策略采用 `photo`；设置迁移不改写待完成照片的已冻结快照（对应 `CaptureTests/SettingsTests`、`RecipeMigrationTests`、`RecoveryTests`）。
 
 | UserDefaults 键 | 内容 |
 |---|---|
 | `editor.processingRecipe.revision8.v1` | 经过验证的完整相机处理配方 |
 | `camera.capture.quality.v1` | Speed 或 Balanced 拍摄质量，默认 Balanced |
-| `camera.f5.keepRaw` | Speed／Balanced RAW 归档选择 |
+| `camera.balanced.keepPreColorRAW` | 日常 Balanced 快门是否归档调色前浮点原片，默认 `false` |
+| `camera.f5.keepRaw` | Speed／Balanced 输入 Bayer RAW 归档选择，默认 `false` |
 | `camera.grid.visible` | 构图网格开关 |
 | `camera.liveColor.enabled` | 实验实时色彩开关 |
 | `camera.preview.center.longEdge` | 中心取景长边限制 |

@@ -1,6 +1,6 @@
 # GlassCam
 
-GlassCam 是以 SwiftUI、AVFoundation 和 C++17 开发的 iPhone 相机，支持三摄接力变焦、Speed 单帧 Bayer RAW、Balanced 四帧曲率融合、HNCS／FFCS／LUMIX 色彩处理，以及 10-bit HDR HEIF 保存、回看和分享。运行需要 iOS 27.0，构建需要 macOS 和 Xcode 27，数值测试使用 `uv`。
+GlassCam 是以 SwiftUI、AVFoundation、Metal 和 C++17 开发的 iPhone 相机，支持物理主摄原生视角的 Speed 单帧 Bayer RAW、Balanced 四帧曲率重建、HNCS／FFCS／LUMIX 色彩处理，以及 24MP 10-bit HDR HEIF 保存、回看和分享。运行需要 iOS 27.0，构建需要 macOS 和 Xcode 27，数值测试使用 `uv`。
 
 ## 构建与测试
 
@@ -17,8 +17,7 @@ make test-ui
 
 ## 目录与文档
 
-- [App](App)：相机、界面和 Xcode 工程；[Packages/GlassCamKit](Packages/GlassCamKit/Package.swift)：图像、拍摄、外围、F5 与原生内核；[架构](docs/architecture.md)。
-- [scripts](scripts)：构建与资源准备；[tests](tests)：数值检查和固定夹具；[vendor](vendor)：参考资源与[来源说明](NOTICE.md)。
-- [拍摄与恢复](docs/capture-and-recovery.md) · [RAW 解码与导出](docs/raw-decode-and-export.md) · [F5](docs/f5.md)。
-- [取景](docs/viewfinder.md) · [外围玻璃](docs/peripheral-glass.md) · [HNCS](docs/color/hncs.md) · [FFCS](docs/color/ffcs.md) · [LUMIX](docs/color/lumix.md)。
-- [术语](GLOSSARY.md) · [决策](docs/adr) · [变更记录](CHANGELOG.md) · [工作规则](AGENTS.md) · [文档写法](docs/writing-docs.md)。
+- **代码结构**：[App](App)（相机、界面与 Xcode 工程）· [Packages/GlassCamKit](Packages/GlassCamKit/Package.swift)（图像、拍摄、外围、F5 与原生内核）· [scripts](scripts) · [tests](tests) · [vendor](vendor)。
+- **拍摄与图像管线**：[架构](docs/architecture.md) · [拍摄与恢复](docs/capture-and-recovery.md) · [F5 重建](docs/f5.md) · [图像管线与成片导出](docs/image-pipeline.md)。
+- **取景与色彩引擎**：[取景与回看](docs/viewfinder.md) · [外围玻璃](docs/peripheral-glass.md) · [HNCS](docs/color/hncs.md) · [FFCS](docs/color/ffcs.md) · [LUMIX](docs/color/lumix.md)。
+- **规范与决策**：[工作规则](AGENTS.md) · [文档写法](docs/writing-docs.md) · [测试写法](docs/testing.md) · [构建与发布](docs/release.md) · [架构决策](docs/adr/README.md) · [术语表](GLOSSARY.md) · [变更记录](CHANGELOG.md) · [来源说明](NOTICE.md)。

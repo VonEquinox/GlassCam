@@ -4,11 +4,11 @@ final class CaptureWorkflowUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
     func testSpeedSelectionPersistsOnSimulator() throws {
-        try checkPriorityPersistence(quality: "speed", title: "Speed", output: "12 MP")
+        try checkPriorityPersistence(quality: "speed", title: "Speed", output: "24 MP")
     }
 
     func testBalancedSelectionPersistsOnSimulator() throws {
-        try checkPriorityPersistence(quality: "balanced", title: "Balanced", output: "2× sampling")
+        try checkPriorityPersistence(quality: "balanced", title: "Balanced", output: "24 MP")
     }
 
     func testPriorityMenuOnlyOffersSpeedAndBalancedOnSimulator() throws {
@@ -45,7 +45,9 @@ final class CaptureWorkflowUITests: XCTestCase {
 
         XCTAssertTrue(priority.waitForExistence(timeout: 20))
         XCTAssertEqual(priority.value as? String, title)
-        XCTAssertEqual(app.buttons["camera.resolution"].value as? String, output)
+        let resolution = app.otherElements["camera.resolution"]
+        XCTAssertTrue(resolution.exists)
+        XCTAssertEqual(resolution.value as? String, output)
 #else
         throw XCTSkip("This check is restricted to a simulator.")
 #endif
@@ -70,13 +72,17 @@ final class CaptureWorkflowUITests: XCTestCase {
 #endif
     }
 
-    func testRAWRecordingActionsAppearInSettingsOnSimulator() throws {
+    func testRAWRecordingActionsAppearInAdvancedSettingsOnSimulator() throws {
 #if targetEnvironment(simulator)
         let app = makeApp()
         app.launch()
         let settings = app.buttons["camera.settings"]
         XCTAssertTrue(settings.waitForExistence(timeout: 20))
         settings.tap()
+        XCTAssertFalse(app.buttons["settings.raw.record11"].exists)
+        let advanced = app.buttons["settings.advanced"]
+        XCTAssertTrue(advanced.waitForExistence(timeout: 10))
+        advanced.tap()
         let samples = app.buttons["settings.raw.record11"]
         let scene = app.buttons["settings.raw.recordScene"]
         XCTAssertTrue(samples.waitForExistence(timeout: 10))

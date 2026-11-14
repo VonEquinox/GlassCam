@@ -64,15 +64,22 @@ struct PeripheralGlassView: UIViewRepresentable {
         private var pipeline: MTLRenderPipelineState?
         private let color = PairedLiveColorProcessor()
         private var blackTexture: MTLTexture?
-        private let textures = PeripheralLiveTextureStore()
-        private var sourceRevision: UInt64 = 0
+        let textures = PeripheralLiveTextureStore()
+        private var presentationRevision: UInt64 = 0
+        private var colorRevision: UInt64 = 0
         private var sourceEpoch: UInt64 = .max
         private var inFlight = false
         private var lastOpacity = 1.0
         private let colorSpace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
+        private let now: () -> CFTimeInterval
+        private let makeRenderEncoder: (MTLCommandBuffer, MTLRenderPassDescriptor) -> MTLRenderCommandEncoder?
         var isBlack: Bool { lastOpacity >= 0.9999 }
 
-        override init() {
+        init(now: @escaping () -> CFTimeInterval = CACurrentMediaTime,
+             makeRenderEncoder: @escaping (MTLCommandBuffer, MTLRenderPassDescriptor) -> MTLRenderCommandEncoder? = {
+                 $0.makeRenderCommandEncoder(descriptor: $1)
+             }) {
+            self.now = now; self.makeRenderEncoder = makeRenderEncoder
             super.init()
             guard let device else { return }
             queue = device.makeCommandQueue()
@@ -87,7 +94,14 @@ struct PeripheralGlassView: UIViewRepresentable {
                     .workingColorSpace:colorSpace,.workingFormat:CIFormat.RGBAh.rawValue])
             }
             do {
-                let library = try device.makeLibrary(source:PeripheralGlassShader.source,options:nil)
+                let library: MTLLibrary
+                if let compiled = device.makeDefaultLibrary(),
+                   compiled.makeFunction(name: "glassVertex") != nil,
+                   compiled.makeFunction(name: "pairedPreviewFragment") != nil {
+                    library = compiled
+                } else {
+                    library = try device.makeLibrary(source: PeripheralGlassShader.source, options: nil)
+                }
                 let state = MTLRenderPipelineDescriptor()
                 state.vertexFunction = library.makeFunction(name:"glassVertex")
                 state.fragmentFunction = library.makeFunction(name:"pairedPreviewFragment")
@@ -97,6 +111,13 @@ struct PeripheralGlassView: UIViewRepresentable {
         }
         func configureColor(recipe:LiveColorRecipe?,enabled:Bool,cameraReady:Bool,onStatus:((LiveColorProxyStatus)->Void)?) {
             color.configure(recipe:recipe,enabled:enabled,cameraReady:cameraReady,onStatus:onStatus)
+            updateColorPresentation()
+        }
+        private func updateColorPresentation() {
+            guard colorRevision != color.revision else { return }
+            colorRevision = color.revision; presentationRevision &+= 1
+            textures.reset(); lastDrawPair = 0; lastDrawAt = -.infinity
+            view?.alpha = 0
         }
         func configure(source: PeripheralFrameSource?, framing: CameraFraming, enabled: Bool) {
             let oldAspect = self.framing.photo.width/max(1,self.framing.photo.height)
@@ -105,7 +126,7 @@ struct PeripheralGlassView: UIViewRepresentable {
                 PeripheralSeams(photo:self.framing.photo,window:self.framing.window.size) != PeripheralSeams(photo:framing.photo,window:framing.window.size)
             if self.source !== source || changedFraming {
                 self.source?.observeFrames(nil)
-                self.source = source; worker = PeripheralAlignmentWorker(); sourceRevision &+= 1
+                self.source = source; worker = PeripheralAlignmentWorker(); presentationRevision &+= 1
                 reset(epoch:source?.selection().epoch ?? 0)
                 source?.observeFrames { [weak self,weak source] in self?.wake(for:source) }
             }
@@ -133,12 +154,13 @@ struct PeripheralGlassView: UIViewRepresentable {
             guard !inFlight, view.window != nil, let device, let queue, let context, let pipeline,
                   view.drawableSize.width > 0, view.drawableSize.height > 0,
                   framing.photo.width > 0, framing.photo.height > 0 else { return }
-            if let pair=source?.latest(),pair.serial==lastDrawPair,CACurrentMediaTime()-lastDrawAt<1/60 {return}
+            updateColorPresentation()
+            if let pair=source?.latest(),pair.serial==lastDrawPair,now()-lastDrawAt<1/60 {return}
             // Acquire first, then select the newest immutable pair. Waiting for
             // a drawable must not age a preselected camera frame.
             guard let drawable=view.currentDrawable,let pass=view.currentRenderPassDescriptor,
                   let command=queue.makeCommandBuffer() else {return}
-            let now = CACurrentMediaTime(), pair = source?.latest(), epoch = source?.selection().epoch ?? 0
+            let now = self.now(), pair = source?.latest(), epoch = source?.selection().epoch ?? 0
             if epoch != sourceEpoch { reset(epoch:epoch) }
             let seams = PeripheralSeams(photo:framing.photo,window:framing.window.size)
             let activeEdges = (0..<4).filter { $0 < 2 ? seams.contains(.horizontal) : seams.contains(.vertical) }
@@ -150,7 +172,7 @@ struct PeripheralGlassView: UIViewRepresentable {
             let currentFrame = live.update(pair:pair,analysis:alignment,enabled:enabled,epoch:epoch,
                 seams:seams,window:window,at:now)
             lastDrawPair=pair?.serial ?? 0;lastDrawAt=now
-            let revision = sourceRevision
+            let revision = presentationRevision
             var uploading: PeripheralLiveTextureStore.Bundle?, task: CIRenderTask?
             if let currentFrame {
                 do {
@@ -170,7 +192,12 @@ struct PeripheralGlassView: UIViewRepresentable {
             lastOpacity = minimumOpacity
             let alpha = Float(minimumOpacity)
             guard let sampled = bundle?.texture ?? blackTexture,
-                  let encoder = command.makeRenderCommandEncoder(descriptor:pass) else { return }
+                  let encoder = makeRenderEncoder(command, pass) else {
+                if let uploading {
+                    textures.complete(uploading, success: false, revision: revision, epoch: epoch, at: now)
+                }
+                return
+            }
             let r = framing.photo, w = framing.window
             var uniforms = PeripheralGlassUniforms(
                 photo:SIMD4(Float(r.minX/w.width),Float(r.minY/w.height),Float(r.width/w.width),Float(r.height/w.height)),
@@ -196,11 +223,12 @@ struct PeripheralGlassView: UIViewRepresentable {
                 withExtendedLifetime((task,bundle,sampled,currentFrame)) {}
                 DispatchQueue.main.async {
                     guard let self else { return }; self.inFlight = false
-                    guard self.sourceRevision == revision, self.source?.selection().epoch == epoch else { return }
+                    guard self.presentationRevision == revision, self.source?.selection().epoch == epoch else { return }
+                    self.view?.alpha = completed.status == .completed ? 1 : 0
                     self.color.completed(revision:colorRevision,applied:colorApplied,success:completed.status == .completed)
                     if let uploading {
                         self.textures.complete(uploading,success:completed.status == .completed,
-                            revision:revision,epoch:epoch,at:CACurrentMediaTime())
+                            revision:revision,epoch:epoch,at:self.now())
                     }
                 }
             }
@@ -211,28 +239,28 @@ struct PeripheralGlassView: UIViewRepresentable {
     }
 }
 
-/// System Liquid Glass over exactly the window-minus-photo panes. The clear
-/// variant keeps the wider-lens scene transmitted; darkening comes from the
-/// Metal layer beneath, so opaque black reads as black glass. No pane, rim or
-/// lensing footprint is placed inside the central photograph.
+/// Single-sheet system Liquid Glass over the window-minus-photo aperture.
+/// An even-odd cutout shape renders one continuous glass plate without four-pane
+/// corner seams, while keeping zero glass footprint inside the central photograph.
+struct ApertureCutoutShape: Shape {
+    let photo: CGRect
+    func path(in rect: CGRect) -> Path {
+        PhotoFrameBoundary.apertureCutout(window: rect, photo: photo.intersection(rect))
+    }
+}
+
 struct PeripheralLiquidGlass: View {
     let framing: CameraFraming
     var body: some View {
+        let cutout = ApertureCutoutShape(photo: framing.photo)
         GlassEffectContainer {
-            ZStack(alignment: .topLeading) {
-                ForEach(Array(framing.perimeter.enumerated()), id: \.offset) { _, pane in
-                    Rectangle().fill(.clear)
-                        .glassEffect(.clear, in: Rectangle())
-                        .frame(width: pane.width, height: pane.height)
-                        .position(x: pane.midX, y: pane.midY)
-                }
-            }
-            .frame(width: framing.window.width, height: framing.window.height, alignment: .topLeading)
+            cutout
+                .fill(.clear, style: FillStyle(eoFill: true))
+                .glassEffect(.clear, in: cutout)
+                .frame(width: framing.window.width, height: framing.window.height, alignment: .topLeading)
         }
         .mask {
-            Path { path in
-                for pane in framing.perimeter { path.addRect(pane) }
-            }.fill(.white)
+            cutout.fill(.white, style: FillStyle(eoFill: true))
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)

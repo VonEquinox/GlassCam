@@ -1,6 +1,6 @@
 # 成片采用有界误差的 GPU 颜色处理
 
-矩阵、原始 LUT 采样和曲线适合 GPU 并行；CPU Double 与 Metal Float32 的运算结果存在差异。成片允许按[GPU 色彩处理](../gpu-color.md)规定的 HDR 预算验收，CPU 数值 API 继续保持原有 golden，不用 GPU 结果重生成参考数据。
+矩阵、原始 LUT 采样和曲线适合 GPU 并行；CPU Double 与 Metal Float32 的运算结果存在差异。成片允许按[图像管线与成片导出](../image-pipeline.md)规定的 HDR 预算验收，CPU 数值 API 继续保持原有 golden，不用 GPU 结果重生成参考数据。
 
 FFCS／LUMIX 成片颜色在 Core Image 提供的 Metal 纹理上计算。参数与原始表由 C++ 参考上下文提供，每张图像共享不可变 GPU 资源；Objective-C++ 管理渲染、缓冲和文件交付，Swift 只连接配方、资源和系统接口。HNCS 颜色包含多次整数化，缩小时会放大边界误差，因此保留精确 C++ 颜色核心；整数锐化在 Metal 保持逐值一致，全图颗粒统计和后置颜色结束阶段保留参考实现。
 

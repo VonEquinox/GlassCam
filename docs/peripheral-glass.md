@@ -6,17 +6,17 @@
 
 ### 采样、配对与时钟
 
-[CameraBackend](../App/GlassCam/Camera/CameraBackend+Preview.swift) 从当前物理镜头向更广镜头选择外围来源，主摄通常配超广角，长焦优先配主摄。双摄取景按 60、30、15 Hz 尝试支持的组合；原生焦段在同一帧率下先请求虚拟多摄的物理子镜头端口，再尝试独立物理输入。数字变焦使用独立输入，外围保留较广视场。照片源能力与取景格式分别选择，拍摄会话切换见[拍摄与恢复](capture-and-recovery.md)。
+[CameraBackend](../App/GlassCam/Camera/CameraBackend+Preview.swift) 从当前中心物理镜头向更广镜头选择外围来源；当前相机固定使用物理主摄原生视角，外围取景优先配对超广角镜头。双摄取景按 60、30、15 Hz 尝试支持的组合；同一帧率下先请求虚拟多摄的物理子镜头端口，不可用时再尝试独立物理输入（底层图构建同时保留非原生变焦的独立输入分支）。照片源能力与取景格式分别选择，拍摄会话切换见[拍摄与恢复](capture-and-recovery.md)。
 
 视场比例由当前格式的半视场角正切与实际变焦倍率计算，并使用启用几何畸变校正后的有效视场。输出镜头、视场比例、标定身份或采集模式改变时，`PeripheralFrameSource` 增加 `epoch` 并清空配对。可用标定包含内参 K、外参 R/t 和输出角度；极线搜索须经过当前图像对应验证。
 
-`PeripheralFrameSynchronizer` 先把有效中心帧交给中心取景，再把中心和外围样本送入配对器。配对器优先使用同一同步集合，每路最多暂存三个样本、保留 50 ms；分离回调留出 8 ms 的最近邻窗口，接受的双路 PTS 差最多为 1/60 秒。已消费的样本和旧 `epoch` 回调被丢弃。
+`PeripheralFrameSynchronizer` 先把有效中心帧交给中心取景，再把中心和外围样本送入配对器。配对器优先使用同一同步集合，每路最多暂存三个样本、保留 50 ms；分离回调留出 8 ms 的最近邻窗口，接受的双路 PTS 差最多为 1/60 秒。已消费的样本和旧 `epoch` 回调被丢弃。配对器只管理样本与身份，图像采样和位移分析由后台 worker 执行。
 
 帧元数据保存原始 PTS、尺寸、格式、色彩标签、帧间隔与内参；有会话时钟时另存转换后的主机捕获时间。`observedAt` 在两路均有主机时间时取两者和接收时间的最早值，否则采用接收时间。像素年龄、分析截止和恢复历时使用此时间基准，原始 PTS 用于判断双路曝光时差。
 
 ### 固定视场与可见接缝
 
-当前数据流为：相机帧对 → 固定视场外围纹理 → 同帧中心与外围合成 → 按边遮黑 → 外围 Liquid Glass。`CameraFraming` 的外围区域恰好覆盖窗口减照片区，`PeripheralSeams` 只选择与实际外围相邻的接缝。
+当前数据流为：相机帧对 → 固定视场外围纹理 → 同帧中心与外围合成 → 按边遮黑 → 单体镂空外围 Liquid Glass。`CameraFraming` 的外围区域恰好覆盖窗口减照片区，`PeripheralSeams` 只选择与实际外围相邻的接缝，`PeripheralLiquidGlass` 以 `eoFill` 整板镂空覆盖同一外围区域，避免四块拼接交角高光且不侵入照片区内部。
 
 `PeripheralLivePipeline` 按视场比例构造固定映射，直接读取当前外围 `CVPixelBuffer`。其显示模型使用单位光度增益、空稠密修正和零修正强度；分析中的位移用于计算遮黑。当前窗口须完全落在外围纹理内，并保留至少两个源像素的采样余量。
 
@@ -44,11 +44,11 @@
 
 ### 纹理身份与提交
 
-`PeripheralLiveTextureStore` 各保留一个待上传束、完成束和备用纹理。纹理束持有实际像素帧对、分析帧编号与观测时间、视场映射、容差、源 revision 和上传 ticket，像素来源与分析来源分别记录。
+`PeripheralLiveTextureStore` 各保留一个待上传束、完成束和备用纹理。纹理束持有实际像素帧对、分析帧编号与观测时间、视场映射、容差、呈现 revision 和上传 ticket，像素来源与分析来源分别记录；来源、构图或色彩选择变化会撤销相应呈现身份。
 
 [PeripheralGlassView](../App/GlassCam/UI/PeripheralGlassView.swift) 取得 drawable 后再读取当前帧对，将中心与外围的 Core Image 上传排在同一个 Metal command 的绘制之前，当前 command 直接使用正在上传的纹理束。`pairedPreviewFragment` 在照片区采样同一帧对的中心纹理，在外围使用各边遮黑；中心取景独立投递仍能处理缺少外围样本的情况。
 
-GPU 完成只有在待处理束、ticket、源 revision 和 `epoch` 一致时才更新完成资源。源停止、镜头代次变化、窗口覆盖不足或像素过期使资源失效。
+GPU 完成只有在待处理束、ticket、呈现 revision 和 `epoch` 一致时才更新完成资源。未能创建绘制编码器时立即撤销未提交的上传，后续帧可以继续准备。源停止、镜头代次变化、窗口覆盖不足或像素过期使资源失效。
 
 ## 不变量
 
@@ -68,6 +68,8 @@ GPU 完成只有在待处理束、ticket、源 revision 和 `epoch` 一致时才
 12. 分析暂缺时当前像素继续刷新，重置后的晚到 GPU 完成不能恢复旧资源。— `PeripheralTests/LiveGPUFrameTests.currentPixels_continueRefreshingWithoutAnalysis`、`PeripheralTests/LiveGPUFrameTests.lateGPUCompletion_cannotResurrectResetSource`
 13. 视场不足和窗口改变不能复用覆盖无效的纹理。— `PeripheralTests/LiveGPUFrameTests.insufficientFieldOfViewAndResize_cannotReuseTexture`
 14. 逐边线性与仿射光度接口按各自传递函数域作用于外围。— `PeripheralTests/GlassShaderTests.independentEdgeGains_applyVerifiedLinearPhotometry`、`PeripheralTests/GlassShaderTests.affinePhotometry_appliesTransferFunctionOnce`
+
+15. 创建绘制编码器失败后，下一帧仍能上传并完成呈现。— `GlassCamTests/PairedRendererTests.encoderCreationFailure_nextFrameCanUpload`
 
 ## 运行参数
 

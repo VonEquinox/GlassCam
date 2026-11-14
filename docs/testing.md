@@ -49,7 +49,7 @@
 | `make test-numeric` | C++ 内核与固定 golden、边界输入及分条一致性 |
 | `make test-swift` | package Swift Testing；先准备 FFCS／LUMIX 资源并注入资源、夹具路径 |
 | `make test-app` | `GlassCamUnitTests` scheme 的 App 模拟器单元测试 |
-| `make test-ui` | `GlassCamCaptureTests` scheme 的模拟器用户流程：质量选择持久化与控件重开 |
+| `make test-ui` | `GlassCamCaptureTests` scheme 的模拟器用户流程：质量选择持久化、控件重开与 RAW 记录入口 |
 | `make test-baseline` | 固定完整色彩链检查，以及显式开启的本地 ProRAW 基线 |
 
 模拟器命令默认读取已有设备和运行时清单，选择可用且运行 iOS 27 或更高版本的 iPhone 模拟器：优先已启动项，再按系统版本从新到旧、设备类型和 UUID 稳定排序。找不到合适目标时直接报错，不安装运行时或创建模拟器。可用 `SIMULATOR_ID` 指定已有模拟器的 UUID，例如 `make test-app SIMULATOR_ID=SIMULATOR_UUID`；显式目标也必须满足上述条件。`DIAGNOSTICS` 可指定 App 测试和基线产物目录；`DEVELOPER_DIR` 可选择其他 Xcode 安装。
@@ -64,7 +64,7 @@ GLASSCAM_DNG_DIR="$DNG_DIR" make test-baseline
 
 未设置 `GLASSCAM_DNG_DIR` 时跳过 `BaselineTests`，固定 `ColorChainTests` 仍运行。本地 Bayer 完整导出由 `GLASSCAM_BAYER_REPLAY` 开启，目录内的 `speed/` 与 `balanced/` 分别包含一帧／四帧完整 capture bundle；`GLASSCAM_BAYER_OUTPUT` 可指定保存六种模式与色彩组合的 HEIF 目录；`GLASSCAM_BAYER_ARCHIVE` 开启 Balanced 的完整尺寸调色前归档。未配置时不读取本机素材。`GLASSCAM_RAW_SCENE_REPLAY` 指向一组完整四帧 Bayer 输入，`GLASSCAM_RAW_SCENE_OUTPUT` 指定归档根目录，可单独运行 `F5BayerReplayTests.recordedScene_archivesMergedRAWWithoutColorResources` 验证完整分辨率的纯原片记录；使用可写的素材副本，重建会更新输入目录内的线性相机结果。
 
-其他可选检查通过 `GLASSCAM_LARGE_NUMERICS=1` 开启大尺寸数值样本，或以 `F5_TEST_LUT_PACKAGE` 指定已准备的 F5 似然表目录。
+其他可选检查通过 `GLASSCAM_LARGE_NUMERICS=1` 开启大尺寸数值样本。旧样条 GPU 与似然表实验位于研究仓库。
 
 ## Golden 数据
 
@@ -74,7 +74,7 @@ GLASSCAM_DNG_DIR="$DNG_DIR" make test-baseline
 
 数值测试将固定参考实现作为真实 C++ 输出的 oracle，逐组比较阶段数组、线性与预览输出、并行和分条结果。输入样本、随机种子、数据类型及容差由测试保留；`tests/numeric/support/` 负责加载参考数据、绑定 C ABI 和返回观察结果，行为断言写在参数化用例中。
 
-GPU 颜色遵守 [HDR 预算](gpu-color.md)，不放宽 CPU golden。`NativeTestSupport` 的 BT.2124 指标只负责比较真实输出，不实现颜色管线副本。完整分辨率 RAW、HEIF 编码后色差与手机性能的测量由研究仓库完成。
+GPU 颜色遵守 [HDR 预算](image-pipeline.md)，不放宽 CPU golden。F5 镜头操作对照固定的 [DNG 与浮点参考](../tests/fixtures/f5-post-operations/README.md)，测试不运行退休的样条 GPU 路径。`NativeTestSupport` 的 BT.2124 指标只负责比较真实输出，不实现颜色管线副本。完整分辨率 RAW、HEIF 编码后色差与手机性能的测量由研究仓库完成。
 
 FFCS 只展开参考代码、资源与来源清单；交付文档、上游测试和历史报告保存在固定 `source.zip` 中。来源校验同时检查保留文件与归档内的其余交付项，冻结 golden 的来源身份保持不变。性能和诊断命令在 `GlassCam-research` 的 `tools/studies/product-tooling/` 使用固定产品源码快照运行。
 
