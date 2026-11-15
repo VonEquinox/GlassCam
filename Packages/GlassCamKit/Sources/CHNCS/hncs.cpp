@@ -20,6 +20,7 @@
 #include "hncs_x2d_hdr_gradation.inc"
 #include "hncs_preset_assets.inc"
 #include "hncs_whitepoint_assets.inc"
+#include "hncs_native_color.hpp"
 
 namespace {
 using V = std::array<double,3>;
@@ -62,6 +63,12 @@ M adaptation(const V& source,const V& target) {
     V a=transform(bradford,source), b=transform(bradford,target);
     M scale={b[0]/a[0],0,0,0,b[1]/a[1],0,0,0,b[2]/a[2]};
     return mul(mul(inverse(bradford),scale),bradford);
+}
+M native_adaptation(const V& source,const V& target) {
+    const V a=transform(bradford,source),b=transform(bradford,target);
+    const M scale={b[0]/a[0],0,0,0,b[1]/a[1],0,0,0,b[2]/a[2]};
+    return hncs_native_color::multiply(
+        hncs_native_color::multiply(hncs_native_color::inverse(bradford),scale),bradford);
 }
 // Independent of the host rounding mode, and identical to np.rint for [0,65535].
 inline double round_even(double x) {
@@ -198,6 +205,7 @@ Codes phocus_post_spatial(const preset_assets::Preset *preset,const Codes& input
 
 struct hncs_context {
     M incoming{}, outgoing{}, source_to_native{}, legacy_to_xyz{}, display_adaptation{};
+    M native_output_matrix{};
     std::vector<double> lut;
     // 65536-entry display decode avoids pow() three times per pixel. This is
     // the original ICC gamma, not an approximate color correction / RGB LUT.
@@ -210,29 +218,37 @@ struct hncs_context {
     double cb0=0., cr0=0.;
     bool reproduction=false;
     bool lstar_working_space=false;
+    bool native_colorimetry=false;
     const preset_assets::Preset *preset=nullptr;
     bool preset_tone=true;
     bool preset_pointwise_active=false;
     V capture_target_wb={1.,1.,1.},target_wb={1.,1.,1.};
     double factory_kelvin=0.;
     const uint16_t *curve=assets::v1_gamma;
-    explicit hncs_context(double ev,double kelvin,bool lstar=false,bool repro=false) {
+    explicit hncs_context(double ev,double kelvin,bool lstar=false,bool repro=false,bool native=false) {
         reproduction=repro;
         lstar_working_space=lstar;
+        native_colorimetry=native;
+        const auto interpolate_context=native?hncs_native_color::interpolate:interpolate;
+        const auto multiply=native?hncs_native_color::multiply:mul;
+        const auto invert=native?hncs_native_color::inverse:inverse;
+        const auto adapt=native?native_adaptation:adaptation;
         curve=lstar?(repro?assets::pure_lstar:assets::v1_lstar):(repro?assets::pure_gamma:assets::v1_gamma);
         double k=clamp(std::trunc(kelvin),2000,10000);
         M camera{};
-        interpolate(k,assets::matrix_temperatures,4,assets::camera_to_xyz,9,camera.data());
+        interpolate_context(k,assets::matrix_temperatures,4,assets::camera_to_xyz,9,camera.data());
         const M yuv=matrix(assets::rgb_to_ycbcr);
         legacy_to_xyz=matrix(lstar?assets::working_rgb_to_xyz:assets::legacy_rgb_to_xyz);
-        incoming=mul(mul(yuv,matrix(assets::xyz_to_legacy_rgb)),camera);
+        incoming=native?multiply(yuv,multiply(matrix(assets::xyz_to_legacy_rgb),camera)):
+            multiply(multiply(yuv,matrix(assets::xyz_to_legacy_rgb)),camera);
         // Preserve the original expression, including inverse(W) @ W.
-        outgoing=mul(mul(inverse(legacy_to_xyz),matrix(assets::legacy_rgb_to_xyz)),inverse(yuv));
+        outgoing=native&&!lstar?invert(yuv):
+            multiply(multiply(invert(legacy_to_xyz),matrix(assets::legacy_rgb_to_xyz)),invert(yuv));
         if(repro) for(double& v:incoming)v*=1.7;
         width=int(assets::grid[1]-assets::grid[0])+1;
         height=int(assets::grid[3]-assets::grid[2])+1;
         lut.resize(size_t(width)*height*2);
-        interpolate(k,assets::wb_temperatures,3,repro?assets::lut_repro:assets::lut_std,lut.size(),lut.data());
+        interpolate_context(k,assets::wb_temperatures,3,repro?assets::lut_repro:assets::lut_std,lut.size(),lut.data());
         cb0=assets::grid[0];cr0=assets::grid[2];
         if(lstar) {
             int left=int(assets::lut_expansion[0]),top=int(assets::lut_expansion[1]);
@@ -256,8 +272,9 @@ struct hncs_context {
         }
         set_native_processing_gain(1.);
         exposure=std::exp2(ev);
-        source_to_native=mul(mul(inverse(camera),adaptation(d65,transform(camera,{1.,1.,1.}))),srgb_to_xyz);
-        display_adaptation=adaptation(transform(legacy_to_xyz,{1.,1.,1.}),d65);
+        source_to_native=multiply(multiply(invert(camera),adapt(d65,transform(camera,{1.,1.,1.}))),srgb_to_xyz);
+        display_adaptation=adapt(transform(legacy_to_xyz,{1.,1.,1.}),d65);
+        if(native)native_output_matrix=hncs_native_color::outputMatrix(lstar);
         for(size_t i=0;i<gamma_decode.size();++i)
             {
                 double encoded=double(i)/65535.;
@@ -265,12 +282,13 @@ struct hncs_context {
                 srgb_encode[i]=uint8_t(round_even(clamp(srgb*255.,0,255)));
                 gamma_decode[i]=lstar?(encoded<=.08?encoded/(24389./2700.):std::pow((encoded+.16)/1.16,3.))
                                       :std::pow(encoded,assets::legacy_icc_gamma[0]);
+                if(native)gamma_decode[i]=hncs_native_color::decodeCode(uint16_t(i),1.,lstar);
             }
     }
     bool set_native_processing_gain(double gain) {
         if(!std::isfinite(gain)||gain<=0.)return false;
-        const double threshold=assets::shadow_desaturation[0]/gain;
-        const double a=assets::shadow_desaturation[1]/(threshold*threshold);
+        const double threshold=(native_colorimetry&&reproduction?2.:assets::shadow_desaturation[0])/gain;
+        const double a=(native_colorimetry&&reproduction?0.:assets::shadow_desaturation[1])/(threshold*threshold);
         // CRawColorCorrection::CalculateDesatValues (Phocus 4.2.2, 0x15304).
         // Preserve the native products. Gain describes already prepared input;
         // it changes the dark-chroma threshold, not the RGB exposure again.
@@ -321,6 +339,7 @@ struct hncs_context {
             : std::pow(linear,1./assets::legacy_icc_gamma[0]);
     }
     inline V working_linear_to_extended_srgb(const V& linear) const {
+        if(native_colorimetry)return hncs_native_color::transform(native_output_matrix,linear);
         // Keep the original stage order instead of folding matrices together.
         // Negative components here can be valid colours outside sRGB. The
         // target-colour-space writer, not this matrix, owns gamut clipping.
@@ -633,20 +652,24 @@ extern "C" hncs_context *hncs_create_preset_whitepoint_with_policy(double ev,dou
     context->source_to_native=adapter;
     return context;
 }
-extern "C" hncs_context *hncs_create_preset(double ev,double capture_kelvin,double factory_override,
+static hncs_context *create_preset(double ev,double capture_kelvin,double factory_override,
     int lstar,int repro,int film_type,int raw_type,const char *key,int tone,
-    const double *capture_wb,const double *desired_wb) {
+    const double *capture_wb,const double *desired_wb,bool native) {
     if(!std::isfinite(ev)||ev < -20.||ev > 20.||!std::isfinite(capture_kelvin)||
        !std::isfinite(factory_override)||(lstar!=0&&lstar!=1)||(repro!=0&&repro!=1)||
        (tone!=0&&tone!=1)||(film_type!=0&&film_type!=1&&film_type!=2&&film_type!=4&&film_type!=6&&film_type!=7))return nullptr;
     try {
+        const auto interpolate_context=native?hncs_native_color::interpolate:interpolate;
+        const auto multiply=native?hncs_native_color::multiply:mul;
+        const auto invert=native?hncs_native_color::inverse:inverse;
+        const auto adapt=native?native_adaptation:adaptation;
         const auto *preset=find_preset(key);if(!preset)return nullptr;
         const double capture=clamp(std::trunc(capture_kelvin),2000,10000);
         const double factory=clamp(std::trunc(factory_override!=0.?factory_override:
             preset->cct!=0.?preset->cct:capture_kelvin),2000,10000);
         V baseline{},desired{};
         if(capture_wb)std::copy(capture_wb,capture_wb+3,baseline.begin());
-        else interpolate(clamp(capture,assets::wb_temperatures[0],assets::wb_temperatures[2]),
+        else interpolate_context(clamp(capture,assets::wb_temperatures[0],assets::wb_temperatures[2]),
             assets::wb_temperatures,3,preset_assets::factory_wb,3,baseline.data());
         const bool replace=desired_wb||preset->wb[0]>0.;
         if(desired_wb)std::copy(desired_wb,desired_wb+3,desired.begin());
@@ -658,11 +681,11 @@ extern "C" hncs_context *hncs_create_preset(double ev,double capture_kelvin,doub
         if(!finite(baseline)||!finite(desired))return nullptr;
         for(int i=0;i<3;++i)if(baseline[i]<=0.||desired[i]<=0.)return nullptr;
         M camera{};
-        interpolate(capture,assets::matrix_temperatures,4,assets::camera_to_xyz,9,camera.data());
-        M adapter=mul(mul(inverse(camera),adaptation(d65,transform(camera,{1.,1.,1.}))),srgb_to_xyz);
+        interpolate_context(capture,assets::matrix_temperatures,4,assets::camera_to_xyz,9,camera.data());
+        M adapter=multiply(multiply(invert(camera),adapt(d65,transform(camera,{1.,1.,1.}))),srgb_to_xyz);
         if(replace)for(int row=0;row<3;++row)for(int col=0;col<3;++col)adapter[row*3+col]*=desired[row]/baseline[row];
         for(double v:adapter)if(!std::isfinite(v))return nullptr;
-        auto *context=new hncs_context(ev,factory,lstar!=0,repro!=0);
+        auto *context=new hncs_context(ev,factory,lstar!=0,repro!=0,native);
         context->preset=preset;context->preset_tone=tone!=0;
         context->preset_pointwise_active=true;
         context->source_to_native=adapter;
@@ -672,6 +695,77 @@ extern "C" hncs_context *hncs_create_preset(double ev,double capture_kelvin,doub
             resolved==0&&!lstar?preset_assets::original_gamma:(lstar?assets::v1_lstar:assets::v1_gamma);
         return context;
     } catch(...) {return nullptr;}
+}
+extern "C" hncs_context *hncs_create_preset(double ev,double capture_kelvin,double factory_override,
+    int lstar,int repro,int film_type,int raw_type,const char *key,int tone,
+    const double *capture_wb,const double *desired_wb) {
+    return create_preset(ev,capture_kelvin,factory_override,lstar,repro,film_type,raw_type,key,tone,
+                         capture_wb,desired_wb,false);
+}
+extern "C" hncs_context *hncs_create_preset_native_color(double ev,double capture_kelvin,double factory_override,
+    int lstar,int repro,int film_type,int raw_type,const char *key,int tone,
+    const double *capture_wb,const double *desired_wb) {
+    return create_preset(ev,capture_kelvin,factory_override,lstar,repro,film_type,raw_type,key,tone,
+                         capture_wb,desired_wb,true);
+}
+
+static M native_virtual_response() {
+    M response=matrix(assets::camera_to_xyz+18);
+    for(unsigned row=0;row<3;++row)for(unsigned column=0;column<3;++column)
+        response[row*3+column]*=preset_assets::factory_wb[3+column];
+    return hncs_native_color::inverse(hncs_native_color::inverse(response));
+}
+extern "C" int hncs_whitepoint_parameters_native_color(double x,double y,double *capture_wb,double *kelvin) {
+    if(!capture_wb||!kelvin||!std::isfinite(x)||!std::isfinite(y)||x<=0.||y<=0.||x+y>=1.)return -1;
+    const M response=native_virtual_response();
+    const V neutral=hncs_native_color::transform(hncs_native_color::inverse(response),{x/y,1.,(1.-x-y)/y});
+    if(!finite(neutral)||neutral[0]<=0.||neutral[1]<=0.||neutral[2]<=0.)return -1;
+    V wb{};
+    for(unsigned i=0;i<3;++i)wb[i]=neutral[1]/neutral[i];
+    const double minimum=std::min({wb[0],wb[1],wb[2]});
+    const V xyz=hncs_native_color::transform(response,{minimum/wb[0],minimum/wb[1],minimum/wb[2]});
+    const double sum=xyz[2]+(xyz[0]+xyz[1]),wx=xyz[0]/sum,wy=xyz[1]/sum;
+    const double denominator=std::fma(wy,6.,1.5-wx),u=(wx+wx)/denominator,v=(wy*3.)/denominator;
+    double previous=0.;
+    for(unsigned i=1;i<31;++i) {
+        const auto& row=whitepoint_assets::robertson[i];
+        const double length=std::sqrt(std::fma(row[3],row[3],1.)),base=1./length,slope=row[3]/length;
+        const double distance=std::fma(-(u-row[1]),slope,(v-row[2])*base);
+        if(distance<=0.||i==30) {
+            double temperature=10000.;
+            if(i>1) {
+                const double bounded=std::min(distance,0.),fraction=-bounded/(previous-bounded);
+                const double reciprocal=std::fma(whitepoint_assets::robertson[i-1][0],fraction,(1.-fraction)*row[0]);
+                temperature=1000000./reciprocal;
+                if(!std::isfinite(temperature))return -1;
+                temperature=clamp(std::trunc(temperature+(temperature>=0.?.5:-.5)),2000.,10000.);
+            }
+            std::copy(wb.begin(),wb.end(),capture_wb);*kelvin=temperature;return 0;
+        }
+        previous=distance;
+    }
+    return -1;
+}
+extern "C" hncs_context *hncs_create_preset_whitepoint_native_color(double ev,double x,double y,double factory_override,
+    int lstar,int repro,int film_type,int raw_type,const char *key,int tone,int wb_policy) {
+    if(wb_policy!=0&&wb_policy!=1)return nullptr;
+    V baseline{};double kelvin=0.;
+    if(hncs_whitepoint_parameters_native_color(x,y,baseline.data(),&kelvin)!=0)return nullptr;
+    const double factory=wb_policy==1&&factory_override==0.?kelvin:factory_override;
+    const double *desired=wb_policy==1?baseline.data():nullptr;
+    auto context=std::unique_ptr<hncs_context>(create_preset(ev,kelvin,factory,lstar,repro,film_type,raw_type,
+                                                          key,tone,baseline.data(),desired,true));
+    if(!context)return nullptr;
+    const V white={x/y,1.,(1.-x-y)/y};
+    const M response=native_virtual_response(),inverted=hncs_native_color::inverse(response);
+    M adapter=hncs_native_color::multiply(
+        hncs_native_color::multiply(inverted,native_adaptation(d65,white)),srgb_to_xyz);
+    const V neutral=hncs_native_color::transform(inverted,white);
+    for(unsigned row=0;row<3;++row)for(unsigned column=0;column<3;++column)
+        adapter[row*3+column]*=context->target_wb[row]/neutral[1];
+    for(double value:adapter)if(!std::isfinite(value))return nullptr;
+    context->source_to_native=adapter;
+    return context.release();
 }
 extern "C" int hncs_apply_post_curves(const char *key,int tone,const uint16_t *input,uint16_t *output,size_t count) {
     if((tone!=0&&tone!=1)||(!input&&count)||(!output&&count)||count>std::numeric_limits<size_t>::max()/sizeof(uint16_t)/3)return -1;
@@ -809,7 +903,9 @@ extern "C" hncs_context *hncs_clone_with_apple_hdr_work_scale(const hncs_context
         if(work_scale!=1.) {
             result->extended_gamma_decode.resize(65536);
             for(size_t i=0;i<65536;++i)
-                result->extended_gamma_decode[i]=result->decode_working((double(i)/65535.)*work_scale);
+                result->extended_gamma_decode[i]=result->native_colorimetry?
+                    hncs_native_color::decodeCode(uint16_t(i),work_scale,result->lstar_working_space):
+                    result->decode_working((double(i)/65535.)*work_scale);
         }
         return result.release();
     }catch(...) {return nullptr;}

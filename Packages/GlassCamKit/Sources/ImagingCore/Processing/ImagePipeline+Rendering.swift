@@ -16,7 +16,7 @@ extension ImagePipeline {
         var input = input
         let sourcePolicy = recipe.sourceDecodeRecipe(input.baseRAWDecode)
         let frozenWhite = recipe.photoWhiteBalance?.origin == .appleRAW ? recipe.photoWhiteBalance : nil
-        if ["dng", "raw"].contains(input.sourceFile.fileExtension?.lowercased() ?? ""),
+        if input.sourceFile.isRAW,
            sourcePolicy != input.rawDecode || (frozenWhite != nil && frozenWhite != input.whiteBalance) {
             // Re-decode for the selected engine's pinned RAW input policy and
             // retain that policy in ProcessedImage.source. Automatic capture

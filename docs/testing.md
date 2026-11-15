@@ -90,6 +90,8 @@ GLASSCAM_DNG_DIR="$DNG_DIR" make test-baseline
 
 数值测试将固定参考实现作为真实 C++ 输出的 oracle，逐组比较阶段数组、线性与预览输出、并行和分条结果。输入样本、随机种子、数据类型及容差由测试保留；`tests/numeric/support/` 负责加载参考数据、绑定 C ABI 和返回观察结果，行为断言写在参数化用例中。
 
+当前 HNCS 13、FFCS 3、LUMIX 5 另有固定原厂颜色夹具，分别约束白平衡与工作配置、整数网格映射、低 ISO 和整数色彩控制；原 CPU 参考与旧 golden 保持独立。`CurrentColorTests` 核对 Swift 的实际分派，`MetalColorTests` 同时检查 HDR 预算、黑白截断和灰阶反转。原厂采集、源码对照和真实 RAW 测量工具保留在研究仓库。
+
 GPU 颜色遵守 [HDR 预算](image-pipeline.md#gpu-精度预算)，不放宽 CPU golden。生产 F5 的曲率、配准与源边界由 `F5CurvatureTests`、`F5CurvatureRegistrationTests`、`F5CurvatureSourceTests` 的解析信号约束；`F5CurvatureOutputTests.orderedPostOperations_matchFrozenReference` 消费固定的 [DNG 与浮点参考](../tests/fixtures/f5-post-operations/README.md)。`NativeTestSupport` 的 BT.2124 指标只比较真实输出。完整尺寸 RAW、编码后色差与手机性能测量保存在研究仓库。
 
 FFCS 只展开参考代码、资源与来源清单；交付文档、上游测试和历史报告保存在固定 `source.zip` 中。来源校验同时检查保留文件与归档内的其余交付项，冻结 golden 的来源身份保持不变。性能和诊断命令在 `GlassCam-research` 的 `tools/studies/product-tooling/` 使用固定产品源码快照运行。

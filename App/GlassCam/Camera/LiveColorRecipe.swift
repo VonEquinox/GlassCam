@@ -43,7 +43,7 @@ struct LiveColorRecipe: Equatable {
     }
     static let dimension = 65
     // A recipe/cache identity must change if an asset, engine or domain changes.
-    let contract = "v7:hncs-revision11-photo-white-balance/ffcs-0.2-neutral-verified-xh2s-provia-acros-radius1:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"
+    let contract = "v8:ffcs-native-mapping-xh2s-provia-acros:pointwise-only:linear-srgb01:srgb-shaped65:float32-rgba-rfast:display-linear:trilinear"
 
     var unsupportedReason: String? {
         if mode == .hncs {
@@ -63,9 +63,8 @@ struct LiveColorRecipe: Equatable {
                   ffcs.sharpenRadius == 1.0, [0, 8].contains(simulationIndex) else {
             return "Use XH2S PROVIA or ACROS with default reference adjustments for live color. Showing system preview."
             }
-            // FFCS 0.2 CPU study: 452,780 held-out colors per look, Float32
-            // trilinear cube + RGBA16F display. Still approximate; Apple GPU
-            // and device-camera validation remain pending. No spatial stages.
+            // This proxy uses the same current mapping as photo export.
+            // It remains a trilinear approximation in the viewfinder.
         }
         return nil
     }

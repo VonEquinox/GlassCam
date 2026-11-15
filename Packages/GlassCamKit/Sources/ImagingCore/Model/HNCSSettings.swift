@@ -35,7 +35,7 @@ public enum HNCSWhiteBalancePolicy: String, CaseIterable, Codable, Identifiable,
 }
 
 public struct HNCSSettings: Codable, Equatable, Sendable {
-    package static let currentRenderRevision = 12
+    package static let currentRenderRevision = 13
     package var renderRevision = currentRenderRevision
     public var presetKey = "standard"
     public var filmCurve: HNCSFilmCurve = .asShot
@@ -78,7 +78,7 @@ public struct HNCSSettings: Codable, Equatable, Sendable {
     public func crop(effects: EffectToggles) -> ImageCrop {
         effects.applyExtraCrop && presetKey == "square-crop" ? .centeredSquare : .none
     }
-    var usesExtendedWorkingDomain: Bool { renderRevision == 12 }
+    var usesExtendedWorkingDomain: Bool { renderRevision >= 12 }
     func requiresSpatial(effects: EffectToggles) -> Bool {
         guard let flags = HNCSPresetCatalog.presets.first(where: { $0.id == presetKey })?.flags else { return false }
         let nativeSharpness = presetKey.withCString { hncs_native_sharpness_enabled($0) == 1 }
@@ -101,7 +101,7 @@ public struct HNCSSettings: Codable, Equatable, Sendable {
         return "\(presetTitle) has no fixed white balance, so the photo's own temperature and tint are preserved."
     }
     public var isValid: Bool {
-        [11, Self.currentRenderRevision].contains(renderRevision) && rawFilmCurveType == 2 &&
+        [11, 12, Self.currentRenderRevision].contains(renderRevision) && rawFilmCurveType == 2 &&
         (factoryKelvinOverride == nil || (factoryKelvinOverride!.isFinite && (2000...10000).contains(factoryKelvinOverride!))) &&
         HNCSPresetCatalog.presets.contains { $0.id == presetKey }
     }

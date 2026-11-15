@@ -143,7 +143,12 @@ public enum FFCSEngine {
             let pointer = directory.path.withCString { path in
                 settings.cameraFamily.rawValue.withCString { family in
                     message.withUnsafeMutableBufferPointer { error in
-                        ffcs_create_family_config(path, family, simulationIndex, effects.applyGrain ? 1 : 0,
+                        if settings.renderRevision >= 3 {
+                            return ffcs_create_native_family_config(path, family, simulationIndex, effects.applyGrain ? 1 : 0,
+                                effects.applySharpness ? 1 : 0, settings.applyReferenceAdjustments ? 1 : 0,
+                                settings.sharpenRadius, error.baseAddress, error.count)
+                        }
+                        return ffcs_create_family_config(path, family, simulationIndex, effects.applyGrain ? 1 : 0,
                             effects.applySharpness ? 1 : 0, settings.applyReferenceAdjustments ? 1 : 0,
                             settings.sharpenRadius, error.baseAddress, error.count)
                     }

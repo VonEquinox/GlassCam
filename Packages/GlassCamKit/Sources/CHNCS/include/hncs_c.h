@@ -155,6 +155,24 @@ hncs_context *hncs_create_preset_whitepoint_with_policy(double exposure_ev,
     int raw_film_curve_type, const char *preset_key, int apply_tone_curve,
     int white_balance_policy);
 
+/* Revision-13 contexts use the original Float64 context/WB arithmetic and
+ * Float32 working-profile transfer boundary. The integer colour/gradation
+ * operations and the reference constructors above retain their contracts.
+ * Use the ordinary work, scale-clone and finish functions with these contexts.
+ * The whitepoint policy and source-domain contract are the same as above. */
+int hncs_whitepoint_parameters_native_color(double white_x, double white_y,
+    double *capture_target_wb, double *kelvin);
+hncs_context *hncs_create_preset_native_color(double exposure_ev, double capture_kelvin,
+    double factory_kelvin_override, int lstar, int reproduction,
+    int film_curve_type, int raw_film_curve_type, const char *preset_key,
+    int apply_tone_curve, const double *capture_target_wb,
+    const double *target_wb_override);
+hncs_context *hncs_create_preset_whitepoint_native_color(double exposure_ev,
+    double white_x, double white_y, double factory_kelvin_override,
+    int lstar_working_space, int reproduction, int film_curve_type,
+    int raw_film_curve_type, const char *preset_key, int apply_tone_curve,
+    int white_balance_policy);
+
 /* Revision-12 Apple HDR bridge, not a prepared-X2D RAW entry point.
  * Input: actual extended-linear-sRGB Float32 RGB, with source highlights intact.
  * Output: unscaled nonnegative working-space encoded Float32 RGB, up to 64.

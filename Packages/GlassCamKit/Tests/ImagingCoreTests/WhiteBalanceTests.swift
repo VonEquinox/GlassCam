@@ -8,8 +8,9 @@ struct WhiteBalanceTests {
     let tinted = PhotoWhiteBalance(origin: .appleRAW, temperature: 5200, tint: 25, x: 0.34, y: 0.38)
     // Frozen telephoto white point from the original Nature regression fixture.
     let tele = PhotoWhiteBalance(origin: .appleRAW, temperature: 5393, tint: 44.5, x: 0.33567193150520325, y: 0.37427031993865967)
-    func renderNature(_ policy: HNCSWhiteBalancePolicy) throws -> [Float] {
+    func renderNature(_ policy: HNCSWhiteBalancePolicy, revision: Int = HNCSSettings.currentRenderRevision) throws -> [Float] {
         var settings = HNCSSettings.standard; settings.presetKey = "nature"; settings.workingSpace = .lstar; settings.whiteBalancePolicy = policy
+        settings.renderRevision = revision
         return try HNCSEngine.exportLinearRGBA(linearSRGB: [Float](repeating: 0.18, count: 4 * 4 * 3), width: 4, height: 4,
             exposureEV: 0, illuminantKelvin: 6500, settings: settings,
             effects: .init(applyGrain: false, applySharpness: false, applyExtraCrop: false), whiteBalance: tele)
@@ -46,7 +47,7 @@ struct WhiteBalanceTests {
         #expect(result.recipe.photoWhiteBalance == input.whiteBalance)
     }
     @Test func presetNature_replaysOriginalTelephotoWhiteBalance() throws {
-        let fixed = try renderNature(.preset)
+        let fixed = try renderNature(.preset, revision: 12)
         let legacyGolden: [Float] = [0.26048735, 0.33648133, 0.23170701]
         // Original pre-fix Float32 golden tolerance.
         let legacyTolerance: Float = 1e-7

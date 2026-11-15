@@ -160,12 +160,12 @@ struct FFCSReferenceControls: View {
             Text("This native LUT asset is unavailable. Choose another look or family.")
                 .font(.caption).foregroundStyle(.secondary)
         }
-        Toggle("Reference analytic adjustments (approx.)", isOn: $settings.applyReferenceAdjustments)
+        Toggle("Grain and sharpening", isOn: $settings.applyReferenceAdjustments)
             .accessibilityIdentifier("ffcs.referenceAdjustments")
-        Text("Optional tone, color, grain and sharpening adjustments. Grain and sharpening also follow your saved switches.")
+        Text("Adds the selected style's detail effects and follows your saved grain and sharpening switches.")
             .font(.caption).foregroundStyle(.secondary)
         if settings.applyReferenceAdjustments {
-            Stepper("Reference sharpening radius: \(settings.sharpenRadius, specifier: "%.1f") px",
+            Stepper("Sharpening radius: \(settings.sharpenRadius, specifier: "%.1f") px",
                     value: $settings.sharpenRadius, in: 0.1...5.0, step: 0.1)
                 .accessibilityIdentifier("ffcs.sharpenRadius")
         }

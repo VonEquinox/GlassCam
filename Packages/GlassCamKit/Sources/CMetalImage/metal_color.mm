@@ -73,7 +73,8 @@ void dispatch(id<MTLComputeCommandEncoder> encoder,id<MTLComputePipelineState> p
 @public
     std::shared_ptr<ColorRuntime> runtime;
     id<MTLComputePipelineState> pipeline;
-    id<MTLBuffer> configuration,lut,decode,weights;
+    id<MTLBuffer> configuration,lut,decode,weights,gammaIn,gammaOut,normalWeights,distances;
+    double grainSize;
     uint32_t halo;
     int mode;
 }
@@ -84,6 +85,7 @@ void dispatch(id<MTLComputeCommandEncoder> encoder,id<MTLComputePipelineState> p
 @interface GCColorState : NSObject {
 @public
     GCMetalColorResources *resources;
+    id<MTLBuffer> grainCoordinates;
     uint32_t halo,seed;
     float exposure,backendExposure;
     CGRect extent;
@@ -143,7 +145,14 @@ void dispatch(id<MTLComputeCommandEncoder> encoder,id<MTLComputePipelineState> p
     [encoder setBytes:&pointRegion length:sizeof(pointRegion) atIndex:0];
     [encoder setBuffer:resources->configuration offset:0 atIndex:1];
     [encoder setBuffer:resources->lut offset:0 atIndex:2];
-    if(resources->mode==1)[encoder setBuffer:resources->decode offset:0 atIndex:3];
+    if(resources->mode==1) {
+        [encoder setBuffer:resources->decode offset:0 atIndex:3];
+        [encoder setBuffer:state->grainCoordinates offset:0 atIndex:4];
+        [encoder setBuffer:resources->gammaIn offset:0 atIndex:5];
+        [encoder setBuffer:resources->gammaOut offset:0 atIndex:6];
+        [encoder setBuffer:resources->normalWeights offset:0 atIndex:7];
+        [encoder setBuffer:resources->distances offset:0 atIndex:8];
+    }
     dispatch(encoder,resources->pipeline,pointRegion.outputWidth,pointRegion.outputHeight);
     [encoder endEncoding];
     if(intermediate) {
@@ -175,10 +184,31 @@ void dispatch(id<MTLComputeCommandEncoder> encoder,id<MTLComputePipelineState> p
 
 namespace {
 CIImage *apply(GCMetalColorResources *resources,CIImage *image,float exposure,float backendExposure,uint32_t seed,NSError **error) {
-    GCColorState *state=[GCColorState new];
-    state->resources=resources;state->halo=resources->halo;
-    state->extent=image.extent;state->exposure=exposure;state->backendExposure=backendExposure;state->seed=seed;
-    return [GCColorKernel applyWithExtent:image.extent inputs:@[image] arguments:@{@"state":state} error:error];
+    try {
+        GCColorState *state=[GCColorState new];
+        state->resources=resources;state->halo=resources->halo;
+        state->extent=image.extent;state->exposure=exposure;state->backendExposure=backendExposure;state->seed=seed;
+        if(resources->mode==1) {
+            std::vector<uint32_t> coordinates(1,1);
+            if(resources->grainSize>0) {
+                const auto extent=image.extent;
+                if(!CGRectEqualToRect(extent,CGRectIntegral(extent))||
+                    extent.origin.x!=0||extent.origin.y!=0||extent.size.width<=0||extent.size.height<=0||
+                    extent.size.width>INT_MAX||extent.size.height>INT_MAX)
+                    throw std::invalid_argument("Invalid FFCS grain extent");
+                const size_t width=size_t(extent.size.width),height=size_t(extent.size.height);
+                coordinates.resize(1+width+height);
+                // Float division can cross an integer boundary (55/1.1).
+                // Match mobilePixel's Double division before hashing the grid.
+                const double size=resources->grainSize;
+                coordinates[0]=uint32_t(std::max(size_t(1),size_t(width/size)));
+                for(size_t x=0;x<width;++x)coordinates[1+x]=uint32_t(size_t(x/size));
+                for(size_t y=0;y<height;++y)coordinates[1+width+y]=uint32_t(size_t(y/size));
+            }
+            state->grainCoordinates=resources->runtime->upload(coordinates.data(),coordinates.size()*sizeof(uint32_t));
+        }
+        return [GCColorKernel applyWithExtent:image.extent inputs:@[image] arguments:@{@"state":state} error:error];
+    }catch(const std::exception &failure){setError(error,@(failure.what()));return nil;}
 }
 struct RenderSlot {
     std::vector<float> pixels;
@@ -277,11 +307,19 @@ static BOOL renderFile(CIImage *image,CIContext *context,NSString *path,NSUInteg
         resources->runtime=colorRuntime(path);resources->mode=1;
         auto &runtime=*resources->runtime;resources->pipeline=runtime.ffcs;resources->halo=c.reach;
         GCFFCSColor p{};std::copy_n(c.matrix,9,p.matrix);p.contrast=c.contrast;p.saturation=c.saturation;p.hue=c.hue;
-        p.shoulder=c.shoulder;p.toe=c.toe;p.grain=c.grain;p.grainSize=c.grain_size;p.chroma=c.chroma;p.sharp=c.sharp;
+        p.shoulder=c.shoulder;p.toe=c.toe;p.grain=c.grain;p.chroma=c.chroma;p.sharp=c.sharp;
+        resources->grainSize=c.grain_enabled&&c.grain>0?c.grain_size:0;
         p.size=c.size;p.rgbChannels=c.rgb_channels;p.acros=c.acros;p.grainEnabled=c.grain_enabled;p.reach=c.reach;
+        p.nativeMapping=c.native_mapping;p.mappingGamma=c.mapping_gamma;
+        p.workingMaximum=c.working_maximum;p.fixedMapping=c.fixed_mapping;
         resources->configuration=runtime.upload(&p,sizeof(p));
         resources->lut=runtime.upload(c.lut,size_t(c.size)*c.size*c.size*3*sizeof(uint16_t));
         resources->decode=runtime.floats(c.normalized_codes,65536);
+        const uint32_t zero=0;
+        resources->gammaIn=c.native_mapping?runtime.upload(c.gamma_in,(size_t(c.working_maximum)+1)*sizeof(uint32_t)):runtime.upload(&zero,sizeof(zero));
+        resources->gammaOut=c.native_mapping?runtime.upload(c.gamma_out,20001*sizeof(uint16_t)):runtime.upload(&zero,sizeof(zero));
+        resources->normalWeights=c.native_mapping?runtime.upload(c.gaussian,1536*sizeof(int32_t)):runtime.upload(&zero,sizeof(zero));
+        resources->distances=c.native_mapping?runtime.upload(c.distances,1024*sizeof(int32_t)):runtime.upload(&zero,sizeof(zero));
         if(c.reach)resources->weights=runtime.floats(c.kernel,size_t(c.reach+1));
         return resources;
     }catch(const std::exception &failure){setError(error,@(failure.what()));return nil;}
@@ -295,6 +333,8 @@ static BOOL renderFile(CIImage *image,CIContext *context,NSString *path,NSUInteg
         auto &runtime=*resources->runtime;resources->pipeline=runtime.lumix;
         GCLUMIXColor p{};std::copy_n(c.tone_x,49,p.toneX);std::copy_n(c.tone_y,49,p.toneY);
         p.toneCount=c.tone_count;p.saturation=c.saturation;p.monochrome=c.monochrome;p.blueChroma=c.blue_chroma;p.redChroma=c.red_chroma;
+        std::copy_n(c.pre_x,49,p.preX);std::copy_n(c.pre_y,49,p.preY);
+        p.preCount=c.pre_count;p.nativePipeline=c.native_pipeline;
         resources->configuration=runtime.upload(&p,sizeof(p));
         resources->lut=runtime.upload(c.cube,size_t(129)*129*129*3*sizeof(uint16_t));
         return resources;

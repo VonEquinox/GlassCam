@@ -1471,12 +1471,12 @@
         }
       }
     },
-    "Optional tone, color, grain and sharpening adjustments. Grain and sharpening also follow your saved switches.": {
+    "Adds the selected style's detail effects and follows your saved grain and sharpening switches.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可选的明暗、色彩、颗粒与锐化调整。颗粒和锐化同时受各自开关控制。"
+            "value": "添加所选风格的细节效果，并遵循已保存的颗粒和锐化开关。"
           }
         }
       }
@@ -1831,22 +1831,22 @@
         }
       }
     },
-    "Reference analytic adjustments (approx.)": {
+    "Grain and sharpening": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "参考解析调整（近似）"
+            "value": "颗粒与锐化"
           }
         }
       }
     },
-    "Reference sharpening radius: %.1f px": {
+    "Sharpening radius: %.1f px": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "参考锐化半径：%.1f px"
+            "value": "锐化半径：%.1f px"
           }
         }
       }

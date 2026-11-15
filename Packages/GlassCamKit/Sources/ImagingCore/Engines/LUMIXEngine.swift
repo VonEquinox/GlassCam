@@ -4,8 +4,9 @@ import CoreImage
 import Foundation
 import OSLog
 
-/// Portable original SDR VE execution; the ProRAW source adapter is documented
-/// in docs/color/lumix.md. Full export uses the complete original cubes.
+/// Photo Style rendering with the preserved SDR integer path and the iPhone
+/// floating-point adapter described in docs/color/lumix.md.
+/// Full export uses the complete original cubes.
 public enum LUMIXEngine {
     typealias Look = LUMIXPhotoStyleCatalog.Look
     public static let looks = LUMIXPhotoStyleCatalog.looks
@@ -59,6 +60,11 @@ public enum LUMIXEngine {
                     if settings.renderRevision == 1 {
                         return lumix_create(path, look.index, error.baseAddress, error.count)
                     }
+                    if settings.renderRevision >= 5 {
+                        return lumix_create_native_pipeline(path, look.index, kelvin,
+                            Int32((settings.contrast + 5) * 2), Int32((settings.saturation + 5) * 2),
+                            Int32(settings.sourceISO ?? 100), error.baseAddress, error.count)
+                    }
                     return lumix_create_pipeline(path, look.index, kelvin,
                         Int32((settings.contrast + 5) * 2), Int32((settings.saturation + 5) * 2),
                         Int32(settings.sourceISO ?? 100), error.baseAddress, error.count)
@@ -96,7 +102,11 @@ public enum LUMIXEngine {
             linearSRGB.withUnsafeBufferPointer { input in
                 rgba.withUnsafeMutableBufferPointer { output in
                     message.withUnsafeMutableBufferPointer { error in
-                        if settings.renderRevision >= 4 {
+                        if settings.renderRevision >= 5 {
+                            return lumix_process_native_rgba(owner.pointer, input.baseAddress, input.count, pixels,
+                                exposureEV, output.baseAddress, output.count, error.baseAddress, error.count)
+                        }
+                        if settings.renderRevision == 4 {
                             return lumix_process_iphone_rgba(owner.pointer, input.baseAddress, input.count, pixels,
                                 exposureEV, output.baseAddress, output.count, error.baseAddress, error.count)
                         }

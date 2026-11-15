@@ -46,14 +46,15 @@ public enum FFCSCameraFamily: String, Codable, CaseIterable, Identifiable, Senda
 }
 
 public struct FFCSSettings: Codable, Equatable, Sendable {
-    package static let currentRenderRevision = 2 // FFCS reference 0.2.0 native-default contract.
+    package static let currentRenderRevision = 3
     package var renderRevision = currentRenderRevision
     public var cameraFamily: FFCSCameraFamily = .xh2s
     public var applyReferenceAdjustments = false
     public var sharpenRadius = 1.0
+    public var usesNativeMapping: Bool { renderRevision >= 3 }
     public static let standard = FFCSSettings()
     public var isValid: Bool {
-        renderRevision == Self.currentRenderRevision &&
+        [2, Self.currentRenderRevision].contains(renderRevision) &&
         sharpenRadius.isFinite && (0.1...5.0).contains(sharpenRadius)
     }
 

@@ -105,7 +105,13 @@ final class LiveColorCubeStore {
             ffcs = directory.path.withCString { path in
                 recipe.ffcs.cameraFamily.rawValue.withCString { family in
                     message.withUnsafeMutableBufferPointer { error in
-                        ffcs_create_family_config(path, family, recipe.simulationIndex,
+                        if recipe.ffcs.usesNativeMapping {
+                            return ffcs_create_native_family_config(path, family, recipe.simulationIndex,
+                                recipe.effects.applyGrain ? 1 : 0, recipe.effects.applySharpness ? 1 : 0,
+                                recipe.ffcs.applyReferenceAdjustments ? 1 : 0, recipe.ffcs.sharpenRadius,
+                                error.baseAddress, error.count)
+                        }
+                        return ffcs_create_family_config(path, family, recipe.simulationIndex,
                             recipe.effects.applyGrain ? 1 : 0, recipe.effects.applySharpness ? 1 : 0,
                             recipe.ffcs.applyReferenceAdjustments ? 1 : 0, recipe.ffcs.sharpenRadius,
                             error.baseAddress, error.count)

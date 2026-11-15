@@ -36,6 +36,17 @@ FFCSContext *ffcs_create_config(const char *asset_directory, size_t simulation_i
 FFCSContext *ffcs_create_family_config(const char *data_root, const char *camera,
     size_t simulation_index, int grain_enabled, int sharpen_enabled,
     int analytic_overlay, double sharpen_radius, char *error, size_t error_size);
+/* Current production mapping: original guarded integer grid, gamma tables and
+ * Normal2/Normal2Fixed interpolation. detail_effects enables only the selected
+ * grain/sharpness coefficients; no analytic colour or tone is stacked.
+ * The ordinary float/strip/colour-only APIs consume this immutable context. */
+FFCSContext *ffcs_create_native_family_config(const char *data_root, const char *camera,
+    size_t simulation_index, int grain_enabled, int sharpen_enabled,
+    int detail_effects, double sharpen_radius, char *error, size_t error_size);
+/* Original mapping boundary: interleaved BGR UInt16 in [0,20000].
+ * Buffers must not overlap. All input is checked before writing. */
+int ffcs_process_native_codes(const FFCSContext *context, const uint16_t *input_bgr,
+    uint16_t *output_bgr, size_t pixel_count, char *error, size_t error_size);
 int ffcs_simulation_available(const char *data_root, const char *camera,
     size_t simulation_index);
 /* Existence-only resolver; static string lifetime, NULL when unavailable. */

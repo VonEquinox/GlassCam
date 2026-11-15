@@ -93,6 +93,8 @@ void boundChroma(std::array<double, 3> &rgb, bool soft) {
 struct LUMIXContext {
     std::vector<uint16_t> cube;
     bool fullPipeline = false;
+    bool nativePipeline = false;
+    static constexpr double workingWhite = 4095. * 4.;
     std::array<unsigned char,70> contrast{};
     std::array<unsigned char,196> lowISO{};
     std::array<unsigned char,3> monochrome{};
@@ -222,8 +224,13 @@ static std::vector<uint16_t> loadCube(const char *directory, const std::string &
 extern "C" {
 int lumix_get_color_data(const LUMIXContext *c,lumix_color_data *out) {
     if(!c||!out||!c->fullPipeline)return -1;
-    *out={};out->cube=c->cube.data();const auto tone=c->contrastCurve(1.);
+    *out={};out->cube=c->cube.data();
+    const double white=c->nativePipeline?LUMIXContext::workingWhite:1.;
+    const auto tone=c->contrastCurve(white);
     out->tone_count=uint32_t(tone.count);for(size_t i=0;i<tone.count;++i){out->tone_x[i]=tone.points[i].x;out->tone_y[i]=tone.points[i].y;}
+    const auto pre=c->lowISOCurve(white);
+    out->pre_count=uint32_t(pre.count);for(size_t i=0;i<pre.count;++i){out->pre_x[i]=pre.points[i].x;out->pre_y[i]=pre.points[i].y;}
+    out->native_pipeline=c->nativePipeline;
     out->saturation=c->saturation;out->monochrome=c->monochrome[0];
     out->blue_chroma=int(c->monochrome[2])-(c->monochrome[2]>=128?256:0);
     out->red_chroma=int(c->monochrome[1])-(c->monochrome[1]>=128?256:0);return 0;
@@ -377,5 +384,44 @@ int lumix_process_iphone_rgba(const LUMIXContext *context, const float *input, s
         output[i*4+3] = 1;
     }
     fail(error, size, ""); return 1;
+}
+LUMIXContext *lumix_create_native_pipeline(const char *directory,size_t look,double kelvin,
+    int contrast,int saturation,int iso,char *error,size_t size) {
+    auto *context=lumix_create_pipeline(directory,look,kelvin,contrast,saturation,iso,error,size);
+    if(context)context->nativePipeline=true;
+    return context;
+}
+int lumix_process_native_rgba(const LUMIXContext *context,const float *input,size_t inputCount,
+    size_t pixels,double ev,float *output,size_t outputCount,char *error,size_t size) {
+    if(!context||!context->nativePipeline||!input||!output||!pixels||
+       pixels>std::numeric_limits<size_t>::max()/16||inputCount!=pixels*3||
+       outputCount!=pixels*4||!std::isfinite(ev)||ev < -32||ev > 32) {
+        fail(error,size,"Invalid LUMIX native buffers or exposure");return 0;
+    }
+    if(overlap(input,inputCount*sizeof(float),output,outputCount*sizeof(float))) {
+        fail(error,size,"LUMIX RGB and RGBA buffers overlap");return 0;
+    }
+    for(size_t i=0;i<inputCount;++i)if(!std::isfinite(input[i])) {
+        fail(error,size,"LUMIX input must be finite");return 0;
+    }
+    constexpr double white=LUMIXContext::workingWhite;
+    const auto tone=context->contrastCurve(white),pre=context->lowISOCurve(white);
+    const double gain=std::exp2(ev);
+    for(size_t i=0;i<pixels;++i) {
+        std::array<double,3> bounded={double(input[i*3])*gain,double(input[i*3+1])*gain,double(input[i*3+2])*gain};
+        boundChroma(bounded,false);
+        uint16_t rgb[3],rendered[3];
+        for(unsigned ch=0;ch<3;++ch)rgb[ch]=rounded(bounded[ch]*white);
+        // Native 14-bit white leaves the UInt16 processing headroom intact.
+        // RGB48 -> RGB12 truncation, low-ISO, saturation and tone all share the
+        // same original integer filter used by the frozen stage reference.
+        context->filter(rgb,rendered,white,1.,0,tone,pre);
+        for(unsigned ch=0;ch<3;++ch) {
+            const double x=std::clamp(double(rendered[ch])/white,0.,1.);
+            output[i*4+ch]=float(x<=.04045?x/12.92:std::pow((x+.055)/1.055,2.4));
+        }
+        output[i*4+3]=1.f;
+    }
+    fail(error,size,"");return 1;
 }
 }

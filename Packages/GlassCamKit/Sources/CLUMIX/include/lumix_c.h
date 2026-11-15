@@ -53,6 +53,18 @@ int lumix_process_iphone_rgba(const LUMIXContext *context, const float *input,
                               size_t input_count, size_t pixels, double exposure_ev,
                               float *output, size_t output_count,
                               char *error, size_t error_size);
+/* Revision 5 uses the original integer filter at a working white of 4*4095,
+ * including RGB48->RGB12 truncation, low-ISO, saturation and contrast.
+ * The UInt16 container retains four times the SDR-white processing headroom.
+ * Input is the caller's HDR-normalized linear sRGB; signed out-of-gamut values
+ * are projected toward equal-luma neutral. Output is SDR linear RGBA [0,1],
+ * alpha=1, before caller-owned HDR restoration. Reference APIs stay unchanged. */
+LUMIXContext *lumix_create_native_pipeline(const char *asset_directory, size_t look,
+    double kelvin, int contrast, int saturation, int source_iso,
+    char *error, size_t error_size);
+int lumix_process_native_rgba(const LUMIXContext *context, const float *input,
+    size_t input_count, size_t pixels, double exposure_ev,
+    float *output, size_t output_count, char *error, size_t error_size);
 #ifdef __cplusplus
 }
 #endif

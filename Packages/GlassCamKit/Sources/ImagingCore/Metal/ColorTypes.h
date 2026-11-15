@@ -15,12 +15,16 @@ struct GCColorRegion {
 };
 struct GCFFCSColor {
     float matrix[9];
-    float contrast, saturation, hue, shoulder, toe, grain, grainSize, chroma, sharp;
+    float contrast, saturation, hue, shoulder, toe, grain, chroma, sharp;
     GCColorUInt size, rgbChannels, acros, grainEnabled, reach;
+    float mappingGamma;
+    GCColorUInt nativeMapping, workingMaximum, fixedMapping;
 };
 struct GCLUMIXColor {
     float toneX[49], toneY[49];
     GCColorUInt toneCount, saturation, monochrome;
     GCColorInt blueChroma, redChroma;
+    float preX[49], preY[49];
+    GCColorUInt preCount, nativePipeline;
 };
 #endif

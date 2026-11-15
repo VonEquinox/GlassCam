@@ -11,6 +11,10 @@
 | 运行时 LUT | [SHA-256 清单](../../scripts/ffcs_native_SHA256SUMS) |
 | 应用固定样本 | [tests/fixtures/ffcs](../../tests/fixtures/ffcs/README.md)，保留各版本的独立来源 |
 
+当前 revision 3 的原始整数网格来自用户提供的 `RFCEX30Ins81200.dmg`，目标为 RAW FILE CONVERTER EX 3.0／SILKYPIX 8.1.20.0。框架 SHA-256 为 `a0bdc416748549eada3086c4fa92015912ca6acc4b07b721f38bd2aa95af61b9`；原包 SHA-256 为 `2e16c11f901b8f656bc8ee80cf53afd50553081d7f47ee860e777460adc50a2a`。
+
+[mapping.zip](mapping.zip) 的 SHA-256 为 `51f0049f5f55732523176a3fccc120ea8a068d4fbbc5658f21fabec9d56b22d6`。归档中的 `manifest.json` 固定每张原始 `.s3d`、原厂解码网格及无损包装文件的哈希；资源来自原程序的独立读取，保留全部保护节点与 UInt16 值。采集、对照及冻结工具保存在 `GlassCam-research/tools/native-parity/`。
+
 最初接入参考提交为 `3c0a85eeb3893764ae92fc0fe52ebb62fd9f6ac5`。旧 0.1.0 归档可从提交 `d5145c5e8f59522ed6e3905c7d42a41d0e144994` 的 `GlassCamPrototype/reference_ffcs/source.zip` 恢复，其 Git blob 为 `ecc0ebc69b94d10f8b3f63cac5659d58886efeea`，SHA-256 为 `bc8c9b4d7691f3ecef03a79e3b1a7ddd8364647e97877ee02ceefa8e50e2ea02`。
 
 保留的参考源码、资源元数据与交付清单使用原始内容。上游文档、测试、打包文件和历史报告保存在固定 `source.zip` 中；来源校验仍核对完整交付清单，未展开的文件直接从归档校验。`scripts/materialize_ffcs_reference.py` 只展开当前参考实现需要的文件。

@@ -1,0 +1,6182 @@
+{
+  "schema": 1,
+  "engine": "Phocus 4.2.2",
+  "renderRevision": 13,
+  "vectors": "phocus-native-color-vectors.npz",
+  "vectorsSHA256": "7830e4e6b5d84b094e43e36b76da42856e925967a8f2dc3bac18c821d6b987d5",
+  "whitepointOriginalSHA256": "c3ff160c835bb805f5c20e1de5dddaeb65ff63c839c3aa392d354ae36357236d",
+  "whitepoints": [
+    {
+      "label": "reserved_xy_0",
+      "xy": [
+        0.35412391925115316,
+        0.4893624945366295
+      ]
+    },
+    {
+      "label": "reserved_xy_1",
+      "xy": [
+        0.25193944365284654,
+        0.4462769754012357
+      ]
+    },
+    {
+      "label": "reserved_xy_2",
+      "xy": [
+        0.37994967074088415,
+        0.22496223478309157
+      ]
+    },
+    {
+      "label": "reserved_xy_3",
+      "xy": [
+        0.3477980438714256,
+        0.4767556981718363
+      ]
+    },
+    {
+      "label": "reserved_xy_4",
+      "xy": [
+        0.3085197275201249,
+        0.27285870020279307
+      ]
+    },
+    {
+      "label": "reserved_xy_5",
+      "xy": [
+        0.4329976698346771,
+        0.2130981647185897
+      ]
+    },
+    {
+      "label": "reserved_xy_6",
+      "xy": [
+        0.2749985740679552,
+        0.21350547538491751
+      ]
+    },
+    {
+      "label": "reserved_xy_7",
+      "xy": [
+        0.3364604699586533,
+        0.3721015030449478
+      ]
+    },
+    {
+      "label": "reserved_xy_8",
+      "xy": [
+        0.5099053618749135,
+        0.19508669977913917
+      ]
+    },
+    {
+      "label": "reserved_xy_9",
+      "xy": [
+        0.31258536321244607,
+        0.28267736501304236
+      ]
+    },
+    {
+      "label": "reserved_xy_10",
+      "xy": [
+        0.20796578035757984,
+        0.3035555423550065
+      ]
+    },
+    {
+      "label": "reserved_xy_11",
+      "xy": [
+        0.3489596795466298,
+        0.40077722257849635
+      ]
+    },
+    {
+      "label": "reserved_xy_12",
+      "xy": [
+        0.2939482046259031,
+        0.27319310300121097
+      ]
+    },
+    {
+      "label": "reserved_xy_13",
+      "xy": [
+        0.27333372769685055,
+        0.19908237470249363
+      ]
+    },
+    {
+      "label": "reserved_xy_14",
+      "xy": [
+        0.42264065651296123,
+        0.3584711762628174
+      ]
+    },
+    {
+      "label": "reserved_xy_15",
+      "xy": [
+        0.2122678651251797,
+        0.18809562801872576
+      ]
+    },
+    {
+      "label": "reserved_xy_16",
+      "xy": [
+        0.29524313587246576,
+        0.2720965209659823
+      ]
+    },
+    {
+      "label": "reserved_xy_17",
+      "xy": [
+        0.34022931055077893,
+        0.32838715592274875
+      ]
+    },
+    {
+      "label": "reserved_xy_18",
+      "xy": [
+        0.23306042806379132,
+        0.2334916526910494
+      ]
+    },
+    {
+      "label": "reserved_xy_19",
+      "xy": [
+        0.42458506000086227,
+        0.30009507394267976
+      ]
+    },
+    {
+      "label": "reserved_xy_20",
+      "xy": [
+        0.45387439449955547,
+        0.48891635531724137
+      ]
+    },
+    {
+      "label": "reserved_xy_21",
+      "xy": [
+        0.38745214338757256,
+        0.25168211514583827
+      ]
+    },
+    {
+      "label": "reserved_xy_22",
+      "xy": [
+        0.22326057212043784,
+        0.2876846156488091
+      ]
+    },
+    {
+      "label": "reserved_xy_23",
+      "xy": [
+        0.32018947169393236,
+        0.37062264685153523
+      ]
+    },
+    {
+      "label": "reserved_xy_24",
+      "xy": [
+        0.5453595721172773,
+        0.39639346300541334
+      ]
+    },
+    {
+      "label": "reserved_xy_25",
+      "xy": [
+        0.5251510834037352,
+        0.27431731817314564
+      ]
+    },
+    {
+      "label": "reserved_xy_26",
+      "xy": [
+        0.5204963259919058,
+        0.4436237240810417
+      ]
+    },
+    {
+      "label": "reserved_xy_27",
+      "xy": [
+        0.4993565804243508,
+        0.3829944326428745
+      ]
+    },
+    {
+      "label": "reserved_xy_28",
+      "xy": [
+        0.37507517286702863,
+        0.43115448700984493
+      ]
+    },
+    {
+      "label": "reserved_xy_29",
+      "xy": [
+        0.2853539753948016,
+        0.24511960639935435
+      ]
+    },
+    {
+      "label": "reserved_xy_30",
+      "xy": [
+        0.27487478038797236,
+        0.42000894290686064
+      ]
+    },
+    {
+      "label": "reserved_xy_31",
+      "xy": [
+        0.25156067670983595,
+        0.18235209457571305
+      ]
+    }
+  ],
+  "whitepointCases": [
+    {
+      "preset": "standard",
+      "white": 0,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 0,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 0,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 0,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 0,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 0,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 0,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 0,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 1,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 1,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 1,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 1,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 1,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 1,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 1,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 1,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 2,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 2,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 2,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 2,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 2,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 2,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 2,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 2,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 3,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 3,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 3,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 3,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 3,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 3,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 3,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 3,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 4,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 4,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 4,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 4,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 4,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 4,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 4,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 4,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 5,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 5,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 5,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 5,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 5,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 5,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 5,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 5,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 6,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 6,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 6,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 6,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 6,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 6,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 6,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 6,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 8,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 8,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 8,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 8,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 8,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 8,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 8,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 8,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 9,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 9,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 9,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 9,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 9,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 9,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 9,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 9,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 10,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 10,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 10,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 10,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 10,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 10,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 10,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 10,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 11,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 11,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 11,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 11,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 11,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 11,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 11,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 11,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 12,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 12,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 12,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 12,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 12,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 12,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 12,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 12,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 13,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 13,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 13,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 13,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 13,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 13,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 13,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 13,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 14,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 14,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 14,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 14,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 14,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 14,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 14,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 14,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 15,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 15,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 15,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 15,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 15,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 15,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 15,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 15,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 16,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 16,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 16,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 16,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 16,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 16,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 16,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 16,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 17,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 17,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 17,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 17,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 17,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 17,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 17,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 17,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 18,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 18,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 18,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 18,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 18,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 18,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 18,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 18,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 19,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 19,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 19,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 19,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 19,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 19,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 19,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 19,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 20,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 20,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 20,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 20,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 20,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 20,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 20,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 20,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 21,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 21,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 21,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 21,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 21,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 21,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 21,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 21,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 22,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 22,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 22,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 22,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 22,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 22,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 22,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 22,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 23,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 23,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 23,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 23,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 23,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 23,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 23,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 23,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 24,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 24,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 24,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 24,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 24,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 24,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 24,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 24,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 25,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 25,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 25,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 25,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 25,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 25,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 25,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 25,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 26,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 26,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 26,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 26,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 26,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 26,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 26,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 26,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 27,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 27,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 27,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 27,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 27,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 27,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 27,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 27,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 28,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 28,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 28,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 28,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 28,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 28,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 28,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 28,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 29,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 29,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 29,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 29,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 29,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 29,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 29,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 29,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 30,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 30,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 30,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 30,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 30,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 30,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 30,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 30,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 31,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 31,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 31,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 31,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 31,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 31,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "standard",
+      "white": 31,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "standard",
+      "white": 31,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 0,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 0,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 0,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 0,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 0,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 0,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 0,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 0,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 1,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 1,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 1,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 1,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 1,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 1,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 1,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 1,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 2,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 2,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 2,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 2,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 2,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 2,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 2,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 2,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 3,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 3,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 3,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 3,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 3,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 3,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 3,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 3,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 4,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 4,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 4,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 4,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 4,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 4,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 4,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 4,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 5,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 5,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 5,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 5,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 5,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 5,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 5,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 5,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 6,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 6,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 6,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 6,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 6,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 6,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 6,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 6,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 8,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 8,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 8,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 8,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 8,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 8,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 8,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 8,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 9,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 9,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 9,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 9,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 9,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 9,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 9,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 9,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 10,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 10,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 10,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 10,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 10,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 10,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 10,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 10,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 11,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 11,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 11,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 11,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 11,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 11,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 11,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 11,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 12,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 12,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 12,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 12,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 12,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 12,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 12,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 12,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 13,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 13,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 13,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 13,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 13,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 13,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 13,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 13,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 14,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 14,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 14,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 14,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 14,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 14,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 14,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 14,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 15,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 15,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 15,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 15,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 15,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 15,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 15,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 15,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 16,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 16,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 16,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 16,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 16,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 16,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 16,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 16,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 17,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 17,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 17,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 17,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 17,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 17,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 17,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 17,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 18,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 18,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 18,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 18,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 18,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 18,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 18,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 18,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 19,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 19,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 19,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 19,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 19,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 19,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 19,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 19,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 20,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 20,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 20,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 20,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 20,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 20,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 20,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 20,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 21,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 21,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 21,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 21,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 21,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 21,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 21,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 21,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 22,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 22,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 22,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 22,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 22,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 22,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 22,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 22,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 23,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 23,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 23,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 23,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 23,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 23,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 23,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 23,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 24,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 24,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 24,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 24,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 24,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 24,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 24,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 24,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 25,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 25,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 25,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 25,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 25,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 25,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 25,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 25,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 26,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 26,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 26,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 26,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 26,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 26,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 26,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 26,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 27,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 27,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 27,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 27,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 27,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 27,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 27,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 27,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 28,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 28,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 28,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 28,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 28,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 28,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 28,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 28,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 29,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 29,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 29,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 29,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 29,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 29,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 29,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 29,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 30,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 30,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 30,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 30,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 30,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 30,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 30,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 30,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 31,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 31,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 31,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 31,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 31,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 31,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "nature",
+      "white": 31,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "nature",
+      "white": 31,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "portrait",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "portrait",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "portrait",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "portrait",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "portrait",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "portrait",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "portrait",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "portrait",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "product",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "product",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "product",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "product",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "product",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "product",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "product",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "product",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "square-crop",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "square-crop",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "square-crop",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "square-crop",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "square-crop",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "square-crop",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "square-crop",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "square-crop",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "saturated",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "saturated",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "saturated",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "saturated",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "saturated",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "saturated",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "saturated",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "saturated",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "extra-contrast",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "extra-contrast",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "extra-contrast",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "extra-contrast",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "extra-contrast",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "extra-contrast",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "extra-contrast",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "extra-contrast",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "lighten",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "lighten",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "lighten",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "lighten",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "lighten",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "lighten",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "lighten",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "lighten",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "high",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "high",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "high",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "high",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "high",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "high",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "high",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "high",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "medium",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "medium",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "medium",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "medium",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "medium",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "medium",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "medium",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "medium",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "cloudy",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "cloudy",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "cloudy",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "cloudy",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "cloudy",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "cloudy",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "cloudy",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "cloudy",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "daylight",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "daylight",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "daylight",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "daylight",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "daylight",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "daylight",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "daylight",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "daylight",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "flash",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "flash",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "flash",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "flash",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "flash",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "flash",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "flash",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "flash",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "fluorescent",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "fluorescent",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "fluorescent",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "fluorescent",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "fluorescent",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "fluorescent",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "fluorescent",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "fluorescent",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "shade",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "shade",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "shade",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "shade",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "shade",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "shade",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "shade",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "shade",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "tungsten",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "tungsten",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "tungsten",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "tungsten",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "tungsten",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "tungsten",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "tungsten",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "tungsten",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "adjustment-layers-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "adjustment-layers-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "adjustment-layers-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "adjustment-layers-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "adjustment-layers-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "adjustment-layers-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "adjustment-layers-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "adjustment-layers-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "color-corrections-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "color-corrections-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "color-corrections-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "color-corrections-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "color-corrections-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "color-corrections-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "color-corrections-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "color-corrections-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "color-management-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "color-management-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "color-management-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "color-management-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "color-management-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "color-management-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "color-management-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "color-management-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "defringe-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "defringe-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "defringe-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "defringe-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "defringe-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "defringe-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "defringe-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "defringe-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "dust-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "dust-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "dust-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "dust-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "dust-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "dust-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "dust-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "dust-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "exposure-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "exposure-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "exposure-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "exposure-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "exposure-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "exposure-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "exposure-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "exposure-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-artistic",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-artistic",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-artistic",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-artistic",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-artistic",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-artistic",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-artistic",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-artistic",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-fine-texture",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-high-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-medium-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-rough-color",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-slide-high-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-slide-medium-iso",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "film-grain-tabular-grain",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "gradation-curves-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "gradation-curves-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "gradation-curves-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "gradation-curves-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "gradation-curves-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "gradation-curves-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "gradation-curves-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "gradation-curves-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-blue-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-green-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "grayscale-red-filter",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "histogram-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "histogram-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "histogram-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "histogram-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "histogram-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "histogram-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "histogram-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "histogram-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "keystone-correction-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "keystone-correction-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "keystone-correction-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "keystone-correction-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "keystone-correction-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "keystone-correction-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "keystone-correction-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "keystone-correction-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "lens-corrections-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "lens-corrections-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "lens-corrections-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "lens-corrections-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "lens-corrections-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "lens-corrections-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "lens-corrections-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "lens-corrections-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "noise-filter-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "noise-filter-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "noise-filter-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "noise-filter-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "noise-filter-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "noise-filter-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "noise-filter-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "noise-filter-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "scene-calibration-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "scene-calibration-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "scene-calibration-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "scene-calibration-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "scene-calibration-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "scene-calibration-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "scene-calibration-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "scene-calibration-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "sharpness-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "sharpness-default",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "sharpness-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "sharpness-default",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "sharpness-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "sharpness-default",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "sharpness-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "sharpness-default",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "sharpness-portrait",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "sharpness-portrait",
+      "white": 7,
+      "policy": 0,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "sharpness-portrait",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "sharpness-portrait",
+      "white": 7,
+      "policy": 0,
+      "space": 1,
+      "model": 1
+    },
+    {
+      "preset": "sharpness-portrait",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 0
+    },
+    {
+      "preset": "sharpness-portrait",
+      "white": 7,
+      "policy": 1,
+      "space": 0,
+      "model": 1
+    },
+    {
+      "preset": "sharpness-portrait",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 0
+    },
+    {
+      "preset": "sharpness-portrait",
+      "white": 7,
+      "policy": 1,
+      "space": 1,
+      "model": 1
+    }
+  ],
+  "outputCases": [
+    {
+      "id": "u16-ramp-p0-p10",
+      "input": "u16-ramp",
+      "expected": "u16-ramp-p0-p10",
+      "lstar": 0,
+      "scale": 1.0,
+      "originalOutputSHA256": "bf67a8ddded9212deade6a19c591bfb1f95f82be115595545068a2b30ef53ed6"
+    },
+    {
+      "id": "u16-ramp-p1-p10",
+      "input": "u16-ramp",
+      "expected": "u16-ramp-p1-p10",
+      "lstar": 1,
+      "scale": 1.0,
+      "originalOutputSHA256": "fde0b5a5f03d7342e7a2fd98daaba728c6d31841349ac45fb9df46d01f854ead"
+    },
+    {
+      "id": "u16-ramp-p8-p10",
+      "input": "u16-ramp",
+      "expected": "u16-ramp-p8-p10",
+      "lstar": 0,
+      "scale": 5.8829245141,
+      "originalOutputSHA256": "e7fca760f945912e2d5043d0aa639353163b1e90b3fb87b0b6dfd5bc92fb7578"
+    },
+    {
+      "id": "u16-ramp-p9-p10",
+      "input": "u16-ramp",
+      "expected": "u16-ramp-p9-p10",
+      "lstar": 1,
+      "scale": 5.8829245141,
+      "originalOutputSHA256": "b4a423e5323acdf056b2a85dfb939905e73b32d28f23c6cdc50a964e18b42372"
+    },
+    {
+      "id": "u16-random-p0-p10",
+      "input": "u16-random",
+      "expected": "u16-random-p0-p10",
+      "lstar": 0,
+      "scale": 1.0,
+      "originalOutputSHA256": "3e4a48fe7e20157254ac0cd1f17056696a2acd127fbd561abde71837529ea284"
+    },
+    {
+      "id": "u16-random-p1-p10",
+      "input": "u16-random",
+      "expected": "u16-random-p1-p10",
+      "lstar": 1,
+      "scale": 1.0,
+      "originalOutputSHA256": "714a2a84ed6e5c96f40ab112ebef4c944a533ba3ad662913c96b70dcbc180185"
+    },
+    {
+      "id": "u16-random-p8-p10",
+      "input": "u16-random",
+      "expected": "u16-random-p8-p10",
+      "lstar": 0,
+      "scale": 5.8829245141,
+      "originalOutputSHA256": "dc8213e3c82c2f68512c2229957aec8305cb59ba9f41e88a9f274280d856a920"
+    },
+    {
+      "id": "u16-random-p9-p10",
+      "input": "u16-random",
+      "expected": "u16-random-p9-p10",
+      "lstar": 1,
+      "scale": 5.8829245141,
+      "originalOutputSHA256": "7d42dadfeff385497b219094c0c4beb93f4563f9b82d15da1be654cf215e72e0"
+    }
+  ]
+}

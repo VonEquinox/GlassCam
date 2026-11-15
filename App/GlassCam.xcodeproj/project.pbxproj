@@ -188,8 +188,10 @@
 			);
 			inputPaths = (
 				"$(SRCROOT)/../scripts/prepare_ffcs_resources.sh",
+				"$(SRCROOT)/../scripts/prepare_ffcs_mapping.py",
 				"$(SRCROOT)/../scripts/ffcs_native_SHA256SUMS",
 				"$(SRCROOT)/../vendor/ffcs/source.zip",
+				"$(SRCROOT)/../vendor/ffcs/mapping.zip",
 			);
 			name = "Prepare verified FFCS LUTs";
 			outputPaths = (

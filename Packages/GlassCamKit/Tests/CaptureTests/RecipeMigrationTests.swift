@@ -85,7 +85,7 @@ struct RecipeMigrationTests {
         #expect(restored.hncs.renderRevision == 11)
         #expect(!restored.usesExtendedHNCSWorkingDomain)
     }
-    @Test(arguments: [7, 13, 99])
+    @Test(arguments: [7, 14, 99])
     func unknownHNCSRevision_isInvalid(revision: Int) throws {
         #expect(try JSONDecoder().decode(ProcessingRecipe.self, from: legacyData(revision: revision)).isValid == false)
     }

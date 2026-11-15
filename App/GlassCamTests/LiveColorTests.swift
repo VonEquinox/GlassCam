@@ -16,6 +16,20 @@ func liveRecipe(mode: ColorMode = .ffcs, simulation: Int = 0, exposure: Double =
                     hncs: .standard, effects: effects, ffcs: ffcs)
 }
 
+@MainActor
+private func testWindowScene() async throws -> UIWindowScene {
+    let activations = NotificationCenter.default.notifications(named: UIScene.didActivateNotification)
+    if let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first {
+        return scene
+    }
+    for await _ in activations {
+        if let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first {
+            return scene
+        }
+    }
+    throw CancellationError()
+}
+
 @Suite(.serialized) @MainActor
 struct LiveColorTests {
     @Test(arguments: [0,8])
@@ -54,7 +68,7 @@ struct LiveColorTests {
         var expected = [Float](repeating: 0, count: coordinates.count * 4)
         var message = [CChar](repeating: 0, count: 1024)
         let directory = try #require(recipe.resources.ffcsDirectory)
-        let native = try #require(ffcs_create_family_config(directory.path,"XH2S",0,1,1,0,1,&message,message.count))
+        let native = try #require(ffcs_create_native_family_config(directory.path,"XH2S",0,1,1,0,1,&message,message.count))
         defer { ffcs_destroy(native) }
         let status = ffcs_process_linear_rgb_color_only(native,input,input.count,coordinates.count,&expected,expected.count,&message,message.count)
         let selected = coordinates.flatMap { point -> [Float] in
@@ -134,8 +148,8 @@ struct LivePresentationTests {
         let view: MTKView
         var now: CFTimeInterval = 0
         var statuses: [LiveColorProxyStatus] = []
-        init() throws {
-            let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        init() async throws {
+            let scene = try await testWindowScene()
             let window = UIWindow(windowScene: scene)
             window.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
             self.window = window
@@ -162,15 +176,15 @@ struct LivePresentationTests {
         }
         deinit { renderer.stop() }
     }
-    @Test func successfulGPUCompletion_revealsFrameWithCapturePTS() throws {
-        let harness = try Harness(); let frame = try harness.frame()
+    @Test func successfulGPUCompletion_revealsFrameWithCapturePTS() async throws {
+        let harness = try await Harness(); let frame = try harness.frame()
         harness.complete(frame)
         #expect(harness.view.alpha == 1)
         #expect(harness.renderer.lastPresentedTimestamp == frame.presentationTime)
     }
     @Test(arguments: ["age","gpu","generation","revision","presentation"])
-    func staleOrFailedGPUCompletion_staysHidden(cause: String) throws {
-        let harness = try Harness(); let frame = try harness.frame()
+    func staleOrFailedGPUCompletion_staysHidden(cause: String) async throws {
+        let harness = try await Harness(); let frame = try harness.frame()
         if cause == "age" { harness.now += 0.501 }
         if cause == "generation" { harness.source.reset(generation: 8) }
         harness.complete(frame,failed: cause == "gpu",revision: cause == "revision" ? harness.renderer.revision &+ 1 : nil,
@@ -179,8 +193,8 @@ struct LivePresentationTests {
         #expect(!harness.renderer.lastPresentedTimestamp.isValid)
     }
     @Test(arguments: ["stop","offscreen","size","paused","camera-failed","unsupported"])
-    func lifecycleChange_revokesPresentedFrame(cause: String) throws {
-        let harness = try Harness(); let frame = try harness.frame(); harness.complete(frame)
+    func lifecycleChange_revokesPresentedFrame(cause: String) async throws {
+        let harness = try await Harness(); let frame = try harness.frame(); harness.complete(frame)
         switch cause {
         case "stop": harness.renderer.stop()
         case "offscreen": harness.view.removeFromSuperview(); harness.renderer.updateWindowAvailability()
@@ -192,7 +206,7 @@ struct LivePresentationTests {
         #expect(!harness.renderer.lastPresentedTimestamp.isValid)
     }
     @Test func statusPublication_isDeferredAndDropsSupersededStatus() async throws {
-        let harness = try Harness()
+        let harness = try await Harness()
         harness.renderer.update(source: harness.source,recipe: liveRecipe(),enabled: false,cameraReady: true) { [weak harness] in harness?.statuses.append($0) }
         #expect(harness.statuses.isEmpty)
         await withCheckedContinuation { continuation in DispatchQueue.main.async { continuation.resume() } }
@@ -211,8 +225,8 @@ struct PairedRendererTests {
         var rejectNextEncoder = false
         var command: MTLCommandBuffer?
 
-        init() throws {
-            let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        init() async throws {
+            let scene = try await testWindowScene()
             let window = UIWindow(windowScene: scene)
             window.frame = CGRect(x: 0, y: 0, width: 100, height: 90)
             self.window = window
@@ -253,7 +267,7 @@ struct PairedRendererTests {
     }
 
     @Test func encoderCreationFailure_nextFrameCanUpload() async throws {
-        let harness = try Harness()
+        let harness = try await Harness()
         harness.rejectNextEncoder = true
         try harness.drawFrame(0)
         try #require(harness.command == nil)
@@ -265,7 +279,7 @@ struct PairedRendererTests {
     }
 
     @Test func colorSelectionChange_revokesCompletedPixels() async throws {
-        let harness = try Harness()
+        let harness = try await Harness()
         try harness.drawFrame(0)
         try await harness.finish()
         try #require(harness.renderer.textures.completed != nil)

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Offline, hash-verified materialization of all 50 FFCS 0.2.0 native LUTs.
+# Offline materialization of the frozen reference and original integer mappings.
 set -euo pipefail
 if [[ $# -ne 2 || -z "$2" || "$2" == / ]]; then
   echo 'Usage: prepare_ffcs_resources.sh SOURCE_ZIP OUTPUT_FFCS_DIRECTORY' >&2
@@ -19,17 +19,8 @@ fi
 [[ -f "$archive" ]] || { echo "Missing original FFCS archive: $archive" >&2; exit 3; }
 mkdir -p "$output"
 archive_stat="$(stat -f '%m:%z' "$archive" 2>/dev/null || stat -c '%Y:%s' "$archive")"
-if [[ -f "$output/.verified" ]] && [[ "$(cat "$output/.verified")" == "$expected $archive_stat" ]]; then
-  missing=0
-  while read -r hash filename; do
-    if [[ ! -s "$output/$filename" ]]; then missing=1; break; fi
-  done < "$script_dir/ffcs_native_SHA256SUMS"
-  if [[ "$missing" -eq 0 ]]; then
-    echo 'FFCS: all 50 cached original LUT hashes verified.'
-    exit 0
-  fi
-fi
 [[ "$(digest "$archive")" == "$expected" ]] || { echo 'FFCS archive SHA256 mismatch' >&2; exit 4; }
+python3 "$script_dir/prepare_ffcs_mapping.py" --output "$output"
 if [[ -f "$output/.verified" ]] && [[ "$(awk '{print $1}' "$output/.verified")" == "$expected" ]] && check_assets "$output" >/dev/null 2>&1; then
   printf '%s %s\n' "$expected" "$archive_stat" > "$output/.verified"
   echo 'FFCS: all 50 cached original LUT hashes verified.'

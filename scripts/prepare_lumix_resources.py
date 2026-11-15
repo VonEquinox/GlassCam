@@ -13,17 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 def prepare(archive: Path, destination: Path):
     sums = dict(line.split()[::-1] for line in (archive.parent / "SHA256SUMS").read_text().splitlines())
     expected = sums[archive.name]
-    stat = archive.stat()
-    stamp_file = destination / f".verified-{archive.stem}"
-    stamp_value = f"{expected} {stat.st_mtime_ns}:{stat.st_size}"
     manifest_name = "manifest.json" if archive.name == "source.zip" else "pipeline-manifest.json"
     manifest_path = destination / manifest_name
-    if stamp_file.exists() and stamp_file.read_text().strip() == stamp_value and manifest_path.exists():
-        manifest = json.loads(manifest_path.read_bytes())
-        files = manifest.get("files", {})
-        if files and all((destination / name).exists() for name in files):
-            print(f"Verified {len(files)} LUMIX Photo Style LUTs in {destination}")
-            return
     if hashlib.sha256(archive.read_bytes()).hexdigest() != expected:
         raise RuntimeError("The LUMIX resource archive failed SHA-256 verification")
     with zipfile.ZipFile(archive) as bundle:
@@ -54,7 +45,6 @@ def prepare(archive: Path, destination: Path):
                 temporary.write(manifest_bytes)
                 staged = temporary.name
             os.replace(staged, manifest_path)
-        stamp_file.write_text(stamp_value + "\n")
     print(f"Verified {len(files)} LUMIX Photo Style LUTs in {destination}")
 
 

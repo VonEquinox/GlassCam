@@ -96,7 +96,7 @@ public enum ImagePipeline {
                 var whiteBalance = PhotoWhiteBalance.renderedD65
                 var resolvedRAWDecode = rawDecode
                 var captureISO: Int?
-                if ["dng", "raw"].contains(sourceFile.fileExtension?.lowercased() ?? "") {
+                if sourceFile.isRAW {
                     guard let raw = CIRAWFilter(imageURL: sourceFile.url) else { throw PipelineError.invalidImage }
                     let frozenWhite = recipe.photoWhiteBalance?.origin == .appleRAW ? recipe.photoWhiteBalance : nil
                     resolvedRAWDecode = try configureRAW(raw, recipe: recipe.sourceDecodeRecipe(rawDecode), whiteBalance: frozenWhite)
@@ -143,13 +143,13 @@ public enum ImagePipeline {
         try checkExportCancellation(isCancelled)
         progress(0)
         let stabilizeRAWDecode = recipe.pipelineRevision >= 2 && rawDecode.sharpnessAmount != 0 &&
-            ["dng", "raw"].contains(sourceFile.fileExtension?.lowercased() ?? "")
+            sourceFile.isRAW
         let decoded = try fullSourceImage(sourceFile, whiteBalance: whiteBalance, rawDecode: rawDecode,
             stabilizeRAWDecode: stabilizeRAWDecode)
         try exportLinearSource(resources: resources, decoded, metadata: sourceFile.metadata, recipe: recipe, to: url, settings: settings,
             rawDecode: rawDecode, isCancelled: isCancelled, progress: progress,
             onSourceDimensions: onSourceDimensions, releaseSourceCache: stabilizeRAWDecode,
-            sourceIsRAW: ["dng", "raw"].contains(sourceFile.fileExtension?.lowercased() ?? ""))
+            sourceIsRAW: sourceFile.isRAW)
     }
 
 }

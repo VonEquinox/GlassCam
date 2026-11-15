@@ -35,13 +35,15 @@ public final class CameraSettingsStore: ObservableObject {
     // with this photo's decoder white point; old manual values are not restored.
     public var recipe: ProcessingRecipe {
         var cameraHNCS = hncs
-        if cameraHNCS.renderRevision == 11 { cameraHNCS.renderRevision = HNCSSettings.currentRenderRevision }
+        cameraHNCS.renderRevision = HNCSSettings.currentRenderRevision
         if cameraHNCS.presetKey == "square-crop" { cameraHNCS.presetKey = "standard" }
         var cameraLUMIX = lumix
         cameraLUMIX.renderRevision = LUMIXSettings.currentRenderRevision
         cameraLUMIX.sourceISO = nil
+        var cameraFFCS = ffcs
+        cameraFFCS.renderRevision = FFCSSettings.currentRenderRevision
         return ProcessingRecipe(mode: colorMode, exposureEV: exposure, illuminantKelvin: 6500,
-                                simulationIndex: simulationIndex, seed: 0, hncs: cameraHNCS, effects: effects, ffcs: ffcs, lumix: cameraLUMIX)
+                                simulationIndex: simulationIndex, seed: 0, hncs: cameraHNCS, effects: effects, ffcs: cameraFFCS, lumix: cameraLUMIX)
     }
 
     public init(defaults: UserDefaults = .standard) {
@@ -72,6 +74,7 @@ public final class CameraSettingsStore: ObservableObject {
         // ProcessingRecipe still preserves its original square composition.
         if hncs.presetKey == "square-crop" { hncs.presetKey = "standard" }
         hncs.renderRevision = HNCSSettings.currentRenderRevision
+        ffcs.renderRevision = FFCSSettings.currentRenderRevision
         lumix.renderRevision = LUMIXSettings.currentRenderRevision
         lumix.sourceISO = nil
         defaults.set(captureQuality.rawValue, forKey: "camera.capture.quality.v1")

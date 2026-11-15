@@ -3,7 +3,7 @@ import Foundation
 /// The selected original Photo Style is part of the durable photo recipe.
 /// Missing fields in older HNCS/FFCS recipes adopt Standard without changing mode.
 public struct LUMIXSettings: Codable, Equatable, Sendable {
-    package static let currentRenderRevision = 4 // Bounded float iPhone adapter; no UInt16 wrap.
+    package static let currentRenderRevision = 5
     package var renderRevision = currentRenderRevision
     public var photoStyle = "standard"
     public var contrast = 0.0
@@ -12,7 +12,7 @@ public struct LUMIXSettings: Codable, Equatable, Sendable {
     package var sourceISO: Int? = nil
     public static let standard = LUMIXSettings()
     public var isValid: Bool {
-        [1, 2, 3, Self.currentRenderRevision].contains(renderRevision) &&
+        [1, 2, 3, 4, Self.currentRenderRevision].contains(renderRevision) &&
         contrast.isFinite && (-5...5).contains(contrast) &&
         saturation.isFinite && (-5...5).contains(saturation) &&
         (sourceISO == nil || (1...1_000_000).contains(sourceISO!)) &&

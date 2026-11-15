@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -70,7 +71,25 @@ int main(int argc, char **argv) {
             CHECK(invalid(input.data(),n,w,h,0,actual.data(),n,nullptr,0,1)==0);
         }
     }
-    std::cout << "FFCS smoke passed: 19 looks, " << cases
+    const auto root=std::filesystem::path(argv[1]).parent_path().string();
+    for(const char *family:{"XH2S","XA3","GFX100","GFX100S","GFX100II"}) {
+        for(size_t look=0;look<ffcs_simulation_count();++look) {
+            if(!ffcs_simulation_available(root.c_str(),family,look))continue;
+            std::unique_ptr<FFCSContext,decltype(&ffcs_destroy)> context(
+                ffcs_create_native_family_config(root.c_str(),family,look,0,0,0,1,error.data(),error.size()),ffcs_destroy);
+            CHECK(context!=nullptr);
+            constexpr size_t pixels=257;
+            std::vector<uint16_t> input(pixels*3),output(input.size());
+            for(size_t i=0;i<input.size();++i)input[i]=uint16_t((i*7919)%20001);
+            input[0]=input[1]=input[2]=0;
+            input[3]=input[4]=input[5]=20000;
+            CHECK(ffcs_process_native_codes(context.get(),input.data(),output.data(),pixels,error.data(),error.size())==1);
+            const auto before=input;
+            CHECK(ffcs_process_native_codes(context.get(),input.data(),input.data(),pixels,error.data(),error.size())==0);
+            CHECK(input==before);
+        }
+    }
+    std::cout << "FFCS smoke passed: 19 reference looks, native mapping families, " << cases
               << " shape/worker pairs, both + single outputs, bit-exact float/preview, invalid arguments.\n";
     return 0;
 }

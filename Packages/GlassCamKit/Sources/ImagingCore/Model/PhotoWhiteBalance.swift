@@ -32,7 +32,7 @@ public struct PhotoWhiteBalance: Codable, Equatable, Sendable {
         var gains = [Double](repeating: 0, count: 3)
         var kelvin = 0.0
         let status = gains.withUnsafeMutableBufferPointer {
-            hncs_whitepoint_parameters(x, y, $0.baseAddress, &kelvin)
+            hncs_whitepoint_parameters_native_color(x, y, $0.baseAddress, &kelvin)
         }
         return status == 0 ? kelvin : nil
     }

@@ -6,7 +6,7 @@ HNCS 将已解码的源照片转换为所选 Hasselblad 工作空间中的颜色
 
 ### 输入前提
 
-输入为已经完成源白平衡和基准曝光的扩展线性 sRGB，允许有限负值与大于 1 的高光。公共管线先施加用户效果曝光。revision 12 分离 HDR 幅度后进入有界虚拟传感器与 UInt16 颜色核，再在 HNCS 工作域恢复幅度后执行空间效果；输出原色转换保留有符号的扩展线性 sRGB。
+输入为已经完成源白平衡和基准曝光的扩展线性 sRGB，允许有限负值与大于 1 的高光。公共管线先施加用户效果曝光。当前 revision 13 分离 HDR 幅度后进入有界虚拟传感器与 UInt16 颜色核，再在 HNCS 工作域恢复幅度后执行空间效果；输出使用原厂工作配置到扩展线性 sRGB 的传递函数与矩阵。
 
 ### 白平衡与 ISO
 
@@ -23,11 +23,13 @@ HNCS 将已解码的源照片转换为所选 Hasselblad 工作空间中的颜色
 
 源 ISO 保留在拍摄元数据中，不参与 HNCS 颜色选表；RAW 噪声与传感器处理属于上游 F5 或系统解码器。
 
+revision 13 的虚拟白点采用原厂 `CColorTempConversion` 的矩阵求逆链、显式 FMA 和 Robertson 运算顺序。工厂矩阵与 LUT 采用原厂的右侧插值区间、斜率与截距；捕获白点、目标增益和工厂色温分别保存，源白平衡只由上游完成一次。
+
 Nature 的原始白平衡为 5500 K 和 Phocus Tint `−0.003333333333333333`，主曲线控制点为 `(0,0)、(71,31)、(184,223)、(255,255)`。选择 `photo` 保留这条明暗曲线及其他参数，只让白平衡跟随照片；这也适用于 Daylight、Cloudy 等带固定白平衡的预设。Apple Tint 与 Phocus Tint 使用不同单位，完整 xy 保留绿／洋红方向的信息。
 
 ### 颜色与空间阶段
 
-新建配方使用 `pipelineRevision = 2`、HNCS `renderRevision = 12`。完整源导出在裁剪后、下采样前完成整条处理：
+新建配方使用 `pipelineRevision = 2`、HNCS `renderRevision = 13`。完整源导出在裁剪后、下采样前完成整条处理：
 
 ```mermaid
 flowchart TD
@@ -53,7 +55,7 @@ flowchart TD
 
 ### HDR 工作域
 
-revision 12 接收完整扩展线性源值。每像素以 `g = max(1, R, G, B)` 得到有界颜色输入；颜色核和 gradation 后，在工作空间恢复幅值：
+扩展工作域接收完整线性源值。每像素以 `g = max(1, R, G, B)` 得到有界颜色输入；颜色核和 gradation 后，在工作空间恢复幅值：
 
 ```text
 w = encode_working(decode_working(code / 65535) × g)
@@ -70,7 +72,9 @@ S = max(5.8829245141, maximum)      maximum > 1
 
 有限工作值和尺度的上限均为 64。空间入口按 `S` 将整图打包到 `[0,1]`；原生锐化的 amount／noise 表采用相同尺度，使参考白以上的明暗差进入亮度、模糊和阈值计算。颗粒幅度按参考白定义，打包时除以 `S`。即使关闭颗粒与锐化，也要完成这次全图打包。
 
-结束阶段使用绑定了同一 `S` 的不可变上下文，将后置颜色结果解码回工作线性值，再转换为带符号的 extended-linear-sRGB。负分量和超过 1 的分量保留到目标色域转换；末端在线性 BT.2020 中执行范围处理和 PQ 编码。revision 12 不另存逐像素 gain 图，也不在锐化后再次乘回旧 gain；旧记录中的 revision 11 按保存版本走原有的高光分离／恢复路径。
+结束阶段使用绑定同一 `S` 的不可变上下文。revision 13 按原厂顺序执行 Float32 码值归一化、Float32 尺度乘法和工作传递函数解码；工作原色、白点与 Bradford 适配构成原厂复合矩阵，以显式 FMA 转换后写回 Float32 extended-linear-sRGB。负分量和超过 1 的分量保留到目标色域转换，末端在线性 BT.2020 中执行范围处理和 PQ 编码。
+
+扩展工作域不另存逐像素 gain 图，也不在锐化后再次乘回 gain。revision 11、12 的参考上下文及输出保持各自冻结契约。
 
 ### 效果开关与缓存
 
@@ -90,7 +94,7 @@ HNCS 不在 `experimentalLiveColor` 的 65³ 立方体准入表内，取景显�
 2. 照片白点只绑定一次，经过配方编解码后保持原值。— `ImagingCoreTests/WhiteBalanceTests.automaticWhiteBalance_bindsPhotoOnceAndSurvivesCodable`
 3. Nature 的 `preset` 策略保留旧白平衡输出，`photo` 策略在固定长焦灰色夹具上保持近中性且不受策略切换污染。— `ImagingCoreTests/WhiteBalanceTests.presetNature_replaysOriginalTelephotoWhiteBalance`、`photoNature_keepsTelephotoGrayNeutralAcrossPolicyChanges`
 4. pipeline revision 2 的曝光等价于先对完整线性源图施加曝光，旧管线按冻结曝光 golden 重放。— `ImagingCoreTests/ColorChainTests.exposure_matchesScalingSceneLinearSource`、`unversionedRecipe_replaysFrozenExposureGolden`
-5. 原生工作值、锐化和后置颜色依次匹配冻结的 Phocus 向量。— `tests/numeric/test_phocus_native_chain.py::test_native_chain_stage_matches_frozen_output`
+5. 原生工作值、锐化和后置颜色依次匹配冻结的 Phocus 向量，颜色、增益、HDR 和预设表另以独立输入重放原厂阶段输出。— `tests/numeric/test_phocus_native_chain.py::test_native_chain_stage_matches_frozen_output`、`tests/numeric/test_hncs_original_binary.py::test_independent_native_input_matches_original_stage`
 6. revision 12 在空间处理前保留高光幅值，并让锐化作用于参考白以上的中性细节。— `tests/numeric/test_hncs_hdr_domain.py::test_hdr_magnitude_is_present_before_spatial_processing`、`ImagingCoreTests/ImagePipelineTests.hdrSpatialProcessing_sharpensNeutralHighlightDetail`
 7. 工作原色转换保留扩展 sRGB 的负分量与超单位值。— `tests/numeric/test_hncs_hdr_domain.py::test_working_primaries_survive_as_signed_extended_srgb`
 8. 全图共用尺度时，分条、内存与文件路径结果一致；非法尺度或未绑定相同尺度的结束调用失败。— `tests/numeric/test_hncs_hdr_domain.py::test_one_frame_scale_matches_work_strip_partitions`、`test_one_frame_scale_matches_memory_and_file_storage`、`test_one_frame_scale_matches_finish_strip_partitions`、`test_invalid_hdr_scale_rejects_clone`、`test_missing_hdr_scale_binding_rejects_finish`
@@ -101,11 +105,14 @@ HNCS 不在 `experimentalLiveColor` 的 65³ 立方体准入表内，取景显�
 13. 完整源空间导出和整图处理得到相同成片，分条大小不改变工作文件的空间处理结果。— `ImagingCoreTests/ColorChainTests.spatialStripExport_matchesWholeImageAndDirectBytes`、`ImagePipelineTests.spatialWorkFile_matchesNativeMemoryPath`
 14. 不允许重叠的 RGB／RGBA 及字节入口在分派和写入前拒绝完整范围重叠。— `tests/numeric/test_native_buffer_contracts.py::test_hncs_overlapping_float_ranges_fail_without_writes`、`tests/numeric/test_native_buffer_contracts.py::test_hncs_overlapping_byte_output_fails_without_writes`
 
+15. 当前白点上下文的捕获／目标增益和颜色匹配原厂固定数组；两种工作空间的 SDR／HDR 结束阶段匹配原厂 Float32 位型。— `test_hncs_native_color.test_photo_whitepoint_context_matches_original_gains_and_colour`、`test_working_profile_output_matches_original_float_bits`
+16. Swift 当前结束阶段实际使用原厂 HDR 工作配置。— `ImagingCoreTests/CurrentColorTests.currentHNCS_usesTheVerifiedHDRWorkingProfile`
+
 ## 数据与版本
 
 ### 配方兼容
 
-HNCS 的 `renderRevision` 与共享 `pipelineRevision`、上游资产版本分别保存。当前有效版本为 11 和 12（新设置固定生成 `renderRevision = 12`、`pipelineRevision = 2`、`whiteBalancePolicy = photo`），未知值通过 `isValid` 拒绝。解码历史记录时：版本 8–10 或缺省版本归并到 11；含 `hncs` 但缺省白平衡策略时采用 `preset`，整个 `hncs` 缺失时采用 `legacyStandard`；无显式 `effects` 时仅活动 HNCS 继承旧颗粒／锐化开关。相机偏好恢复时独立升级到版本 12 并采用 `photo` 策略，不改写待完成照片的冻结配方。
+HNCS 的 `renderRevision` 与共享 `pipelineRevision`、上游资产版本分别保存。新设置使用 `renderRevision = 13`、`pipelineRevision = 2`、`whiteBalancePolicy = photo`；保留的 11、12 版本使用原参考输出。版本 8–10 或缺省版本归并到 11，未知值通过 `isValid` 拒绝。相机偏好恢复时升级后续拍摄的颜色版本，已冻结照片继续使用保存的版本与白点。
 
 ### 工厂资产与原生接口
 
@@ -118,9 +125,9 @@ HNCS 的 `renderRevision` 与共享 `pipelineRevision`、上游资产版本分�
 - Apple→虚拟 X2D 是源域适配模型，尚无受控相机对拍标定，色彩数值一致性只覆盖相同输入与约定阶段。
 - 便携颗粒使用参考随机模型，未实现 Phocus 原生颗粒核；缩小图像的尺寸与统计不同，颗粒图样可能与完整源成片不同。
 - 原生锐化实现完整分辨率的 CPU 分支，未覆盖局部调整、镜头锐化补偿或原厂缩小图像半径补偿。
-- X2D 专用 HDR 接口要求原生准备输入，Apple 照片路径未接入完整 X2D RAW 校准、降噪、去马赛克、高光重建及原厂 HDR limit／ICC 链。
+- X2D 专用 HDR 接口要求原生准备输入，Apple 照片路径未接入 X2D RAW 校准、降噪、去马赛克、高光重建及原厂 HDR limit。
 - 任意自定义 HDR 曲线、局部图层、选择性颜色与 vibrance 不在现有工厂预设实现范围内。
-- revision 12 即使关闭空间效果也需要完整工作文件，临时存储需求随源图尺寸增长。
+- 扩展工作域即使关闭空间效果也需要完整工作文件，临时存储需求随源图尺寸增长。
 
 ## 代码入口
 
@@ -128,5 +135,6 @@ HNCS 的 `renderRevision` 与共享 `pipelineRevision`、上游资产版本分�
 - [HNCSPresetCatalog.swift](../../Packages/GlassCamKit/Sources/ImagingCore/Model/HNCSPresetCatalog.swift)、[PhotoWhiteBalance.swift](../../Packages/GlassCamKit/Sources/ImagingCore/Model/PhotoWhiteBalance.swift)：预设目录与完整照片白点。
 - [HNCSEngine.swift](../../Packages/GlassCamKit/Sources/ImagingCore/Engines/HNCSEngine.swift)、[HNCSPresetWorkFile.swift](../../Packages/GlassCamKit/Sources/ImagingCore/Engines/HNCSPresetWorkFile.swift)：上下文、Swift／C 桥和工作文件所有权。
 - [hncs.cpp](../../Packages/GlassCamKit/Sources/CHNCS/hncs.cpp)、[hncs_c.h](../../Packages/GlassCamKit/Sources/CHNCS/include/hncs_c.h)：颜色核、白平衡适配、曲线、HDR 工作域及 C ABI。
+- [hncs_native_color.hpp](../../Packages/GlassCamKit/Sources/CHNCS/hncs_native_color.hpp)：原厂矩阵运算、工作原色和 Float32 输出传递边界。
 - [hncs_spatial.cpp](../../Packages/GlassCamKit/Sources/CHNCS/hncs_spatial.cpp)、[hncs_spatial.h](../../Packages/GlassCamKit/Sources/CHNCS/include/hncs_spatial.h)：原生锐化、便携颗粒、全图尺度与取消。
 - [ImagePipeline+Rendering.swift](../../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline+Rendering.swift)、[ImagePipeline+Export.swift](../../Packages/GlassCamKit/Sources/ImagingCore/Processing/ImagePipeline+Export.swift)：冻结配方处理及完整源分条导出。

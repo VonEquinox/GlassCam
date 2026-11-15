@@ -181,14 +181,14 @@ extension ImagePipeline {
     static func decode(data: Data, fileExtension: String?, sourceFile: SourceImageFile, maximumEdge: CGFloat, exportSettings: ExportSettings, rawDecode: RAWDecodeRecipe,
                                baseRAWDecode: RAWDecodeRecipe? = nil,
                                frozenWhiteBalance: PhotoWhiteBalance? = nil) throws -> ImportedImage {
-        let isRAW = ["dng", "raw"].contains(fileExtension?.lowercased() ?? "")
+        let isRAW = sourceFile.isRAW
         var source: CIImage?
         var whiteBalance = PhotoWhiteBalance.renderedD65
         var resolvedRAWDecode = rawDecode
         var captureISO: Int?
         var decodePrecisionDescription = "Float32 RAW decode · not sensor-native bit depth"
         if isRAW {
-            if let raw = CIRAWFilter(imageData: data, identifierHint: "com.adobe.raw-image") {
+            if let raw = CIRAWFilter(imageURL: sourceFile.url) {
                 resolvedRAWDecode = try configureRAW(raw, recipe: rawDecode, whiteBalance: frozenWhiteBalance)
                 whiteBalance = frozenWhiteBalance ?? .asShot(raw)
                 captureISO = sourceISO(in: raw.properties)
@@ -249,14 +249,14 @@ extension ImagePipeline {
         let rgb = try FloatRasterOperations.rgb(fromRGBA: pixels)
         return ImportedImage(sourceFile: sourceFile, exportSettings: exportSettings, linearRGB: rgb, width: width, height: height,
                              original: original,
-                             sourceDescription: isRAW ? "DNG • Apple RAW decode • experimental adapter • \(decodePrecisionDescription)" : "Rendered image • embedded profile → linear sRGB • \(decodePrecisionDescription)",
+                             sourceDescription: isRAW ? "RAW • Apple RAW decode • experimental adapter • \(decodePrecisionDescription)" : "Rendered image • embedded profile → linear sRGB • \(decodePrecisionDescription)",
                              whiteBalance: whiteBalance, rawDecode: resolvedRAWDecode, sourceISO: captureISO,
                              baseRAWDecode: baseRAWDecode ?? resolvedRAWDecode, previewMaximumEdge: Int(maximumEdge))
     }
 
     static func fullSourceImage(_ source: SourceImageFile, whiteBalance: PhotoWhiteBalance,
                                 rawDecode: RAWDecodeRecipe, stabilizeRAWDecode: Bool = false) throws -> CIImage {
-        let isRAW = ["dng", "raw"].contains(source.fileExtension?.lowercased() ?? "")
+        let isRAW = source.isRAW
         var decoded: CIImage?
         if isRAW {
             if let raw = CIRAWFilter(imageURL: source.url) {

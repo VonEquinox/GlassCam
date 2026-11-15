@@ -8,7 +8,7 @@
 
 Speed／Balanced 的整数 Bayer 输入由 [F5](f5.md) 在 C++／Metal 中完成坏点修复、降噪、去马赛克、镜头操作、一次相机矩阵白平衡和基准曝光，以 `SceneLinearImage` 直接进入 `ImagePipeline.writeLinearHEIF`。颜色阶段直接使用扩展线性 sRGB，绑定拍摄白点、实际 ISO 与 `BaselineSharpness`，不再经过系统 RAW 解码器。
 
-内部文件入口（`SourceImageFile`、`ImportedImage` 及本地 ProRAW 基线）接收外部 `dng`／`raw` 或普通图片：
+内部文件入口（`SourceImageFile`、`ImportedImage` 及本地 ProRAW 基线）将 `dng`、`raw`、`3fr`、`raf`、`rw2`、`arw` 交给 Apple RAW 解码器，其余扩展名按普通图片读取。临时源文件保持原始字节，只从固定白名单追加小写扩展名；预览、配方重解码和完整导出都从该文件 URL 识别 RAW。具体相机与格式支持由系统解码器决定。
 
 - **外部 RAW（`configureRAW`）**：完整导出固定 `scaleFactor = 1`（缩小工作图默认最长边 2048，可选 256–4096）。当前配方采用 `cameraNeutral`，关闭 Apple 全局色调曲线（`boostAmount = 0`），保留照片的 `baselineExposure`、局部色调映射和色域映射，EDR 默认设为 1。HNCS 路径将解码器锐化设为 0 并读取 DNG 的 `BaselineSharpness` 交给 HNCS 空间阶段；LUMIX 清除其他引擎遗留的解码器锐化覆盖。保留 Apple 锐化的全源读取插入固定分块缓存，在空间处理与编码前释放。历史配方兼容保留 `sceneLinear` 与 `appleRendered`。
 - **普通图片**：按内嵌色彩配置转换到 extended linear sRGB 并展开 HDR；所有输入均规范化方向并将透明区域合成到黑色背景。
@@ -19,7 +19,7 @@ Speed／Balanced 的整数 Bayer 输入由 [F5](f5.md) 在 C++／Metal 中完成
 
 管线 revision 2 先将用户效果曝光 `exposureEV` 作为 `2^EV` 标量施加在线性 RGB 上，后端收到的曝光为 0：
 
-- **HNCS（revision 12）**：在扩展工作域保留高光幅度，空间颗粒与锐化作用于完整高光细节。
+- **HNCS（revision 13）**：在扩展工作域保留高光幅度，空间阶段后采用原厂 Float32 工作配置与复合矩阵返回扩展线性 sRGB。
 - **FFCS、LUMIX 与旧 HNCS**：逐像素提取 `max(1, R, G, B)`，将归一化颜色交给对应引擎，返回后再恢复高光幅度。恢复先于输出缩放。
 
 CPU C ABI 内核保持各引擎的数值类型、运算次序及 `-fno-fast-math -ffp-contract=off`；并行处理共享不可变上下文。RGB／RGBA 打包、效果曝光、高光分离／恢复、实时立方体节点、像素范围校验与峰值扫描由 `float_raster.cpp` 承担，ARM64 使用 NEON 加速连续遍历，保留标量尾部及负零位型；Swift 负责缓冲所有权与错误传播。
@@ -32,7 +32,7 @@ CPU C ABI 内核保持各引擎的数值类型、运算次序及 `-fno-fast-math
 |---|---|
 | FFCS | `CIImageProcessorKernel` 直接读取 Core Image 的 Float32 Metal 纹理执行颜色、颗粒与水平／垂直两趟一维 Gaussian 锐化；请求完整 ` halo ` 以保证跨块连续，颗粒使用整图坐标。 |
 | HNCS | C++ 打包、施加曝光并执行精确颜色核，写出完整的 Float32 RGB 工作文件并统计整图最大尺度；原生整数锐化以两个带邻域的 Metal 缓冲（单 RGB 缓冲上限 32 MiB 另加 UInt16 亮度平面）运行，颗粒随机流、全图统计与后置颜色结束阶段沿用 C++，复用读写缓冲直接生成 RGBAf 文件。 |
-| LUMIX | Metal 读取原始 129³ LUT（12 位网格整数权重插值），在纹理上分条完成曝光、颜色与高光恢复后写出。 |
+| LUMIX | Metal 使用原生 `4 × 4095` 工作白值、低 ISO 预曲线与原始 129³ LUT，在纹理上分条完成整数颜色阶段及高光恢复后写出。 |
 
 外部 RAW 解码源与 CPU 参考路径固定每次请求 64 个输出行；F5 线性源及其他 GPU 输入按缓冲容量分块。位图和文件使用自上而下行序，Core Image 矩形使用左下原点。成片颜色与锐化在 App 使用预编译 Metal 库，SwiftPM 测试编译同一份源码并采用 safe／precise 数学选项；其 CPU 回退保留参考路径，失败或取消丢弃临时结果。F5 重建要求 Metal。
 
@@ -64,7 +64,7 @@ GPU Float32 颜色结果与 CPU 参考结果经相同 Core Image 转换至 BT.20
 1. 改动任一处理配方字段都会改变配方身份，且编码往返保留其值。— `ImagingCoreTests/RecipeTests.changedRecipeField_changesIdentityAndSurvivesCodable`
 2. 照片白点只绑定一次，绑定后随配方编码往返；拍摄后修改设置不改变已冻结照片的处理或重试。— `ImagingCoreTests/WhiteBalanceTests.automaticWhiteBalance_bindsPhotoOnceAndSurvivesCodable`、`CaptureTests/WorkflowTests.settingsMutation_doesNotRetargetFrozenCaptureOrRetry`
 3. 当前配方的曝光等价于先缩放完整线性源 RGB 再以零曝光处理；缺失管线版本的旧配方继续重放固定曝光 golden。— `ImagingCoreTests/ColorChainTests.exposure_matchesScalingSceneLinearSource`、`unversionedRecipe_replaysFrozenExposureGolden`
-4. GPU 颜色结果落在规定的 HDR ΔEITP 预算内，HNCS 锐化在 HDR 尺度和分块边界上与 CPU 位级一致。— `ImagingCoreTests/MetalColorTests.pointwiseColor_staysWithinHDRBudget`、`spatialGPU_matchesCPUIncludingTileBoundaries`
+4. GPU 颜色结果落在规定的 HDR ΔEITP 预算内，不新增黑白截断或超过 Float32 舍入范围的灰阶反转；HNCS 锐化在 HDR 尺度和分块边界上与 CPU 位级一致。— `ImagingCoreTests/MetalColorTests.pointwiseColor_staysWithinHDRBudget`、`grayRamp_doesNotAddReversals`、`spatialGPU_matchesCPUIncludingTileBoundaries`
 5. 原生渲染保留自上而下行序与末块像素，渲染前取消不写入像素，HNCS 文件结束阶段与内存参考逐位一致。— `ImagingCoreTests/MetalColorTests.nativeRenderer_preservesTopDownRowsAndTail`、`cancelledNativeRenderer_leavesEmptyDestination`、`nativeFinishFile_matchesReferenceAcrossChunks`
 6. 浮点文件分块读取与位图输入在裁剪、方向、负值和 HDR 上逐值一致；读取失败拒绝成片。— `ImagingCoreTests/FileRasterTests`
 7. 全源分条导出与空间工作图在裁剪、空间效果和缩放后符合整图参考及直接编码结果；HDR 高光细节参与 HNCS 锐化。— `ImagingCoreTests/ColorChainTests.spatialStripExport_matchesWholeImageAndDirectBytes`、`ImagePipelineTests.fullSourceExport_matchesWholeFrameAndDirectEncoding`、`spatialWorkFile_matchesNativeMemoryPath`、`hdrSpatialProcessing_sharpensNeutralHighlightDetail`
@@ -74,12 +74,13 @@ GPU Float32 颜色结果与 CPU 参考结果经相同 Core Image 转换至 BT.20
 11. 浮点搬运保留有符号 HDR 位型，曝光只施加一次，高光恢复保留 alpha 与负零。— `ImagingCoreTests/FloatRasterTests.packing_preservesSignedHDRBitsAndSuppliesOpaqueAlpha`、`normalization_appliesExposureOnceAndRetainsSignedChannels`、`restoration_clampsRGBAndPreservesAlpha`、`restoration_preservesNegativeZeroAtTheFloatBoundary`
 12. HNCS 完整输入／输出范围重叠及 FFCS 双输出重叠在写入前被拒绝。— `tests/numeric/test_native_buffer_contracts.py::test_hncs_overlapping_float_ranges_fail_without_writes`、`tests/numeric/test_native_buffer_contracts.py::test_hncs_overlapping_byte_output_fails_without_writes`、`tests/numeric/test_native_buffer_contracts.py::test_ffcs_overlapping_outputs_fail_without_writes`
 13. 范围校验不改写像素，在向量块和标量尾部拒绝非有限与越界值，有限值检查保留完整有符号范围。— `NativeTests/float_raster_smoke`
+14. RAW 临时源保留规范化扩展名与原始字节；误标为 RAW 的普通图片被拒绝，借用的恢复日志文件不随句柄释放而删除。— `ImagingCoreTests/SourceImageFileTests`
 
 ## 数据与版本
 
 `ProcessingRecipe` 保存色彩模式、效果曝光、模型色温、模拟风格、随机种子、各引擎设置、独立效果开关（`applyGrain`、`applySharpness`、`applyExtraCrop`）、照片白平衡、RAW 输入策略（当前 `cameraNeutral`）与管线版本（当前 `pipelineRevision = 2`）。拍摄元数据由 `PhotoMetadata` 独立管理。
 
-历史记录解码保留旧字段回退（缺省 `pipelineRevision = 1`、缺省 `rawInputPolicy = legacy` 及旧 HNCS `square-crop` 裁剪语义），版本 1 曝光参考冻结于 [color-pipeline-v1-exposure.json](../tests/fixtures/color-pipeline/color-pipeline-v1-exposure.json)。新拍摄偏好在 `CameraSettingsStore` 中独立采用当前版本与标准构图。
+新拍摄偏好在 `CameraSettingsStore` 中采用 HNCS 13、FFCS 3、LUMIX 5 与标准构图。原 CPU 参考和版本 1 曝光数据保持冻结，新颜色契约使用各自的原厂固定样本；[color-pipeline-v1-exposure.json](../tests/fixtures/color-pipeline/color-pipeline-v1-exposure.json) 按原引擎版本重放。
 
 ## 已知限制
 

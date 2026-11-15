@@ -172,6 +172,13 @@ public struct PhotoMetadata: @unchecked Sendable {
 /// Owns an immutable copy of the genuine capture/import bytes. Previews never
 /// replace this file. Shared recipes retain this owner until exports finish.
 public final class SourceImageFile: @unchecked Sendable {
+    static func normalizedRAWExtension(_ value: String?) -> String? {
+        guard let value = value?.lowercased(),
+              ["dng", "raw", "3fr", "raf", "rw2", "arw"].contains(value) else { return nil }
+        return value
+    }
+    var isRAW: Bool { Self.normalizedRAWExtension(fileExtension) != nil }
+
     public let url: URL
     public let fileExtension: String?
     let pixelWidth: Int
@@ -191,8 +198,10 @@ public final class SourceImageFile: @unchecked Sendable {
         pixelWidth = (5...8).contains(orientation) ? height.intValue : width.intValue
         pixelHeight = (5...8).contains(orientation) ? width.intValue : height.intValue
         self.fileExtension = fileExtension
-        // Do not derive any path component from an untrusted imported name.
-        url = FileManager.default.temporaryDirectory.appendingPathComponent("glasscam-source-\(UUID().uuidString)")
+        // Apple RAW identification needs the real extension for some formats.
+        // Only a fixed extension allowlist may contribute to the generated path.
+        let temporary = FileManager.default.temporaryDirectory.appendingPathComponent("glasscam-source-\(UUID().uuidString)")
+        url = Self.normalizedRAWExtension(fileExtension).map { temporary.appendingPathExtension($0) } ?? temporary
         try data.write(to: url, options: ImageFileProtection.writeOptions)
     }
 

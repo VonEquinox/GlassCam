@@ -3,6 +3,7 @@
 // BGR axes, header matrix, all look parameters, grain and float sharpening.
 #include "ffcs_c.h"
 #include "ffcs_color_data.h"
+#include "ffcs_native_mapping.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -130,9 +131,17 @@ template<class Tile> void parallelRows(size_t first,size_t rows,unsigned workers
  for(unsigned t=0;t<workers;++t)if(failures[t])std::rethrow_exception(failures[t]);
 }
 }
-struct FFCSContext {Look look;bool grainEnabled,sharpenEnabled;double radius=1;std::vector<double> kernel;size_t reach=0;std::string family;size_t size;double scale;double matrix[9];bool rgbChannels;std::vector<uint16_t> lut;std::vector<double> normalized_codes;};
+struct FFCSContext {Look look;bool grainEnabled,sharpenEnabled;double radius=1;std::vector<double> kernel;size_t reach=0;std::string family;size_t size;double scale;double matrix[9];bool rgbChannels;std::vector<uint16_t> lut;std::vector<double> normalized_codes;std::shared_ptr<const FFCSNativeMapping> nativeMapping;};
 namespace {
 RGB mapLUT(const FFCSContext &c,RGB v) {
+ if(c.nativeMapping) {
+  const auto &mapping=*c.nativeMapping;
+  std::array<uint16_t,3> input{};
+  for(unsigned ch=0;ch<3;++ch)
+   input[ch]=uint16_t(std::floor(std::pow(clip(v[2-ch]),mapping.gamma)*mapping.maximum+.5));
+  const auto output=mapping.map(c.lut.data(),uint32_t(c.size),input);
+  return {c.normalized_codes[output[2]],c.normalized_codes[output[1]],c.normalized_codes[output[0]]};
+ }
  double p[]={clip(v[2])*(c.size-1),clip(v[1])*(c.size-1),clip(v[0])*(c.size-1)};size_t lo[3],hi[3];double f[3];
  for(int i=0;i<3;++i){lo[i]=size_t(std::floor(p[i]));hi[i]=std::min(lo[i]+1,c.size-1);f[i]=p[i]-lo[i];}
  auto at=[&](size_t x,size_t y,size_t z,int ch){return c.normalized_codes[c.lut[((z*c.size+y)*c.size+x)*3+ch]];};RGB o{};
@@ -222,7 +231,14 @@ int ffcs_get_color_data(const FFCSContext *c,ffcs_color_data *out) {
  out->shoulder=s.shoulder;out->toe=s.toe;out->grain=s.grain;out->grain_size=s.size;
  out->chroma=s.chroma;out->sharp=s.sharp;out->size=uint32_t(c->size);out->rgb_channels=c->rgbChannels;
  out->acros=s.acros;out->grain_enabled=c->grainEnabled;out->reach=uint32_t(c->reach);
- out->lut=c->lut.data();out->normalized_codes=c->normalized_codes.data();out->kernel=c->kernel.data();return 0;
+ out->lut=c->lut.data();out->normalized_codes=c->normalized_codes.data();out->kernel=c->kernel.data();
+ if(c->nativeMapping) {
+  const auto &mapping=*c->nativeMapping;
+  out->native_mapping=1;out->mapping_gamma=mapping.gamma;out->working_maximum=mapping.maximum;
+  out->fixed_mapping=mapping.fixed;out->gamma_in=mapping.gammaIn.data();out->gamma_out=mapping.gammaOut.data();
+  out->gaussian=mapping.gaussian.data();out->distances=mapping.distances.data();
+ }
+ return 0;
 }
 size_t ffcs_simulation_count(void){return sizeof(looks)/sizeof(looks[0]);}
 const char *ffcs_simulation_name(size_t i){return i<ffcs_simulation_count()?looks[i].name:nullptr;}
@@ -288,6 +304,74 @@ FFCSContext *ffcs_create_family_config(const char *root,const char *camera,size_
   return ctx.release();
  }catch(const std::exception &e){errorText(err,en,e.what());return nullptr;}catch(...){errorText(err,en,"Unknown FFCS family initialization failure");return nullptr;}
 }
+FFCSContext *ffcs_create_native_family_config(const char *root,const char *camera,size_t index,
+ int grain,int sharpen,int details,double radius,char *err,size_t en) {
+ try {
+  std::unique_ptr<FFCSContext> ctx(ffcs_create_family_config(root,camera,index,grain,sharpen,details,radius,err,en));
+  if(!ctx)return nullptr;
+  std::string asset=looks[index].asset;asset.replace(asset.size()-5,5,".ffcm");
+  const std::string path=std::string(root)+"/"+ctx->family+"/"+asset;
+  std::ifstream stream(path,std::ios::binary|std::ios::ate);
+  if(!stream)throw std::runtime_error("Missing FFCS native mapping");
+  const auto length=stream.tellg();
+  if(length<36||length>32*1024*1024)throw std::runtime_error("Invalid FFCS mapping size");
+  std::vector<unsigned char> packed(static_cast<size_t>(length));
+  stream.seekg(0);stream.read(reinterpret_cast<char*>(packed.data()),length);
+  if(!stream||std::memcmp(packed.data(),"FFCSMAP1",8))throw std::runtime_error("Invalid FFCS mapping header");
+  const uint32_t nodes=u32(packed.data()+8),maximum=u32(packed.data()+12),fixed=u32(packed.data()+16);
+  const uint64_t gammaBits=uint64_t(u32(packed.data()+20))|(uint64_t(u32(packed.data()+24))<<32);
+  double gamma;std::memcpy(&gamma,&gammaBits,8);
+  if(nodes<3||nodes>128||maximum!=20000||fixed>1||!std::isfinite(gamma)||gamma<=0||gamma>8)
+   throw std::runtime_error("Invalid FFCS mapping parameters");
+  const size_t expected=size_t(nodes)*nodes*nodes*6;
+  if(u32(packed.data()+28)!=expected)throw std::runtime_error("Invalid FFCS mapping payload size");
+  std::vector<unsigned char> raw(expected);
+  uLongf decoded=raw.size();uLong consumed=packed.size()-36;
+  if(uncompress2(raw.data(),&decoded,packed.data()+36,&consumed)!=Z_OK||
+     decoded!=expected||consumed!=packed.size()-36)
+   throw std::runtime_error("FFCS mapping decompression or checksum failed");
+  for(size_t i=3;i<expected/2;++i) {
+   const uint16_t value=uint16_t(u16(raw.data()+i*2)+u16(raw.data()+(i-3)*2));
+   raw[i*2]=value&255;raw[i*2+1]=value>>8;
+  }
+  if(crc32(0,raw.data(),uInt(raw.size()))!=u32(packed.data()+32))
+   throw std::runtime_error("FFCS mapping checksum failed");
+  auto mapping=std::make_shared<FFCSNativeMapping>();
+  mapping->maximum=maximum;mapping->fixed=fixed;mapping->gamma=gamma;mapping->prepare(nodes);
+  ctx->size=nodes;ctx->scale=maximum;ctx->rgbChannels=false;
+  ctx->lut.resize(expected/2);
+  for(size_t i=0;i<ctx->lut.size();++i)ctx->lut[i]=u16(raw.data()+i*2);
+  for(size_t i=0;i<ctx->normalized_codes.size();++i)
+   ctx->normalized_codes[i]=std::pow(clip(double(i)/maximum),1./gamma);
+  // The factory mapping already includes the style's colour and tonal shape.
+  // Optional detail effects do not add the old analytic colour/tone overlay.
+  ctx->look.contrast=ctx->look.saturation=1.;
+  ctx->look.hue=ctx->look.shoulder=ctx->look.toe=0.;
+  ctx->look.acros=looks[index].acros||looks[index].saturation==0.;
+  ctx->nativeMapping=std::move(mapping);
+  errorText(err,en,"");return ctx.release();
+ }catch(const std::exception &e){errorText(err,en,e.what());return nullptr;}
+ catch(...){errorText(err,en,"Unknown FFCS native mapping failure");return nullptr;}
+}
+int ffcs_process_native_codes(const FFCSContext *c,const uint16_t *input,uint16_t *output,
+ size_t pixels,char *err,size_t en) {
+ try {
+  if(!c||!c->nativeMapping||!input||!output||!pixels||
+     pixels>std::numeric_limits<size_t>::max()/6)
+   throw std::runtime_error("Invalid FFCS native buffers");
+  if(overlaps(input,pixels*6,output,pixels*6))
+   throw std::runtime_error("FFCS native buffers must not overlap");
+  for(size_t i=0;i<pixels*3;++i)if(input[i]>c->nativeMapping->maximum)
+   throw std::runtime_error("FFCS native input exceeds working maximum");
+  for(size_t i=0;i<pixels;++i) {
+   const auto value=c->nativeMapping->map(c->lut.data(),uint32_t(c->size),
+                                        {input[3*i],input[3*i+1],input[3*i+2]});
+   std::copy(value.begin(),value.end(),output+i*3);
+  }
+  errorText(err,en,"");return 1;
+ }catch(const std::exception &e){errorText(err,en,e.what());return 0;}
+ catch(...){errorText(err,en,"Unknown FFCS native mapping failure");return 0;}
+}
 const char *ffcs_asset_family(const FFCSContext *c){return c?c->family.c_str():nullptr;}
 void ffcs_destroy(FFCSContext *c){delete c;}
 int ffcs_process_linear_rgb_color_only(const FFCSContext *c,const float *in,
@@ -319,6 +403,9 @@ int ffcs_process_linear_rgb(const FFCSContext *c,const float *in,size_t ni,size_
   size_t n=count(w,h);
   if(!c||!in||!out||ni<n||no<n||(rgba&&nb<(n/3)*4)||!std::isfinite(ev)||ev < -32||ev>32)
    throw std::runtime_error("Invalid FFCS float buffers or exposure");
+  if(overlaps(in,n*sizeof(float),out,n*sizeof(float)) ||
+     overlaps(in,n*sizeof(float),rgba,(n/3)*4))
+   throw std::runtime_error("FFCS input and output buffers must not overlap");
   if(overlaps(out,n*sizeof(float),rgba,(n/3)*4))
    throw std::runtime_error("FFCS float and preview outputs must not overlap");
   double gain=std::exp2(double(ev));std::vector<double> p(n);

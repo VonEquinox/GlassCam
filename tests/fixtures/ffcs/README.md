@@ -15,3 +15,18 @@ git show eb4e551:GlassCamPrototype/validation/ffcs-v020-stage-goldens.json > tes
 ```
 
 消费入口为 [FFCS 参考测试](../../numeric/test_ffcs_source.py)及其[参考支持模块](../../numeric/support/verify_ffcs_v020.py)。
+
+## 当前原厂整数映射
+
+`native-mapping-vectors.zip` 对应 render revision 3，SHA-256 为 `bee57df3e36a8a66ae4bf0a1dc0565bf5ef3b1bd9dfc981f2ae1e84d16fb652a`。原厂为 RFC EX 3.0／SILKYPIX 8.1.20.0，框架哈希、原始输入／输出哈希及样本索引记录在归档清单中。
+
+夹具覆盖全部原始资源的 Normal2／Normal2Fixed 分派、`sigma = 0.5055` 和工作白值 `20000`。整数期望来自原厂实际输出；浮点输入／期望仅按原表 gamma 和标准 sRGB 传递函数转换单位，不运行产品算法。旧 FFCS 0.2.0 golden 保持不变。
+
+在 `GlassCam-research` 中，从已保存的独立原厂数组冻结：
+
+```sh
+python tools/native-parity/freeze_production_color.py \
+  --evidence "$EVIDENCE" --product "$GLASSCAM"
+```
+
+消费入口为 [原厂映射与生产浮点桥测试](../../numeric/test_ffcs_native_mapping.py)。

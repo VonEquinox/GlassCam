@@ -60,6 +60,15 @@ int main(int argc, char **argv) {
         check(lumix_process_rgb16(context.get(), inplace.data(), pixels, 65535, 0, 0,
               inplace.data(), error.data(), error.size()) == 1, "render RGB16 in place");
         check(inplace == expected, "in-place RGB16 is exact");
+        for(int iso:{50,64,80,100}) {
+            Context native(lumix_create_native_pipeline(argv[1],look,4000,20,20,iso,error.data(),error.size()),lumix_destroy);
+            check(bool(native),"load native Photo Style");
+            if(!native)continue;
+            check(lumix_process_native_rgba(native.get(),input.data(),input.size(),pixels,0,
+                output.data(),output.size(),error.data(),error.size())==1,"render native signed source");
+            check(std::all_of(output.begin(),output.end(),[](float x){return std::isfinite(x)&&x>=0&&x<=1;}),
+                  "finite native Photo Style output");
+        }
     }
 
     namespace fs = std::filesystem;

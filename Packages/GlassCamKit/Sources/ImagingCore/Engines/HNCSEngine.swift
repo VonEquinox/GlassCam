@@ -48,6 +48,15 @@ public enum HNCSEngine {
             let pointer = settings.presetKey.withCString { preset in
                 if let white = key.whiteBalance {
                     guard white.isValid else { return OpaquePointer?.none }
+                    if settings.renderRevision >= 13 {
+                        return hncs_create_preset_whitepoint_native_color(key.exposure, white.x, white.y,
+                            settings.factoryKelvinOverride ?? 0,
+                            settings.workingSpace == .lstar ? 1 : 0,
+                            settings.intent == .reproduction ? 1 : 0,
+                            Int32(settings.filmCurve.rawValue), Int32(settings.rawFilmCurveType),
+                            preset, settings.applyToneCurve ? 1 : 0,
+                            settings.whiteBalancePolicy == .photo ? 1 : 0)
+                    }
                     return hncs_create_preset_whitepoint_with_policy(key.exposure, white.x, white.y,
                         settings.factoryKelvinOverride ?? 0,
                         settings.workingSpace == .lstar ? 1 : 0,
@@ -55,6 +64,14 @@ public enum HNCSEngine {
                         Int32(settings.filmCurve.rawValue), Int32(settings.rawFilmCurveType),
                         preset, settings.applyToneCurve ? 1 : 0,
                         settings.whiteBalancePolicy == .photo ? 1 : 0)
+                }
+                if settings.renderRevision >= 13 {
+                    return hncs_create_preset_native_color(key.exposure, key.captureKelvin,
+                        settings.factoryKelvinOverride ?? 0,
+                        settings.workingSpace == .lstar ? 1 : 0,
+                        settings.intent == .reproduction ? 1 : 0,
+                        Int32(settings.filmCurve.rawValue), Int32(settings.rawFilmCurveType),
+                        preset, settings.applyToneCurve ? 1 : 0, nil, nil)
                 }
                 // Legacy reference/test clients retain the original CCT adapter.
                 return hncs_create_preset(key.exposure, key.captureKelvin,

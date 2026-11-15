@@ -70,7 +70,7 @@ Xcode 将 `F5Kernels.metal`、`NativeSharpness.metal`、`ColorKernels.metal` 和
 | 镜头校正与 `F5ColorBridge` | `ExportRasterFile`；按需另存 `linear-camera.f32` | 相机 RGB → XYZ D50 → D65 扩展线性 sRGB，无显示曲线 | 镜头操作按序；矩阵含一次传感器白平衡与一次 `BaselineExposure` | 镜头与矩阵逐条处理；源／结果文件以 `pread` 分块供给 CI |
 | 公共效果曝光 | Float32 RGB／RGBA 条带或 CI Metal 纹理 | 扩展线性 sRGB | 用户效果曝光在此施加 `2^EV`；当前引擎收到零后端曝光 | C++／NEON 或 Metal 分条执行 |
 | HNCS revision 12 | 有界颜色输入 → Float32 编码工作 RGB → 扩展线性 sRGB | Hasselblad RGB 或 L*RGB 工作原色及曲线 | xy 建虚拟拍摄基线；颜色核后、空间处理前恢复 HDR 幅度；全图共享 `workScale` | 完整 RGB 工作文件；CPU 颜色、GPU 整数锐化和 CPU 结束阶段分条读写 |
-| FFCS / LUMIX | `max(1,R,G,B)` 幅度与归一化颜色，Float32 结果 | FFCS 表族工作变换／LUMIX RGB12 LUT；返回 display-linear sRGB | 源已白平衡；LUMIX CCT 选表；效果处理后恢复 HDR 幅度 | CPU 参考条带或 Metal 纹理；不可变 LUT 复用 |
+| FFCS / LUMIX | `max(1,R,G,B)` 幅度与归一化颜色，Float32 结果 | FFCS 原始网格整数映射／LUMIX RGB48→RGB12 整数链；返回 display-linear sRGB | 源已白平衡；LUMIX CCT 与 ISO 选表；效果处理后恢复 HDR 幅度 | CPU 参考条带或 Metal 纹理；不可变 LUT 复用 |
 | Lanczos 24MP | 完成色彩与空间处理的 Float32 RGBA | 线性光重采样；HNCS 末端转线性 BT.2020 后裁剪 | 不重复曝光与白平衡 | 工作文件按 256×256 块读取，CI 执行缩放 |
 | 保存与回看 | HEIF10 文件、Float32 回看图 | BT.2020 / PQ；回看解码为扩展线性 sRGB | 保留照片元数据，方向规范为 1 | 编码器读取工作文件；384px 常驻、4096px 按需回看 |
 | JPEG 分享副本 | 按需生成的同尺寸 8-bit JPEG | sRGB / SDR，先压缩 HDR headroom | 只转换已完成 HEIF | 文件所有者持有 HEIF；请求 JPEG 时编码并缓存 |

@@ -69,6 +69,13 @@ struct ColorChainFixture {
         let row = try #require(golden.cases.first { $0.mode == mode && $0.exposureEV == ev })
         var object = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(recipe(mode, ev))) as? [String: Any])
         object.removeValue(forKey: "pipelineRevision")
+        // This fixture freezes the preceding engine contracts as well as the
+        // exposure order. Current colour revisions have independent oracles.
+        for (key, revision) in [("hncs", 12), ("ffcs", 2), ("lumix", 4)] {
+            var settings = try #require(object[key] as? [String: Any])
+            settings["renderRevision"] = revision
+            object[key] = settings
+        }
         let legacy = try JSONDecoder().decode(ProcessingRecipe.self, from: JSONSerialization.data(withJSONObject: object))
         let output = try ImagePipeline.process(resources: resources, fixture.source(), recipe: legacy)
         let values = pixels(output.image.image)

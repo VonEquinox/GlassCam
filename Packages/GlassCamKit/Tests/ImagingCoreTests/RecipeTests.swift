@@ -92,7 +92,7 @@ struct RecipeTests {
     @Test(arguments: effectCombinations)
     func absentFFCSSettings_useNeutralDefaultsWithoutLosingEffects(effects: EffectToggles) throws {
         let recipe = try decode(["mode": "ffcs", "effects": ["applyGrain": effects.applyGrain, "applySharpness": effects.applySharpness, "applyExtraCrop": effects.applyExtraCrop]])
-        #expect(recipe.ffcs.renderRevision == 2)
+        #expect(recipe.ffcs.renderRevision == 3)
         #expect(recipe.ffcs.cameraFamily == .xh2s)
         #expect(!recipe.ffcs.applyReferenceAdjustments)
         #expect(recipe.ffcs.sharpenRadius == 1)
