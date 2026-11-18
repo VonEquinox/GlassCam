@@ -106,7 +106,7 @@ public struct F5CaptureFormat: CaptureFormat {
     public func recoverPending(directory: URL) throws -> (record: CaptureJournal.Record, payload: any CapturePayload)? {
         guard let (path, intent) = try F5BurstTransaction.pendingProduct(root: stagingRoot), let snapshot = intent.snapshot else { return nil }
         guard intent.state == .committed else {
-            throw F5Failure(.frameMissing, "Bayer capture was interrupted after \(intent.frames.count) of \(snapshot.quality.bayerFrameCount ?? 5) frames. Its files were retained; discard this interrupted capture before taking another.")
+            throw F5Failure(.frameMissing, "Bayer capture was interrupted after \(intent.frames.count) of \(snapshot.quality.bayerFrameCount ?? 7) frames. Its files were retained; discard this interrupted capture before taking another.")
         }
         return try retain(F5BurstSource(directory: path), id: intent.id, snapshot: snapshot,
             directory: directory, recoversStaging: true)

@@ -15,7 +15,7 @@ final class F5CurvatureBayerSource {
          cfa: [UInt32], alpha: [Float], beta: [Float],
          raw: F5MetalBuffer, flow: F5MetalBuffer, reliability: F5MetalBuffer) throws {
         guard width >= 4, height >= 4, width <= 16384, height <= 16384,
-              (1...5).contains(frames), (2...256).contains(tileSize),
+              (1...7).contains(frames), (2...256).contains(tileSize),
               cfa.count == 4, alpha.count == 4, beta.count == 4 else {
             throw F5Failure(.damagedBundle, "Invalid curvature Bayer source layout.")
         }

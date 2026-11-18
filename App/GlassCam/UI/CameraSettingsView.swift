@@ -45,7 +45,7 @@ struct CameraSettingsView: View {
             }.pickerStyle(.segmented).accessibilityIdentifier("settings.captureQuality")
             HStack { Text("Resolution"); Spacer(); Text("24 MP").foregroundStyle(.secondary) }
             if settings.captureQuality == .balanced {
-                Text("Balanced combines four equal-exposure Bayer RAW frames with curvature reconstruction, then exports at 24 MP.")
+                Text("Balanced combines seven equal-exposure Bayer RAW frames with curvature reconstruction, then exports at 24 MP.")
                     .font(.caption).foregroundStyle(.white.opacity(0.6))
             } else if settings.captureQuality == .speed {
                 Text("Speed processes one Bayer RAW and saves a 24 MP photo.")

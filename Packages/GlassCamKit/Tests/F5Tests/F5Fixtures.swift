@@ -6,7 +6,8 @@ import Foundation
 enum F5Fixtures {
     struct Fixture {let source:F5BurstSource, profile:F5DeviceProfile, canonical:[F5CanonicalFrame]; let duplicateAppendResults: [Bool]; let repeatedSource: F5BurstSource}
     static func make(directory:URL,width:Int=8,height:Int=6,inputFrames:[[UInt16]]?=nil,policyOverride:F5Policy?=nil,
-                     codeDivisor:Int=1,deliveredISOs:[UInt16]?=nil,additionalDNGTags:[Tag]=[],quality:CaptureQuality = .f5,purpose:String = "synthetic-test") throws -> Fixture {
+                     codeDivisor:Int=1,deliveredISOs:[UInt16]?=nil,deliveredExposures:[Double]?=nil,
+                     additionalDNGTags:[Tag]=[],quality:CaptureQuality = .f5,purpose:String = "synthetic-test") throws -> Fixture {
         let frameCount = purpose == "probe" ? 11 : (quality.bayerFrameCount ?? 5)
         var policy=F5Policy();policy.blockSize=8;policy.maxCycles=5;policy.maxGeometryRounds=1
         policy.maximumProcessingSeconds=120;policy.standardizedGradientTolerance=0.03
@@ -15,7 +16,8 @@ enum F5Fixtures {
         if let inputFrames {
             guard inputFrames.count==frameCount,inputFrames.allSatisfy({$0.count==width*height}) else {throw F5Failure(.damagedBundle,"Synthetic integer fixture dimensions disagree.")}
         }
-        guard [1,4].contains(codeDivisor), deliveredISOs == nil || deliveredISOs?.count == frameCount else {
+        guard [1,4].contains(codeDivisor), deliveredISOs == nil || deliveredISOs?.count == frameCount,
+              deliveredExposures == nil || deliveredExposures?.count == frameCount else {
             throw F5Failure(.damagedBundle,"Invalid synthetic capture parameters.")
         }
         let nativeBlack = codeDivisor == 4 ? 2112.0 : 512.0
@@ -41,7 +43,8 @@ enum F5Fixtures {
         var records:[F5FrameRecord]=[],raws:[Data]=[]
         var duplicateAppendResults = [Bool]()
         for frame in 0..<frameCount {
-            let exposure=frameCount == 5 && frame==2 ? 0.001 : 0.008,ratio=exposure/0.008
+            let requestedExposure=frameCount == 5 && frame==2 ? 0.001 : 0.008
+            let exposure=deliveredExposures?[frame] ?? requestedExposure,ratio=exposure/0.008
             var dense:[UInt16]=[],mosaic=Data()
             for y in 0..<descriptor.height {
                 for x in 0..<descriptor.width {
@@ -58,7 +61,7 @@ enum F5Fixtures {
             let record=F5FrameRecord(id:"synthetic-\(frame)",requestID:Int64(101+frame/3),burstIndex:frame,sequenceCount:frame%3+1,
                 role:frameCount == 5 && frame==2 ? .short : .main,physicalCameraID:profile.physicalCameraID,formatSignature:profile.formatSignature,rawFourCC:profile.rawFourCC,
                 dng:.init(path:"frame-\(frame).dng",sha256:F5Hash.data(dng),bytes:dng.count),mosaic:.init(path:"frame-\(frame).raw",sha256:F5Hash.data(mosaic),bytes:mosaic.count),raster:descriptor,
-                requestedExposure:exposure,actualExposure:metadata.exposureTime!,actualISO:metadata.iso!,aperture:metadata.aperture!,focus:0.5,oisPolicy:"unavailable",
+                requestedExposure:requestedExposure,actualExposure:metadata.exposureTime!,actualISO:metadata.iso!,aperture:metadata.aperture!,focus:0.5,oisPolicy:"unavailable",
                 timestamp:Double(frame)*0.035,callbackUptime:Double(frame)*0.035+0.2,clockID:"SYNTHETIC_CLOCK",rollingShutterLineTime:nil,metadata:metadata,requestedISO:100)
             try transaction.append(record,dng:dng,mosaic:mosaic)
             if frame==1 { duplicateAppendResults.append(try transaction.append(record,dng:dng,mosaic:mosaic)) }

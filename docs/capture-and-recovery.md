@@ -8,7 +8,7 @@ GlassCam 在快门时冻结处理配方，取得源照片后自动生成 HDR HEI
 
 根视图持有 `CameraSettingsStore` 和 `CaptureQueue`，打开设置或回看保持任务所有权。快门先向 `CameraController` 预约物理拍摄方向，再创建 `CaptureSnapshot`，冻结配方、输出、质量和 RAW 归档选择；队列分配槽位后请求 Photos 的 `.addOnly` 授权。恢复检查结束、存在空闲槽位、相机取景就绪且没有另一张正在授权／采集／保留源照片时，接纳新快门。
 
-授权成功后，相机按快照执行 Speed 单帧或 Balanced 四帧拍摄，默认 Balanced。后台相机串行队列保留取景画面、释放原会话，再建立物理主摄原生视角的 `.photo` Bayer RAW 会话。`F5CaptureDriver` 继承点选焦点、相机曝光补偿与显式 AE/AF 锁定；未锁定时等待测光稳定，再锁定曝光、ISO、焦点与白平衡。逐组确认 DNG、整数缓冲及终结回调后交付，取景恢复失败仍保留已完成的源照片。
+授权成功后，相机按快照执行 Speed 单帧或 Balanced 七帧拍摄，默认 Balanced。后台相机串行队列保留取景画面、释放原会话，再建立物理主摄原生视角的 `.photo` Bayer RAW 会话。`F5CaptureDriver` 继承点选焦点、相机曝光补偿与显式 AE/AF 锁定；未锁定时等待测光稳定，再锁定曝光、ISO、焦点与白平衡。逐组确认 DNG、整数缓冲及终结回调后交付，取景恢复失败仍保留已完成的源照片。
 
 UI 布局方向与物理拍摄方向独立。`CameraMotion` 以 20 Hz 采样加速度，连续三个可靠方向样本后切换；平放、对角握持与加速度异常保持原方向。预约冻结物理方向，捕获期间的 UI 方向请求合并到恢复后执行。当前拍摄固定主摄原生视角；旧会话、旧请求和重复回调按身份与阶段隔离。取景就绪要求有效帧实际入队，冻结撤销旧代次投递与刷新。自动会话恢复在 30 秒窗口内最多接纳两次。
 
@@ -65,7 +65,7 @@ Speed 与 Balanced 成片固定约 24MP，不提供分辨率选项。Speed 的�
 
 `CaptureFormats` 是不可变注册表，`GlassCamApp` 创建含 `F5CaptureFormat` 的实例，并注入工作流服务和 Journal。Capture 定义 `CapturePayload`、`CaptureProvenance`、`CaptureFormat` 及通用事务顺序，并统一创建受保护且排除备份的活动目录。格式实现负责载荷编解码、输入校验与保留、暂存恢复、归档和渲染；保留和恢复返回记录与对应载荷。
 
-Speed／Balanced 使用独立 Bayer RAW 驱动，分别采集一帧／四帧，输出由 F5 曲率重建策略决定，快照固定 24MP 成片目标。完整暂存 burst 可以接入同一个 Journal；未完成 burst 保留诊断文件并要求明确放弃。开启 RAW 归档时，确认保存后的清理先调用格式的归档实现。具体输入限制与重建方式见 [F5](f5.md)。
+Speed／Balanced 使用独立 Bayer RAW 驱动，分别采集一帧／七帧，输出由 F5 曲率重建策略决定，快照固定 24MP 成片目标。完整暂存 burst 可以接入同一个 Journal；未完成 burst 保留诊断文件并要求明确放弃。开启 RAW 归档时，确认保存后的清理先调用格式的归档实现。具体输入限制与重建方式见 [F5](f5.md)。
 
 ## 不变量
 

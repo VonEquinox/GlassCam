@@ -108,6 +108,7 @@ typedef struct gc_f5_curve_output gc_f5_curve_output;
 typedef struct {
     uint32_t width, height, scale, output_width, output_height, operations;
     float crop_x, crop_y, camera_to_linear[9];
+    float highlight_green_white;
     uint64_t maximum_bytes;
 } gc_f5_curve_output_config;
 gc_f5_curve_output *gc_f5_curve_output_create(const gc_f5_curve_output_config *, void *device, void *library,

@@ -49,7 +49,7 @@ struct gc_f5_curve_source {
 
     gc_f5_curve_source(const gc_f5_curve_source_config &c, void *d, void *l, void *r, void *f, void *w) : config(c) {
         require(c.width >= 4 && c.height >= 4 && c.width <= 16384 && c.height <= 16384 &&
-                !(c.width % 2) && !(c.height % 2) && c.frames >= 1 && c.frames <= 5 &&
+                !(c.width % 2) && !(c.height % 2) && c.frames >= 1 && c.frames <= 7 &&
                 c.tile_size >= 2 && c.tile_size <= 256 && c.flow_width == (c.width + c.tile_size - 1) / c.tile_size &&
                 c.flow_height == (c.height + c.tile_size - 1) / c.tile_size, 1, "Invalid curvature Bayer source dimensions.");
         unsigned counts[3] = {};
@@ -174,7 +174,7 @@ struct gc_f5_curve_raw {
     id<MTLBuffer> values, kinds, failure, repairScratch;
     uint64_t allocated = 0;
     gc_f5_curve_raw(const gc_f5_curve_raw_config &c, void *d, void *l) : config(c) {
-        require(c.width >= 4 && c.height >= 4 && c.width <= 16384 && c.height <= 16384 && c.frames >= 1 && c.frames <= 5,
+        require(c.width >= 4 && c.height >= 4 && c.width <= 16384 && c.height <= 16384 && c.frames >= 1 && c.frames <= 7,
                 1, "Invalid curvature RAW dimensions.");
         device = (__bridge id<MTLDevice>)d; id<MTLLibrary> library = (__bridge id<MTLLibrary>)l;
         require(device && library, 2, "Curvature RAW Metal device or library is missing.");

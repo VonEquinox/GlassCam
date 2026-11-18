@@ -83,6 +83,47 @@ struct F5BayerPipelineTests {
         #expect(second.quality.actualFrameCount == quality.bayerFrameCount)
     }
 
+    @Test func sevenFrameBalanced_usesFourthFrameForReconstructionAndSourcePreview() throws {
+        let context = try F5TestContext(width: 32, height: 24, quality: .balanced)
+        defer { withExtendedLifetime(context) {} }
+        let source = context.fixture.source
+        let expected = source.manifest.frames[3]
+
+        let result = try F5Reconstructor.reconstruct(source, shaderURL: F5TestContext.shader)
+
+        #expect(result.quality.actualFrameCount == 7)
+        #expect(result.quality.referenceFrameID == expected.id)
+        #expect(source.referenceDNG == (try expected.dng.url(in: source.directory)))
+    }
+
+    @Test func sevenFrameExposureMedian_preservesCommonSceneRadiance() throws {
+        let original = try TestDirectory(), adjusted = try TestDirectory()
+        defer { withExtendedLifetime((original, adjusted)) {} }
+        let exposures = [0.00796, 0.00797, 0.00798, 0.008, 0.00801, 0.00802, 0.00803]
+        let nominalExposure = 0.008, blackCode = 512.0, signalCode = 16000.0
+        let referenceCodes = [UInt16](repeating: UInt16(blackCode + signalCode), count: 32 * 24)
+        let adjustedCodes = exposures.map { exposure in
+            [UInt16](repeating: UInt16((blackCode + signalCode * exposure / nominalExposure).rounded()), count: 32 * 24)
+        }
+        let a = try F5Fixtures.make(directory: original.url, width: 32, height: 24,
+            inputFrames: Array(repeating: referenceCodes, count: 7), quality: .balanced)
+        let b = try F5Fixtures.make(directory: adjusted.url, width: 32, height: 24,
+            inputFrames: adjustedCodes, deliveredExposures: exposures, quality: .balanced)
+        let reference = try F5Reconstructor.reconstruct(a.source, shaderURL: F5TestContext.shader)
+        let expected = try reference.raster.mappedData(expectedBytes: reference.width * reference.height * 16)
+
+        let result = try F5Reconstructor.reconstruct(b.source, shaderURL: F5TestContext.shader)
+
+        let actual = try result.raster.mappedData(expectedBytes: expected.count)
+        let maximum = actual.withUnsafeBytes { a in expected.withUnsafeBytes { b in
+            zip(a.bindMemory(to: Float.self), b.bindMemory(to: Float.self)).reduce(Float(0)) {
+                max($0, abs($1.0 - $1.1))
+            }
+        } }
+        let quantizationTolerance: Float = 3e-5 // Integer RAW rounding, reconstruction and one camera matrix.
+        #expect(maximum < quantizationTolerance)
+    }
+
     @Test func warmNeutral_cameraMatrixBalancesWhiteWithoutSecondSensorWB() throws {
         let context = try F5TestContext()
         let data = try F5Fixtures.makeDNG(width: 10,height: 8,active: .init(top: 1,left: 1,bottom: 7,right: 9),

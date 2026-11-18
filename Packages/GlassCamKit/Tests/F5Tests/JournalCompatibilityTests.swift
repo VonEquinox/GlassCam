@@ -299,7 +299,7 @@ private func unrecoverableStaging_explicitDiscardRemovesIt(kind: InterruptedStag
     let first = try F5ArchiveStore.retain(fixture.source, captureID: id, root: root)
     let second = try F5ArchiveStore.retain(fixture.source, captureID: id, root: root)
     #expect(first == second)
-    #expect(try F5BurstSource(directory: second).manifest.frames.count == 4)
+    #expect(try F5BurstSource(directory: second).manifest.frames.count == 7)
 }
 @Test func lateConflictingDelivery_doesNotOverwriteOriginal() throws {
     let work = try TestDirectory()

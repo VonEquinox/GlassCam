@@ -33,7 +33,7 @@ final class F5CurvatureBatch {
 
     func reconstruct(_ patches: [F5CurvaturePatch], scale: Int = 2) throws -> F5MetalBuffer {
         guard !patches.isEmpty, patches.count <= Self.maximumPatches, [1, 2].contains(scale),
-              let planes = patches.first?.planes.count, (4...20).contains(planes), planes % 4 == 0 else {
+              let planes = patches.first?.planes.count, (4...28).contains(planes), planes % 4 == 0 else {
             throw F5Failure(.damagedBundle, "Invalid curvature batch dimensions.")
         }
         let native = try F5CurvatureNative(device: device, width: 0, height: 0, scale: scale,

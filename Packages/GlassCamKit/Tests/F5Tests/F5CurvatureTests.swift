@@ -199,7 +199,7 @@ struct F5CurvatureTests {
         let linearTolerance: Float = 3e-5 // Same normalized 14-bit half-step as overlap-add.
         #expect(maximum < linearTolerance)
     }
-    @Test(arguments: [1, 4, 5])
+    @Test(arguments: [1, 5, 7])
     func coincidentFrames_preserveConstantColor(frameCount: Int) throws {
         let device = try device(), pattern: [UInt32] = [0, 1, 1, 2]
         let planes = (0..<(frameCount * 4)).map { i -> F5CurvaturePlane in

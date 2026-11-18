@@ -188,6 +188,11 @@ public struct F5BurstManifest: Codable, Sendable {
     public let profile: F5DeviceProfile?
     public let framing: CaptureFraming
 
+    public var referenceFrame: F5FrameRecord? {
+        let mains = frames.filter { $0.role == .main }.sorted { $0.burstIndex < $1.burstIndex }
+        return mains.isEmpty ? nil : mains[(mains.count - 1) / 2]
+    }
+
     var captureSpanMS: Double {
         guard let first = frames.map(\.timestamp).min(), let last = frames.map(\.timestamp).max() else { return 0 }
         return (last - first) * 1000
@@ -195,7 +200,7 @@ public struct F5BurstManifest: Codable, Sendable {
     /// Returns acquisition quality failures separately from structural corruption.
     public func validate(directory: URL?, requireComplete: Bool = true) throws -> Set<F5Code> {
         guard revision == "f5-burst-v1", !frames.isEmpty, frames.count <= 11,
-              (!requireComplete || [1,4,5,11].contains(frames.count)), framing.isValid else { throw F5Failure(.frameMissing, "A Bayer capture has an incomplete RAW frame set.") }
+              (!requireComplete || [1,5,7,11].contains(frames.count)), framing.isValid else { throw F5Failure(.frameMissing, "A Bayer capture has an incomplete RAW frame set.") }
         guard Set(frames.map(\.id)).count == frames.count,
               Set(frames.map(\.callbackKey)).count == frames.count,
               Set(frames.map(\.burstIndex)).count == frames.count else { throw F5Failure(.duplicateFrame, "Repeated frame identity.") }
@@ -206,7 +211,7 @@ public struct F5BurstManifest: Codable, Sendable {
             throw F5Failure(.damagedBundle, "Burst indices, roles, or independent order records are inconsistent.")
         }
         var failures = Set(flags)
-        if ![1,4,5,11].contains(frames.count) { failures.insert(.frameMissing) }
+        if ![1,5,7,11].contains(frames.count) { failures.insert(.frameMissing) }
         let first = frames[0]
         if Set(frames.map(\.physicalCameraID)).count != 1 { failures.insert(.physicalCameraChanged) }
         guard Set(frames.map(\.clockID)).count == 1, !first.clockID.isEmpty else { throw F5Failure(.damagedBundle, "Incomparable capture timestamps.") }
@@ -303,8 +308,8 @@ public struct F5ExposurePlan: Equatable, Sendable {
         let exposure = min(maximum, max(minimum, ae))
         return .init(main: exposure, short: exposure, iso: iso, flags: [])
     }
-    public static func groups(maxBracketCount: Int, frameCount: Int = 5) throws -> [[Int]] {
-        guard maxBracketCount > 0, [1,4,5,11].contains(frameCount) else { throw F5Failure(.unsupportedRAW, "Manual Bayer brackets are unavailable.") }
+    public static func groups(maxBracketCount: Int, frameCount: Int = 7) throws -> [[Int]] {
+        guard maxBracketCount > 0, [1,5,7,11].contains(frameCount) else { throw F5Failure(.unsupportedRAW, "Manual Bayer brackets are unavailable.") }
         let size = min(maxBracketCount, frameCount)
         return stride(from: 0, to: frameCount, by: size).map { Array($0..<min($0 + size, frameCount)) }
     }
@@ -429,7 +434,7 @@ public struct F5DeviceProfile: Codable, Sendable {
 }
 
 enum F5Version {
-    static let build = "f5-curvature-v2"
+    static let build = "f5-curvature-v4"
     static let decoder = "f5-effective-v2"
     // Explicit F5 scene-HDR extension. DNG's unit-range opcode clipping would
     // discard recovered highlights; G1 must qualify this linear extension.

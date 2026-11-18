@@ -84,6 +84,45 @@ struct F5CurvatureOutputTests {
         #expect(maximum < 1e-6) // A single FP32 3×3 transform, without range clipping.
     }
 
+    @Test func nearWhiteMagenta_reducesGreenDeficitAndPreservesLuminance() throws {
+        let context = try F5TestContext(), metadata = context.fixture.canonical[0].record.metadata
+        let sample = SIMD4<Float>(0.65, 0.99, 0.97, 1)
+        let source = try input(width: 8, height: 6) { _,_ in sample }
+        let matrix: [Double] = [2,0,0, 0,0.6,0, 0,0,2], device = try device()
+        let baseline = try F5CurvatureOutput.write(source, nativeWidth: 8, nativeHeight: 6, metadata: metadata,
+                                                  matrix: matrix, device: device)
+
+        let output = try F5CurvatureOutput.write(source, nativeWidth: 8, nativeHeight: 6, metadata: metadata,
+                                                matrix: matrix, device: device, highlightGreenWhite: 1)
+
+        let bytes = 8 * 6 * 16
+        let original = try baseline.linear.mappedData(expectedBytes: bytes).withUnsafeBytes { $0.loadUnaligned(as: SIMD4<Float>.self) }
+        let corrected = try output.linear.mappedData(expectedBytes: bytes).withUnsafeBytes { $0.loadUnaligned(as: SIMD4<Float>.self) }
+        func luminance(_ pixel: SIMD4<Float>) -> Float { 0.2126 * pixel.x + 0.7152 * pixel.y + 0.0722 * pixel.z }
+        let linearTolerance: Float = 2e-5
+        #expect(abs(corrected.y - corrected.x) < linearTolerance)
+        #expect(abs(luminance(corrected) - luminance(original)) < linearTolerance)
+        #expect(abs(corrected.x / corrected.z - original.x / original.z) < linearTolerance)
+        let camera = try #require(output.camera)
+        #expect(try camera.mappedData(expectedBytes: bytes) == source.file.mappedData(expectedBytes: bytes))
+    }
+
+    @Test func highlightCorrection_preservesUnclippedHDRAndNonMagentaHighlights() throws {
+        let context = try F5TestContext(), metadata = context.fixture.canonical[0].record.metadata
+        let source = try input(width: 8, height: 6) { column,_ in
+            column < 4 ? .init(0.8, 0.5, 0.8, 1) : .init(0.9, 0.99, 0.2, 1)
+        }
+        let matrix: [Double] = [4,0,0, 0,1,0, 0,0,4], device = try device()
+        let baseline = try F5CurvatureOutput.write(source, nativeWidth: 8, nativeHeight: 6, metadata: metadata,
+                                                  matrix: matrix, device: device)
+
+        let output = try F5CurvatureOutput.write(source, nativeWidth: 8, nativeHeight: 6, metadata: metadata,
+                                                matrix: matrix, device: device, highlightGreenWhite: 1)
+
+        let bytes = 8 * 6 * 16
+        #expect(try output.linear.mappedData(expectedBytes: bytes) == baseline.linear.mappedData(expectedBytes: bytes))
+    }
+
     @Test func cancelledOutput_releasesGPUWorkspaceAndPreservesSource() throws {
         let context = try F5TestContext(), metadata = context.fixture.canonical[0].record.metadata
         let source = try input(width: 8, height: 6) { _,_ in .init(0.2,0.3,0.4,1) }

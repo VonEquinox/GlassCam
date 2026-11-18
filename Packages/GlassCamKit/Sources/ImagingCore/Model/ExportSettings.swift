@@ -7,7 +7,7 @@ public enum CaptureQuality: String, CaseIterable, Codable, Sendable {
     case f5, balanced, speed
     public static var allCases: [CaptureQuality] { [.speed, .balanced] }
     public var bayerFrameCount: Int? {
-        switch self { case .speed: return 1; case .balanced: return 4; case .f5: return 5 }
+        switch self { case .speed: return 1; case .balanced: return 7; case .f5: return 5 }
     }
     public var usesBayer: Bool { bayerFrameCount != nil }
     public var title: String {

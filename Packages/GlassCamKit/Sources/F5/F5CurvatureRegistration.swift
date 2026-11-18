@@ -18,7 +18,7 @@ final class F5CurvatureRegistration {
     init(device: F5MetalDevice, width: Int, height: Int, frames: Int, cfa: [UInt32], alpha: [Float], beta: [Float],
          raw: F5MetalBuffer, kinds: F5MetalBuffer, progress: @escaping (Double) -> Void = { _ in }) throws {
         defer { withExtendedLifetime(raw) {}; withExtendedLifetime(kinds) {} }
-        guard width >= 4, height >= 4, width <= 16384, height <= 16384, (1...5).contains(frames),
+        guard width >= 4, height >= 4, width <= 16384, height <= 16384, (1...7).contains(frames),
               cfa.count == 4, alpha.count == 4, beta.count == 4 else { throw F5Failure(.damagedBundle, "Invalid Bayer registration layout.") }
         if device.isCancelled() { throw CancellationError() }
         var configuration = gc_f5_curve_registration_config(width: UInt32(width), height: UInt32(height), frames: UInt32(frames),

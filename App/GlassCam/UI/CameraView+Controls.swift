@@ -241,9 +241,9 @@ extension CameraView {
                     settings.captureQuality = quality
                 } label: {
                     if settings.captureQuality == quality {
-                        Label(quality == .balanced ? "Balanced · 4 RAW" : quality.title, systemImage: "checkmark")
+                        Label(quality == .balanced ? "Balanced · 7 RAW" : quality.title, systemImage: "checkmark")
                     } else {
-                        Text(quality == .balanced ? "Balanced · 4 RAW" : quality.title)
+                        Text(quality == .balanced ? "Balanced · 7 RAW" : quality.title)
                     }
                 }.accessibilityIdentifier("camera.quality.\(quality.rawValue)")
             }
@@ -261,7 +261,7 @@ extension CameraView {
         .accessibilityLabel("Capture priority")
         .accessibilityValue(settings.captureQuality.title)
         .accessibilityIdentifier("camera.quality")
-        .accessibilityHint("Choose single RAW Speed or four-frame Balanced")
+        .accessibilityHint("Choose single RAW Speed or seven-frame Balanced")
     }
 
     var statusButton: some View {
@@ -286,7 +286,7 @@ extension CameraView {
     }
 
     var estimatedOutputLabel: String {
-        if settings.captureQuality == .balanced { return "Balanced · 4 RAW · 24 MP output" }
+        if settings.captureQuality == .balanced { return "Balanced · 7 RAW · 24 MP output" }
         if settings.captureQuality == .speed { return "Speed · Single RAW · 24 MP output" }
         return "HDR"
     }

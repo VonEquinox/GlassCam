@@ -464,7 +464,7 @@ kernel void f5_curve_patch_statistics(device const float4 *guide [[buffer(0)]], 
     constant F5CurveSource &p [[buffer(11)]], uint b [[threadgroup_position_in_grid]], uint tid [[thread_index_in_threadgroup]]) {
     if (b >= p.grid.z) return; int2 origin = origins[b];
     threadgroup float4 scratch[128]; threadgroup float4 mean, variance;
-    threadgroup float2 shifts[5]; threadgroup float3 robustness[5];
+    threadgroup float2 shifts[7]; threadgroup float3 robustness[7];
     float4 sum = 0;
     for (uint i = tid; i < 1024; i += 128) {
         int x = f5curve_reflect(origin.x + int(i % 32), p.shape.x), y = i / 32;
@@ -578,6 +578,14 @@ struct F5CurveOutputParameters {
     int4 region;
     float4 color[3];
 };
+float3 f5curve_correct_highlight(float3 rgb, float green, float greenWhite) {
+    float magenta = min(rgb.r, rgb.b) - rgb.g;
+    if (greenWhite <= 0 || green <= 0.90f * greenWhite || rgb.g <= 0 || magenta <= 0) return rgb;
+    float strength = smoothstep(0.90f * greenWhite, 0.98f * greenWhite, green);
+    float3 recovered = rgb + float3(0, strength * magenta, 0);
+    const float3 luma = float3(0.2126f, 0.7152f, 0.0722f);
+    return recovered * (dot(rgb, luma) / dot(recovered, luma));
+}
 float2 f5curve_output_coordinate(float2 point, uint channel, device const float4 *operations,
     constant F5CurveOutputParameters &p, thread float &gain, device atomic_uint *failure) {
     F5OutputMapping mapping = f5outputMapping(point, channel, operations, p.shape.w); gain = mapping.gain;
@@ -614,6 +622,7 @@ kernel void f5_curve_output_tile(device const float4 *input [[buffer(0)]], devic
     if (i >= p.tile.x * p.tile.y) return;
     uint2 pixel = p.output.zw + uint2(i % p.tile.x, i / p.tile.x);
     float2 point = p.crop.xy + (float2(pixel) + 0.5f) / p.shape.z; float3 value;
+    float sensorGreen = 0;
     for (uint c = 0; c < 3; ++c) {
         float gain; float2 coordinate = f5curve_output_coordinate(point, c, operations, p, gain, failure);
         int2 absolute = int2(floor(coordinate)), q = absolute - p.region.xy;
@@ -621,9 +630,12 @@ kernel void f5_curve_output_tile(device const float4 *input [[buffer(0)]], devic
         if (any(q < 0) || any(next >= p.region.zw)) { atomic_store_explicit(failure, 1, memory_order_relaxed); value[c] = 0; continue; }
         float lo = input[q.y * p.region.z + q.x][c] * (1 - a.x) + input[q.y * p.region.z + next.x][c] * a.x;
         float hi = input[next.y * p.region.z + q.x][c] * (1 - a.x) + input[next.y * p.region.z + next.x][c] * a.x;
-        value[c] = (lo * (1 - a.y) + hi * a.y) * gain;
+        float sample = lo * (1 - a.y) + hi * a.y;
+        if (c == 1) sensorGreen = sample;
+        value[c] = sample * gain;
     }
     float3 transformed = float3(dot(value, p.color[0].xyz), dot(value, p.color[1].xyz), dot(value, p.color[2].xyz));
+    transformed = f5curve_correct_highlight(transformed, sensorGreen, p.crop.z);
     if (!all(isfinite(value)) || !all(isfinite(transformed))) atomic_store_explicit(failure, 1, memory_order_relaxed);
     uint index = (pixel.y - p.tile.z) * p.output.x + pixel.x;
     camera[index] = float4(value, 1); linear[index] = float4(transformed, 1);

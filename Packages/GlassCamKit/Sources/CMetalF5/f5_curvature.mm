@@ -65,7 +65,7 @@ struct gc_f5_curvature {
 
     gc_f5_curvature(const gc_f5_curve_config &c, void *metalDevice, void *metalLibrary) : config(c) {
         check((c.scale == 1 || c.scale == 2) && c.batch_capacity > 0 && c.batch_capacity <= 256 &&
-              c.plane_capacity >= 4 && c.plane_capacity <= 20 && c.plane_capacity % 4 == 0 &&
+              c.plane_capacity >= 4 && c.plane_capacity <= 28 && c.plane_capacity % 4 == 0 &&
               (c.slots == 1 || c.slots == 2) && c.automatic_color_prior <= 1 && c.width <= 16384 && c.height <= 16384 &&
               ((c.width == 0) == (c.height == 0)), 1, "Invalid curvature context dimensions.");
         device = (__bridge id<MTLDevice>)metalDevice;

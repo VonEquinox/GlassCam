@@ -67,10 +67,10 @@ SwiftPM 将 `.metal` 源码作为资源拷贝。F5 和成片颜色／锐化测�
 | `GLASSCAM_TEST_FIXTURES` | 冻结夹具根目录；以上 make 入口自动指向 `tests/fixtures` |
 | `GLASSCAM_DNG_DIR` / `GLASSCAM_BASELINE_OUTPUT` | 开启三镜头本地 ProRAW 基线／指定基线 HEIF 目录；输出变量由 `make test-baseline` 注入 |
 | `GLASSCAM_BAYER_REPLAY` / `GLASSCAM_BAYER_OUTPUT` / `GLASSCAM_BAYER_ARCHIVE` | Speed、Balanced 输入根目录／六组合 HEIF 目录／Balanced 调色前归档根目录 |
-| `GLASSCAM_RAW_SCENE_REPLAY` / `GLASSCAM_RAW_SCENE_OUTPUT` | 四帧完整 bundle／纯原片记录输出，单独检查无品牌资源的归档链 |
+| `GLASSCAM_RAW_SCENE_REPLAY` / `GLASSCAM_RAW_SCENE_OUTPUT` | 七帧完整 bundle／纯原片记录输出，单独检查无品牌资源的归档链 |
 | `GLASSCAM_LARGE_NUMERICS` | 设为 `1` 时开启大尺寸数值样本 |
 
-UI target 只包含模拟器用户流程。真机取证脚本和来源提交位于 `GlassCam-research` 的 `device-acceptance/`，设备操作需按[发布说明](release.md)另行授权。Speed 单帧和 Balanced 四帧选择由设置、采集预算和固定拍摄记录测试覆盖。
+UI target 只包含模拟器用户流程。真机取证脚本和来源提交位于 `GlassCam-research` 的 `device-acceptance/`，设备操作需按[发布说明](release.md)另行授权。Speed 单帧和 Balanced 七帧选择由设置、采集预算和拍摄记录测试覆盖。
 
 本地 ProRAW 基线通过 `GLASSCAM_DNG_DIR` 开启。目录应至少包含主摄、超广角、长焦的三份 DNG；测试按文件名排序读取前三份。将 `DNG_DIR` 设为自己的素材目录后运行：
 
@@ -78,7 +78,7 @@ UI target 只包含模拟器用户流程。真机取证脚本和来源提交位�
 GLASSCAM_DNG_DIR="$DNG_DIR" make test-baseline
 ```
 
-未设置 `GLASSCAM_DNG_DIR` 时跳过 `BaselineTests`，固定 `ColorChainTests` 仍运行。本地 Bayer 完整导出由 `GLASSCAM_BAYER_REPLAY` 开启，目录内的 `speed/` 与 `balanced/` 分别包含一帧／四帧完整 capture bundle；`GLASSCAM_BAYER_OUTPUT` 可指定保存六种模式与色彩组合的 HEIF 目录；`GLASSCAM_BAYER_ARCHIVE` 开启 Balanced 的完整尺寸调色前归档。未配置时不读取本机素材。`GLASSCAM_RAW_SCENE_REPLAY` 指向一组完整四帧 Bayer 输入，`GLASSCAM_RAW_SCENE_OUTPUT` 指定归档根目录，可单独运行 `F5BayerReplayTests.recordedScene_archivesMergedRAWWithoutColorResources` 验证完整分辨率的纯原片记录；使用可写的素材副本，重建会更新输入目录内的线性相机结果。
+未设置 `GLASSCAM_DNG_DIR` 时跳过 `BaselineTests`，固定 `ColorChainTests` 仍运行。本地 Bayer 完整导出由 `GLASSCAM_BAYER_REPLAY` 开启，目录内的 `speed/` 与 `balanced/` 分别包含一帧／七帧完整 capture bundle；`GLASSCAM_BAYER_OUTPUT` 可指定保存六种模式与色彩组合的 HEIF 目录；`GLASSCAM_BAYER_ARCHIVE` 开启 Balanced 的完整尺寸调色前归档。未配置时不读取本机素材。`GLASSCAM_RAW_SCENE_REPLAY` 指向一组完整七帧 Bayer 输入，`GLASSCAM_RAW_SCENE_OUTPUT` 指定归档根目录，可单独运行 `F5BayerReplayTests.recordedScene_archivesMergedRAWWithoutColorResources` 验证完整分辨率的纯原片记录；使用可写的素材副本，重建会更新输入目录内的线性相机结果。
 
 其他可选检查通过 `GLASSCAM_LARGE_NUMERICS=1` 开启大尺寸数值样本。旧样条 GPU 与似然表实验位于研究仓库。
 

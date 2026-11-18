@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import ImagingCore
 import GlassCamTestSupport
 @testable import F5
 
@@ -26,9 +27,9 @@ struct F5CurvatureRAWTests {
         #expect(kinds.metal.contents().assumingMemoryBound(to: UInt8.self)[defect] == 3)
         #expect(fixture.canonical[0].event(x: 2,y: 2).code == 12345)
     }
-    @Test(arguments: ["native", "mapped", "gain"])
-    func integerRAWDecode_matchesCanonicalEventsIncludingExposureAndGain(mapping: String) throws {
-        let context = try F5TestContext(mapping: mapping), fixture = context.fixture
+    @Test(arguments: ["native", "mapped", "gain"], [CaptureQuality.f5, .balanced])
+    func integerRAWDecode_matchesCanonicalEventsIncludingExposureAndGain(mapping: String, quality: CaptureQuality) throws {
+        let context = try F5TestContext(mapping: mapping, quality: quality), fixture = context.fixture
         let device = try F5MetalDevice(maximumBytes: 8 * 1024 * 1024, shaderURL: F5TestContext.shader, isCancelled: { false })
         let uploaded = try fixture.canonical.map { try F5MetalFrame.upload($0, to: device) }
 
@@ -38,7 +39,7 @@ struct F5CurvatureRAWTests {
         let values = decoded.values.metal.contents().assumingMemoryBound(to: Float.self)
         let kinds = decoded.kinds.metal.contents().assumingMemoryBound(to: UInt8.self)
         var maximum = 0.0, mismatches = 0
-        for f in 0..<5 { for y in 0..<6 { for x in 0..<8 {
+        for f in fixture.canonical.indices { for y in 0..<6 { for x in 0..<8 {
             let event = fixture.canonical[f].event(x: x, y: y)
             let expected = (event.lower + event.upper) / (2 * event.exposure * event.eta)
             maximum = max(maximum, abs(Double(values[(f * 6 + y) * 8 + x]) - expected))
@@ -49,13 +50,14 @@ struct F5CurvatureRAWTests {
         #expect(mismatches == 0)
     }
 
-    @Test(arguments: [1, 4])
-    func censoredCodes_keepDeliveredCentersAndCensorKinds(divisor: Int) throws {
+    @Test(arguments: [1, 4], [CaptureQuality.f5, .balanced])
+    func censoredCodes_keepDeliveredCentersAndCensorKinds(divisor: Int, quality: CaptureQuality) throws {
         let directory = try TestDirectory(), width = 8, height = 6
         let maximum: UInt16 = divisor == 4 ? 16383 : 65535
         let codes = (0..<width * height).map { $0 % 2 == 0 ? UInt16(0) : maximum }
+        let frameCount = try #require(quality.bayerFrameCount)
         let fixture = try F5Fixtures.make(directory: directory.url, width: width, height: height,
-                                         inputFrames: Array(repeating: codes, count: 5), codeDivisor: divisor)
+                                         inputFrames: Array(repeating: codes, count: frameCount), codeDivisor: divisor, quality: quality)
         let device = try F5MetalDevice(maximumBytes: 8 * 1024 * 1024, shaderURL: F5TestContext.shader, isCancelled: { false })
         let uploaded = try fixture.canonical.map { try F5MetalFrame.upload($0, to: device) }
 
@@ -65,7 +67,7 @@ struct F5CurvatureRAWTests {
         let values = decoded.values.metal.contents().assumingMemoryBound(to: Float.self)
         let kinds = decoded.kinds.metal.contents().assumingMemoryBound(to: UInt8.self)
         var maximumError = 0.0, mismatches = 0
-        for f in 0..<5 { for i in 0..<width * height {
+        for f in fixture.canonical.indices { for i in 0..<width * height {
             let x = i % width, y = i / width, frame = fixture.canonical[f]
             let expected = (Double(codes[i]) / Double(divisor) - frame.record.metadata.black(x: x, y: y)) / fixture.profile.whiteScale / frame.exposure
             maximumError = max(maximumError, abs(Double(values[f * width * height + i]) - expected))

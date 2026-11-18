@@ -28,7 +28,7 @@ struct F5NativeBoundaryTests {
         let operations = try device.upload([SIMD4<Float>.zero], label: "No lens operations")
         var configuration = gc_f5_curve_output_config(width: 8, height: 6, scale: 1,
             output_width: 8, output_height: 6, operations: 0, crop_x: 0, crop_y: 0,
-            camera_to_linear: (2,0,0,0,2,0,0,0,2), maximum_bytes: UInt64(device.maximumBytes))
+            camera_to_linear: (2,0,0,0,2,0,0,0,2), highlight_green_white: 0, maximum_bytes: UInt64(device.maximumBytes))
         var error = gc_f5_curve_error()
         let context = try #require(gc_f5_curve_output_create(&configuration,
             Unmanaged.passUnretained(device.device as AnyObject).toOpaque(),

@@ -37,7 +37,7 @@ flowchart TD
 | `App/GlassCam/Camera` | AVFoundation 会话、主摄 Bayer RAW 捕获、双路取景、测光与物理方向 | `CameraController` 发布界面状态；`CameraBackend` 在专用队列操作设备 |
 | `ImagingCore` | 处理配方、源照片与工作文件、RAW 解码、色彩引擎、浮点图像、HEIF 和分享表示 | 为其他 Swift 模块提供共用图像模型，调用 `CHNCS`、`CFFCS`、`CLUMIX` |
 | `Capture` | 两槽队列、单槽事务、相机设置、持久恢复与最近成片缓存 | 通过 `Services` 注入授权、处理和保存，通过 `CaptureFormat` 扩展源照片格式 |
-| `F5` | 单帧／四帧 Bayer RAW 的解码、曲率重建、颜色桥、来源记录、暂存和归档 | 实现 `F5CaptureFormat`，调用 `CMetalF5` 与 Metal，输出交给 `ImagingCore` 编码 |
+| `F5` | 单帧／七帧 Bayer RAW 的解码、曲率重建、颜色桥、来源记录、暂存和归档 | 实现 `F5CaptureFormat`，调用 `CMetalF5` 与 Metal，输出交给 `ImagingCore` 编码 |
 | `Peripheral` | 照片区几何、中心与外围帧配对、可见接缝测量、遮罩和 Metal 呈现 | 接收 App 提供的帧及元数据，输出取景显示状态 |
 | `CHNCS`、`CFFCS`、`CLUMIX` | C++17 参考色彩核和 C ABI | 编译使用 `-fno-fast-math -ffp-contract=off` |
 | `CF5` | 早期样条模型的 CPU 数学参考 | 无生产 Swift 调用，无图像 golden；由 `f5_core_tests` 自检 |
@@ -64,9 +64,9 @@ Xcode 将 `F5Kernels.metal`、`NativeSharpness.metal`、`ColorKernels.metal` 和
 
 | 阶段 | 数据载体 / 格式 | 色彩空间与传递函数 | 白平衡 / 基准曝光 / 用户曝光归属 | 内存驻留形态 |
 |---|---|---|---|---|
-| 主摄源照片 | 14-bit Bayer 码值，UInt16 缓冲及 DNG，Speed 一帧／Balanced 四帧 | 相机 CFA，原始传感器码值 | 硬件固定曝光、ISO、焦点和白平衡；保留 DNG 元数据 | DNG 与整数工作文件；逐帧映射并上传 |
+| 主摄源照片 | 14-bit Bayer 码值，UInt16 缓冲及 DNG，Speed 一帧／Balanced 七帧 | 相机 CFA，原始传感器码值 | 硬件固定曝光、ISO、焦点和白平衡；保留 DNG 元数据 | DNG 与整数工作文件；逐帧映射并上传 |
 | `F5CurvatureRAW` | Float32 归一化样本平面及 UInt8 类别平面 | 相机线性域，统一黑白尺度与相对曝光 | 扣黑、线性化、RAW 校正与帧间曝光归一化；不施加传感器白平衡或用户 EV | 各帧归一化平面驻留 GPU；整数上传缓冲逐帧释放 |
-| 配准与曲率重建 | 位移、光度可靠度；重叠输出条带的 Float32 RGBA | linear-camera；单帧原生密度／四帧双密度 | 单帧自身或四帧第 2 帧为参考；保留有符号值与 HDR | GPU 整组 RAW 加有界 FFT／导引工作区；条带写工作文件 |
+| 配准与曲率重建 | 位移、光度可靠度；重叠输出条带的 Float32 RGBA | linear-camera；单帧原生密度／七帧双密度 | 单帧自身或七帧第 4 帧为参考；保留有符号值与 HDR | GPU 整组 RAW 加有界 FFT／导引工作区；条带写工作文件 |
 | 镜头校正与 `F5ColorBridge` | `ExportRasterFile`；按需另存 `linear-camera.f32` | 相机 RGB → XYZ D50 → D65 扩展线性 sRGB，无显示曲线 | 镜头操作按序；矩阵含一次传感器白平衡与一次 `BaselineExposure` | 镜头与矩阵逐条处理；源／结果文件以 `pread` 分块供给 CI |
 | 公共效果曝光 | Float32 RGB／RGBA 条带或 CI Metal 纹理 | 扩展线性 sRGB | 用户效果曝光在此施加 `2^EV`；当前引擎收到零后端曝光 | C++／NEON 或 Metal 分条执行 |
 | HNCS revision 12 | 有界颜色输入 → Float32 编码工作 RGB → 扩展线性 sRGB | Hasselblad RGB 或 L*RGB 工作原色及曲线 | xy 建虚拟拍摄基线；颜色核后、空间处理前恢复 HDR 幅度；全图共享 `workScale` | 完整 RGB 工作文件；CPU 颜色、GPU 整数锐化和 CPU 结束阶段分条读写 |
@@ -80,7 +80,7 @@ Xcode 将 `F5Kernels.metal`、`NativeSharpness.metal`、`ColorKernels.metal` 和
 ### 从快门到保存
 
 1. **冻结拍摄选择。** `CameraView` 向 `CameraController` 预留当前构图和物理拍摄方向，创建 `CaptureSnapshot`；`CaptureQueue` 分配槽位，其 `CaptureWorkflow` 请求相册添加权限。
-2. **取得源照片。** 授权完成后，工作流调用预留的相机请求。Speed／Balanced 由 `F5CaptureDriver` 在物理主摄原生视角分别取得一帧／四帧 Bayer RAW。终结回调确认源数据和实际构图信息，相机后端另行恢复双摄取景。
+2. **取得源照片。** 授权完成后，工作流调用预留的相机请求。Speed／Balanced 由 `F5CaptureDriver` 在物理主摄原生视角分别取得一帧／七帧 Bayer RAW。终结回调确认源数据和实际构图信息，相机后端另行恢复双摄取景。
 3. **保留可恢复输入。** 工作流把实际构图合入冻结快照，通过该槽位的 `F5CaptureFormat` 和 `CaptureJournal` 保留 `rawReady` 记录。后台操作返回已校验载荷后，空余槽位可接纳另一张照片；相机另需恢复取景。大图处理共享串行许可。
 4. **按需保留调色前结果并生成成片。** F5 先重建场景线性图像，再进入共用的色彩与 HEIF 路径。当快照携带 `rawArchiveID`（开启调色前原片归档开关）时，Balanced 的合成 DNG／线性 TIFF 先由 `CaptureRAWStore` 独立保存，再应用品牌色彩；默认关闭时不写出调色前原片。最终输出统一为约 24MP 的 10 位 HDR HEIF，详见 [图像管线与成片导出](image-pipeline.md) 和 [F5](f5.md)。
 5. **保留编码结果。** 工作流从成片生成回看图像，并将 HEIF、尺寸与处理后的快照写入记录，进入 `encodedReady`。后续保存重试复用这份编码文件。

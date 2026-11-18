@@ -49,7 +49,7 @@ struct gc_f5_curve_registration {
     void release(__strong id<MTLBuffer> &buffer) { allocated-=buffer.length; buffer=nil; }
     gc_f5_curve_registration(const gc_f5_curve_registration_config &c,void *d,void *l,void *r,void *k):config(c) {
         check(c.width>=4 && c.height>=4 && c.width<=16384 && c.height<=16384 && !(c.width%2) && !(c.height%2) &&
-              c.frames>=1 && c.frames<=5,1,"Invalid Bayer registration dimensions.");
+              c.frames>=1 && c.frames<=7,1,"Invalid Bayer registration dimensions.");
         device=(__bridge id<MTLDevice>)d; id<MTLLibrary> library=(__bridge id<MTLLibrary>)l;
         raw=(__bridge id<MTLBuffer>)r; kinds=(__bridge id<MTLBuffer>)k;
         check(device && library && raw && kinds && raw.device==device && kinds.device==device &&

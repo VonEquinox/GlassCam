@@ -82,6 +82,7 @@ struct gc_f5_curve_output {
                 c.crop_x + double(c.output_width) / c.scale <= c.width && c.crop_y + double(c.output_height) / c.scale <= c.height,
                 1, "Invalid curvature color output dimensions.");
         for (float value : c.camera_to_linear) require(std::isfinite(value), 1, "Invalid curvature camera color matrix.");
+        require(std::isfinite(c.highlight_green_white) && c.highlight_green_white >= 0, 1, "Invalid curvature highlight white.");
         device = (__bridge id<MTLDevice>)d; id<MTLLibrary> library = (__bridge id<MTLLibrary>)l; operations = (__bridge id<MTLBuffer>)o;
         require(device && library && operations && operations.device == device && operations.length >= size_t(c.operations) * 128,
                 1, "Curvature post-operation buffer is incomplete.");
@@ -129,7 +130,8 @@ struct gc_f5_curve_output {
         const auto cancelled = [&] { if (callbacks && callbacks->cancelled && callbacks->cancelled(callbacks->context)) throw OutputFailure{4, "Curvature color output cancelled."}; };
         cancelled();
         OutputParameters p{{config.width * config.scale, config.height * config.scale, config.scale, config.operations},
-            {config.output_width, config.output_height, 0, 0}, {}, {config.crop_x, config.crop_y, 0, 0}, {}, {}};
+            {config.output_width, config.output_height, 0, 0}, {},
+            {config.crop_x, config.crop_y, config.highlight_green_white, 0}, {}, {}};
         for (unsigned c = 0; c < 3; ++c) p.color[c] = {config.camera_to_linear[c * 3], config.camera_to_linear[c * 3 + 1], config.camera_to_linear[c * 3 + 2], 0};
         struct PendingTile {
             OutputParameters parameters;

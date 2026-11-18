@@ -70,27 +70,31 @@ struct F5CurvatureRegistrationTests {
             kinds: device.upload([UInt8](repeating: 0, count: values.count), label: "Normal RAW sample kinds"))
     }
 
-    @Test(arguments: [SIMD2<Float>(2,-1),SIMD2<Float>(-0.6,0.4)])
-    func localRegistration_recoversKnownSubpixelTranslation(shift: SIMD2<Float>) throws {
-        let result = try register(shifts: [.zero,shift])
+    @Test(arguments: [SIMD2<Float>(2,-1),SIMD2<Float>(-0.6,0.4)], [2, 7])
+    func localRegistration_recoversKnownSubpixelTranslation(shift: SIMD2<Float>, frameCount: Int) throws {
+        let result = try register(shifts: [.zero] + Array(repeating: shift, count: frameCount - 1))
         let buffer = result.flow
         defer { withExtendedLifetime(buffer) {} }
         let flow = buffer.metal.contents().assumingMemoryBound(to: SIMD2<Float>.self)
-        let errors = (4..<12).flatMap { y in (4..<12).map { x in
-            let delta = flow[256 + y * 16 + x] - shift
-            return sqrt(delta.x * delta.x + delta.y * delta.y)
-        } }.sorted()
+        let errors = (1..<frameCount).flatMap { frame in
+            (4..<12).flatMap { y in (4..<12).map { x in
+                let delta = flow[frame * 256 + y * 16 + x] - shift
+                return sqrt(delta.x * delta.x + delta.y * delta.y)
+            } }
+        }.sorted()
         // The tolerance is below one quarter of a native sensor pixel.
         #expect(errors[errors.count / 2] < 0.2)
     }
 
-    @Test func movingObject_rejectsInconsistentCompanionSamples() throws {
-        let result = try register(shifts: [.zero,.zero], movingObject: true)
+    @Test(arguments: [2, 7])
+    func movingObject_rejectsInconsistentCompanionSamples(frameCount: Int) throws {
+        let result = try register(shifts: Array(repeating: .zero, count: frameCount), movingObject: true)
         let buffer = result.reliability
         defer { withExtendedLifetime(buffer) {} }
         let values = buffer.metal.contents().assumingMemoryBound(to: Float.self)
-        let object = (56..<72).flatMap { y in (56..<72).map { x in values[16384 + y * 128 + x] } }
-        let staticRegion = (16..<32).flatMap { y in (16..<32).map { x in values[16384 + y * 128 + x] } }
+        let lastFrame = (frameCount - 1) * 16384
+        let object = (56..<72).flatMap { y in (56..<72).map { x in values[lastFrame + y * 128 + x] } }
+        let staticRegion = (16..<32).flatMap { y in (16..<32).map { x in values[lastFrame + y * 128 + x] } }
 
         #expect(object.reduce(0,+) / Float(object.count) < 0.05)
         #expect(staticRegion.reduce(0,+) / Float(staticRegion.count) > 0.8)

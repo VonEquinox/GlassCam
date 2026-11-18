@@ -1,6 +1,6 @@
 # GlassCam
 
-GlassCam 是以 SwiftUI、AVFoundation、Metal 和 C++17 开发的 iPhone 相机，支持物理主摄原生视角的 Speed 单帧 Bayer RAW、Balanced 四帧曲率重建、HNCS／FFCS／LUMIX 色彩处理，以及 24MP 10-bit HDR HEIF 保存、回看和分享。运行需要 iOS 27.0，构建需要 macOS 和 Xcode 27，数值测试使用 `uv`。
+GlassCam 是以 SwiftUI、AVFoundation、Metal 和 C++17 开发的 iPhone 相机，支持物理主摄原生视角的 Speed 单帧 Bayer RAW、Balanced 七帧曲率重建、HNCS／FFCS／LUMIX 色彩处理，以及 24MP 10-bit HDR HEIF 保存、回看和分享。运行需要 iOS 27.0，构建需要 macOS 和 Xcode 27，数值测试使用 `uv`。
 
 ## 构建与测试
 

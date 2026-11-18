@@ -16,7 +16,7 @@ enum F5CurvatureOutput {
     }
     static func write(_ input: F5CurvatureRaster.Result, nativeWidth: Int, nativeHeight: Int,
                       metadata: F5DNGMetadata, matrix: [Double], device: F5MetalDevice,
-                      includeCamera: Bool = true,
+                      includeCamera: Bool = true, highlightGreenWhite: Float = 0,
                       progress: @escaping (Double) -> Void = { _ in }) throws -> Result {
         if device.isCancelled() { throw CancellationError() }
         guard nativeWidth > 0, nativeHeight > 0, input.width % nativeWidth == 0,
@@ -35,7 +35,8 @@ enum F5CurvatureOutput {
         var configuration = gc_f5_curve_output_config(width: UInt32(nativeWidth), height: UInt32(nativeHeight), scale: UInt32(scale),
             output_width: UInt32(width), output_height: UInt32(height), operations: UInt32(post.ids.count),
             crop_x: Float(metadata.cropOrigin[0]), crop_y: Float(metadata.cropOrigin[1]),
-            camera_to_linear: (m[0],m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8]), maximum_bytes: UInt64(device.maximumBytes - device.allocatedBytes))
+            camera_to_linear: (m[0],m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8]),
+            highlight_green_white: highlightGreenWhite, maximum_bytes: UInt64(device.maximumBytes - device.allocatedBytes))
         var error = gc_f5_curve_error()
         guard let context = gc_f5_curve_output_create(&configuration,
             Unmanaged.passUnretained(device.device as AnyObject).toOpaque(),

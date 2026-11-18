@@ -6,7 +6,7 @@ final class F5CurvatureNative {
     let handle: OpaquePointer
     private let allocation: F5ExternalMetalAllocation
 
-    init(device: F5MetalDevice, width: Int, height: Int, scale: Int, capacity: Int, planes: Int = 20, slots: Int = 2,
+    init(device: F5MetalDevice, width: Int, height: Int, scale: Int, capacity: Int, planes: Int = 28, slots: Int = 2,
          estimateColorPrior: Bool = false) throws {
         if device.isCancelled() { throw CancellationError() }
         var configuration = gc_f5_curve_config(width: UInt32(width), height: UInt32(height), scale: UInt32(scale),

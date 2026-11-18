@@ -371,12 +371,12 @@
         }
       }
     },
-    "Balanced combines four equal-exposure Bayer RAW frames with curvature reconstruction, then exports at 24 MP.": {
+    "Balanced combines seven equal-exposure Bayer RAW frames with curvature reconstruction, then exports at 24 MP.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Balanced 合成四张等曝光 Bayer RAW，使用曲率重建，最终输出 24MP。"
+            "value": "Balanced 合成七张等曝光 Bayer RAW，使用曲率重建，最终输出 24MP。"
           }
         }
       }
@@ -391,22 +391,22 @@
         }
       }
     },
-    "Balanced · 4 RAW": {
+    "Balanced · 7 RAW": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Balanced · 4 帧 RAW"
+            "value": "Balanced · 7 帧 RAW"
           }
         }
       }
     },
-    "Balanced · 4 RAW · 24 MP output": {
+    "Balanced · 7 RAW · 24 MP output": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Balanced · 4 帧 RAW · 24MP 输出"
+            "value": "Balanced · 7 帧 RAW · 24MP 输出"
           }
         }
       }
@@ -621,12 +621,12 @@
         }
       }
     },
-    "Choose single RAW Speed or four-frame Balanced": {
+    "Choose single RAW Speed or seven-frame Balanced": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择单张 RAW 的 Speed 或四帧合成的 Balanced"
+            "value": "选择单张 RAW 的 Speed 或七帧合成的 Balanced"
           }
         }
       }
@@ -2361,12 +2361,12 @@
         }
       }
     },
-    "Speed captures one RAW; Balanced combines four equal-exposure RAW frames. Both use the main camera's native view.": {
+    "Speed captures one RAW; Balanced combines seven equal-exposure RAW frames. Both use the main camera's native view.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Speed 拍摄单张 RAW；Balanced 合成四张等曝光 RAW。两者均使用主摄原生视角。"
+            "value": "Speed 拍摄单张 RAW；Balanced 合成七张等曝光 RAW。两者均使用主摄原生视角。"
           }
         }
       }

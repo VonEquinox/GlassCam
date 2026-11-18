@@ -44,7 +44,7 @@ final class F5CurvatureRaster {
         }
     }
 
-    private func reconstruct(width: Int, height: Int, scale: Int, batchSize: Int, planes: Int = 20,
+    private func reconstruct(width: Int, height: Int, scale: Int, batchSize: Int, planes: Int = 28,
                              estimateColorPrior: Bool, progress: @escaping (Double) -> Void,
                              prepare: @escaping F5CurvatureProvider.Prepare) throws -> Result {
         guard width > 0, height > 0, width <= 16384, height <= 16384,

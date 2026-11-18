@@ -22,7 +22,7 @@ final class F5CurvatureRAW {
     init(count: Int, width: Int, height: Int, device: F5MetalDevice,
          frameProvider: (Int) throws -> F5MetalFrame) throws {
         if device.isCancelled() { throw CancellationError() }
-        guard (1...5).contains(count), width >= 4, height >= 4 else {
+        guard (1...7).contains(count), width >= 4, height >= 4 else {
             throw F5Failure(.damagedBundle, "Curvature RAW frame dimensions disagree.")
         }
         self.width = width; self.height = height; self.frames = count; self.device = device

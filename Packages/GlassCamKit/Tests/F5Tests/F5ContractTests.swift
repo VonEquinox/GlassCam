@@ -6,13 +6,13 @@ import Foundation
 import GlassCamTestSupport
 
 struct F5ContractTests {
-    @Test func sceneRecording_usesFourFramesAndDoesNotBecomePendingPhoto() throws {
+    @Test func sceneRecording_usesSevenFramesAndDoesNotBecomePendingPhoto() throws {
         let work = try TestDirectory()
         let snapshot = CaptureSnapshot(recipe: .standard,output: .native,quality: .balanced,rawArchiveID: UUID())
 
         let transaction = try F5BurstTransaction(snapshot: snapshot,purpose: "scene",root: work.url)
 
-        #expect(transaction.frameCount == 4)
+        #expect(transaction.frameCount == 7)
         #expect(try F5BurstTransaction.pendingProduct(root: work.url) == nil)
     }
 
@@ -29,7 +29,9 @@ struct F5ContractTests {
     @Test func elevenFrameProbe_groupsWithoutExceedingHardwareLimit() throws {
         #expect(try F5ExposurePlan.groups(maxBracketCount: 3,frameCount: 11) == [[0,1,2],[3,4,5],[6,7,8],[9,10]])
     }
-    @Test(arguments: [(1,3,[[0]]),(4,3,[[0,1,2],[3]]),(4,2,[[0,1],[2,3]])])
+    @Test(arguments: [(1,3,[[0]]),(7,3,[[0,1,2],[3,4,5],[6]]),
+                      (7,2,[[0,1],[2,3],[4,5],[6]]),(7,1,[[0],[1],[2],[3],[4],[5],[6]]),
+                      (7,11,[[0,1,2,3,4,5,6]])])
     func bayerFrameBudget_obeysBracketLimit(input: (Int,Int,[[Int]])) throws {
         #expect(try F5ExposurePlan.groups(maxBracketCount: input.1,frameCount: input.0) == input.2)
     }
@@ -43,20 +45,45 @@ struct F5ContractTests {
         #expect(plan.iso == iso)
         #expect(plan.flags.isEmpty)
     }
-    @Test func syntheticBurst_preservesFiveFrameRequestBudget() throws {
-        let context = try F5TestContext()
+    @Test func balancedBurst_retainsSevenEqualExposureFrames() throws {
+        let context = try F5TestContext(quality: .balanced)
+        defer { withExtendedLifetime(context) {} }
         let manifest = context.fixture.source.manifest
+
         #expect(try manifest.validate(directory: context.fixture.source.directory).isEmpty)
-        #expect(manifest.frames.count == 5)
-        #expect(manifest.requestOrder == [0, 1, 2, 3, 4])
+        #expect(manifest.requestOrder == [0, 1, 2, 3, 4, 5, 6])
+        #expect(Set(manifest.frames.map(\.actualExposure)) == [0.008])
+    }
+    @Test func balancedBurst_missingLastBracketDoesNotPublish() throws {
+        let context = try F5TestContext(quality: .balanced)
+        defer { withExtendedLifetime(context) {} }
+        let fixture = context.fixture, snapshot = CaptureSnapshot(recipe: .standard, output: .camera24(), quality: .balanced)
+        let transaction = try F5BurstTransaction(snapshot: snapshot, purpose: "product", root: context.work.url)
+        for (index, group) in try F5ExposurePlan.groups(maxBracketCount: 3, frameCount: 7).enumerated() {
+            try transaction.register(requestID: Int64(101 + index), indices: group)
+        }
+        for frame in fixture.source.manifest.frames.prefix(6) {
+            try transaction.append(frame, dng: Data(contentsOf: frame.dng.url(in: fixture.source.directory)),
+                                   mosaic: Data(contentsOf: frame.mosaic.url(in: fixture.source.directory)))
+        }
+        try transaction.finishRequest(101, error: nil)
+        try transaction.finishRequest(102, error: nil)
+
+        let error = #expect(throws: F5Failure.self) {
+            try transaction.commit(hardware: fixture.profile.hardwareModel, osBuild: fixture.profile.osBuild,
+                synthetic: true, flags: [], profile: fixture.profile, framing: fixture.source.manifest.framing)
+        }
+
+        #expect(error?.code == .frameMissing)
+        #expect(!FileManager.default.fileExists(atPath: transaction.directory.appendingPathComponent("burst.json").path))
     }
     @Test func identicalCallback_isDeduplicatedAndCommitReusesSource() throws {
         let context = try F5TestContext()
         #expect(context.fixture.duplicateAppendResults == [false])
         #expect(context.fixture.source === context.fixture.repeatedSource)
     }
-    @Test(arguments: [(3, [[0, 1, 2], [3, 4]]), (2, [[0, 1], [2, 3], [4]])])
-    func bracketLimit_preservesFiveFrameSequence(input: (Int, [[Int]])) throws {
+    @Test(arguments: [(3, [[0, 1, 2], [3, 4, 5], [6]]), (2, [[0, 1], [2, 3], [4, 5], [6]])])
+    func defaultBracketPlan_preservesSevenFrameSequence(input: (Int, [[Int]])) throws {
         #expect(try F5ExposurePlan.groups(maxBracketCount: input.0) == input.1)
     }
     @Test func uncalibratedExposurePlan_marksMeteringAndMotionUncertainty() throws {

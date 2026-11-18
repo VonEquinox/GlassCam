@@ -72,8 +72,8 @@ enum F5ImagePipeline {
     static func archiveRAW(_ source: F5BurstSource,snapshot: CaptureSnapshot,
                            progress: @escaping @Sendable (Double) -> Void,isCancelled: @escaping @Sendable () -> Bool,
                            shaderURL: URL? = nil,archiveRoot: URL? = nil) throws -> URL {
-        guard snapshot.quality == .balanced, source.manifest.frames.count == 4, snapshot.rawArchiveID != nil else {
-            throw F5Failure(.damagedBundle,"RAW scene recording requires a four-frame Balanced capture and an archive ID.")
+        guard snapshot.quality == .balanced, source.manifest.frames.count == snapshot.quality.bayerFrameCount, snapshot.rawArchiveID != nil else {
+            throw F5Failure(.damagedBundle,"RAW scene recording requires a seven-frame Balanced capture and an archive ID.")
         }
         let reconstruction = try autoreleasepool {
             try F5Reconstructor.reconstruct(source,shaderURL:shaderURL,progress: { progress($0 * 0.9) },isCancelled:isCancelled)
@@ -118,10 +118,11 @@ enum F5Reconstructor {
         }
         let all = manifest.frames.sorted { $0.burstIndex < $1.burstIndex }
         let mains = all.filter { $0.role == .main }
-        guard [1,4].contains(mains.count) else { throw F5Failure(.frameMissing, "Bayer rendering requires one or four main frames.") }
-        // The second main frame is the temporal reference used by the selected
-        // curvature reconstruction. C++ consumes reference-first frame order.
-        let reference = mains[min(1,mains.count - 1)]
+        guard [1,7].contains(mains.count), let reference = manifest.referenceFrame else {
+            throw F5Failure(.frameMissing, "Bayer rendering requires one or seven main frames.")
+        }
+        // The middle main frame anchors both reconstruction and source metadata.
+        // C++ consumes reference-first frame order.
         let ordered = [reference] + mains.filter { $0.id != reference.id }
         let profile: F5DeviceProfile
         if let supplied = manifest.profile { profile = supplied }
@@ -142,7 +143,9 @@ enum F5Reconstructor {
         let color = try F5ColorBridge.rendering(metadata: reference.metadata, profile: profile)
         let device = try F5MetalDevice(maximumBytes: profile.policy.maximumWorkingBytes, shaderURL: shaderURL, isCancelled: isCancelled)
         let times = mains.map(\.actualExposure).sorted()
-        let exposure = times.count == 1 ? times[0] : (times[1] + times[2]) / 2
+        let exposure = times[times.count / 2]
+        let highlightGreenWhite = manifest.profile == nil ? F5BayerModel.highlightGreenWhite(reference.metadata,
+            relativeExposure: reference.actualExposure / exposure) : 0
         let result = try autoreleasepool {
             try cameraRaster(ordered, source: source, profile: profile, mainExposure: exposure,
                              scale: scale, device: device, progress: { progress($0 * 0.85) })
@@ -154,7 +157,7 @@ enum F5Reconstructor {
             flags: flags.sorted { $0.rawValue < $1.rawValue }, objectiveEpochs: [], tiles: result.tiles)
         let output = try F5CurvatureOutput.write(result.raster, nativeWidth: width, nativeHeight: height,
             metadata: reference.metadata, matrix: color.cameraToLinearSRGB.values, device: device,
-            includeCamera: retainCamera,
+            includeCamera: retainCamera, highlightGreenWhite: highlightGreenWhite,
             progress: { progress(0.85 + $0 * 0.15) })
         if retainCamera {
             try persistCamera(output, reference: reference, color: color, scale: scale, directory: source.directory)

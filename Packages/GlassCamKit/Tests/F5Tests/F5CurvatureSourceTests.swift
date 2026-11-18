@@ -44,11 +44,12 @@ struct F5CurvatureSourceTests {
     private func device() throws -> F5MetalDevice {
         try F5MetalDevice(maximumBytes: 32 * 1024 * 1024, shaderURL: F5TestContext.shader, isCancelled: { false })
     }
+    private let shifts: [SIMD2<Float>] = [.zero, .init(0.25,0.5), .init(-0.5,0.25), .init(0.75,-0.5),
+                                         .init(-0.75,0.25), .init(0.5,0.75), .init(-0.25,-0.5)]
     private func source(device: F5MetalDevice, pattern: [UInt32], wave: Bool,
                         invalidReliability: Float? = nil, cameraConstant: Bool = false,
                         width: Int = 80, height: Int = 80) throws -> F5CurvatureBayerSource {
-        let frames = 4, tiles = ((width + 15) / 16) * ((height + 15) / 16)
-        let shifts: [SIMD2<Float>] = [.zero, .init(0.25,0.5), .init(-0.5,0.25), .init(0.75,-0.5)]
+        let frames = shifts.count, tiles = ((width + 15) / 16) * ((height + 15) / 16)
         let base = SIMD3<Float>(0.2,0.3,0.4), slope = SIMD2<Float>(0.0002,0.0003)
         let raw = (0..<frames * width * height).map { i -> Float in
             let f = i / (width * height), x = i % width, y = i / width % height
@@ -68,7 +69,7 @@ struct F5CurvatureSourceTests {
     @Test(arguments: [[UInt32(0),1,1,2], [UInt32(2),1,1,0], [UInt32(1),0,2,1], [UInt32(1),2,0,1]])
     func translatedBayerRamp_preparesCameraStatisticsAndUnwindowedSamples(pattern: [UInt32]) throws {
         let device = try device(), source = try source(device: device, pattern: pattern, wave: true)
-        let native = try F5CurvatureNative(device: device, width: 0, height: 0, scale: 1, capacity: 1, planes: 16, slots: 1, estimateColorPrior: true)
+        let native = try F5CurvatureNative(device: device, width: 0, height: 0, scale: 1, capacity: 1, planes: 28, slots: 1, estimateColorPrior: true)
         defer { withExtendedLifetime(native) {} }
         var input = gc_f5_curvature_input(native.handle, 0), origin = gc_f5_curve_origin(x: 16, y: 16)
 
@@ -82,8 +83,7 @@ struct F5CurvatureSourceTests {
             let expectedVariance: Float = (0.0002 * 0.0002 + 0.0003 * 0.0003) * 85.25
             varianceError = max(varianceError, abs(input.statistics[c] - expectedVariance))
         }
-        let shifts: [SIMD2<Float>] = [.zero, .init(0.25,0.5), .init(-0.5,0.25), .init(0.75,-0.5)]
-        for row in 0..<16 {
+        for row in 0..<28 {
             let phase = row % 4, shift = shifts[row / 4], channel = Int(pattern[phase])
             let base = SIMD3<Float>(0.2,0.3,0.4)[channel]
             let position = SIMD2(input.models[row * 4], input.models[row * 4 + 1])
@@ -120,14 +120,14 @@ struct F5CurvatureSourceTests {
     @Test(arguments: [[UInt32(0),1,1,2], [UInt32(2),1,1,0]])
     func reflectedSourceBoundary_preservesCFAPlaneColors(pattern: [UInt32]) throws {
         let device = try device(), source = try source(device: device, pattern: pattern, wave: false, cameraConstant: true)
-        let native = try F5CurvatureNative(device: device, width: 0, height: 0, scale: 1, capacity: 1, planes: 16, slots: 1, estimateColorPrior: true)
+        let native = try F5CurvatureNative(device: device, width: 0, height: 0, scale: 1, capacity: 1, planes: 28, slots: 1, estimateColorPrior: true)
         defer { withExtendedLifetime(native) {} }
         var input = gc_f5_curvature_input(native.handle, 0), origin = gc_f5_curve_origin(x: -16, y: -16)
 
         try source.prepare(origins: &origin, count: 1, input: &input)
 
         let base = SIMD3<Float>(0.2,0.3,0.4)
-        let samples = UnsafeBufferPointer(start: input.samples, count: 16 * 256)
+        let samples = UnsafeBufferPointer(start: input.samples, count: 28 * 256)
         let maximum = samples.enumerated().reduce(Float(0)) { maximum, entry in
             max(maximum, abs(entry.element - base[Int(pattern[entry.offset / 256 % 4])]))
         }
@@ -139,7 +139,7 @@ struct F5CurvatureSourceTests {
     func sensorEdgeGuide_preservesConstantCameraColour(pattern: [UInt32], position: SIMD2<Int32>) throws {
         let device = try device()
         let source = try source(device: device, pattern: pattern, wave: false, cameraConstant: true)
-        let native = try F5CurvatureNative(device: device, width: 0, height: 0, scale: 1, capacity: 1, planes: 16, slots: 1, estimateColorPrior: true)
+        let native = try F5CurvatureNative(device: device, width: 0, height: 0, scale: 1, capacity: 1, planes: 28, slots: 1, estimateColorPrior: true)
         defer { withExtendedLifetime(native) {} }
         var input = gc_f5_curvature_input(native.handle, 0)
         var origin = gc_f5_curve_origin(x: position.x, y: position.y)
@@ -167,7 +167,7 @@ struct F5CurvatureSourceTests {
 
         retained = nil
 
-        #expect(activeBytes >= 4 * 80 * 80 * 4)
+        #expect(activeBytes >= 7 * 80 * 80 * 4)
         #expect(device.allocatedBytes == 0)
         withExtendedLifetime(retained) {}
     }

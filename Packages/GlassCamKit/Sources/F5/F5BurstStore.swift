@@ -18,7 +18,7 @@ public final class F5BurstSource: CapturePayload, @unchecked Sendable {
     init(directory: URL, manifest: F5BurstManifest, validationFlags: Set<F5Code>) {
         self.directory = directory; self.manifest = manifest; self.validationFlags = validationFlags
     }
-    var referenceDNG: URL? { try? (manifest.frames.first(where: { $0.burstIndex == 1 }) ?? manifest.frames.first)?.dng.url(in: directory) }
+    var referenceDNG: URL? { try? manifest.referenceFrame?.dng.url(in: directory) }
 }
 
 /// One transaction owns the budget, including across split brackets. Files are
@@ -57,7 +57,7 @@ public final class F5BurstTransaction: @unchecked Sendable {
     public let frameCount: Int
 
     public init(snapshot: CaptureSnapshot?, purpose: String, root: URL? = nil) throws {
-        frameCount = purpose == "probe" ? 11 : (snapshot?.quality.bayerFrameCount ?? 5)
+        frameCount = purpose == "probe" ? 11 : (snapshot?.quality.bayerFrameCount ?? 7)
         id = UUID()
         let base: URL
         if let root { base = root }

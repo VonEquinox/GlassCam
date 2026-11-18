@@ -3,6 +3,13 @@ import Foundation
 /// DNG characterization for the current sensor delivery. A metadata-derived
 /// model does not claim the independent qualification of an imported profile.
 enum F5BayerModel {
+    static func highlightGreenWhite(_ metadata: F5DNGMetadata, relativeExposure: Double) -> Float {
+        guard let black = metadata.blackLevel.first, metadata.blackLevel.allSatisfy({ $0 == black }),
+              metadata.blackDeltaH.isEmpty, metadata.blackDeltaV.isEmpty, metadata.linearization.isEmpty,
+              !metadata.opcodes.contains(where: { $0.list == 2 && $0.id == 9 }) else { return 0 }
+        return Float(1 / relativeExposure)
+    }
+
     static func make(_ frame: F5FrameRecord, hardware: String, os: String) throws -> F5DeviceProfile {
         let m = frame.metadata
         try F5BayerLayout.validate(fourCC: frame.rawFourCC, metadata: m)
